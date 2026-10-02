@@ -87,13 +87,7 @@ async function generate(names = []) {
 		`[types] generating ${names.length ? names.join(', ') + ' and dependents' : 'workspace declarations'}`,
 	)
 
-	return start('pnpm', [
-		'-r',
-		...filters,
-		'--if-present',
-		'run',
-		'typegen',
-	]).done
+	return start('pnpm', ['-r', ...filters, '--if-present', 'run', 'typegen']).done
 }
 
 async function refresh() {

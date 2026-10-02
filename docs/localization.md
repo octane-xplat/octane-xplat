@@ -107,9 +107,7 @@ startup, before first render:
 ```ts
 import { catalogsFromGlob, initLingui } from '@octane-xplat/lingui'
 
-const catalogs = catalogsFromGlob(
-	import.meta.glob('../locales/*/messages', { query: '?lingui' }),
-)
+const catalogs = catalogsFromGlob(import.meta.glob('../locales/*/messages', { query: '?lingui' }))
 
 await initLingui({
 	catalogs,
@@ -179,10 +177,10 @@ matching step as a standalone pure function.
 
 The system source is per target:
 
-| Target | Source |
-| --- | --- |
-| web, linux | `navigator.language` |
-| iOS, Android | `@nativescript/core` `Device.language` |
+| Target         | Source                                           |
+| -------------- | ------------------------------------------------ |
+| web, linux     | `navigator.language`                             |
+| iOS, Android   | `@nativescript/core` `Device.language`           |
 | macOS, Windows | `Intl.DateTimeFormat().resolvedOptions().locale` |
 
 ## Verification status

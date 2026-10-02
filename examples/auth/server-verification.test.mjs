@@ -42,7 +42,9 @@ test('hosted exchange rejects wrong callback, duplicate parameters, mismatched s
 	const handler = hostedVerification({
 		callbackBase: 'sample://auth/callback',
 		consumeAttempt: async () => {
-			if (consumed) {return null}
+			if (consumed) {
+				return null
+			}
 			consumed = true
 			return { state: 'expected', pkceVerifier: 'server-only' }
 		},

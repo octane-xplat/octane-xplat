@@ -56,7 +56,7 @@ select a named target directly. A target can look like this:
 				}
 			}
 		}
-  }
+	}
 }
 ```
 
@@ -65,9 +65,9 @@ generated directory, then map their generated output path explicitly:
 
 ```json
 {
-  "overrides": {
-    "Button.d.ts": "types/overrides/Button.d.ts"
-  }
+	"overrides": {
+		"Button.d.ts": "types/overrides/Button.d.ts"
+	}
 }
 ```
 
@@ -113,11 +113,11 @@ Run the same gate from `prepack` so `pnpm pack` and publication share it:
 
 ```json
 {
-  "scripts": {
-    "typegen": "tsrx-typegen --target octane",
-    "build": "vite build && pnpm typegen",
-    "prepack": "pnpm build && tsrx-typegen --pack-check"
-  }
+	"scripts": {
+		"typegen": "tsrx-typegen --target octane",
+		"build": "vite build && pnpm typegen",
+		"prepack": "pnpm build && tsrx-typegen --pack-check"
+	}
 }
 ```
 

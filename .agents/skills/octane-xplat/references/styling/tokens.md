@@ -8,13 +8,13 @@ consumers import the same path (export is exact-file, survives packaging).
 
 Core set (extend as needed, keep both themes):
 
-| Token | Used by |
-| --- | --- |
+| Token                                                    | Used by                                                     |
+| -------------------------------------------------------- | ----------------------------------------------------------- |
 | `--color-primary`, `--color-onprimary`, `--color-danger` | `bg-primary`, `text-primary`, `text-onprimary`, `bg-danger` |
-| `--color-surface`, `--color-surface-secondary` | panels and sheet surfaces |
-| `--color-text`, `--color-text-secondary` | foreground and secondary text (`.text-muted`) |
-| `--color-border`, `--color-border-strong` | shared border styles |
-| `--space-4`, `--radius-sm` through `--radius-xl` | spacing and rounded-corner utilities |
+| `--color-surface`, `--color-surface-secondary`           | panels and sheet surfaces                                   |
+| `--color-text`, `--color-text-secondary`                 | foreground and secondary text (`.text-muted`)               |
+| `--color-border`, `--color-border-strong`                | shared border styles                                        |
+| `--space-4`, `--radius-sm` through `--radius-xl`         | spacing and rounded-corner utilities                        |
 
 Dark theme = the same tokens redefined under `.ns-dark`/`.dark` — that's why
 the theme class matters per-root on native (see root-boundaries.md).

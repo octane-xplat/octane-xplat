@@ -39,10 +39,7 @@ test('clean mirror produces no errors or warnings', () => {
 })
 
 test('doc decision without a Silo row is an error', () => {
-	const { errors } = checkDecisions(
-		new Map([[1, docRow('One source tree', 'forced')]]),
-		new Map(),
-	)
+	const { errors } = checkDecisions(new Map([[1, docRow('One source tree', 'forced')]]), new Map())
 
 	assert.equal(errors.length, 1)
 	assert.match(errors[0], /#1: no Silo row/)

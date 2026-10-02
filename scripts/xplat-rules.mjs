@@ -1239,7 +1239,11 @@ const MACOS_PRAGMA = '/** @jsxImportSource @xplat/macos/renderer */'
 // it. JSX-free native leaves (styled, use-store) omit it by
 // design. .macos leaves carry the AppKit renderer pragma instead.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
-	if (!norm(filename).endsWith('.tsrx') || !isNativeFile(filename) || fileExcluded(filename, options)) {
+	if (
+		!norm(filename).endsWith('.tsrx') ||
+		!isNativeFile(filename) ||
+		fileExcluded(filename, options)
+	) {
 		return []
 	}
 

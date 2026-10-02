@@ -37,7 +37,9 @@ function wire() {
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
 			// UIKit can also report a launch URL through openUrl. Keep it
 			// queued for consumeInitialUrl while bootstrap is still pending.
-			if (url === initial) {return}
+			if (url === initial) {
+				return
+			}
 			dispatch(url)
 		})
 
@@ -56,7 +58,9 @@ function wire() {
 			const intent = Application.android.foregroundActivity?.getIntent?.()
 			// A new intent and its resume are one delivery. A later intent
 			// carrying the same URL is a new user action and must navigate.
-			if (!intent || intent === lastIntent || intent.equals?.(lastIntent)) {return}
+			if (!intent || intent === lastIntent || intent.equals?.(lastIntent)) {
+				return
+			}
 			lastIntent = intent
 			dispatch(intent.getDataString?.())
 		})

@@ -46,19 +46,19 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { BottomSheet, type BottomSheetProps } from '@octane-xplat/sheet/web'
+	web: `import { BottomSheet, type BottomSheetProps } from '@octane-xplat/sheet/web'
 const props: BottomSheetProps = { open: true }
 const sheet = <BottomSheet {...props} />
 void sheet
 `,
-	"native": `import { SwiftUIBottomSheet, type SwiftUIBottomSheetProps } from '@octane-xplat/sheet/ios'
+	native: `import { SwiftUIBottomSheet, type SwiftUIBottomSheetProps } from '@octane-xplat/sheet/ios'
 import { MaterialBottomSheet, type MaterialBottomSheetProps } from '@octane-xplat/sheet/android'
 const iosProps: SwiftUIBottomSheetProps = { open: true, detents: ['medium', 'large'] }
 const androidProps: MaterialBottomSheetProps = { open: false }
@@ -70,10 +70,10 @@ void ios
 void android
 void badDetent
 `,
-	"macos": `import { AppKitSheet, type AppKitSheetProps } from '@octane-xplat/sheet/macos'
+	macos: `import { AppKitSheet, type AppKitSheetProps } from '@octane-xplat/sheet/macos'
 const sheet = <AppKitSheet open={true} />
 void sheet
-`
+`,
 }
 
 const extraFiles = {}
@@ -83,53 +83,27 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [],
-		"subpaths": [
-			"./web"
-		]
+	web: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
+		subpaths: ['./web'],
 	},
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		],
-		"subpaths": [
-			"./ios",
-			"./android"
-		]
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+		subpaths: ['./ios', './android'],
 	},
-	"macos": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": [],
-		"subpaths": [
-			"./macos"
-		]
-	}
+	macos: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+		subpaths: ['./macos'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -241,15 +215,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

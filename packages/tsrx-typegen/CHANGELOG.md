@@ -4,18 +4,16 @@
 
 ### Features
 
-- *(tsrx-typegen)* Add emit:false targets for pack-check-only packages
+- _(tsrx-typegen)_ Add emit:false targets for pack-check-only packages
 
 ### Bug Fixes
 
-- *(tsrx-typegen)* Don't count type-only re-exports as declared values
-
+- _(tsrx-typegen)_ Don't count type-only re-exports as declared values
 
 ## [tsrx-typegen-v0.1.0] - 2026-09-29
 
 ### Features
 
-- *(typegen)* Add standalone tsrx declaration tooling
-- *(typegen)* Verify published package declarations
-- *(ui)* Generate declarations with tsrx-typegen
-
+- _(typegen)_ Add standalone tsrx declaration tooling
+- _(typegen)_ Verify published package declarations
+- _(ui)_ Generate declarations with tsrx-typegen

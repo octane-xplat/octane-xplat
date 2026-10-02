@@ -1,2 +1,2 @@
-export * from "./types";
-export { push } from "./push";
+export * from './types'
+export { push } from './push'

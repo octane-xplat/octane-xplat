@@ -28,7 +28,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			"./ios": {
 				"types": "./types/ios/index.d.ts",
@@ -42,7 +41,8 @@
 				"types": "./types/web/index.d.ts",
 				"web": "./dist/web/web/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",

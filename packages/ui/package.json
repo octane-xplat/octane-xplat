@@ -3,20 +3,25 @@
 	"version": "0.8.0",
 	"description": "Cross-platform UI for Octane xplat — shared primitives, stacks, routes and theming across web (DOM), iOS and Android (NativeScript)",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
 		"cross-platform",
+		"design-system",
+		"ios",
+		"nativescript",
+		"octane",
+		"primitives",
 		"ui",
 		"ui-components",
-		"primitives",
-		"design-system",
-		"nativescript",
-		"ios",
-		"android",
-		"web"
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/ui",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/ui"
+	},
 	"files": [
 		"dist",
 		"types",
@@ -148,10 +153,5 @@
 			"ios": "9.1.0",
 			"android": "9.1.0"
 		}
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
-		"directory": "packages/ui"
 	}
 }

@@ -10,16 +10,18 @@ const appRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 const url = 'http://localhost:5201'
 const extraArgs = process.argv.slice(2) // e.g. --self-test
 
-const vite = spawn(
-	'vite', ['--config', 'vite.linux.config.ts', '--port', '5201', '--strictPort'],
-	{ cwd: appRoot, stdio: 'inherit' },
-)
+const vite = spawn('vite', ['--config', 'vite.linux.config.ts', '--port', '5201', '--strictPort'], {
+	cwd: appRoot,
+	stdio: 'inherit',
+})
 
 async function waitForServer() {
 	for (let i = 0; i < 300; i++) {
 		try {
 			const res = await fetch(url)
-			if (res.ok) { return true }
+			if (res.ok) {
+				return true
+			}
 		} catch {}
 
 		await new Promise((r) => setTimeout(r, 100))
@@ -47,13 +49,20 @@ const host = launchHost()
 let exiting = false
 
 function shutdown(code) {
-	if (exiting) { return }
+	if (exiting) {
+		return
+	}
 	exiting = true
 	vite.kill()
 	process.exit(code)
 }
 
 host.on('exit', (code) => shutdown(code ?? 0))
-vite.on('exit', (code) => { if (!exiting) { host.kill(); process.exit(code ?? 0) } })
+vite.on('exit', (code) => {
+	if (!exiting) {
+		host.kill()
+		process.exit(code ?? 0)
+	}
+})
 process.on('SIGINT', () => shutdown(0))
 process.on('SIGTERM', () => shutdown(0))

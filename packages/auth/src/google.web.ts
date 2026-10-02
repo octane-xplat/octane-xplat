@@ -78,7 +78,11 @@ function initialize(google: any) {
 /** Internal — the button leaf renders the official GIS button into `host`. */
 export async function renderGoogleButton(
 	host: HTMLElement,
-	options: { theme?: 'dark' | 'light' | 'auto'; variant?: 'standard' | 'wide' | 'icon'; width?: number },
+	options: {
+		theme?: 'dark' | 'light' | 'auto'
+		variant?: 'standard' | 'wide' | 'icon'
+		width?: number
+	},
 	onResult: (result: SignInResult) => void,
 ): Promise<void> {
 	if (!config.clientId) {

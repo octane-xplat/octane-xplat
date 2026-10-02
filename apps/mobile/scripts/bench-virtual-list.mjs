@@ -41,7 +41,9 @@ for (const modeFile of modeFiles) {
 
 let modeRestored = false
 const restoreMode = () => {
-	if (modeRestored) {return}
+	if (modeRestored) {
+		return
+	}
 	modeFiles.forEach((modeFile, index) => {
 		writeFileSync(modeFile, originalModes[index])
 	})
@@ -52,7 +54,9 @@ const restoreMode = () => {
 process.once('exit', restoreMode)
 
 const deviceId = process.env.XPLAT_VLIST_DEVICE
-if (!deviceId) {throw new Error('Set XPLAT_VLIST_DEVICE')}
+if (!deviceId) {
+	throw new Error('Set XPLAT_VLIST_DEVICE')
+}
 const child = spawn(
 	'python3',
 	[
@@ -79,10 +83,15 @@ const errorMarker = '[vlist-benchmark] error '
 let forceStop
 let benchmarkError = ''
 const signalRun = (signal) => {
-	if (!child.pid) {return}
+	if (!child.pid) {
+		return
+	}
 	try {
-		if (process.platform === 'win32') {child.kill(signal)}
-		else {process.kill(-child.pid, signal)}
+		if (process.platform === 'win32') {
+			child.kill(signal)
+		} else {
+			process.kill(-child.pid, signal)
+		}
 	} catch {}
 }
 
@@ -91,9 +100,15 @@ const stopRun = () => {
 		const appId = process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat.vlistbench'
 		try {
 			if (target === 'ios') {
-				execFileSync('xcrun', ['simctl', 'terminate', deviceId, appId], { timeout: 8000, stdio: 'ignore' })
+				execFileSync('xcrun', ['simctl', 'terminate', deviceId, appId], {
+					timeout: 8000,
+					stdio: 'ignore',
+				})
 			} else {
-				execFileSync('adb', ['-s', deviceId, 'shell', 'am', 'force-stop', appId], { timeout: 8000, stdio: 'ignore' })
+				execFileSync('adb', ['-s', deviceId, 'shell', 'am', 'force-stop', appId], {
+					timeout: 8000,
+					stdio: 'ignore',
+				})
 			}
 		} catch {}
 	}
@@ -134,7 +149,9 @@ const consume = (chunk) => {
 		}
 
 		const at = line.indexOf(marker)
-		if (at === -1) {continue}
+		if (at === -1) {
+			continue
+		}
 		try {
 			result = JSON.parse(line.slice(at + marker.length))
 			clearTimeout(timeout)

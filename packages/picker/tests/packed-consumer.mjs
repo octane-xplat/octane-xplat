@@ -46,14 +46,14 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { Select, type SelectProps } from '@octane-xplat/picker/web'
+	web: `import { Select, type SelectProps } from '@octane-xplat/picker/web'
 const props: SelectProps = { label: 'Fruit', options: [{ value: 'a', label: 'Apple' }] }
 const select = <Select {...props} />
 // @ts-expect-error options is required
@@ -61,7 +61,7 @@ const missing = <Select label="Fruit" />
 void select
 void missing
 `,
-	"native": `import { SwiftUIPicker, type SwiftUIPickerProps } from '@octane-xplat/picker/ios'
+	native: `import { SwiftUIPicker, type SwiftUIPickerProps } from '@octane-xplat/picker/ios'
 import { MaterialDropdown, type MaterialDropdownProps } from '@octane-xplat/picker/android'
 const iosProps: SwiftUIPickerProps = { label: 'Fruit', options: [{ id: 'a', title: 'Apple' }] }
 const androidProps: MaterialDropdownProps = { label: 'Fruit', items: [{ key: 'a', text: 'Apple' }] }
@@ -75,7 +75,7 @@ void ios
 void android
 void badIos
 void badAndroid
-`
+`,
 }
 
 const extraFiles = {}
@@ -85,39 +85,20 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [],
-		"subpaths": [
-			"./web"
-		]
+	web: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
+		subpaths: ['./web'],
 	},
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		],
-		"subpaths": [
-			"./ios",
-			"./android"
-		]
-	}
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+		subpaths: ['./ios', './android'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -229,15 +210,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

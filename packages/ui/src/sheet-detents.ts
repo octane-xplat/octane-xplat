@@ -38,7 +38,7 @@ export function attachSheetDetents(
 
 	// Parentless at attach (before RootLayout.open) — fall back to screen
 	// dips; every gesture-time read uses the real parent height.
-	const vh = () => (host.parent?.getActualSize?.().height || Screen.mainScreen.heightDIPs)
+	const vh = () => host.parent?.getActualSize?.().height || Screen.mainScreen.heightDIPs
 	const max = sorted[sorted.length - 1]
 	let cur = 0
 

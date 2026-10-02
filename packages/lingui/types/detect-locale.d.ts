@@ -1,1 +1,1 @@
-export declare function detectSystemLocale(): string | undefined;
+export declare function detectSystemLocale(): string | undefined

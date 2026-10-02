@@ -1,21 +1,21 @@
 {
 	"name": "@octane-xplat/geolocation",
 	"version": "0.8.0",
-	"description": "Device geolocation for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Device geolocation for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
 		"cross-platform",
 		"geolocation",
-		"location",
 		"gps",
-		"nativescript",
 		"ios",
-		"android",
-		"web"
+		"location",
+		"nativescript",
+		"octane",
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/geolocation",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

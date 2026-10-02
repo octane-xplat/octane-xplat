@@ -89,7 +89,7 @@ is the canonical path builder (`NavLink`’s href). `xplat build` and
 `pushRoute` and `NavLink`; they do not add a shared `useParams` hook.
 
 - **Programmatic routes (decision #67):** `defineRoutes({routes: RouteSpec[],
-  layouts})` builds a `RouteManifest` from data instead of files —
+layouts})` builds a `RouteManifest` from data instead of files —
   `RouteSpec.path` uses the route-dir vocabulary (`'docs/:slug'` or
   `'docs/[slug]'`, trailing `index` drops), `screen` is the component, and
   `loader`/`beforeLoad`/`head`/`presentation` map onto `RouteMeta`. Each
@@ -123,17 +123,17 @@ making the generated API's scalar contract explicit.
 
 ## Original mapping sketch (historical)
 
-| Shared concept                | Web                                                             | Native                                                                    |
-| ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| route table                   | URL ↔ component (@octanejs/tanstack-router or thin file-router) | `Frame.navigate` stack, params passed as context                          |
-| `<Link to="/chat/3">`         | `<a href>`                                                      | `frame.navigate()` + params                                               |
-| `Stack` layout                | history stack                                                   | `frame` pages (real nav transitions)                                      |
-| `Tabs` layout                 | tab bar + outlet                                                | iOS `TabView`; Android fixed tab row + swapped pane                       |
-| `Drawer` layout               | slide-over panel                                                | `ui-drawer` w/ `hostSlot` mains/drawer                                    |
-| `Modal` route                 | overlay route (URL preserved)                                   | `showModal` → **separate Octane root**                                    |
-| `useNavigate()`/`useParams()` | router hooks                                                    | facade over `Frame` API                                                   |
-| back                          | popstate                                                        | `frame.goBack()` + Android `activityBackPressed`                          |
-| deep link                     | URL load                                                        | `Application` lifecycle (openUrl/continueActivity)                        |
+| Shared concept                | Web                                                             | Native                                                                     |
+| ----------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| route table                   | URL ↔ component (@octanejs/tanstack-router or thin file-router) | `Frame.navigate` stack, params passed as context                           |
+| `<Link to="/chat/3">`         | `<a href>`                                                      | `frame.navigate()` + params                                                |
+| `Stack` layout                | history stack                                                   | `frame` pages (real nav transitions)                                       |
+| `Tabs` layout                 | tab bar + outlet                                                | iOS `TabView`; Android fixed tab row + swapped pane                        |
+| `Drawer` layout               | slide-over panel                                                | `ui-drawer` w/ `hostSlot` mains/drawer                                     |
+| `Modal` route                 | overlay route (URL preserved)                                   | `showModal` → **separate Octane root**                                     |
+| `useNavigate()`/`useParams()` | router hooks                                                    | facade over `Frame` API                                                    |
+| back                          | popstate                                                        | `frame.goBack()` + Android `activityBackPressed`                           |
+| deep link                     | URL load                                                        | `Application` lifecycle (openUrl/continueActivity)                         |
 | windows/scenes                | `window.open()`                                                 | `openWindow({data,kind,parent})`; app installs the window content resolver |
 
 The mapping above predates the current API names and shared self-drawn
@@ -262,7 +262,6 @@ the current caller-facing contract.
 > See [reproducible checks](navigation-checks.md) and Silo for criterion-level
 > evidence. Historical release statements below describe their original runs.
 
-
 > **Lab (route dir, web, 2026-09-24):** `packages/app/src/app/` holds the
 > harness routes — `_layout.tsrx` (the Tabs shell, rendered via
 > `layouts['']`), `detail.tsrx`, `demo/[id].tsrx`. `import.meta.glob` +
@@ -275,7 +274,7 @@ the current caller-facing contract.
 > typecheck clean; device run pending.
 
 > **Lab (programmatic routes, web, 2026-09-28):** `packages/app/src/
-> guides.tsrx` builds a manifest from a 3-record data array
+guides.tsrx` builds a manifest from a 3-record data array
 > (`defineRoutes` + `addRoutes`, one route per record, path-keyed
 > `guides` layout). Web smoke covers the seam end-to-end: NavLink push
 > writes `/test/guides`, the index renders inside the named-stack outlet,

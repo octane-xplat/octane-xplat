@@ -42,7 +42,11 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 		// The measured row includes its separator; item-only boxes leave intentional gaps.
 		let row = view
 		for (let parent = view.parent; parent && parent !== list; parent = parent.parent) {
-			if (String(parent.className ?? '').split(' ').includes('vx-virtual-list-row')) {
+			if (
+				String(parent.className ?? '')
+					.split(' ')
+					.includes('vx-virtual-list-row')
+			) {
 				row = parent
 				break
 			}
@@ -58,14 +62,26 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 	})
 
 	const slotBoxes = views.flatMap((view) => {
-		if (!/\bvx-virtual-list-(header|footer|empty)\b/.test(String(view.className ?? ''))) {return []}
+		if (!/\bvx-virtual-list-(header|footer|empty)\b/.test(String(view.className ?? ''))) {
+			return []
+		}
 		const top = Number(view.getLocationOnScreen?.()?.y ?? Number.NaN) - listY
 		const height = Number(view.getActualSize?.()?.height ?? 0)
 		return Number.isFinite(top) && height > 0 ? [{ top, bottom: top + height }] : []
 	})
 
-	const pooledHosts = views.filter((view) => String(view.className ?? '').split(' ').includes('vx-virtual-list-cell'))
-	const hosts = pooledHosts.length ? pooledHosts : views.filter((view) => String(view.className ?? '').split(' ').includes('vx-virtual-list-row'))
+	const pooledHosts = views.filter((view) =>
+		String(view.className ?? '')
+			.split(' ')
+			.includes('vx-virtual-list-cell'),
+	)
+	const hosts = pooledHosts.length
+		? pooledHosts
+		: views.filter((view) =>
+				String(view.className ?? '')
+					.split(' ')
+					.includes('vx-virtual-list-row'),
+			)
 	const mountedCellIds = hosts.map((view) => {
 		const nativeHost = view.nativeViewProtected ?? view
 		let id = hostIds.get(nativeHost)
@@ -136,10 +152,21 @@ export async function runVirtualListInputBenchmark(
 			listId === 'vlist' ? 500 : undefined,
 		)
 
-		const rowWidths = collect(list).filter((view) => String(view.className ?? '').split(' ').includes('vx-virtual-list-row')).map((view) => Number(view.getActualSize?.()?.width ?? 0))
+		const rowWidths = collect(list)
+			.filter((view) =>
+				String(view.className ?? '')
+					.split(' ')
+					.includes('vx-virtual-list-row'),
+			)
+			.map((view) => Number(view.getActualSize?.()?.width ?? 0))
 		return {
-			...result, framePacing: frames.result(),
-			layoutWidths: { viewport: Number(list?.getActualSize?.()?.width ?? 0), rowMin: Math.min(...rowWidths), rowMax: Math.max(...rowWidths) },
+			...result,
+			framePacing: frames.result(),
+			layoutWidths: {
+				viewport: Number(list?.getActualSize?.()?.width ?? 0),
+				rowMin: Math.min(...rowWidths),
+				rowMax: Math.max(...rowWidths),
+			},
 		}
 	} finally {
 		frames.dispose()
@@ -177,7 +204,9 @@ function observeAndroidFrames() {
 		? new android.view.Window.OnFrameMetricsAvailableListener({
 				onFrameMetricsAvailable(_window: any, metrics: any, dropped: number) {
 					// Startup frames are outside the scrolling comparison.
-					if (metrics.getMetric(android.view.FrameMetrics.FIRST_DRAW_FRAME) !== 0) {return}
+					if (metrics.getMetric(android.view.FrameMetrics.FIRST_DRAW_FRAME) !== 0) {
+						return
+					}
 					totals.push(metrics.getMetric(android.view.FrameMetrics.TOTAL_DURATION) / 1e6)
 					layouts.push(metrics.getMetric(android.view.FrameMetrics.LAYOUT_MEASURE_DURATION) / 1e6)
 					draws.push(metrics.getMetric(android.view.FrameMetrics.DRAW_DURATION) / 1e6)
@@ -186,15 +215,18 @@ function observeAndroidFrames() {
 			})
 		: null
 
-	if (listener)
-		{nativeWindow.addOnFrameMetricsAvailableListener(
+	if (listener) {
+		nativeWindow.addOnFrameMetricsAvailableListener(
 			listener,
 			new android.os.Handler(android.os.Looper.getMainLooper()),
-		)}
+		)
+	}
 
 	return {
 		dispose: () => {
-			if (listener) {nativeWindow.removeOnFrameMetricsAvailableListener(listener)}
+			if (listener) {
+				nativeWindow.removeOnFrameMetricsAvailableListener(listener)
+			}
 		},
 		result: () =>
 			listener

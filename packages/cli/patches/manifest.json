@@ -1,91 +1,91 @@
 {
-  "$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` generates the config package's patch files and the template config; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` — the root workspace yaml points here so commit writes land in this dir. Entries with `template: false` target repo-internal environments (e.g. the windows preview matrix) and are omitted from the starter's patchedDependencies — pnpm fails install on declared-but-unused patches.",
-  "patches": [
-    {
-      "specifier": "octane@0.6.3",
-      "file": "octane@0.6.3.patch",
-      "scope": "runtime",
-      "why": "Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep already ship upstream. Routes uncaught universal event-handler errors to onUncaughtError when configured. Pins instance signal/query declarations to their declaring owner so child reads and event handlers share one request. Also allows async and generator helpers that are not components in universal compiler modules, while preserving errors when those functions are used as components (octanejs/octane#1469).",
-      "dropWhen": "An octane release ships universal signal reads and the workspace upgrades to that release and forwards uncaught event-handler errors to the root callback and preserves instance declaration ownership across child readers and the compiler allows async/generator non-component helpers while continuing to reject async/generator components (octanejs/octane#1350)"
-    },
-    {
-      "specifier": "@nativescript/core@9.1.2",
-      "file": "@nativescript__core@9.1.2.patch",
-      "scope": "runtime",
-      "why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins — a column-stretched row re-measurement clamps padded children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last — sans !important). Ports the runtime half of NativeScript PR #11446 (fixes #11444): TabView onItemsChanged keeps retained items attached instead of unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false on iOS and detached from their tab fragment on Android), iOS items writes load the selected item's view once controllers exist, and Frame._pushInFrameStack only promotes frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab frames). Also maps CSS font-weight to the OpenType wght axis for custom Android fonts on API 26+, preserves explicit variation settings, and falls back to the prior file load when the axis is unsupported. Carries NativeScript PR #11481: preserves percentage translate values through parsing and resolves each axis against the view's own dimensions, including native views and animations.",
-      "dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, cascade layers (source lives on research/nativescript feat/css-cascade-layers), and the #11446 nested-tab-frame fix, custom Android variable-font weight mapping, and percentage-translate support from NativeScript/NativeScript#11481"
-    },
-    {
-      "specifier": "@nativescript/types@9.0.0",
-      "file": "@nativescript__types@9.0.0.patch",
-      "scope": "toolchain",
-      "why": "@nativescript/types@9.0.0 omits ambient declarations for the native URL and URLSearchParams globals, so projects without DOM libraries cannot typecheck valid native URL code. Adds runtime-aligned declarations that merge with DOM declarations when both libraries are present.",
-      "dropWhen": "@nativescript/types ships URL and URLSearchParams declarations matching the iOS and Android runtimes, and the workspace upgrades to that release"
-    },
-    {
-      "specifier": "css@3.0.0",
-      "file": "css@3.0.0.patch",
-      "scope": "build",
-      "why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors — rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep — no app declares it directly.",
-      "dropWhen": "npm `css` is unmaintained — drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
-    },
-    {
-      "specifier": "@nativescript/vite@8.0.17",
-      "file": "@nativescript__vite@8.0.17.patch",
-      "scope": "dev",
-      "why": "Dev-server fixes still missing after @nativescript/vite 8.0.17 added percent decoding for path-style /ns/m and Vue /ns/sfc requests (NativeScript#11483): collect re-export specifiers in the .vite/deps rewrite, route /@fs paths outside both roots through /ns/m (linked checkouts bypass the device transform upstream), and probe the non-active platform + `native` suffix tags in module candidates. The deps-bundle esbuild passes ignore vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` → `octane/universal/native`. tsconfig-paths and the generated build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS so `.mobile` leaves resolve under mapped imports and `ns build`.",
-      "dropWhen": "@nativescript/vite handles re-export records in the .vite/deps rewrite, routes outside-roots /@fs paths through /ns/m, probes non-active platform and `native` suffixes, honors resolve.alias in deps-bundle esbuild passes, and adds the .mobile tier to both tsconfig-paths and generated checker moduleSuffixes (the checker tier is tracked as NativeScript#11480)"
-    },
-    {
-      "specifier": "@nativescript-community/octane@0.2.4",
-      "file": "@nativescript-community__octane@0.2.4.patch",
-      "scope": "runtime",
-      "why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending.",
-      "dropWhen": "@nativescript-community/octane ships the undefined-skip and visibility capability"
-    },
-    {
-      "specifier": "@nativescript-community/vite-octane@0.2.1",
-      "file": "@nativescript-community__vite-octane@0.2.1.patch",
-      "scope": "dev",
-      "why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
-      "dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
-    },
-    {
-      "specifier": "@nativescript/vite@8.0.13",
-      "file": "@nativescript__vite@8.0.13.patch",
-      "scope": "dev",
-      "why": "apps/windows pins the @7d0adce pkg.pr.new preview based on @nativescript/vite 8.0.13, so its separate patch carries /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and .mobile-aware tsconfig-paths probing.",
-      "dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
-      "template": false
-    },
-    {
-      "specifier": "@nativescript/core@9.1.3-next.2",
-      "file": "@nativescript__core@9.1.3-next.2.patch",
-      "scope": "runtime",
-      "why": "Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec — applied to the @7d0adce preview. iOS/Android impl-file hunks are dead code on windows and were dropped.",
-      "dropWhen": "upstream ships the fixes and windows moves off the preview pin (NativeScript#11462, #11446, core windows merge)",
-      "template": false
-    },
-    {
-      "specifier": "@tsrx/typescript-plugin@0.4.11",
-      "file": "@tsrx__typescript-plugin@0.4.11.patch",
-      "scope": "toolchain",
-      "why": "Enables `resolveHiddenExtensions` on the language plugin's typescript facet so extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc and the IDE plugin.",
-      "dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
-    },
-    {
-      "specifier": "linkifyjs@4.3.3",
-      "file": "linkifyjs@4.3.3.patch",
-      "scope": "runtime",
-      "why": "linkifyjs declares /\\p{L}/u and /\\p{Emoji}/u as regex literals at module scope; NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks \u2014 same behavior where ICU exists, graceful degradation where it doesn't.",
-      "dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
-    },
-    {
-      "specifier": "@octanejs/tiptap@0.0.51",
-      "file": "@octanejs__tiptap@0.0.51.patch",
-      "scope": "toolchain",
-      "why": "Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global in the harness typecheck program) and './Context' resolves to Context.tsrx \u2014 a self-import \u2014 under suffix-first resolution, so EditorContext/useCurrentEditor were unreachable. Adds a module-local process declaration for typecheck and merges the Context.ts definitions into Context.tsrx.",
-      "dropWhen": "@octanejs/tiptap disambiguates the './Context' specifier upstream (PR octanejs/octane#1502)"
-    }
-  ]
+	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` generates the config package's patch files and the template config; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` — the root workspace yaml points here so commit writes land in this dir. Entries with `template: false` target repo-internal environments (e.g. the windows preview matrix) and are omitted from the starter's patchedDependencies — pnpm fails install on declared-but-unused patches.",
+	"patches": [
+		{
+			"specifier": "octane@0.6.3",
+			"file": "octane@0.6.3.patch",
+			"scope": "runtime",
+			"why": "Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep already ship upstream. Routes uncaught universal event-handler errors to onUncaughtError when configured. Pins instance signal/query declarations to their declaring owner so child reads and event handlers share one request. Also allows async and generator helpers that are not components in universal compiler modules, while preserving errors when those functions are used as components (octanejs/octane#1469).",
+			"dropWhen": "An octane release ships universal signal reads and the workspace upgrades to that release and forwards uncaught event-handler errors to the root callback and preserves instance declaration ownership across child readers and the compiler allows async/generator non-component helpers while continuing to reject async/generator components (octanejs/octane#1350)"
+		},
+		{
+			"specifier": "@nativescript/core@9.1.2",
+			"file": "@nativescript__core@9.1.2.patch",
+			"scope": "runtime",
+			"why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins — a column-stretched row re-measurement clamps padded children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last — sans !important). Ports the runtime half of NativeScript PR #11446 (fixes #11444): TabView onItemsChanged keeps retained items attached instead of unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false on iOS and detached from their tab fragment on Android), iOS items writes load the selected item's view once controllers exist, and Frame._pushInFrameStack only promotes frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab frames). Also maps CSS font-weight to the OpenType wght axis for custom Android fonts on API 26+, preserves explicit variation settings, and falls back to the prior file load when the axis is unsupported. Carries NativeScript PR #11481: preserves percentage translate values through parsing and resolves each axis against the view's own dimensions, including native views and animations.",
+			"dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, cascade layers (source lives on research/nativescript feat/css-cascade-layers), and the #11446 nested-tab-frame fix, custom Android variable-font weight mapping, and percentage-translate support from NativeScript/NativeScript#11481"
+		},
+		{
+			"specifier": "@nativescript/types@9.0.0",
+			"file": "@nativescript__types@9.0.0.patch",
+			"scope": "toolchain",
+			"why": "@nativescript/types@9.0.0 omits ambient declarations for the native URL and URLSearchParams globals, so projects without DOM libraries cannot typecheck valid native URL code. Adds runtime-aligned declarations that merge with DOM declarations when both libraries are present.",
+			"dropWhen": "@nativescript/types ships URL and URLSearchParams declarations matching the iOS and Android runtimes, and the workspace upgrades to that release"
+		},
+		{
+			"specifier": "css@3.0.0",
+			"file": "css@3.0.0.patch",
+			"scope": "build",
+			"why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors — rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep — no app declares it directly.",
+			"dropWhen": "npm `css` is unmaintained — drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
+		},
+		{
+			"specifier": "@nativescript/vite@8.0.17",
+			"file": "@nativescript__vite@8.0.17.patch",
+			"scope": "dev",
+			"why": "Dev-server fixes still missing after @nativescript/vite 8.0.17 added percent decoding for path-style /ns/m and Vue /ns/sfc requests (NativeScript#11483): collect re-export specifiers in the .vite/deps rewrite, route /@fs paths outside both roots through /ns/m (linked checkouts bypass the device transform upstream), and probe the non-active platform + `native` suffix tags in module candidates. The deps-bundle esbuild passes ignore vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` → `octane/universal/native`. tsconfig-paths and the generated build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS so `.mobile` leaves resolve under mapped imports and `ns build`.",
+			"dropWhen": "@nativescript/vite handles re-export records in the .vite/deps rewrite, routes outside-roots /@fs paths through /ns/m, probes non-active platform and `native` suffixes, honors resolve.alias in deps-bundle esbuild passes, and adds the .mobile tier to both tsconfig-paths and generated checker moduleSuffixes (the checker tier is tracked as NativeScript#11480)"
+		},
+		{
+			"specifier": "@nativescript-community/octane@0.2.4",
+			"file": "@nativescript-community__octane@0.2.4.patch",
+			"scope": "runtime",
+			"why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending.",
+			"dropWhen": "@nativescript-community/octane ships the undefined-skip and visibility capability"
+		},
+		{
+			"specifier": "@nativescript-community/vite-octane@0.2.1",
+			"file": "@nativescript-community__vite-octane@0.2.1.patch",
+			"scope": "dev",
+			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
+			"dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
+		},
+		{
+			"specifier": "@nativescript/vite@8.0.13",
+			"file": "@nativescript__vite@8.0.13.patch",
+			"scope": "dev",
+			"why": "apps/windows pins the @7d0adce pkg.pr.new preview based on @nativescript/vite 8.0.13, so its separate patch carries /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and .mobile-aware tsconfig-paths probing.",
+			"dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
+			"template": false
+		},
+		{
+			"specifier": "@nativescript/core@9.1.3-next.2",
+			"file": "@nativescript__core@9.1.3-next.2.patch",
+			"scope": "runtime",
+			"why": "Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec — applied to the @7d0adce preview. iOS/Android impl-file hunks are dead code on windows and were dropped.",
+			"dropWhen": "upstream ships the fixes and windows moves off the preview pin (NativeScript#11462, #11446, core windows merge)",
+			"template": false
+		},
+		{
+			"specifier": "@tsrx/typescript-plugin@0.4.11",
+			"file": "@tsrx__typescript-plugin@0.4.11.patch",
+			"scope": "toolchain",
+			"why": "Enables `resolveHiddenExtensions` on the language plugin's typescript facet so extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc and the IDE plugin.",
+			"dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
+		},
+		{
+			"specifier": "linkifyjs@4.3.3",
+			"file": "linkifyjs@4.3.3.patch",
+			"scope": "runtime",
+			"why": "linkifyjs declares /\\p{L}/u and /\\p{Emoji}/u as regex literals at module scope; NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks \u2014 same behavior where ICU exists, graceful degradation where it doesn't.",
+			"dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
+		},
+		{
+			"specifier": "@octanejs/tiptap@0.0.51",
+			"file": "@octanejs__tiptap@0.0.51.patch",
+			"scope": "toolchain",
+			"why": "Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global in the harness typecheck program) and './Context' resolves to Context.tsrx \u2014 a self-import \u2014 under suffix-first resolution, so EditorContext/useCurrentEditor were unreachable. Adds a module-local process declaration for typecheck and merges the Context.ts definitions into Context.tsrx.",
+			"dropWhen": "@octanejs/tiptap disambiguates the './Context' specifier upstream (PR octanejs/octane#1502)"
+		}
+	]
 }

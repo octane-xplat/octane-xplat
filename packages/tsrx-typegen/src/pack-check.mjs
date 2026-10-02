@@ -262,7 +262,11 @@ function staticRuntimeExports(ts, file, seen = new Set()) {
 		}
 
 		if (ts.isExportDeclaration(statement) && !statement.isTypeOnly) {
-			if (!statement.exportClause && statement.moduleSpecifier && ts.isStringLiteralLike(statement.moduleSpecifier)) {
+			if (
+				!statement.exportClause &&
+				statement.moduleSpecifier &&
+				ts.isStringLiteralLike(statement.moduleSpecifier)
+			) {
 				const target = localSourceModule(absolute, statement.moduleSpecifier.text)
 				if (target) {
 					for (const name of staticRuntimeExports(ts, target, seen)) {
@@ -350,8 +354,7 @@ function compilerExports(ts, program, file, cache = new Map(), pending = new Set
 				ts.sys,
 			).resolvedModule?.resolvedFileName
 
-			const targetExports =
-				target && compilerExports(ts, program, target, cache, pending)
+			const targetExports = target && compilerExports(ts, program, target, cache, pending)
 
 			pending.delete(absolute)
 			for (const name of targetExports?.all ?? []) {

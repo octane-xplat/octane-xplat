@@ -4,7 +4,7 @@
 > explicit package entry point.
 
 `@octane-xplat/context-menu` is the third Expo UI port and the first that
-embeds an octane subtree *inside* the native control: the menu trigger is a
+embeds an octane subtree _inside_ the native control: the menu trigger is a
 detached octane root hosted by the platform view system, while the menu
 content travels as serialized data. The native implementations are adapted
 from `@expo/ui` sdk-57 (`ios/ContextMenu/ContextMenu.swift`,

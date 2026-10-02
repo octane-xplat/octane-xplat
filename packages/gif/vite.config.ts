@@ -8,15 +8,37 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // plugin dep — a .tsrx-source-only package can't be esbuild-bundled there).
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.mobile.ts',
-	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.ios.tsrx',
+	'.android.tsrx',
+	'.mobile.tsrx',
+	'.tsrx',
+	'.ios.tsx',
+	'.android.tsx',
+	'.mobile.tsx',
+	'.tsx',
+	'.ios.ts',
+	'.android.ts',
+	'.mobile.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 const WEB_EXTS = [
-	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx',
-	'.web.ts', '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.web.tsrx',
+	'.tsrx',
+	'.web.tsx',
+	'.tsx',
+	'.web.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 export default defineConfig(({ mode }) => {
@@ -32,7 +54,9 @@ export default defineConfig(({ mode }) => {
 		}),
 		build: {
 			lib: {
-				entry: { index: native ? 'src/AnimatedImage.tsrx' : 'src/AnimatedImage.web.tsrx' } as Record<string, string>,
+				entry: {
+					index: native ? 'src/AnimatedImage.tsrx' : 'src/AnimatedImage.web.tsrx',
+				} as Record<string, string>,
 				formats: ['es'],
 			},
 			outDir: native ? 'dist/native' : 'dist/web',

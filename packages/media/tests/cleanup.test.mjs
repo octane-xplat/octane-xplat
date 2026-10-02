@@ -30,8 +30,9 @@ test('web failed batch and capture reads allocate no orphan object URLs', async 
 		FileReader: class {
 			readAsDataURL(file) {
 				queueMicrotask(() => {
-					if (file.bad) {this.onerror()}
-					else {
+					if (file.bad) {
+						this.onerror()
+					} else {
 						this.result = 'data:image/jpeg;base64,AA'
 						this.onload()
 					}
@@ -71,8 +72,12 @@ test('native failed conversion removes the JPEG created by the current selection
 
 	const media = await load('media', {
 		require(name) {
-			if (name === '@nativescript/core') {return core}
-			if (name === '@nativescript/camera') {return {}}
+			if (name === '@nativescript/core') {
+				return core
+			}
+			if (name === '@nativescript/camera') {
+				return {}
+			}
 			return {
 				create: () => ({ authorize: async () => true, present: async () => [{ asset: {} }] }),
 			}

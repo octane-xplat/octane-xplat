@@ -626,10 +626,14 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 	try {
 		// Use the decoded value: production optimizers can drop an unused
 		// builtin call even though malformed input makes it throw.
-		if (!decodeURIComponent(p)) {return null}
+		if (!decodeURIComponent(p)) {
+			return null
+		}
 		query = parseQueryString(qs)
 	} catch (error) {
-		if (error instanceof URIError) {return null}
+		if (error instanceof URIError) {
+			return null
+		}
 		throw error
 	}
 

@@ -103,7 +103,7 @@ runtime (Annotation 2).
 | `geolocation`                       | `getCurrentPosition(options)`                                                                | `@octane-xplat/geolocation` leaf                                                                                                                                                     |
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
-| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                       | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
+| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
 | `openSettings`                      | capability; `open()`                                                                         | unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
 | `media.capturePhoto()`              | still capture through the OS camera UI                                                       | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops                                                |
@@ -166,15 +166,15 @@ import { files } from '@octane-xplat/files'
 
 const permission = await media.ensure('camera')
 if (permission === 'granted') {
-  const image = await media.capturePhoto({ saveToGallery: false })
-  if (image) {
-    try {
-      // Use image.uri for a preview and image.dataUrl for an upload.
-      // Keep the reference alive until both consumers finish.
-    } finally {
-      files.release(image)
-    }
-  }
+	const image = await media.capturePhoto({ saveToGallery: false })
+	if (image) {
+		try {
+			// Use image.uri for a preview and image.dataUrl for an upload.
+			// Keep the reference alive until both consumers finish.
+		} finally {
+			files.release(image)
+		}
+	}
 }
 ```
 

@@ -6,8 +6,7 @@
 import type { PermissionKind, PermissionResult } from './types'
 
 type Owner = () => Promise<PermissionResult>
-const owners = () =>
-	((globalThis as any).__xplatPermissionOwners ??= {}) as Record<string, Owner>
+const owners = () => ((globalThis as any).__xplatPermissionOwners ??= {}) as Record<string, Owner>
 
 export const permissions = {
 	async ensure(kind: PermissionKind): Promise<PermissionResult> {

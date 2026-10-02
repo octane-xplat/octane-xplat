@@ -3,20 +3,20 @@
 	"version": "0.8.0",
 	"description": "Select control for Octane xplat — web select + SwiftUI picker (iOS) / Material dropdown (Android)",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
+		"combobox",
 		"cross-platform",
+		"dropdown",
+		"ios",
+		"nativescript",
+		"octane",
 		"picker",
 		"select",
-		"dropdown",
-		"combobox",
-		"nativescript",
-		"ios",
-		"android",
-		"web"
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/picker",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -44,7 +44,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			"./ios": {
 				"types": "./types/ios/index.d.ts",
@@ -58,7 +57,8 @@
 				"types": "./types/web/index.d.ts",
 				"web": "./dist/web/web/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",

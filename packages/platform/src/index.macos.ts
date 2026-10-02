@@ -73,10 +73,18 @@ export const device: DeviceInfo = {
 }
 
 export const appInfo: AppInfo = {
-	get supported() { return host().appInfo?.supported ?? false },
-	get version() { return host().appInfo?.version ?? null },
-	get build() { return host().appInfo?.build ?? null },
-	get bundleId() { return host().appInfo?.bundleId ?? null },
+	get supported() {
+		return host().appInfo?.supported ?? false
+	},
+	get version() {
+		return host().appInfo?.version ?? null
+	},
+	get build() {
+		return host().appInfo?.build ?? null
+	},
+	get bundleId() {
+		return host().appInfo?.bundleId ?? null
+	},
 }
 
 export const locale: Locale = { tag: language, language: languageTag, region }
@@ -87,7 +95,9 @@ export const connectivity: ConnectivityImpl = {
 	},
 	subscribe(listener) {
 		console.warn('[octane-xplat] Connectivity status is unsupported by the AppKit host.')
-		return () => { void listener }
+		return () => {
+			void listener
+		}
 	},
 }
 
@@ -118,16 +128,34 @@ export const storage = {
 }
 
 export const clipboard = {
-	get canCopy() { return !!host().readClipboard && !!host().writeClipboard },
-	async writeText(value: string): Promise<boolean> { return host().writeClipboard?.(value) ?? false },
-	async readText(): Promise<string | null> { return host().readClipboard?.() ?? null },
-	async write(value: string): Promise<boolean> { return host().writeClipboard?.(value) ?? false },
-	async read(): Promise<string | null> { return host().readClipboard?.() ?? null },
+	get canCopy() {
+		return !!host().readClipboard && !!host().writeClipboard
+	},
+	async writeText(value: string): Promise<boolean> {
+		return host().writeClipboard?.(value) ?? false
+	},
+	async readText(): Promise<string | null> {
+		return host().readClipboard?.() ?? null
+	},
+	async write(value: string): Promise<boolean> {
+		return host().writeClipboard?.(value) ?? false
+	},
+	async read(): Promise<string | null> {
+		return host().readClipboard?.() ?? null
+	},
 }
 
-export const webAuthn: Capability<WebAuthnImpl> = { supported: false, ensure: unsupported, impl: null }
+export const webAuthn: Capability<WebAuthnImpl> = {
+	supported: false,
+	ensure: unsupported,
+	impl: null,
+}
 export { authSession } from './auth-session.macos'
-export const openSettings: Capability<OpenSettingsImpl> = { supported: false, ensure: unsupported, impl: null }
+export const openSettings: Capability<OpenSettingsImpl> = {
+	supported: false,
+	ensure: unsupported,
+	impl: null,
+}
 export { permissions } from './permissions'
 export const systemBars = {
 	setColor(_color: string): void {
@@ -178,7 +206,9 @@ export function useBreakpoints$<T extends Record<string, number>>(
 	thresholds: T,
 ): { [K in keyof T]: boolean } {
 	const width = useWindowSize().width
-	return Object.fromEntries(Object.entries(thresholds).map(([name, threshold]) => [name, width >= threshold])) as {
+	return Object.fromEntries(
+		Object.entries(thresholds).map(([name, threshold]) => [name, width >= threshold]),
+	) as {
 		[K in keyof T]: boolean
 	}
 }

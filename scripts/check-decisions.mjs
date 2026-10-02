@@ -80,9 +80,7 @@ export function checkDecisions(docDecisions, siloDecisions) {
 				`decisions.md #${num}: free-text status "${doc.status}" — Silo vocabulary is forced/decided/provisional/rejected; skipping status check`,
 			)
 		} else if (silo.status !== doc.status) {
-			errors.push(
-				`decision #${num}: status differs (doc ${doc.status}, silo ${silo.status})`,
-			)
+			errors.push(`decision #${num}: status differs (doc ${doc.status}, silo ${silo.status})`)
 		}
 
 		if (normalize(silo.statement).slice(0, 40) !== normalize(doc.statement).slice(0, 40)) {

@@ -397,10 +397,7 @@ export const bakedRouteData: Record<string, unknown> = ${JSON.stringify(data, nu
 		})),
 	}
 
-	writeFileSync(
-		join(cwd, base + '.manifest.json'),
-		JSON.stringify(manifestJson, null, '\t') + '\n',
-	)
+	writeFileSync(join(cwd, base + '.manifest.json'), JSON.stringify(manifestJson, null, '\t') + '\n')
 
 	// Platform-suffixed twins carry the actual manifest derivation +
 	// registration — routes.gen.web.ts / routes.gen.mobile.ts resolve

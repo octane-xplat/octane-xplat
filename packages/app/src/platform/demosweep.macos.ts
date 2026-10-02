@@ -16,7 +16,9 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 async function waitFor(predicate: () => boolean, timeout = 6000): Promise<boolean> {
 	const deadline = Date.now() + timeout
 	while (Date.now() < deadline) {
-		if (predicate()) {return true}
+		if (predicate()) {
+			return true
+		}
 		await pause(100)
 	}
 
@@ -29,19 +31,33 @@ function assert(name: string, result: boolean): void {
 
 async function run(): Promise<void> {
 	const debug = globalThis.__xplatMacOSDebug
-	if (!debug) {return}
+	if (!debug) {
+		return
+	}
 	const has = (text: string) => debug.snapshot().labels.some((label) => label.includes(text))
 	const demoCases: {
 		id: string
 		title: string
 		matches: (labels: string[]) => boolean
 	}[] = [
-		{ id: 'watch', title: 'Watch', matches: (labels) => labels.some((label) => /^\d{2}:\d{2}:\d{2}$/.test(label)) },
+		{
+			id: 'watch',
+			title: 'Watch',
+			matches: (labels) => labels.some((label) => /^\d{2}:\d{2}:\d{2}$/.test(label)),
+		},
 		{ id: 'stopwatch', title: 'Stopwatch', matches: (labels) => labels.includes('0:00.0') },
-		{ id: 'todo', title: 'Todo', matches: (labels) => labels.some((label) => label.includes('Nothing yet')) },
+		{
+			id: 'todo',
+			title: 'Todo',
+			matches: (labels) => labels.some((label) => label.includes('Nothing yet')),
+		},
 		{ id: 'ttt', title: 'Tic-Tac-Toe', matches: (labels) => labels.includes('X to play') },
 		{ id: 'dialer', title: 'Dialer', matches: (labels) => labels.includes('Enter number') },
-		{ id: 'vlist', title: 'List ×500', matches: (labels) => labels.some((label) => label.includes('500 rows')) },
+		{
+			id: 'vlist',
+			title: 'List ×500',
+			matches: (labels) => labels.some((label) => label.includes('500 rows')),
+		},
 		{ id: 'weather', title: 'Weather', matches: (labels) => labels.includes('Forecast') },
 		{ id: 'list-demo', title: 'Feed', matches: (labels) => labels.includes('Doors open') },
 	]
@@ -49,7 +65,11 @@ async function run(): Promise<void> {
 	const demoMounted = (demo: (typeof demoCases)[number]) =>
 		waitFor(() => {
 			const labels = debug.snapshot().labels
-			return labels.some((label) => label.includes(demo.title)) && labels.includes('demo layout') && demo.matches(labels)
+			return (
+				labels.some((label) => label.includes(demo.title)) &&
+				labels.includes('demo layout') &&
+				demo.matches(labels)
+			)
 		})
 
 	const backToApps = async () => {
@@ -59,7 +79,9 @@ async function run(): Promise<void> {
 
 	const homeMounted = await waitFor(() => has('Kitchen sink') && has('Count: 0'))
 	assert('harness Home mounted', homeMounted)
-	if (!homeMounted) {return}
+	if (!homeMounted) {
+		return
+	}
 
 	debug.pressId('a11y-btn')
 	assert('Home counter updates', await waitFor(() => has('Count: 1')))
@@ -72,7 +94,12 @@ async function run(): Promise<void> {
 		const counterMounted = await waitFor(() => has('Demo count: 0') && has('demo layout'))
 		assert('shared Counter demo mounted through route', counterMounted)
 		if (!counterMounted) {
-			console.log('[sweep] demos route=' + JSON.stringify(routeFor('demos')) + ' screen=' + Boolean(screenFor('demo/:id')))
+			console.log(
+				'[sweep] demos route=' +
+					JSON.stringify(routeFor('demos')) +
+					' screen=' +
+					Boolean(screenFor('demo/:id')),
+			)
 			console.log('[sweep] labels=' + JSON.stringify(debug.snapshot().labels))
 		}
 
@@ -118,9 +145,7 @@ async function run(): Promise<void> {
 				debug.pressId('vl-drop')
 				assert(
 					'shared List removes a dropped row',
-					await waitFor(
-						() => has('499 rows') && debug.metrics().mountedRowCount < 500,
-					),
+					await waitFor(() => has('499 rows') && debug.metrics().mountedRowCount < 500),
 				)
 			}
 
@@ -138,5 +163,7 @@ async function run(): Promise<void> {
 }
 
 if (!(globalThis as any).__xplatMacOSParityOnly) {
-	setTimeout(() => { void run().catch((error) => console.error('[sweep] macOS failed', error)) }, 1500)
+	setTimeout(() => {
+		void run().catch((error) => console.error('[sweep] macOS failed', error))
+	}, 1500)
 }

@@ -27,9 +27,15 @@ mkdirSync(packOutput, { recursive: true })
 
 function run(command, args, cwd) {
 	const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
-	if (result.stdout) {process.stdout.write(result.stdout)}
-	if (result.stderr) {process.stderr.write(result.stderr)}
-	if (result.status !== 0) {throw new Error(`${command} exited with ${result.status}`)}
+	if (result.stdout) {
+		process.stdout.write(result.stdout)
+	}
+	if (result.stderr) {
+		process.stderr.write(result.stderr)
+	}
+	if (result.status !== 0) {
+		throw new Error(`${command} exited with ${result.status}`)
+	}
 }
 
 try {
@@ -140,21 +146,21 @@ void value
 	]
 
 	try {
-		for (const source of collidingSources) {writeFileSync(source, 'export {}\n')}
+		for (const source of collidingSources) {
+			writeFileSync(source, 'export {}\n')
+		}
 		const collision = spawnSync(
 			process.execPath,
-			[
-				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
-				'--project',
-				'tsconfig.types.json',
-			],
+			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
 			{ cwd: packageRoot, encoding: 'utf8' },
 		)
 
 		assert.notEqual(collision.status, 0, 'same-name source files cannot overwrite declarations')
 		assert.match(collision.stderr, /source output collision/)
 	} finally {
-		for (const source of collidingSources) {rmSync(source, { force: true })}
+		for (const source of collidingSources) {
+			rmSync(source, { force: true })
+		}
 	}
 
 	const overrideConfigPath = join(packageRoot, 'tsrx-typegen.json')
@@ -162,7 +168,9 @@ void value
 	const overrideSource = join(packageRoot, 'types/overrides/Collision.d.ts')
 	const overrideText = "export interface CollisionContract { kind: 'override' }\n"
 	try {
-		for (const source of collidingSources) {writeFileSync(source, 'export {}\n')}
+		for (const source of collidingSources) {
+			writeFileSync(source, 'export {}\n')
+		}
 		mkdirSync(dirname(overrideSource), { recursive: true })
 		writeFileSync(overrideSource, overrideText)
 		const config = JSON.parse(originalConfig)
@@ -170,11 +178,7 @@ void value
 		writeFileSync(overrideConfigPath, JSON.stringify(config, null, 2) + '\n')
 		run(
 			process.execPath,
-			[
-				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
-				'--project',
-				'tsconfig.types.json',
-			],
+			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
 			packageRoot,
 		)
 
@@ -186,7 +190,9 @@ void value
 		run('pnpm', ['typegen:check'], packageRoot)
 	} finally {
 		writeFileSync(overrideConfigPath, originalConfig)
-		for (const source of collidingSources) {rmSync(source, { force: true })}
+		for (const source of collidingSources) {
+			rmSync(source, { force: true })
+		}
 		rmSync(overrideSource, { force: true })
 	}
 
@@ -198,11 +204,7 @@ void value
 		writeFileSync(invalidSource, 'export function Invalid( {\n')
 		const failedTransform = spawnSync(
 			process.execPath,
-			[
-				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
-				'--project',
-				'tsconfig.types.json',
-			],
+			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
 			{ cwd: packageRoot, encoding: 'utf8' },
 		)
 
@@ -231,11 +233,7 @@ void value
 
 		const factoryResult = spawnSync(
 			process.execPath,
-			[
-				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
-				'--project',
-				'tsconfig.types.json',
-			],
+			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
 			{ cwd: packageRoot, encoding: 'utf8' },
 		)
 
@@ -256,11 +254,11 @@ Badge({ label: 42 })
 					{
 						compilerOptions: {
 							strict: true,
-						noEmit: true,
-						module: 'esnext',
-						moduleResolution: 'bundler',
-						target: 'esnext',
-						skipLibCheck: false,
+							noEmit: true,
+							module: 'esnext',
+							moduleResolution: 'bundler',
+							target: 'esnext',
+							skipLibCheck: false,
 						},
 						files: ['factory-consumer.ts'],
 					},
@@ -284,7 +282,9 @@ Badge({ label: 42 })
 
 	run('pnpm', ['typegen'], packageRoot)
 
-	console.log('packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes')
+	console.log(
+		'packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

@@ -6,9 +6,10 @@ export function startCameraPreview(
 ): () => void {
 	const av = globalThis as any
 	const mediaType = av.AVMediaTypeVideo ?? 'vide'
-	const desiredPosition = facing === 'front'
-		? av.AVCaptureDevicePositionFront ?? 2
-		: av.AVCaptureDevicePositionBack ?? 1
+	const desiredPosition =
+		facing === 'front'
+			? (av.AVCaptureDevicePositionFront ?? 2)
+			: (av.AVCaptureDevicePositionBack ?? 1)
 
 	const devices = av.AVCaptureDevice.devicesWithMediaType(mediaType)
 	let device: any = null
@@ -20,22 +21,30 @@ export function startCameraPreview(
 		}
 	}
 
-	if (!device) {throw new Error('camera unavailable')}
+	if (!device) {
+		throw new Error('camera unavailable')
+	}
 
 	const session = av.AVCaptureSession.new()
 	const input = av.AVCaptureDeviceInput.deviceInputWithDeviceError(device)
-	if (!input || !session.canAddInput(input)) {throw new Error('camera input unavailable')}
+	if (!input || !session.canAddInput(input)) {
+		throw new Error('camera input unavailable')
+	}
 	session.addInput(input)
 	const layer = av.AVCaptureVideoPreviewLayer.layerWithSession(session)
 	layer.videoGravity = 'resizeAspectFill'
 	const connection = layer.connection
 	if (connection) {
 		connection.automaticallyAdjustsVideoMirroring = false
-		if (connection.isVideoMirroringSupported) {connection.isVideoMirrored = facing === 'front'}
+		if (connection.isVideoMirroringSupported) {
+			connection.isVideoMirrored = facing === 'front'
+		}
 	}
 
 	const nativeView = view.ios ?? view.nativeViewProtected
-	if (!nativeView?.layer) {throw new Error('camera preview host unavailable')}
+	if (!nativeView?.layer) {
+		throw new Error('camera preview host unavailable')
+	}
 	nativeView.layer.addSublayer(layer)
 	const updateFrame = () => {
 		layer.frame = nativeView.bounds

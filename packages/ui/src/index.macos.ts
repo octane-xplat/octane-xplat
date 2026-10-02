@@ -8,7 +8,15 @@ export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate.macos'
 export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
 export { Pressable } from './Pressable.macos.tsrx'
-export { Button, Checkbox, Switch, Slider, SegmentedControl, SearchInput, ActivityIndicator } from './controls.macos.tsrx'
+export {
+	Button,
+	Checkbox,
+	Switch,
+	Slider,
+	SegmentedControl,
+	SearchInput,
+	ActivityIndicator,
+} from './controls.macos.tsrx'
 
 export { Collapsible } from './Collapsible.macos.tsrx'
 export { Accordion } from './Accordion.macos.tsrx'
@@ -61,7 +69,15 @@ export { WebView, CameraView } from './hosted-unsupported.macos.tsrx'
 export { Overlay, Popover, Sheet } from './surfaces.macos.tsrx'
 export { showToast } from './toast-anchor.macos.tsrx'
 export { useAnimation } from './anim.macos.tsrx'
-export { useThemeScheme, getThemeScheme, setThemePreference, getThemePreference, themeSchemeClasses, onThemeSchemeChange, applyThemeClasses } from './theme/theme-scheme'
+export {
+	useThemeScheme,
+	getThemeScheme,
+	setThemePreference,
+	getThemePreference,
+	themeSchemeClasses,
+	onThemeSchemeChange,
+	applyThemeClasses,
+} from './theme/theme-scheme'
 export { useColorScheme, getColorScheme } from './colorScheme.macos'
 export { styled } from './styled.macos.tsrx'
 export { openWindow } from './windows.macos'

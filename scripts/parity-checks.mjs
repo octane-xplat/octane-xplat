@@ -33,7 +33,7 @@ const circular = (el) => {
 	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
 }
 
-const equalPath = (rule) => typeof rule === 'string' ? rule : rule.path
+const equalPath = (rule) => (typeof rule === 'string' ? rule : rule.path)
 
 const textEqual = [
 	// Font shaping varies slightly by renderer; exact size, weight, line height,
@@ -62,18 +62,38 @@ function headingRows(m, size) {
 	const heading = m('heading')
 	const weight = String(heading.style?.fontWeight ?? '').toLowerCase()
 	return [
-		['heading starts at the fixture origin', near(heading.box?.x, 0, 0.5) && near(heading.box?.y, 0, 0.5), `${heading.box?.x},${heading.box?.y}`],
+		[
+			'heading starts at the fixture origin',
+			near(heading.box?.x, 0, 0.5) && near(heading.box?.y, 0, 0.5),
+			`${heading.box?.x},${heading.box?.y}`,
+		],
 		['heading width is 520px', near(heading.box?.w, 520, 1), heading.box?.w],
-		[`heading font size is ${size}px`, near(Number.parseFloat(heading.style?.fontSize), size, 0.05), heading.style?.fontSize],
-		['heading weight is bold', weight === 'bold' || Number(weight) === 700, heading.style?.fontWeight],
+		[
+			`heading font size is ${size}px`,
+			near(Number.parseFloat(heading.style?.fontSize), size, 0.05),
+			heading.style?.fontSize,
+		],
+		[
+			'heading weight is bold',
+			weight === 'bold' || Number(weight) === 700,
+			heading.style?.fontWeight,
+		],
 	]
 }
 
 function textClassRows(m, size, lineHeight) {
 	const text = m('text')
 	return [
-		[`text font size is ${size}px`, near(Number.parseFloat(text.style?.fontSize), size, 0.05), text.style?.fontSize],
-		[`text line height is ${lineHeight}px`, near(Number.parseFloat(text.style?.lineHeight), lineHeight, 0.05), text.style?.lineHeight],
+		[
+			`text font size is ${size}px`,
+			near(Number.parseFloat(text.style?.fontSize), size, 0.05),
+			text.style?.fontSize,
+		],
+		[
+			`text line height is ${lineHeight}px`,
+			near(Number.parseFloat(text.style?.lineHeight), lineHeight, 0.05),
+			text.style?.lineHeight,
+		],
 	]
 }
 
@@ -94,7 +114,9 @@ function textRows(m, height, width) {
 function textLongRows(m, target) {
 	const text = m('text')
 	const styleLineHeight = Number.parseFloat(text.style?.lineHeight)
-	const rows = [['text line height is 20px', near(styleLineHeight, 20, 0.05), text.style?.lineHeight]]
+	const rows = [
+		['text line height is 20px', near(styleLineHeight, 20, 0.05), text.style?.lineHeight],
+	]
 	if (target === 'web' || target === 'macos') {
 		rows.push(...textRows(m, 40))
 		rows.push(['text wraps to two lines', text.textLineCount === 2, text.textLineCount])
@@ -159,7 +181,11 @@ function buttonRows(m, width, height) {
 	const label = m('label')
 	return [
 		dims(btn, width, height, 1),
-		['label has positive bounds', label.box?.w > 0 && label.box?.h > 0, `${label.box?.w}×${label.box?.h}`],
+		[
+			'label has positive bounds',
+			label.box?.w > 0 && label.box?.h > 0,
+			`${label.box?.w}×${label.box?.h}`,
+		],
 		[
 			'label centered horizontally',
 			near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
@@ -175,10 +201,24 @@ function buttonNaturalRows(m) {
 	const btn = m('btn')
 	const label = m('label')
 	return [
-		['button has positive dimensions', btn.box?.w > 0 && btn.box?.h > 0, `${btn.box?.w}×${btn.box?.h}`],
-		['label has positive bounds', label.box?.w > 0 && label.box?.h > 0, `${label.box?.w}×${label.box?.h}`],
-		['label centered horizontally', near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1)],
-		['label centered vertically', near(label.box.y + label.box.h / 2 - btn.box.y, btn.box.h / 2, 1)],
+		[
+			'button has positive dimensions',
+			btn.box?.w > 0 && btn.box?.h > 0,
+			`${btn.box?.w}×${btn.box?.h}`,
+		],
+		[
+			'label has positive bounds',
+			label.box?.w > 0 && label.box?.h > 0,
+			`${label.box?.w}×${label.box?.h}`,
+		],
+		[
+			'label centered horizontally',
+			near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
+		],
+		[
+			'label centered vertically',
+			near(label.box.y + label.box.h / 2 - btn.box.y, btn.box.h / 2, 1),
+		],
 	]
 }
 
@@ -207,11 +247,7 @@ const textAreaEqual = inputEqual.map((rule) => {
 	return ['field.box.h', 'field.contentBox.h'].includes(path) ? { path, tolerance: 1 } : rule
 })
 
-const controlEqual = [
-	'control.box.w',
-	'control.box.h',
-	'control.style.backgroundColor',
-]
+const controlEqual = ['control.box.w', 'control.box.h', 'control.style.backgroundColor']
 
 const controlRows = (m, width, height) => [dims(m('control'), width, height, 1)]
 
@@ -219,7 +255,11 @@ function inputRows(m) {
 	const field = m('field')
 	const rows = [
 		dims(field, 180, 32, 1),
-		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
+		[
+			'input content area is measured',
+			field.contentBox?.w > 0 && field.contentBox?.h > 0,
+			JSON.stringify(field.contentBox),
+		],
 	]
 
 	return rows
@@ -229,8 +269,16 @@ function inputNaturalRows(m, target) {
 	const field = m('field')
 	const expectedHeight = { web: 18, ios: 20, android: 18.29 }[target]
 	const rows = [
-		['input has positive intrinsic dimensions', field.box?.w > 0 && field.box?.h > 0, `${field.box?.w}×${field.box?.h}`],
-		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
+		[
+			'input has positive intrinsic dimensions',
+			field.box?.w > 0 && field.box?.h > 0,
+			`${field.box?.w}×${field.box?.h}`,
+		],
+		[
+			'input content area is measured',
+			field.contentBox?.w > 0 && field.contentBox?.h > 0,
+			JSON.stringify(field.contentBox),
+		],
 	]
 
 	if (expectedHeight !== undefined) {
@@ -249,7 +297,11 @@ function textAreaRows(m, target) {
 	const field = m('field')
 	const rows = [
 		dims(field, 180, 48, 1),
-		['textarea content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
+		[
+			'textarea content area is measured',
+			field.contentBox?.w > 0 && field.contentBox?.h > 0,
+			JSON.stringify(field.contentBox),
+		],
 	]
 
 	if (target === 'macos') {
@@ -268,13 +320,18 @@ function textAreaRowsIntrinsic(m, target, height) {
 	const field = m('field')
 	const rows = [
 		dims(field, 180, height, 1),
-		['textarea content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
+		[
+			'textarea content area is measured',
+			field.contentBox?.w > 0 && field.contentBox?.h > 0,
+			JSON.stringify(field.contentBox),
+		],
 	]
 
 	if (target === 'macos') {
 		rows.push([
 			'placeholder aligns to the textarea content origin',
-			near(field.placeholderBox?.x, field.box.x, 1) && near(field.placeholderBox?.y, field.box.y, 1),
+			near(field.placeholderBox?.x, field.box.x, 1) &&
+				near(field.placeholderBox?.y, field.box.y, 1),
 			JSON.stringify(field.placeholderBox),
 		])
 	}
@@ -484,8 +541,16 @@ export const CHECKS = [
 				dims(track, 220, 4, 1),
 				dims(thumb, 20, 20),
 				circular(thumb),
-				['track vertically centered', near(track.box.y - host.box.y, 12, 1), track.box.y - host.box.y],
-				['thumb vertically centered', near(thumb.box.y - host.box.y, 4, 1), thumb.box.y - host.box.y],
+				[
+					'track vertically centered',
+					near(track.box.y - host.box.y, 12, 1),
+					track.box.y - host.box.y,
+				],
+				[
+					'thumb vertically centered',
+					near(thumb.box.y - host.box.y, 4, 1),
+					thumb.box.y - host.box.y,
+				],
 				['empty fill', near(fill.box.w, 0, 1), fill.box.w],
 				// Web and macOS center the thumb on each end value; iOS and
 				// Android keep it inside the track.
@@ -645,10 +710,7 @@ export const CHECKS = [
 					'ListItem slots flow from leading to content to trailing',
 					leading.box.x < content.box.x && content.box.x < trailing.box.x,
 				],
-				[
-					'supporting text follows the title',
-					title.box.y < supporting.box.y,
-				],
+				['supporting text follows the title', title.box.y < supporting.box.y],
 				[
 					'ListItem renders both text values',
 					title.text === 'Event title' && supporting.text === '6:30 PM / 2 tickets',
@@ -681,8 +743,18 @@ export const CHECKS = [
 			return [
 				dims(anchor, 180, 48, 1),
 				dims(child, 72, 24, 1),
-				['child starts at the anchor origin', near(child.box?.x, 0, 1) && near(child.box?.y, 0, 1), `${child.box?.x},${child.box?.y}`],
-				['child stays inside the anchor', child.box?.x >= 0 && child.box?.y >= 0 && child.box.x + child.box.w <= anchor.box?.w + 1 && child.box.y + child.box.h <= anchor.box?.h + 1],
+				[
+					'child starts at the anchor origin',
+					near(child.box?.x, 0, 1) && near(child.box?.y, 0, 1),
+					`${child.box?.x},${child.box?.y}`,
+				],
+				[
+					'child stays inside the anchor',
+					child.box?.x >= 0 &&
+						child.box?.y >= 0 &&
+						child.box.x + child.box.w <= anchor.box?.w + 1 &&
+						child.box.y + child.box.h <= anchor.box?.h + 1,
+				],
 			]
 		},
 	},
@@ -706,8 +778,18 @@ export const CHECKS = [
 			return [
 				dims(anchor, 180, 48, 1),
 				dims(trigger, 72, 24, 1),
-				['trigger starts at the anchor origin', near(trigger.box?.x, 0, 1) && near(trigger.box?.y, 0, 1), `${trigger.box?.x},${trigger.box?.y}`],
-				['trigger stays inside the anchor', trigger.box?.x >= 0 && trigger.box?.y >= 0 && trigger.box.x + trigger.box.w <= anchor.box?.w + 1 && trigger.box.y + trigger.box.h <= anchor.box?.h + 1],
+				[
+					'trigger starts at the anchor origin',
+					near(trigger.box?.x, 0, 1) && near(trigger.box?.y, 0, 1),
+					`${trigger.box?.x},${trigger.box?.y}`,
+				],
+				[
+					'trigger stays inside the anchor',
+					trigger.box?.x >= 0 &&
+						trigger.box?.y >= 0 &&
+						trigger.box.x + trigger.box.w <= anchor.box?.w + 1 &&
+						trigger.box.y + trigger.box.h <= anchor.box?.h + 1,
+				],
 			]
 		},
 	},
@@ -889,9 +971,15 @@ export const CHECKS = [
 				['second fraction row follows the first', near(fill.box.y, 35, 1)],
 				['fill cell starts at the final column', near(fill.box.x, 74, 1)],
 				dims(automatic, 22, 12, 1),
-				['unplaced child flows to the first free cell', near(automatic.box.x, 74, 1) && near(automatic.box.y, 0, 1)],
+				[
+					'unplaced child flows to the first free cell',
+					near(automatic.box.x, 74, 1) && near(automatic.box.y, 0, 1),
+				],
 				dims(colSpan, 66, 10, 1),
-				['column span starts at the weighted columns', near(colSpan.box.x, 30, 1) && near(colSpan.box.y, 12, 1)],
+				[
+					'column span starts at the weighted columns',
+					near(colSpan.box.x, 30, 1) && near(colSpan.box.y, 12, 1),
+				],
 				dims(rowSpan, 30, 26, 1),
 				['row span covers both fraction rows', near(rowSpan.box.y, 22, 1)],
 			]
@@ -1003,8 +1091,14 @@ export const CHECKS = [
 				dims(spacer, 48, 24),
 				dims(trailing, 16, 10),
 				['leading child starts at the row origin', near(leading.box.x - root.box.x, 0, 1)],
-				['spacer follows the leading child and gap', near(spacer.box.x - leading.box.x - leading.box.w, 8, 1)],
-				['trailing child follows the expanded spacer and gap', near(trailing.box.x - spacer.box.x - spacer.box.w, 8, 1)],
+				[
+					'spacer follows the leading child and gap',
+					near(spacer.box.x - leading.box.x - leading.box.w, 8, 1),
+				],
+				[
+					'trailing child follows the expanded spacer and gap',
+					near(trailing.box.x - spacer.box.x - spacer.box.w, 8, 1),
+				],
 			]
 		},
 	},
@@ -1117,7 +1211,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'drawer-open-frame',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: {
 			root: 'parity-drawer-root',
 			main: 'vx-drawer-main',
@@ -1189,10 +1283,18 @@ export const CHECKS = [
 		check: (m, target, dump) => {
 			const expectedHeight = 80
 			if (target === 'ios') {
-				const safeArea = dump.cells?.['safe-area-layout']?.find((node) => node.classes?.includes('parity-safe-area-root'))
+				const safeArea = dump.cells?.['safe-area-layout']?.find((node) =>
+					node.classes?.includes('parity-safe-area-root'),
+				)
 				const bottomInset = Number(safeArea?.style?.paddingBottom)
 				if (!Number.isFinite(bottomInset)) {
-					return [['iOS sheet includes measured bottom safe area', false, String(safeArea?.style?.paddingBottom)]]
+					return [
+						[
+							'iOS sheet includes measured bottom safe area',
+							false,
+							String(safeArea?.style?.paddingBottom),
+						],
+					]
 				}
 
 				return [dims(m('frame'), 96, expectedHeight + bottomInset)]
@@ -1203,63 +1305,63 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'form-field-basic',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-formfield-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 180, 64),
 	},
 	{
 		fixture: 'field-group-basic',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-fieldgroup-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 180, 64),
 	},
 	{
 		fixture: 'input-number-value',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-inputnumber-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'pin-input-filled',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-pininput-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 200, 44),
 	},
 	{
 		fixture: 'select-value',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-select-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'select-menu-value',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-selectmenu-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'combobox-value',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-combobox-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'input-menu-value',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-inputmenu-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'input-tags-values',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-inputtags-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 220, 44),
@@ -1291,17 +1393,14 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'checkbox-group-selected',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-checkboxgroup-root', selected: 'vx-checkbox' },
 		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
-		check: (m) => [
-			...controlRows(m, 180, 56),
-			dims(m('selected'), 20, 20),
-		],
+		check: (m) => [...controlRows(m, 180, 56), dims(m('selected'), 20, 20)],
 	},
 	{
 		fixture: 'radio-group-selected',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-radiogroup-root', selected: 'vx-radio-dot' },
 		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
 		check: (m) => {
@@ -1344,47 +1443,74 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'collapsible-open',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-collapsible-root', content: 'parity-collapsible-content' },
-		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'content.box.w', 'content.box.h'],
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'content.box.w',
+			'content.box.h',
+		],
 		check: (m) => [dims(m('root'), 180, 72), dims(m('content'), 160, 24)],
 	},
 	{
 		fixture: 'accordion-one-open',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-accordion-root', content: 'parity-accordion-content' },
-		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'content.box.w', 'content.box.h'],
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'content.box.w',
+			'content.box.h',
+		],
 		check: (m) => [dims(m('root'), 180, 88), dims(m('content'), 160, 28)],
 	},
 	{
 		fixture: 'dropdown-menu-trigger',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { trigger: 'parity-dropdown-trigger' },
 		equal: ['trigger.box.w', 'trigger.box.h', 'trigger.style.backgroundColor'],
 		check: (m) => [dims(m('trigger'), 160, 32)],
 	},
 	{
 		fixture: 'context-menu-target',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-contextmenu-root', target: 'parity-contextmenu-target' },
-		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'target.box.w', 'target.box.h'],
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'target.box.w',
+			'target.box.h',
+		],
 		check: (m) => [dims(m('root'), 180, 56), dims(m('target'), 144, 28)],
 	},
 	{
 		fixture: 'stepper-middle-active',
-	targets: ['web', 'ios', 'android', 'macos'],
-	equalTargets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
+		equalTargets: ['web', 'ios', 'android'],
 		elements: { root: 'parity-stepper-root', active: 'vx-step--on' },
-		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'active.box.w', 'active.box.h'],
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'active.box.w',
+			'active.box.h',
+		],
 		check: (m) => {
 			const active = m('active')
-			return [dims(m('root'), 220, 40), ['active step has a visible frame', active.box.w > 0 && active.box.h > 0]]
+			return [
+				dims(m('root'), 220, 40),
+				['active step has a visible frame', active.box.w > 0 && active.box.h > 0],
+			]
 		},
 	},
 	{
 		fixture: 'navigation-menu-active',
-	targets: ['web', 'ios', 'android', 'macos'],
-	equalTargets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
+		equalTargets: ['web', 'ios', 'android'],
 		elements: { root: 'parity-navmenu-root', active: 'vx-navmenu-item--on' },
 		equal: [
 			'root.box.w',
@@ -1396,7 +1522,10 @@ export const CHECKS = [
 		],
 		check: (m) => {
 			const active = m('active')
-			return [dims(m('root'), 220, 40), ['active item has a visible frame', active.box.w > 0 && active.box.h > 0]]
+			return [
+				dims(m('root'), 220, 40),
+				['active item has a visible frame', active.box.w > 0 && active.box.h > 0],
+			]
 		},
 	},
 	{
@@ -1427,7 +1556,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'tabs-second-selected',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: {
 			root: 'parity-tabs-root',
 			tabbar: 'vx-tabbar',
@@ -1447,14 +1576,14 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'meter-progress',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { meter: 'parity-meter-root' },
 		equal: ['meter.box.w', 'meter.box.h', 'meter.style.backgroundColor'],
 		check: (m) => [dims(m('meter'), 48, 48)],
 	},
 	{
 		fixture: 'activity-indicator-busy',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { spinner: 'parity-activity-indicator-root' },
 		equal: [
 			'spinner.box.w',
@@ -1473,28 +1602,28 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'badge-basic',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { badge: 'parity-badge-root' },
 		equal: ['badge.box.w', 'badge.box.h', 'badge.style.backgroundColor'],
 		check: (m) => [dims(m('badge'), 120, 32)],
 	},
 	{
 		fixture: 'avatar-fallback',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { avatar: 'parity-avatar-root' },
 		equal: ['avatar.box.w', 'avatar.box.h', 'avatar.style.backgroundColor'],
 		check: (m) => [dims(m('avatar'), 40, 40)],
 	},
 	{
 		fixture: 'avatar-group-overflow',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { group: 'parity-avatar-group-root', member: 'parity-avatar-group-member' },
 		equal: ['group.box.w', 'group.box.h', 'member.box.w', 'member.box.h'],
 		check: (m) => [dims(m('group'), 96, 40), dims(m('member'), 32, 32)],
 	},
 	{
 		fixture: 'user-row',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { user: 'parity-user-root', avatar: 'vx-avatar' },
 		equal: [
 			'user.box.w',
@@ -1514,21 +1643,21 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'kbd-shortcut',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { key: 'parity-kbd-root' },
 		equal: ['key.box.w', 'key.box.h', 'key.style.backgroundColor'],
 		check: (m) => [dims(m('key'), 52, 32)],
 	},
 	{
 		fixture: 'link-fixed-target',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { link: 'parity-link-root' },
 		equal: ['link.box.w', 'link.box.h', 'link.style.backgroundColor'],
 		check: (m) => [dims(m('link'), 160, 32)],
 	},
 	{
 		fixture: 'nav-link-active',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { link: 'parity-navlink-active' },
 		equal: ['link.box.w', 'link.box.h', 'link.style.backgroundColor'],
 		check: (m) => [dims(m('link'), 160, 32)],
@@ -1542,21 +1671,21 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'separator-horizontal',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { separator: 'parity-separator-root' },
 		equal: ['separator.box.w', 'separator.box.h', 'separator.style.backgroundColor'],
 		check: (m) => [dims(m('separator'), 160, 2)],
 	},
 	{
 		fixture: 'skeleton-basic',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { skeleton: 'parity-skeleton-root' },
 		equal: ['skeleton.box.w', 'skeleton.box.h', 'skeleton.style.backgroundColor'],
 		check: (m) => [dims(m('skeleton'), 140, 18)],
 	},
 	{
 		fixture: 'empty-state',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { empty: 'parity-empty-root', icon: 'vx-empty-icon' },
 		equal: [
 			'empty.box.w',
@@ -1569,14 +1698,14 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'breadcrumb-trail',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { trail: 'parity-breadcrumb-root' },
 		equal: ['trail.box.w', 'trail.box.h', 'trail.style.backgroundColor'],
 		check: (m) => [dims(m('trail'), 220, 36)],
 	},
 	{
 		fixture: 'pagination-window',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { pages: 'parity-pagination-root', active: 'vx-page-btn--on' },
 		equal: [
 			'pages.box.w',
@@ -1595,9 +1724,15 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'table-two-rows',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { table: 'parity-table-root', cell: 'parity-table-cell-content' },
-		equal: ['table.box.w', 'table.box.h', 'table.style.backgroundColor', 'cell.box.w', 'cell.box.h'],
+		equal: [
+			'table.box.w',
+			'table.box.h',
+			'table.style.backgroundColor',
+			'cell.box.w',
+			'cell.box.h',
+		],
 		check: (m) => [dims(m('table'), 220, 96), dims(m('cell'), 64, 24)],
 	},
 	{
@@ -1609,7 +1744,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'timeline-two-events',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { timeline: 'parity-timeline-root', dot: 'vx-timeline-dot' },
 		equal: [
 			'timeline.box.w',
@@ -1622,7 +1757,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'tree-expanded',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { tree: 'parity-tree-root', child: 'vx-tree-row--disabled' },
 		equal: ['tree.box.w', 'tree.box.h', 'tree.style.backgroundColor', 'child.style.opacity'],
 		check: (m) => {
@@ -1635,7 +1770,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'alert-warning',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { alert: 'parity-alert-root', icon: 'vx-alert-icon' },
 		equal: [
 			'alert.box.w',
@@ -1649,22 +1784,26 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'card-with-slots',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { card: 'parity-card-root', body: 'parity-card-body' },
 		equal: ['card.box.w', 'card.box.h', 'card.style.backgroundColor', 'body.box.w', 'body.box.h'],
 		check: (m) => [dims(m('card'), 220, 104), dims(m('body'), 180, 32)],
 	},
 	{
 		fixture: 'chip-selected',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { chip: 'parity-chip-root', selected: 'vx-chip--on' },
 		equal: ['chip.box.w', 'chip.box.h', 'selected.style.backgroundColor', 'selected.style.color'],
 		check: (m) => [dims(m('chip'), 96, 32)],
 	},
 	{
 		fixture: 'banner-dismissible',
-	targets: ['web', 'ios', 'android', 'macos'],
-		elements: { banner: 'parity-banner-root', icon: 'vx-banner-icon', dismiss: 'vx-banner-dismiss' },
+		targets: ['web', 'ios', 'android', 'macos'],
+		elements: {
+			banner: 'parity-banner-root',
+			icon: 'vx-banner-icon',
+			dismiss: 'vx-banner-dismiss',
+		},
 		equal: [
 			'banner.box.w',
 			'banner.box.h',
@@ -1684,9 +1823,15 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'progress-group-two-items',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { group: 'parity-progress-group-root', meter: 'vx-meter' },
-		equal: ['group.box.w', 'group.box.h', 'group.style.backgroundColor', 'meter.box.w', 'meter.box.h'],
+		equal: [
+			'group.box.w',
+			'group.box.h',
+			'group.style.backgroundColor',
+			'meter.box.w',
+			'meter.box.h',
+		],
 		check: (m) => [dims(m('group'), 220, 88), dims(m('meter'), 24, 24)],
 	},
 	{
@@ -1714,7 +1859,13 @@ export const CHECKS = [
 		fixture: 'pager-two-pages',
 		targets: ['web', 'ios', 'android'],
 		elements: { pager: 'parity-pager-root', page: 'parity-pager-page' },
-		equal: ['pager.box.w', 'pager.box.h', 'pager.style.backgroundColor', 'page.box.w', 'page.box.h'],
+		equal: [
+			'pager.box.w',
+			'pager.box.h',
+			'pager.style.backgroundColor',
+			'page.box.w',
+			'page.box.h',
+		],
 		check: (m) => [dims(m('pager'), 220, 96), dims(m('page'), 220, 96)],
 	},
 	{

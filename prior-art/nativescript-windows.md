@@ -78,8 +78,9 @@ verbatim (`/ns/m` fetch semantics, import maps, canonicalization vocabulary)
 — "mechanism mirrors ios/NativeScript/runtime/HttpLoader.mm".
 `hmr_support.rs` + `livesync.rs` install `NSWinRT.HMR` / `NSWinRT.LiveSync`
 (`sync(sourcePath, destPath)`, `reload`, `reset`) — module-cache invalidation
-+ re-eval driven by host tooling, so a dev loop exists even without `ns run`
-CLI support. `inspector.rs` + the `devtools` DLL variant give CDP debugging.
+
+- re-eval driven by host tooling, so a dev loop exists even without `ns run`
+  CLI support. `inspector.rs` + the `devtools` DLL variant give CDP debugging.
 
 ## The core platform PR (the part that matters most)
 

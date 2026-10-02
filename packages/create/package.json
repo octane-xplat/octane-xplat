@@ -3,17 +3,17 @@
 	"version": "0.8.0",
 	"description": "Scaffold a minimal @octane-xplat/ui app — one Octane codebase for web + iOS + Android",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
 		"create",
+		"cross-platform",
+		"init",
+		"octane",
+		"project-generator",
 		"scaffolding",
 		"starter-template",
-		"project-generator",
-		"init"
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/create",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

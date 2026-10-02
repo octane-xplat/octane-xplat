@@ -89,10 +89,8 @@ try {
 		}),
 		'src/index.ts': "export type * from './props.js'\nexport const value = 1\n",
 		'src/props.ts': 'export declare const phantom: unique symbol\nexport interface Props {}\n',
-		'types/index.d.ts':
-			"export type * from './props.js'\nexport declare const value: number\n",
-		'types/props.d.ts':
-			'export declare const phantom: unique symbol\nexport interface Props {}\n',
+		'types/index.d.ts': "export type * from './props.js'\nexport declare const value: number\n",
+		'types/props.d.ts': 'export declare const phantom: unique symbol\nexport interface Props {}\n',
 	})
 
 	verifyPackedPackage(ts, typeStarExport)

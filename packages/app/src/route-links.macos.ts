@@ -4,9 +4,13 @@ import { pushDeepLink } from '@octane-xplat/ui'
 let wired = false
 
 export function wireRouteLinks(): void {
-	if (wired) {return}
+	if (wired) {
+		return
+	}
 	wired = true
 	onDeepLink((url) => pushDeepLink(url))
 	const initial = consumeInitialUrl()
-	if (initial) {pushDeepLink(initial)}
+	if (initial) {
+		pushDeepLink(initial)
+	}
 }

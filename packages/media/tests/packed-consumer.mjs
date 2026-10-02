@@ -46,15 +46,15 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"@nativescript/camera",
-	"@nativescript/imagepicker",
-	"@nativescript/core",
-	"@nativescript/types",
-	"octane"
+	'@nativescript/camera',
+	'@nativescript/imagepicker',
+	'@nativescript/core',
+	'@nativescript/types',
+	'octane',
 ]
 
 const consumers = {
-	"web": `import { media } from '@octane-xplat/media'
+	web: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
 const ensureResult = media.ensure('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
@@ -62,7 +62,7 @@ void picked
 void ensureResult
 void captured
 `,
-	"native": `import { media } from '@octane-xplat/media'
+	native: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
 const ensureResult = media.ensure('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
@@ -70,14 +70,14 @@ void picked
 void ensureResult
 void captured
 `,
-	"macos": `import { media } from '@octane-xplat/media'
+	macos: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
 const ensureResult = media.ensure('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
 void picked
 void ensureResult
 void captured
-`
+`,
 }
 
 const extraFiles = {}
@@ -87,42 +87,21 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		]
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: ['vite/client'],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -232,10 +211,10 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
-				}
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

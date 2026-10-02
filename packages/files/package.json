@@ -1,21 +1,21 @@
 {
 	"name": "@octane-xplat/files",
 	"version": "0.8.0",
-	"description": "Native + web file pick and read/write for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Native + web file pick and read/write for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
 		"cross-platform",
-		"files",
 		"document-picker",
 		"file-picker",
-		"nativescript",
+		"files",
 		"ios",
-		"android",
-		"web"
+		"nativescript",
+		"octane",
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/files",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

@@ -12,10 +12,10 @@ export interface AnimationControls {
 
 export function validateTransition(t: Transition): void {
 	if (t.type === 'spring' && (t.duration !== undefined || t.ease !== undefined)) {
-        throw new Error('motion: physical springs do not accept duration or ease')
-    }
+		throw new Error('motion: physical springs do not accept duration or ease')
+	}
 
-    const allowed = [
+	const allowed = [
 		'type',
 		'duration',
 		'delay',

@@ -216,8 +216,9 @@ describe('matchUrl + linkPath', () => {
 	)
 
 	it('ignores fragments and preserves query delimiters inside values', () => {
-		expect(matchUrl(routes, linkPath('xplat://demo/counter?from=a?b#ignored')))
-			.toMatchObject({ params: { id: 'counter', from: 'a?b' } })
+		expect(matchUrl(routes, linkPath('xplat://demo/counter?from=a?b#ignored'))).toMatchObject({
+			params: { id: 'counter', from: 'a?b' },
+		})
 	})
 })
 
@@ -296,9 +297,7 @@ describe('defineRoutes', () => {
 
 		expect(m.layouts.guides.displayName).toBe('GuideShell')
 		expect(m.layouts[''].displayName).toBe('RootShell')
-		expect(layoutChain(m.layouts, 'guides/:slug').map((c) => c.displayName)).toEqual([
-			'GuideShell',
-		])
+		expect(layoutChain(m.layouts, 'guides/:slug').map((c) => c.displayName)).toEqual(['GuideShell'])
 	})
 
 	it('warns and skips a non-component screen', () => {
@@ -485,11 +484,7 @@ describe('mergeRouteManifests', () => {
 
 		const merged = mergeRouteManifests(files, dynamic)
 
-		expect(Object.keys(merged.screens).sort()).toEqual([
-			'demo/:id',
-			'detail',
-			'guides/:slug',
-		])
+		expect(Object.keys(merged.screens).sort()).toEqual(['demo/:id', 'detail', 'guides/:slug'])
 
 		expect(merged.layouts.guides.displayName).toBe('FileLayout')
 		expect(merged.layouts.docs.displayName).toBe('DocsShell')

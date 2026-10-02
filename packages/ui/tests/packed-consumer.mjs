@@ -225,7 +225,10 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
-	assert.ok(workspaceManifest.publishConfig?.exports, 'the package declares publish-time export mappings')
+	assert.ok(
+		workspaceManifest.publishConfig?.exports,
+		'the package declares publish-time export mappings',
+	)
 
 	const exportMaps = [
 		workspaceManifest.exports,
@@ -261,7 +264,9 @@ try {
 		}
 	}
 
-	console.log('ui packed consumer: web/native/macos exports and platform subpaths typecheck in Bundler and NodeNext modes')
+	console.log(
+		'ui packed consumer: web/native/macos exports and platform subpaths typecheck in Bundler and NodeNext modes',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

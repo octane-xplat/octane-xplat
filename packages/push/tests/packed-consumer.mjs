@@ -46,17 +46,17 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"firebase",
-	"@nativescript/firebase-core",
-	"@nativescript/firebase-messaging",
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'firebase',
+	'@nativescript/firebase-core',
+	'@nativescript/firebase-messaging',
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { push, type PushMessage, type PushPermission } from '@octane-xplat/push'
+	web: `import { push, type PushMessage, type PushPermission } from '@octane-xplat/push'
 const configured: Promise<void> = push.configure()
 const token: Promise<string | null> = push.getToken()
 const unsubscribe: () => void = push.onMessage((message: PushMessage) => void message.title)
@@ -66,7 +66,7 @@ void token
 void unsubscribe
 void permission
 `,
-	"native": `import { push, type PushMessage, type PushPermission } from '@octane-xplat/push'
+	native: `import { push, type PushMessage, type PushPermission } from '@octane-xplat/push'
 const configured: Promise<void> = push.configure()
 const token: Promise<string | null> = push.getToken()
 const unsubscribe: () => void = push.onMessage((message: PushMessage) => void message.title)
@@ -75,7 +75,7 @@ void configured
 void token
 void unsubscribe
 void permission
-`
+`,
 }
 
 const extraFiles = {}
@@ -85,30 +85,16 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": []
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
-	}
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -218,15 +204,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

@@ -55,7 +55,9 @@ function runSample(size, mode) {
 				lineBuffer = lineBuffer.slice(newline + 1)
 				const marker = '[macos-vlist-bench] '
 				const markerIndex = line.indexOf(marker)
-				if (markerIndex < 0) {continue}
+				if (markerIndex < 0) {
+					continue
+				}
 				try {
 					result = JSON.parse(line.slice(markerIndex + marker.length))
 					clearTimeout(killAfterResult)
@@ -98,7 +100,9 @@ function runSample(size, mode) {
 }
 
 function assertSample(result, size, mode) {
-	if (result.status === 'killed-before-metrics') {return}
+	if (result.status === 'killed-before-metrics') {
+		return
+	}
 	if (mode === 'all') {
 		if (
 			result.initial?.mountedRowCount !== size ||
@@ -106,7 +110,9 @@ function assertSample(result, size, mode) {
 			result.initial?.firstMountedRow !== 0 ||
 			result.initial?.lastMountedRow !== size - 1
 		) {
-			throw new Error(`Expected all ${size} rows mounted in order: ${JSON.stringify(result.initial)}`)
+			throw new Error(
+				`Expected all ${size} rows mounted in order: ${JSON.stringify(result.initial)}`,
+			)
 		}
 
 		return
@@ -115,8 +121,14 @@ function assertSample(result, size, mode) {
 	const maxMountedRows = 32
 	for (const phase of ['initial', 'afterScroll']) {
 		const metrics = result[phase]
-		if (!metrics || metrics.mountedRowCount > maxMountedRows || metrics.mappedRowCount !== metrics.mountedRowCount) {
-			throw new Error(`${phase} exceeded the ${maxMountedRows}-row window or left stale row nodes: ${JSON.stringify(metrics)}`)
+		if (
+			!metrics ||
+			metrics.mountedRowCount > maxMountedRows ||
+			metrics.mappedRowCount !== metrics.mountedRowCount
+		) {
+			throw new Error(
+				`${phase} exceeded the ${maxMountedRows}-row window or left stale row nodes: ${JSON.stringify(metrics)}`,
+			)
 		}
 	}
 
@@ -135,7 +147,9 @@ function assertSample(result, size, mode) {
 		Math.abs(initialScrollView.contentHeight - expectedContentHeight) > 1 ||
 		Math.abs(finalScrollView.contentHeight - expectedContentHeight) > 1
 	) {
-		throw new Error(`The fixed-height spacer changed the total document height: ${JSON.stringify({ initialScrollView, finalScrollView, expectedContentHeight })}`)
+		throw new Error(
+			`The fixed-height spacer changed the total document height: ${JSON.stringify({ initialScrollView, finalScrollView, expectedContentHeight })}`,
+		)
 	}
 
 	if (
@@ -143,11 +157,15 @@ function assertSample(result, size, mode) {
 		result.afterScroll.lastMountedRow !== size - 1 ||
 		result.afterScroll.firstMountedRow < Math.max(0, size - maxMountedRows)
 	) {
-		throw new Error(`The end-of-list window did not reach the requested range: ${JSON.stringify(result.afterScroll)}`)
+		throw new Error(
+			`The end-of-list window did not reach the requested range: ${JSON.stringify(result.afterScroll)}`,
+		)
 	}
 }
 
-console.log(`AppKit VirtualList probe · ${requestedModes.join(', ')} · ${requestedSizes.join(', ')} rows`)
+console.log(
+	`AppKit VirtualList probe · ${requestedModes.join(', ')} · ${requestedSizes.join(', ')} rows`,
+)
 for (const mode of requestedModes) {
 	for (const size of requestedSizes) {
 		const result = await runSample(size, mode)

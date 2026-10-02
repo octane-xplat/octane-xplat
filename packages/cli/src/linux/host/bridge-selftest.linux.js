@@ -43,7 +43,14 @@
 	const run = async (name, fn, expected) => {
 		try {
 			const value = await fn()
-			if ((expected !== undefined && value !== expected) || value === false || value === null || value === 'unsupported') { throw new Error('unexpected result: ' + JSON.stringify(value)) }
+			if (
+				(expected !== undefined && value !== expected) ||
+				value === false ||
+				value === null ||
+				value === 'unsupported'
+			) {
+				throw new Error('unexpected result: ' + JSON.stringify(value))
+			}
 			const result = name + '=' + JSON.stringify(value)
 			out.push(result)
 			log('SELFTEST_STEP ' + result)
@@ -95,14 +102,22 @@
 	await new Promise((r) => setTimeout(r, 500))
 	await run('windows.closedEvent', async () => gotClosed)
 	await run('missing.clipboardMethod', async () => {
-		try { await call('clipboard', 'nope', []); return false }
-		catch (e) { return e.message === 'host has no clipboard.nope' }
+		try {
+			await call('clipboard', 'nope', [])
+			return false
+		} catch (e) {
+			return e.message === 'host has no clipboard.nope'
+		}
 	})
 
 	await run('deepLinks.initialUrl', () => window.__xplatInitialUrl ?? 'none')
 	await run('missing.method', async () => {
-		try { await call('nope', 'nope', []); return false }
-		catch (e) { return e.message === 'host has no nope.nope' }
+		try {
+			await call('nope', 'nope', [])
+			return false
+		} catch (e) {
+			return e.message === 'host has no nope.nope'
+		}
 	})
 
 	log('SELFTEST ' + out.join(' | '))

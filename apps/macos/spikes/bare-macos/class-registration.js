@@ -1,3 +1,3 @@
 class SpikeClass extends NSObject {}
-NativeClass(SpikeClass);
-'registered';
+NativeClass(SpikeClass)
+;('registered')

@@ -5,11 +5,10 @@
 // The bridge is the dep-free __xplatBridge global, not a platform import.
 import type { Capability, NotificationsImpl, PermissionResult } from './types'
 
-const bridge = () =>
-	(typeof window !== 'undefined' ? (window as any).__xplatBridge : undefined)
+const bridge = () => (typeof window !== 'undefined' ? (window as any).__xplatBridge : undefined)
 
 const bridged = () => bridge() !== undefined
-const call = <T,>(method: string, ...args: unknown[]): Promise<T> =>
+const call = <T>(method: string, ...args: unknown[]): Promise<T> =>
 	bridge()!.call('notifications', method, args) as Promise<T>
 
 export const notifications: Capability<NotificationsImpl> = {

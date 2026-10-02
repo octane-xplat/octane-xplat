@@ -1,3 +1,3 @@
-export * from "./types";
-export { createHaptics } from "./haptics.web";
-export { haptics } from "./service";
+export * from './types'
+export { createHaptics } from './haptics.web'
+export { haptics } from './service'

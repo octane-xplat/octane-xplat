@@ -38,8 +38,12 @@ const { code, signal } = await new Promise((resolve, reject) => {
 
 clearTimeout(deadline)
 const count = (text) => output.split(text).length - 1
-if (!updated || count('NativeScript init completed') !== 1 || count('[harness] App mounted') !== 1 ||
-	count('[macos] component rendered after hot edit') !== 1) {
+if (
+	!updated ||
+	count('NativeScript init completed') !== 1 ||
+	count('[harness] App mounted') !== 1 ||
+	count('[macos] component rendered after hot edit') !== 1
+) {
 	throw Error(`JavaScriptCore HMR failed (code=${code}, signal=${signal}):\n${output.slice(-4000)}`)
 }
 

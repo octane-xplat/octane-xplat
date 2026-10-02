@@ -252,7 +252,9 @@ function installPlatformServices() {
 			build: info.CFBundleVersion ?? null,
 			bundleId: NSBundle.mainBundle.bundleIdentifier ?? null,
 		},
-		get appState() { return services.appState },
+		get appState() {
+			return services.appState
+		},
 		get windowSize() {
 			const frame = services.primaryWindow?.contentView?.frame ?? { size: { width: 0, height: 0 } }
 			return {
@@ -272,13 +274,17 @@ function installPlatformServices() {
 		},
 		shareContent({ text, url, title }) {
 			const anchor = services.primaryWindow?.contentView
-			if (!anchor || typeof NSSharingServicePicker === 'undefined') {return 'unavailable'}
+			if (!anchor || typeof NSSharingServicePicker === 'undefined') {
+				return 'unavailable'
+			}
 
 			try {
 				let items
 				if (typeof url === 'string') {
 					const nativeUrl = NSURL.URLWithString(url)
-					if (!nativeUrl) {return 'unavailable'}
+					if (!nativeUrl) {
+						return 'unavailable'
+					}
 					items = [nativeUrl, String(title ?? url)]
 				} else if (typeof text === 'string') {
 					items = [text]
@@ -306,7 +312,9 @@ function installPlatformServices() {
 		},
 		openUrl(url) {
 			const target = NSURL.URLWithString(String(url))
-			if (!target) {return false}
+			if (!target) {
+				return false
+			}
 			return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
 		},
 		getColorScheme() {
@@ -358,7 +366,10 @@ function installPlatformServices() {
 try {
 	installPlatformServices()
 } catch (error) {
-	console.error('[macos] platform services seam failed to install; __xplatAppKit stays undefined', error)
+	console.error(
+		'[macos] platform services seam failed to install; __xplatAppKit stays undefined',
+		error,
+	)
 }
 
 // `openWindow` from @octane-xplat/ui reaches the host through this global
@@ -504,14 +515,17 @@ export function fitWindowToContent(nativeWindow, floor = { width: 640, height: 4
 	}
 
 	const screenHeight = Number(
-		nativeWindow.screen?.visibleFrame?.size?.height
-			?? NSScreen.mainScreen?.visibleFrame?.size?.height
-			?? 0,
+		nativeWindow.screen?.visibleFrame?.size?.height ??
+			NSScreen.mainScreen?.visibleFrame?.size?.height ??
+			0,
 	)
 
 	nativeWindow.setContentSize({
 		width: Math.max(floor.width, Math.ceil(width)),
-		height: Math.max(floor.height, Math.min(Math.ceil(height), screenHeight > 0 ? screenHeight : height)),
+		height: Math.max(
+			floor.height,
+			Math.min(Math.ceil(height), screenHeight > 0 ? screenHeight : height),
+		),
 	})
 }
 
@@ -546,8 +560,7 @@ export function openWindow(options = {}) {
 	}
 
 	const parentWindow = resolveParentWindow(parentOption, kind)
-	const defaultSize =
-		kind === 'regular' ? { width: 480, height: 320 } : { width: 360, height: 200 }
+	const defaultSize = kind === 'regular' ? { width: 480, height: 320 } : { width: 360, height: 200 }
 
 	const size = normalizeWindowSize(options.size ?? defaultSize)
 
@@ -646,9 +659,8 @@ export function openWindow(options = {}) {
 		}
 
 		const component =
-			options.component ?? (typeof shared.resolver === 'function'
-				? shared.resolver(controller.data, controller)
-				: null)
+			options.component ??
+			(typeof shared.resolver === 'function' ? shared.resolver(controller.data, controller) : null)
 
 		if (typeof component !== 'function') {
 			throw new Error(

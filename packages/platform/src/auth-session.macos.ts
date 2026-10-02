@@ -127,7 +127,9 @@ export const authSession: Capability<AuthSessionImpl> = {
 						}
 
 						finish(
-							callbackURL ? { type: 'success', url: String(callbackURL.absoluteString) } : { type: 'cancel' },
+							callbackURL
+								? { type: 'success', url: String(callbackURL.absoluteString) }
+								: { type: 'cancel' },
 						)
 					},
 				)

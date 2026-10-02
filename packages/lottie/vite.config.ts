@@ -11,15 +11,37 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // index.{ios,android}.ts per platform.
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.mobile.ts',
-	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.ios.tsrx',
+	'.android.tsrx',
+	'.mobile.tsrx',
+	'.tsrx',
+	'.ios.tsx',
+	'.android.tsx',
+	'.mobile.tsx',
+	'.tsx',
+	'.ios.ts',
+	'.android.ts',
+	'.mobile.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 const WEB_EXTS = [
-	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx',
-	'.web.ts', '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.web.tsrx',
+	'.tsrx',
+	'.web.tsx',
+	'.tsx',
+	'.web.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 export default defineConfig(({ mode }) => {
@@ -60,17 +82,27 @@ export default defineConfig(({ mode }) => {
 					...(native
 						? {
 								paths: (id) => {
-									if (id === 'octane') { return 'octane/universal/native' }
+									if (id === 'octane') {
+										return 'octane/universal/native'
+									}
 									// The vendored specifier resolves to an absolute path before
 									// emit; rolldown relativizes it against the package root,
 									// producing './src/vendor/...' which misses dist/native.
-									if (id.endsWith('/src/vendor/ui-lottie/src/lottie')) { return './vendor/ui-lottie' }
+									if (id.endsWith('/src/vendor/ui-lottie/src/lottie')) {
+										return './vendor/ui-lottie'
+									}
 									return id
 								},
 							}
 						: {}),
 				},
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^lottie-web/, /^\.\/vendor\/ui-lottie\/src\/lottie$/],
+				external: [
+					/^octane/,
+					/^@nativescript\//,
+					/^@nativescript-community\//,
+					/^lottie-web/,
+					/^\.\/vendor\/ui-lottie\/src\/lottie$/,
+				],
 			},
 		},
 		resolve: {

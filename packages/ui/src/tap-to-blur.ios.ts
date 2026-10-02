@@ -11,35 +11,41 @@
  *  Keyboard taps live in a separate UIWindow, so they never reach it.
  *  `cancelsTouchesInView` stays false so taps still reach buttons. */
 export function attachTapToBlur(view: any): () => void {
-	const marker = '__xplatTapToBlur';
-	if (!view || view[marker]) {return () => {};}
-	view[marker] = true;
+	const marker = '__xplatTapToBlur'
+	if (!view || view[marker]) {
+		return () => {}
+	}
+	view[marker] = true
 
-	iosAttach();
+	iosAttach()
 	return () => {
-		view[marker] = false;
-		iosDetach();
-	};
+		view[marker] = false
+		iosDetach()
+	}
 }
 
-let iosCount = 0;
-let iosTarget: any = null;
-let iosRecognizer: any = null;
-let iosWindow: any = null;
+let iosCount = 0
+let iosTarget: any = null
+let iosRecognizer: any = null
+let iosWindow: any = null
 
 function iosAttach() {
-	iosCount++;
-	if (iosRecognizer) {return;}
-	const appWin = appWindow();
-	if (!appWin) {return;}
-	iosWindow = appWin;
+	iosCount++
+	if (iosRecognizer) {
+		return
+	}
+	const appWin = appWindow()
+	if (!appWin) {
+		return
+	}
+	iosWindow = appWin
 	// Resolve Objective-C bridge globals only when the iOS view is attached.
 	@NativeClass
 	class TapToBlurRecognizerTarget extends NSObject implements UIGestureRecognizerDelegate {
 		static ObjCProtocols = [UIGestureRecognizerDelegate]
 		static ObjCExposedMethods = {
 			tap: { returns: interop.types.void, params: [UITapGestureRecognizer] },
-		};
+		}
 
 		gestureRecognizerShouldReceiveTouch(_recognizer: any, touch: any) {
 			let hit = touch.view
@@ -57,36 +63,40 @@ function iosAttach() {
 		}
 
 		tap(_recognizer: any) {
-			iosWindow.endEditing(true);
+			iosWindow.endEditing(true)
 		}
 	}
 
-	iosTarget = TapToBlurRecognizerTarget.new();
-	iosRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(iosTarget, 'tap');
-	iosRecognizer.delegate = iosTarget;
-	iosRecognizer.cancelsTouchesInView = false;
-	appWin.addGestureRecognizer(iosRecognizer);
+	iosTarget = TapToBlurRecognizerTarget.new()
+	iosRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(iosTarget, 'tap')
+	iosRecognizer.delegate = iosTarget
+	iosRecognizer.cancelsTouchesInView = false
+	appWin.addGestureRecognizer(iosRecognizer)
 }
 
 function iosDetach() {
-	iosCount--;
-	if (iosCount > 0 || !iosRecognizer) {return;}
-	iosWindow?.removeGestureRecognizer(iosRecognizer);
-	iosRecognizer = null;
-	iosTarget = null;
-	iosWindow = null;
+	iosCount--
+	if (iosCount > 0 || !iosRecognizer) {
+		return
+	}
+	iosWindow?.removeGestureRecognizer(iosRecognizer)
+	iosRecognizer = null
+	iosTarget = null
+	iosWindow = null
 }
 
 function appWindow() {
-	const scenes = UIApplication.sharedApplication.connectedScenes;
+	const scenes = UIApplication.sharedApplication.connectedScenes
 	// connectedScenes is an NSSet — `allObjects` marshals to a JS array.
 	for (const scene of (scenes as any).allObjects ?? []) {
 		if (scene instanceof UIWindowScene) {
 			for (const w of (scene.windows as any)?.allObjects ?? scene.windows ?? []) {
-				if (w.isKeyWindow) {return w;}
+				if (w.isKeyWindow) {
+					return w
+				}
 			}
 		}
 	}
 
-	return UIApplication.sharedApplication.keyWindow;
+	return UIApplication.sharedApplication.keyWindow
 }

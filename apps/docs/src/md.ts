@@ -110,7 +110,10 @@ export function parseMd(md: string): Block[] {
 
 		if (/^#{1,4}\s/.test(line)) {
 			const m = line.match(/^(#+)\s+(.*)/)!
-			const slug = m[2].toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').replace(/ /g, '-')
+			const slug = m[2]
+				.toLowerCase()
+				.replace(/[^\p{L}\p{N}_\s-]/gu, '')
+				.replace(/ /g, '-')
 			let id = slug
 			let suffix = 0
 			while (headingIds.has(id)) {

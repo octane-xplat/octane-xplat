@@ -13,15 +13,13 @@ export type { ColorScheme } from '../props'
 import type { ColorScheme } from '../props'
 
 const bridged = () =>
-	typeof window !== 'undefined' &&
-	(window as any).webkit?.messageHandlers?.xplat !== undefined
+	typeof window !== 'undefined' && (window as any).webkit?.messageHandlers?.xplat !== undefined
 
 let lastScheme: ColorScheme =
 	((window as any).__xplatColorScheme as ColorScheme | undefined) ?? 'light'
 
 function getSystemScheme(): ColorScheme {
-	return typeof matchMedia === 'function' &&
-		matchMedia('(prefers-color-scheme: dark)').matches
+	return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches
 		? 'dark'
 		: 'light'
 }

@@ -9,10 +9,17 @@ beforeEach(async () => {
 	vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
 	history.replaceState(null, '', '/')
 	router = await import('./route.web')
-	router.registerRoutes(defineRoutes([
-		{ path: 'detail', screen: () => null, beforeLoad: () => ({ guarded: true }), loader: () => 'loaded' },
-		{ path: 'about', screen: () => null, presentation: 'modal' },
-	]))
+	router.registerRoutes(
+		defineRoutes([
+			{
+				path: 'detail',
+				screen: () => null,
+				beforeLoad: () => ({ guarded: true }),
+				loader: () => 'loaded',
+			},
+			{ path: 'about', screen: () => null, presentation: 'modal' },
+		]),
+	)
 })
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 25))
@@ -23,7 +30,10 @@ it('restores guard context and loader data on back and forward', async () => {
 	router.pushRoute({ stack: 'root', name: 'about', params: {} })
 	history.back()
 	await settle()
-	expect(router.routeFor('root')).toMatchObject({ context: { guarded: true }, loaderData: 'loaded' })
+	expect(router.routeFor('root')).toMatchObject({
+		context: { guarded: true },
+		loaderData: 'loaded',
+	})
 	history.forward()
 	await settle()
 	expect(router.currentModalRoute()?.name).toBe('about')
@@ -34,7 +44,10 @@ it('keeps loaded route state when addRoutes updates the registry', async () => {
 	router.pushRoute({ stack: 'root', name: 'detail', params: {} })
 	await settle()
 	router.addRoutes(defineRoutes([{ path: 'extra', screen: () => null }]))
-	expect(router.routeFor('root')).toMatchObject({ context: { guarded: true }, loaderData: 'loaded' })
+	expect(router.routeFor('root')).toMatchObject({
+		context: { guarded: true },
+		loaderData: 'loaded',
+	})
 })
 
 it('counts the visible modal as a back affordance from the base shell', () => {
@@ -54,7 +67,9 @@ it('loads a direct URL without adding history or running its guard', async () =>
 	const loader = vi.fn(() => ({ entries: ['baked'] }))
 	history.replaceState(null, '', '/baked')
 	const length = history.length
-	router.registerRoutes(defineRoutes([{ path: 'baked', screen: () => null, beforeLoad: guard, loader }]))
+	router.registerRoutes(
+		defineRoutes([{ path: 'baked', screen: () => null, beforeLoad: guard, loader }]),
+	)
 	await settle()
 	expect(router.routeFor('root')).toMatchObject({ loaderData: { entries: ['baked'] } })
 	expect(history.length).toBe(length)

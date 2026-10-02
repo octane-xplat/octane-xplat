@@ -1,23 +1,24 @@
-import { Application, Utils } from '@nativescript/core';
+import { Application, Utils } from '@nativescript/core'
 
 // One shared observer tracks the keyboard's current bottom inset — a sheet
 // opened while the keyboard is ALREADY up must lift immediately (a
 // WillChangeFrame observer only learns about changes after binding), and a
 // focused field keeps the inset live across sheet swaps.
-const bound = new Set<any>();
-let inset = 0;
-let wired = false;
+const bound = new Set<any>()
+let inset = 0
+let wired = false
 
 const apply = () => {
 	bound.forEach((host) => {
-		host.translateY = -inset;
-	});
-};
-
+		host.translateY = -inset
+	})
+}
 
 const wireIos = () => {
-	if (wired) { return; }
-	wired = true;
+	if (wired) {
+		return
+	}
+	wired = true
 	NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 		UIKeyboardWillChangeFrameNotification,
 		null,
@@ -25,14 +26,18 @@ const wireIos = () => {
 		(note: any) => {
 			// UIKeyboardFrameEndUserInfoKey arrives boxed as NSValue whose
 			// `CGRectValue` marshals to a plain CGRect object (not a call).
-			const raw = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey);
-			const boxed = raw?.CGRectValue;
-			const frame = typeof boxed === 'function' ? raw.CGRectValue() : (boxed ?? raw);
-			inset = Math.max(0, UIScreen.mainScreen.bounds.size.height - (frame?.origin?.y ?? UIScreen.mainScreen.bounds.size.height));
-			apply();
+			const raw = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey)
+			const boxed = raw?.CGRectValue
+			const frame = typeof boxed === 'function' ? raw.CGRectValue() : (boxed ?? raw)
+			inset = Math.max(
+				0,
+				UIScreen.mainScreen.bounds.size.height -
+					(frame?.origin?.y ?? UIScreen.mainScreen.bounds.size.height),
+			)
+			apply()
 		},
-	);
-};
+	)
+}
 
 /** Lift a bottom-anchored overlay host above the software keyboard.
  *  iOS: a shared UIKeyboardWillChangeFrame observer tracks the inset and
@@ -45,46 +50,55 @@ const wireIos = () => {
  *  restores the transform — call it when the host detaches. */
 export function bindBottomInsetToKeyboard(host: any): () => void {
 	if (Application.ios) {
-		wireIos();
-		bound.add(host);
-		host.translateY = -inset;
+		wireIos()
+		bound.add(host)
+		host.translateY = -inset
 		return () => {
-			bound.delete(host);
-			host.translateY = 0;
-		};
+			bound.delete(host)
+			host.translateY = 0
+		}
 	}
 
 	if (Application.android) {
-		const nativeWindow = Application.android.foregroundActivity?.getWindow();
-		if (!nativeWindow) { return () => {}; }
-		const params = (globalThis as any).android?.view?.WindowManager?.LayoutParams;
-		if (!params) { return () => {}; }
+		const nativeWindow = Application.android.foregroundActivity?.getWindow()
+		if (!nativeWindow) {
+			return () => {}
+		}
+		const params = (globalThis as any).android?.view?.WindowManager?.LayoutParams
+		if (!params) {
+			return () => {}
+		}
 		// adjustResize resizes the RootLayout for us — an extra offset would
 		// double-lift the host.
-		if ((nativeWindow.getAttributes().softInputMode & params.SOFT_INPUT_MASK_ADJUST) === params.SOFT_INPUT_ADJUST_RESIZE) {
-			return () => {};
+		if (
+			(nativeWindow.getAttributes().softInputMode & params.SOFT_INPUT_MASK_ADJUST) ===
+			params.SOFT_INPUT_ADJUST_RESIZE
+		) {
+			return () => {}
 		}
 
-		const ViewCompat = (globalThis as any).androidx?.core?.view?.ViewCompat;
-		const WindowInsetsCompat = (globalThis as any).androidx?.core?.view?.WindowInsetsCompat;
-		if (!ViewCompat || !WindowInsetsCompat) { return () => {}; }
-		const decorView = nativeWindow.getDecorView();
+		const ViewCompat = (globalThis as any).androidx?.core?.view?.ViewCompat
+		const WindowInsetsCompat = (globalThis as any).androidx?.core?.view?.WindowInsetsCompat
+		if (!ViewCompat || !WindowInsetsCompat) {
+			return () => {}
+		}
+		const decorView = nativeWindow.getDecorView()
 		const listener = new ViewCompat.OnApplyWindowInsetsListener({
 			onApplyWindowInsets: (v: any, insets: any) => {
-				const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-				const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+				const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+				const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
 				// Insets are physical pixels; NativeScript transforms are dips.
-				host.translateY = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav));
-				return insets;
+				host.translateY = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav))
+				return insets
 			},
-		});
+		})
 
-		ViewCompat.setOnApplyWindowInsetsListener(decorView, listener);
+		ViewCompat.setOnApplyWindowInsetsListener(decorView, listener)
 		return () => {
-			host.translateY = 0;
-			ViewCompat.setOnApplyWindowInsetsListener(decorView, null);
-		};
+			host.translateY = 0
+			ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
+		}
 	}
 
-	return () => {};
+	return () => {}
 }

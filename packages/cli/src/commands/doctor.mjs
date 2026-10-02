@@ -517,24 +517,40 @@ export const doctor = command({
 
 		if (hasLinux(cwd)) {
 			const config = inspectLinuxPackageConfig(cwd)
-			row('Linux packaging config', config.issues.length === 0,
+			row(
+				'Linux packaging config',
+				config.issues.length === 0,
 				config.issues.join('; ') || config.applicationId,
-				config.issues.join('; '))
+				config.issues.join('; '),
+			)
 
 			const tar = check('tar', ['--version'])
 			row('Linux archive tool', tar.ok, tar.out, 'install tar')
 			if (process.platform === 'linux') {
-				const runtime = check('gjs', ['-c', `imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`])
-				row('Linux runtime', runtime.ok, runtime.out,
-					'install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 (GTK 4.10+)')
+				const runtime = check('gjs', [
+					'-c',
+					`imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`,
+				])
+				row(
+					'Linux runtime',
+					runtime.ok,
+					runtime.out,
+					'install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 (GTK 4.10+)',
+				)
 
-				row('Linux graphical session', !!(process.env.DISPLAY || process.env.WAYLAND_DISPLAY),
+				row(
+					'Linux graphical session',
+					!!(process.env.DISPLAY || process.env.WAYLAND_DISPLAY),
 					process.env.DISPLAY || process.env.WAYLAND_DISPLAY || 'unset',
-					'run in a desktop session or use xvfb-run for automated tests')
+					'run in a desktop session or use xvfb-run for automated tests',
+				)
 
-				row('Linux session bus', !!process.env.DBUS_SESSION_BUS_ADDRESS,
+				row(
+					'Linux session bus',
+					!!process.env.DBUS_SESSION_BUS_ADDRESS,
 					process.env.DBUS_SESSION_BUS_ADDRESS ? 'configured' : 'unset',
-					'run in a desktop session or dbus-run-session')
+					'run in a desktop session or dbus-run-session',
+				)
 			} else {
 				p.log.info('Linux archive can be built here; verify the GJS/WebKitGTK runtime on Linux.')
 			}

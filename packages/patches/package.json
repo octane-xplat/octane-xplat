@@ -3,14 +3,14 @@
 	"version": "0.8.0",
 	"description": "pnpm config dependency carrying the framework patch files",
 	"keywords": [
+		"framework",
 		"octane",
-		"xplat",
-		"pnpm",
 		"patches",
-		"framework"
+		"pnpm",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/patches",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

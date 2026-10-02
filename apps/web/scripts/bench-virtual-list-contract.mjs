@@ -53,8 +53,11 @@ try {
 		for (let sample = 0; sample < 100; sample++) {
 			await page.waitForTimeout(25)
 			const next = await read()
-			matches = JSON.stringify(next) === JSON.stringify(previous) && next.mounted > 1 ? matches + 1 : 0
-			if (matches >= 3) {return next}
+			matches =
+				JSON.stringify(next) === JSON.stringify(previous) && next.mounted > 1 ? matches + 1 : 0
+			if (matches >= 3) {
+				return next
+			}
 			previous = next
 		}
 
@@ -64,7 +67,7 @@ try {
 	await stable()
 	assert.match(await list.locator('.vx-virtual-list-header').innerText(), /Variable-height rows/)
 	assert.match(await list.locator('.vx-virtual-list-footer').innerText(), /End of 500 rows/)
-	assert(await list.locator('.vx-virtual-list-separator > *').count() > 0)
+	assert((await list.locator('.vx-virtual-list-separator > *').count()) > 0)
 	const seekResults = []
 	for (const offset of [960, 10800, 20000, 5000, 10800]) {
 		await list.evaluate((node, y) => {
@@ -116,9 +119,15 @@ try {
 		.evaluate((node) => node.getBoundingClientRect().top)
 
 	assert(Math.abs(topAfter - topBefore) <= 2, `Remeasure anchor drift ${topAfter - topBefore}`)
-	await list.evaluate((node, y) => { node.scrollTop = y }, after.offset)
+	await list.evaluate((node, y) => {
+		node.scrollTop = y
+	}, after.offset)
 	await stable()
-	assert.match(await page.locator('#' + anchor.id).innerText(), / · 0$/, 'Off-window local state should reset')
+	assert.match(
+		await page.locator('#' + anchor.id).innerText(),
+		/ · 0$/,
+		'Off-window local state should reset',
+	)
 	await page.locator('#vl-clear').click()
 	await page.waitForFunction(() => document.querySelector('#vlist .vx-virtual-list-empty'))
 	assert.equal(await list.locator('.vx-virtual-list-row').count(), 0)

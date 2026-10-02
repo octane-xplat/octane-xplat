@@ -46,14 +46,14 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"native": `import { ShaderEffect, type ShaderEffectProps } from '@octane-xplat/effects/ios'
+	native: `import { ShaderEffect, type ShaderEffectProps } from '@octane-xplat/effects/ios'
 import { ShaderEffect as AndroidShaderEffect } from '@octane-xplat/effects/android'
 const props: ShaderEffectProps = { effect: 'heatHaze', animate: true }
 const effect = <ShaderEffect {...props} />
@@ -63,7 +63,7 @@ const missing = <ShaderEffect />
 void effect
 void android
 void missing
-`
+`,
 }
 
 const extraFiles = {}
@@ -73,25 +73,13 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		],
-		"subpaths": [
-			"./ios",
-			"./android"
-		]
-	}
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+		subpaths: ['./ios', './android'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -203,15 +191,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

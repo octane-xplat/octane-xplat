@@ -2,10 +2,7 @@
 // Image and return a data URL for APIs that persist image payloads. Camera
 // capture is stills only: @nativescript/camera presents the OS capture UI
 // (UIImagePickerController on iOS, ACTION_IMAGE_CAPTURE on Android).
-import {
-	isAvailable as isCameraAvailable,
-	takePicture,
-} from '@nativescript/camera'
+import { isAvailable as isCameraAvailable, takePicture } from '@nativescript/camera'
 
 import { create as createImagePicker } from '@nativescript/imagepicker'
 // Ambient const enum — verbatimModuleSyntax forbids value access; Image = 1.
@@ -66,10 +63,11 @@ async function ensureCamera(): Promise<PermissionResult> {
 		}
 
 		const perm = 'android.permission.CAMERA'
-		const activity =
-			Application.android.foregroundActivity ?? Application.android.startActivity
+		const activity = Application.android.foregroundActivity ?? Application.android.startActivity
 
-		if (activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED) {
+		if (
+			activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
+		) {
 			return 'granted'
 		}
 
@@ -84,10 +82,7 @@ async function ensureCamera(): Promise<PermissionResult> {
 					return
 				}
 
-				Application.android.off(
-					Application.android.activityRequestPermissionsEvent,
-					onResult,
-				)
+				Application.android.off(Application.android.activityRequestPermissionsEvent, onResult)
 
 				resolve(
 					args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -96,10 +91,7 @@ async function ensureCamera(): Promise<PermissionResult> {
 				)
 			}
 
-			Application.android.on(
-				Application.android.activityRequestPermissionsEvent,
-				onResult,
-			)
+			Application.android.on(Application.android.activityRequestPermissionsEvent, onResult)
 
 			activity.requestPermissions([perm], requestCode)
 		})

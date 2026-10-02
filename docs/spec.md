@@ -31,14 +31,14 @@ table below to decide whether the available targets cover your first release.
 
 ## Choose your targets
 
-| Target | What this checkout provides | What to plan for |
-| --- | --- | --- |
-| Web | Starter and DOM renderer | Node.js, pnpm, and a browser; device APIs vary by browser. |
-| iOS | Starter using NativeScript views and APIs | A Mac, Xcode, NativeScript setup, and signing for device/distribution builds. |
-| Android | Starter using NativeScript views and APIs | Android SDK, a compatible JDK, and an emulator or device. |
-| macOS | Experimental AppKit harness and CLI packaging | Apple Silicon, macOS 13.5+, a separate app configuration, and a limited component/style/service surface; not in the starter. |
+| Target  | What this checkout provides                                                       | What to plan for                                                                                                                    |
+| ------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Web     | Starter and DOM renderer                                                          | Node.js, pnpm, and a browser; device APIs vary by browser.                                                                          |
+| iOS     | Starter using NativeScript views and APIs                                         | A Mac, Xcode, NativeScript setup, and signing for device/distribution builds.                                                       |
+| Android | Starter using NativeScript views and APIs                                         | Android SDK, a compatible JDK, and an emulator or device.                                                                           |
+| macOS   | Experimental AppKit harness and CLI packaging                                     | Apple Silicon, macOS 13.5+, a separate app configuration, and a limited component/style/service surface; not in the starter.        |
 | Windows | Experimental WinUI 3 scaffold and CLI target; bundle generation verified on macOS | Windows 10 1809+, .NET 10 SDK, Developer Mode, and pinned preview dependencies. Runtime behavior is unverified; not in the starter. |
-| Linux | Experimental WebKitGTK webview host and CLI packaging; exercised on Ubuntu 24.04 | A Linux host with WebKitGTK, separate package settings, and a DOM-rendered surface; not in the starter. |
+| Linux   | Experimental WebKitGTK webview host and CLI packaging; exercised on Ubuntu 24.04  | A Linux host with WebKitGTK, separate package settings, and a DOM-rendered surface; not in the starter.                             |
 
 The framework is `0.x`; APIs are still changing. [Known limits](known-limits.md)
 records capability differences and verification status. The

@@ -106,7 +106,8 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 	return new Promise((resolve) => {
 		const scheme = options.callbackScheme
 		const intentUrl = (intent: any) => intent?.getDataString?.()
-		const initialActivity = Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
+		const initialActivity =
+			Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
 		const initialUrl = intentUrl(initialActivity?.getIntent?.())
 		let finished = false
 

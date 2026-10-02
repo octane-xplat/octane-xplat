@@ -109,7 +109,9 @@ const columnValue = (stmt: any, index: number): any => {
 	switch (host.sqlite3_column_type(stmt, index)) {
 		case SQLITE_INTEGER: {
 			const v = host.sqlite3_column_int64(stmt, index)
-			return typeof v === 'bigint' && v >= -9007199254740991n && v <= 9007199254740991n ? Number(v) : v
+			return typeof v === 'bigint' && v >= -9007199254740991n && v <= 9007199254740991n
+				? Number(v)
+				: v
 		}
 		case SQLITE_FLOAT:
 			return host.sqlite3_column_double(stmt, index)
@@ -150,7 +152,11 @@ class MacosSqliteDb implements SqliteDb {
 
 	// prepare → bind → step to completion → finalize. Rows are yielded through
 	// `onRow` (object or array shape chosen by the caller).
-	private run(sql: string, params: SqliteParam[], onRow?: (stmt: any, cols: number) => void): number {
+	private run(
+		sql: string,
+		params: SqliteParam[],
+		onRow?: (stmt: any, cols: number) => void,
+	): number {
 		const ref = new host.interop.Reference()
 		const rc = host.sqlite3_prepare_v2(this.db, sql, -1, ref, null)
 
@@ -192,7 +198,10 @@ class MacosSqliteDb implements SqliteDb {
 		this.run(sql, toArray(params), (stmt, cols) => {
 			const row: Record<string, unknown> = {}
 			for (let i = 0; i < cols; i++) {
-				row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(stmt, i)
+				row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
+					stmt,
+					i,
+				)
 			}
 
 			rows.push(row as T)
@@ -251,7 +260,10 @@ class MacosSqliteDb implements SqliteDb {
 			this.run(sql, toArray(params), (stmt, cols) => {
 				const row: SqliteRow = {}
 				for (let i = 0; i < cols; i++) {
-					row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(stmt, i)
+					row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
+						stmt,
+						i,
+					)
 				}
 
 				onRow(null, row)
@@ -295,7 +307,9 @@ export const openDatabase = async (
 
 	if (rc !== 0) {
 		const db = ref.value
-		const message = db ? host.interop.stringFromCString(host.sqlite3_errmsg(db)) : `open failed (rc=${rc})`
+		const message = db
+			? host.interop.stringFromCString(host.sqlite3_errmsg(db))
+			: `open failed (rc=${rc})`
 
 		if (db) {
 			host.sqlite3_close_v2(db)

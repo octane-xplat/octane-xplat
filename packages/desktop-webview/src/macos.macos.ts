@@ -40,14 +40,20 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 			return !disposed && native.setBootstrap(serialized)
 		},
 		installDispatcher(dispatch) {
-			if (disposed) {throw new Error('macOS webview is disposed')}
+			if (disposed) {
+				throw new Error('macOS webview is disposed')
+			}
 			native.installDispatcher(dispatch)
 		},
 		deliver(message) {
-			if (!disposed) {native.deliver(message)}
+			if (!disposed) {
+				native.deliver(message)
+			}
 		},
 		dispose() {
-			if (disposed) {return}
+			if (disposed) {
+				return
+			}
 			disposed = true
 			native.dispose()
 		},

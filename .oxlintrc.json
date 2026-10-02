@@ -10,9 +10,7 @@
 		"packages/motion/types/value.d.ts",
 		"**/vendor/**"
 	],
-	"jsPlugins": [
-		"./scripts/oxlint-plugin.mjs"
-	],
+	"jsPlugins": ["./scripts/oxlint-plugin.mjs"],
 	"rules": {
 		"curly": "error",
 		"xplat/spacing": "error",
@@ -32,11 +30,7 @@
 		"xplat/no-web-only-api": [
 			"error",
 			{
-				"exclude": [
-					"apps/web/",
-					"apps/docs/",
-					"apps/linux/"
-				]
+				"exclude": ["apps/web/", "apps/docs/", "apps/linux/"]
 			}
 		],
 		"xplat/element-vocabulary": [
@@ -54,11 +48,7 @@
 		"xplat/no-nativescript-import": [
 			"error",
 			{
-				"exclude": [
-					"apps/mobile/",
-					"apps/windows/",
-					"packages/cli/test/fixtures/"
-				]
+				"exclude": ["apps/mobile/", "apps/windows/", "packages/cli/test/fixtures/"]
 			}
 		],
 		"xplat/no-ns-deep-import": "error",
@@ -66,10 +56,7 @@
 		"xplat/no-native-dead-style": [
 			"error",
 			{
-				"exclude": [
-					"apps/web/",
-					"apps/docs/"
-				]
+				"exclude": ["apps/web/", "apps/docs/"]
 			}
 		],
 		"xplat/no-line-height-unitless": "error",
@@ -77,19 +64,13 @@
 		"xplat/no-unknown-class": [
 			"warn",
 			{
-				"exclude": [
-					"scripts/"
-				]
+				"exclude": ["scripts/"]
 			}
 		],
 		"xplat/no-ts-imports-tsrx": [
 			"error",
 			{
-				"exclude": [
-					"packages/ui/src/ios/",
-					"packages/ui/src/android/",
-					"packages/ui/src/web/"
-				]
+				"exclude": ["packages/ui/src/ios/", "packages/ui/src/android/", "packages/ui/src/web/"]
 			}
 		],
 		"xplat/signal-dollar-suffix": "error",

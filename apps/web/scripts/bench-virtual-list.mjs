@@ -13,14 +13,20 @@ let baseUrl
 let browser
 try {
 	await new Promise((resolve, reject) => {
-		const timeout = setTimeout(() => reject(new Error('Timed out waiting for Vite preview')), 120_000)
+		const timeout = setTimeout(
+			() => reject(new Error('Timed out waiting for Vite preview')),
+			120_000,
+		)
 		const onData = (chunk) => {
 			previewOutput += String(chunk)
 			if (previewOutput.includes('Local:')) {
 				baseUrl = previewOutput.match(/Local:\s+(https?:\/\/\S+)/)?.[1]
 				clearTimeout(timeout)
-				if (baseUrl) {resolve()}
-				else {reject(new Error(`Could not find Vite preview URL: ${previewOutput}`))}
+				if (baseUrl) {
+					resolve()
+				} else {
+					reject(new Error(`Could not find Vite preview URL: ${previewOutput}`))
+				}
 			}
 		}
 
@@ -52,7 +58,9 @@ try {
 		const line = message.text()
 		const marker = '[vlist-benchmark] result '
 		const at = line.indexOf(marker)
-		if (at === -1) {return}
+		if (at === -1) {
+			return
+		}
 		try {
 			resolveResult(JSON.parse(line.slice(at + marker.length)))
 		} catch (error) {
@@ -67,7 +75,9 @@ try {
 	await page.locator('#vlist-bench-run').click()
 	const result = await resultPromise
 	clearTimeout(resultTimeout)
-	if (pageErrors.length) {throw new Error(`Web app errors: ${pageErrors.join('; ')}`)}
+	if (pageErrors.length) {
+		throw new Error(`Web app errors: ${pageErrors.join('; ')}`)
+	}
 	console.log(JSON.stringify(result, null, 2))
 } finally {
 	await browser?.close()

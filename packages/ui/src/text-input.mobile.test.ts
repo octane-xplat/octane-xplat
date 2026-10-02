@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
 	isIOS: false,
@@ -21,7 +26,11 @@ import { SearchInput } from './SearchInput.tsrx'
 // Model that event here, through the real compiled leaves and event dispatch.
 // This is regression coverage, not keyboard/IME/device evidence.
 describe('native controlled input writes', () => {
-	for (const [name, Component] of [['TextInput', TextInput], ['TextArea', TextArea], ['SearchInput', SearchInput]] as const) {
+	for (const [name, Component] of [
+		['TextInput', TextInput],
+		['TextArea', TextArea],
+		['SearchInput', SearchInput],
+	] as const) {
 		it(`${name} does not report controlled writes as user edits`, async () => {
 			const container = createObjectContainer('nativescript')
 			const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -37,7 +46,9 @@ describe('native controlled input writes', () => {
 				node.android = {
 					getSelectionStart: () => selection[0],
 					getSelectionEnd: () => selection[1],
-					setSelection: (start: number, end: number) => { selection = [start, end] },
+					setSelection: (start: number, end: number) => {
+						selection = [start, end]
+					},
 				}
 
 				Object.defineProperty(node, 'text', {
@@ -60,7 +71,9 @@ describe('native controlled input writes', () => {
 			expect(selection).toEqual([1, 1])
 			// A native edit still reaches the callback exactly once.
 			text = 'xy'
-			flushUniversalSync(() => container.dispatchEvent(node, 'textchange', { object: node, value: text }))
+			flushUniversalSync(() =>
+				container.dispatchEvent(node, 'textchange', { object: node, value: text }),
+			)
 			expect(change).toHaveBeenCalledExactlyOnceWith('xy')
 			const dismiss = vi.fn()
 			const clearFocus = vi.fn()

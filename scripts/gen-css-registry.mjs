@@ -57,4 +57,6 @@ writeFileSync(
 	JSON.stringify(registry, null, '\t') + '\n',
 )
 
-console.log(`[css-registry] ${registry.properties.length} properties from ${registry.generatedFrom}`)
+console.log(
+	`[css-registry] ${registry.properties.length} properties from ${registry.generatedFrom}`,
+)

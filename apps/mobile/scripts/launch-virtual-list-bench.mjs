@@ -24,7 +24,9 @@ if (target === 'android') {
 	try {
 		pid = execFileSync('adb', ['-s', device, 'shell', 'pidof', appId], { encoding: 'utf8' }).trim()
 	} catch (error) {
-		if (error.status !== 1) {throw error}
+		if (error.status !== 1) {
+			throw error
+		}
 	}
 
 	if (pid) {
@@ -36,14 +38,22 @@ if (target === 'android') {
 		// Explicitly opting in removes this benchmark app's data under the target lock.
 		let installed = false
 		try {
-			installed = Boolean(execFileSync('adb', ['-s', device, 'shell', 'pm', 'path', appId], { encoding: 'utf8' }).trim())
+			installed = Boolean(
+				execFileSync('adb', ['-s', device, 'shell', 'pm', 'path', appId], {
+					encoding: 'utf8',
+				}).trim(),
+			)
 		} catch (error) {
-			if (error.status !== 1) {throw error}
+			if (error.status !== 1) {
+				throw error
+			}
 		}
 
 		if (installed) {
 			const result = execFileSync('adb', ['-s', device, 'uninstall', appId], { encoding: 'utf8' })
-			if (!result.includes('Success')) {throw new Error('Could not remove benchmark app for a fresh install')}
+			if (!result.includes('Success')) {
+				throw new Error('Could not remove benchmark app for a fresh install')
+			}
 		}
 	}
 
@@ -57,8 +67,12 @@ if (target === 'android') {
 		.flat()
 		.find((item) => item.udid === device)
 
-	if (!selected) {throw new Error(`Unknown simulator ${device}`)}
-	if (selected.state === 'Shutdown') {await run('xcrun', ['simctl', 'boot', device])}
+	if (!selected) {
+		throw new Error(`Unknown simulator ${device}`)
+	}
+	if (selected.state === 'Shutdown') {
+		await run('xcrun', ['simctl', 'boot', device])
+	}
 	await run('xcrun', ['simctl', 'bootstatus', device, '-b'])
 	const jobs = execFileSync('xcrun', ['simctl', 'spawn', device, 'launchctl', 'list'], {
 		encoding: 'utf8',
@@ -72,7 +86,9 @@ if (target === 'android') {
 	await run('pnpm', ['exec', 'ns', 'build', 'ios', '--emulator'])
 	const buildDir = path.resolve('platforms/ios/build/Debug-iphonesimulator')
 	const apps = readdirSync(buildDir).filter((name) => name.endsWith('.app'))
-	if (apps.length !== 1) {throw new Error(`Expected one simulator app in ${buildDir}: ${apps}`)}
+	if (apps.length !== 1) {
+		throw new Error(`Expected one simulator app in ${buildDir}: ${apps}`)
+	}
 	await run('xcrun', ['simctl', 'install', device, path.join(buildDir, apps[0])])
 	await run('xcrun', ['simctl', 'launch', '--console', device, appId])
 }

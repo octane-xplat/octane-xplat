@@ -20,14 +20,10 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseDocument, isMap, Scalar } from 'yaml'
 
-export const canonicalPatchesDir = join(
-	dirname(fileURLToPath(import.meta.url)),
-	'../patches',
-)
+export const canonicalPatchesDir = join(dirname(fileURLToPath(import.meta.url)), '../patches')
 
 export const loadPatchManifest = () =>
-	JSON.parse(readFileSync(join(canonicalPatchesDir, 'manifest.json'), 'utf8'))
-		.patches
+	JSON.parse(readFileSync(join(canonicalPatchesDir, 'manifest.json'), 'utf8')).patches
 
 export const specifierPackage = (spec) => {
 	const i = spec.indexOf('@', 1)
@@ -67,13 +63,19 @@ export const declaredDeps = (pkg) => ({
 // dep fields so a workspace app checks the packages it actually installs.
 const workspaceDeps = (appDir) => {
 	const ws = join(appDir, 'pnpm-workspace.yaml')
-	if (!existsSync(ws)) {return {}}
+	if (!existsSync(ws)) {
+		return {}
+	}
 	const globs = readYamlDoc(ws)?.get('packages')?.toJSON() ?? []
 	const deps = {}
 	for (const glob of globs) {
-		if (!glob.endsWith('/*')) {continue}
+		if (!glob.endsWith('/*')) {
+			continue
+		}
 		const parent = join(appDir, glob.slice(0, -2))
-		if (!existsSync(parent)) {continue}
+		if (!existsSync(parent)) {
+			continue
+		}
 		for (const member of readdirSync(parent)) {
 			const pkg = readJson(join(parent, member, 'package.json'))
 			Object.assign(deps, declaredDeps(pkg))
@@ -101,7 +103,9 @@ export const configuredPatches = (appDir) => {
 /** Specifiers recorded in pnpm-lock.yaml — null when there is no lockfile. */
 const lockfilePatches = (appDir) => {
 	const lock = join(appDir, 'pnpm-lock.yaml')
-	if (!existsSync(lock)) {return null}
+	if (!existsSync(lock)) {
+		return null
+	}
 	const pd = readYamlDoc(lock)?.get('patchedDependencies')
 	return isMap(pd) ? new Set(pd.items.map((i) => String(i.key))) : new Set()
 }
@@ -111,11 +115,15 @@ const lockfilePatches = (appDir) => {
 // when every resolution lands on the pin.
 const lockfileResolvedVersions = (appDir) => {
 	const lock = join(appDir, 'pnpm-lock.yaml')
-	if (!existsSync(lock)) {return null}
+	if (!existsSync(lock)) {
+		return null
+	}
 	const doc = readYamlDoc(lock)
 	const resolved = {}
 	const add = (name, version) => {
-		if (!name || !version) {return}
+		if (!name || !version) {
+			return
+		}
 		const set = (resolved[name] ??= new Set())
 		set.add(version)
 	}
@@ -125,8 +133,7 @@ const lockfileResolvedVersions = (appDir) => {
 	for (const importer of Object.values(doc?.get('importers')?.toJSON() ?? {})) {
 		for (const group of ['dependencies', 'devDependencies']) {
 			for (const [name, entry] of Object.entries(importer?.[group] ?? {})) {
-				const version =
-					typeof entry === 'string' ? entry : entry?.version
+				const version = typeof entry === 'string' ? entry : entry?.version
 
 				if (!version) {
 					continue
@@ -197,10 +204,7 @@ export const inspectPatches = (appDir) => {
 		// it transitively at the pinned version (a patch may target a
 		// transitive dep, e.g. reworkcss `css` under @nativescript/vite).
 
-		if (
-			declared === undefined &&
-			!resolved?.[name]?.has(specifierVersion(patch.specifier))
-		) {
+		if (declared === undefined && !resolved?.[name]?.has(specifierVersion(patch.specifier))) {
 			return { ...base, state: 'not-declared' }
 		}
 
@@ -208,33 +212,28 @@ export const inspectPatches = (appDir) => {
 		// targets and nothing declares the patch — it can never bite (e.g.
 		// the starter never resolves the windows-preview pins). A configured
 		// entry in that state still reports version-mismatch below.
-		if (
-			!base.path &&
-			!versionOk(
-				declared,
-				specifierVersion(patch.specifier),
-				resolved?.[name],
-			)
-		)
-			{return { ...base, state: 'not-applicable' }}
+		if (!base.path && !versionOk(declared, specifierVersion(patch.specifier), resolved?.[name])) {
+			return { ...base, state: 'not-applicable' }
+		}
 
-		if (!base.path) {return { ...base, state: 'missing-config' }}
+		if (!base.path) {
+			return { ...base, state: 'missing-config' }
+		}
 		const file = join(appDir, base.path)
-		if (!existsSync(file)) {return { ...base, state: 'missing-file' }}
-		if (sha(file) !== sha(join(canonicalPatchesDir, patch.file)))
-			{return { ...base, state: 'file-differs' }}
+		if (!existsSync(file)) {
+			return { ...base, state: 'missing-file' }
+		}
+		if (sha(file) !== sha(join(canonicalPatchesDir, patch.file))) {
+			return { ...base, state: 'file-differs' }
+		}
 
-		if (
-			!versionOk(
-				declared,
-				specifierVersion(patch.specifier),
-				resolved?.[name],
-			)
-		)
-			{return { ...base, state: 'version-mismatch' }}
+		if (!versionOk(declared, specifierVersion(patch.specifier), resolved?.[name])) {
+			return { ...base, state: 'version-mismatch' }
+		}
 
-		if (locked && !locked.has(patch.specifier))
-			{return { ...base, state: 'not-installed' }}
+		if (locked && !locked.has(patch.specifier)) {
+			return { ...base, state: 'not-installed' }
+		}
 
 		return { ...base, state: 'applied' }
 	})
@@ -267,7 +266,9 @@ export const wrapComment = (text, width = 88) => {
 		}
 	}
 
-	if (line) {lines.push(line)}
+	if (line) {
+		lines.push(line)
+	}
 	return lines.join('\n ')
 }
 
@@ -280,7 +281,9 @@ export const wrapComment = (text, width = 88) => {
 export const applyPatches = (appDir, { force = false } = {}) => {
 	appDir = resolve(appDir)
 	const pkg = readJson(join(appDir, 'package.json'))
-	if (!pkg) {return { error: `no package.json in ${appDir}` }}
+	if (!pkg) {
+		return { error: `no package.json in ${appDir}` }
+	}
 
 	const deps = { ...workspaceDeps(appDir), ...declaredDeps(pkg) }
 	const configured = configuredPatches(appDir)
@@ -363,15 +366,11 @@ export const applyPatches = (appDir, { force = false } = {}) => {
 
 	// Only register entries whose file actually landed (copied or identical)
 	// and whose mapping isn't already satisfied by an identical alt-path file.
-	const landed = new Set(
-		[...report.copied, ...report.kept].map((p) => p.specifier),
-	)
+	const landed = new Set([...report.copied, ...report.kept].map((p) => p.specifier))
 
 	mergeConfig(
 		appDir,
-		relevant.filter(
-			(p) => landed.has(p.specifier) && !skipMerge.has(p.specifier),
-		),
+		relevant.filter((p) => landed.has(p.specifier) && !skipMerge.has(p.specifier)),
 		{ force, report },
 	)
 
@@ -399,7 +398,9 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 		for (const patch of patches) {
 			const target = `patches/${patch.file}`
 			const existing = pd.get(patch.specifier)
-			if (existing === target) {continue}
+			if (existing === target) {
+				continue
+			}
 			if (existing !== undefined && !force) {
 				report.conflicts.push({
 					...patch,
@@ -415,7 +416,9 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 			changed = true
 		}
 
-		if (changed) {writeFileSync(file, String(doc))}
+		if (changed) {
+			writeFileSync(file, String(doc))
+		}
 		return
 	}
 
@@ -428,7 +431,9 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 	for (const patch of patches) {
 		const target = `patches/${patch.file}`
 		const existing = pkg.pnpm.patchedDependencies[patch.specifier]
-		if (existing === target) {continue}
+		if (existing === target) {
+			continue
+		}
 		if (existing !== undefined && !force) {
 			report.conflicts.push({
 				...patch,
@@ -442,6 +447,7 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 		changed = true
 	}
 
-	if (changed)
-		{writeFileSync(file, JSON.stringify(pkg, null, detectIndent(src)) + '\n')}
+	if (changed) {
+		writeFileSync(file, JSON.stringify(pkg, null, detectIndent(src)) + '\n')
+	}
 }

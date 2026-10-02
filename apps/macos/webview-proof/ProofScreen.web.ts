@@ -5,10 +5,14 @@ import type { ProofEvents, ProofResult, ProofServices } from '../src/webview-pro
 import type { HostClient } from '@octane-xplat/platform/host'
 
 const output = document.querySelector<HTMLPreElement>('#result')!
-if (!output) { throw new Error('desktop host proof result element is missing') }
+if (!output) {
+	throw new Error('desktop host proof result element is missing')
+}
 
 function assert(condition: unknown, message: string): asserts condition {
-	if (!condition) { throw new Error(message) }
+	if (!condition) {
+		throw new Error(message)
+	}
 }
 
 async function runProof(client: HostClient<ProofServices, ProofEvents>) {

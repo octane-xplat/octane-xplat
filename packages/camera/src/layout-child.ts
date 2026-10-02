@@ -17,16 +17,22 @@ export function layoutChildProps(props: CameraViewProps): Record<string, any> {
 		'alignSelf',
 		'order',
 	] as const) {
-		if (props[key] !== undefined) {result[key] = props[key]}
+		if (props[key] !== undefined) {
+			result[key] = props[key]
+		}
 	}
 
 	return result
 }
 
 export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {
-	if (!view) {return}
+	if (!view) {
+		return
+	}
 	const bag = isIOS ? props.ios : props.android
-	if (bag) {Object.assign(view, bag)}
+	if (bag) {
+		Object.assign(view, bag)
+	}
 }
 
 const nativeRoles: Record<string, string> = {
@@ -51,12 +57,20 @@ export function nativeAccessibilityRole(role?: string): string | undefined {
 	return role ? nativeRoles[role] : undefined
 }
 
-export function nativeAccessibilityState(state?: CameraViewProps['accessibilityState']):
-	| string
-	| undefined {
-	if (state?.disabled) {return 'disabled'}
-	if (state?.selected) {return 'selected'}
-	if (state?.checked === true) {return 'checked'}
-	if (state?.checked === false) {return 'unchecked'}
+export function nativeAccessibilityState(
+	state?: CameraViewProps['accessibilityState'],
+): string | undefined {
+	if (state?.disabled) {
+		return 'disabled'
+	}
+	if (state?.selected) {
+		return 'selected'
+	}
+	if (state?.checked === true) {
+		return 'checked'
+	}
+	if (state?.checked === false) {
+		return 'unchecked'
+	}
 	return undefined
 }

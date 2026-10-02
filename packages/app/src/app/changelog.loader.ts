@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /** changelog.loader — build-time data for a `dataMode: 'baked'` route.
  *  Runs under vite ssrLoadModule during `xplat routes`/dev/build (Node —
@@ -9,11 +9,8 @@ import { fileURLToPath } from 'node:url';
  *  imports (node:fs et al.) stay out of every target. */
 export function loader() {
 	const pkg = JSON.parse(
-		readFileSync(
-			join(dirname(fileURLToPath(import.meta.url)), '../../package.json'),
-			'utf8',
-		),
-	);
+		readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8'),
+	)
 
 	return {
 		version: pkg.version ?? 'dev',
@@ -21,5 +18,5 @@ export function loader() {
 			{ version: pkg.version ?? 'dev', note: 'Baked loader output — computed at codegen' },
 			{ version: '…', note: 'Earlier entries would come from a markdown/content dir' },
 		],
-	};
+	}
 }

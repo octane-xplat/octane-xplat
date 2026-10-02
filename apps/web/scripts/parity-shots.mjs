@@ -58,19 +58,24 @@ try {
 		const app = document.querySelector('.vx-app')
 		const cellCount = document.querySelectorAll('.parity-cell').length
 		const scroller = app && app.scrollHeight > app.clientHeight ? app : document.scrollingElement
-		const max = scroller === document.scrollingElement
-			? document.scrollingElement.scrollHeight - window.innerHeight
-			: scroller.scrollHeight - scroller.clientHeight
+		const max =
+			scroller === document.scrollingElement
+				? document.scrollingElement.scrollHeight - window.innerHeight
+				: scroller.scrollHeight - scroller.clientHeight
 
 		return { max, docHeight: scroller.scrollHeight, cellCount }
 	})
 
 	if (scrollInfo.cellCount < 40) {
-		throw new Error(`parity stage shows ${scrollInfo.cellCount} cells — wrong server or stale build?`)
+		throw new Error(
+			`parity stage shows ${scrollInfo.cellCount} cells — wrong server or stale build?`,
+		)
 	}
 
 	const offsets = []
-	for (let o = 0; o <= scrollInfo.max; o += STEP) {offsets.push(o)}
+	for (let o = 0; o <= scrollInfo.max; o += STEP) {
+		offsets.push(o)
+	}
 	if (offsets.length === 0 || offsets[offsets.length - 1] !== scrollInfo.max) {
 		offsets.push(scrollInfo.max)
 	}
@@ -101,7 +106,10 @@ try {
 			for (const el of document.querySelectorAll('.parity-cell')) {
 				const r = el.getBoundingClientRect()
 				out.cells[el.id.replace(/^cell-/, '')] = {
-					x: r.x, y: r.y, w: r.width, h: r.height,
+					x: r.x,
+					y: r.y,
+					w: r.width,
+					h: r.height,
 					visible: r.top >= 0 && r.bottom <= window.innerHeight && r.width > 0,
 				}
 			}
@@ -116,7 +124,9 @@ try {
 
 	writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
 	console.log(`[shots] web → ${outDir} (${manifest.shots.length} shots)`)
-	if (errors.length) {console.log('[shots] page errors: ' + errors.join(' | '))}
+	if (errors.length) {
+		console.log('[shots] page errors: ' + errors.join(' | '))
+	}
 
 	await browser.close()
 } finally {

@@ -3,19 +3,19 @@
 	"version": "0.0.0",
 	"description": "Visibility tracking for Octane xplat — DOM IntersectionObserver on web, scroll/geometry observer on NativeScript iOS/Android",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
 		"cross-platform",
 		"intersection-observer",
-		"visibility",
-		"scroll",
-		"nativescript",
 		"ios",
-		"android",
-		"web"
+		"nativescript",
+		"octane",
+		"scroll",
+		"visibility",
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/intersection-observer",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -46,7 +46,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"macos": {
@@ -64,7 +63,8 @@
 				"types": "./types/index.d.ts",
 				"default": "./dist/native/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",

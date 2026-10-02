@@ -46,16 +46,16 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types",
-	"@nstudio/nativescript-exoplayer",
-	"@octane-xplat/ui"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
+	'@nstudio/nativescript-exoplayer',
+	'@octane-xplat/ui',
 ]
 
 const consumers = {
-	"web": `import { Video, type VideoProps } from '@octane-xplat/video'
+	web: `import { Video, type VideoProps } from '@octane-xplat/video'
 const props: VideoProps = { src: 'clip.mp4', fit: 'cover', muted: true }
 const video = <Video {...props} />
 // @ts-expect-error src is required
@@ -66,7 +66,7 @@ void video
 void missingSrc
 void badFit
 `,
-	"native": `import { Video, type VideoProps } from '@octane-xplat/video'
+	native: `import { Video, type VideoProps } from '@octane-xplat/video'
 const props: VideoProps = { src: 'clip.mp4', controls: true, onPlayingChange: (playing: boolean) => void playing }
 const video = <Video {...props} />
 // @ts-expect-error src is required
@@ -74,10 +74,10 @@ const missingSrc = <Video />
 void video
 void missingSrc
 `,
-	"macos": `import { Video, type VideoProps } from '@octane-xplat/video'
+	macos: `import { Video, type VideoProps } from '@octane-xplat/video'
 const video = <Video src="clip.mp4" />
 void video
-`
+`,
 }
 
 const extraFiles = {}
@@ -87,43 +87,24 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": []
+	web: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
 	},
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -235,15 +216,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

@@ -4,50 +4,50 @@
 @layer xplat.reset, xplat.base, xplat.tokens, xplat.components, xplat.recipes, xplat.utilities;
 
 @layer xplat.tokens {
-:root,
-.ns-root {
-	--color-primary: #171717;
-	/* Token names double as the future Tailwind theme keys: text-onprimary
+	:root,
+	.ns-root {
+		--color-primary: #171717;
+		/* Token names double as the future Tailwind theme keys: text-onprimary
 	   resolves --color-onprimary, bg-danger resolves --color-danger. Keep
 	   class-name segments and var-name segments identical. */
-	--color-onprimary: #fafafa;
-	--color-surface: #ffffff;
-	--color-surface-secondary: #fafafa;
-	--color-text: #0a0a0a;
-	--color-text-secondary: #666666;
-	--color-border: #eaeaea;
-	--color-border-strong: #d4d4d4;
-	--color-danger: #dc2626;
-	/* Family lists are deliberately generic. Apps override these with their
+		--color-onprimary: #fafafa;
+		--color-surface: #ffffff;
+		--color-surface-secondary: #fafafa;
+		--color-text: #0a0a0a;
+		--color-text-secondary: #666666;
+		--color-border: #eaeaea;
+		--color-border-strong: #d4d4d4;
+		--color-danger: #dc2626;
+		/* Family lists are deliberately generic. Apps override these with their
 	   web @font-face family and the platform's registered native name. */
-	--font-sans: system-ui, sans-serif;
-	--font-mono: ui-monospace, monospace;
-	--space-4: 16px;
-	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
+		--font-sans: system-ui, sans-serif;
+		--font-mono: ui-monospace, monospace;
+		--space-4: 16px;
+		/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
 	   the default corner treatment: every class that consumes a token also
 	   declares `corner-shape: squircle`. Full-radius circles opt out —
 	   `corner-shape` would reshape them into squircle disks on iOS/Chromium. */
-	--radius-sm: 6px;
-	--radius-md: 8px;
-	--radius-lg: 12px;
-	--radius-xl: 16px;
-}
+		--radius-sm: 6px;
+		--radius-md: 8px;
+		--radius-lg: 12px;
+		--radius-xl: 16px;
+	}
 
-.ns-dark,
-.dark {
-	--color-primary: #ededed;
-	--color-onprimary: #171717;
-	--color-surface: #0a0a0a;
-	--color-surface-secondary: #141414;
-	--color-text: #ededed;
-	--color-text-secondary: #a1a1a1;
-	--color-border: #2e2e2e;
-	--color-border-strong: #4a4a4a;
-}
+	.ns-dark,
+	.dark {
+		--color-primary: #ededed;
+		--color-onprimary: #171717;
+		--color-surface: #0a0a0a;
+		--color-surface-secondary: #141414;
+		--color-text: #ededed;
+		--color-text-secondary: #a1a1a1;
+		--color-border: #2e2e2e;
+		--color-border-strong: #4a4a4a;
+	}
 }
 
 @layer xplat.components {
-/* xplat-web-only:start — DOM normalization. NativeScript is the reference
+	/* xplat-web-only:start — DOM normalization. NativeScript is the reference
    box model: dip sizes are outer boxes, and a border paints from
    width+color alone. The DOM's UA stylesheet diverges on both counts, so
    normalize the deltas once instead of patching individual rules:
@@ -59,31 +59,31 @@
      phantom ~3px edges wherever a rule sets only one side's width.
    - <img> is a leaf, not inline text (no baseline descender gap).
    - .vx-app columns are flex like their native screen containers. */
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-}
-* {
-	border-width: 0;
-	border-style: solid;
-}
-img {
-	display: block;
-}
-.vx-app {
-	display: flex;
-	flex-direction: column;
-}
-/* Native has no scroll chaining — a ScrollView just bounces inside
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+	* {
+		border-width: 0;
+		border-style: solid;
+	}
+	img {
+		display: block;
+	}
+	.vx-app {
+		display: flex;
+		flex-direction: column;
+	}
+	/* Native has no scroll chaining — a ScrollView just bounces inside
    itself because the parent is never a scroller. contain is the DOM
    equivalent: scroll stays in the leaf it started in. */
-.vx-scroll {
-	overscroll-behavior: contain;
-}
-/* xplat-web-only:end */
+	.vx-scroll {
+		overscroll-behavior: contain;
+	}
+	/* xplat-web-only:end */
 
-/* Shared normalization — NS FlexboxLayout defaults flex children to
+	/* Shared normalization — NS FlexboxLayout defaults flex children to
    shrink:1 with NO min-content floor (its shrink pass clamps at
    effectiveMinWidth/Height = the explicit min-* prop, default 0), so an
    overflowing column crushes intrinsic children toward zero where the
@@ -91,1866 +91,1866 @@ img {
    reason — do the same on both engines. `*` is zero-specificity: flex-1
    (the shorthand sets shrink:1) and .shrink still opt back in, and
    truncation patterns pair them with min-w-0/min-h-0. */
-* {
-	flex-shrink: 0;
-}
+	* {
+		flex-shrink: 0;
+	}
 
-/* vocabulary base styles */
+	/* vocabulary base styles */
 
-.vx-view,
-.vx-row {
-	display: flex;
-}
+	.vx-view,
+	.vx-row {
+		display: flex;
+	}
 
-.vx-view {
-	flex-direction: column;
-}
+	.vx-view {
+		flex-direction: column;
+	}
 
-/* Safe-area values are zero when the viewport has no display cutout. */
-.vx-safe-area {
-	padding-top: constant(safe-area-inset-top);
-	padding-right: constant(safe-area-inset-right);
-	padding-bottom: constant(safe-area-inset-bottom);
-	padding-left: constant(safe-area-inset-left);
-}
+	/* Safe-area values are zero when the viewport has no display cutout. */
+	.vx-safe-area {
+		padding-top: constant(safe-area-inset-top);
+		padding-right: constant(safe-area-inset-right);
+		padding-bottom: constant(safe-area-inset-bottom);
+		padding-left: constant(safe-area-inset-left);
+	}
 
-.vx-safe-area {
-	padding-top: env(safe-area-inset-top);
-	padding-right: env(safe-area-inset-right);
-	padding-bottom: env(safe-area-inset-bottom);
-	padding-left: env(safe-area-inset-left);
-}
+	.vx-safe-area {
+		padding-top: env(safe-area-inset-top);
+		padding-right: env(safe-area-inset-right);
+		padding-bottom: env(safe-area-inset-bottom);
+		padding-left: env(safe-area-inset-left);
+	}
 
-.vx-keyboard-avoiding {
-	display: flex;
-	flex-direction: column;
-}
-/* Self-drawn drawer — shared geometry. Native grid children overlay the
+	.vx-keyboard-avoiding {
+		display: flex;
+		flex-direction: column;
+	}
+	/* Self-drawn drawer — shared geometry. Native grid children overlay the
    cell (panel pins left via horizontalAlignment in the leaf); DOM
    positioning extras are web-only below. */
-.vx-drawer-backdrop {
-	background-color: rgba(0, 0, 0, 0.4);
-}
-.vx-drawer-panel {
-	width: 280px;
-	background-color: var(--color-surface);
-}
-/* xplat-web-only:start */
-.vx-drawer {
-	display: flex;
-	flex-direction: row;
-	position: relative;
-	overflow: hidden;
-}
-.vx-drawer-main {
-	display: flex;
-	flex: 1;
-	min-width: 0;
-}
-.vx-drawer-backdrop {
-	position: absolute;
-	inset: 0;
-}
-.vx-drawer-panel {
-	position: absolute;
-	z-index: 1;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	overflow: auto;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-/* xplat-web-only:end */
+	.vx-drawer-backdrop {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+	.vx-drawer-panel {
+		width: 280px;
+		background-color: var(--color-surface);
+	}
+	/* xplat-web-only:start */
+	.vx-drawer {
+		display: flex;
+		flex-direction: row;
+		position: relative;
+		overflow: hidden;
+	}
+	.vx-drawer-main {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-drawer-backdrop {
+		position: absolute;
+		inset: 0;
+	}
+	.vx-drawer-panel {
+		position: absolute;
+		z-index: 1;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		overflow: auto;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
+	/* xplat-web-only:end */
 
-.vx-row {
-	flex-direction: row;
-}
+	.vx-row {
+		flex-direction: row;
+	}
 
-.vx-grid,
-.vx-stack {
-	display: grid;
-}
+	.vx-grid,
+	.vx-stack {
+		display: grid;
+	}
 
-.vx-stack > * {
-	grid-area: 1 / 1;
-	horizontal-align: left;
-	vertical-align: top;
-}
+	.vx-stack > * {
+		grid-area: 1 / 1;
+		horizontal-align: left;
+		vertical-align: top;
+	}
 
-/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
+	/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
    positioning is web-only (children position via left/top props) */
-.vx-absolute {
-	position: relative;
-}
+	.vx-absolute {
+		position: relative;
+	}
 
-.vx-absolute > * {
-	position: absolute;
-}
-/* xplat-web-only:end */
+	.vx-absolute > * {
+		position: absolute;
+	}
+	/* xplat-web-only:end */
 
-.vx-spacer {
-	flex-grow: 1;
-}
+	.vx-spacer {
+		flex-grow: 1;
+	}
 
-.vx-pressable {
-	display: flex;
-	flex-direction: column;
-	user-select: none;
-}
+	.vx-pressable {
+		display: flex;
+		flex-direction: column;
+		user-select: none;
+	}
 
-/* web press feedback */
-.vx-pressable:active {
-	opacity: 0.85;
-}
-/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
-.vx-pressable:pressed {
-	opacity: 0.85;
-}
+	/* web press feedback */
+	.vx-pressable:active {
+		opacity: 0.85;
+	}
+	/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
+	.vx-pressable:pressed {
+		opacity: 0.85;
+	}
 
-/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
+	/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
    or showModal on native; these portal/positioning rules are web-only */
-.vx-overlay {
-	z-index: 1000;
-}
+	.vx-overlay {
+		z-index: 1000;
+	}
 
-.vx-overlay-shade {
-	position: absolute;
-	inset: 0;
-	background-color: rgba(0, 0, 0, 0.4);
-}
+	.vx-overlay-shade {
+		position: absolute;
+		inset: 0;
+		background-color: rgba(0, 0, 0, 0.4);
+	}
 
-.vx-overlay-content {
-	position: relative;
-	z-index: 1;
-}
+	.vx-overlay-content {
+		position: relative;
+		z-index: 1;
+	}
 
-.vx-popover {
-	z-index: 1001;
-}
+	.vx-popover {
+		z-index: 1001;
+	}
 
-.vx-popover-backdrop {
-	background-color: transparent;
-}
+	.vx-popover-backdrop {
+		background-color: transparent;
+	}
 
-.vx-tooltip {
-	padding: 4px 8px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	font-size: 12px;
-	line-height: 16px;
-}
+	.vx-tooltip {
+		padding: 4px 8px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		font-size: 12px;
+		line-height: 16px;
+	}
 
-.vx-toast-host {
-	position: fixed;
-	z-index: 1002;
-	left: 0;
-	right: 0;
-	display: flex;
-	justify-content: center;
-	pointer-events: none;
-}
+	.vx-toast-host {
+		position: fixed;
+		z-index: 1002;
+		left: 0;
+		right: 0;
+		display: flex;
+		justify-content: center;
+		pointer-events: none;
+	}
 
-.vx-toast-top {
-	top: 24px;
-}
-.vx-toast-bottom {
-	bottom: 24px;
-}
+	.vx-toast-top {
+		top: 24px;
+	}
+	.vx-toast-bottom {
+		bottom: 24px;
+	}
 
-.vx-toast {
-	pointer-events: auto;
-}
-/* xplat-web-only:end */
+	.vx-toast {
+		pointer-events: auto;
+	}
+	/* xplat-web-only:end */
 
-/* Normalized OS-widget reset — TextInput/TextArea are real
+	/* Normalized OS-widget reset — TextInput/TextArea are real
    <input>/<textarea>/TextField/TextView; the leaves emit vx-input/
    vx-textarea unconditionally so the platform chrome is stripped before
    app styles apply. On Android the transparent background replaces the
    default EditText drawable (kills the Material underline); zero padding
    removes native insets. Legitimate semantics — IME, secure entry,
    selection, autofill, caret, focus — stay platform-native by design. */
-.vx-input,
-.vx-textarea {
-	padding: 0;
-	margin: 0;
-	border-width: 0;
-	background-color: transparent;
-	color: var(--color-text);
-	font-size: 14px;
-	/* NS placeholder color; web uses the ::placeholder pseudo below. */
-	placeholder-color: var(--color-text-secondary);
-}
-/* xplat-web-only:start — DOM-only reset: element UA chrome and the
+	.vx-input,
+	.vx-textarea {
+		padding: 0;
+		margin: 0;
+		border-width: 0;
+		background-color: transparent;
+		color: var(--color-text);
+		font-size: 14px;
+		/* NS placeholder color; web uses the ::placeholder pseudo below. */
+		placeholder-color: var(--color-text-secondary);
+	}
+	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
    focus outline (normalized to the same thin ring on both). */
-.vx-input,
-.vx-textarea {
-	appearance: none;
-	-webkit-appearance: none;
-	outline: none;
-}
-.vx-input:focus,
-.vx-textarea:focus {
-	outline: 1px solid var(--color-primary);
-	outline-offset: -1px;
-}
-/* xplat-web-only:end */
+	.vx-input,
+	.vx-textarea {
+		appearance: none;
+		-webkit-appearance: none;
+		outline: none;
+	}
+	.vx-input:focus,
+	.vx-textarea:focus {
+		outline: 1px solid var(--color-primary);
+		outline-offset: -1px;
+	}
+	/* xplat-web-only:end */
 
-/* auto-grow owns height — the manual resize handle has no native analog */
-/* xplat-web-only:start */
-.vx-textarea {
-	resize: none;
-}
-/* xplat-web-only:end */
+	/* auto-grow owns height — the manual resize handle has no native analog */
+	/* xplat-web-only:start */
+	.vx-textarea {
+		resize: none;
+	}
+	/* xplat-web-only:end */
 
-/* WebView chrome reset — the web leaf is a real <iframe>: strip the UA's
+	/* WebView chrome reset — the web leaf is a real <iframe>: strip the UA's
    inset border and the inline-element baseline gap. WKWebView and
    android.webkit.WebView ship chrome-free, so there is no native reset. */
-/* xplat-web-only:start */
-.vx-webview {
-	display: block;
-	border-width: 0;
-}
-/* xplat-web-only:end */
+	/* xplat-web-only:start */
+	.vx-webview {
+		display: block;
+		border-width: 0;
+	}
+	/* xplat-web-only:end */
 
-/* Video — surface-hosted leaf: the engine surface fills the frame and the
+	/* Video — surface-hosted leaf: the engine surface fills the frame and the
    self-drawn transport layers stack on top in the same grid cell
    (vx-stack). NS-side rules only — DOM resets sit in the web block. */
-.vx-video {
-	background-color: #000;
-}
+	.vx-video {
+		background-color: #000;
+	}
 
-.vx-video > * {
-	horizontal-align: stretch;
-	vertical-align: stretch;
-}
+	.vx-video > * {
+		horizontal-align: stretch;
+		vertical-align: stretch;
+	}
 
-.vx-video-centerbtn {
-	width: 56px;
-	height: 56px;
-	border-radius: 28px;
-	background-color: rgba(0, 0, 0, 0.55);
-	align-items: center;
-	justify-content: center;
-}
+	.vx-video-centerbtn {
+		width: 56px;
+		height: 56px;
+		border-radius: 28px;
+		background-color: rgba(0, 0, 0, 0.55);
+		align-items: center;
+		justify-content: center;
+	}
 
-.vx-video-bar {
-	background-color: rgba(0, 0, 0, 0.45);
-	padding: 4px 8px;
-}
+	.vx-video-bar {
+		background-color: rgba(0, 0, 0, 0.45);
+		padding: 4px 8px;
+	}
 
-.vx-video-btn {
-	padding: 4px;
-}
+	.vx-video-btn {
+		padding: 4px;
+	}
 
-/* Full-frame tap layer — hit target only, never paints. */
-.vx-video-tap {
-	background-color: transparent;
-}
+	/* Full-frame tap layer — hit target only, never paints. */
+	.vx-video-tap {
+		background-color: transparent;
+	}
 
-.vx-video-time {
-	color: #fff;
-	font-size: 11px;
-	min-width: 34px;
-	text-align: center;
-}
+	.vx-video-time {
+		color: #fff;
+		font-size: 11px;
+		min-width: 34px;
+		text-align: center;
+	}
 
-/* xplat-web-only:start — the <video> element is inline and overlays would
+	/* xplat-web-only:start — the <video> element is inline and overlays would
    otherwise swallow pointer events; native layers are hit-transparent by
    default, so none of this exists on NS. */
-.vx-video-surface {
-	display: block;
-	width: 100%;
-	height: 100%;
-}
+	.vx-video-surface {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
 
-.vx-video-poster,
-.vx-video-barwrap {
-	pointer-events: none;
-}
+	.vx-video-poster,
+	.vx-video-barwrap {
+		pointer-events: none;
+	}
 
-.vx-video-barwrap > * {
-	pointer-events: auto;
-}
+	.vx-video-barwrap > * {
+		pointer-events: auto;
+	}
 
-.vx-video-poster {
-	object-fit: cover;
-}
+	.vx-video-poster {
+		object-fit: cover;
+	}
 
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start */
-/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
+	/* xplat-web-only:start */
+	/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
    so the overlay is a fixed layer over the shell rather than a dialog. */
-.vx-modalroute {
-	position: fixed;
-	inset: 0;
-	z-index: 1000;
-	display: flex;
-	align-items: stretch;
-	justify-content: stretch;
-}
+	.vx-modalroute {
+		position: fixed;
+		inset: 0;
+		z-index: 1000;
+		display: flex;
+		align-items: stretch;
+		justify-content: stretch;
+	}
 
-.vx-modalroute-shade {
-	position: absolute;
-	inset: 0;
-	border: 0;
-	padding: 0;
-	background: rgba(0, 0, 0, 0.4);
-	cursor: default;
-}
+	.vx-modalroute-shade {
+		position: absolute;
+		inset: 0;
+		border: 0;
+		padding: 0;
+		background: rgba(0, 0, 0, 0.4);
+		cursor: default;
+	}
 
-.vx-modalroute-body {
-	position: relative;
-	flex: 1;
-	min-width: 0;
-	overflow: auto;
-	color: var(--color-text);
-	background-color: var(--color-surface);
-}
-/* xplat-web-only:end */
+	.vx-modalroute-body {
+		position: relative;
+		flex: 1;
+		min-width: 0;
+		overflow: auto;
+		color: var(--color-text);
+		background-color: var(--color-surface);
+	}
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
+	/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
    real placeholder text, not currentColor (a full-opacity hint reads as
    a typed value); --placeholder-color is the per-field prop escape. */
-input::placeholder,
-textarea::placeholder {
-	color: var(--placeholder-color, var(--color-text-secondary));
-}
-/* xplat-web-only:end */
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--placeholder-color, var(--color-text-secondary));
+	}
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — form controls don't inherit the body font in the
+	/* xplat-web-only:start — form controls don't inherit the body font in the
    DOM (UA stylesheet wins); without this they render in the UA face. */
-input,
-textarea,
-select,
-button {
-	font-family: inherit;
-}
-/* xplat-web-only:end */
+	input,
+	textarea,
+	select,
+	button {
+		font-family: inherit;
+	}
+	/* xplat-web-only:end */
 
-/* Self-drawn spinner — the border ring is shared (native rotates the
+	/* Self-drawn spinner — the border ring is shared (native rotates the
    view via `animate`; DOM spins via the keyframes below). */
-.vx-spinner {
-	width: 24px;
-	height: 24px;
-	border-width: 2px;
-	border-color: var(--color-text-secondary);
-	border-right-color: transparent;
-	border-radius: 50%;
-}
-/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
+	.vx-spinner {
+		width: 24px;
+		height: 24px;
+		border-width: 2px;
+		border-color: var(--color-text-secondary);
+		border-right-color: transparent;
+		border-radius: 50%;
+	}
+	/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
    the default `refreshThreshold` (64px web / 64dip native); the leaf
    translates it in/out — reveal math lives in refresh.*.ts. */
-.vx-refresh {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	height: 64px;
-}
-/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
+	.vx-refresh {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 64px;
+	}
+	/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
    absolute overlay; native clips via the wrapper grid
    (clipsToBounds/ViewGroup) and stacks children in one cell. */
-.vx-refresh-wrap {
-	position: relative;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-}
-.vx-refresh-wrap > .vx-scroll {
-	flex: 1;
-	min-height: 0;
-}
-.vx-refresh {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-}
-/* xplat-web-only:end */
-/* xplat-web-only:start — DOM needs an inline-block box + CSS animation;
-   the native leaf drives view.animate instead */
-.vx-spinner {
-	display: inline-block;
-	box-sizing: border-box;
-	animation: vx-spinner-turn 0.8s linear infinite;
-}
-
-@keyframes vx-spinner-turn {
-	to {
-		transform: rotate(360deg);
+	.vx-refresh-wrap {
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
 	}
-}
-/* xplat-web-only:end */
+	.vx-refresh-wrap > .vx-scroll {
+		flex: 1;
+		min-height: 0;
+	}
+	.vx-refresh {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+	/* xplat-web-only:end */
+	/* xplat-web-only:start — DOM needs an inline-block box + CSS animation;
+   the native leaf drives view.animate instead */
+	.vx-spinner {
+		display: inline-block;
+		box-sizing: border-box;
+		animation: vx-spinner-turn 0.8s linear infinite;
+	}
 
-/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
+	@keyframes vx-spinner-turn {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	/* xplat-web-only:end */
+
+	/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
    which slides the thumb; identical geometry on web and native. */
-.vx-switch {
-	width: 48px;
-	height: 28px;
-	padding-left: 3px;
-	padding-right: 3px;
-	border-radius: 14px;
-	background-color: var(--color-border);
-	justify-content: flex-start;
-	align-items: center;
-}
-.vx-switch--on {
-	background-color: var(--color-primary);
-	justify-content: flex-end;
-}
-.vx-switch-thumb {
-	width: 22px;
-	height: 22px;
-	border-radius: 50%;
-	background-color: var(--color-surface);
-}
-/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
-.vx-switch {
-	display: flex;
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	.vx-switch {
+		width: 48px;
+		height: 28px;
+		padding-left: 3px;
+		padding-right: 3px;
+		border-radius: 14px;
+		background-color: var(--color-border);
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.vx-switch--on {
+		background-color: var(--color-primary);
+		justify-content: flex-end;
+	}
+	.vx-switch-thumb {
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background-color: var(--color-surface);
+	}
+	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
+	.vx-switch {
+		display: flex;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* Self-drawn slider — host is a grid (native) / relative div (web);
+	/* Self-drawn slider — host is a grid (native) / relative div (web);
    track + fill + thumb overlay the same box. */
-.vx-slider {
-	height: 28px;
-}
-.vx-slider-track {
-	height: 4px;
-	border-radius: 2px;
-	background-color: var(--color-border);
-	vertical-align: middle;
-}
-.vx-slider-fill {
-	height: 4px;
-	border-radius: 2px;
-	background-color: var(--color-primary);
-	vertical-align: middle;
-}
-.vx-slider-thumb {
-	width: 20px;
-	height: 20px;
-	border-radius: 50%;
-	background-color: var(--color-primary);
-	vertical-align: middle;
-}
-/* xplat-web-only:start — absolute positioning is DOM-only; native grid
+	.vx-slider {
+		height: 28px;
+	}
+	.vx-slider-track {
+		height: 4px;
+		border-radius: 2px;
+		background-color: var(--color-border);
+		vertical-align: middle;
+	}
+	.vx-slider-fill {
+		height: 4px;
+		border-radius: 2px;
+		background-color: var(--color-primary);
+		vertical-align: middle;
+	}
+	.vx-slider-thumb {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background-color: var(--color-primary);
+		vertical-align: middle;
+	}
+	/* xplat-web-only:start — absolute positioning is DOM-only; native grid
    children center via vertical-align and pin via margin-left. */
-.vx-slider {
-	position: relative;
-}
-.vx-slider-track,
-.vx-slider-fill {
-	position: absolute;
-	top: 50%;
-	left: 0;
-	right: 0;
-	transform: translateY(-50%);
-}
-.vx-slider-thumb {
-	position: absolute;
-	top: 50%;
-	transform: translate(-50%, -50%);
-}
-/* xplat-web-only:end */
+	.vx-slider {
+		position: relative;
+	}
+	.vx-slider-track,
+	.vx-slider-fill {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 0;
+		transform: translateY(-50%);
+	}
+	.vx-slider-thumb {
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
+	/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
    one page per item at 100% host width so scrollLeft / clientWidth is a
    clean page index. Native pages are sized by the widget itself, so the
    whole block is DOM-only. Scrollbar hidden (native has none); contain
    keeps the swipe from chaining to a parent scroller, matching .vx-scroll. */
-.vx-pager {
-	display: flex;
-	flex-direction: row;
-	overflow-x: auto;
-	overflow-y: hidden;
-	scroll-snap-type: x mandatory;
-	overscroll-behavior-x: contain;
-	scrollbar-width: none;
-	touch-action: pan-x;
-}
-.vx-pager::-webkit-scrollbar {
-	display: none;
-}
-.vx-pager-page {
-	flex: 0 0 100%;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	scroll-snap-align: start;
-}
-/* xplat-web-only:end */
+	.vx-pager {
+		display: flex;
+		flex-direction: row;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+		overscroll-behavior-x: contain;
+		scrollbar-width: none;
+		touch-action: pan-x;
+	}
+	.vx-pager::-webkit-scrollbar {
+		display: none;
+	}
+	.vx-pager-page {
+		flex: 0 0 100%;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		scroll-snap-align: start;
+	}
+	/* xplat-web-only:end */
 
-/* Phase-1 self-drawn components — functional geometry + token chrome only;
+	/* Phase-1 self-drawn components — functional geometry + token chrome only;
    visual design is the app's job. */
 
-/* Button — row-direction pressable (vx-pressable already supplies display
+	/* Button — row-direction pressable (vx-pressable already supplies display
    and press feedback). */
-.vx-button {
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-}
+	.vx-button {
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
 
-/* Collapsible/Accordion — column stacks. */
-.vx-collapsible,
-.vx-collapsible-content,
-.vx-accordion,
-.vx-accordion-item {
-	flex-direction: column;
-}
+	/* Collapsible/Accordion — column stacks. */
+	.vx-collapsible,
+	.vx-collapsible-content,
+	.vx-accordion,
+	.vx-accordion-item {
+		flex-direction: column;
+	}
 
-/* Checkbox — 20px box + check glyph; --on fills with primary. */
-.vx-checkbox-row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-checkbox {
-	width: 20px;
-	height: 20px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	align-items: center;
-	justify-content: center;
-}
-.vx-checkbox--on .vx-checkbox {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-}
-.vx-checkbox-check {
-	font-size: 14px;
-	line-height: 20px;
-	color: var(--color-onprimary);
-}
-.vx-checkbox--on .vx-checkbox-check {
-	color: var(--color-onprimary);
-}
-.vx-checkbox-label {
-	margin-left: 8px;
-}
-.vx-checkbox--disabled {
-	opacity: 0.5;
-}
+	/* Checkbox — 20px box + check glyph; --on fills with primary. */
+	.vx-checkbox-row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-checkbox {
+		width: 20px;
+		height: 20px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-checkbox--on .vx-checkbox {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+	}
+	.vx-checkbox-check {
+		font-size: 14px;
+		line-height: 20px;
+		color: var(--color-onprimary);
+	}
+	.vx-checkbox--on .vx-checkbox-check {
+		color: var(--color-onprimary);
+	}
+	.vx-checkbox-label {
+		margin-left: 8px;
+	}
+	.vx-checkbox--disabled {
+		opacity: 0.5;
+	}
 
-/* Radio group — column/row of dot options. */
-.vx-radio-group {
-	flex-direction: column;
-}
-.vx-radio-group--row {
-	flex-direction: row;
-}
-.vx-radio-row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-radio {
-	width: 18px;
-	height: 18px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: 50%;
-	align-items: center;
-	justify-content: center;
-}
-.vx-radio--on .vx-radio {
-	border-color: var(--color-primary);
-}
-.vx-radio-dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background-color: var(--color-primary);
-}
-.vx-radio-label {
-	margin-left: 8px;
-}
-.vx-radio--disabled {
-	opacity: 0.5;
-}
+	/* Radio group — column/row of dot options. */
+	.vx-radio-group {
+		flex-direction: column;
+	}
+	.vx-radio-group--row {
+		flex-direction: row;
+	}
+	.vx-radio-row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-radio {
+		width: 18px;
+		height: 18px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: 50%;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-radio--on .vx-radio {
+		border-color: var(--color-primary);
+	}
+	.vx-radio-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background-color: var(--color-primary);
+	}
+	.vx-radio-label {
+		margin-left: 8px;
+	}
+	.vx-radio--disabled {
+		opacity: 0.5;
+	}
 
-/* SegmentedControl — equal-width segments in a rounded track; `--on`
+	/* SegmentedControl — equal-width segments in a rounded track; `--on`
    raises the selected one. flex-basis is dead on NS (the shorthand parser
    drops it and the standalone property isn't registered), so width:0 +
    flex-grow:1 is what distributes segments equally on both engines. */
-.vx-segmented {
-	flex-direction: row;
-	padding: 3px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface-secondary);
-	color: var(--color-text);
-}
-.vx-segment {
-	flex-grow: 1;
-	width: 0;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 10px;
-	padding-right: 10px;
-	border-radius: var(--radius-sm);
-}
-.vx-segment--on {
-	background-color: var(--color-surface);
-}
-.vx-segment-label {
-	font-size: 13px;
-	color: var(--color-text-secondary);
-}
-.vx-segment--on .vx-segment-label {
-	color: var(--color-text);
-	font-weight: 600;
-}
-.vx-segmented--disabled,
-.vx-segment--disabled {
-	opacity: 0.5;
-}
-/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
-.vx-segmented {
-	display: flex;
-}
-.vx-segment {
-	display: flex;
-	cursor: pointer;
-	user-select: none;
-}
-.vx-segment:focus {
-	outline: 1px solid var(--color-primary);
-	outline-offset: -1px;
-}
-.vx-segment--disabled {
-	cursor: default;
-}
-/* xplat-web-only:end */
+	.vx-segmented {
+		flex-direction: row;
+		padding: 3px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text);
+	}
+	.vx-segment {
+		flex-grow: 1;
+		width: 0;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 10px;
+		padding-right: 10px;
+		border-radius: var(--radius-sm);
+	}
+	.vx-segment--on {
+		background-color: var(--color-surface);
+	}
+	.vx-segment-label {
+		font-size: 13px;
+		color: var(--color-text-secondary);
+	}
+	.vx-segment--on .vx-segment-label {
+		color: var(--color-text);
+		font-weight: 600;
+	}
+	.vx-segmented--disabled,
+	.vx-segment--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
+	.vx-segmented {
+		display: flex;
+	}
+	.vx-segment {
+		display: flex;
+		cursor: pointer;
+		user-select: none;
+	}
+	.vx-segment:focus {
+		outline: 1px solid var(--color-primary);
+		outline-offset: -1px;
+	}
+	.vx-segment--disabled {
+		cursor: default;
+	}
+	/* xplat-web-only:end */
 
-/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
+	/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
    field owns the remaining width, self-drawn clear. The web leaf hides the
    engine's own search-cancel button so native's (hand-drawn) matches. */
-.vx-search {
-	flex-direction: row;
-	align-items: center;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 10px;
-	padding-right: 6px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-.vx-search-icon {
-	color: var(--color-text-secondary);
-}
-.vx-search-field {
-	flex-grow: 1;
-	padding-left: 8px;
-	padding-right: 8px;
-	font-size: 14px;
-	color: var(--color-text);
-}
-.vx-search-clear {
-	width: 24px;
-	height: 24px;
-	border-radius: 9999px;
-	align-items: center;
-	justify-content: center;
-	background-color: var(--color-surface-secondary);
-	color: var(--color-text-secondary);
-}
-.vx-search--disabled {
-	opacity: 0.5;
-}
-/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
+	.vx-search {
+		flex-direction: row;
+		align-items: center;
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 10px;
+		padding-right: 6px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	.vx-search-icon {
+		color: var(--color-text-secondary);
+	}
+	.vx-search-field {
+		flex-grow: 1;
+		padding-left: 8px;
+		padding-right: 8px;
+		font-size: 14px;
+		color: var(--color-text);
+	}
+	.vx-search-clear {
+		width: 24px;
+		height: 24px;
+		border-radius: 9999px;
+		align-items: center;
+		justify-content: center;
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text-secondary);
+	}
+	.vx-search--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
    reset; native's flexbox children carry these from the class already. */
-.vx-search {
-	display: flex;
-}
-.vx-search-icon {
-	display: inline-flex;
-	flex: none;
-}
-.vx-search-field {
-	min-width: 0;
-	border: 0;
-	background: none;
-	outline: none;
-	appearance: none;
-	-webkit-appearance: none;
-}
-input.vx-search-field::-webkit-search-cancel-button {
-	display: none;
-}
-.vx-search-clear {
-	display: inline-flex;
-	border: 0;
-	padding: 0;
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	.vx-search {
+		display: flex;
+	}
+	.vx-search-icon {
+		display: inline-flex;
+		flex: none;
+	}
+	.vx-search-field {
+		min-width: 0;
+		border: 0;
+		background: none;
+		outline: none;
+		appearance: none;
+		-webkit-appearance: none;
+	}
+	input.vx-search-field::-webkit-search-cancel-button {
+		display: none;
+	}
+	.vx-search-clear {
+		display: inline-flex;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* Anchored menus — panel + item rows (the Popover leaf positions it). */
-.vx-menu {
-	min-width: 140px;
-	padding: 4px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-.vx-menu-list {
-	flex-direction: column;
-}
-.vx-menu-item {
-	flex-direction: row;
-	align-items: center;
-	padding: 6px 10px;
-	border-radius: var(--radius-sm);
-}
-.vx-menu-item--disabled {
-	opacity: 0.5;
-}
-/* xplat-web-only:start — hover affordance and cursor are DOM-only */
-.vx-menu-item {
-	cursor: pointer;
-}
-.vx-menu-item:hover {
-	background-color: var(--color-border);
-}
-/* xplat-web-only:end */
+	/* Anchored menus — panel + item rows (the Popover leaf positions it). */
+	.vx-menu {
+		min-width: 140px;
+		padding: 4px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	.vx-menu-list {
+		flex-direction: column;
+	}
+	.vx-menu-item {
+		flex-direction: row;
+		align-items: center;
+		padding: 6px 10px;
+		border-radius: var(--radius-sm);
+	}
+	.vx-menu-item--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start — hover affordance and cursor are DOM-only */
+	.vx-menu-item {
+		cursor: pointer;
+	}
+	.vx-menu-item:hover {
+		background-color: var(--color-border);
+	}
+	/* xplat-web-only:end */
 
-/* Badge — inline chip row. */
-.vx-badge {
-	flex-direction: row;
-	align-items: center;
-	border-radius: var(--radius-sm);
-	padding: 1px 6px;
-	font-size: 12px;
-	line-height: 16px;
-}
-/* xplat-web-only:start — span is inline by default; needs inline-flex */
-.vx-badge {
-	display: inline-flex;
-}
-/* xplat-web-only:end */
+	/* Badge — inline chip row. */
+	.vx-badge {
+		flex-direction: row;
+		align-items: center;
+		border-radius: var(--radius-sm);
+		padding: 1px 6px;
+		font-size: 12px;
+		line-height: 16px;
+	}
+	/* xplat-web-only:start — span is inline by default; needs inline-flex */
+	.vx-badge {
+		display: inline-flex;
+	}
+	/* xplat-web-only:end */
 
-/* Separator — hairline rule; --h spans width, --v spans height. */
-.vx-separator--h {
-	height: 1px;
-	background-color: var(--color-border);
-}
-.vx-separator--v {
-	width: 1px;
-	align-self: stretch;
-	background-color: var(--color-border);
-}
+	/* Separator — hairline rule; --h spans width, --v spans height. */
+	.vx-separator--h {
+		height: 1px;
+		background-color: var(--color-border);
+	}
+	.vx-separator--v {
+		width: 1px;
+		align-self: stretch;
+		background-color: var(--color-border);
+	}
 
-/* Skeleton — placeholder block. */
-.vx-skeleton {
-	background-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-}
+	/* Skeleton — placeholder block. */
+	.vx-skeleton {
+		background-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+	}
 
-/* Avatar — centered fallback inside the circle. */
-.vx-avatar {
-	align-items: center;
-	justify-content: center;
-	background-color: var(--color-border);
-}
-.vx-avatar-group {
-	flex-direction: row;
-	align-items: center;
-}
-/* xplat-web-only:start — display:flex for the div-based flex classes */
-.vx-collapsible,
-.vx-collapsible-content,
-.vx-accordion,
-.vx-accordion-item,
-.vx-checkbox-row,
-.vx-checkbox,
-.vx-radio-group,
-.vx-radio-row,
-.vx-radio,
-.vx-menu-list,
-.vx-menu-item,
-.vx-contextmenu,
-.vx-avatar,
-.vx-avatar-group,
-.vx-avatar-group-item {
-	display: flex;
-}
-.vx-checkbox-row,
-.vx-radio-row {
-	cursor: pointer;
-}
-.vx-checkbox-check {
-	display: block;
-}
-/* xplat-web-only:end */
+	/* Avatar — centered fallback inside the circle. */
+	.vx-avatar {
+		align-items: center;
+		justify-content: center;
+		background-color: var(--color-border);
+	}
+	.vx-avatar-group {
+		flex-direction: row;
+		align-items: center;
+	}
+	/* xplat-web-only:start — display:flex for the div-based flex classes */
+	.vx-collapsible,
+	.vx-collapsible-content,
+	.vx-accordion,
+	.vx-accordion-item,
+	.vx-checkbox-row,
+	.vx-checkbox,
+	.vx-radio-group,
+	.vx-radio-row,
+	.vx-radio,
+	.vx-menu-list,
+	.vx-menu-item,
+	.vx-contextmenu,
+	.vx-avatar,
+	.vx-avatar-group,
+	.vx-avatar-group-item {
+		display: flex;
+	}
+	.vx-checkbox-row,
+	.vx-radio-row {
+		cursor: pointer;
+	}
+	.vx-checkbox-check {
+		display: block;
+	}
+	/* xplat-web-only:end */
 
-/* Phase-2 form field layer. */
+	/* Phase-2 form field layer. */
 
-/* FormField — label / control / message column. */
-.vx-field {
-	flex-direction: column;
-}
-.vx-field-label {
-	font-size: 13px;
-	line-height: 20px;
-	font-weight: 500;
-	margin-bottom: 4px;
-}
-.vx-field-required {
-	color: var(--color-danger);
-}
-.vx-field-msg {
-	font-size: 12px;
-	line-height: 16px;
-	margin-top: 4px;
-	color: var(--color-text-secondary);
-}
-.vx-field-msg--error {
-	color: var(--color-danger);
-}
-.vx-fieldgroup {
-	flex-direction: column;
-}
-.vx-fieldgroup-label {
-	font-size: 13px;
-	line-height: 20px;
-	font-weight: 600;
-	margin-bottom: 8px;
-}
+	/* FormField — label / control / message column. */
+	.vx-field {
+		flex-direction: column;
+	}
+	.vx-field-label {
+		font-size: 13px;
+		line-height: 20px;
+		font-weight: 500;
+		margin-bottom: 4px;
+	}
+	.vx-field-required {
+		color: var(--color-danger);
+	}
+	.vx-field-msg {
+		font-size: 12px;
+		line-height: 16px;
+		margin-top: 4px;
+		color: var(--color-text-secondary);
+	}
+	.vx-field-msg--error {
+		color: var(--color-danger);
+	}
+	.vx-fieldgroup {
+		flex-direction: column;
+	}
+	.vx-fieldgroup-label {
+		font-size: 13px;
+		line-height: 20px;
+		font-weight: 600;
+		margin-bottom: 8px;
+	}
 
-/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
-.vx-listitem {
-	flex-direction: row;
-	align-items: center;
-	width: 100%;
-	padding: 10px 12px;
-	gap: 12px;
-}
-.vx-listitem-leading,
-.vx-listitem-trailing {
-	flex-shrink: 0;
-	align-items: center;
-}
-.vx-listitem-content {
-	flex-direction: column;
-	flex-grow: 1;
-}
-.vx-listitem-title {
-	font-weight: 500;
-}
-.vx-listitem-supporting {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
+	/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
+	.vx-listitem {
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+		padding: 10px 12px;
+		gap: 12px;
+	}
+	.vx-listitem-leading,
+	.vx-listitem-trailing {
+		flex-shrink: 0;
+		align-items: center;
+	}
+	.vx-listitem-content {
+		flex-direction: column;
+		flex-grow: 1;
+	}
+	.vx-listitem-title {
+		font-weight: 500;
+	}
+	.vx-listitem-supporting {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
 
-/* InputNumber — steppers flanking a centered field. */
-.vx-inputnumber {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-inputnumber-step {
-	padding: 4px 10px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	align-items: center;
-	justify-content: center;
-}
-.vx-inputnumber-field {
-	width: 64px;
-	margin-left: 8px;
-	margin-right: 8px;
-	text-align: center;
-}
-.vx-inputnumber--disabled {
-	opacity: 0.5;
-}
+	/* InputNumber — steppers flanking a centered field. */
+	.vx-inputnumber {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-inputnumber-step {
+		padding: 4px 10px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-inputnumber-field {
+		width: 64px;
+		margin-left: 8px;
+		margin-right: 8px;
+		text-align: center;
+	}
+	.vx-inputnumber--disabled {
+		opacity: 0.5;
+	}
 
-/* PinInput — row of single cells. */
-.vx-pininput {
-	flex-direction: row;
-}
-.vx-pininput-cell {
-	width: 40px;
-	margin-right: 8px;
-	text-align: center;
-}
-.vx-pininput--disabled {
-	opacity: 0.5;
-}
+	/* PinInput — row of single cells. */
+	.vx-pininput {
+		flex-direction: row;
+	}
+	.vx-pininput-cell {
+		width: 40px;
+		margin-right: 8px;
+		text-align: center;
+	}
+	.vx-pininput--disabled {
+		opacity: 0.5;
+	}
 
-/* Select — trigger row + check column inside the anchored listbox. */
-.vx-select-trigger {
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	padding: 6px 10px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-}
-.vx-select--disabled {
-	opacity: 0.5;
-}
-.vx-select-placeholder {
-	color: var(--color-text-secondary);
-}
-.vx-select-caret {
-	margin-left: 8px;
-}
-.vx-select-check {
-	width: 16px;
-}
-.vx-select-search {
-	margin-bottom: 4px;
-}
+	/* Select — trigger row + check column inside the anchored listbox. */
+	.vx-select-trigger {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 6px 10px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+	}
+	.vx-select--disabled {
+		opacity: 0.5;
+	}
+	.vx-select-placeholder {
+		color: var(--color-text-secondary);
+	}
+	.vx-select-caret {
+		margin-left: 8px;
+	}
+	.vx-select-check {
+		width: 16px;
+	}
+	.vx-select-search {
+		margin-bottom: 4px;
+	}
 
-/* InputTags — wrapped chip row + trailing field. */
-.vx-inputtags {
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: center;
-}
-.vx-inputtags-tag {
-	flex-direction: row;
-	align-items: center;
-	padding: 1px 6px;
-	margin-right: 4px;
-	margin-bottom: 4px;
-	border-radius: var(--radius-sm);
-	background-color: var(--color-border);
-}
-.vx-inputtags-remove {
-	margin-left: 4px;
-}
-.vx-inputtags-field {
-	flex: 1;
-	min-width: 80px;
-}
-.vx-inputtags--disabled {
-	opacity: 0.5;
-}
+	/* InputTags — wrapped chip row + trailing field. */
+	.vx-inputtags {
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+	.vx-inputtags-tag {
+		flex-direction: row;
+		align-items: center;
+		padding: 1px 6px;
+		margin-right: 4px;
+		margin-bottom: 4px;
+		border-radius: var(--radius-sm);
+		background-color: var(--color-border);
+	}
+	.vx-inputtags-remove {
+		margin-left: 4px;
+	}
+	.vx-inputtags-field {
+		flex: 1;
+		min-width: 80px;
+	}
+	.vx-inputtags--disabled {
+		opacity: 0.5;
+	}
 
-/* InputRating — glyph row; --on lights the cell. */
-.vx-rating {
-	flex-direction: row;
-}
-.vx-rating-cell {
-	padding: 2px;
-}
-.vx-rating-glyph {
-	font-size: 20px;
-	line-height: 24px;
-	color: var(--color-border);
-}
-.vx-rating-cell--on .vx-rating-glyph {
-	color: var(--color-primary);
-}
-.vx-rating--disabled {
-	opacity: 0.5;
-}
+	/* InputRating — glyph row; --on lights the cell. */
+	.vx-rating {
+		flex-direction: row;
+	}
+	.vx-rating-cell {
+		padding: 2px;
+	}
+	.vx-rating-glyph {
+		font-size: 20px;
+		line-height: 24px;
+		color: var(--color-border);
+	}
+	.vx-rating-cell--on .vx-rating-glyph {
+		color: var(--color-primary);
+	}
+	.vx-rating--disabled {
+		opacity: 0.5;
+	}
 
-/* CheckboxGroup — column/row of checkboxes. */
-.vx-checkbox-group {
-	flex-direction: column;
-}
-.vx-checkbox-group--row {
-	flex-direction: row;
-}
-/* xplat-web-only:start — display:flex for the div/span flex classes */
-.vx-field,
-.vx-fieldgroup,
-.vx-listitem,
-.vx-listitem-leading,
-.vx-listitem-content,
-.vx-listitem-trailing,
-.vx-inputnumber,
-.vx-inputnumber-step,
-.vx-select-trigger,
-.vx-select-list,
-.vx-inputtags,
-.vx-inputtags-tag,
-.vx-rating,
-.vx-rating-cell,
-.vx-checkbox-group {
-	display: flex;
-}
-.vx-rating-cell {
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	/* CheckboxGroup — column/row of checkboxes. */
+	.vx-checkbox-group {
+		flex-direction: column;
+	}
+	.vx-checkbox-group--row {
+		flex-direction: row;
+	}
+	/* xplat-web-only:start — display:flex for the div/span flex classes */
+	.vx-field,
+	.vx-fieldgroup,
+	.vx-listitem,
+	.vx-listitem-leading,
+	.vx-listitem-content,
+	.vx-listitem-trailing,
+	.vx-inputnumber,
+	.vx-inputnumber-step,
+	.vx-select-trigger,
+	.vx-select-list,
+	.vx-inputtags,
+	.vx-inputtags-tag,
+	.vx-rating,
+	.vx-rating-cell,
+	.vx-checkbox-group {
+		display: flex;
+	}
+	.vx-rating-cell {
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* Phase-3 navigation & wayfinding. */
+	/* Phase-3 navigation & wayfinding. */
 
-/* Breadcrumb — inline trail. */
-.vx-breadcrumb {
-	flex-direction: row;
-	align-items: center;
-	flex-wrap: wrap;
-}
-.vx-breadcrumb-item {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-breadcrumb-sep {
-	margin-left: 6px;
-	margin-right: 6px;
-	color: var(--color-text-secondary);
-}
-.vx-breadcrumb-link {
-	color: var(--color-primary);
-}
+	/* Breadcrumb — inline trail. */
+	.vx-breadcrumb {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.vx-breadcrumb-item {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-breadcrumb-sep {
+		margin-left: 6px;
+		margin-right: 6px;
+		color: var(--color-text-secondary);
+	}
+	.vx-breadcrumb-link {
+		color: var(--color-primary);
+	}
 
-/* Pagination — windowed page buttons. */
-.vx-pagination {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-page-btn {
-	min-width: 28px;
-	height: 28px;
-	padding: 0 6px;
-	margin-right: 4px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	align-items: center;
-	justify-content: center;
-}
-.vx-page-btn--on {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-page-ellipsis {
-	margin-right: 4px;
-	color: var(--color-text-secondary);
-}
-.vx-pagination--disabled {
-	opacity: 0.5;
-}
+	/* Pagination — windowed page buttons. */
+	.vx-pagination {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-page-btn {
+		min-width: 28px;
+		height: 28px;
+		padding: 0 6px;
+		margin-right: 4px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-page-btn--on {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-page-ellipsis {
+		margin-right: 4px;
+		color: var(--color-text-secondary);
+	}
+	.vx-pagination--disabled {
+		opacity: 0.5;
+	}
 
-/* Stepper — dot + label cells joined by a hairline. */
-.vx-stepper {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-stepper-cell {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-stepper-line {
-	width: 24px;
-	height: 1px;
-	background-color: var(--color-border);
-}
-.vx-stepper-line--done {
-	background-color: var(--color-primary);
-}
-.vx-step {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-step-dot {
-	width: 24px;
-	height: 24px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: 50%;
-	text-align: center;
-	font-size: 12px;
-	line-height: 22px;
-	color: var(--color-text-secondary);
-}
-.vx-step--on .vx-step-dot {
-	border-color: var(--color-primary);
-	color: var(--color-primary);
-}
-.vx-step--done .vx-step-dot {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-step-label {
-	margin-left: 6px;
-}
-.vx-step--disabled {
-	opacity: 0.5;
-}
+	/* Stepper — dot + label cells joined by a hairline. */
+	.vx-stepper {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-stepper-cell {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-stepper-line {
+		width: 24px;
+		height: 1px;
+		background-color: var(--color-border);
+	}
+	.vx-stepper-line--done {
+		background-color: var(--color-primary);
+	}
+	.vx-step {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-step-dot {
+		width: 24px;
+		height: 24px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: 50%;
+		text-align: center;
+		font-size: 12px;
+		line-height: 22px;
+		color: var(--color-text-secondary);
+	}
+	.vx-step--on .vx-step-dot {
+		border-color: var(--color-primary);
+		color: var(--color-primary);
+	}
+	.vx-step--done .vx-step-dot {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-step-label {
+		margin-left: 6px;
+	}
+	.vx-step--disabled {
+		opacity: 0.5;
+	}
 
-/* NavigationMenu — row/column of nav items. */
-.vx-navmenu,
-.vx-navmenu--row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-navmenu--col {
-	flex-direction: column;
-	align-items: flex-start;
-}
-.vx-navmenu-item {
-	flex-direction: row;
-	align-items: center;
-	padding: 6px 10px;
-	border-radius: var(--radius-sm);
-}
-.vx-navmenu-item--on {
-	background-color: var(--color-border);
-}
-.vx-navmenu-item--disabled {
-	opacity: 0.5;
-}
-.vx-navmenu-label {
-	margin-left: 4px;
-}
+	/* NavigationMenu — row/column of nav items. */
+	.vx-navmenu,
+	.vx-navmenu--row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-navmenu--col {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.vx-navmenu-item {
+		flex-direction: row;
+		align-items: center;
+		padding: 6px 10px;
+		border-radius: var(--radius-sm);
+	}
+	.vx-navmenu-item--on {
+		background-color: var(--color-border);
+	}
+	.vx-navmenu-item--disabled {
+		opacity: 0.5;
+	}
+	.vx-navmenu-label {
+		margin-left: 4px;
+	}
 
-/* CommandPalette — panel centered by the overlay layer. */
-.vx-commandpalette {
-	width: 360px;
-	padding: 8px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
-.vx-commandpalette {
-	/* The overlay-content wrapper shrink-wraps the palette, so % would resolve
+	/* CommandPalette — panel centered by the overlay layer. */
+	.vx-commandpalette {
+		width: 360px;
+		padding: 8px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
+	.vx-commandpalette {
+		/* The overlay-content wrapper shrink-wraps the palette, so % would resolve
 	 * against the palette itself instead of the available viewport. */
-	max-width: 90vw;
-}
-/* xplat-web-only:end */
-.vx-cmdk-search {
-	margin-bottom: 4px;
-}
-/* xplat-web-only:start — display, centering, and cursor are DOM-only */
-.vx-breadcrumb,
-.vx-breadcrumb-item,
-.vx-pagination,
-.vx-page-btn,
-.vx-stepper,
-.vx-stepper-cell,
-.vx-step,
-.vx-navmenu,
-.vx-navmenu-item {
-	display: flex;
-}
-.vx-cmdk-layer .vx-overlay-content {
-	position: absolute;
-	top: 15%;
-	left: 50%;
-	transform: translateX(-50%);
-}
-.vx-page-btn,
-.vx-breadcrumb-link,
-.vx-step,
-.vx-navmenu-item {
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+		max-width: 90vw;
+	}
+	/* xplat-web-only:end */
+	.vx-cmdk-search {
+		margin-bottom: 4px;
+	}
+	/* xplat-web-only:start — display, centering, and cursor are DOM-only */
+	.vx-breadcrumb,
+	.vx-breadcrumb-item,
+	.vx-pagination,
+	.vx-page-btn,
+	.vx-stepper,
+	.vx-stepper-cell,
+	.vx-step,
+	.vx-navmenu,
+	.vx-navmenu-item {
+		display: flex;
+	}
+	.vx-cmdk-layer .vx-overlay-content {
+		position: absolute;
+		top: 15%;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.vx-page-btn,
+	.vx-breadcrumb-link,
+	.vx-step,
+	.vx-navmenu-item {
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* Phase-4 data display. */
+	/* Phase-4 data display. */
 
-/* Table — header + bounded rows (unvirtualized by design). */
-.vx-table {
-	flex-direction: column;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-}
-.vx-table-head,
-.vx-table-row {
-	flex-direction: row;
-}
-.vx-table-th {
-	font-weight: 600;
-}
-.vx-table-cell {
-	padding: 8px 12px;
-}
-.vx-table-head {
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-}
-.vx-table-empty {
-	padding: 16px;
-	align-items: center;
-}
+	/* Table — header + bounded rows (unvirtualized by design). */
+	.vx-table {
+		flex-direction: column;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+	}
+	.vx-table-head,
+	.vx-table-row {
+		flex-direction: row;
+	}
+	.vx-table-th {
+		font-weight: 600;
+	}
+	.vx-table-cell {
+		padding: 8px 12px;
+	}
+	.vx-table-head {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-table-empty {
+		padding: 16px;
+		align-items: center;
+	}
 
-/* Timeline — dot + connector rail beside content. */
-.vx-timeline {
-	flex-direction: column;
-}
-.vx-timeline-item {
-	flex-direction: row;
-}
-.vx-timeline-rail {
-	flex-direction: column;
-	align-items: center;
-	width: 20px;
-}
-.vx-timeline-dot {
-	width: 10px;
-	height: 10px;
-	margin-top: 5px;
-	border-radius: 50%;
-	background-color: var(--color-primary);
-	align-items: center;
-	justify-content: center;
-}
-.vx-timeline-line {
-	width: 1px;
-	flex: 1;
-	background-color: var(--color-border);
-}
-.vx-timeline-body {
-	flex-direction: column;
-	padding-left: 10px;
-	padding-bottom: 16px;
-}
-.vx-timeline-time {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
-.vx-timeline-title {
-	font-weight: 600;
-}
-.vx-timeline-desc {
-	color: var(--color-text-secondary);
-}
+	/* Timeline — dot + connector rail beside content. */
+	.vx-timeline {
+		flex-direction: column;
+	}
+	.vx-timeline-item {
+		flex-direction: row;
+	}
+	.vx-timeline-rail {
+		flex-direction: column;
+		align-items: center;
+		width: 20px;
+	}
+	.vx-timeline-dot {
+		width: 10px;
+		height: 10px;
+		margin-top: 5px;
+		border-radius: 50%;
+		background-color: var(--color-primary);
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-timeline-line {
+		width: 1px;
+		flex: 1;
+		background-color: var(--color-border);
+	}
+	.vx-timeline-body {
+		flex-direction: column;
+		padding-left: 10px;
+		padding-bottom: 16px;
+	}
+	.vx-timeline-time {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
+	.vx-timeline-title {
+		font-weight: 600;
+	}
+	.vx-timeline-desc {
+		color: var(--color-text-secondary);
+	}
 
-/* Tree — indented collapsible rows. */
-.vx-tree {
-	flex-direction: column;
-}
-.vx-tree-node {
-	flex-direction: column;
-}
-.vx-tree-row {
-	flex-direction: row;
-	align-items: center;
-	padding: 4px 0;
-}
-.vx-tree-row--disabled {
-	opacity: 0.5;
-}
-.vx-tree-caret {
-	width: 14px;
-	margin-left: 4px;
-}
+	/* Tree — indented collapsible rows. */
+	.vx-tree {
+		flex-direction: column;
+	}
+	.vx-tree-node {
+		flex-direction: column;
+	}
+	.vx-tree-row {
+		flex-direction: row;
+		align-items: center;
+		padding: 4px 0;
+	}
+	.vx-tree-row--disabled {
+		opacity: 0.5;
+	}
+	.vx-tree-caret {
+		width: 14px;
+		margin-left: 4px;
+	}
 
-/* Alert — icon + body callout; tone picks border/text colors. */
-.vx-alert {
-	flex-direction: row;
-	padding: 10px 12px;
-	border-width: 1px;
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	border-color: var(--color-border);
-}
-.vx-alert-body {
-	flex-direction: column;
-	flex: 1;
-	margin-left: 8px;
-}
-.vx-alert-title {
-	font-weight: 600;
-}
-.vx-alert--error {
-	border-color: var(--color-danger);
-}
-.vx-alert--warning {
-	border-color: var(--color-warning, #d9a400);
-}
-.vx-alert--success {
-	border-color: var(--color-success, #2e9e5b);
-}
-.vx-alert--info {
-	border-color: var(--color-primary);
-}
+	/* Alert — icon + body callout; tone picks border/text colors. */
+	.vx-alert {
+		flex-direction: row;
+		padding: 10px 12px;
+		border-width: 1px;
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		border-color: var(--color-border);
+	}
+	.vx-alert-body {
+		flex-direction: column;
+		flex: 1;
+		margin-left: 8px;
+	}
+	.vx-alert-title {
+		font-weight: 600;
+	}
+	.vx-alert--error {
+		border-color: var(--color-danger);
+	}
+	.vx-alert--warning {
+		border-color: var(--color-warning, #d9a400);
+	}
+	.vx-alert--success {
+		border-color: var(--color-success, #2e9e5b);
+	}
+	.vx-alert--info {
+		border-color: var(--color-primary);
+	}
 
-/* Card — sectioned container. */
-.vx-card {
-	flex-direction: column;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-}
-.vx-card-header {
-	padding: 12px;
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-}
-.vx-card-body {
-	padding: 12px;
-	flex-direction: column;
-}
-.vx-card-footer {
-	padding: 12px;
-	border-top-width: 1px;
-	border-top-color: var(--color-border);
-}
+	/* Card — sectioned container. */
+	.vx-card {
+		flex-direction: column;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+	}
+	.vx-card-header {
+		padding: 12px;
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-card-body {
+		padding: 12px;
+		flex-direction: column;
+	}
+	.vx-card-footer {
+		padding: 12px;
+		border-top-width: 1px;
+		border-top-color: var(--color-border);
+	}
 
-/* Chip — pressable pill with selected + remove states. */
-.vx-chip {
-	flex-direction: row;
-	align-items: center;
-	padding: 3px 10px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 13px;
-}
-.vx-chip--on {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-chip--disabled {
-	opacity: 0.5;
-}
-.vx-chip-remove {
-	margin-left: 6px;
-}
+	/* Chip — pressable pill with selected + remove states. */
+	.vx-chip {
+		flex-direction: row;
+		align-items: center;
+		padding: 3px 10px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 13px;
+	}
+	.vx-chip--on {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-chip--disabled {
+		opacity: 0.5;
+	}
+	.vx-chip-remove {
+		margin-left: 6px;
+	}
 
-/* Kbd — keycap glyph. */
-.vx-kbd {
-	padding: 1px 5px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-bottom-width: 2px;
-	border-radius: var(--radius-sm);
-	font-size: 12px;
-}
+	/* Kbd — keycap glyph. */
+	.vx-kbd {
+		padding: 1px 5px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-bottom-width: 2px;
+		border-radius: var(--radius-sm);
+		font-size: 12px;
+	}
 
-/* Empty — centered placeholder. */
-.vx-empty {
-	flex-direction: column;
-	align-items: center;
-	padding: 24px;
-}
-.vx-empty-title {
-	font-weight: 600;
-	margin-top: 8px;
-}
-.vx-empty-desc {
-	color: var(--color-text-secondary);
-	margin-top: 2px;
-}
+	/* Empty — centered placeholder. */
+	.vx-empty {
+		flex-direction: column;
+		align-items: center;
+		padding: 24px;
+	}
+	.vx-empty-title {
+		font-weight: 600;
+		margin-top: 8px;
+	}
+	.vx-empty-desc {
+		color: var(--color-text-secondary);
+		margin-top: 2px;
+	}
 
-/* Banner — notice strip. */
-.vx-banner {
-	flex-direction: row;
-	align-items: center;
-	padding: 8px 12px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	background-color: var(--color-surface);
-}
-.vx-banner-body {
-	flex-direction: column;
-	flex: 1;
-	margin-left: 8px;
-}
-.vx-banner-dismiss {
-	margin-left: 8px;
-}
+	/* Banner — notice strip. */
+	.vx-banner {
+		flex-direction: row;
+		align-items: center;
+		padding: 8px 12px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+	.vx-banner-body {
+		flex-direction: column;
+		flex: 1;
+		margin-left: 8px;
+	}
+	.vx-banner-dismiss {
+		margin-left: 8px;
+	}
 
-/* User — avatar + text column. */
-.vx-user {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-user-body {
-	flex-direction: column;
-	margin-left: 10px;
-}
-.vx-user-name {
-	font-weight: 600;
-}
-.vx-user-desc {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
+	/* User — avatar + text column. */
+	.vx-user {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-user-body {
+		flex-direction: column;
+		margin-left: 10px;
+	}
+	.vx-user-name {
+		font-weight: 600;
+	}
+	.vx-user-desc {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
 
-/* ProgressGroup — stacked labeled meters. */
-.vx-progressgroup {
-	flex-direction: column;
-}
-.vx-progressgroup-row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-progressgroup-label {
-	margin-left: 8px;
-}
-/* xplat-web-only:start — display:flex for the div-based flex classes */
-.vx-table,
-.vx-table-head,
-.vx-table-row,
-.vx-timeline,
-.vx-timeline-item,
-.vx-timeline-rail,
-.vx-timeline-body,
-.vx-tree,
-.vx-tree-node,
-.vx-tree-row,
-.vx-alert,
-.vx-alert-body,
-.vx-card,
-.vx-card-body,
-.vx-banner,
-.vx-banner-body,
-.vx-user,
-.vx-user-body,
-.vx-progressgroup,
-.vx-progressgroup-row {
-	display: flex;
-}
-.vx-table-row--pressable,
-.vx-tree-row,
-.vx-user--pressable,
-.vx-banner-dismiss,
-.vx-chip-remove {
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	/* ProgressGroup — stacked labeled meters. */
+	.vx-progressgroup {
+		flex-direction: column;
+	}
+	.vx-progressgroup-row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-progressgroup-label {
+		margin-left: 8px;
+	}
+	/* xplat-web-only:start — display:flex for the div-based flex classes */
+	.vx-table,
+	.vx-table-head,
+	.vx-table-row,
+	.vx-timeline,
+	.vx-timeline-item,
+	.vx-timeline-rail,
+	.vx-timeline-body,
+	.vx-tree,
+	.vx-tree-node,
+	.vx-tree-row,
+	.vx-alert,
+	.vx-alert-body,
+	.vx-card,
+	.vx-card-body,
+	.vx-banner,
+	.vx-banner-body,
+	.vx-user,
+	.vx-user-body,
+	.vx-progressgroup,
+	.vx-progressgroup-row {
+		display: flex;
+	}
+	.vx-table-row--pressable,
+	.vx-tree-row,
+	.vx-user--pressable,
+	.vx-banner-dismiss,
+	.vx-chip-remove {
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-.vx-heading {
-	margin: 0;
-}
-/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
-.vx-h1 {
-	font-size: 32px;
-	font-weight: bold;
-}
-.vx-h2 {
-	font-size: 24px;
-	font-weight: bold;
-}
-.vx-h3 {
-	font-size: 18.72px;
-	font-weight: bold;
-}
-.vx-h4 {
-	font-size: 16px;
-	font-weight: bold;
-}
-.vx-h5 {
-	font-size: 13.28px;
-	font-weight: bold;
-}
-.vx-h6 {
-	font-size: 10.72px;
-	font-weight: bold;
-}
+	.vx-heading {
+		margin: 0;
+	}
+	/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
+	.vx-h1 {
+		font-size: 32px;
+		font-weight: bold;
+	}
+	.vx-h2 {
+		font-size: 24px;
+		font-weight: bold;
+	}
+	.vx-h3 {
+		font-size: 18.72px;
+		font-weight: bold;
+	}
+	.vx-h4 {
+		font-size: 16px;
+		font-weight: bold;
+	}
+	.vx-h5 {
+		font-size: 13.28px;
+		font-weight: bold;
+	}
+	.vx-h6 {
+		font-size: 10.72px;
+		font-weight: bold;
+	}
 
-/* utilities (hand-written subset — do NOT adopt Tailwind until
+	/* utilities (hand-written subset — do NOT adopt Tailwind until
    NativeScript/tailwind#226 is resolved; the plugin strips core-supported
    props incl. gap, drops all @media, and rewrites invisible→collapse) */
 
-/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
+	/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
    identical semantics, NS parses grow/shrink out of the shorthand and
    ignores the basis token it can't model. */
-.flex-1 {
-	flex: 1 1 0%;
-}
-/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
+	.flex-1 {
+		flex: 1 1 0%;
+	}
+	/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
  * shrinkability: grow children never shrink below intrinsic width, fixed
  * children get crushed, and auto-height rows re-measure grow children at
  * zero height. The shared `* { flex-shrink: 0 }` default (RN semantics)
  * makes .shrink the opt-in for a shrinkable child; min-w-0/min-h-0 lower
  * the min-content floor so it can actually shrink, and shrink-0 remains
  * for local overrides. All four are plain CSS on web. */
-.min-w-0 {
-	min-width: 0;
-}
-.min-h-0 {
-	min-height: 0;
-}
-.shrink {
-	flex-shrink: 1;
-}
-.shrink-0 {
-	flex-shrink: 0;
-}
-.grow {
-	flex-grow: 1;
-}
-.items-center {
-	align-items: center;
-}
-.items-baseline {
-	align-items: baseline;
-}
-.items-start {
-	align-items: flex-start;
-}
-.justify-center {
-	justify-content: center;
-}
-.justify-between {
-	justify-content: space-between;
-}
-.flex-wrap {
-	flex-wrap: wrap;
-}
-.gap-4 {
-	gap: 16px;
-}
-.gap-3 {
-	gap: 12px;
-}
-.gap-6 {
-	gap: 24px;
-}
+	.min-w-0 {
+		min-width: 0;
+	}
+	.min-h-0 {
+		min-height: 0;
+	}
+	.shrink {
+		flex-shrink: 1;
+	}
+	.shrink-0 {
+		flex-shrink: 0;
+	}
+	.grow {
+		flex-grow: 1;
+	}
+	.items-center {
+		align-items: center;
+	}
+	.items-baseline {
+		align-items: baseline;
+	}
+	.items-start {
+		align-items: flex-start;
+	}
+	.justify-center {
+		justify-content: center;
+	}
+	.justify-between {
+		justify-content: space-between;
+	}
+	.flex-wrap {
+		flex-wrap: wrap;
+	}
+	.gap-4 {
+		gap: 16px;
+	}
+	.gap-3 {
+		gap: 12px;
+	}
+	.gap-6 {
+		gap: 24px;
+	}
 
-/* Native Labels keep their natural font height even with line-height set, so
+	/* Native Labels keep their natural font height even with line-height set, so
    min-height aligns utilities whose natural metrics fall below their leading.
    Tailwind pairs every text-* size with a leading, same here. */
-.text-2xl {
-	font-size: 28px;
-	line-height: 36px;
-	min-height: 36px;
-}
-.text-xl {
-	font-size: 20px;
-	line-height: 28px;
-	min-height: 28px;
-}
-.text-lg {
-	font-size: 18px;
-	line-height: 28px;
-	min-height: 28px;
-}
-.text-sm {
-	font-size: 13px;
-	line-height: 20px;
-	min-height: 20px;
-}
-.font-bold {
-	font-weight: bold;
-}
-.font-semibold {
-	font-weight: 600;
-}
-.text-muted {
-	color: var(--color-text-secondary);
-}
+	.text-2xl {
+		font-size: 28px;
+		line-height: 36px;
+		min-height: 36px;
+	}
+	.text-xl {
+		font-size: 20px;
+		line-height: 28px;
+		min-height: 28px;
+	}
+	.text-lg {
+		font-size: 18px;
+		line-height: 28px;
+		min-height: 28px;
+	}
+	.text-sm {
+		font-size: 13px;
+		line-height: 20px;
+		min-height: 20px;
+	}
+	.font-bold {
+		font-weight: bold;
+	}
+	.font-semibold {
+		font-weight: 600;
+	}
+	.text-muted {
+		color: var(--color-text-secondary);
+	}
 
-/* Corner utilities — consume the --radius-* scale and carry the smooth
+	/* Corner utilities — consume the --radius-* scale and carry the smooth
    (squircle) corner treatment. Circles stay circular: .rounded-full omits
    corner-shape deliberately (squircle at full radius = a squircle disk,
    not a circle). Opt out per element with `corner-shape: round`. */
-.rounded-sm {
-	border-radius: var(--radius-sm);
-	corner-shape: squircle;
-}
-.rounded-md {
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-}
-.rounded-lg {
-	border-radius: var(--radius-lg);
-	corner-shape: squircle;
-}
-.rounded-xl {
-	border-radius: var(--radius-xl);
-	corner-shape: squircle;
-}
-.rounded-full {
-	border-radius: 9999px;
-}
+	.rounded-sm {
+		border-radius: var(--radius-sm);
+		corner-shape: squircle;
+	}
+	.rounded-md {
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+	}
+	.rounded-lg {
+		border-radius: var(--radius-lg);
+		corner-shape: squircle;
+	}
+	.rounded-xl {
+		border-radius: var(--radius-xl);
+		corner-shape: squircle;
+	}
+	.rounded-full {
+		border-radius: 9999px;
+	}
 
-.bg-primary {
-	background-color: var(--color-primary);
-}
-.text-onprimary {
-	color: var(--color-onprimary);
-}
-.bg-danger {
-	background-color: var(--color-danger);
-}
-/* xplat-web-only:start — box-shadow is inert on native (elevation is
+	.bg-primary {
+		background-color: var(--color-primary);
+	}
+	.text-onprimary {
+		color: var(--color-onprimary);
+	}
+	.bg-danger {
+		background-color: var(--color-danger);
+	}
+	/* xplat-web-only:start — box-shadow is inert on native (elevation is
    Android-only; no shared mapping yet) */
-.shadow-2 {
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-/* xplat-web-only:end */
+	.shadow-2 {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
+	/* xplat-web-only:end */
 
-.btn {
-	padding-top: 10px;
-	padding-right: 16px;
-	padding-bottom: 10px;
-	padding-left: 16px;
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 14px;
-	font-weight: 500;
-	align-items: center;
-	justify-content: center;
-	text-decoration: none;
-	color: var(--color-text);
-}
+	.btn {
+		padding-top: 10px;
+		padding-right: 16px;
+		padding-bottom: 10px;
+		padding-left: 16px;
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 14px;
+		font-weight: 500;
+		align-items: center;
+		justify-content: center;
+		text-decoration: none;
+		color: var(--color-text);
+	}
 
-/* Secondary = the same control reading quiet: hairline border, surface
+	/* Secondary = the same control reading quiet: hairline border, surface
    fill, body-text label. Reserve .bg-primary for the one decisive action
    in a group. */
-.btn-secondary {
-	background-color: var(--color-surface);
-	border-width: 1px;
-	border-color: var(--color-border);
-	color: var(--color-text);
-}
+	.btn-secondary {
+		background-color: var(--color-surface);
+		border-width: 1px;
+		border-color: var(--color-border);
+		color: var(--color-text);
+	}
 
-/* xplat-web-only:start — controls that render as real <a>/<button> need
+	/* xplat-web-only:start — controls that render as real <a>/<button> need
    inline layout and UA resets; the pressable/nav-link leaves are divs on
    web and don't hit these rules. */
-a.btn {
-	display: inline-flex;
-}
-a.chip {
-	display: inline-flex;
-	align-items: center;
-}
-/* xplat-web-only:end */
+	a.btn {
+		display: inline-flex;
+	}
+	a.chip {
+		display: inline-flex;
+		align-items: center;
+	}
+	/* xplat-web-only:end */
 
-/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
+	/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
    its own UITabBar and never sees these). */
-.vx-tabbar {
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-	background-color: var(--color-surface);
-}
-.vx-tab {
-	align-items: center;
-	justify-content: center;
-	padding-top: 10px;
-	padding-right: 16px;
-	padding-bottom: 10px;
-	padding-left: 16px;
-	font-size: 14px;
-	color: var(--color-text-secondary);
-}
-.vx-tab.active {
-	color: var(--color-text);
-}
-.vx-tabicon {
-	margin-right: 6px;
-}
+	.vx-tabbar {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+		background-color: var(--color-surface);
+	}
+	.vx-tab {
+		align-items: center;
+		justify-content: center;
+		padding-top: 10px;
+		padding-right: 16px;
+		padding-bottom: 10px;
+		padding-left: 16px;
+		font-size: 14px;
+		color: var(--color-text-secondary);
+	}
+	.vx-tab.active {
+		color: var(--color-text);
+	}
+	.vx-tabicon {
+		margin-right: 6px;
+	}
 
-/* xplat-web-only:start — DOM defaults are display:block (div) and
+	/* xplat-web-only:start — DOM defaults are display:block (div) and
    inline-block (button); every flex-bearing vx- class needs an explicit
    display or flex-direction/align-items/justify-content are inert. */
-.vx-tabs {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	min-height: 0;
-}
-.vx-tabbar {
-	display: flex;
-	flex-direction: row;
-}
-.vx-tabpane {
-	flex: 1;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-}
-button.vx-tab {
-	display: flex;
-	background: none;
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	.vx-tabs {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+	}
+	.vx-tabbar {
+		display: flex;
+		flex-direction: row;
+	}
+	.vx-tabpane {
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
+	}
+	button.vx-tab {
+		display: flex;
+		background: none;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* harness experiment styles */
+	/* harness experiment styles */
 
-.vx-app {
-	padding: 24px;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
+	.vx-app {
+		padding: 24px;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
 
-.vx-app .text-xl,
-.vx-app Text,
-.vx-app label {
-	color: var(--color-text);
-}
+	.vx-app .text-xl,
+	.vx-app Text,
+	.vx-app label {
+		color: var(--color-text);
+	}
 
-/* `.vx-app label` above (descendant + type) outranks single-class text
+	/* `.vx-app label` above (descendant + type) outranks single-class text
    colors inside the app root — roles that must win escalate here. */
-.vx-app .text-onprimary {
-	color: var(--color-onprimary);
-}
-.vx-app .text-muted {
-	color: var(--color-text-secondary);
-}
-.vx-app .vx-tab label {
-	color: var(--color-text-secondary);
-}
-.vx-app .vx-tab.active label {
-	color: var(--color-text);
-}
-.vx-app .chip-on label {
-	color: var(--color-onprimary);
-}
-/* Danger surfaces keep white text in both themes (on-primary flips). */
-.bg-danger .text-onprimary {
-	color: #ffffff;
-}
+	.vx-app .text-onprimary {
+		color: var(--color-onprimary);
+	}
+	.vx-app .text-muted {
+		color: var(--color-text-secondary);
+	}
+	.vx-app .vx-tab label {
+		color: var(--color-text-secondary);
+	}
+	.vx-app .vx-tab.active label {
+		color: var(--color-text);
+	}
+	.vx-app .chip-on label {
+		color: var(--color-onprimary);
+	}
+	/* Danger surfaces keep white text in both themes (on-primary flips). */
+	.bg-danger .text-onprimary {
+		color: #ffffff;
+	}
 
-.input {
-	padding-top: 10px;
-	padding-right: 12px;
-	padding-bottom: 10px;
-	padding-left: 12px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 14px;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	/* NS TextField/TextView placeholder color (ignored on web — the
+	.input {
+		padding-top: 10px;
+		padding-right: 12px;
+		padding-bottom: 10px;
+		padding-left: 12px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 14px;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		/* NS TextField/TextView placeholder color (ignored on web — the
 	   ::placeholder pseudo above covers it there). */
-	placeholder-color: var(--color-text-secondary);
-}
+		placeholder-color: var(--color-text-secondary);
+	}
 
-.chip {
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	padding-top: 5px;
-	padding-right: 12px;
-	padding-bottom: 5px;
-	padding-left: 12px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 13px;
-	text-decoration: none;
-}
+	.chip {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		padding-top: 5px;
+		padding-right: 12px;
+		padding-bottom: 5px;
+		padding-left: 12px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 13px;
+		text-decoration: none;
+	}
 
-/* Selected chip — the one filled element in a group of bordered peers. */
-.chip-on {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
+	/* Selected chip — the one filled element in a group of bordered peers. */
+	.chip-on {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
 
-.cell {
-	padding: 12px;
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-}
+	.cell {
+		padding: 12px;
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
 
-.gap-2 {
-	gap: 8px;
-}
+	.gap-2 {
+		gap: 8px;
+	}
 
-/* In-window sheet — bottom-anchored panel (matches the native RootLayout
+	/* In-window sheet — bottom-anchored panel (matches the native RootLayout
    sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
-.vx-sheet-layer {
-	z-index: 1100;
-}
+	.vx-sheet-layer {
+		z-index: 1100;
+	}
 
-.vx-sheet-backdrop {
-	background: rgba(0, 0, 0, 0.4);
-}
+	.vx-sheet-backdrop {
+		background: rgba(0, 0, 0, 0.4);
+	}
 
-.vx-sheet {
-	max-height: 85%;
-	padding: 24px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-top-left-radius: var(--radius-xl);
-	border-top-right-radius: var(--radius-xl);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
+	.vx-sheet {
+		max-height: 85%;
+		padding: 24px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-top-left-radius: var(--radius-xl);
+		border-top-right-radius: var(--radius-xl);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
 
-/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
+	/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
    The native leaf renders on RootLayout with its own geometry. */
-.vx-sheet-layer {
-	position: fixed;
-	inset: 0;
-	pointer-events: none;
-}
+	.vx-sheet-layer {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+	}
 
-.vx-sheet-backdrop,
-.vx-sheet {
-	position: absolute;
-	inset: 0;
-	pointer-events: auto;
-}
+	.vx-sheet-backdrop,
+	.vx-sheet {
+		position: absolute;
+		inset: 0;
+		pointer-events: auto;
+	}
 
-.vx-sheet {
-	top: auto;
-	bottom: 0;
-	overflow: auto;
-}
-/* xplat-web-only:end */
+	.vx-sheet {
+		top: auto;
+		bottom: 0;
+		overflow: auto;
+	}
+	/* xplat-web-only:end */
 
-.vx-sheet-grabber {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 28px;
-}
+	.vx-sheet-grabber {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 28px;
+	}
 
-.vx-sheet-grip {
-	width: 36px;
-	height: 4px;
-	border-radius: 999px;
-	background-color: var(--color-text-secondary);
-	opacity: 0.4;
-}
+	.vx-sheet-grip {
+		width: 36px;
+		height: 4px;
+		border-radius: 999px;
+		background-color: var(--color-text-secondary);
+		opacity: 0.4;
+	}
 
-/* xplat-web-only:start — detents size the panel to the largest fraction
+	/* xplat-web-only:start — detents size the panel to the largest fraction
    (overriding the 85% cap) and overlay the grabber; native stacks it as a
    top-aligned grid child. touch-action keeps drags off native scroll. */
-.vx-sheet-detents {
-	max-height: none;
-}
-.vx-sheet-detents > .vx-sheet-grabber {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	cursor: grab;
-	touch-action: none;
-}
-/* xplat-web-only:end */
+	.vx-sheet-detents {
+		max-height: none;
+	}
+	.vx-sheet-detents > .vx-sheet-grabber {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 2;
+		cursor: grab;
+		touch-action: none;
+	}
+	/* xplat-web-only:end */
 }

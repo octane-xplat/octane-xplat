@@ -115,8 +115,12 @@ async function prepareRoute(
 	request: NavigationRequest,
 	redirects = 0,
 ): Promise<void> {
-	if (!request.isCurrent()) {return}
-	if (!request.claim(route.stack)) {return}
+	if (!request.isCurrent()) {
+		return
+	}
+	if (!request.claim(route.stack)) {
+		return
+	}
 
 	const beforeLoad = metaFor(route.name)?.beforeLoad
 	if (!beforeLoad) {
@@ -136,7 +140,9 @@ async function prepareRoute(
 			request,
 		)
 	} catch (error) {
-		if (!request.isCurrent()) {return}
+		if (!request.isCurrent()) {
+			return
+		}
 		if (error instanceof RouteRedirect) {
 			await prepareRoute(error.route, request, redirects + 1)
 			return
@@ -163,7 +169,9 @@ export function pushRoute(route: Route): void {
 }
 
 function commitRoute(route: Route, request: NavigationRequest): void {
-	if (!request.isCurrent()) {return}
+	if (!request.isCurrent()) {
+		return
+	}
 	const entry = { ...route, presentation: route.presentation ?? metaFor(route.name)?.presentation }
 	const loader = routeLoaders[entry.name] ?? metaFor(entry.name)?.loader
 	if (

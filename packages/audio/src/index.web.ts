@@ -1,2 +1,2 @@
-export * from "./types";
-export { createAudioPlayer } from "./audio.web";
+export * from './types'
+export { createAudioPlayer } from './audio.web'

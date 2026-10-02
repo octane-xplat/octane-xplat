@@ -10,17 +10,17 @@ the packages and design records.
 Read the relevant reference before acting in that area. These files carry the
 working agreements and detail moved out of this entry point.
 
-| Task | Reference |
-| --- | --- |
-| Locate packages, harnesses, or design records | [Repository orientation](.agents/docs/repository.md) |
-| Find source, callers, or change impact | [Source context](.agents/docs/source-context.md) |
-| Implement components or platform variants | [Implementation invariants](.agents/docs/architecture.md) |
-| Build, install dependencies, patch upstream, or lint | [Toolchain](.agents/docs/toolchain.md) |
-| Investigate one case or add lasting test coverage | [Probes and tests](.agents/docs/testing.md) |
-| Change public behavior, setup, or a supported workflow | [Documentation coverage](.agents/docs/documentation.md) |
-| Explore a seam, record evidence, or update decisions | [Exploration and Silo](.agents/docs/exploration.md) |
-| Work with Octane signals | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
-| Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md) |
+| Task                                                    | Reference                                                                                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Locate packages, harnesses, or design records           | [Repository orientation](.agents/docs/repository.md)                                                                 |
+| Find source, callers, or change impact                  | [Source context](.agents/docs/source-context.md)                                                                     |
+| Implement components or platform variants               | [Implementation invariants](.agents/docs/architecture.md)                                                            |
+| Build, install dependencies, patch upstream, or lint    | [Toolchain](.agents/docs/toolchain.md)                                                                               |
+| Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
+| Change public behavior, setup, or a supported workflow  | [Documentation coverage](.agents/docs/documentation.md)                                                              |
+| Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
+| Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
+| Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
 
 ## Critical rules
 

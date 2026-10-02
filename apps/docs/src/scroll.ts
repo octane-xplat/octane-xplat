@@ -12,9 +12,13 @@ export function resetDocScroll() {
 	// The destination's headings appear after the route commit. Also covers
 	// direct fragment loads and back/forward into a section.
 	requestAnimationFrame(() => {
-		if (!location.hash) { return }
+		if (!location.hash) {
+			return
+		}
 		try {
-			document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView?.({ block: 'start' })
+			document
+				.getElementById(decodeURIComponent(location.hash.slice(1)))
+				?.scrollIntoView?.({ block: 'start' })
 		} catch {
 			// Malformed URL escapes must not break page navigation.
 		}

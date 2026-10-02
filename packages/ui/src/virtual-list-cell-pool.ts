@@ -21,22 +21,32 @@ export class VirtualListCellPool<T> {
 		}
 
 		const wanted = new Set(entries.map((entry) => entry.rowKey))
-		let cells = this.cells.map((cell) => cell.entry && !wanted.has(cell.entry.rowKey)
-			? { ...cell, entry: null, rows: [], generation: cell.generation + 1 }
-			: cell,
+		let cells = this.cells.map((cell) =>
+			cell.entry && !wanted.has(cell.entry.rowKey)
+				? { ...cell, entry: null, rows: [], generation: cell.generation + 1 }
+				: cell,
 		)
 
-		const retained = new Map(cells.filter((cell) => cell.entry).map((cell) => [cell.entry!.rowKey, cell.id]))
+		const retained = new Map(
+			cells.filter((cell) => cell.entry).map((cell) => [cell.entry!.rowKey, cell.id]),
+		)
 
 		for (const entry of entries) {
 			const retainedId = retained.get(entry.rowKey)
-			let index = retainedId === undefined
-				? cells.findIndex((cell) => !cell.entry && cell.typeKey === entry.typeKey)
-				: cells.findIndex((cell) => cell.id === retainedId)
+			let index =
+				retainedId === undefined
+					? cells.findIndex((cell) => !cell.entry && cell.typeKey === entry.typeKey)
+					: cells.findIndex((cell) => cell.id === retainedId)
 
 			if (index === -1) {
 				index = cells.length
-				cells.push({ id: this.nextId++, typeKey: entry.typeKey, generation: 0, entry: null, rows: [] })
+				cells.push({
+					id: this.nextId++,
+					typeKey: entry.typeKey,
+					generation: 0,
+					entry: null,
+					rows: [],
+				})
 			}
 
 			const cell = cells[index]

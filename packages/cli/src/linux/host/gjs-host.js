@@ -16,7 +16,11 @@ const { Adw, Gtk, WebKit, Gio, GLib, Gdk, Secret } = imports.gi
 
 const selfTest = ARGV.includes('--self-test')
 const hostDir = GLib.path_get_dirname(imports.system.programPath)
-let appSettings = { applicationId: 'org.octane.xplat', productName: 'Octane xplat', scheme: 'xplat' }
+let appSettings = {
+	applicationId: 'org.octane.xplat',
+	productName: 'Octane xplat',
+	scheme: 'xplat',
+}
 const settingsFile = GLib.build_filenamev([hostDir, '..', 'app.json'])
 if (GLib.file_test(settingsFile, GLib.FileTest.EXISTS)) {
 	const [, bytes] = GLib.file_get_contents(settingsFile)
@@ -346,16 +350,25 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 			const collection = selfTest ? Secret.COLLECTION_SESSION : Secret.COLLECTION_DEFAULT
 
 			const finish = (operation) => (_source, result) => {
-				try { reply(operation(result)) }
-				catch (error) { fail(error.message ?? String(error)) }
+				try {
+					reply(operation(result))
+				} catch (error) {
+					fail(error.message ?? String(error))
+				}
 			}
 
 			if (method === 'get') {
 				Secret.password_lookup(secretSchema, attrs, null, finish(Secret.password_lookup_finish))
 			} else if (method === 'set') {
-				Secret.password_store(secretSchema, attrs, collection,
-					`${appSettings.productName} secret`, String(args[1] ?? ''), null,
-					finish(Secret.password_store_finish))
+				Secret.password_store(
+					secretSchema,
+					attrs,
+					collection,
+					`${appSettings.productName} secret`,
+					String(args[1] ?? ''),
+					null,
+					finish(Secret.password_store_finish),
+				)
 			} else if (method === 'remove') {
 				Secret.password_clear(secretSchema, attrs, null, finish(Secret.password_clear_finish))
 			}
@@ -459,7 +472,9 @@ function readSelftest() {
 		try {
 			const [, bytes] = GLib.file_get_contents(custom)
 			return imports.byteArray.toString(bytes)
-		} catch { return null }
+		} catch {
+			return null
+		}
 	}
 
 	for (const dir of [hostDir, '.', bundleDir ?? '']) {
@@ -655,7 +670,6 @@ function ensureWindow() {
 							emitTo(webView, 'deep-links', 'open', 'xplat://self-test/deep-link')
 							return GLib.SOURCE_REMOVE
 						})
-
 					} else if (++tried < 100) {
 						GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
 							runWhenReady()

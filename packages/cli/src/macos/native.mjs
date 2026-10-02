@@ -72,9 +72,13 @@ function nodeModulePaths(dir) {
 	const paths = []
 	let current = dir
 	while (true) {
-		if (basename(current) !== 'node_modules') {paths.push(join(current, 'node_modules'))}
+		if (basename(current) !== 'node_modules') {
+			paths.push(join(current, 'node_modules'))
+		}
 		const parent = dirname(current)
-		if (parent === current) {break}
+		if (parent === current) {
+			break
+		}
 		current = parent
 	}
 

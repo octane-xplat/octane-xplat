@@ -1,27 +1,34 @@
 {
-  "name": "linux-consumer-proof",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": { "build": "xplat build --targets linux" },
-  "dependencies": { "octane": "0.6.3", "@octane-xplat/platform": "workspace:*" },
-  "devDependencies": {
-    "@octane-xplat/cli": "workspace:*",
-    "@octanejs/vite-plugin": "0.1.61",
-    "vite": "8.3.0"
-  },
-  "xplat": {
-    "targets": {
-      "linux": {
-        "runtime": "webkitgtk",
-        "host": { "scheme": "linux-proof" },
-        "package": {
-          "applicationId": "org.octane.LinuxProof",
-          "productName": "Linux Consumer Proof",
-          "executableName": "linux-proof",
-          "viteConfig": "vite.linux.config.mjs"
-        }
-      }
-    }
-  }
+	"name": "linux-consumer-proof",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "xplat build --targets linux"
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*",
+		"octane": "0.6.3"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octanejs/vite-plugin": "0.1.61",
+		"vite": "8.3.0"
+	},
+	"xplat": {
+		"targets": {
+			"linux": {
+				"runtime": "webkitgtk",
+				"host": {
+					"scheme": "linux-proof"
+				},
+				"package": {
+					"applicationId": "org.octane.LinuxProof",
+					"productName": "Linux Consumer Proof",
+					"executableName": "linux-proof",
+					"viteConfig": "vite.linux.config.mjs"
+				}
+			}
+		}
+	}
 }

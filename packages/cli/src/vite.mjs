@@ -270,19 +270,32 @@ function nativePlatform() {
 	let platform
 	try {
 		const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
-		platform = env.platform ?? (env.android ? 'android' : env.ios || env.visionos ? 'ios' : undefined)
+		platform =
+			env.platform ?? (env.android ? 'android' : env.ios || env.visionos ? 'ios' : undefined)
 	} catch {}
 
 	const args = process.argv.slice(2)
 	if (!platform) {
-		if (args.some((arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='))) {
+		if (
+			args.some(
+				(arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='),
+			)
+		) {
 			platform = 'android'
 		} else if (
-			args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios=') || arg === '--visionos')
+			args.some(
+				(arg) =>
+					arg === '--ios' ||
+					arg === '--env.ios' ||
+					arg.startsWith('--env.ios=') ||
+					arg === '--visionos',
+			)
 		) {
 			platform = 'ios'
 		} else if (
-			args.some((arg) => arg === '--windows' || arg === '--env.windows' || arg.startsWith('--env.windows='))
+			args.some(
+				(arg) => arg === '--windows' || arg === '--env.windows' || arg.startsWith('--env.windows='),
+			)
 		) {
 			platform = 'windows'
 		} else {
@@ -298,7 +311,12 @@ function nativePlatform() {
 function nativePlatformExtensions() {
 	const platform = nativePlatform()
 
-	if (platform !== 'android' && platform !== 'ios' && platform !== 'visionos' && platform !== 'windows') {
+	if (
+		platform !== 'android' &&
+		platform !== 'ios' &&
+		platform !== 'visionos' &&
+		platform !== 'windows'
+	) {
 		return nativeExtensions
 	}
 
@@ -308,10 +326,18 @@ function nativePlatformExtensions() {
 
 	if (platform === 'windows') {
 		return [
-			'.windows.tsrx', '.tsrx',
-			'.windows.tsx', '.tsx',
-			'.windows.ts', '.ts',
-			'.windows.js', '.mjs', '.mts', '.jsx', '.js', '.json',
+			'.windows.tsrx',
+			'.tsrx',
+			'.windows.tsx',
+			'.tsx',
+			'.windows.ts',
+			'.ts',
+			'.windows.js',
+			'.mjs',
+			'.mts',
+			'.jsx',
+			'.js',
+			'.json',
 		]
 	}
 
@@ -426,7 +452,11 @@ export function xplatBoundary(platform = 'native') {
 
 					this.warn(
 						`xplat boundary — .${tag} module in a ${platform} graph: ` +
-							`${relative(root, info.id)} (importers: ${chainFor(infoOf, info.id).map((i) => relative(root, i)).join(' → ') || 'unknown'})`,
+							`${relative(root, info.id)} (importers: ${
+								chainFor(infoOf, info.id)
+									.map((i) => relative(root, i))
+									.join(' → ') || 'unknown'
+							})`,
 					)
 				}
 
@@ -509,7 +539,9 @@ export async function xplatNative(env, opts = {}) {
 	const signalAliases = ['alien-signals', 'alien-signals/system'].map((specifier) => ({
 		find: new RegExp(`^${specifier}$`),
 		// require.resolve selects CJS; use the package's explicit ESM exports.
-		replacement: realpathSync(octaneRequire.resolve(specifier.replace('alien-signals', 'alien-signals/esm'))),
+		replacement: realpathSync(
+			octaneRequire.resolve(specifier.replace('alien-signals', 'alien-signals/esm')),
+		),
 	}))
 
 	const [{ mergeConfig }, { octaneConfig }, { nativeScriptRenderer }] = await Promise.all([
@@ -575,7 +607,12 @@ export async function xplatNative(env, opts = {}) {
 				// Flattened optimizeDeps chunks get mangled by the /ns/m device
 				// transform (`import import "/ns/core/utils"`) and miss the vendor
 				// manifest — serve @nativescript plugins per-module instead.
-				exclude: ['alien-signals', 'alien-signals/system', ...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
+				exclude: [
+					'alien-signals',
+					'alien-signals/system',
+					...collectNsPluginDeps(process.cwd()),
+					...(opts.deps ?? []),
+				],
 			},
 			resolve: {
 				conditions: ['native'],

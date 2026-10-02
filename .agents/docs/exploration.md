@@ -35,15 +35,15 @@ Database is git-scoped to this workspace (stored under Silo's app-data dir;
 nothing to commit) and **shared across every worktree of this repo** — writes
 here are visible to parallel agents immediately. Tables:
 
-| Table                   | One row =                                      | Lifecycle / write policy                              |
-| ----------------------- | ---------------------------------------------- | ----------------------------------------------------- |
-| `topics`                | an area of interrogation                       | `queued` → `exploring` → `resolved` / `parked`        |
-| `questions`             | a specific unknown                             | `open` → `answered` / `parked`                        |
-| `decisions`             | a commitment (mirrors decisions.md `#`s)        | `forced` / `decided` / `provisional` / `rejected`     |
-| `experiments`           | a validation to run                            | `queued` → `running` → `passed` / `failed` / `parked` |
-| `docs_audit`            | an audited user-facing docs page               | `queued` → `auditing` → `clean` / `fixed` / `verified` |
-| `recipe_audit`          | a per-criterion recipe assessment              | per-recipe state; `optimistic_revision` enforced      |
-| `feedback_observations` | one local agent report of an expectation mismatch | append-only; no triage status                       |
+| Table                   | One row =                                         | Lifecycle / write policy                               |
+| ----------------------- | ------------------------------------------------- | ------------------------------------------------------ |
+| `topics`                | an area of interrogation                          | `queued` → `exploring` → `resolved` / `parked`         |
+| `questions`             | a specific unknown                                | `open` → `answered` / `parked`                         |
+| `decisions`             | a commitment (mirrors decisions.md `#`s)          | `forced` / `decided` / `provisional` / `rejected`      |
+| `experiments`           | a validation to run                               | `queued` → `running` → `passed` / `failed` / `parked`  |
+| `docs_audit`            | an audited user-facing docs page                  | `queued` → `auditing` → `clean` / `fixed` / `verified` |
+| `recipe_audit`          | a per-criterion recipe assessment                 | per-recipe state; `optimistic_revision` enforced       |
+| `feedback_observations` | one local agent report of an expectation mismatch | append-only; no triage status                          |
 
 - Natural keys: topic `slug`, decision `num`. Update rows in place; don't
   duplicate.

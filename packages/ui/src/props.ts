@@ -1212,8 +1212,9 @@ type SpecPresentations<S> = S extends {
 	? { [N in RouteNameOfPath<P>]: Pr }
 	: {}
 
-export type RoutePresentationsFromSpecs<Specs extends readonly RouteSpec[]> =
-	UnionToIntersection<SpecPresentations<Specs[number]>>
+export type RoutePresentationsFromSpecs<Specs extends readonly RouteSpec[]> = UnionToIntersection<
+	SpecPresentations<Specs[number]>
+>
 
 /** The spec-derived typing record `defineRoutes` brands onto its manifest
  *  return — read it with the `ManifestRoute*` helpers, never directly. */

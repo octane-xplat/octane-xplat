@@ -45,13 +45,10 @@ function run(command, args, cwd) {
 
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
-const dependencies = [
-	"@nativescript/local-notifications",
-	"@nativescript/core"
-]
+const dependencies = ['@nativescript/local-notifications', '@nativescript/core']
 
 const consumers = {
-	"web": `import { notifications } from '@octane-xplat/notifications'
+	web: `import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
 notifications.impl?.notify('title', 'body')
 // @ts-expect-error notify needs a title
@@ -59,7 +56,7 @@ const bad = notifications.impl?.notify()
 void supported
 void bad
 `,
-	"native": `import { notifications } from '@octane-xplat/notifications'
+	native: `import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
 notifications.impl?.notify('title', 'body')
 // @ts-expect-error notify needs a title
@@ -67,14 +64,14 @@ const bad = notifications.impl?.notify()
 void supported
 void bad
 `,
-	"macos": `import { notifications } from '@octane-xplat/notifications'
+	macos: `import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
 notifications.impl?.notify('title', 'body')
 // @ts-expect-error notify needs a title
 const bad = notifications.impl?.notify()
 void supported
 void bad
-`
+`,
 }
 
 const extraFiles = {}
@@ -84,42 +81,21 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		]
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: ['vite/client'],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -229,10 +205,10 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
-				}
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

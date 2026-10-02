@@ -3,21 +3,21 @@
 	"version": "0.8.0",
 	"description": "Paged swipe container for Octane xplat — web scroll-snap row + @nativescript-community/ui-pager (ViewPager2 / paging UICollectionView)",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
-		"pager",
+		"android",
 		"carousel",
+		"cross-platform",
+		"ios",
+		"nativescript",
+		"octane",
+		"pager",
+		"paging",
 		"swipe",
 		"viewpager",
-		"paging",
-		"nativescript",
-		"ios",
-		"android",
-		"web"
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/pager",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -42,7 +42,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"macos": {
@@ -54,7 +53,8 @@
 				"native": "./dist/native/index.js",
 				"default": "./dist/native/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",

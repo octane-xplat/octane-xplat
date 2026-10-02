@@ -1,1 +1,1 @@
-export * from "./db.unsupported"
+export * from './db.unsupported'

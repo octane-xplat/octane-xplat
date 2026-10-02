@@ -8,7 +8,10 @@ import type { IconGlyph } from './props'
 // loaded in the consumer's program.
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
-		svgview: Omit<import('@nativescript-community/octane/intrinsics').Attributes<typeof SVGView>, 'src'> & {
+		svgview: Omit<
+			import('@nativescript-community/octane/intrinsics').Attributes<typeof SVGView>,
+			'src'
+		> & {
 			/** SVGView awaits promise srcs — remote .svg URLs arrive as fetched markup. */
 			src?: string | Promise<string>
 			stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'

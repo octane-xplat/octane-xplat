@@ -25,5 +25,5 @@ export function rememberGridChildPlacement(view: unknown, props: GridChildPlacem
 }
 
 export function gridChildPlacement(view: unknown): GridChildPlacement {
-	return typeof view === 'object' && view !== null ? placements.get(view) ?? {} : {}
+	return typeof view === 'object' && view !== null ? (placements.get(view) ?? {}) : {}
 }

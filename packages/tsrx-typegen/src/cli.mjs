@@ -92,7 +92,12 @@ function configuredTargetNames(projectRoot, selectedTarget) {
 	}
 
 	const targets = config?.targets
-	if (!targets || typeof targets !== 'object' || Array.isArray(targets) || !Object.keys(targets).length) {
+	if (
+		!targets ||
+		typeof targets !== 'object' ||
+		Array.isArray(targets) ||
+		!Object.keys(targets).length
+	) {
 		throw new Error(`${path}: --pack-check requires at least one configured target`)
 	}
 
@@ -124,16 +129,22 @@ function readProjectConfig(ts, configPath, projectRoot, target) {
 		[{ extension: '.tsrx', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred }],
 	)
 
-	if (!parsed) {throw new Error(`Could not read ${configPath}`)}
+	if (!parsed) {
+		throw new Error(`Could not read ${configPath}`)
+	}
 	const errors = parsed.errors.map((diagnostic) =>
 		ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
 	)
 
-	if (errors.length) {throw new Error(errors.join('\n'))}
+	if (errors.length) {
+		throw new Error(errors.join('\n'))
+	}
 	const options = parsed.options
 	const jsxRenderer =
 		options.jsxImportSource ??
-		(options.jsx === ts.JsxEmit.ReactJSX || options.jsx === ts.JsxEmit.ReactJSXDev ? 'react' : undefined)
+		(options.jsx === ts.JsxEmit.ReactJSX || options.jsx === ts.JsxEmit.ReactJSXDev
+			? 'react'
+			: undefined)
 
 	if (target?.renderer && jsxRenderer && target.renderer !== jsxRenderer) {
 		throw new Error(
@@ -149,7 +160,9 @@ function readProjectConfig(ts, configPath, projectRoot, target) {
 
 	const outputDirectory = target?.outDir ?? options.declarationDir ?? options.outDir
 	if (!outputDirectory) {
-		throw new Error(`${configPath} must set target outDir, compilerOptions.outDir, or declarationDir.`)
+		throw new Error(
+			`${configPath} must set target outDir, compilerOptions.outDir, or declarationDir.`,
+		)
 	}
 
 	return {
@@ -163,7 +176,9 @@ function readProjectConfig(ts, configPath, projectRoot, target) {
 }
 
 function commonDirectory(paths) {
-	if (!paths.length) {throw new Error('TypeScript project has no root files.')}
+	if (!paths.length) {
+		throw new Error('TypeScript project has no root files.')
+	}
 	const segments = paths.map((path) => resolve(dirname(path)).split(sep))
 	const common = []
 	for (let index = 0; segments.every((parts) => parts[index] === segments[0][index]); index += 1) {
@@ -178,7 +193,9 @@ function sourceDeclarationMap(rootDir, fileNames, extensions, overrides) {
 	const runtimeByDeclaration = new Map()
 	for (const source of fileNames) {
 		const sourceExtension = extname(source).toLowerCase()
-		if (!Object.hasOwn(extensions, sourceExtension) || /\.d\.[cm]?ts$/i.test(source)) {continue}
+		if (!Object.hasOwn(extensions, sourceExtension) || /\.d\.[cm]?ts$/i.test(source)) {
+			continue
+		}
 		const sourcePath = relative(rootDir, source)
 		if (!sourcePath || sourcePath.startsWith(`..${sep}`) || isAbsolute(sourcePath)) {
 			throw new Error(`Source file is outside compilerOptions.rootDir: ${source}`)
@@ -187,7 +204,9 @@ function sourceDeclarationMap(rootDir, fileNames, extensions, overrides) {
 		const declarationExtension =
 			sourceExtension === '.mts' ? '.d.mts' : sourceExtension === '.cts' ? '.d.cts' : '.d.ts'
 
-		const declaration = normalize(sourcePath.slice(0, -sourceExtension.length) + declarationExtension)
+		const declaration = normalize(
+			sourcePath.slice(0, -sourceExtension.length) + declarationExtension,
+		)
 		const prior = sourceOutputs.get(declaration)
 		if (prior && !overrides.has(declaration)) {
 			throw new Error(
@@ -211,7 +230,9 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 		config = JSON.parse(readFileSync(path, 'utf8'))
 	} catch (error) {
 		if (error.code === 'ENOENT') {
-			if (targetArgument) {throw new Error(`No tsrx-typegen.json defines target ${targetArgument}.`)}
+			if (targetArgument) {
+				throw new Error(`No tsrx-typegen.json defines target ${targetArgument}.`)
+			}
 			return {
 				project: projectArgument,
 				target: null,
@@ -235,7 +256,9 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 	const resolveProject = (value) => resolve(projectRoot, value)
 	let selectedName = targetArgument
 	let selected = selectedName ? targets[selectedName] : undefined
-	if (selectedName && !selected) {throw new Error(`${path}: unknown target ${selectedName}`)}
+	if (selectedName && !selected) {
+		throw new Error(`${path}: unknown target ${selectedName}`)
+	}
 	if (!selected && projectArgument) {
 		const matches = Object.entries(targets).filter(
 			([, target]) => target?.project && resolveProject(target.project) === projectArgument,
@@ -245,15 +268,18 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 			throw new Error(`${path}: project matches multiple targets; pass --target <name>`)
 		}
 
-		if (matches.length === 1) {[selectedName, selected] = matches[0]}
-		else if (Object.keys(targets).length) {
+		if (matches.length === 1) {
+			;[selectedName, selected] = matches[0]
+		} else if (Object.keys(targets).length) {
 			throw new Error(`${path}: ${projectArgument} is not declared by a target`)
 		}
 	}
 
 	if (selected) {
 		if (selected.emit === false) {
-			throw new Error(`${path}: target ${selectedName} has emit: false — it configures --pack-check only`)
+			throw new Error(
+				`${path}: target ${selectedName} has emit: false — it configures --pack-check only`,
+			)
 		}
 
 		if (typeof selected.project !== 'string' || !selected.project) {
@@ -282,10 +308,12 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 				!entry ||
 				typeof entry !== 'object' ||
 				typeof entry.source !== 'string' ||
-			!stringsIn(entry.runtime).length ||
+				!stringsIn(entry.runtime).length ||
 				!stringsIn(entry.types).length
 			) {
-				throw new Error(`${path}: target ${selectedName} entrypoint ${subpath} needs source, runtime, and types`)
+				throw new Error(
+					`${path}: target ${selectedName} entrypoint ${subpath} needs source, runtime, and types`,
+				)
 			}
 
 			for (const publishedPath of [...stringsIn(entry.runtime), ...stringsIn(entry.types)]) {
@@ -304,7 +332,9 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 			} catch {}
 
 			if (!pathInside(projectRoot, source) || !isFile) {
-				throw new Error(`${path}: target ${selectedName} entrypoint source is missing: ${entry.source}`)
+				throw new Error(
+					`${path}: target ${selectedName} entrypoint source is missing: ${entry.source}`,
+				)
 			}
 		}
 
@@ -325,10 +355,16 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 	}
 
 	const project = projectArgument ?? resolveProject(selected.project)
-	const sourceExtensions = { ...defaultExtensions, ...config.sourceExtensions, ...selected?.sourceExtensions }
+	const sourceExtensions = {
+		...defaultExtensions,
+		...config.sourceExtensions,
+		...selected?.sourceExtensions,
+	}
 	for (const [source, runtime] of Object.entries(sourceExtensions)) {
 		if (!source.startsWith('.') || typeof runtime !== 'string' || !runtime.startsWith('.')) {
-			throw new Error(`${path}: sourceExtensions must map dot-prefixed extensions to dot-prefixed runtime extensions`)
+			throw new Error(
+				`${path}: sourceExtensions must map dot-prefixed extensions to dot-prefixed runtime extensions`,
+			)
 		}
 	}
 
@@ -378,7 +414,9 @@ function applyOverrides(ts, projectRoot, outputDir, generated, overrides) {
 		normalized.set(outputFile, content)
 	}
 
-	for (const [outputPath, content] of normalized) {generated.set(outputPath, content)}
+	for (const [outputPath, content] of normalized) {
+		generated.set(outputPath, content)
+	}
 	return new Set(normalized.keys())
 }
 
@@ -390,8 +428,11 @@ function collectFiles(root, output = []) {
 
 	for (const entry of readdirSync(root, { withFileTypes: true })) {
 		const path = join(root, entry.name)
-		if (entry.isDirectory()) {collectFiles(path, output)}
-		else if (entry.isFile()) {output.push(path)}
+		if (entry.isDirectory()) {
+			collectFiles(path, output)
+		} else if (entry.isFile()) {
+			output.push(path)
+		}
 	}
 
 	return output
@@ -428,7 +469,9 @@ function moduleSpecifierNodes(ts, sourceFile) {
 
 function assertNoTsrxModuleReferences(ts, path, text) {
 	const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-	const unresolved = moduleSpecifierNodes(ts, source).find((node) => /\.tsrx(?:$|[?#])/.test(node.text))
+	const unresolved = moduleSpecifierNodes(ts, source).find((node) =>
+		/\.tsrx(?:$|[?#])/.test(node.text),
+	)
 	if (unresolved) {
 		throw new Error(`${path}: unresolved .tsrx module specifier ${unresolved.text}`)
 	}
@@ -440,8 +483,12 @@ function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, run
 	const edits = []
 	for (const node of moduleSpecifierNodes(ts, source)) {
 		const specifier = node.text
-		if (!specifier.startsWith('.')) {continue}
-		if (/\.d\.[cm]?ts$/i.test(specifier)) {continue}
+		if (!specifier.startsWith('.')) {
+			continue
+		}
+		if (/\.d\.[cm]?ts$/i.test(specifier)) {
+			continue
+		}
 		const extension = Object.keys(extensions).find(
 			(candidate) => !candidate.startsWith('.d.') && specifier.endsWith(candidate),
 		)
@@ -464,7 +511,9 @@ function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, run
 				generatedFiles.has(relative(outputDir, candidate)),
 			)
 
-			if (!target) {continue}
+			if (!target) {
+				continue
+			}
 			const declaration = relative(outputDir, target)
 			const runtimeExtension = runtimeByDeclaration.get(declaration) ?? '.js'
 			const isIndex = /[\\/]index\.d\.[cm]?ts$/.test(target)
@@ -498,19 +547,14 @@ function normalizeOutput(ts, outputDir, extensions, runtimeByDeclaration) {
 		.filter((path) => /\.d\.[cm]?ts$/.test(path))
 		.sort()
 
-	if (!files.length) {throw new Error('TypeScript emitted no declaration files.')}
+	if (!files.length) {
+		throw new Error('TypeScript emitted no declaration files.')
+	}
 	const generatedFiles = new Set(files.map((path) => relative(outputDir, path)))
 	return new Map(
 		files.map((path) => [
 			relative(outputDir, path),
-			rewriteDeclaration(
-				ts,
-				path,
-				outputDir,
-				extensions,
-				generatedFiles,
-				runtimeByDeclaration,
-			),
+			rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, runtimeByDeclaration),
 		]),
 	)
 }
@@ -532,7 +576,9 @@ function previousManifest(outputDir) {
 
 		return new Set(manifest.files)
 	} catch (error) {
-		if (error.code === 'ENOENT') {return null}
+		if (error.code === 'ENOENT') {
+			return null
+		}
 		throw new Error(`${path}: ${error.message}`)
 	}
 }
@@ -549,19 +595,27 @@ function pathInside(root, file) {
 
 function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
 	for (const file of generated.keys()) {
-		if (oldFiles?.has(file) || overrideFiles.has(file)) {continue}
+		if (oldFiles?.has(file) || overrideFiles.has(file)) {
+			continue
+		}
 		try {
 			statSync(join(outputDir, file))
 			throw new Error(`refusing to overwrite unmanaged declaration: ${file}`)
 		} catch (error) {
-			if (error.code !== 'ENOENT') {throw error}
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
 		}
 	}
 
 	for (const file of oldFiles ?? []) {
 		const path = resolve(outputDir, file)
-		if (!pathInside(outputDir, path)) {throw new Error(`Invalid generated path in manifest: ${file}`)}
-		if (!generated.has(file)) {rmSync(path, { force: true })}
+		if (!pathInside(outputDir, path)) {
+			throw new Error(`Invalid generated path in manifest: ${file}`)
+		}
+		if (!generated.has(file)) {
+			rmSync(path, { force: true })
+		}
 	}
 
 	for (const [file, content] of generated) {
@@ -579,40 +633,53 @@ function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
 
 function compareOutput(outputDir, generated, oldFiles, overrideFiles) {
 	const errors = []
-	if (!oldFiles) {errors.push(`missing ${manifestName}; run tsrx-typegen --project <tsconfig> first`)}
+	if (!oldFiles) {
+		errors.push(`missing ${manifestName}; run tsrx-typegen --project <tsconfig> first`)
+	}
 	for (const file of generated.keys()) {
 		if (!oldFiles?.has(file) && !overrideFiles.has(file)) {
 			try {
 				statSync(join(outputDir, file))
 				errors.push(`${file} conflicts with unmanaged output`)
 			} catch (error) {
-				if (error.code !== 'ENOENT') {throw error}
+				if (error.code !== 'ENOENT') {
+					throw error
+				}
 			}
 		}
 
 		try {
-			if (readFileSync(join(outputDir, file), 'utf8') !== generated.get(file))
-				{errors.push(`${file} is stale`)}
+			if (readFileSync(join(outputDir, file), 'utf8') !== generated.get(file)) {
+				errors.push(`${file} is stale`)
+			}
 		} catch {
 			errors.push(`${file} is missing`)
 		}
 	}
 
 	for (const file of oldFiles ?? []) {
-		if (!generated.has(file)) {errors.push(`${file} is stale`)}
+		if (!generated.has(file)) {
+			errors.push(`${file} is stale`)
+		}
 	}
 
 	return errors
 }
 
 function stringsIn(value) {
-	if (typeof value === 'string') {return [value]}
-	if (!value || typeof value !== 'object') {return []}
+	if (typeof value === 'string') {
+		return [value]
+	}
+	if (!value || typeof value !== 'object') {
+		return []
+	}
 	return Object.values(value).flatMap(stringsIn)
 }
 
 function typeTargets(value) {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) {return []}
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		return []
+	}
 	return [
 		...(Object.hasOwn(value, 'types') ? stringsIn(value.types) : []),
 		...Object.entries(value)
@@ -647,13 +714,17 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 		for (const [subpath, entry] of Object.entries(target.entrypoints)) {
 			const mapping = exportsMap[subpath]
 			if (!mapping) {
-				failures.push(`${subpath} is configured for ${target.name} but missing from effective package exports`)
+				failures.push(
+					`${subpath} is configured for ${target.name} but missing from effective package exports`,
+				)
 				continue
 			}
 
 			const source = resolve(projectRoot, entry.source)
 			if (![...sourceOutputs.values()].includes(source)) {
-				failures.push(`${subpath} source is not included by its TypeScript project: ${entry.source}`)
+				failures.push(
+					`${subpath} source is not included by its TypeScript project: ${entry.source}`,
+				)
 			}
 
 			const declaredRuntime = stringsIn(entry.runtime)
@@ -680,7 +751,9 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 				/\.(?:[cm]?[jt]sx?|tsrx)$/.test(target),
 			)
 
-			if (!runtimeTargets.length) {continue}
+			if (!runtimeTargets.length) {
+				continue
+			}
 			const targets = typeTargets(mapping)
 			if (!targets.length) {
 				failures.push(`${subpath} has code exports but no types condition`)
@@ -688,7 +761,9 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 			}
 
 			for (const target of targets) {
-				if (!target.startsWith('./') || target.includes('*')) {continue}
+				if (!target.startsWith('./') || target.includes('*')) {
+					continue
+				}
 				const absolute = resolve(projectRoot, target)
 				if (!pathInside(projectRoot, absolute)) {
 					failures.push(`${subpath} types target escapes the package: ${target}`)
@@ -696,10 +771,13 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 				}
 
 				const generatedPath = relative(outDir, absolute)
-				if (pathInside(outDir, absolute) && generated.has(generatedPath)) {continue}
+				if (pathInside(outDir, absolute) && generated.has(generatedPath)) {
+					continue
+				}
 				try {
-					if (!statSync(absolute).isFile())
-						{failures.push(`${subpath} types target is not a file: ${target}`)}
+					if (!statSync(absolute).isFile()) {
+						failures.push(`${subpath} types target is not a file: ${target}`)
+					}
 				} catch {
 					failures.push(`${subpath} types target is missing: ${target}`)
 				}
@@ -712,14 +790,18 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 			failures.push(`package types target escapes the package: ${targetPath}`)
 		} else if (!(pathInside(outDir, target) && generated.has(relative(outDir, target)))) {
 			try {
-				if (!statSync(target).isFile()) {failures.push(`package types target is not a file: ${targetPath}`)}
+				if (!statSync(target).isFile()) {
+					failures.push(`package types target is not a file: ${targetPath}`)
+				}
 			} catch {
 				failures.push(`package types target is missing: ${targetPath}`)
 			}
 		}
 	}
 
-	if (failures.length) {throw new Error(failures.join('\n'))}
+	if (failures.length) {
+		throw new Error(failures.join('\n'))
+	}
 }
 
 function runTarget(projectRoot, args) {
@@ -751,16 +833,30 @@ function runTarget(projectRoot, args) {
 	const temporaryOut = join(temporaryRoot, 'types')
 	const outputDir = temporaryOut
 	try {
-		const compilerArgs = [compilerPath, '--pretty', 'false', '--project', project, outputFlag, temporaryOut]
+		const compilerArgs = [
+			compilerPath,
+			'--pretty',
+			'false',
+			'--project',
+			project,
+			outputFlag,
+			temporaryOut,
+		]
 		const result = spawnSync(process.execPath, compilerArgs, {
 			cwd: projectRoot,
 			encoding: 'utf8',
 			maxBuffer: 32 * 1024 * 1024,
 		})
 
-		if (result.stdout) {process.stdout.write(result.stdout)}
-		if (result.stderr) {process.stderr.write(result.stderr)}
-		if (result.error) {throw result.error}
+		if (result.stdout) {
+			process.stdout.write(result.stdout)
+		}
+		if (result.stderr) {
+			process.stderr.write(result.stderr)
+		}
+		if (result.error) {
+			throw result.error
+		}
 		if (/\[tsrx-tsc\]/.test(result.stderr ?? '')) {
 			throw new Error(
 				'tsrx compiler reported transform diagnostics; declarations were not written. Fix the source or configure an explicit declaration override.',
@@ -783,7 +879,9 @@ function runTarget(projectRoot, args) {
 		if (args.check) {
 			const errors = compareOutput(outDir, generated, oldFiles, managedOverrides)
 			if (errors.length) {
-				for (const error of errors) {console.error(`tsrx-typegen: ${error}`)}
+				for (const error of errors) {
+					console.error(`tsrx-typegen: ${error}`)
+				}
 				return false
 			}
 
@@ -805,7 +903,9 @@ function run() {
 	const args = parseArgs(process.argv.slice(2))
 	const projectRoot = process.cwd()
 	if (!args.packCheck) {
-		if (!runTarget(projectRoot, args)) {process.exitCode = 1}
+		if (!runTarget(projectRoot, args)) {
+			process.exitCode = 1
+		}
 		return
 	}
 

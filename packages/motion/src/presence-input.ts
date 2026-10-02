@@ -15,12 +15,17 @@ export function blockInput(node: any): () => void {
 	}
 
 	node.isUserInteractionEnabled = false
-	if (node.ios) {node.ios.accessibilityElementsHidden = true}
+	if (node.ios) {
+		node.ios.accessibilityElementsHidden = true
+	}
 	node.android?.setImportantForAccessibility?.(4) // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
 	return () => {
 		node.isUserInteractionEnabled = enabled
-		if (node.ios) {node.ios.accessibilityElementsHidden = iosHidden}
-		if (androidImportance !== undefined)
-			{node.android?.setImportantForAccessibility?.(androidImportance)}
+		if (node.ios) {
+			node.ios.accessibilityElementsHidden = iosHidden
+		}
+		if (androidImportance !== undefined) {
+			node.android?.setImportantForAccessibility?.(androidImportance)
+		}
 	}
 }

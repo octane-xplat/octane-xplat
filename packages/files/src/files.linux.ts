@@ -5,11 +5,10 @@
 import { files as webFiles } from './files.web'
 import type { FileRef } from './types'
 
-const bridge = () =>
-	(typeof window !== 'undefined' ? (window as any).__xplatBridge : undefined)
+const bridge = () => (typeof window !== 'undefined' ? (window as any).__xplatBridge : undefined)
 
 const bridged = () => bridge() !== undefined
-const call = <T,>(method: string, ...args: unknown[]): Promise<T> =>
+const call = <T>(method: string, ...args: unknown[]): Promise<T> =>
 	bridge()!.call('files', method, args) as Promise<T>
 
 export const files = {

@@ -40,7 +40,10 @@ const SCOPE_MAP: Record<string, () => any> = {
 
 function isCancel(error: unknown): boolean {
 	// ASAuthorizationError.canceled = 1001 (NSError.code).
-	return (error as any)?.code === 1001 || /cancel/i.test(String((error as any)?.localizedDescription ?? error))
+	return (
+		(error as any)?.code === 1001 ||
+		/cancel/i.test(String((error as any)?.localizedDescription ?? error))
+	)
 }
 
 function utf8Bytes(input: string): Uint8Array {
@@ -63,7 +66,9 @@ function sha256Hex(input: string): string {
 		0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 	])
 
-	const H = new Uint32Array([0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19])
+	const H = new Uint32Array([
+		0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+	])
 	const bytes = utf8Bytes(input)
 	const bitLen = bytes.length * 8
 	const padded = new Uint8Array((bytes.length + 9 + 63) & ~63)
@@ -74,25 +79,45 @@ function sha256Hex(input: string): string {
 	dv.setUint32(padded.length - 4, bitLen >>> 0)
 	const w = new Uint32Array(64)
 	for (let block = 0; block < padded.length; block += 64) {
-		for (let t = 0; t < 16; t++) {w[t] = dv.getUint32(block + t * 4)}
+		for (let t = 0; t < 16; t++) {
+			w[t] = dv.getUint32(block + t * 4)
+		}
 		for (let t = 16; t < 64; t++) {
-			const s0 = (w[t - 15] >>> 7 | w[t - 15] << 25) ^ (w[t - 15] >>> 18 | w[t - 15] << 14) ^ (w[t - 15] >>> 3)
-			const s1 = (w[t - 2] >>> 17 | w[t - 2] << 15) ^ (w[t - 2] >>> 19 | w[t - 2] << 13) ^ (w[t - 2] >>> 10)
+			const s0 =
+				((w[t - 15] >>> 7) | (w[t - 15] << 25)) ^
+				((w[t - 15] >>> 18) | (w[t - 15] << 14)) ^
+				(w[t - 15] >>> 3)
+			const s1 =
+				((w[t - 2] >>> 17) | (w[t - 2] << 15)) ^
+				((w[t - 2] >>> 19) | (w[t - 2] << 13)) ^
+				(w[t - 2] >>> 10)
 			w[t] = (w[t - 16] + s0 + w[t - 7] + s1) >>> 0
 		}
 
 		let [a, b, c, d, e, f, g, h] = H
 		for (let t = 0; t < 64; t++) {
-			const S1 = (e >>> 6 | e << 26) ^ (e >>> 11 | e << 21) ^ (e >>> 25 | e << 7)
+			const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7))
 			const t1 = (h + S1 + ((e & f) ^ (~e & g)) + K[t] + w[t]) >>> 0
-			const S0 = (a >>> 2 | a << 30) ^ (a >>> 13 | a << 19) ^ (a >>> 22 | a << 10)
+			const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10))
 			const t2 = (S0 + ((a & b) ^ (a & c) ^ (b & c))) >>> 0
-			h = g; g = f; f = e; e = (d + t1) >>> 0
-			d = c; c = b; b = a; a = (t1 + t2) >>> 0
+			h = g
+			g = f
+			f = e
+			e = (d + t1) >>> 0
+			d = c
+			c = b
+			b = a
+			a = (t1 + t2) >>> 0
 		}
 
-		H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0
-		H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0
+		H[0] = (H[0] + a) >>> 0
+		H[1] = (H[1] + b) >>> 0
+		H[2] = (H[2] + c) >>> 0
+		H[3] = (H[3] + d) >>> 0
+		H[4] = (H[4] + e) >>> 0
+		H[5] = (H[5] + f) >>> 0
+		H[6] = (H[6] + g) >>> 0
+		H[7] = (H[7] + h) >>> 0
 	}
 
 	return [...H].map((x) => x.toString(16).padStart(8, '0')).join('')
@@ -102,15 +127,21 @@ function toCredential(credential: any): AuthCredential {
 	const tokenData = credential.valueForKey('identityToken')
 	const codeData = credential.valueForKey('authorizationCode')
 	const fullName = credential.fullName
-	const name =
-		[fullName?.givenName, fullName?.familyName].filter(Boolean).join(' ') || undefined
+	const name = [fullName?.givenName, fullName?.familyName].filter(Boolean).join(' ') || undefined
 
 	return {
 		provider: 'apple',
 		idToken: tokenData ? String(NSString.alloc().initWithDataEncoding(tokenData, 4)) : undefined,
-		authorizationCode: codeData ? String(NSString.alloc().initWithDataEncoding(codeData, 4)) : undefined,
-		scopes: (credential.authorizedScopes ? Array.from(credential.authorizedScopes as any) : []).map((s: any) =>
-			s === ASAuthorizationScopeEmail ? 'email' : s === ASAuthorizationScopeFullName ? 'name' : String(s),
+		authorizationCode: codeData
+			? String(NSString.alloc().initWithDataEncoding(codeData, 4))
+			: undefined,
+		scopes: (credential.authorizedScopes ? Array.from(credential.authorizedScopes as any) : []).map(
+			(s: any) =>
+				s === ASAuthorizationScopeEmail
+					? 'email'
+					: s === ASAuthorizationScopeFullName
+						? 'name'
+						: String(s),
 		),
 		user: {
 			id: String(credential.user ?? ''),
@@ -269,7 +300,15 @@ export const appleAuth: AppleAuth = {
 						return
 					}
 
-					resolve(state === 1 ? 'authorized' : state === 0 ? 'revoked' : state === 3 ? 'transferred' : 'notFound')
+					resolve(
+						state === 1
+							? 'authorized'
+							: state === 0
+								? 'revoked'
+								: state === 3
+									? 'transferred'
+									: 'notFound',
+					)
 				},
 			)
 		})

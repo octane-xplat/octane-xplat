@@ -1,10 +1,5 @@
 import { Application, Frame, ListView } from '@nativescript/core'
-import {
-	currentModalRoute,
-	getStack,
-	popRoute,
-	routeFor,
-} from '@octane-xplat/ui'
+import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/ui'
 
 import { findInRootLayouts } from '@octane-xplat/ui/native'
 
@@ -22,7 +17,9 @@ import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 // Android-safe swap-pane route.
 const SKIP = Application.android != null
 if (SKIP) {
-	console.log('[sweep] catalog sweep skipped on android — asserts native Page objects; swap-pane route used instead')
+	console.log(
+		'[sweep] catalog sweep skipped on android — asserts native Page objects; swap-pane route used instead',
+	)
 }
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
@@ -501,7 +498,9 @@ function waitForVirtualListDeepRowVisible(
 	const readVisibleWindow = () => {
 		const listY = Number(list?.getLocationOnScreen?.()?.y)
 		const listHeight = Number(list?.getActualSize?.()?.height)
-		if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) {return null}
+		if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) {
+			return null
+		}
 
 		const rows = virtualListRowMetrics(list).filter(
 			(row) =>
@@ -535,7 +534,9 @@ function waitForVirtualListDeepRowVisible(
 		}
 
 		positionSamples.push(current.candidate.y)
-		if (positionSamples.length > 20) {positionSamples.shift()}
+		if (positionSamples.length > 20) {
+			positionSamples.shift()
+		}
 		lastSampleSpread = Math.max(...positionSamples) - Math.min(...positionSamples)
 		lastCandidate = current.candidate
 		lastOffset = Number(list?.verticalOffset ?? 0)
@@ -918,8 +919,8 @@ const STEPS: Step[] = [
 
 					console.log(
 						'[assert] ScrollBox keeps List out of ScrollView: ' +
-						(!nested && list ? 'OK' : 'FAIL') +
-						' (list=' +
+							(!nested && list ? 'OK' : 'FAIL') +
+							' (list=' +
 							(list?.constructor?.name ?? 'none') +
 							' nested=' +
 							nested +
@@ -948,15 +949,15 @@ const STEPS: Step[] = [
 
 					console.log(
 						'[assert] rich text formatted spans: ' +
-						(spans.length === 5 && styled ? 'OK' : 'FAIL') +
-						' (count=' +
-						spans.length +
-						' styled=' +
-						styled +
-						' color=' +
-						String(style?.color) +
-						' weight=' +
-						String(style?.fontWeight) +
+							(spans.length === 5 && styled ? 'OK' : 'FAIL') +
+							' (count=' +
+							spans.length +
+							' styled=' +
+							styled +
+							' color=' +
+							String(style?.color) +
+							' weight=' +
+							String(style?.fontWeight) +
 							')',
 					)
 
@@ -979,14 +980,20 @@ const STEPS: Step[] = [
 		// still mount and report 'unsupported'.
 		id: 'richtext-editor',
 		checks: [
-			{ at: 800, run: () => assertHas('richtext ios stub', 'Rich text editing is not supported on iOS yet.') },
+			{
+				at: 800,
+				run: () => assertHas('richtext ios stub', 'Rich text editing is not supported on iOS yet.'),
+			},
 			{ at: 800, run: () => assertMatch('richtext ios status', /unsupported/) },
 		],
 	},
 	{
 		id: 'tiptap-editor',
 		checks: [
-			{ at: 800, run: () => assertHas('tiptap ios stub', 'Rich text editing is not supported on iOS yet.') },
+			{
+				at: 800,
+				run: () => assertHas('tiptap ios stub', 'Rich text editing is not supported on iOS yet.'),
+			},
 			{ at: 800, run: () => assertMatch('tiptap ios status', /unsupported/) },
 		],
 	},
@@ -1528,9 +1535,7 @@ const STEPS: Step[] = [
 			{
 				at: 600,
 				run: () => {
-					const svgs = collect(demosPage()).filter(
-						(v) => v?.constructor?.name === 'SVGView',
-					)
+					const svgs = collect(demosPage()).filter((v) => v?.constructor?.name === 'SVGView')
 
 					const sized = svgs.filter((v) => {
 						const s = v.getActualSize?.() ?? {}
@@ -1580,7 +1585,6 @@ function selectTab(stack: string) {
 
 	fireTap(target)
 }
-
 
 if (!SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {

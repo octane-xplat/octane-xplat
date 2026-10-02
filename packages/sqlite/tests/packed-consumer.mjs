@@ -46,13 +46,13 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"@nativescript-community/sqlite",
-	"@nativescript/core",
-	"@sqlite.org/sqlite-wasm"
+	'@nativescript-community/sqlite',
+	'@nativescript/core',
+	'@sqlite.org/sqlite-wasm',
 ]
 
 const consumers = {
-	"web": `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
+	web: `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
 const ok: boolean = supported
 const db: Promise<SqliteDb> = openDatabase('app.db', { threading: true })
 const migrated = db.then((d) => d.getUserVersion())
@@ -62,7 +62,7 @@ void ok
 void migrated
 void bad
 `,
-	"native": `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
+	native: `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
 const ok: boolean = supported
 const db: Promise<SqliteDb> = openDatabase('app.db', { threading: true })
 const migrated = db.then((d) => d.getUserVersion())
@@ -72,7 +72,7 @@ void ok
 void migrated
 void bad
 `,
-	"macos": `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
+	macos: `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
 const ok: boolean = supported
 const db: Promise<SqliteDb> = openDatabase('app.db', { threading: true })
 const migrated = db.then((d) => d.getUserVersion())
@@ -81,11 +81,11 @@ const bad = openDatabase()
 void ok
 void migrated
 void bad
-`
+`,
 }
 
 const extraFiles = {
-	"wasm.d.ts": "declare module '*.wasm?url' { const url: string\nexport default url }\n"
+	'wasm.d.ts': "declare module '*.wasm?url' { const url: string\nexport default url }\n",
 }
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
@@ -93,42 +93,21 @@ const extraFiles = {
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		]
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: ['vite/client'],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -238,10 +217,10 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
-				}
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

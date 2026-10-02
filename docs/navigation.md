@@ -156,7 +156,7 @@ Constraints that keep the mechanism honest:
   screen selects by `params.slug`.
 - **Regeneration is explicit.** Baked data is committed like the manifest;
   edit a `.loader.ts` and re-run `xplat routes` (or dev/build). `Xplat
-  typecheck` refreshes types without re-baking.
+typecheck` refreshes types without re-baking.
 - A `dataMode: 'baked'` route with no `.loader.*` sibling fails codegen —
   the pairing is checked, not implied.
 
@@ -287,15 +287,15 @@ import { onDeepLink, consumeInitialUrl } from '@octane-xplat/platform'
 let ready = false
 const pending: string[] = []
 const unsubscribe = onDeepLink((url) => {
-  if (ready) pushDeepLink(url)
-  else pending.push(url)
+	if (ready) pushDeepLink(url)
+	else pending.push(url)
 })
 Application.on(Application.displayedEvent, () => {
-  if (ready) return
-  ready = true
-  const boot = consumeInitialUrl()
-  if (boot) pushDeepLink(boot)
-  for (const url of pending.splice(0)) pushDeepLink(url)
+	if (ready) return
+	ready = true
+	const boot = consumeInitialUrl()
+	if (boot) pushDeepLink(boot)
+	for (const url of pending.splice(0)) pushDeepLink(url)
 })
 // Then Application.run({ create: ... }) with your Frame-root shell.
 ```

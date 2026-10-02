@@ -21,8 +21,12 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
 manifest.devDependencies['@octane-xplat/cli'] = `file:${resolve(cliTarball)}`
 manifest.dependencies['@octane-xplat/platform'] = `file:${resolve(platformTarball)}`
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-writeFileSync(join(app, 'pnpm-workspace.yaml'), 'packages: [.]\noverrides:\n  esbuild: 0.27.7\nallowBuilds:\n  esbuild: true\n')
-const run = (cmd, args, options = {}) => execFileSync(cmd, args, { cwd: app, stdio: 'inherit', ...options })
+writeFileSync(
+	join(app, 'pnpm-workspace.yaml'),
+	'packages: [.]\noverrides:\n  esbuild: 0.27.7\nallowBuilds:\n  esbuild: true\n',
+)
+const run = (cmd, args, options = {}) =>
+	execFileSync(cmd, args, { cwd: app, stdio: 'inherit', ...options })
 run('pnpm', ['install'])
 run('pnpm', ['exec', 'xplat', 'build', '--targets', 'linux'])
 const relocated = join(root, 'relocated app')
@@ -41,7 +45,9 @@ const other = join(app, 'dist/linux/linux-other/linux-other')
 const configHome = join(root, 'config')
 mkdirSync(configHome)
 const driver = join(root, 'runtime-driver.mjs')
-writeFileSync(driver, `
+writeFileSync(
+	driver,
+	`
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -105,10 +111,17 @@ try {
 } finally {
  for (const child of children) { try { process.kill(-child.pid, 'SIGTERM') } catch {} }
 }
-`)
+`,
+)
 
 run('xvfb-run', ['-a', 'dbus-run-session', '--', process.execPath, driver], {
-	env: { ...process.env, GSK_RENDERER: 'cairo', LIBGL_ALWAYS_SOFTWARE: '1', XDG_DATA_HOME: data, XDG_CONFIG_HOME: configHome },
+	env: {
+		...process.env,
+		GSK_RENDERER: 'cairo',
+		LIBGL_ALWAYS_SOFTWARE: '1',
+		XDG_DATA_HOME: data,
+		XDG_CONFIG_HOME: configHome,
+	},
 	timeout: 180000,
 })
 

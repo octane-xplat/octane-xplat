@@ -126,7 +126,9 @@ function restoreRouteState(): void {
 		const route = parse()
 		modalRoute = route?.presentation === 'modal' ? route : null
 		current = modalRoute ? null : route
-		if (route) {hydrateRoute(route)}
+		if (route) {
+			hydrateRoute(route)
+		}
 	}
 }
 
@@ -135,26 +137,45 @@ function restoreRouteState(): void {
 // changing the documented bootstrap guard boundary.
 function hydrateRoute(route: Route): void {
 	const loader = routeLoaders[route.name] ?? metaFor(route.name)?.loader
-	if (!loader || Object.prototype.hasOwnProperty.call(route, 'loaderData') ||
-		Object.prototype.hasOwnProperty.call(route, 'loaderError')) {return}
+	if (
+		!loader ||
+		Object.prototype.hasOwnProperty.call(route, 'loaderData') ||
+		Object.prototype.hasOwnProperty.call(route, 'loaderError')
+	) {
+		return
+	}
 
 	const finish = (result: Pick<Route, 'loaderData' | 'loaderError'>) => {
 		const prepared = { ...route, ...result }
 		let changed = false
-		if (current === route) { current = prepared; changed = true }
-		if (modalRoute === route) { modalRoute = prepared; changed = true }
+		if (current === route) {
+			current = prepared
+			changed = true
+		}
+		if (modalRoute === route) {
+			modalRoute = prepared
+			changed = true
+		}
 		for (const saved of historyRoutes.values()) {
-			if (saved.current === route) {saved.current = prepared}
-			if (saved.modal === route) {saved.modal = prepared}
+			if (saved.current === route) {
+				saved.current = prepared
+			}
+			if (saved.modal === route) {
+				saved.modal = prepared
+			}
 		}
 
-		if (changed) {emit()}
+		if (changed) {
+			emit()
+		}
 	}
 
-	void Promise.resolve().then(() => loader(route.params)).then(
-		(loaderData) => finish({ loaderData }),
-		(loaderError) => finish({ loaderError }),
-	)
+	void Promise.resolve()
+		.then(() => loader(route.params))
+		.then(
+			(loaderData) => finish({ loaderData }),
+			(loaderError) => finish({ loaderError }),
+		)
 }
 
 const ROUTE_HEAD_ATTR = 'data-octane-xplat-route-head'
@@ -229,7 +250,9 @@ function contextFor(r: Route): Record<string, unknown> {
 }
 
 async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0): Promise<void> {
-	if (!request.isCurrent()) {return}
+	if (!request.isCurrent()) {
+		return
+	}
 
 	const beforeLoad = metaFor(r.name)?.beforeLoad
 	if (!beforeLoad) {
@@ -253,7 +276,9 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 			request,
 		)
 	} catch (e) {
-		if (!request.isCurrent()) {return}
+		if (!request.isCurrent()) {
+			return
+		}
 		if (e instanceof RouteRedirect) {
 			await prepareRoute(e.route, request, redirects + 1)
 			return
@@ -278,7 +303,9 @@ export function pushRoute(r: Route): void {
 }
 
 function commitRoute(r: Route, request: NavigationRequest): void {
-	if (!request.isCurrent()) {return}
+	if (!request.isCurrent()) {
+		return
+	}
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
 	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
 	if (
@@ -299,8 +326,14 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	saveScroll()
 	read()
 	// Include the entry we are leaving, even if it was the initial URL.
-	history.replaceState({ ...history.state, __octaneXplatDepth: historyDepth,
-		__octaneXplatEntry: rememberRouteState(history.state?.__octaneXplatEntry) }, '')
+	history.replaceState(
+		{
+			...history.state,
+			__octaneXplatDepth: historyDepth,
+			__octaneXplatEntry: rememberRouteState(history.state?.__octaneXplatEntry),
+		},
+		'',
+	)
 
 	historyDepth += 1
 	if (route.presentation === 'modal') {
@@ -310,7 +343,11 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		modalRoute = null
 	}
 
-	history.pushState({ __octaneXplatDepth: historyDepth, __octaneXplatEntry: rememberRouteState() }, '', buildRoutePath(routes, route))
+	history.pushState(
+		{ __octaneXplatDepth: historyDepth, __octaneXplatEntry: rememberRouteState() },
+		'',
+		buildRoutePath(routes, route),
+	)
 	lastKey = scrollKey()
 
 	applyHead(modalRoute ?? current ?? null)

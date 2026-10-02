@@ -163,13 +163,13 @@ pause/refetch, which `query$` does not provide.
 Fresh evidence (2026-09-30) is recorded per target in Silo; older readiness
 assessments remain historical:
 
-| Lane | Fresh result | Scope |
-| --- | --- | --- |
-| Native object/driver tests | 14 tests passed | Node; no simulator or device |
-| Web component suite | 64 tests passed | Includes the shared lifecycle trace |
-| Chromium | 13 lifecycle assertions and retained-suspense checks passed | DOM roots and Playwright clicks |
-| iOS 26.5 simulator | 13 assertions and native retained-suspense checks passed | Stacked pages, RootLayout overlay, modal; gesture-observer dispatch |
-| Android API 35 emulator | 13 assertions, retained-suspense and background/resume passed | Same native roots and dispatch; same process resumed |
+| Lane                       | Fresh result                                                  | Scope                                                               |
+| -------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Native object/driver tests | 14 tests passed                                               | Node; no simulator or device                                        |
+| Web component suite        | 64 tests passed                                               | Includes the shared lifecycle trace                                 |
+| Chromium                   | 13 lifecycle assertions and retained-suspense checks passed   | DOM roots and Playwright clicks                                     |
+| iOS 26.5 simulator         | 13 assertions and native retained-suspense checks passed      | Stacked pages, RootLayout overlay, modal; gesture-observer dispatch |
+| Android API 35 emulator    | 13 assertions, retained-suspense and background/resume passed | Same native roots and dispatch; same process resumed                |
 
 iOS app-switch attempts did not produce the expected NativeScript
 `suspendEvent`/`resumeEvent` log pair; background/resume remains unverified on

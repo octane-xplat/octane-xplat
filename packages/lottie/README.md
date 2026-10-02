@@ -2,7 +2,7 @@
 
 Lottie animations for Octane xplat apps: `lottie-web`'s svg renderer on
 web and a vendored fork of `@nativescript-community/ui-lottie` on native
-(`src/vendor/ui-lottie` submodule — the leaf *is* the plugin via
+(`src/vendor/ui-lottie` submodule — the leaf _is_ the plugin via
 `nativescript.platforms`, so no separate plugin install).
 
 ```sh

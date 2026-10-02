@@ -25,13 +25,19 @@ export function NameForm() {
 			<TextInput
 				value={name}
 				onChange={setName}
-				bind={(handle) => { input.current = handle }}
+				bind={(handle) => {
+					input.current = handle
+				}}
 				web={{ 'aria-label': 'Name' }}
 				ios={{ accessibilityLabel: 'Name' }}
 				android={{ accessibilityLabel: 'Name' }}
 			/>
-			<Pressable onPress={() => setName('')}><Text>Clear</Text></Pressable>
-			<Pressable onPress={() => input.current?.blur()}><Text>Done</Text></Pressable>
+			<Pressable onPress={() => setName('')}>
+				<Text>Clear</Text>
+			</Pressable>
+			<Pressable onPress={() => input.current?.blur()}>
+				<Text>Done</Text>
+			</Pressable>
 		</KeyboardAvoiding>
 	)
 }

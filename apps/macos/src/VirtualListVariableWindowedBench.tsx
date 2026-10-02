@@ -42,8 +42,11 @@ function rowAtOffset(offset: number) {
 	const boundedOffset = Math.max(0, Math.min(offset, scrollProbe.totalContentHeight - 1))
 	while (low < high) {
 		const middle = Math.floor((low + high) / 2)
-		if (rowStart(middle + 1) <= boundedOffset) {low = middle + 1}
-		else {high = middle}
+		if (rowStart(middle + 1) <= boundedOffset) {
+			low = middle + 1
+		} else {
+			high = middle
+		}
 	}
 
 	return Math.min(low, Math.max(0, items.length - 1))
@@ -74,14 +77,18 @@ export default function VirtualListVariableWindowedBench() {
 		const start = Math.max(0, firstVisible - OVERSCAN_ROWS)
 		const end = Math.min(items.length, lastVisible + 1 + OVERSCAN_ROWS)
 		setRange((current) => {
-			if (current.start === start && current.end === end) {return current}
+			if (current.start === start && current.end === end) {
+				return current
+			}
 			scrollProbe.pendingRangeAt = now()
 			return { start, end }
 		})
 	}
 
 	useEffect(() => {
-		if (scrollProbe.pendingRangeAt === 0) {return}
+		if (scrollProbe.pendingRangeAt === 0) {
+			return
+		}
 		scrollProbe.rangeCommitMs.push(now() - scrollProbe.pendingRangeAt)
 		scrollProbe.pendingRangeAt = 0
 	}, [range.start, range.end])
@@ -91,8 +98,9 @@ export default function VirtualListVariableWindowedBench() {
 		<View
 			style={{
 				height:
-					offsets[items.length] - offsets[range.end] +
-						Math.max(0, items.length - range.end - 1) * STACK_GAP,
+					offsets[items.length] -
+					offsets[range.end] +
+					Math.max(0, items.length - range.end - 1) * STACK_GAP,
 			}}
 		/>
 	)

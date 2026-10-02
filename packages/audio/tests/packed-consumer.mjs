@@ -46,14 +46,14 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { createAudioPlayer, type AudioPlayer, type Track } from '@octane-xplat/audio'
+	web: `import { createAudioPlayer, type AudioPlayer, type Track } from '@octane-xplat/audio'
 const player: AudioPlayer = createAudioPlayer()
 const track: Track = { id: 'one', source: 'one.mp3' }
 const queued: Promise<void> = player.setQueue([track])
@@ -64,7 +64,7 @@ void queued
 void paused
 void badTrack
 `,
-	"native": `import { createAudioPlayer, type AudioPlayer, type Track } from '@octane-xplat/audio'
+	native: `import { createAudioPlayer, type AudioPlayer, type Track } from '@octane-xplat/audio'
 const player: AudioPlayer = createAudioPlayer()
 const track: Track = { id: 'one', source: 'one.mp3' }
 const queued: Promise<void> = player.setQueue([track])
@@ -74,7 +74,7 @@ const badTrack: Track = { id: 'two' }
 void queued
 void paused
 void badTrack
-`
+`,
 }
 
 const extraFiles = {}
@@ -84,30 +84,16 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": []
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
-	}
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -217,15 +203,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

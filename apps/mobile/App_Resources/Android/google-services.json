@@ -10,7 +10,7 @@
 				"mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
 				"android_client_info": { "package_name": "org.nativescript.xplat.vlistbench" }
 			},
-			"api_key": [ { "current_key": "AIzaSyLocalBenchmarkPlaceholder0000000000000" } ],
+			"api_key": [{ "current_key": "AIzaSyLocalBenchmarkPlaceholder0000000000000" }],
 			"oauth_client": [],
 			"services": { "appinvite_service": { "other_platform_oauth_client": [] } }
 		},
@@ -19,7 +19,7 @@
 				"mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
 				"android_client_info": { "package_name": "org.nativescript.xplat" }
 			},
-			"api_key": [ { "current_key": "AIzaSyLocalBenchmarkPlaceholder0000000000000" } ],
+			"api_key": [{ "current_key": "AIzaSyLocalBenchmarkPlaceholder0000000000000" }],
 			"oauth_client": [],
 			"services": { "appinvite_service": { "other_platform_oauth_client": [] } }
 		}

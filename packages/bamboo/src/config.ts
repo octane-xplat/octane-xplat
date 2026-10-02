@@ -40,20 +40,12 @@ const portableProperties = [
 ] as const
 
 const colors = Object.fromEntries(
-	[
-		'danger',
-		'onprimary',
-		'primary',
-		'surface',
-		'surface-secondary',
-		'text',
-		'text-secondary',
-	].map((name) => [name, { value: `var(--color-${name})` }]),
+	['danger', 'onprimary', 'primary', 'surface', 'surface-secondary', 'text', 'text-secondary'].map(
+		(name) => [name, { value: `var(--color-${name})` }],
+	),
 )
 
-const spacing = Object.fromEntries(
-	['4'].map((name) => [name, { value: `var(--space-${name})` }]),
-)
+const spacing = Object.fromEntries(['4'].map((name) => [name, { value: `var(--space-${name})` }]))
 
 const radii = Object.fromEntries(
 	['sm', 'md', 'lg', 'xl'].map((name) => [name, { value: `var(--radius-${name})` }]),
@@ -112,6 +104,6 @@ export const xplatBambooConfig = {
 	utilities: portableUtilities,
 	theme: portableTheme,
 } satisfies Pick<
-		UserConfig,
-		'preflight' | 'cssVarRoot' | 'layers' | 'presets' | 'utilities' | 'theme'
-	>
+	UserConfig,
+	'preflight' | 'cssVarRoot' | 'layers' | 'presets' | 'utilities' | 'theme'
+>

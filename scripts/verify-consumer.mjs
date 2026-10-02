@@ -121,7 +121,10 @@ async function gate(name, timeoutMs, fn) {
 		const detail = await Promise.race([
 			fn(),
 			new Promise((_, reject) =>
-				setTimeout(() => reject(new Error(`gate timed out after ${timeoutMs / 60000}m`)), timeoutMs),
+				setTimeout(
+					() => reject(new Error(`gate timed out after ${timeoutMs / 60000}m`)),
+					timeoutMs,
+				),
 			),
 		])
 
@@ -144,17 +147,23 @@ async function gate(name, timeoutMs, fn) {
 
 function report() {
 	const failed = results.filter((r) => !r.ok)
-	console.log(`\n[verify] ${results.length - failed.length}/${results.length} gates passed` + (failed.length ? ` — FAILED: ${failed.map((f) => f.name).join(', ')}` : ''))
+	console.log(
+		`\n[verify] ${results.length - failed.length}/${results.length} gates passed` +
+			(failed.length ? ` — FAILED: ${failed.map((f) => f.name).join(', ')}` : ''),
+	)
 }
 
-const tarballName = (pkg) =>
-	`${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
+const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
 
 try {
 	// ---- build ------------------------------------------------------------
 	if (doBuild) {
 		await gate('packages build (dist payloads the tarballs must carry)', 20 * 60 * 1000, () => {
-			const r = run('pnpm', ['-r', '--filter', './packages/*', '--if-present', 'run', 'build'], repoRoot)
+			const r = run(
+				'pnpm',
+				['-r', '--filter', './packages/*', '--if-present', 'run', 'build'],
+				repoRoot,
+			)
 			assert.equal(r.status, 0, 'pnpm -r build failed')
 		})
 	}
@@ -217,7 +226,11 @@ try {
 		assert.ok(patchesTarball, 'no tarball for @octane-xplat/patches')
 		const configDir = join(appDir, 'node_modules', '.pnpm-config', '@octane-xplat', 'patches')
 		mkdirSync(configDir, { recursive: true })
-		const untar = run('tar', ['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'], work)
+		const untar = run(
+			'tar',
+			['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'],
+			work,
+		)
 		assert.equal(untar.status, 0, 'patches tarball extraction failed')
 
 		const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
@@ -238,19 +251,23 @@ try {
 		assert.equal(r.status, 0, 'pnpm install failed')
 	})
 
-	await gate('installed @octane-xplat/ui is the packed payload, not a workspace link', 60 * 1000, () => {
-		const installed = join(appDir, 'node_modules', '@octane-xplat', 'ui')
-		assert.ok(existsSync(installed), '@octane-xplat/ui not installed')
-		const resolved = realpathSync(installed)
-		assert.ok(
-			!resolved.startsWith(join(repoRoot, 'packages')),
-			`ui resolves into the workspace: ${resolved}`,
-		)
+	await gate(
+		'installed @octane-xplat/ui is the packed payload, not a workspace link',
+		60 * 1000,
+		() => {
+			const installed = join(appDir, 'node_modules', '@octane-xplat', 'ui')
+			assert.ok(existsSync(installed), '@octane-xplat/ui not installed')
+			const resolved = realpathSync(installed)
+			assert.ok(
+				!resolved.startsWith(join(repoRoot, 'packages')),
+				`ui resolves into the workspace: ${resolved}`,
+			)
 
-		// publishConfig swaps exports to dist — the packed artifact must carry it.
-		assert.ok(existsSync(join(installed, 'dist')), 'packed ui has no dist/')
-		assert.ok(existsSync(join(installed, 'dist', 'native')), 'packed ui has no dist/native')
-	})
+			// publishConfig swaps exports to dist — the packed artifact must carry it.
+			assert.ok(existsSync(join(installed, 'dist')), 'packed ui has no dist/')
+			assert.ok(existsSync(join(installed, 'dist', 'native')), 'packed ui has no dist/native')
+		},
+	)
 
 	// ---- consumer gates ------------------------------------------------------
 	for (const [name, argv] of [
@@ -278,15 +295,22 @@ try {
 				})
 			})
 
-			const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(port), '--strictPort'], {
-				cwd: appDir,
-				detached: true,
-				stdio: ['ignore', 'pipe', 'pipe'],
-			})
+			const preview = spawn(
+				'pnpm',
+				['exec', 'vite', 'preview', '--port', String(port), '--strictPort'],
+				{
+					cwd: appDir,
+					detached: true,
+					stdio: ['ignore', 'pipe', 'pipe'],
+				},
+			)
 
 			try {
 				await new Promise((resolve, reject) => {
-					const timer = setTimeout(() => reject(new Error('vite preview never printed Local')), 30000)
+					const timer = setTimeout(
+						() => reject(new Error('vite preview never printed Local')),
+						30000,
+					)
 					preview.stdout.on('data', (chunk) => {
 						if (String(chunk).includes('Local')) {
 							clearTimeout(timer)
@@ -329,80 +353,93 @@ try {
 
 	// ---- optional native builds + iOS sim smoke ------------------------------
 	for (const platform of nativeTargets) {
-		await gate(`ns build ${platform} — packed artifacts produce a native app`, 30 * 60 * 1000, () => {
-			const r = run('pnpm', ['exec', 'ns', 'build', platform], appDir, (platform === 'android' && process.env.VERIFY_JAVA_HOME
-					? { JAVA_HOME: process.env.VERIFY_JAVA_HOME }
-					: {}))
+		await gate(
+			`ns build ${platform} — packed artifacts produce a native app`,
+			30 * 60 * 1000,
+			() => {
+				const r = run(
+					'pnpm',
+					['exec', 'ns', 'build', platform],
+					appDir,
+					platform === 'android' && process.env.VERIFY_JAVA_HOME
+						? { JAVA_HOME: process.env.VERIFY_JAVA_HOME }
+						: {},
+				)
 
-			assert.equal(r.status, 0, `ns build ${platform} exited ${r.status}`)
-		})
+				assert.equal(r.status, 0, `ns build ${platform} exited ${r.status}`)
+			},
+		)
 	}
 
 	if (smokeIos) {
-		await gate('iOS simulator smoke — packed build installs, launches, stays alive', 5 * 60 * 1000, async () => {
-			const buildDir = join(appDir, 'platforms', 'ios', 'build')
-			assert.ok(existsSync(buildDir), 'no ios build output')
-			const find = run('find', [buildDir, '-name', '*.app', '-type', 'd'], work)
-			const appPath = find.stdout.trim().split('\n').find(Boolean)
-			assert.ok(appPath, 'no .app under platforms/ios/build')
+		await gate(
+			'iOS simulator smoke — packed build installs, launches, stays alive',
+			5 * 60 * 1000,
+			async () => {
+				const buildDir = join(appDir, 'platforms', 'ios', 'build')
+				assert.ok(existsSync(buildDir), 'no ios build output')
+				const find = run('find', [buildDir, '-name', '*.app', '-type', 'd'], work)
+				const appPath = find.stdout.trim().split('\n').find(Boolean)
+				assert.ok(appPath, 'no .app under platforms/ios/build')
 
-			const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
-			const sim = Object.values(JSON.parse(list.stdout).devices)
-				.flat()
-				.find((d) => d.isAvailable && /iPhone/.test(d.name))
+				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+				const sim = Object.values(JSON.parse(list.stdout).devices)
+					.flat()
+					.find((d) => d.isAvailable && /iPhone/.test(d.name))
 
-			assert.ok(sim, 'no available iPhone simulator')
+				assert.ok(sim, 'no available iPhone simulator')
 
-			run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
-			const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
-			assert.equal(install.status, 0, `simctl install failed: ${install.stderr}`)
+				run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
+				const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
+				assert.equal(install.status, 0, `simctl install failed: ${install.stderr}`)
 
-			const idMatch = readFileSync(join(appDir, 'nativescript.config.ts'), 'utf8').match(
-				/id:\s*'([^']+)'/,
-			)
+				const idMatch = readFileSync(join(appDir, 'nativescript.config.ts'), 'utf8').match(
+					/id:\s*'([^']+)'/,
+				)
 
-			assert.ok(idMatch, 'could not read app id from nativescript.config.ts')
-			const bundleId = idMatch[1]
+				assert.ok(idMatch, 'could not read app id from nativescript.config.ts')
+				const bundleId = idMatch[1]
 
-			const launch = run('xcrun', ['simctl', 'launch', sim.udid, bundleId], work)
-			assert.equal(launch.status, 0, `simctl launch failed: ${launch.stderr}`)
-			const pid = Number(launch.stdout.match(/:\s*(\d+)/)?.[1] ?? 0)
-			assert.ok(pid > 0, `no pid in launch output: ${launch.stdout}`)
+				const launch = run('xcrun', ['simctl', 'launch', sim.udid, bundleId], work)
+				assert.equal(launch.status, 0, `simctl launch failed: ${launch.stderr}`)
+				const pid = Number(launch.stdout.match(/:\s*(\d+)/)?.[1] ?? 0)
+				assert.ok(pid > 0, `no pid in launch output: ${launch.stdout}`)
 
-			// Let the app run, then read its log — fatal/JS-error signatures fail.
-			await new Promise((resolve) => setTimeout(resolve, 12000))
-			const log = run(
-				'xcrun',
-				[
-					'simctl',
-					'spawn',
-					sim.udid,
-					'log',
-					'show',
-					'--last',
-					'20s',
-					'--style',
-					'compact',
-					'--predicate',
-					`processID == ${pid}`,
-				],
-				work,
-			)
+				// Let the app run, then read its log — fatal/JS-error signatures fail.
+				await new Promise((resolve) => setTimeout(resolve, 12000))
+				const log = run(
+					'xcrun',
+					[
+						'simctl',
+						'spawn',
+						sim.udid,
+						'log',
+						'show',
+						'--last',
+						'20s',
+						'--style',
+						'compact',
+						'--predicate',
+						`processID == ${pid}`,
+					],
+					work,
+				)
 
-			const services = run('xcrun', ['simctl', 'spawn', sim.udid, 'launchctl', 'list'], work)
-			assert.ok(
-				services.stdout.includes(bundleId),
-				'app is not in launchctl list after 12s — it crashed or was killed',
-			)
+				const services = run('xcrun', ['simctl', 'spawn', sim.udid, 'launchctl', 'list'], work)
+				assert.ok(
+					services.stdout.includes(bundleId),
+					'app is not in launchctl list after 12s — it crashed or was killed',
+				)
 
-			assert.ok(
-				!/fatal|Terminating|JavaScript error|JS ERROR|unhandled/i.test(log.stdout),
-				`app log shows an error:\n${log.stdout.slice(-2000)}`,
-			)
+				assert.ok(
+					!/fatal|Terminating|JavaScript error|JS ERROR|unhandled/i.test(log.stdout),
+					`app log shows an error:\n${log.stdout.slice(-2000)}`,
+				)
 
-			run('xcrun', ['simctl', 'terminate', sim.udid, bundleId], work)
-			return `booted ${sim.name}, pid ${pid}`
-		})
+				run('xcrun', ['simctl', 'terminate', sim.udid, bundleId], work)
+				return `booted ${sim.name}, pid ${pid}`
+			},
+		)
 	}
 
 	report()

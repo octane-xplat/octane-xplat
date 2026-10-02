@@ -20,7 +20,9 @@ export class PresenceState {
 	) {}
 	register(member: PresenceMember): () => void {
 		this.members.add(member)
-		if (!this.present) {this.restart(member)}
+		if (!this.present) {
+			this.restart(member)
+		}
 		return () => {
 			this.members.delete(member)
 			this.pending.delete(member)
@@ -28,26 +30,38 @@ export class PresenceState {
 		}
 	}
 	setPresent(present: boolean) {
-		if (this.disposed || present === this.present) {return}
+		if (this.disposed || present === this.present) {
+			return
+		}
 		this.present = present
 		++this.generation
 		this.removed = false
 		this.pending.clear()
 		if (present) {
-			for (const member of this.members) {member.enter()}
+			for (const member of this.members) {
+				member.enter()
+			}
 		} else {
-			for (const member of this.members) {this.restart(member)}
+			for (const member of this.members) {
+				this.restart(member)
+			}
 			this.check()
 		}
 	}
 	restart(member: PresenceMember) {
-		if (this.disposed || this.present || !this.members.has(member)) {return}
+		if (this.disposed || this.present || !this.members.has(member)) {
+			return
+		}
 		const token = ++this.sequence
 		this.pending.set(member, token)
 		void member.exit().then((result) => {
-			if (this.disposed || this.present || this.pending.get(member) !== token) {return}
+			if (this.disposed || this.present || this.pending.get(member) !== token) {
+				return
+			}
 			// Replacement is owned by the next restart. Cancellation cannot remove a live subtree.
-			if (result !== 'finished') {return}
+			if (result !== 'finished') {
+				return
+			}
 			this.pending.delete(member)
 			this.check()
 		})

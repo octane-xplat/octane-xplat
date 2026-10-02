@@ -46,15 +46,15 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types",
-	"@nativescript/canvas"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
+	'@nativescript/canvas',
 ]
 
 const consumers = {
-	"web": `import { Canvas, getGPU, type CanvasProps } from '@octane-xplat/canvas'
+	web: `import { Canvas, getGPU, type CanvasProps } from '@octane-xplat/canvas'
 const props: CanvasProps = { context: '2d', width: 320, height: 200 }
 const canvas = <Canvas {...props} />
 // @ts-expect-error context follows the published union
@@ -63,14 +63,14 @@ void canvas
 void badContext
 void getGPU
 `,
-	"native": `import { Canvas, getGPU, type CanvasProps } from '@octane-xplat/canvas'
+	native: `import { Canvas, getGPU, type CanvasProps } from '@octane-xplat/canvas'
 const canvas = <Canvas context="webgl" onReady={() => {}} />
 // @ts-expect-error context follows the published union
 const badContext = <Canvas context="3d" />
 void canvas
 void badContext
 void getGPU
-`
+`,
 }
 
 const extraFiles = {}
@@ -80,32 +80,18 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": []
+	web: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
 	},
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
-	}
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -217,15 +203,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

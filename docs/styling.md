@@ -39,7 +39,8 @@ through every component. A theme can then change the whole app without
 rewriting screens.
 
 ```css
-:root, .ns-root {
+:root,
+.ns-root {
 	--color-surface: #fffdf5;
 	--color-ink: #000;
 	--space-4: 16px;

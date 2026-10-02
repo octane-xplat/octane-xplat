@@ -1,8 +1,18 @@
 import { Application, File, Frame, GridLayout, Page, knownFolders } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import {
-	addBackInterceptor, addRoutes, canGoBack, currentModalRoute, defineRoutes,
-	getStack, popRoute, pushDeepLink, pushRoute, redirect, registerStack, routeFor,
+	addBackInterceptor,
+	addRoutes,
+	canGoBack,
+	currentModalRoute,
+	defineRoutes,
+	getStack,
+	popRoute,
+	pushDeepLink,
+	pushRoute,
+	redirect,
+	registerStack,
+	routeFor,
 } from '@octane-xplat/ui'
 
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
@@ -28,7 +38,9 @@ const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 50))
 async function wait(name: string, condition: () => boolean): Promise<void> {
 	const start = Date.now()
 	while (!condition()) {
-		if (Date.now() - start > 10000) {throw new Error(name + ' timed out')}
+		if (Date.now() - start > 10000) {
+			throw new Error(name + ' timed out')
+		}
 		await pause()
 	}
 }
@@ -36,20 +48,32 @@ async function wait(name: string, condition: () => boolean): Promise<void> {
 function check(name: string, pass: boolean, detail?: string): void {
 	results.push({ name, pass, detail })
 	console.log('[navigation] ' + name + ': ' + (pass ? 'OK' : 'FAIL'))
-	if (!pass) {throw new Error(name + ': ' + detail)}
+	if (!pass) {
+		throw new Error(name + ': ' + detail)
+	}
 }
 
 function collect(view: any, out: any[] = []): any[] {
-	if (!view) {return out}
+	if (!view) {
+		return out
+	}
 	out.push(view)
-	view.eachChildView?.((child: any) => { collect(child, out); return true })
+	view.eachChildView?.((child: any) => {
+		collect(child, out)
+		return true
+	})
 	return out
 }
 
-const texts = (view: any) => collect(view).map((v) => v.text).filter((v) => typeof v === 'string')
+const texts = (view: any) =>
+	collect(view)
+		.map((v) => v.text)
+		.filter((v) => typeof v === 'string')
 async function select(label: string): Promise<void> {
 	let view = collect(page).find((v) => v.text === label)
-	while (view && !view.getGestureObservers?.(1)?.length) {view = view.parent}
+	while (view && !view.getGestureObservers?.(1)?.length) {
+		view = view.parent
+	}
 	check('tab target loaded ' + label, view?.isLoaded === true)
 	for (const observer of view.getGestureObservers(1)) {
 		observer.callback.call(observer.context, { eventName: 'tap', object: view })
@@ -58,9 +82,13 @@ async function select(label: string): Promise<void> {
 	await pause()
 }
 
-const push = (stack: string, id: string, name = 'nav/:id') => pushRoute({ stack, name, params: { id } })
+const push = (stack: string, id: string, name = 'nav/:id') =>
+	pushRoute({ stack, name, params: { id } })
 async function shown(stack: string, id: string, view: any = page): Promise<void> {
-	await wait('route ' + id, () => routeFor(stack)?.params.id === id && texts(view).includes('route:' + id))
+	await wait(
+		'route ' + id,
+		() => routeFor(stack)?.params.id === id && texts(view).includes('route:' + id),
+	)
 }
 
 function hardwareBack(): boolean {
@@ -79,7 +107,11 @@ async function run(): Promise<void> {
 
 	if (initial) {
 		check('cold incoming link dispatched', pushDeepLink(initial))
-		await wait('cold screen', () => routeFor('root')?.params.id === 'cold' && texts(frame.currentPage).includes('route:cold'))
+		await wait(
+			'cold screen',
+			() =>
+				routeFor('root')?.params.id === 'cold' && texts(frame.currentPage).includes('route:cold'),
+		)
 		check('cold incoming link once', frame.backStack.length === 1 && incoming.length === 0)
 		popRoute()
 		await wait('cold pop', () => routeFor('root') === null && frame.currentPage === page)
@@ -102,7 +134,11 @@ async function run(): Promise<void> {
 	popRoute('first')
 	await wait('first base restored', () => texts(page).includes('first base'))
 
-	addRoutes(defineRoutes([{ path: 'runtime/:id', screen: NavigationScreen, loader: (p) => 'runtime-' + p.id }]))
+	addRoutes(
+		defineRoutes([
+			{ path: 'runtime/:id', screen: NavigationScreen, loader: (p) => 'runtime-' + p.id },
+		]),
+	)
 	push('first', 'runtime', 'runtime/:id')
 	await shown('first', 'runtime')
 	await wait('runtime loader', () => texts(page).includes('data:runtime-runtime'))
@@ -110,11 +146,22 @@ async function run(): Promise<void> {
 	popRoute('first')
 	push('first', 'guarded', 'loaded/:id')
 	await shown('first', 'guarded')
-	check('guard context and loader render', texts(page).includes('guard:true') && texts(page).includes('data:loaded-guarded'))
+	check(
+		'guard context and loader render',
+		texts(page).includes('guard:true') && texts(page).includes('data:loaded-guarded'),
+	)
 	pushRoute({ stack: 'first', name: 'blocked', params: {} })
 	await pause()
 	check('rejected guard leaves route', routeFor('first')?.params.id === 'guarded')
-	addRoutes(defineRoutes([{ path: 'redirected', screen: NavigationScreen, beforeLoad: () => redirect({ stack: 'first', name: 'nav/:id', params: { id: 'redirect' } }) }]))
+	addRoutes(
+		defineRoutes([
+			{
+				path: 'redirected',
+				screen: NavigationScreen,
+				beforeLoad: () => redirect({ stack: 'first', name: 'nav/:id', params: { id: 'redirect' } }),
+			},
+		]),
+	)
 	pushRoute({ stack: 'first', name: 'redirected', params: {} })
 	await shown('first', 'redirect')
 	popRoute('first')
@@ -127,31 +174,57 @@ async function run(): Promise<void> {
 	await shown('first', 'guarded')
 
 	push('root', 'root')
-	await wait('root pushed', () => routeFor('root')?.params.id === 'root' && texts(frame.currentPage).includes('route:root'))
+	await wait(
+		'root pushed',
+		() => routeFor('root')?.params.id === 'root' && texts(frame.currentPage).includes('route:root'),
+	)
 	push('root', 'modal', 'modal/:id')
-	await wait('modal mounted', () => currentModalRoute()?.params.id === 'modal' && (frame.currentPage as any)?.modal?.isLoaded === true)
+	await wait(
+		'modal mounted',
+		() =>
+			currentModalRoute()?.params.id === 'modal' &&
+			(frame.currentPage as any)?.modal?.isLoaded === true,
+	)
 	if (Application.android) {
 		const calls: string[] = []
-		const old = addBackInterceptor(() => { calls.push('old'); return false })
-		const newest = addBackInterceptor(() => { calls.push('new'); return true })
-		check('hardware interceptor consumes', hardwareBack() && currentModalRoute()?.params.id === 'modal')
+		const old = addBackInterceptor(() => {
+			calls.push('old')
+			return false
+		})
+		const newest = addBackInterceptor(() => {
+			calls.push('new')
+			return true
+		})
+		check(
+			'hardware interceptor consumes',
+			hardwareBack() && currentModalRoute()?.params.id === 'modal',
+		)
 		check('hardware interceptor newest first', calls.join(',') === 'new')
 		newest()
-		check('hardware dismisses modal first', hardwareBack() && currentModalRoute() === null && routeFor('root')?.params.id === 'root')
+		check(
+			'hardware dismisses modal first',
+			hardwareBack() && currentModalRoute() === null && routeFor('root')?.params.id === 'root',
+		)
 		await wait('modal native dismissal', () => !(frame.currentPage as any)?.modal)
 		check('older interceptor resumed', calls.join(',') === 'new,old')
 		old()
 		check('hardware pops root before named', hardwareBack())
 	} else {
 		popRoute()
-		await wait('modal dismissed', () => currentModalRoute() === null && !(frame.currentPage as any)?.modal)
+		await wait(
+			'modal dismissed',
+			() => currentModalRoute() === null && !(frame.currentPage as any)?.modal,
+		)
 		check('modal dismissal retains presenter', routeFor('root')?.params.id === 'root')
 		popRoute()
 	}
 
 	await wait('root restored', () => frame.currentPage === page && routeFor('root') === null)
 	if (Application.android) {
-		check('hardware pops most recent named stack', hardwareBack() && routeFor('first') === null && routeFor('second')?.params.id === 'other')
+		check(
+			'hardware pops most recent named stack',
+			hardwareBack() && routeFor('first') === null && routeFor('second')?.params.id === 'other',
+		)
 		check('hardware pops remaining named stack', hardwareBack() && routeFor('second') === null)
 		check('hardware base falls through', !hardwareBack())
 	} else {
@@ -179,7 +252,11 @@ async function run(): Promise<void> {
 			await pause()
 			push('ios-first', 'ios-' + i)
 			await wait('UITabBar push', () => routeFor('ios-first')?.params.id === 'ios-' + i)
-			check('UITabBar items stable ' + i, tabview.items.every((item: any, index: number) => item === items[index]) && getStack('ios-first')?.backStack.length === 1)
+			check(
+				'UITabBar items stable ' + i,
+				tabview.items.every((item: any, index: number) => item === items[index]) &&
+					getStack('ios-first')?.backStack.length === 1,
+			)
 			popRoute('ios-first')
 			await wait('UITabBar pop', () => routeFor('ios-first') === null)
 		}
@@ -189,7 +266,9 @@ async function run(): Promise<void> {
 	}
 
 	console.log('[navigation] awaiting warm OS links')
-	File.fromPath(knownFolders.documents().path + '/navigation-check.json').writeTextSync(JSON.stringify({ awaitingWarmLinks: true, results }))
+	File.fromPath(knownFolders.documents().path + '/navigation-check.json').writeTextSync(
+		JSON.stringify({ awaitingWarmLinks: true, results }),
+	)
 	for (let i = 1; i <= 2; i++) {
 		await wait('warm OS link ' + i, () => incoming.length >= i)
 		check('warm incoming dispatch ' + i, pushDeepLink(incoming[i - 1]))
@@ -201,10 +280,17 @@ async function run(): Promise<void> {
 }
 
 setTimeout(() => {
-	void run().catch((error) => results.push({ name: 'suite error', pass: false, detail: String(error) }))
+	void run()
+		.catch((error) => results.push({ name: 'suite error', pass: false, detail: String(error) }))
 		.finally(() => {
-			const report = { target: Application.android ? 'android' : 'ios', results, pass: results.every((r) => r.pass) }
-			File.fromPath(knownFolders.documents().path + '/navigation-check.json').writeTextSync(JSON.stringify(report))
+			const report = {
+				target: Application.android ? 'android' : 'ios',
+				results,
+				pass: results.every((r) => r.pass),
+			}
+			File.fromPath(knownFolders.documents().path + '/navigation-check.json').writeTextSync(
+				JSON.stringify(report),
+			)
 			console.log('[navigation] result ' + JSON.stringify(report))
 		})
 }, 100)

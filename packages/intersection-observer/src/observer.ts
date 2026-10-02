@@ -175,10 +175,12 @@ export class IntersectionObserver implements IntersectionObserverShape {
 			) {
 				tracked.armed = true
 			}
+
 			if (tracked.armed) {
 				this.evaluate(target)
 			}
 		}
+
 		const seen = new Set<View>()
 		const listeners: Array<[View, string]> = []
 		const on = (view: View, event: string) => {
@@ -216,6 +218,7 @@ export class IntersectionObserver implements IntersectionObserverShape {
 				}
 			},
 		}
+
 		this.targets.set(target, tracked)
 
 		// Hook effects can run before NativeScript completes the first layout.
@@ -355,7 +358,10 @@ export class IntersectionObserver implements IntersectionObserverShape {
 		}
 
 		const index = entry.isIntersecting
-			? Math.max(1, this.thresholds.reduce((n, t) => n + (entry.intersectionRatio >= t ? 1 : 0), 0))
+			? Math.max(
+					1,
+					this.thresholds.reduce((n, t) => n + (entry.intersectionRatio >= t ? 1 : 0), 0),
+				)
 			: 0
 
 		if (index !== tracked.last) {

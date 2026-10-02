@@ -43,9 +43,7 @@ const PATCH_PACKAGE_VERSION = JSON.parse(
 const PATCH_CONFIG_PATH = `node_modules/.pnpm-config/${PATCH_PACKAGE_NAME}`
 const CHECK = process.argv.includes('--check')
 
-const manifest = JSON.parse(
-	readFileSync(join(CLI_PATCHES, 'manifest.json'), 'utf8'),
-).patches
+const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'utf8')).patches
 
 const wrap = (text, width = 88) => {
 	const words = text.split(' ')
@@ -60,7 +58,9 @@ const wrap = (text, width = 88) => {
 		}
 	}
 
-	if (line) {lines.push(line)}
+	if (line) {
+		lines.push(line)
+	}
 	return lines.join('\n ')
 }
 
@@ -71,10 +71,7 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 	const doc = parseDocument(readFileSync(file, 'utf8'))
 	if (withConfigDependency) {
 		const configDependencies = doc.createNode({})
-		configDependencies.set(
-			new Scalar(PATCH_PACKAGE_NAME),
-			PATCH_PACKAGE_VERSION,
-		)
+		configDependencies.set(new Scalar(PATCH_PACKAGE_NAME), PATCH_PACKAGE_VERSION)
 
 		doc.set('configDependencies', configDependencies)
 	}
@@ -93,9 +90,7 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 	}
 
 	doc.set('patchedDependencies', map)
-	const pair = doc.contents.items.find(
-		(i) => i.key?.value === 'patchedDependencies',
-	)
+	const pair = doc.contents.items.find((i) => i.key?.value === 'patchedDependencies')
 
 	pair.key.commentBefore = ' ' + wrap(header)
 	return String(doc)
@@ -107,47 +102,47 @@ const ROOT_HEADER =
 const TEMPLATE_HEADER =
 	'Framework patches are supplied by the @octane-xplat/patches config dependency and applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.'
 
-const syncYaml = (
-	file,
-	pathPrefix,
-	header,
-	failures,
-	withConfigDependency = false,
-) => {
+const syncYaml = (file, pathPrefix, header, failures, withConfigDependency = false) => {
 	const rendered = renderYaml(file, pathPrefix, header, withConfigDependency)
-	if (readFileSync(file, 'utf8') === rendered) {return}
+	if (readFileSync(file, 'utf8') === rendered) {
+		return
+	}
 	failures.push(`${relative(file)} — patchedDependencies block is stale`)
-	if (!CHECK) {writeFileSync(file, rendered)}
+	if (!CHECK) {
+		writeFileSync(file, rendered)
+	}
 }
 
 const relative = (f) => f.slice(repo.length + 1)
 
 const syncPatchPackageFiles = (failures) => {
-	if (!CHECK) {mkdirSync(PATCH_PACKAGE_FILES, { recursive: true })}
+	if (!CHECK) {
+		mkdirSync(PATCH_PACKAGE_FILES, { recursive: true })
+	}
 
 	const wanted = new Set(manifest.map((p) => p.file))
 	for (const patch of manifest) {
 		const src = join(CLI_PATCHES, patch.file)
 		const dst = join(PATCH_PACKAGE_FILES, patch.file)
-		if (
-			existsSync(dst) &&
-			readFileSync(src).equals(readFileSync(dst))
-		)
-			{continue}
+		if (existsSync(dst) && readFileSync(src).equals(readFileSync(dst))) {
+			continue
+		}
 
 		failures.push(
-			existsSync(dst)
-				? `${relative(dst)} — differs from canonical`
-				: `${relative(dst)} — missing`,
+			existsSync(dst) ? `${relative(dst)} — differs from canonical` : `${relative(dst)} — missing`,
 		)
 
-		if (!CHECK) {copyFileSync(src, dst)}
+		if (!CHECK) {
+			copyFileSync(src, dst)
+		}
 	}
 
 	for (const f of existsSync(PATCH_PACKAGE_FILES) ? readdirSync(PATCH_PACKAGE_FILES) : []) {
 		if (f.endsWith('.patch') && !wanted.has(f)) {
 			failures.push(`${relative(join(PATCH_PACKAGE_FILES, f))} — not in manifest`)
-			if (!CHECK) {rmSync(join(PATCH_PACKAGE_FILES, f))}
+			if (!CHECK) {
+				rmSync(join(PATCH_PACKAGE_FILES, f))
+			}
 		}
 	}
 }
@@ -155,11 +150,15 @@ const syncPatchPackageFiles = (failures) => {
 const removeTemplatePatchCopies = (failures) => {
 	const dir = join(TEMPLATE, 'patches')
 	for (const file of existsSync(dir) ? readdirSync(dir) : []) {
-		if (!file.endsWith('.patch')) {continue}
+		if (!file.endsWith('.patch')) {
+			continue
+		}
 
 		const path = join(dir, file)
 		failures.push(`${relative(path)} — obsolete template patch copy`)
-		if (!CHECK) {rmSync(path)}
+		if (!CHECK) {
+			rmSync(path)
+		}
 	}
 
 	if (!CHECK && existsSync(dir) && !readdirSync(dir).length) {
@@ -181,11 +180,11 @@ syncPatchPackageFiles(failures)
 removeTemplatePatchCopies(failures)
 
 if (failures.length) {
-	console.error(
-		`${CHECK ? 'patch drift' : 'synced'} — ${failures.length} file(s):`,
-	)
+	console.error(`${CHECK ? 'patch drift' : 'synced'} — ${failures.length} file(s):`)
 
-	for (const f of failures) {console.error(`  ${f}`)}
+	for (const f of failures) {
+		console.error(`  ${f}`)
+	}
 	if (CHECK) {
 		console.error('\nrun `pnpm sync:patches` to regenerate')
 		process.exit(1)

@@ -46,14 +46,14 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
+	web: `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
 const engine: Haptics = createHaptics()
 const played: boolean = engine.play('impact-light')
 haptics.impl?.selection()
@@ -62,7 +62,7 @@ const bad = engine.play('buzz')
 void played
 void bad
 `,
-	"native": `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
+	native: `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
 const engine: Haptics = createHaptics()
 const played: boolean = engine.play('impact-light')
 haptics.impl?.selection()
@@ -70,7 +70,7 @@ haptics.impl?.selection()
 const bad = engine.play('buzz')
 void played
 void bad
-`
+`,
 }
 
 const extraFiles = {}
@@ -80,30 +80,16 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": []
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
-	}
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -213,15 +199,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

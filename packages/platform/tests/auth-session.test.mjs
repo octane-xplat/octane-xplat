@@ -23,7 +23,9 @@ function emitter() {
 			listeners.get(name)?.delete(fn)
 		},
 		emit(name, args) {
-			for (const fn of [...(listeners.get(name) ?? [])]) {fn(args)}
+			for (const fn of [...(listeners.get(name) ?? [])]) {
+				fn(args)
+			}
 		},
 		count() {
 			return [...listeners.values()].reduce((n, group) => n + group.size, 0)
@@ -59,7 +61,9 @@ function load({
 		ASWebAuthenticationSession: {
 			alloc: () => ({
 				initWithURLCallbackURLSchemeCompletionHandler(_url, _scheme, fn) {
-					if (constructError) {throw new Error('native construction failed')}
+					if (constructError) {
+						throw new Error('native construction failed')
+					}
 					completion = fn
 					return session
 				},

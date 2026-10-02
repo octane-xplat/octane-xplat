@@ -6,10 +6,10 @@ APIs through one script-message channel.
 
 Two hosts share the same wire contract:
 
-| Host           | File           | Status   | Purpose                                                |
-| -------------- | -------------- | -------- | ------------------------------------------------------ |
-| WKWebView      | `WKHost.swift` | verified | macOS dev stand-in — same `webkit.messageHandlers` API |
-| GJS/WebKitGTK  | `gjs-host.js`  | verified | the real host — Ubuntu 24.04 VM and container evidence |
+| Host          | File           | Status   | Purpose                                                |
+| ------------- | -------------- | -------- | ------------------------------------------------------ |
+| WKWebView     | `WKHost.swift` | verified | macOS dev stand-in — same `webkit.messageHandlers` API |
+| GJS/WebKitGTK | `gjs-host.js`  | verified | the real host — Ubuntu 24.04 VM and container evidence |
 
 The canonical GJS host and bridge self-test ship in
 `packages/cli/src/linux/host/`; the files here are symlinks used by the harness.
@@ -25,7 +25,7 @@ legacy replies  __xplatBridge.resolve(id, value) | .reject(id, message)
 document-start   window.__xplatInitialUrl (sync state that can't round-trip)
 ```
 
-The request is a JSON *string*, not an object — WebKitGTK 6.0 delivers a bare
+The request is a JSON _string_, not an object — WebKitGTK 6.0 delivers a bare
 `JSCValue` to the handler, and `value.to_string()` beats walking properties.
 
 ## Load paths
@@ -35,8 +35,8 @@ The webview loads one of two URLs, chosen by `gjs-host.js` args:
 - `xplat://localhost/` — production. A `WebKitURISchemeRequest` handler on
   the shared `WebKitWebContext` serves the bundle from `--bundle DIR` /
   `$XPLAT_BUNDLE_DIR` / `./bundle` / `../dist`, with SPA fallback to
-  `index.html` for non-file paths. The scheme is registered *secure* and
-  *CORS-enabled* so secure-context APIs (`navigator.clipboard`,
+  `index.html` for non-file paths. The scheme is registered _secure_ and
+  _CORS-enabled_ so secure-context APIs (`navigator.clipboard`,
   `crypto.subtle`) and module/font fetches work.
 - `http://localhost:5201` — dev; vite serves, HMR rides real HTTP.
 

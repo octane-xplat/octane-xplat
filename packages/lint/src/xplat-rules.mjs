@@ -23,9 +23,13 @@ const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)\./
 const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.mjs', '.cjs', '.jsx', '.ts', '.js']
 const isNativeDefaultFile = (f) => {
 	const file = norm(f)
-	if (PLATFORM_SUFFIX.test(file) || isWebFile(file)) {return false}
+	if (PLATFORM_SUFFIX.test(file) || isWebFile(file)) {
+		return false
+	}
 	const extension = SOURCE_EXTENSIONS.find((candidate) => file.endsWith(candidate))
-	if (!extension) {return false}
+	if (!extension) {
+		return false
+	}
 	const stem = file.slice(0, -extension.length)
 	return SOURCE_EXTENSIONS.some((candidate) => existsSync(`${stem}.web${candidate}`))
 }
@@ -1145,7 +1149,11 @@ export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octan
 // it. JSX-free native leaves (styled, use-store) omit it by
 // design.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
-	if (!norm(filename).endsWith('.tsrx') || !isNativeFile(filename) || fileExcluded(filename, options)) {
+	if (
+		!norm(filename).endsWith('.tsrx') ||
+		!isNativeFile(filename) ||
+		fileExcluded(filename, options)
+	) {
 		return []
 	}
 

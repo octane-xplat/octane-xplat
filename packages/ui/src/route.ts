@@ -130,7 +130,9 @@ function trackFrame(frame: Frame, stack: string): void {
 
 	tracked.add(frame)
 	frame.on('navigatedTo', (event) => {
-		if ((event as typeof event & { isBackNavigation?: boolean })?.isBackNavigation) {navigationRequests.invalidate(stack)}
+		if ((event as typeof event & { isBackNavigation?: boolean })?.isBackNavigation) {
+			navigationRequests.invalidate(stack)
+		}
 		// A page re-shown by pop can stay unloaded when the frame's nav
 		// bookkeeping stalls mid-transition (the iOS strand of #11444 — the
 		// same hole the isLoaded/callLoaded workaround in commitRoute covers
@@ -305,8 +307,12 @@ function contextFor(r: Route): Record<string, unknown> {
 }
 
 async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0): Promise<void> {
-	if (!request.isCurrent()) {return}
-	if (!request.claim(r.stack)) {return}
+	if (!request.isCurrent()) {
+		return
+	}
+	if (!request.claim(r.stack)) {
+		return
+	}
 
 	const beforeLoad = metaFor(r.name)?.beforeLoad
 	if (!beforeLoad) {
@@ -330,7 +336,9 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 			request,
 		)
 	} catch (e) {
-		if (!request.isCurrent()) {return}
+		if (!request.isCurrent()) {
+			return
+		}
 		if (e instanceof RouteRedirect) {
 			await prepareRoute(e.route, request, redirects + 1)
 			return
@@ -355,7 +363,9 @@ export function pushRoute(r: Route): void {
 }
 
 function commitRoute(r: Route, request: NavigationRequest): void {
-	if (!request.isCurrent()) {return}
+	if (!request.isCurrent()) {
+		return
+	}
 	const C = screenFor(r.name)
 	if (!C) {
 		warnOnce(

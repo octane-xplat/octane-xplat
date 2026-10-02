@@ -46,7 +46,7 @@ Ships **compiled** output, not .tsrx source:
 - `exports` point at `src` for workspace dev; `publishConfig` swaps to
   `dist` (+ `types` condition) only at publish — verified via `pnpm pack`.
 - **Types:** `src/props.ts` (pure .ts) → `tsc -p tsconfig.types.json
-  --emitDeclarationOnly` → `types/props.d.ts`; the web, native, and
+--emitDeclarationOnly` → `types/props.d.ts`; the web, native, and
   platform-subpath declaration files are thin shells around those props.
   Published root types are split by web/native export condition. tsrx cannot
   emit declarations for `.tsrx` files itself (upstream tsrx#136).

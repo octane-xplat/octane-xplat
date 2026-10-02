@@ -125,7 +125,12 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 		}
 
 		const apply = () => {
-			sv.contentInset = makeInsets(next, sv.contentInset.left, sv.contentInset.bottom, sv.contentInset.right)
+			sv.contentInset = makeInsets(
+				next,
+				sv.contentInset.left,
+				sv.contentInset.bottom,
+				sv.contentInset.right,
+			)
 		}
 
 		const UIView = (globalThis as any).UIView

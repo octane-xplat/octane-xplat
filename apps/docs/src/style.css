@@ -548,13 +548,21 @@ body {
 /* ---------- command palette (⌘K) ---------- */
 
 @keyframes palette-fade-in {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes palette-fade-out {
-	from { opacity: 1; }
-	to { opacity: 0; }
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
 }
 
 .palette-backdrop {
@@ -729,7 +737,7 @@ body {
 
 .dark .constellation {
 	filter: brightness(0) invert(1);
-	opacity: .04;
+	opacity: 0.04;
 }
 
 .constellation > svg {
@@ -768,7 +776,7 @@ body {
 	position: relative;
 	height: 294px;
 	margin: 48px var(--orbit-inset) 12px;
-	border: .5px solid var(--doc-hairline);
+	border: 0.5px solid var(--doc-hairline);
 	border-radius: 66px;
 	corner-shape: squircle;
 	background: #ffffffa6;
@@ -807,14 +815,30 @@ body {
 
 /* badge centers on a 130px circle around the user mark, 45° apart,
    preserving the design's clockwise order */
-.orbit-pos:nth-child(1) { transform: translate(-27px, -127.2px); }    /* safari */
-.orbit-pos:nth-child(2) { transform: translate(70.8px, -109px); }     /* firefox */
-.orbit-pos:nth-child(3) { transform: translate(127.2px, -27px); }     /* chrome */
-.orbit-pos:nth-child(4) { transform: translate(109px, 70.8px); }      /* linux */
-.orbit-pos:nth-child(5) { transform: translate(27px, 127.2px); }      /* apple */
-.orbit-pos:nth-child(6) { transform: translate(-70.8px, 109px); }     /* android */
-.orbit-pos:nth-child(7) { transform: translate(-127.2px, 27px); }     /* microsoft */
-.orbit-pos:nth-child(8) { transform: translate(-109px, -70.8px); }    /* macos */
+.orbit-pos:nth-child(1) {
+	transform: translate(-27px, -127.2px);
+} /* safari */
+.orbit-pos:nth-child(2) {
+	transform: translate(70.8px, -109px);
+} /* firefox */
+.orbit-pos:nth-child(3) {
+	transform: translate(127.2px, -27px);
+} /* chrome */
+.orbit-pos:nth-child(4) {
+	transform: translate(109px, 70.8px);
+} /* linux */
+.orbit-pos:nth-child(5) {
+	transform: translate(27px, 127.2px);
+} /* apple */
+.orbit-pos:nth-child(6) {
+	transform: translate(-70.8px, 109px);
+} /* android */
+.orbit-pos:nth-child(7) {
+	transform: translate(-127.2px, 27px);
+} /* microsoft */
+.orbit-pos:nth-child(8) {
+	transform: translate(-109px, -70.8px);
+} /* macos */
 
 .orbit-spin {
 	animation: orbit-ccw 36s linear infinite;
@@ -829,45 +853,105 @@ body {
 
 /* depth: smallest when the badge crosses the top of the orbit — each
    badge's delay offsets orbit-depth to that moment in the loop */
-.orbit-pos:nth-child(1) .orbit-badge { animation-delay: -34.8s; }
-.orbit-pos:nth-child(2) .orbit-badge { animation-delay: -3.3s; }
-.orbit-pos:nth-child(3) .orbit-badge { animation-delay: -7.8s; }
-.orbit-pos:nth-child(4) .orbit-badge { animation-delay: -12.3s; }
-.orbit-pos:nth-child(5) .orbit-badge { animation-delay: -16.8s; }
-.orbit-pos:nth-child(6) .orbit-badge { animation-delay: -21.3s; }
-.orbit-pos:nth-child(7) .orbit-badge { animation-delay: -25.8s; }
-.orbit-pos:nth-child(8) .orbit-badge { animation-delay: -30.3s; }
+.orbit-pos:nth-child(1) .orbit-badge {
+	animation-delay: -34.8s;
+}
+.orbit-pos:nth-child(2) .orbit-badge {
+	animation-delay: -3.3s;
+}
+.orbit-pos:nth-child(3) .orbit-badge {
+	animation-delay: -7.8s;
+}
+.orbit-pos:nth-child(4) .orbit-badge {
+	animation-delay: -12.3s;
+}
+.orbit-pos:nth-child(5) .orbit-badge {
+	animation-delay: -16.8s;
+}
+.orbit-pos:nth-child(6) .orbit-badge {
+	animation-delay: -21.3s;
+}
+.orbit-pos:nth-child(7) .orbit-badge {
+	animation-delay: -25.8s;
+}
+.orbit-pos:nth-child(8) .orbit-badge {
+	animation-delay: -30.3s;
+}
 
 /* random tilt: each badge rocks ±--tilt on its own period */
-.orbit-pos:nth-child(1) .orbit-tilt { --tilt: 3.8deg; animation: orbit-tilt 8.7s ease-in-out -3.3s infinite; }
-.orbit-pos:nth-child(2) .orbit-tilt { --tilt: 2.4deg; animation: orbit-tilt 7.1s ease-in-out -6.2s infinite; }
-.orbit-pos:nth-child(3) .orbit-tilt { --tilt: 1.7deg; animation: orbit-tilt 7.3s ease-in-out -5.9s infinite; }
-.orbit-pos:nth-child(4) .orbit-tilt { --tilt: 2.2deg; animation: orbit-tilt 8.3s ease-in-out -8.2s infinite; }
-.orbit-pos:nth-child(5) .orbit-tilt { --tilt: 2.9deg; animation: orbit-tilt 5.4s ease-in-out -2.1s infinite; }
-.orbit-pos:nth-child(6) .orbit-tilt { --tilt: 3.0deg; animation: orbit-tilt 8.5s ease-in-out -2.0s infinite; }
-.orbit-pos:nth-child(7) .orbit-tilt { --tilt: 3.7deg; animation: orbit-tilt 9.0s ease-in-out -8.9s infinite; }
-.orbit-pos:nth-child(8) .orbit-tilt { --tilt: 3.4deg; animation: orbit-tilt 6.8s ease-in-out -0.7s infinite; }
+.orbit-pos:nth-child(1) .orbit-tilt {
+	--tilt: 3.8deg;
+	animation: orbit-tilt 8.7s ease-in-out -3.3s infinite;
+}
+.orbit-pos:nth-child(2) .orbit-tilt {
+	--tilt: 2.4deg;
+	animation: orbit-tilt 7.1s ease-in-out -6.2s infinite;
+}
+.orbit-pos:nth-child(3) .orbit-tilt {
+	--tilt: 1.7deg;
+	animation: orbit-tilt 7.3s ease-in-out -5.9s infinite;
+}
+.orbit-pos:nth-child(4) .orbit-tilt {
+	--tilt: 2.2deg;
+	animation: orbit-tilt 8.3s ease-in-out -8.2s infinite;
+}
+.orbit-pos:nth-child(5) .orbit-tilt {
+	--tilt: 2.9deg;
+	animation: orbit-tilt 5.4s ease-in-out -2.1s infinite;
+}
+.orbit-pos:nth-child(6) .orbit-tilt {
+	--tilt: 3deg;
+	animation: orbit-tilt 8.5s ease-in-out -2s infinite;
+}
+.orbit-pos:nth-child(7) .orbit-tilt {
+	--tilt: 3.7deg;
+	animation: orbit-tilt 9s ease-in-out -8.9s infinite;
+}
+.orbit-pos:nth-child(8) .orbit-tilt {
+	--tilt: 3.4deg;
+	animation: orbit-tilt 6.8s ease-in-out -0.7s infinite;
+}
 
 /* ring squashed to 65% vertically — badges trace an ellipse (ry=84.5)
    while .orbit-spin's counter-scale keeps each badge round */
 @keyframes orbit-spin {
-	from { transform: scale(1, 0.65) rotate(0deg); }
-	to { transform: scale(1, 0.65) rotate(360deg); }
+	from {
+		transform: scale(1, 0.65) rotate(0deg);
+	}
+	to {
+		transform: scale(1, 0.65) rotate(360deg);
+	}
 }
 
 @keyframes orbit-ccw {
-	from { transform: translate(-50%, -50%) rotate(0deg) scale(1, 1.5385); }
-	to { transform: translate(-50%, -50%) rotate(-360deg) scale(1, 1.5385); }
+	from {
+		transform: translate(-50%, -50%) rotate(0deg) scale(1, 1.5385);
+	}
+	to {
+		transform: translate(-50%, -50%) rotate(-360deg) scale(1, 1.5385);
+	}
 }
 
 @keyframes orbit-depth {
-	0%, 100% { transform: scale(0.55); opacity: 0.33; }
-	50% { transform: scale(1); opacity: 1; }
+	0%,
+	100% {
+		transform: scale(0.55);
+		opacity: 0.33;
+	}
+	50% {
+		transform: scale(1);
+		opacity: 1;
+	}
 }
 
 @keyframes orbit-tilt {
-	0%, 100% { transform: rotate(calc(var(--tilt, 3deg) * -1)); }
-	50% { transform: rotate(var(--tilt, 3deg)); }
+	0%,
+	100% {
+		transform: rotate(calc(var(--tilt, 3deg) * -1));
+	}
+	50% {
+		transform: rotate(var(--tilt, 3deg));
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -898,7 +982,10 @@ body {
 	corner-shape: squircle;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 	cursor: pointer;
-	transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+	transition:
+		border-color 140ms ease,
+		box-shadow 140ms ease,
+		transform 140ms ease;
 }
 
 .dark .doc-next {
@@ -1090,7 +1177,10 @@ body {
 	opacity: 0;
 	visibility: hidden;
 	transform: translateY(-8px);
-	transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+	transition:
+		opacity 180ms ease,
+		transform 180ms ease,
+		visibility 180ms;
 }
 
 .doc-actions-menu.is-open {
@@ -1400,14 +1490,7 @@ body {
 .callout {
 	background-color: var(--doc-well);
 	border-radius: 0;
-	clip-path: polygon(
-		0 0,
-		calc(100% - 18px) 0,
-		100% 18px,
-		100% 100%,
-		9px 100%,
-		0 calc(100% - 9px)
-	);
+	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
 	margin-top: 16px;
 	margin-bottom: 12px;
 	padding: 14px 16px 16px;

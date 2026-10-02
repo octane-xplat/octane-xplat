@@ -3,15 +3,37 @@ import { octane } from '@octanejs/vite-plugin'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.mobile.ts',
-	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.ios.tsrx',
+	'.android.tsrx',
+	'.mobile.tsrx',
+	'.tsrx',
+	'.ios.tsx',
+	'.android.tsx',
+	'.mobile.tsx',
+	'.tsx',
+	'.ios.ts',
+	'.android.ts',
+	'.mobile.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 const WEB_EXTS = [
-	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx',
-	'.web.ts', '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.web.tsrx',
+	'.tsrx',
+	'.web.tsx',
+	'.tsx',
+	'.web.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 export default defineConfig(({ mode }) => {
@@ -35,10 +57,7 @@ export default defineConfig(({ mode }) => {
 				generateBundle(_o: any, bundle: Record<string, any>) {
 					for (const chunk of Object.values(bundle)) {
 						if (chunk.type === 'chunk' && typeof chunk.code === 'string') {
-							chunk.code = chunk.code.replaceAll(
-								'"./src/RichTextEditor"',
-								'"./RichTextEditor"',
-							)
+							chunk.code = chunk.code.replaceAll('"./src/RichTextEditor"', '"./RichTextEditor"')
 						}
 					}
 				},
@@ -47,9 +66,7 @@ export default defineConfig(({ mode }) => {
 				renderers: native
 					? {
 							registry: { nativescript: nativeScriptRenderer },
-							rules: [
-								{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
-							],
+							rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
 						}
 					: undefined,
 			}),

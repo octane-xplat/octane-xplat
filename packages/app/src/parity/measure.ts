@@ -8,7 +8,10 @@ import { STYLE_FACETS } from './style-facets'
 const round = (n: number) => Math.round(n * 100) / 100
 
 function resolvedFontOf(view: any) {
-	const nativeView = view?.nativeTextViewProtected ?? view?.nativeViewProtected?.titleLabel ?? view?.nativeViewProtected
+	const nativeView =
+		view?.nativeTextViewProtected ??
+		view?.nativeViewProtected?.titleLabel ??
+		view?.nativeViewProtected
 
 	if (Application.android) {
 		const typeface = nativeView?.getTypeface?.() ?? nativeView?.getPaint?.()?.getTypeface?.()
@@ -25,16 +28,19 @@ function resolvedFontOf(view: any) {
 		const layout = nativeView?.getLayout?.()
 		const dip = (value: unknown) => {
 			const pixels = Number(value)
-			return Number.isFinite(pixels) ? round(Utils.layout.toDeviceIndependentPixels(pixels)) : undefined
+			return Number.isFinite(pixels)
+				? round(Utils.layout.toDeviceIndependentPixels(pixels))
+				: undefined
 		}
 
 		const layoutLineCount = Number(layout?.getLineCount?.())
-		const layoutLines = Number.isFinite(layoutLineCount) && layoutLineCount > 0
-			? Array.from({ length: Math.min(layoutLineCount, 4) }, (_, index) => ({
-				top: dip(layout.getLineTop?.(index)),
-				bottom: dip(layout.getLineBottom?.(index)),
-			}))
-			: undefined
+		const layoutLines =
+			Number.isFinite(layoutLineCount) && layoutLineCount > 0
+				? Array.from({ length: Math.min(layoutLineCount, 4) }, (_, index) => ({
+						top: dip(layout.getLineTop?.(index)),
+						bottom: dip(layout.getLineBottom?.(index)),
+					}))
+				: undefined
 
 		return {
 			family: typeface.getFamilyName?.() ? String(typeface.getFamilyName()) : undefined,
@@ -69,7 +75,9 @@ function resolvedFontOf(view: any) {
 		family: font.familyName ? String(font.familyName) : undefined,
 		face: font.fontName ? String(font.fontName) : undefined,
 		size: Number.isFinite(Number(font.pointSize)) ? round(Number(font.pointSize)) : undefined,
-		lineHeight: Number.isFinite(Number(font.lineHeight)) ? round(Number(font.lineHeight)) : undefined,
+		lineHeight: Number.isFinite(Number(font.lineHeight))
+			? round(Number(font.lineHeight))
+			: undefined,
 		weight: Number.isFinite(Number(descriptorWeight)) ? round(Number(descriptorWeight)) : undefined,
 	}
 }
@@ -166,7 +174,9 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 
 function childrenOf(view: any, out: any[] = [], visited = new Set<any>()): any[] {
 	const visit = (child: any) => {
-		if (!child || visited.has(child)) {return}
+		if (!child || visited.has(child)) {
+			return
+		}
 		visited.add(child)
 		out.push(child)
 		childrenOf(child, out, visited)
@@ -180,7 +190,8 @@ function childrenOf(view: any, out: any[] = [], visited = new Set<any>()): any[]
 	// ui-pager exposes Android's adapter-backed page through getChildView(),
 	// but it does not enumerate that page from eachChildView().
 	if (hasClass(view, 'vx-pager')) {
-		const index = Number.isInteger(view.selectedIndex) && view.selectedIndex >= 0 ? view.selectedIndex : 0
+		const index =
+			Number.isInteger(view.selectedIndex) && view.selectedIndex >= 0 ? view.selectedIndex : 0
 		visit(view.getChildView?.(index))
 	}
 

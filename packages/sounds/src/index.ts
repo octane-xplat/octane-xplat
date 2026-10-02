@@ -1,2 +1,2 @@
-export * from "./types";
-export { createSoundBank } from "./sounds";
+export * from './types'
+export { createSoundBank } from './sounds'

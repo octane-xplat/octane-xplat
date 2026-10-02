@@ -3,33 +3,32 @@
 	"version": "0.8.0",
 	"description": "Live camera preview for Octane xplat — web getUserMedia + native capture (AVCapture / CameraX)",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
+		"android",
 		"camera",
 		"camera-preview",
+		"cross-platform",
+		"ios",
+		"nativescript",
+		"octane",
 		"photo",
 		"video-capture",
-		"nativescript",
-		"ios",
-		"android",
-		"web"
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/camera",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
 		"directory": "packages/camera"
 	},
-	"files": ["dist", "types", "src", "platforms"],
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"platforms"
+	],
 	"type": "module",
-	"nativescript": {
-		"platforms": {
-			"ios": "7.0.0",
-			"android": "7.0.0"
-		}
-	},
 	"exports": {
 		".": {
 			"types": "./types/index.d.ts",
@@ -39,7 +38,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"types": "./types/index.d.ts",
@@ -47,7 +45,8 @@
 				"native": "./dist/native/index.js",
 				"default": "./dist/native/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
@@ -71,8 +70,20 @@
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
-		"@nativescript-community/octane": { "optional": true },
-		"@nativescript/core": { "optional": true },
-		"octane": { "optional": true }
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"ios": "7.0.0",
+			"android": "7.0.0"
+		}
 	}
 }

@@ -51,10 +51,14 @@ export function openWindow(
 		id,
 		closed,
 		close() {
-			void bridge().call('windows', 'close', [id]).catch(() => {})
+			void bridge()
+				.call('windows', 'close', [id])
+				.catch(() => {})
 		},
 		setTitle(title: string) {
-			void bridge().call('windows', 'setTitle', [id, title]).catch(() => {})
+			void bridge()
+				.call('windows', 'setTitle', [id, title])
+				.catch(() => {})
 		},
 	}
 }

@@ -14,14 +14,12 @@ const dirArg = {
 
 const apply = command({
 	name: 'apply',
-	description:
-		'Copy the framework patch set into this app and register it in pnpm-workspace.yaml',
+	description: 'Copy the framework patch set into this app and register it in pnpm-workspace.yaml',
 	args: {
 		...dirArg,
 		force: flag({
 			long: 'force',
-			description:
-				'overwrite patch files and config entries that differ from the framework copies',
+			description: 'overwrite patch files and config entries that differ from the framework copies',
 		}),
 	},
 	handler: async ({ dir, force }) => {
@@ -40,17 +38,21 @@ const apply = command({
 			return
 		}
 
-		for (const patch of report.copied)
-			{p.log.success(`${patch.specifier} — wrote patches/${patch.file}`)}
+		for (const patch of report.copied) {
+			p.log.success(`${patch.specifier} — wrote patches/${patch.file}`)
+		}
 
-		for (const patch of report.kept)
-			{p.log.info(`${patch.specifier} — already identical`)}
+		for (const patch of report.kept) {
+			p.log.info(`${patch.specifier} — already identical`)
+		}
 
-		for (const patch of report.skipped)
-			{p.log.info(`${patch.specifier} — skipped (${patch.reason})`)}
+		for (const patch of report.skipped) {
+			p.log.info(`${patch.specifier} — skipped (${patch.reason})`)
+		}
 
-		for (const patch of report.conflicts)
-			{p.log.warn(`${patch.specifier} — ${patch.reason}`)}
+		for (const patch of report.conflicts) {
+			p.log.warn(`${patch.specifier} — ${patch.reason}`)
+		}
 
 		if (report.conflicts.length) {
 			p.outro('conflicts above — rerun with --force to take the framework copies')
@@ -79,21 +81,23 @@ const check = command({
 
 		let bad = 0
 		for (const row of inspectPatches(appDir)) {
-			if (row.state === 'not-declared' || row.state === 'not-applicable') {continue}
+			if (row.state === 'not-declared' || row.state === 'not-applicable') {
+				continue
+			}
 			if (row.state === 'applied') {
 				p.log.success(`${row.specifier} — applied`)
 			} else {
 				bad++
 				const hint =
-					row.state === 'not-installed'
-						? 'run `pnpm install`'
-						: 'run `xplat patches apply`'
+					row.state === 'not-installed' ? 'run `pnpm install`' : 'run `xplat patches apply`'
 
 				p.log.warn(`${row.specifier} — ${patchStateDetail(row.state)} (${hint})`)
 			}
 		}
 
-		if (bad) {process.exitCode = 1}
+		if (bad) {
+			process.exitCode = 1
+		}
 		p.outro(bad ? `${bad} patch(es) need attention` : 'patch set applied')
 	},
 })

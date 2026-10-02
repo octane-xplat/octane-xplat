@@ -49,9 +49,6 @@ export const openDatabase = async (
 	name: string,
 	options?: OpenDatabaseOptions,
 ): Promise<SqliteDb> =>
-	new NativeSqliteDb(
-		openOrCreate(resolvePath(name), { threading: options?.threading ?? true }),
-	)
+	new NativeSqliteDb(openOrCreate(resolvePath(name), { threading: options?.threading ?? true }))
 
-export const deleteDatabase = async (name: string) =>
-	deleteNativeDatabase(resolvePath(name))
+export const deleteDatabase = async (name: string) => deleteNativeDatabase(resolvePath(name))

@@ -34,7 +34,7 @@ const observer = new IntersectionObserver(
 	},
 	{ root, rootMargin: '0px', threshold: [0, 0.5, 1] },
 )
-observer.observe(target)   // Element on web, View on native
+observer.observe(target) // Element on web, View on native
 observer.unobserve(target)
 observer.disconnect()
 observer.takeRecords()

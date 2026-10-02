@@ -10,8 +10,8 @@
 Three tiers:
 
 - `@expo/ui` — one universal API delegating to SwiftUI on iOS, Compose on
-  Android, DOM on web. The parity claim is *platform-native look and feel*
-  (each side renders the real toolkit). Ours is *same props → same pixels*
+  Android, DOM on web. The parity claim is _platform-native look and feel_
+  (each side renders the real toolkit). Ours is _same props → same pixels_
   (self-drawn/chrome-reset) — same structure, the stronger cross-platform
   guarantee.
 - `@expo/ui/swift-ui`, `@expo/ui/jetpack-compose` — 1:1 OS-vocabulary
@@ -31,19 +31,19 @@ tree's components and you've left the context; reintroduce a Host to go back.
 
 ## What transfers
 
-| Expo idea                                                                                          | Our adaptation                                                                                                                                                      |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Host` boundary props — `matchContents`, `onLayoutContent`, `ignoreSafeArea`, `layoutDirection`   | Props on `hosted` surfaces / subpath widgets. "Content size ≠ frame" is a real gap today (WebView document height, CameraView aspect, full-bleed behind the notch). |
-| `modifiers` array — typed factories returning serializable configs, order-sensitive, spreadable   | `ui/{ios,android}/modifiers` subpaths — a generic pipe absorbing the native-prop long tail (`swipeActions`, `listRowSeparator`, `glassEffect`) without prop plumbing. On NS a *custom* modifier is just a JS function handed the real view object — strictly more powerful than Expo's, which require Swift/Kotlin. Needs platform tagging so `xplat/*` lint still holds. |
-| `RNHostView` inverse embedding                                                                     | Octane content inside `UITableView` cells / `RecyclerView` items already crosses this seam implicitly — name the boundary contract rather than leaving it implied. |
-| `Icon.select({ ios: sfSymbol, android: drawable })` — OS-native glyph lookup                      | SF Symbol / Material glyph refs on platform-authentic widgets (tab bars, menus, swipe actions) where app-registered SVG looks off. Shared `Icon` keeps app glyphs for same-pixels. |
-| `ListItem` dual API — `leading`/`trailing`/`supportingText` props + compound children for slots   | Pattern for `FieldGroup` rows and any settings-list primitive: props cover the terse 90%, slots are the escape hatch.                                               |
-| Per-component "native implementations" doc table (platform → backing widget)                       | For each shared component document: web element \| NS view class \| normalization class \| known divergences. Cheap to produce, instant debugging orientation.       |
-| Honest per-component limits ("List doesn't lazily render yet")                                     | Same practice as `docs/known-limits.md` — validation, not a steal.                                                                                                   |
+| Expo idea                                                                                       | Our adaptation                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Host` boundary props — `matchContents`, `onLayoutContent`, `ignoreSafeArea`, `layoutDirection` | Props on `hosted` surfaces / subpath widgets. "Content size ≠ frame" is a real gap today (WebView document height, CameraView aspect, full-bleed behind the notch).                                                                                                                                                                                                       |
+| `modifiers` array — typed factories returning serializable configs, order-sensitive, spreadable | `ui/{ios,android}/modifiers` subpaths — a generic pipe absorbing the native-prop long tail (`swipeActions`, `listRowSeparator`, `glassEffect`) without prop plumbing. On NS a _custom_ modifier is just a JS function handed the real view object — strictly more powerful than Expo's, which require Swift/Kotlin. Needs platform tagging so `xplat/*` lint still holds. |
+| `RNHostView` inverse embedding                                                                  | Octane content inside `UITableView` cells / `RecyclerView` items already crosses this seam implicitly — name the boundary contract rather than leaving it implied.                                                                                                                                                                                                        |
+| `Icon.select({ ios: sfSymbol, android: drawable })` — OS-native glyph lookup                    | SF Symbol / Material glyph refs on platform-authentic widgets (tab bars, menus, swipe actions) where app-registered SVG looks off. Shared `Icon` keeps app glyphs for same-pixels.                                                                                                                                                                                        |
+| `ListItem` dual API — `leading`/`trailing`/`supportingText` props + compound children for slots | Pattern for `FieldGroup` rows and any settings-list primitive: props cover the terse 90%, slots are the escape hatch.                                                                                                                                                                                                                                                     |
+| Per-component "native implementations" doc table (platform → backing widget)                    | For each shared component document: web element \| NS view class \| normalization class \| known divergences. Cheap to produce, instant debugging orientation.                                                                                                                                                                                                            |
+| Honest per-component limits ("List doesn't lazily render yet")                                  | Same practice as `docs/known-limits.md` — validation, not a steal.                                                                                                                                                                                                                                                                                                        |
 
 ## The island mechanism
 
-Expo can ship those packages because Expo Modules lets them *author* Swift
+Expo can ship those packages because Expo Modules lets them _author_ Swift
 and Kotlin. The equivalent on our substrate exists but is inverted:
 `@nativescript/swift-ui` (4.x, mature) and `@nativescript/jetpack-compose`
 (single stale beta) are **bridge kits, not component libraries** — someone
@@ -84,10 +84,10 @@ name earns itself.
   — they exist because RN crosses a bridge; NS JS runs in-process on the UI
   thread and `signal$` already is that mechanism. The API shape is still
   worth noting: one callback delivering `{contentOffset, contentSize,
-  containerSize}` as a unit for parallax/progress.
-- The `swift-ui`/`jetpack-compose` *names* as general vocabulary packages —
+containerSize}` as a unit for parallax/progress.
+- The `swift-ui`/`jetpack-compose` _names_ as general vocabulary packages —
   our `UISwitch` is UIKit `UISwitch`, `MaterialSwitch` is a Material
-  Components *view*. The honest OS names we already use are right; toolkit
+  Components _view_. The honest OS names we already use are right; toolkit
   names would be false advertising unless an island genuinely hosts one.
 - "Everything is a toolkit component" breadth as a goal — reproducing ~50
   hand-written native components per platform is a different product than

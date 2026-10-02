@@ -1,21 +1,21 @@
 {
 	"name": "@octane-xplat/secure-storage",
 	"version": "0.8.0",
-	"description": "Keychain/Keystore-backed secure storage for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Keychain/Keystore-backed secure storage for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
 		"cross-platform",
-		"secure-storage",
+		"ios",
 		"keychain",
 		"keystore",
 		"nativescript",
-		"ios",
-		"android",
-		"web"
+		"octane",
+		"secure-storage",
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/secure-storage",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

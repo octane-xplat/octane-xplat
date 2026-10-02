@@ -3,20 +3,20 @@
 	"version": "0.8.0",
 	"description": "Canvas/GPU surface for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
 		"canvas",
+		"cross-platform",
+		"gpu",
+		"graphics",
+		"nativescript",
+		"octane",
 		"webgl",
 		"webgl2",
 		"webgpu",
 		"wgsl",
-		"gpu",
-		"graphics",
-		"nativescript"
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/canvas",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -37,7 +37,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"types": "./types/index.d.ts",
@@ -45,7 +44,8 @@
 				"native": "./dist/native/index.js",
 				"default": "./dist/native/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",

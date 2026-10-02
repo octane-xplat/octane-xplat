@@ -31,6 +31,8 @@ export function writeText(view: any, value: string | undefined | null): void {
 			et.setSelection(Math.min(start, len), Math.min(end >= 0 ? end : start, len))
 		}
 	} finally {
-		if (!nested) {writing.delete(view)}
+		if (!nested) {
+			writing.delete(view)
+		}
 	}
 }

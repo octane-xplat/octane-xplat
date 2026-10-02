@@ -12,7 +12,7 @@ export async function runQaTrigger(key: string): Promise<string> {
 		}
 	}
 
-	return 'unsupported on this target';
+	return 'unsupported on this target'
 }
 
 export function releaseQaTrigger(_key: string): void {}

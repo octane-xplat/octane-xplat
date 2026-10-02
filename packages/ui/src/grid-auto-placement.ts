@@ -12,7 +12,9 @@ export interface GridAutoPlacement {
 }
 
 function gridIndex(value: unknown): number | null {
-	if (value == null || value === '') {return null}
+	if (value == null || value === '') {
+		return null
+	}
 	const index = Number(value)
 	return Number.isInteger(index) && index >= 0 ? index : null
 }
@@ -52,7 +54,9 @@ export function autoPlaceGridChildren(
 	const isFree = (row: number, col: number, rowSpan: number, colSpan: number) => {
 		for (let y = row; y < row + rowSpan; y++) {
 			for (let x = col; x < col + colSpan; x++) {
-				if (occupied.has(`${y},${x}`)) {return false}
+				if (occupied.has(`${y},${x}`)) {
+					return false
+				}
 			}
 		}
 
@@ -61,7 +65,9 @@ export function autoPlaceGridChildren(
 
 	const occupy = (row: number, col: number, rowSpan: number, colSpan: number) => {
 		for (let y = row; y < row + rowSpan; y++) {
-			for (let x = col; x < col + colSpan; x++) {occupied.add(`${y},${x}`)}
+			for (let x = col; x < col + colSpan; x++) {
+				occupied.add(`${y},${x}`)
+			}
 		}
 	}
 
@@ -73,17 +79,25 @@ export function autoPlaceGridChildren(
 	}
 
 	for (const placement of placements) {
-		if (placement.row == null || placement.col != null) {continue}
+		if (placement.row == null || placement.col != null) {
+			continue
+		}
 		let col = 0
-		while (!isFree(placement.row, col, placement.rowSpan, placement.colSpan)) {col++}
+		while (!isFree(placement.row, col, placement.rowSpan, placement.colSpan)) {
+			col++
+		}
 		placement.col = col
 		occupy(placement.row, col, placement.rowSpan, placement.colSpan)
 	}
 
 	for (const placement of placements) {
-		if (placement.col == null || placement.row != null) {continue}
+		if (placement.col == null || placement.row != null) {
+			continue
+		}
 		let row = 0
-		while (!isFree(row, placement.col, placement.rowSpan, placement.colSpan)) {row++}
+		while (!isFree(row, placement.col, placement.rowSpan, placement.colSpan)) {
+			row++
+		}
 		placement.row = row
 		occupy(row, placement.col, placement.rowSpan, placement.colSpan)
 	}
@@ -91,7 +105,9 @@ export function autoPlaceGridChildren(
 	let cursorRow = 0
 	let cursorCol = 0
 	for (const placement of placements) {
-		if (placement.row != null && placement.col != null) {continue}
+		if (placement.row != null && placement.col != null) {
+			continue
+		}
 		while (true) {
 			if (cursorCol + placement.colSpan > columnCount) {
 				cursorRow++
@@ -99,7 +115,9 @@ export function autoPlaceGridChildren(
 				continue
 			}
 
-			if (isFree(cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {break}
+			if (isFree(cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {
+				break
+			}
 			cursorCol++
 		}
 
@@ -115,13 +133,22 @@ export function autoPlaceGridChildren(
 
 	return {
 		cells: placements.map(({ row, col }) => ({ row: row!, col: col! })),
-		rowCount: Math.max(trackCount(rowTracks), ...placements.map((item) => item.row! + item.rowSpan)),
+		rowCount: Math.max(
+			trackCount(rowTracks),
+			...placements.map((item) => item.row! + item.rowSpan),
+		),
 		columnCount: Math.max(columnCount, ...placements.map((item) => item.col! + item.colSpan)),
 	}
 }
 
 export function ensureGridTracks(spec: string | undefined, requiredCount: number): string {
-	const tracks = spec?.split(',').map((track) => track.trim()).filter(Boolean) ?? []
-	while (tracks.length < requiredCount) {tracks.push('auto')}
+	const tracks =
+		spec
+			?.split(',')
+			.map((track) => track.trim())
+			.filter(Boolean) ?? []
+	while (tracks.length < requiredCount) {
+		tracks.push('auto')
+	}
 	return tracks.join(',')
 }

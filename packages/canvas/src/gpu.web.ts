@@ -3,5 +3,5 @@
  *  returned object is spec-shaped: `requestAdapter()` +
  *  `getPreferredCanvasFormat()`. */
 export function getGPU(): any {
-	return (globalThis.navigator as any)?.gpu ?? null;
+	return (globalThis.navigator as any)?.gpu ?? null
 }

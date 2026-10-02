@@ -67,7 +67,9 @@ export declare const SegmentedControl: Component<P.SegmentedControlProps>
 export declare const ScrollBox: Component<P.ScrollViewProps>
 export declare const ScrollView: Component<P.ScrollViewProps>
 /** AppKit fallback with keyed rows and one nonvirtualized scroll view. */
-export declare function VirtualList<T = any>(props: P.VirtualListProps<T> & { children?: any }): unknown
+export declare function VirtualList<T = any>(
+	props: P.VirtualListProps<T> & { children?: any },
+): unknown
 export declare const Image: Component<P.ImageProps>
 export declare const WebView: Component<P.WebViewProps>
 export declare const CameraView: Component
@@ -133,8 +135,14 @@ export declare function addRoutes(manifest: P.RouteManifest): void
 export declare function screenFor(name: string): P.ScreenTable[string] | undefined
 export declare function hrefFor(route: P.Route): string
 export declare function layoutsForRoute(name: string): any[]
-export declare function deriveRouteManifest(files: Record<string, any>, prefer: readonly string[], dir?: string): P.RouteManifest
-export declare function defineRoutes(input: readonly P.RouteSpec[] | P.RouteSpecSet): P.RouteManifest
+export declare function deriveRouteManifest(
+	files: Record<string, any>,
+	prefer: readonly string[],
+	dir?: string,
+): P.RouteManifest
+export declare function defineRoutes(
+	input: readonly P.RouteSpec[] | P.RouteSpecSet,
+): P.RouteManifest
 export declare function mergeRouteManifests(...manifests: P.RouteManifest[]): P.RouteManifest
 export declare function createStore<T>(initial: T): P.Store<T>
 export declare function useStore<T>(store: P.ReadableStore<T>): T

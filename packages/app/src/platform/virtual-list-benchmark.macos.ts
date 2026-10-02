@@ -11,9 +11,7 @@ import {
 function probe() {
 	const debug = (globalThis as any).__xplatMacOSDebug
 	if (typeof debug?.listSnapshot !== 'function') {
-		throw new Error(
-			'VirtualList profiling on the AppKit host requires OCTANE_MACOS_AUTOMATION=1',
-		)
+		throw new Error('VirtualList profiling on the AppKit host requires OCTANE_MACOS_AUTOMATION=1')
 	}
 
 	return debug
@@ -35,7 +33,8 @@ export async function runVirtualListInputBenchmark(listId: string, durationMs = 
 		{
 			target: 'macos',
 			read: (): VirtualListBenchSnapshot => debug.listSnapshot(listId),
-			wait: () => new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
+			wait: () =>
+				new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
 		},
 		durationMs,
 	)

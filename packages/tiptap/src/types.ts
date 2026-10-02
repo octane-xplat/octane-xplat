@@ -76,11 +76,7 @@ export interface TiptapEditorProps {
 	onJSONReady?: (ready: boolean) => void
 	onChange?: (html: string) => void
 	onJSONChange?: (doc: TiptapJSON) => void
-	onSelectionChange?: (event: {
-		start: number
-		end: number
-		active: TiptapFormat[]
-	}) => void
+	onSelectionChange?: (event: { start: number; end: number; active: TiptapFormat[] }) => void
 	onFocus?: () => void
 	onBlur?: () => void
 	bind?: (handle: TiptapEditorHandle) => void

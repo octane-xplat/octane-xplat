@@ -4,7 +4,11 @@
 // web outlets and URL matching read the same manifest.
 export { routes, screens } from './routes.gen'
 
-import type { ManifestRouteNames, ManifestRouteParams, ManifestRoutePresentations } from '@octane-xplat/ui'
+import type {
+	ManifestRouteNames,
+	ManifestRouteParams,
+	ManifestRoutePresentations,
+} from '@octane-xplat/ui'
 import type {
 	RouteName as FileRouteName,
 	RouteParams as FileRouteParams,
@@ -24,8 +28,8 @@ wireRouteLinks()
 
 export type RouteName = FileRouteName | ManifestRouteNames<typeof guideRoutes>
 export type RouteParams = FileRouteParams & ManifestRouteParams<typeof guideRoutes>
-export type RoutePresentations =
-	FileRoutePresentations & ManifestRoutePresentations<typeof guideRoutes>
+export type RoutePresentations = FileRoutePresentations &
+	ManifestRoutePresentations<typeof guideRoutes>
 
 export type NavigateArgs = {
 	[Name in RouteName]: keyof RouteParams[Name] extends never

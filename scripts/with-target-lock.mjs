@@ -55,7 +55,12 @@ for (;;) {
 		writeFileSync(
 			ownerFile,
 			JSON.stringify(
-				{ pid: process.pid, hostname: hostname(), cwd: process.cwd(), started: new Date().toISOString() },
+				{
+					pid: process.pid,
+					hostname: hostname(),
+					cwd: process.cwd(),
+					started: new Date().toISOString(),
+				},
 				null,
 				1,
 			),
@@ -69,7 +74,9 @@ for (;;) {
 
 		const { alive, owner } = ownerAlive()
 		if (!alive) {
-			console.log(`[lock] reclaiming stale ${target} lock (owner pid ${owner?.pid ?? 'unknown'} is gone)`)
+			console.log(
+				`[lock] reclaiming stale ${target} lock (owner pid ${owner?.pid ?? 'unknown'} is gone)`,
+			)
 			rmSync(lockDir, { recursive: true, force: true })
 			continue
 		}

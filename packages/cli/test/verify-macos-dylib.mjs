@@ -15,7 +15,9 @@ mkdirSync(scratch, { recursive: true })
 function run(command, args, { log, env = process.env, timeout = 300_000 } = {}) {
 	const result = spawnSync(command, args, { cwd: repoRoot, env, encoding: 'utf8', timeout })
 	const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
-	if (log) {writeFileSync(join(scratch, log), output)}
+	if (log) {
+		writeFileSync(join(scratch, log), output)
+	}
 	if (result.error || result.status !== 0) {
 		throw new Error(
 			`${command} failed: ${result.error ?? result.signal ?? result.status}\n${output.slice(-6000)}`,
@@ -76,8 +78,9 @@ run(clang, [
 console.log('[dylib-probe] compiled custom arm64 dylib')
 
 const output = join(scratch, 'metadata')
-for (const dir of [output, join(output, 'types'), join(output, 'json')])
-	{mkdirSync(dir, { recursive: true })}
+for (const dir of [output, join(output, 'types'), join(output, 'json')]) {
+	mkdirSync(dir, { recursive: true })
+}
 
 const metadata = join(output, 'metadata.nsmd')
 run(
@@ -128,7 +131,9 @@ for (const [declared, metadataPath, marker] of [
 		},
 	)
 
-	if (!transcript.includes(marker)) {throw new Error(`Host omitted assertion marker:\n${transcript}`)}
+	if (!transcript.includes(marker)) {
+		throw new Error(`Host omitted assertion marker:\n${transcript}`)
+	}
 	console.log(transcript.split('\n').find((line) => line.startsWith(marker)))
 }
 

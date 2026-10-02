@@ -2,15 +2,28 @@ import { beforeEach, expect, it, vi } from 'vitest'
 const native = vi.hoisted(() => {
 	const listeners = new Map<string, (args: any) => void>()
 	const androidListeners = new Map<string, (args: any) => void>()
-	return { listeners, androidListeners, app: {
-		launchEvent: 'launch', resumeEvent: 'resume', ios: null,
-		on: (name: string, cb: (args: any) => void) => listeners.set(name, cb),
-		android: { on: (name: string, cb: (args: any) => void) => androidListeners.set(name, cb), foregroundActivity: null as any },
-	} }
+	return {
+		listeners,
+		androidListeners,
+		app: {
+			launchEvent: 'launch',
+			resumeEvent: 'resume',
+			ios: null,
+			on: (name: string, cb: (args: any) => void) => listeners.set(name, cb),
+			android: {
+				on: (name: string, cb: (args: any) => void) => androidListeners.set(name, cb),
+				foregroundActivity: null as any,
+			},
+		},
+	}
 })
 
 vi.mock('@nativescript/core', () => ({ Application: native.app }))
-beforeEach(() => { vi.resetModules(); native.listeners.clear(); native.androidListeners.clear() })
+beforeEach(() => {
+	vi.resetModules()
+	native.listeners.clear()
+	native.androidListeners.clear()
+})
 const intent = (url: string) => ({ getDataString: () => url })
 it('delivers a cold link once through consumeInitialUrl, not also the listener', async () => {
 	const links = await import('./deep-links.ts')

@@ -37,15 +37,15 @@ derisks how much of A we could self-host if upstream stalls.
 
 ## What integration touches (Path A)
 
-| Layer | Change |
-| --- | --- |
-| Suffix lattice | `.windows.*` joins the extension chain ahead of the unsuffixed native default in `packages/cli/src/vite.mjs` (`xplatNative` gains a `windows` platform branch — `.mobile` stays ios/android-only); `./windows` subpath on `@octane-xplat/ui`; `moduleSuffixes` in app tsconfigs |
-| App shell | `@nativescript/windows` devDep + `windows` block in `nativescript.config.ts`; `App_Resources/Windows` scaffold (Package.appxmanifest, assets, `app.csproj` — upstream ships the template) |
-| Leaves | Unsuffixed (native-default) files compile for Windows by default; `.windows` overrides only where behavior diverges. NS plugins we depend on have no windows impl — leaf packages need `.windows` `Unsupported` fallbacks, same pattern as `.macos` |
-| CLI | `targets.mjs`: `windows` kind — `ns run windows` already works on the dev-tag CLI (`nativescript@9.1.2-dev.*`, proven by upstream's starter); released CLI waits on cli#6065. `doctor`: `win32` host, Windows 10 1809+, .NET 10 SDK, Developer Mode enabled, `@nativescript/windows` exact pin — mirroring `ns doctor windows` |
-| Lint | `isNativeFile` learns `windows`; platform-subpath rules gain `./windows` |
-| Packaging | MSIX via `makeappx`/`signtool` (self-signed for dev), or unpackaged exe + WASDK bootstrapper; `app.nsbundle` for source protection. CI: `windows-latest` runners — no cross-compile |
-| Runtime supply chain | `@nativescript/windows` is days old → `minimumReleaseAgeExclude` entry, same precedent as the octane packages |
+| Layer                | Change                                                                                                                                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Suffix lattice       | `.windows.*` joins the extension chain ahead of the unsuffixed native default in `packages/cli/src/vite.mjs` (`xplatNative` gains a `windows` platform branch — `.mobile` stays ios/android-only); `./windows` subpath on `@octane-xplat/ui`; `moduleSuffixes` in app tsconfigs                                                |
+| App shell            | `@nativescript/windows` devDep + `windows` block in `nativescript.config.ts`; `App_Resources/Windows` scaffold (Package.appxmanifest, assets, `app.csproj` — upstream ships the template)                                                                                                                                      |
+| Leaves               | Unsuffixed (native-default) files compile for Windows by default; `.windows` overrides only where behavior diverges. NS plugins we depend on have no windows impl — leaf packages need `.windows` `Unsupported` fallbacks, same pattern as `.macos`                                                                            |
+| CLI                  | `targets.mjs`: `windows` kind — `ns run windows` already works on the dev-tag CLI (`nativescript@9.1.2-dev.*`, proven by upstream's starter); released CLI waits on cli#6065. `doctor`: `win32` host, Windows 10 1809+, .NET 10 SDK, Developer Mode enabled, `@nativescript/windows` exact pin — mirroring `ns doctor windows` |
+| Lint                 | `isNativeFile` learns `windows`; platform-subpath rules gain `./windows`                                                                                                                                                                                                                                                       |
+| Packaging            | MSIX via `makeappx`/`signtool` (self-signed for dev), or unpackaged exe + WASDK bootstrapper; `app.nsbundle` for source protection. CI: `windows-latest` runners — no cross-compile                                                                                                                                            |
+| Runtime supply chain | `@nativescript/windows` is days old → `minimumReleaseAgeExclude` entry, same precedent as the octane packages                                                                                                                                                                                                                  |
 
 ## Open risks
 

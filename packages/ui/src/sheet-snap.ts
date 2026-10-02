@@ -27,7 +27,12 @@ export function detentOffset(detents: readonly number[], index: number, vh: numb
  *  `vy` (positive = dragging down). Returns the detent index, or -1 to
  *  dismiss: released below half of the smallest detent, or a downward
  *  fling while at/below it. */
-export function snapDetentIndex(ty: number, vy: number, detents: readonly number[], vh: number): number {
+export function snapDetentIndex(
+	ty: number,
+	vy: number,
+	detents: readonly number[],
+	vh: number,
+): number {
 	const max = detents[detents.length - 1]
 	const frac = Math.min(Math.max(max - ty / vh, 0), 1)
 

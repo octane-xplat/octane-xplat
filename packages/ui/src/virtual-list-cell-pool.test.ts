@@ -3,7 +3,12 @@ import { VirtualListCellPool } from './virtual-list-cell-pool'
 import { createVirtualListEntries } from './virtual-list-layout'
 
 const item = (id: string, type = 'row') => ({ id, type })
-const entriesFor = (items: ReturnType<typeof item>[]) => createVirtualListEntries(items, (row) => row.id, (row) => row.type)
+const entriesFor = (items: ReturnType<typeof item>[]) =>
+	createVirtualListEntries(
+		items,
+		(row) => row.id,
+		(row) => row.type,
+	)
 
 describe('VirtualList physical cell ownership', () => {
 	it('retains keyed hosts across prepend and recycles only compatible free hosts', () => {

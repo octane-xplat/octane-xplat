@@ -83,7 +83,9 @@ const result = await new Promise((resolveSample, rejectSample) => {
 		}
 
 		rejectSample(
-			new Error(`AppKit scroll probe exited (${signal ?? code}) without metrics:\n${output.slice(-12000)}`),
+			new Error(
+				`AppKit scroll probe exited (${signal ?? code}) without metrics:\n${output.slice(-12000)}`,
+			),
 		)
 	})
 })
@@ -94,7 +96,9 @@ function assertResult(sample) {
 		sample.scrollEvents.maxOffset < 250 ||
 		sample.scrollEvents.absoluteOffsetDeltaPt < 1000
 	) {
-		throw new Error(`The programmatic offset stream did not produce sustained scrolling: ${JSON.stringify(sample)}`)
+		throw new Error(
+			`The programmatic offset stream did not produce sustained scrolling: ${JSON.stringify(sample)}`,
+		)
 	}
 
 	if (
@@ -103,19 +107,27 @@ function assertResult(sample) {
 		sample.scrollEvents.rowWindow.peak > 32 ||
 		Math.abs(sample.current.scrollViews[0].contentHeight - sample.expectedContentHeight) > 2
 	) {
-		throw new Error(`The variable-height window exceeded its row or total-height bound: ${JSON.stringify(sample)}`)
+		throw new Error(
+			`The variable-height window exceeded its row or total-height bound: ${JSON.stringify(sample)}`,
+		)
 	}
 
 	const distinctHeights = new Set(sample.current.mountedRows.map((row) => Math.round(row.height)))
 	if (distinctHeights.size !== 3 || sample.current.lastMountedRow !== rowCount - 1) {
-		throw new Error(`Expected three row heights and the final data row in the end window: ${JSON.stringify(sample.current)}`)
+		throw new Error(
+			`Expected three row heights and the final data row in the end window: ${JSON.stringify(sample.current)}`,
+		)
 	}
 
 	if (sample.rangeCommitMs.samples < 1 || sample.mainLoopHeartbeatMs.samples < eventCount / 2) {
-		throw new Error(`The scroll run did not collect enough responsiveness samples: ${JSON.stringify(sample)}`)
+		throw new Error(
+			`The scroll run did not collect enough responsiveness samples: ${JSON.stringify(sample)}`,
+		)
 	}
 }
 
 assertResult(result)
-console.log(`AppKit variable-height VirtualList scroll probe · ${rowCount} rows · ${eventCount} 8pt offset updates + middle/end seeks`)
+console.log(
+	`AppKit variable-height VirtualList scroll probe · ${rowCount} rows · ${eventCount} 8pt offset updates + middle/end seeks`,
+)
 console.log(JSON.stringify({ ...result, check: 'passed' }))

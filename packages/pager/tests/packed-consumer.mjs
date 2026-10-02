@@ -46,15 +46,15 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types",
-	"@nativescript-community/ui-pager"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
+	'@nativescript-community/ui-pager',
 ]
 
 const consumers = {
-	"web": `import { Pager, type PagerProps } from '@octane-xplat/pager'
+	web: `import { Pager, type PagerProps } from '@octane-xplat/pager'
 const props: PagerProps = { items: [1, 2, 3], renderItem: (item) => String(item) }
 const pager = <Pager {...props} />
 // @ts-expect-error items is required
@@ -62,7 +62,7 @@ const missingItems = <Pager renderItem={(item) => null} />
 void pager
 void missingItems
 `,
-	"native": `import { Pager, type PagerProps } from '@octane-xplat/pager'
+	native: `import { Pager, type PagerProps } from '@octane-xplat/pager'
 const props: PagerProps = { items: ['a', 'b'], renderItem: (item) => null, page: 0, onPageChange: (index: number) => void index }
 const pager = <Pager {...props} />
 // @ts-expect-error renderItem is required
@@ -70,10 +70,10 @@ const missingRender = <Pager items={['a']} />
 void pager
 void missingRender
 `,
-	"macos": `import { Pager, type PagerProps } from '@octane-xplat/pager'
+	macos: `import { Pager, type PagerProps } from '@octane-xplat/pager'
 const pager = <Pager items={['a']} renderItem={(item) => null} />
 void pager
-`
+`,
 }
 
 const extraFiles = {}
@@ -83,43 +83,24 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": []
+	web: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
 	},
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -231,15 +212,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

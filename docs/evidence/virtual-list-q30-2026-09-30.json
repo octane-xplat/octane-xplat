@@ -1,877 +1,807 @@
 {
-  "baselineCommit": "4b43f82d6c6c6963d081040eb44591c9b9560a67",
-  "inputProvenance": "synthetic; no direct touch or physical trackpad",
-  "native": {
-    "ios": "Simulator build succeeded (89.458s); app launched, no ready/result telemetry in nine minutes; no geometry or frame pass.",
-    "android": "No connected adb target at final check; historical uncollected PSS growth remains unresolved."
-  },
-  "presentationTiming": "Not collected; browser rAF and JS polling do not establish frame presentation.",
-  "web-after": {
-    "schema": "xplat.virtual-list-input.v1",
-    "target": "web",
-    "fixture": {
-      "mode": "variable",
-      "rows": 5000,
-      "viewportHeight": 413,
-      "contentHeight": 233333,
-      "initialRowHeights": [
-        32,
-        40,
-        48,
-        56,
-        64,
-        32,
-        40,
-        48
-      ]
-    },
-    "input": "Playwright mouse-wheel events; emulated input, not physical trackpad",
-    "trace": {
-      "durationMs": 181512.5,
-      "sampleCount": 1753,
-      "phases": {
-        "idle": {
-          "scrollEvents": 0,
-          "offsetChanges": 0,
-          "distance": 0,
-          "directionChanges": 0,
-          "maxMountedRows": 18,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        },
-        "wheel-down": {
-          "scrollEvents": 1062,
-          "offsetChanges": 706,
-          "distance": 774480,
-          "directionChanges": 352,
-          "maxMountedRows": 27,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        },
-        "wheel-up": {
-          "scrollEvents": 1062,
-          "offsetChanges": 704,
-          "distance": 758520,
-          "directionChanges": 352,
-          "maxMountedRows": 27,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        }
-      },
-      "rAFIntervalMs": {
-        "p50": 16.7,
-        "p95": 16.7,
-        "max": 16.8,
-        "longerThan32ms": 0
-      },
-      "mountedRows": {
-        "p50": 26,
-        "max": 27
-      },
-      "coverageGapSamples": 0,
-      "maxCoverageGap": 0,
-      "inputRounds": 177
-    },
-    "memoryBytes": {
-      "heapBefore": 6389460,
-      "heapAfter": 8222876,
-      "heapDelta": 1833416
-    },
-    "memorySamples": [
-      {
-        "atMs": 0,
-        "phase": "before",
-        "heapUsedBytes": 6389460,
-        "dom": {
-          "documents": 2,
-          "nodes": 1379,
-          "jsEventListeners": 56
-        }
-      },
-      {
-        "atMs": 30002,
-        "phase": "periodic",
-        "heapUsedBytes": 9025688,
-        "dom": {
-          "documents": 2,
-          "nodes": 1451,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 60016,
-        "phase": "periodic",
-        "heapUsedBytes": 27955264,
-        "dom": {
-          "documents": 2,
-          "nodes": 5291,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 90008,
-        "phase": "periodic",
-        "heapUsedBytes": 10789300,
-        "dom": {
-          "documents": 2,
-          "nodes": 4411,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 120010,
-        "phase": "periodic",
-        "heapUsedBytes": 14379100,
-        "dom": {
-          "documents": 2,
-          "nodes": 1729,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 150008,
-        "phase": "periodic",
-        "heapUsedBytes": 17521716,
-        "dom": {
-          "documents": 2,
-          "nodes": 3363,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 180006,
-        "phase": "periodic",
-        "heapUsedBytes": 29640400,
-        "dom": {
-          "documents": 2,
-          "nodes": 5309,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 181511,
-        "phase": "pre-gc",
-        "heapUsedBytes": 16001332,
-        "dom": {
-          "documents": 2,
-          "nodes": 1801,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 181564,
-        "phase": "after-gc",
-        "heapUsedBytes": 8222876,
-        "dom": {
-          "documents": 2,
-          "nodes": 1379,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 181744,
-        "phase": "after-dispose-gc",
-        "heapUsedBytes": 8283396,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 89
-        }
-      }
-    ],
-    "domBefore": {
-      "documents": 2,
-      "nodes": 1379,
-      "jsEventListeners": 56
-    },
-    "domAfter": {
-      "documents": 2,
-      "nodes": 1379,
-      "jsEventListeners": 70
-    },
-    "pageErrors": [],
-    "baseUrl": "http://localhost:5219/"
-  },
-  "web-fixed": {
-    "schema": "xplat.virtual-list-input.v1",
-    "target": "web",
-    "fixture": {
-      "mode": "fixed48",
-      "rows": 5000,
-      "viewportHeight": 413,
-      "contentHeight": 240000,
-      "initialRowHeights": [
-        48,
-        48,
-        48,
-        48,
-        48,
-        48,
-        48,
-        48
-      ]
-    },
-    "input": "Playwright mouse-wheel events; emulated input, not physical trackpad",
-    "trace": {
-      "durationMs": 16393,
-      "sampleCount": 159,
-      "phases": {
-        "idle": {
-          "scrollEvents": 0,
-          "offsetChanges": 0,
-          "distance": 0,
-          "directionChanges": 0,
-          "maxMountedRows": 18,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        },
-        "wheel-down": {
-          "scrollEvents": 90,
-          "offsetChanges": 64,
-          "distance": 64680,
-          "directionChanges": 28,
-          "maxMountedRows": 27,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        },
-        "wheel-up": {
-          "scrollEvents": 90,
-          "offsetChanges": 59,
-          "distance": 62160,
-          "directionChanges": 28,
-          "maxMountedRows": 27,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        }
-      },
-      "rAFIntervalMs": {
-        "p50": 16.7,
-        "p95": 16.8,
-        "max": 16.8,
-        "longerThan32ms": 0
-      },
-      "mountedRows": {
-        "p50": 27,
-        "max": 27
-      },
-      "coverageGapSamples": 0,
-      "maxCoverageGap": 0,
-      "inputRounds": 15
-    },
-    "memoryBytes": {
-      "heapBefore": 6308388,
-      "heapAfter": 6466348,
-      "heapDelta": 157960
-    },
-    "memorySamples": [
-      {
-        "atMs": 0,
-        "phase": "before",
-        "heapUsedBytes": 6308388,
-        "dom": {
-          "documents": 2,
-          "nodes": 435,
-          "jsEventListeners": 69
-        }
-      },
-      {
-        "atMs": 16387,
-        "phase": "pre-gc",
-        "heapUsedBytes": 8734976,
-        "dom": {
-          "documents": 2,
-          "nodes": 3349,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 16434,
-        "phase": "after-gc",
-        "heapUsedBytes": 6466348,
-        "dom": {
-          "documents": 2,
-          "nodes": 435,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 16649,
-        "phase": "after-dispose-gc",
-        "heapUsedBytes": 7279128,
-        "dom": {
-          "documents": 2,
-          "nodes": 1381,
-          "jsEventListeners": 89
-        }
-      }
-    ],
-    "domBefore": {
-      "documents": 2,
-      "nodes": 435,
-      "jsEventListeners": 69
-    },
-    "domAfter": {
-      "documents": 2,
-      "nodes": 435,
-      "jsEventListeners": 70
-    },
-    "pageErrors": [],
-    "baseUrl": "http://localhost:5219/"
-  },
-  "web-deep": {
-    "schema": "octane-xplat.virtual-list-profile.v1",
-    "target": "web",
-    "fixture": {
-      "rowCount": 5000,
-      "rowHeightPattern": "32 + (index % 5) * 8",
-      "totalContentHeight": 240000
-    },
-    "trace": {
-      "direction": "forward-reverse-plus-deep-seeks",
-      "streamFrames": 501,
-      "deepSeekCount": 5,
-      "stepsPerDirection": 250,
-      "intervalMs": 16,
-      "stepUnits": 48,
-      "streamRange": [
-        0,
-        12000
-      ],
-      "seekOffsets": [
-        59775,
-        119550,
-        179325,
-        236709,
-        0
-      ]
-    },
-    "viewportHeight": 441,
-    "durationMs": 9464.9,
-    "streamFrameIntervalMs": {
-      "samples": 500,
-      "p50": 17.1,
-      "p95": 18.4,
-      "max": 25.7
-    },
-    "stream": {
-      "frames": 501,
-      "laggedFrames": 0,
-      "readyFrames": 501
-    },
-    "deepSeekLatencyMs": {
-      "samples": 2,
-      "p50": 33.7,
-      "p95": 34.3,
-      "max": 34.3,
-      "timeouts": 3,
-      "timeoutOffsets": [
-        119550,
-        179325,
-        236709
-      ],
-      "results": [
-        {
-          "requestedOffset": 59775,
-          "actualOffset": 59815,
-          "offsetError": 40,
-          "viewportHeight": 441,
-          "mountedCount": 28,
-          "mountedRange": [
-            1237,
-            1265
-          ],
-          "expectedVisibleRange": [
-            1245,
-            1255
-          ],
-          "polls": 2,
-          "latencyMs": 34.3,
-          "status": "ready"
-        },
-        {
-          "requestedOffset": 119550,
-          "actualOffset": 119609,
-          "offsetError": 59,
-          "viewportHeight": 441,
-          "mountedCount": 28,
-          "mountedRange": [
-            2482,
-            2510
-          ],
-          "expectedVisibleRange": [
-            2490,
-            2500
-          ],
-          "polls": 15,
-          "latencyMs": null,
-          "status": "timeout"
-        },
-        {
-          "requestedOffset": 179325,
-          "actualOffset": 179494,
-          "offsetError": 169,
-          "viewportHeight": 441,
-          "mountedCount": 28,
-          "mountedRange": [
-            3727,
-            3755
-          ],
-          "expectedVisibleRange": [
-            3736,
-            3746
-          ],
-          "polls": 15,
-          "latencyMs": null,
-          "status": "timeout"
-        },
-        {
-          "requestedOffset": 236709,
-          "actualOffset": 236796,
-          "offsetError": 87,
-          "viewportHeight": 441,
-          "mountedCount": 28,
-          "mountedRange": [
-            4917,
-            4945
-          ],
-          "expectedVisibleRange": [
-            4931,
-            4941
-          ],
-          "polls": 15,
-          "latencyMs": null,
-          "status": "timeout"
-        },
-        {
-          "requestedOffset": 0,
-          "actualOffset": 0,
-          "offsetError": 0,
-          "viewportHeight": 441,
-          "mountedCount": 19,
-          "mountedRange": [
-            0,
-            19
-          ],
-          "expectedVisibleRange": [
-            0,
-            10
-          ],
-          "polls": 2,
-          "latencyMs": 33.7,
-          "status": "ready"
-        }
-      ]
-    },
-    "mountedRows": {
-      "samples": 550,
-      "p50": 28,
-      "p95": 29,
-      "max": 29
-    },
-    "visibleCoverage": {
-      "samples": 550,
-      "gapSamples": 0,
-      "maxMissingVisibleRows": 0,
-      "missingVisibleRowsAcrossSamples": 0,
-      "maxGapUnits": 0,
-      "stream": {
-        "samples": 501,
-        "gapSamples": 0,
-        "maxMissingVisibleRows": 0,
-        "maxGapUnits": 0,
-        "worst": null
-      },
-      "deepSeeks": {
-        "samples": 49,
-        "gapSamples": 0,
-        "maxMissingVisibleRows": 0,
-        "maxGapUnits": 0,
-        "worst": null
-      }
-    },
-    "rowChurn": {
-      "mounted": 622,
-      "unmounted": 622
-    },
-    "eventLoopTimerDriftMs": {
-      "samples": 355,
-      "p50": 1.1,
-      "p95": 4.8,
-      "max": 9.7
-    },
-    "measurementNotes": [
-      "Rows mounted and unmounted are identity-set changes observed while polling; they are not native allocation timings.",
-      "The stream reports missed 16 ms offset checkpoints and visible geometry; deep-seek latency includes 16 ms polling and mounted-row readiness.",
-      "Timer drift and checkpoint intervals are JavaScript responsiveness proxies; they do not measure display frame pacing or vsync.",
-      "This scripted offset stream does not reproduce trackpad, wheel, or touch gesture physics."
-    ]
-  },
-  "web-disposal20": {
-    "schema": "xplat.virtual-list-input.v1",
-    "target": "web",
-    "fixture": {
-      "mode": "variable",
-      "rows": 5000,
-      "viewportHeight": 413,
-      "contentHeight": 233333,
-      "initialRowHeights": [
-        32,
-        40,
-        48,
-        56,
-        64,
-        32,
-        40,
-        48
-      ]
-    },
-    "input": "Playwright mouse-wheel events; emulated input, not physical trackpad",
-    "trace": {
-      "durationMs": 16064.5,
-      "sampleCount": 156,
-      "phases": {
-        "idle": {
-          "scrollEvents": 0,
-          "offsetChanges": 0,
-          "distance": 0,
-          "directionChanges": 0,
-          "maxMountedRows": 18,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        },
-        "wheel-down": {
-          "scrollEvents": 60,
-          "offsetChanges": 49,
-          "distance": 42000,
-          "directionChanges": 18,
-          "maxMountedRows": 27,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        },
-        "wheel-up": {
-          "scrollEvents": 60,
-          "offsetChanges": 47,
-          "distance": 44100,
-          "directionChanges": 18,
-          "maxMountedRows": 27,
-          "coverageGapSamples": 0,
-          "maxCoverageGap": 0
-        }
-      },
-      "rAFIntervalMs": {
-        "p50": 16.7,
-        "p95": 16.7,
-        "max": 16.8,
-        "longerThan32ms": 0
-      },
-      "mountedRows": {
-        "p50": 26,
-        "max": 27
-      },
-      "coverageGapSamples": 0,
-      "maxCoverageGap": 0,
-      "inputRounds": 10
-    },
-    "memoryBytes": {
-      "heapBefore": 6389480,
-      "heapAfter": 7714296,
-      "heapDelta": 1324816
-    },
-    "memorySamples": [
-      {
-        "atMs": 0,
-        "phase": "before",
-        "heapUsedBytes": 6389480,
-        "dom": {
-          "documents": 2,
-          "nodes": 1379,
-          "jsEventListeners": 56
-        }
-      },
-      {
-        "atMs": 16116,
-        "phase": "pre-gc",
-        "heapUsedBytes": 21520612,
-        "dom": {
-          "documents": 2,
-          "nodes": 4851,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 16192,
-        "phase": "after-gc",
-        "heapUsedBytes": 7714296,
-        "dom": {
-          "documents": 2,
-          "nodes": 1379,
-          "jsEventListeners": 70
-        }
-      },
-      {
-        "atMs": 16345,
-        "phase": "after-dispose-gc",
-        "heapUsedBytes": 7739184,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 89
-        }
-      },
-      {
-        "atMs": 16663,
-        "phase": "after-reopen-dispose-gc-1",
-        "heapUsedBytes": 7842624,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 88
-        }
-      },
-      {
-        "atMs": 17011,
-        "phase": "after-reopen-dispose-gc-2",
-        "heapUsedBytes": 8101348,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 88
-        }
-      },
-      {
-        "atMs": 17303,
-        "phase": "after-reopen-dispose-gc-3",
-        "heapUsedBytes": 8146740,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 88
-        }
-      },
-      {
-        "atMs": 17594,
-        "phase": "after-reopen-dispose-gc-4",
-        "heapUsedBytes": 8196396,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 17887,
-        "phase": "after-reopen-dispose-gc-5",
-        "heapUsedBytes": 8228324,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 18153,
-        "phase": "after-reopen-dispose-gc-6",
-        "heapUsedBytes": 8240136,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 18467,
-        "phase": "after-reopen-dispose-gc-7",
-        "heapUsedBytes": 8315948,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 18823,
-        "phase": "after-reopen-dispose-gc-8",
-        "heapUsedBytes": 8430208,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 88
-        }
-      },
-      {
-        "atMs": 19167,
-        "phase": "after-reopen-dispose-gc-9",
-        "heapUsedBytes": 8431372,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 19493,
-        "phase": "after-reopen-dispose-gc-10",
-        "heapUsedBytes": 8442504,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 19795,
-        "phase": "after-reopen-dispose-gc-11",
-        "heapUsedBytes": 8449952,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 20155,
-        "phase": "after-reopen-dispose-gc-12",
-        "heapUsedBytes": 8473552,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 20468,
-        "phase": "after-reopen-dispose-gc-13",
-        "heapUsedBytes": 8504580,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 20737,
-        "phase": "after-reopen-dispose-gc-14",
-        "heapUsedBytes": 8521080,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 21040,
-        "phase": "after-reopen-dispose-gc-15",
-        "heapUsedBytes": 8523944,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 21307,
-        "phase": "after-reopen-dispose-gc-16",
-        "heapUsedBytes": 8523420,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 21583,
-        "phase": "after-reopen-dispose-gc-17",
-        "heapUsedBytes": 8524504,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 21875,
-        "phase": "after-reopen-dispose-gc-18",
-        "heapUsedBytes": 8534228,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 22156,
-        "phase": "after-reopen-dispose-gc-19",
-        "heapUsedBytes": 8537232,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      },
-      {
-        "atMs": 22417,
-        "phase": "after-reopen-dispose-gc-20",
-        "heapUsedBytes": 8544420,
-        "dom": {
-          "documents": 2,
-          "nodes": 1378,
-          "jsEventListeners": 87
-        }
-      }
-    ],
-    "domBefore": {
-      "documents": 2,
-      "nodes": 1379,
-      "jsEventListeners": 56
-    },
-    "domAfter": {
-      "documents": 2,
-      "nodes": 1379,
-      "jsEventListeners": 70
-    },
-    "pageErrors": [],
-    "baseUrl": "http://localhost:5219/"
-  },
-  "web-contract": [
-    {
-      "seekResults": [
-        {
-          "requestedOffset": 960,
-          "actualOffset": 960,
-          "mounted": 22
-        },
-        {
-          "requestedOffset": 10800,
-          "actualOffset": 10862,
-          "mounted": 23
-        },
-        {
-          "requestedOffset": 20000,
-          "actualOffset": 20107,
-          "mounted": 23
-        },
-        {
-          "requestedOffset": 5000,
-          "actualOffset": 4990,
-          "mounted": 23
-        },
-        {
-          "requestedOffset": 10800,
-          "actualOffset": 10786,
-          "mounted": 22
-        }
-      ],
-      "prepend": {
-        "anchor": "row-r195",
-        "drift": 0.09375,
-        "before": 10715,
-        "after": 10770
-      }
-    },
-    {
-      "remeasureDrift": 0.21875,
-      "cleanup": "row window removed after empty and route disposal",
-      "errors": []
-    }
-  ]
+	"baselineCommit": "4b43f82d6c6c6963d081040eb44591c9b9560a67",
+	"inputProvenance": "synthetic; no direct touch or physical trackpad",
+	"native": {
+		"ios": "Simulator build succeeded (89.458s); app launched, no ready/result telemetry in nine minutes; no geometry or frame pass.",
+		"android": "No connected adb target at final check; historical uncollected PSS growth remains unresolved."
+	},
+	"presentationTiming": "Not collected; browser rAF and JS polling do not establish frame presentation.",
+	"web-after": {
+		"schema": "xplat.virtual-list-input.v1",
+		"target": "web",
+		"fixture": {
+			"mode": "variable",
+			"rows": 5000,
+			"viewportHeight": 413,
+			"contentHeight": 233333,
+			"initialRowHeights": [32, 40, 48, 56, 64, 32, 40, 48]
+		},
+		"input": "Playwright mouse-wheel events; emulated input, not physical trackpad",
+		"trace": {
+			"durationMs": 181512.5,
+			"sampleCount": 1753,
+			"phases": {
+				"idle": {
+					"scrollEvents": 0,
+					"offsetChanges": 0,
+					"distance": 0,
+					"directionChanges": 0,
+					"maxMountedRows": 18,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				},
+				"wheel-down": {
+					"scrollEvents": 1062,
+					"offsetChanges": 706,
+					"distance": 774480,
+					"directionChanges": 352,
+					"maxMountedRows": 27,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				},
+				"wheel-up": {
+					"scrollEvents": 1062,
+					"offsetChanges": 704,
+					"distance": 758520,
+					"directionChanges": 352,
+					"maxMountedRows": 27,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				}
+			},
+			"rAFIntervalMs": {
+				"p50": 16.7,
+				"p95": 16.7,
+				"max": 16.8,
+				"longerThan32ms": 0
+			},
+			"mountedRows": {
+				"p50": 26,
+				"max": 27
+			},
+			"coverageGapSamples": 0,
+			"maxCoverageGap": 0,
+			"inputRounds": 177
+		},
+		"memoryBytes": {
+			"heapBefore": 6389460,
+			"heapAfter": 8222876,
+			"heapDelta": 1833416
+		},
+		"memorySamples": [
+			{
+				"atMs": 0,
+				"phase": "before",
+				"heapUsedBytes": 6389460,
+				"dom": {
+					"documents": 2,
+					"nodes": 1379,
+					"jsEventListeners": 56
+				}
+			},
+			{
+				"atMs": 30002,
+				"phase": "periodic",
+				"heapUsedBytes": 9025688,
+				"dom": {
+					"documents": 2,
+					"nodes": 1451,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 60016,
+				"phase": "periodic",
+				"heapUsedBytes": 27955264,
+				"dom": {
+					"documents": 2,
+					"nodes": 5291,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 90008,
+				"phase": "periodic",
+				"heapUsedBytes": 10789300,
+				"dom": {
+					"documents": 2,
+					"nodes": 4411,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 120010,
+				"phase": "periodic",
+				"heapUsedBytes": 14379100,
+				"dom": {
+					"documents": 2,
+					"nodes": 1729,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 150008,
+				"phase": "periodic",
+				"heapUsedBytes": 17521716,
+				"dom": {
+					"documents": 2,
+					"nodes": 3363,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 180006,
+				"phase": "periodic",
+				"heapUsedBytes": 29640400,
+				"dom": {
+					"documents": 2,
+					"nodes": 5309,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 181511,
+				"phase": "pre-gc",
+				"heapUsedBytes": 16001332,
+				"dom": {
+					"documents": 2,
+					"nodes": 1801,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 181564,
+				"phase": "after-gc",
+				"heapUsedBytes": 8222876,
+				"dom": {
+					"documents": 2,
+					"nodes": 1379,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 181744,
+				"phase": "after-dispose-gc",
+				"heapUsedBytes": 8283396,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 89
+				}
+			}
+		],
+		"domBefore": {
+			"documents": 2,
+			"nodes": 1379,
+			"jsEventListeners": 56
+		},
+		"domAfter": {
+			"documents": 2,
+			"nodes": 1379,
+			"jsEventListeners": 70
+		},
+		"pageErrors": [],
+		"baseUrl": "http://localhost:5219/"
+	},
+	"web-fixed": {
+		"schema": "xplat.virtual-list-input.v1",
+		"target": "web",
+		"fixture": {
+			"mode": "fixed48",
+			"rows": 5000,
+			"viewportHeight": 413,
+			"contentHeight": 240000,
+			"initialRowHeights": [48, 48, 48, 48, 48, 48, 48, 48]
+		},
+		"input": "Playwright mouse-wheel events; emulated input, not physical trackpad",
+		"trace": {
+			"durationMs": 16393,
+			"sampleCount": 159,
+			"phases": {
+				"idle": {
+					"scrollEvents": 0,
+					"offsetChanges": 0,
+					"distance": 0,
+					"directionChanges": 0,
+					"maxMountedRows": 18,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				},
+				"wheel-down": {
+					"scrollEvents": 90,
+					"offsetChanges": 64,
+					"distance": 64680,
+					"directionChanges": 28,
+					"maxMountedRows": 27,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				},
+				"wheel-up": {
+					"scrollEvents": 90,
+					"offsetChanges": 59,
+					"distance": 62160,
+					"directionChanges": 28,
+					"maxMountedRows": 27,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				}
+			},
+			"rAFIntervalMs": {
+				"p50": 16.7,
+				"p95": 16.8,
+				"max": 16.8,
+				"longerThan32ms": 0
+			},
+			"mountedRows": {
+				"p50": 27,
+				"max": 27
+			},
+			"coverageGapSamples": 0,
+			"maxCoverageGap": 0,
+			"inputRounds": 15
+		},
+		"memoryBytes": {
+			"heapBefore": 6308388,
+			"heapAfter": 6466348,
+			"heapDelta": 157960
+		},
+		"memorySamples": [
+			{
+				"atMs": 0,
+				"phase": "before",
+				"heapUsedBytes": 6308388,
+				"dom": {
+					"documents": 2,
+					"nodes": 435,
+					"jsEventListeners": 69
+				}
+			},
+			{
+				"atMs": 16387,
+				"phase": "pre-gc",
+				"heapUsedBytes": 8734976,
+				"dom": {
+					"documents": 2,
+					"nodes": 3349,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 16434,
+				"phase": "after-gc",
+				"heapUsedBytes": 6466348,
+				"dom": {
+					"documents": 2,
+					"nodes": 435,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 16649,
+				"phase": "after-dispose-gc",
+				"heapUsedBytes": 7279128,
+				"dom": {
+					"documents": 2,
+					"nodes": 1381,
+					"jsEventListeners": 89
+				}
+			}
+		],
+		"domBefore": {
+			"documents": 2,
+			"nodes": 435,
+			"jsEventListeners": 69
+		},
+		"domAfter": {
+			"documents": 2,
+			"nodes": 435,
+			"jsEventListeners": 70
+		},
+		"pageErrors": [],
+		"baseUrl": "http://localhost:5219/"
+	},
+	"web-deep": {
+		"schema": "octane-xplat.virtual-list-profile.v1",
+		"target": "web",
+		"fixture": {
+			"rowCount": 5000,
+			"rowHeightPattern": "32 + (index % 5) * 8",
+			"totalContentHeight": 240000
+		},
+		"trace": {
+			"direction": "forward-reverse-plus-deep-seeks",
+			"streamFrames": 501,
+			"deepSeekCount": 5,
+			"stepsPerDirection": 250,
+			"intervalMs": 16,
+			"stepUnits": 48,
+			"streamRange": [0, 12000],
+			"seekOffsets": [59775, 119550, 179325, 236709, 0]
+		},
+		"viewportHeight": 441,
+		"durationMs": 9464.9,
+		"streamFrameIntervalMs": {
+			"samples": 500,
+			"p50": 17.1,
+			"p95": 18.4,
+			"max": 25.7
+		},
+		"stream": {
+			"frames": 501,
+			"laggedFrames": 0,
+			"readyFrames": 501
+		},
+		"deepSeekLatencyMs": {
+			"samples": 2,
+			"p50": 33.7,
+			"p95": 34.3,
+			"max": 34.3,
+			"timeouts": 3,
+			"timeoutOffsets": [119550, 179325, 236709],
+			"results": [
+				{
+					"requestedOffset": 59775,
+					"actualOffset": 59815,
+					"offsetError": 40,
+					"viewportHeight": 441,
+					"mountedCount": 28,
+					"mountedRange": [1237, 1265],
+					"expectedVisibleRange": [1245, 1255],
+					"polls": 2,
+					"latencyMs": 34.3,
+					"status": "ready"
+				},
+				{
+					"requestedOffset": 119550,
+					"actualOffset": 119609,
+					"offsetError": 59,
+					"viewportHeight": 441,
+					"mountedCount": 28,
+					"mountedRange": [2482, 2510],
+					"expectedVisibleRange": [2490, 2500],
+					"polls": 15,
+					"latencyMs": null,
+					"status": "timeout"
+				},
+				{
+					"requestedOffset": 179325,
+					"actualOffset": 179494,
+					"offsetError": 169,
+					"viewportHeight": 441,
+					"mountedCount": 28,
+					"mountedRange": [3727, 3755],
+					"expectedVisibleRange": [3736, 3746],
+					"polls": 15,
+					"latencyMs": null,
+					"status": "timeout"
+				},
+				{
+					"requestedOffset": 236709,
+					"actualOffset": 236796,
+					"offsetError": 87,
+					"viewportHeight": 441,
+					"mountedCount": 28,
+					"mountedRange": [4917, 4945],
+					"expectedVisibleRange": [4931, 4941],
+					"polls": 15,
+					"latencyMs": null,
+					"status": "timeout"
+				},
+				{
+					"requestedOffset": 0,
+					"actualOffset": 0,
+					"offsetError": 0,
+					"viewportHeight": 441,
+					"mountedCount": 19,
+					"mountedRange": [0, 19],
+					"expectedVisibleRange": [0, 10],
+					"polls": 2,
+					"latencyMs": 33.7,
+					"status": "ready"
+				}
+			]
+		},
+		"mountedRows": {
+			"samples": 550,
+			"p50": 28,
+			"p95": 29,
+			"max": 29
+		},
+		"visibleCoverage": {
+			"samples": 550,
+			"gapSamples": 0,
+			"maxMissingVisibleRows": 0,
+			"missingVisibleRowsAcrossSamples": 0,
+			"maxGapUnits": 0,
+			"stream": {
+				"samples": 501,
+				"gapSamples": 0,
+				"maxMissingVisibleRows": 0,
+				"maxGapUnits": 0,
+				"worst": null
+			},
+			"deepSeeks": {
+				"samples": 49,
+				"gapSamples": 0,
+				"maxMissingVisibleRows": 0,
+				"maxGapUnits": 0,
+				"worst": null
+			}
+		},
+		"rowChurn": {
+			"mounted": 622,
+			"unmounted": 622
+		},
+		"eventLoopTimerDriftMs": {
+			"samples": 355,
+			"p50": 1.1,
+			"p95": 4.8,
+			"max": 9.7
+		},
+		"measurementNotes": [
+			"Rows mounted and unmounted are identity-set changes observed while polling; they are not native allocation timings.",
+			"The stream reports missed 16 ms offset checkpoints and visible geometry; deep-seek latency includes 16 ms polling and mounted-row readiness.",
+			"Timer drift and checkpoint intervals are JavaScript responsiveness proxies; they do not measure display frame pacing or vsync.",
+			"This scripted offset stream does not reproduce trackpad, wheel, or touch gesture physics."
+		]
+	},
+	"web-disposal20": {
+		"schema": "xplat.virtual-list-input.v1",
+		"target": "web",
+		"fixture": {
+			"mode": "variable",
+			"rows": 5000,
+			"viewportHeight": 413,
+			"contentHeight": 233333,
+			"initialRowHeights": [32, 40, 48, 56, 64, 32, 40, 48]
+		},
+		"input": "Playwright mouse-wheel events; emulated input, not physical trackpad",
+		"trace": {
+			"durationMs": 16064.5,
+			"sampleCount": 156,
+			"phases": {
+				"idle": {
+					"scrollEvents": 0,
+					"offsetChanges": 0,
+					"distance": 0,
+					"directionChanges": 0,
+					"maxMountedRows": 18,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				},
+				"wheel-down": {
+					"scrollEvents": 60,
+					"offsetChanges": 49,
+					"distance": 42000,
+					"directionChanges": 18,
+					"maxMountedRows": 27,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				},
+				"wheel-up": {
+					"scrollEvents": 60,
+					"offsetChanges": 47,
+					"distance": 44100,
+					"directionChanges": 18,
+					"maxMountedRows": 27,
+					"coverageGapSamples": 0,
+					"maxCoverageGap": 0
+				}
+			},
+			"rAFIntervalMs": {
+				"p50": 16.7,
+				"p95": 16.7,
+				"max": 16.8,
+				"longerThan32ms": 0
+			},
+			"mountedRows": {
+				"p50": 26,
+				"max": 27
+			},
+			"coverageGapSamples": 0,
+			"maxCoverageGap": 0,
+			"inputRounds": 10
+		},
+		"memoryBytes": {
+			"heapBefore": 6389480,
+			"heapAfter": 7714296,
+			"heapDelta": 1324816
+		},
+		"memorySamples": [
+			{
+				"atMs": 0,
+				"phase": "before",
+				"heapUsedBytes": 6389480,
+				"dom": {
+					"documents": 2,
+					"nodes": 1379,
+					"jsEventListeners": 56
+				}
+			},
+			{
+				"atMs": 16116,
+				"phase": "pre-gc",
+				"heapUsedBytes": 21520612,
+				"dom": {
+					"documents": 2,
+					"nodes": 4851,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 16192,
+				"phase": "after-gc",
+				"heapUsedBytes": 7714296,
+				"dom": {
+					"documents": 2,
+					"nodes": 1379,
+					"jsEventListeners": 70
+				}
+			},
+			{
+				"atMs": 16345,
+				"phase": "after-dispose-gc",
+				"heapUsedBytes": 7739184,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 89
+				}
+			},
+			{
+				"atMs": 16663,
+				"phase": "after-reopen-dispose-gc-1",
+				"heapUsedBytes": 7842624,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 88
+				}
+			},
+			{
+				"atMs": 17011,
+				"phase": "after-reopen-dispose-gc-2",
+				"heapUsedBytes": 8101348,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 88
+				}
+			},
+			{
+				"atMs": 17303,
+				"phase": "after-reopen-dispose-gc-3",
+				"heapUsedBytes": 8146740,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 88
+				}
+			},
+			{
+				"atMs": 17594,
+				"phase": "after-reopen-dispose-gc-4",
+				"heapUsedBytes": 8196396,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 17887,
+				"phase": "after-reopen-dispose-gc-5",
+				"heapUsedBytes": 8228324,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 18153,
+				"phase": "after-reopen-dispose-gc-6",
+				"heapUsedBytes": 8240136,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 18467,
+				"phase": "after-reopen-dispose-gc-7",
+				"heapUsedBytes": 8315948,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 18823,
+				"phase": "after-reopen-dispose-gc-8",
+				"heapUsedBytes": 8430208,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 88
+				}
+			},
+			{
+				"atMs": 19167,
+				"phase": "after-reopen-dispose-gc-9",
+				"heapUsedBytes": 8431372,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 19493,
+				"phase": "after-reopen-dispose-gc-10",
+				"heapUsedBytes": 8442504,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 19795,
+				"phase": "after-reopen-dispose-gc-11",
+				"heapUsedBytes": 8449952,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 20155,
+				"phase": "after-reopen-dispose-gc-12",
+				"heapUsedBytes": 8473552,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 20468,
+				"phase": "after-reopen-dispose-gc-13",
+				"heapUsedBytes": 8504580,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 20737,
+				"phase": "after-reopen-dispose-gc-14",
+				"heapUsedBytes": 8521080,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 21040,
+				"phase": "after-reopen-dispose-gc-15",
+				"heapUsedBytes": 8523944,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 21307,
+				"phase": "after-reopen-dispose-gc-16",
+				"heapUsedBytes": 8523420,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 21583,
+				"phase": "after-reopen-dispose-gc-17",
+				"heapUsedBytes": 8524504,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 21875,
+				"phase": "after-reopen-dispose-gc-18",
+				"heapUsedBytes": 8534228,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 22156,
+				"phase": "after-reopen-dispose-gc-19",
+				"heapUsedBytes": 8537232,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			},
+			{
+				"atMs": 22417,
+				"phase": "after-reopen-dispose-gc-20",
+				"heapUsedBytes": 8544420,
+				"dom": {
+					"documents": 2,
+					"nodes": 1378,
+					"jsEventListeners": 87
+				}
+			}
+		],
+		"domBefore": {
+			"documents": 2,
+			"nodes": 1379,
+			"jsEventListeners": 56
+		},
+		"domAfter": {
+			"documents": 2,
+			"nodes": 1379,
+			"jsEventListeners": 70
+		},
+		"pageErrors": [],
+		"baseUrl": "http://localhost:5219/"
+	},
+	"web-contract": [
+		{
+			"seekResults": [
+				{
+					"requestedOffset": 960,
+					"actualOffset": 960,
+					"mounted": 22
+				},
+				{
+					"requestedOffset": 10800,
+					"actualOffset": 10862,
+					"mounted": 23
+				},
+				{
+					"requestedOffset": 20000,
+					"actualOffset": 20107,
+					"mounted": 23
+				},
+				{
+					"requestedOffset": 5000,
+					"actualOffset": 4990,
+					"mounted": 23
+				},
+				{
+					"requestedOffset": 10800,
+					"actualOffset": 10786,
+					"mounted": 22
+				}
+			],
+			"prepend": {
+				"anchor": "row-r195",
+				"drift": 0.09375,
+				"before": 10715,
+				"after": 10770
+			}
+		},
+		{
+			"remeasureDrift": 0.21875,
+			"cleanup": "row window removed after empty and route disposal",
+			"errors": []
+		}
+	]
 }

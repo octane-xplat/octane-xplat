@@ -47,9 +47,9 @@ function decodeJwt(token: string): Record<string, any> {
 function toCredential(response: any): AuthCredential {
 	const auth = response?.authorization ?? {}
 	const claims = auth.id_token ? decodeJwt(auth.id_token) : {}
-	const name = [response?.user?.name?.firstName, response?.user?.name?.lastName]
-		.filter(Boolean)
-		.join(' ') || undefined
+	const name =
+		[response?.user?.name?.firstName, response?.user?.name?.lastName].filter(Boolean).join(' ') ||
+		undefined
 
 	return {
 		provider: 'apple',
@@ -101,7 +101,10 @@ export const appleAuth: AppleAuth = {
 		} catch (error) {
 			return isCancel(error)
 				? { status: 'cancelled' }
-				: { status: 'error', message: String((error as any)?.message ?? (error as any)?.error ?? error) }
+				: {
+						status: 'error',
+						message: String((error as any)?.message ?? (error as any)?.error ?? error),
+					}
 		}
 	},
 	async getCredentialState(): Promise<AppleCredentialState> {

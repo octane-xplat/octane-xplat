@@ -9,7 +9,9 @@ const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((listener) => listener())
 
 export function setThemePreference(value: ThemePreference): void {
-	if (preference === value) {return}
+	if (preference === value) {
+		return
+	}
 	preference = value
 	emit()
 }
@@ -44,7 +46,9 @@ export function onThemeSchemeChange(callback: () => void): () => void {
 }
 
 export function applyThemeClasses(view: any, base = ''): () => void {
-	const apply = () => { view.className = cx(base, themeSchemeClasses()) }
+	const apply = () => {
+		view.className = cx(base, themeSchemeClasses())
+	}
 	apply()
 	return onThemeSchemeChange(apply)
 }

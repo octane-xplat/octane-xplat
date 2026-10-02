@@ -9,15 +9,37 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // esbuild-bundled there).
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.mobile.ts',
-	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.ios.tsrx',
+	'.android.tsrx',
+	'.mobile.tsrx',
+	'.tsrx',
+	'.ios.tsx',
+	'.android.tsx',
+	'.mobile.tsx',
+	'.tsx',
+	'.ios.ts',
+	'.android.ts',
+	'.mobile.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 const WEB_EXTS = [
-	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx',
-	'.web.ts', '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+	'.web.tsrx',
+	'.tsrx',
+	'.web.tsx',
+	'.tsx',
+	'.web.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
 ]
 
 export default defineConfig(({ mode }) => {

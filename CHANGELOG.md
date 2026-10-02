@@ -112,143 +112,143 @@
 
 ### Bug Fixes
 
-- *(platform)* Create auth anchor with runtime extension
-- *(ui)* Align native stack children
-- *(ui)* Align native slider measurements
-- *(ui)* Honor variable font weight on iOS
-- *(ui)* Preserve explicit native text line heights
-- *(ui)* Size native command palette to viewport
-- *(ui)* Render native pagination pages
-- *(ui)* Keep checkbox glyph on contrast color
-- *(ui)* Align native text utility line boxes
-- *(native)* Restore workspace CSS bridge
-- *(android)* Apply custom font weights
-- *(ui)* Guard native WebView scroll handling
-- *(ui)* Position native popovers inside safe area
-- *(ui)* Auto-place unpositioned grid children
-- *(ui)* Isolate iOS tap blur bridge code by platform
+- _(platform)_ Create auth anchor with runtime extension
+- _(ui)_ Align native stack children
+- _(ui)_ Align native slider measurements
+- _(ui)_ Honor variable font weight on iOS
+- _(ui)_ Preserve explicit native text line heights
+- _(ui)_ Size native command palette to viewport
+- _(ui)_ Render native pagination pages
+- _(ui)_ Keep checkbox glyph on contrast color
+- _(ui)_ Align native text utility line boxes
+- _(native)_ Restore workspace CSS bridge
+- _(android)_ Apply custom font weights
+- _(ui)_ Guard native WebView scroll handling
+- _(ui)_ Position native popovers inside safe area
+- _(ui)_ Auto-place unpositioned grid children
+- _(ui)_ Isolate iOS tap blur bridge code by platform
 
 ## [0.7.2] - 2026-09-29
 
 ### Bug Fixes
 
-- *(ui)* Make the shared barrel extensionless
+- _(ui)_ Make the shared barrel extensionless
 
 ## [0.7.1] - 2026-09-29
 
 ### Bug Fixes
 
-- *(macos)* Converge VirtualList measurements instead of oscillating
-- *(ui)* Restore web-specific entry implementations
+- _(macos)_ Converge VirtualList measurements instead of oscillating
+- _(ui)_ Restore web-specific entry implementations
 
 ### Refactoring
 
-- *(ui)* Share web declarations with common API
+- _(ui)_ Share web declarations with common API
 
 ## [0.7.0] - 2026-09-29
 
 ### Breaking Changes
 
-- *(ui)* [**breaking**] Make ui-svg a transitive plugin dependency
-- *(ui)* [**breaking**] Draw Meter on svgview, drop the ui-canvas peer
-- *(ui)* [**breaking**] Vendor ui-svg's SVGView, dropping the ui-canvas merge
+- _(ui)_ [**breaking**] Make ui-svg a transitive plugin dependency
+- _(ui)_ [**breaking**] Draw Meter on svgview, drop the ui-canvas peer
+- _(ui)_ [**breaking**] Vendor ui-svg's SVGView, dropping the ui-canvas merge
 
 ### Features
 
-- *(cli)* Add experimental macOS AppKit target
-- *(cli)* Own experimental macOS packaging
-- *(canvas)* @octane-xplat/canvas — DOM Canvas API incl. WebGPU/WGSL
-- *(effects)* @octane-xplat/effects — platform view-effect shaders
-- *(camera)* Replace camera-plus with camera preview leaf
-- *(media)* Add optional haptics sound and audio services
-- *(ui)* Add shared VirtualList vertical foundation
-- *(macos)* Package optional app icon
-- *(ui)* Expose the supported macOS root surface
-- *(ui)* Add AppKit leaves for the shared harness surface
-- *(macos)* Run the xplat harness on AppKit
-- *(macos)* Run shared harness on AppKit
-- *(macos)* Add core web parity baseline
-- *(pager)* Extract Pager into @octane-xplat/pager
-- *(video)* Extract Video into @octane-xplat/video
-- *(linux)* Experimental WebKitGTK webview target with host bridge
-- *(cli)* Ship canonical patch set + xplat patches apply/check
-- *(linux)* Verify gjs host under real WebKitGTK in container
-- *(macos)* Make JavaScriptCore the packaged AppKit host
-- *(macos)* Run dev HMR in JavaScriptCore
-- *(platform)* Add webAuthn + authSession capabilities for passkey/auth ceremonies
-- *(ui)* Add programmatic route registration (defineRoutes/addRoutes)
-- *(cli)* Port NativeScript#11446 nested-tab-frame fix into the core patch
-- *(ui)* Add native UI affordances
-- *(linux)* Host-backed appearance, file picker, and deep links
-- *(linux)* Multi-window via host windows
-- *(windows)* Scaffold apps/windows on the upstream core platform
-- *(ui)* Port shared component leaves to the AppKit host
-- *(macos)* Populate the __xplatAppKit platform-services seam
-- *(ui)* Share Hoverable/Tooltip as passthrough leaves, add macOS hover
-- *(ui)* Impl in unsuffixed leaf, .mobile as passthrough
-- *(native-picker)* Add cross-platform native picker pilot
-- *(motion)* Add cross-platform declarative motion and values
-- *(motion)* Retain live subtrees through exit animations
-- *(typegen)* Verify published package declarations
-- *(ui)* Generate declarations with tsrx-typegen
-- *(cli)* Patch @nativescript/vite deps-bundle to alias octane
-- *(windows)* Port framework patch set to @11468 preview builds
-- *(ui)* Split shared and platform entry barrels
-- *(macos)* Windowed VirtualList and shared 5000-row benchmark on the AppKit host
-- *(picker)* Expose platform-specific controls
+- _(cli)_ Add experimental macOS AppKit target
+- _(cli)_ Own experimental macOS packaging
+- _(canvas)_ @octane-xplat/canvas — DOM Canvas API incl. WebGPU/WGSL
+- _(effects)_ @octane-xplat/effects — platform view-effect shaders
+- _(camera)_ Replace camera-plus with camera preview leaf
+- _(media)_ Add optional haptics sound and audio services
+- _(ui)_ Add shared VirtualList vertical foundation
+- _(macos)_ Package optional app icon
+- _(ui)_ Expose the supported macOS root surface
+- _(ui)_ Add AppKit leaves for the shared harness surface
+- _(macos)_ Run the xplat harness on AppKit
+- _(macos)_ Run shared harness on AppKit
+- _(macos)_ Add core web parity baseline
+- _(pager)_ Extract Pager into @octane-xplat/pager
+- _(video)_ Extract Video into @octane-xplat/video
+- _(linux)_ Experimental WebKitGTK webview target with host bridge
+- _(cli)_ Ship canonical patch set + xplat patches apply/check
+- _(linux)_ Verify gjs host under real WebKitGTK in container
+- _(macos)_ Make JavaScriptCore the packaged AppKit host
+- _(macos)_ Run dev HMR in JavaScriptCore
+- _(platform)_ Add webAuthn + authSession capabilities for passkey/auth ceremonies
+- _(ui)_ Add programmatic route registration (defineRoutes/addRoutes)
+- _(cli)_ Port NativeScript#11446 nested-tab-frame fix into the core patch
+- _(ui)_ Add native UI affordances
+- _(linux)_ Host-backed appearance, file picker, and deep links
+- _(linux)_ Multi-window via host windows
+- _(windows)_ Scaffold apps/windows on the upstream core platform
+- _(ui)_ Port shared component leaves to the AppKit host
+- _(macos)_ Populate the __xplatAppKit platform-services seam
+- _(ui)_ Share Hoverable/Tooltip as passthrough leaves, add macOS hover
+- _(ui)_ Impl in unsuffixed leaf, .mobile as passthrough
+- _(native-picker)_ Add cross-platform native picker pilot
+- _(motion)_ Add cross-platform declarative motion and values
+- _(motion)_ Retain live subtrees through exit animations
+- _(typegen)_ Verify published package declarations
+- _(ui)_ Generate declarations with tsrx-typegen
+- _(cli)_ Patch @nativescript/vite deps-bundle to alias octane
+- _(windows)_ Port framework patch set to @11468 preview builds
+- _(ui)_ Split shared and platform entry barrels
+- _(macos)_ Windowed VirtualList and shared 5000-row benchmark on the AppKit host
+- _(picker)_ Expose platform-specific controls
 
 ### Bug Fixes
 
-- *(cli)* Resolve package metadata rebase conflict
-- *(cli)* Probe codesign with a valid command
-- *(canvas)* Narrow width/height cast for the native view prop types
-- *(canvas)* Align with current NativeScript runtime
-- *(ios)* Resolve Swift target compile errors
-- *(ios)* Initialize SwiftUI view factory before registration
-- *(lint)* Allow the macOS Node-API runtime
-- *(ui)* Type openWindow results by target
-- *(macos)* Preserve previous package artifacts on publish failure
-- *(macos)* Place runtime framework in bundle framework directory
-- *(cli)* Replace macOS SEA packaging
-- *(macos)* Bundle supported LTS runtime
-- *(macos)* Pin bundled Node archive checksum
-- *(cli)* Validate installed macOS runtime layout
-- *(cli)* Preflight macOS runtime before bundling
-- *(macos)* Complete framework links before signing
-- *(macos)* Preserve framework-relative symlinks
-- *(macos)* Use defined runtime package name
-- *(macos)* Verify cached Node runtime binary
-- *(macos)* Complete framework links before signing
-- *(ui)* Honor Android safe area insets
-- *(macos)* Align shared control geometry
-- *(macos)* Match shared slider geometry
-- *(macos)* Match Stack overlay layout
-- *(macos)* Match shared text and heading metrics
-- *(macos)* Align textarea row sizing
-- *(macos)* Honor Pressable alignment props
-- *(macos)* Expand flexible stack children
-- *(cli)* Pin dep-optimizer surface in native dev preset
-- *(patches)* Route /@fs and re-export specifiers through /ns/m
-- *(macos)* Reject unsupported host API members during packaging
-- *(ui)* Named-stack pushes work on Android tab panes and pop past the iOS isLoaded stall
-- *(native)* Serve pnpm-isolated deps and device-safe CSS/CJS over /ns/m
-- *(native)* Keep sheets above the keyboard, tap-to-blur, and guard optional bridges
-- *(platform,ui)* Make link:-consumed source device-safe on native
-- *(ui)* Keep nested Tabs from re-presenting an ancestor's stack
-- *(ui)* Cover ListItem on the AppKit host
+- _(cli)_ Resolve package metadata rebase conflict
+- _(cli)_ Probe codesign with a valid command
+- _(canvas)_ Narrow width/height cast for the native view prop types
+- _(canvas)_ Align with current NativeScript runtime
+- _(ios)_ Resolve Swift target compile errors
+- _(ios)_ Initialize SwiftUI view factory before registration
+- _(lint)_ Allow the macOS Node-API runtime
+- _(ui)_ Type openWindow results by target
+- _(macos)_ Preserve previous package artifacts on publish failure
+- _(macos)_ Place runtime framework in bundle framework directory
+- _(cli)_ Replace macOS SEA packaging
+- _(macos)_ Bundle supported LTS runtime
+- _(macos)_ Pin bundled Node archive checksum
+- _(cli)_ Validate installed macOS runtime layout
+- _(cli)_ Preflight macOS runtime before bundling
+- _(macos)_ Complete framework links before signing
+- _(macos)_ Preserve framework-relative symlinks
+- _(macos)_ Use defined runtime package name
+- _(macos)_ Verify cached Node runtime binary
+- _(macos)_ Complete framework links before signing
+- _(ui)_ Honor Android safe area insets
+- _(macos)_ Align shared control geometry
+- _(macos)_ Match shared slider geometry
+- _(macos)_ Match Stack overlay layout
+- _(macos)_ Match shared text and heading metrics
+- _(macos)_ Align textarea row sizing
+- _(macos)_ Honor Pressable alignment props
+- _(macos)_ Expand flexible stack children
+- _(cli)_ Pin dep-optimizer surface in native dev preset
+- _(patches)_ Route /@fs and re-export specifiers through /ns/m
+- _(macos)_ Reject unsupported host API members during packaging
+- _(ui)_ Named-stack pushes work on Android tab panes and pop past the iOS isLoaded stall
+- _(native)_ Serve pnpm-isolated deps and device-safe CSS/CJS over /ns/m
+- _(native)_ Keep sheets above the keyboard, tap-to-blur, and guard optional bridges
+- _(platform,ui)_ Make link:-consumed source device-safe on native
+- _(ui)_ Keep nested Tabs from re-presenting an ancestor's stack
+- _(ui)_ Cover ListItem on the AppKit host
 - Restore native parity harness
-- *(parity)* Align shared heading typography
-- *(ui)* Apply NativeScript SVGView decorator without syntax transform
-- *(ui)* Emit octane/universal-native specifiers in native lib builds
-- *(create)* Bump template pins to ui/cli ^0.6.0 + octane 0.6.3
-- *(patches)* Make Octane install independent of research
-- *(ui)* Keep popover className off the native full-screen host
-- *(lint)* Add node shebang to xplat-lint bin
-- *(cli)* Probe the .mobile suffix tier in ns-vite tsconfig-paths resolution
+- _(parity)_ Align shared heading typography
+- _(ui)_ Apply NativeScript SVGView decorator without syntax transform
+- _(ui)_ Emit octane/universal-native specifiers in native lib builds
+- _(create)_ Bump template pins to ui/cli ^0.6.0 + octane 0.6.3
+- _(patches)_ Make Octane install independent of research
+- _(ui)_ Keep popover className off the native full-screen host
+- _(lint)_ Add node shebang to xplat-lint bin
+- _(cli)_ Probe the .mobile suffix tier in ns-vite tsconfig-paths resolution
 
 ### Refactoring
 
-- *(platform)* Use native default and mobile suffix
+- _(platform)_ Use native default and mobile suffix
 
 ## 0.6.0
 

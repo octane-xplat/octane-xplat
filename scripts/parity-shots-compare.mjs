@@ -28,7 +28,9 @@ function paeth(a, b, c) {
 }
 
 function decodePng(buf) {
-	if (buf.readUInt32BE(0) !== 0x89504e47) {throw new Error('not a PNG')}
+	if (buf.readUInt32BE(0) !== 0x89504e47) {
+		throw new Error('not a PNG')
+	}
 	let pos = 8
 	let w = 0
 	let h = 0
@@ -55,9 +57,13 @@ function decodePng(buf) {
 		pos += 12 + len
 	}
 
-	if (bitDepth !== 8 || interlace !== 0) {throw new Error(`unsupported PNG depth=${bitDepth} interlace=${interlace}`)}
+	if (bitDepth !== 8 || interlace !== 0) {
+		throw new Error(`unsupported PNG depth=${bitDepth} interlace=${interlace}`)
+	}
 	const channels = { 0: 1, 2: 3, 4: 2, 6: 4 }[colorType]
-	if (!channels) {throw new Error('unsupported PNG color type ' + colorType)}
+	if (!channels) {
+		throw new Error('unsupported PNG color type ' + colorType)
+	}
 	const stride = w * channels
 	const raw = inflateSync(Buffer.concat(idat))
 	const px = Buffer.alloc(h * stride)
@@ -71,11 +77,16 @@ function decodePng(buf) {
 			const up = prev[x]
 			const upLeft = x >= channels ? prev[x - channels] : 0
 			const v = row[x]
-			out[x] = filter === 0 ? v
-				: filter === 1 ? (v + left) & 0xff
-				: filter === 2 ? (v + up) & 0xff
-				: filter === 3 ? (v + ((left + up) >> 1)) & 0xff
-				: (v + paeth(left, up, upLeft)) & 0xff
+			out[x] =
+				filter === 0
+					? v
+					: filter === 1
+						? (v + left) & 0xff
+						: filter === 2
+							? (v + up) & 0xff
+							: filter === 3
+								? (v + ((left + up) >> 1)) & 0xff
+								: (v + paeth(left, up, upLeft)) & 0xff
 		}
 
 		prev = out
@@ -86,13 +97,21 @@ function decodePng(buf) {
 	for (let i = 0; i < w * h; i++) {
 		const s = i * channels
 		if (colorType === 6) {
-			rgba[i * 4] = px[s]; rgba[i * 4 + 1] = px[s + 1]; rgba[i * 4 + 2] = px[s + 2]; rgba[i * 4 + 3] = px[s + 3]
+			rgba[i * 4] = px[s]
+			rgba[i * 4 + 1] = px[s + 1]
+			rgba[i * 4 + 2] = px[s + 2]
+			rgba[i * 4 + 3] = px[s + 3]
 		} else if (colorType === 2) {
-			rgba[i * 4] = px[s]; rgba[i * 4 + 1] = px[s + 1]; rgba[i * 4 + 2] = px[s + 2]; rgba[i * 4 + 3] = 255
+			rgba[i * 4] = px[s]
+			rgba[i * 4 + 1] = px[s + 1]
+			rgba[i * 4 + 2] = px[s + 2]
+			rgba[i * 4 + 3] = 255
 		} else if (colorType === 0) {
-			rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = px[s]; rgba[i * 4 + 3] = 255
+			rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = px[s]
+			rgba[i * 4 + 3] = 255
 		} else if (colorType === 4) {
-			rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = px[s]; rgba[i * 4 + 3] = px[s + 1]
+			rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = px[s]
+			rgba[i * 4 + 3] = px[s + 1]
 		}
 	}
 
@@ -105,13 +124,17 @@ function crc32(buf) {
 		table = crc32.table = new Uint32Array(256)
 		for (let n = 0; n < 256; n++) {
 			let c = n
-			for (let k = 0; k < 8; k++) {c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1}
+			for (let k = 0; k < 8; k++) {
+				c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+			}
 			table[n] = c >>> 0
 		}
 	}
 
 	let c = 0xffffffff
-	for (let i = 0; i < buf.length; i++) {c = table[(c ^ buf[i]) & 0xff] ^ (c >>> 8)}
+	for (let i = 0; i < buf.length; i++) {
+		c = table[(c ^ buf[i]) & 0xff] ^ (c >>> 8)
+	}
 	return (c ^ 0xffffffff) >>> 0
 }
 
@@ -133,8 +156,10 @@ function encodePng({ w, h, data }) {
 	}
 
 	const ihdr = Buffer.alloc(13)
-	ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4)
-	ihdr[8] = 8; ihdr[9] = 6
+	ihdr.writeUInt32BE(w, 0)
+	ihdr.writeUInt32BE(h, 4)
+	ihdr[8] = 8
+	ihdr[9] = 6
 	return Buffer.concat([
 		Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
 		chunk('IHDR', ihdr),
@@ -149,7 +174,9 @@ function crop(img, x, y, w, h) {
 		const sy = y + row
 		for (let col = 0; col < w; col++) {
 			const sx = x + col
-			if (sx < 0 || sy < 0 || sx >= img.w || sy >= img.h) {continue}
+			if (sx < 0 || sy < 0 || sx >= img.w || sy >= img.h) {
+				continue
+			}
 			img.data.copy(out, (row * w + col) * 4, (sy * img.w + sx) * 4, (sy * img.w + sx) * 4 + 4)
 		}
 	}
@@ -170,7 +197,10 @@ for (const shot of webManifest.shots) {
 
 const macosSidecars = new Map()
 for (const shot of macosManifest.shots) {
-	macosSidecars.set(shot.file, JSON.parse(readFileSync(join(shotsDir, 'macos', shot.cellsFile), 'utf8')))
+	macosSidecars.set(
+		shot.file,
+		JSON.parse(readFileSync(join(shotsDir, 'macos', shot.cellsFile), 'utf8')),
+	)
 }
 
 // pick each cell's best shot: fully visible, nearest the top of the
@@ -179,8 +209,12 @@ function pickWeb(name) {
 	let best = null
 	for (const shot of webManifest.shots) {
 		const cell = shot.cells[name]
-		if (!cell?.visible) {continue}
-		if (!best || cell.y < best.cell.y) {best = { shot, cell }}
+		if (!cell?.visible) {
+			continue
+		}
+		if (!best || cell.y < best.cell.y) {
+			best = { shot, cell }
+		}
 	}
 
 	return best
@@ -191,28 +225,35 @@ function pickMacos(name) {
 	for (const shot of macosManifest.shots) {
 		const side = macosSidecars.get(shot.file)
 		const cell = side?.cells.find((c) => c.name === name)
-		if (!cell) {continue}
+		if (!cell) {
+			continue
+		}
 		// window coords are y-up inside the frame; fully visible iff the
 		// rect sits inside the scrollview's window rect
 		const sv = side.scrollWindow
 		const topInWindow = cell.window.y + cell.window.h
 		const scrollTopInWindow = sv.y + sv.h
-		const visible =
-			cell.window.y >= sv.y &&
-			topInWindow <= scrollTopInWindow &&
-			cell.window.w > 0
+		const visible = cell.window.y >= sv.y && topInWindow <= scrollTopInWindow && cell.window.w > 0
 
-		if (!visible) {continue}
+		if (!visible) {
+			continue
+		}
 		// distance of the cell top below the scrollview top, in points
 		const topDist = scrollTopInWindow - topInWindow
-		if (!best || topDist < best.topDist) {best = { shot, cell, side, topDist }}
+		if (!best || topDist < best.topDist) {
+			best = { shot, cell, side, topDist }
+		}
 	}
 
 	return best
 }
 
 const names = new Set()
-for (const shot of webManifest.shots) {for (const name of Object.keys(shot.cells)) {names.add(name)}}
+for (const shot of webManifest.shots) {
+	for (const name of Object.keys(shot.cells)) {
+		names.add(name)
+	}
+}
 const macosCache = new Map()
 const macosImage = (file) => {
 	if (!macosCache.has(file)) {
@@ -225,13 +266,18 @@ const macosImage = (file) => {
 const THRESHOLD = 16 // per-channel delta counted as a differing pixel
 const report = []
 const diffsDir = join(shotsDir, 'diffs')
-if (DIFFS) {mkdirSync(diffsDir, { recursive: true })}
+if (DIFFS) {
+	mkdirSync(diffsDir, { recursive: true })
+}
 
 for (const name of [...names].sort()) {
 	const webPick = pickWeb(name)
 	const macPick = pickMacos(name)
 	if (!webPick || !macPick) {
-		report.push({ name, error: !webPick ? 'not fully visible in any web shot' : 'not fully visible in any macOS shot' })
+		report.push({
+			name,
+			error: !webPick ? 'not fully visible in any web shot' : 'not fully visible in any macOS shot',
+		})
 		continue
 	}
 
@@ -270,7 +316,9 @@ for (const name of [...names].sort()) {
 		)
 
 		sumAbs += d
-		if (d > THRESHOLD) {diffPixels++}
+		if (d > THRESHOLD) {
+			diffPixels++
+		}
 		if (diffImg) {
 			diffImg[i * 4] = Math.min(255, d * 4)
 			diffImg[i * 4 + 1] = 0
@@ -300,11 +348,11 @@ for (const name of [...names].sort()) {
 if (JSON_OUT) {
 	console.log(JSON.stringify(report, null, 2))
 } else {
-	const rows = report
-		.slice()
-		.sort((a, b) => (b.diffPct ?? -1) - (a.diffPct ?? -1))
+	const rows = report.slice().sort((a, b) => (b.diffPct ?? -1) - (a.diffPct ?? -1))
 
-	console.log('fixture'.padEnd(24) + 'diff%'.padStart(7) + '  meanAbs  webSize    macosSize   sizeDelta')
+	console.log(
+		'fixture'.padEnd(24) + 'diff%'.padStart(7) + '  meanAbs  webSize    macosSize   sizeDelta',
+	)
 	for (const r of rows) {
 		if (r.error) {
 			console.log(r.name.padEnd(24) + '  ' + r.error)
@@ -315,7 +363,12 @@ if (JSON_OUT) {
 			r.name.padEnd(24) +
 				String(r.diffPct).padStart(7) +
 				String(r.meanAbs).padStart(9) +
-				'  ' + r.webSize.padEnd(10) + ' ' + r.macosSize.padEnd(10) + ' ' + r.sizeDelta,
+				'  ' +
+				r.webSize.padEnd(10) +
+				' ' +
+				r.macosSize.padEnd(10) +
+				' ' +
+				r.sizeDelta,
 		)
 	}
 

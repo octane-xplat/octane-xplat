@@ -38,7 +38,9 @@ export function createVirtualListEntries<T>(
 
 		const keyToken = JSON.stringify([typeof key, key])
 		if (seen.has(keyToken)) {
-			throw new Error(`VirtualList keyExtractor returned a duplicate key at index ${index}: ${String(key)}`)
+			throw new Error(
+				`VirtualList keyExtractor returned a duplicate key at index ${index}: ${String(key)}`,
+			)
 		}
 
 		seen.add(keyToken)
@@ -89,12 +91,7 @@ export function estimateVirtualListSizes<T>(
 		)
 
 		const cached = measurements.get(cacheKey)
-		if (
-			cached &&
-			width > 0 &&
-			cached.width > 0 &&
-			Math.abs(cached.width - width) < 0.5
-		) {
+		if (cached && width > 0 && cached.width > 0 && Math.abs(cached.width - width) < 0.5) {
 			return cached.height
 		}
 
@@ -130,7 +127,6 @@ export class VirtualListSizeIndex {
 				this.tree[parent] += this.tree[index]
 			}
 		}
-
 	}
 
 	get(index: number): number {

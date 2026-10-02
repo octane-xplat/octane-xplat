@@ -13,14 +13,14 @@
 
 ## Build matrix
 
-|                | Web                                   | iOS                                                            | Android                    |
-| -------------- | ------------------------------------- | -------------------------------------------------------------- | -------------------------- |
-| Bundler        | vite + `@octanejs/vite-plugin`        | `@nativescript/vite` + `vite-octane`                           | same                       |
-| Renderer scope | DOM renderer owns all component files | `nativeScriptRenderers` owns all component files               | same                       |
-| Entry          | `main.web.ts` → `createRoot`          | `main.native.ts` → `Application.run` + `renderNativeScriptApp` | same                       |
-| Resolver       | `.web` chain                          | `.ios`→`.mobile`→unsuffixed                                         | `.android`→`.mobile`→unsuffixed |
-| HMR            | vite dev server                       | on-device via HTTP ESM + `hmrUniversalComponent`               | same                       |
-| Output         | static site / SSR server              | `.app`/`.ipa`                                                  | `.apk`/`.aab`              |
+|                | Web                                   | iOS                                                            | Android                         |
+| -------------- | ------------------------------------- | -------------------------------------------------------------- | ------------------------------- |
+| Bundler        | vite + `@octanejs/vite-plugin`        | `@nativescript/vite` + `vite-octane`                           | same                            |
+| Renderer scope | DOM renderer owns all component files | `nativeScriptRenderers` owns all component files               | same                            |
+| Entry          | `main.web.ts` → `createRoot`          | `main.native.ts` → `Application.run` + `renderNativeScriptApp` | same                            |
+| Resolver       | `.web` chain                          | `.ios`→`.mobile`→unsuffixed                                    | `.android`→`.mobile`→unsuffixed |
+| HMR            | vite dev server                       | on-device via HTTP ESM + `hmrUniversalComponent`               | same                            |
+| Output         | static site / SSR server              | `.app`/`.ipa`                                                  | `.apk`/`.aab`                   |
 
 ## Dev loop
 

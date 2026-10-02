@@ -384,7 +384,7 @@ export async function packageMacOS(appRoot) {
 			writeInfoPlist(settings, iconPath ? 'AppIcon.icns' : null),
 		)
 
-	console.log('[macos-package] staging JavaScriptCore macOS host')
+		console.log('[macos-package] staging JavaScriptCore macOS host')
 		run('chmod', ['755', mainExecutable])
 
 		const signed = signApp({

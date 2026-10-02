@@ -74,10 +74,13 @@ export async function runDataTrace(adapter: DataTraceAdapter) {
 	await adapter.wait()
 	check('unmounted root stays empty', adapter.text(1, 'data-status') === undefined)
 	dataShared$.set(1)
-	await until(() => [0, 2, 3].every((root) =>
-		adapter.text(root, 'data-shared') === 'shared:1' &&
-		adapter.text(root, 'data-module-query') === 'module:1',
-	))
+	await until(() =>
+		[0, 2, 3].every(
+			(root) =>
+				adapter.text(root, 'data-shared') === 'shared:1' &&
+				adapter.text(root, 'data-module-query') === 'module:1',
+		),
+	)
 
 	check('module signal and query cross three roots', dataModuleRequests.join(',') === '0,1')
 	await adapter.activate?.(0)

@@ -4,8 +4,8 @@
 > through an explicit package entry point.
 
 `@octane-xplat/sheet` is the fourth Expo UI port and exercises the hardest
-bridge seam: a detached octane root hosted inside a *modal presentation in
-a separate window* — a SwiftUI `.sheet` on iOS, a `ModalBottomSheet`
+bridge seam: a detached octane root hosted inside a _modal presentation in
+a separate window_ — a SwiftUI `.sheet` on iOS, a `ModalBottomSheet`
 dialog on Android, a fixed DOM panel on web. Native implementations are
 adapted from `@expo/ui` sdk-57 (`ios/BottomSheetView.swift`,
 `android/.../ui/ModalBottomSheetView.kt`; MIT — attribution headers on the
@@ -90,7 +90,7 @@ sheet content reaches JS normally and can drive `open` back to `false`.
   `content` render fn; `detents`/`customHeight`/`customFraction` map the
   modifier registry's `presentationDetents` params directly.
 - Android: `ModalBottomSheet` + `rememberModalBottomSheetState(
-  skipPartiallyExpanded)`, `properties.shouldDismissOnBackPress`,
+skipPartiallyExpanded)`, `properties.shouldDismissOnBackPress`,
   container/content/scrim colors, `ForwardKeyEventsToActivity`. Not
   ported: imperative `hide`/`expand`/`partialExpand` handles (controlled
   `open` covers the demo's needs — escalate if a real app needs them),
@@ -107,7 +107,7 @@ sheet content reaches JS normally and can drive `open` back to `false`.
 - `ns build`'s `buildMetadata` gradle task can stay `UP-TO-DATE` and
   ship stale `com.` package metadata for a newly added plugin — the JS
   bridge then fails with `Cannot read properties of undefined (reading
-  '<ClassName>')` even though the classes are in the dex. Rerun
+'<ClassName>')` even though the classes are in the dex. Rerun
   `./gradlew app:buildMetadata --rerun-tasks` (in `platforms/android`) or
   clean to force regeneration.
 - The `XplatViewRegistry` pattern is now written twice — context-menu and

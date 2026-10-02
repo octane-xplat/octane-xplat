@@ -45,12 +45,10 @@ function run(command, args, cwd) {
 
 // Deps the consumer needs in scope — the package's declared peers plus the
 // renderer's jsx-runtime source.
-const dependencies = [
-	"@nativescript/core"
-]
+const dependencies = ['@nativescript/core']
 
 const consumers = {
-	"web": `import { IntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
+	web: `import { IntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
 const observer = new IntersectionObserver((entries, self) => {
 	const entry = entries[0]
 	const ratio: number = entry.intersectionRatio
@@ -72,7 +70,7 @@ void records
 void on
 void yes
 `,
-	"native": `import { IntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
+	native: `import { IntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
 const observer = new IntersectionObserver((entries, self) => {
 	const entry = entries[0]
 	const ratio: number = entry.intersectionRatio
@@ -94,7 +92,7 @@ void records
 void on
 void yes
 `,
-	"macos": `import { IntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
+	macos: `import { IntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
 const observer = new IntersectionObserver(() => {})
 observer.observe(null)
 observer.disconnect()
@@ -103,7 +101,7 @@ const on: boolean = result.isIntersecting
 const yes: boolean = supported
 void on
 void yes
-`
+`,
 }
 
 const extraFiles = {}
@@ -113,42 +111,21 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		]
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: ['vite/client'],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -258,10 +235,10 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
-				}
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

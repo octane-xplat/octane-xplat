@@ -48,10 +48,9 @@ describe('VirtualList size index', () => {
 	})
 
 	it('rejects duplicate item keys', () => {
-		expect(() => createVirtualListEntries(
-			[{ id: 'same' }, { id: 'same' }],
-			(item) => item.id,
-		)).toThrow('duplicate key')
+		expect(() =>
+			createVirtualListEntries([{ id: 'same' }, { id: 'same' }], (item) => item.id),
+		).toThrow('duplicate key')
 	})
 
 	it('uses a type estimate only after four rows are measured', () => {
@@ -61,10 +60,14 @@ describe('VirtualList size index', () => {
 			() => 'row',
 		)
 
-		const measurements = new Map(entries.slice(0, 3).map((entry, index) => [
-			virtualListMeasurementKey(entry.rowKey, false),
-			{ width: 100, height: 36 + index * 12 },
-		]))
+		const measurements = new Map(
+			entries
+				.slice(0, 3)
+				.map((entry, index) => [
+					virtualListMeasurementKey(entry.rowKey, false),
+					{ width: 100, height: 36 + index * 12 },
+				]),
+		)
 
 		expect(estimateVirtualListSizes(entries, false, 100, measurements)[3]).toBe(
 			VIRTUAL_LIST_ESTIMATED_ROW_SIZE,

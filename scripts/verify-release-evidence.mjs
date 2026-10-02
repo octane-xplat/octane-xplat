@@ -44,13 +44,9 @@ if (mode === 'record') {
 	assert.ok(sha, '--sha or GITHUB_SHA required')
 	assert.ok(runId, '--run-id or GITHUB_RUN_ID required')
 	const needs = JSON.parse(value('jobs') ?? '{}')
-	const jobs = Object.fromEntries(
-		REQUIRED_JOBS.map((job) => [job, needs[job]?.result ?? 'absent']),
-	)
+	const jobs = Object.fromEntries(REQUIRED_JOBS.map((job) => [job, needs[job]?.result ?? 'absent']))
 
-	const status = Object.values(jobs).every((r) => r === 'success')
-		? 'success'
-		: 'failure'
+	const status = Object.values(jobs).every((r) => r === 'success') ? 'success' : 'failure'
 
 	mkdirSync(outDir, { recursive: true })
 	const file = join(outDir, 'ci-evidence.json')
@@ -79,8 +75,7 @@ if (mode === 'verify') {
 	assert.ok(sha, '--sha required (the revision about to be released)')
 	const repo = process.env.GITHUB_REPOSITORY
 	assert.ok(repo, 'GITHUB_REPOSITORY required')
-	const gh = (path) =>
-		execFileSync('gh', ['api', path], { encoding: 'utf8' })
+	const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
 
 	let evidenceRunId = runId ? Number(runId) : null
 	if (!evidenceRunId) {
@@ -109,11 +104,9 @@ if (mode === 'verify') {
 
 	const zipPath = join(tmp, 'evidence.zip')
 	// gh api streams the zip to stdout — capture it as a raw buffer.
-	const binary = execFileSync(
-		'gh',
-		['api', `repos/${repo}/actions/artifacts/${artifact.id}/zip`],
-		{ maxBuffer: 64 * 1024 * 1024 },
-	)
+	const binary = execFileSync('gh', ['api', `repos/${repo}/actions/artifacts/${artifact.id}/zip`], {
+		maxBuffer: 64 * 1024 * 1024,
+	})
 
 	writeFileSync(zipPath, binary)
 	const unzip = spawnSync('unzip', ['-o', zipPath, '-d', tmp], { stdio: 'inherit' })
@@ -136,7 +129,8 @@ if (mode === 'verify') {
 
 	console.log(
 		`release evidence verified: CI run ${evidenceRunId} at ${sha} — ` +
-			REQUIRED_JOBS.join(', ') + ' all green',
+			REQUIRED_JOBS.join(', ') +
+			' all green',
 	)
 
 	process.exit(0)

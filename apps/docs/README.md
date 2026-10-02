@@ -21,7 +21,7 @@ Wrap a phrase in double equals signs to give it the green highlight from Sketch:
 
 ```md
 Share ==one TypeScript codebase== across targets.
-==[Prove the loop first](toolchain.md#create-and-run)==.
+\==[Prove the loop first](toolchain.md#create-and-run)==.
 ```
 
 Highlights work in paragraphs, lists, quotes, callouts, and table cells.

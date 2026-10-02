@@ -46,13 +46,13 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"@nativescript-community/ui-document-picker",
-	"@nativescript/core",
-	"@nativescript/types"
+	'@nativescript-community/ui-document-picker',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { files } from '@octane-xplat/files'
+	web: `import { files } from '@octane-xplat/files'
 const picked = files.pick('image/*')
 const ref = picked.then((file) => file?.uri)
 // @ts-expect-error readText needs a FileRef
@@ -61,7 +61,7 @@ void picked
 void ref
 void bad
 `,
-	"native": `import { files } from '@octane-xplat/files'
+	native: `import { files } from '@octane-xplat/files'
 const picked = files.pick('image/*')
 const ref = picked.then((file) => file?.uri)
 // @ts-expect-error readText needs a FileRef
@@ -70,7 +70,7 @@ void picked
 void ref
 void bad
 `,
-	"macos": `import { files } from '@octane-xplat/files'
+	macos: `import { files } from '@octane-xplat/files'
 const picked = files.pick()
 void picked
 `,
@@ -83,42 +83,21 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		]
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: ['vite/client'],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -228,10 +207,10 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
-				}
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

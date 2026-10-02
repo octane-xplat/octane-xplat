@@ -68,8 +68,11 @@ function indexAtOffset(offset: number) {
 	let high = VIRTUAL_LIST_BENCH_ROW_COUNT
 	while (low < high) {
 		const middle = Math.floor((low + high) / 2)
-		if (rowOffsets[middle + 1] <= offset) {low = middle + 1}
-		else {high = middle}
+		if (rowOffsets[middle + 1] <= offset) {
+			low = middle + 1
+		} else {
+			high = middle
+		}
 	}
 
 	return Math.min(low, VIRTUAL_LIST_BENCH_ROW_COUNT - 1)
@@ -113,13 +116,17 @@ export function createVirtualListBenchTrace() {
 }
 
 function percentile(values: number[], p: number) {
-	if (values.length === 0) {return null}
+	if (values.length === 0) {
+		return null
+	}
 	const sorted = [...values].sort((a, b) => a - b)
 	return Number(sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)].toFixed(2))
 }
 
 function summarize(values: number[]) {
-	if (values.length === 0) {return { samples: 0, p50: null, p95: null, max: null }}
+	if (values.length === 0) {
+		return { samples: 0, p50: null, p95: null, max: null }
+	}
 	return {
 		samples: values.length,
 		p50: percentile(values, 50),
@@ -133,7 +140,9 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 	const mounted = new Set(snapshot.mountedIndices)
 	let missingVisibleRows = 0
 	for (let index = start; index < end; index += 1) {
-		if (!mounted.has(index)) {missingVisibleRows += 1}
+		if (!mounted.has(index)) {
+			missingVisibleRows += 1
+		}
 	}
 
 	const visible = (snapshot.coverageBoxes ?? snapshot.rows)
@@ -147,7 +156,9 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 	let coveredUntil = 0
 	let maxGap = 0
 	for (const row of visible) {
-		if (row.top > coveredUntil) {maxGap = Math.max(maxGap, row.top - coveredUntil)}
+		if (row.top > coveredUntil) {
+			maxGap = Math.max(maxGap, row.top - coveredUntil)
+		}
 		coveredUntil = Math.max(coveredUntil, row.bottom)
 	}
 
@@ -274,21 +285,29 @@ export async function runVirtualListInputTrace(
 		previousAt = sampledAt
 		const nextMounted = new Set(snapshot.mountedIndices)
 		for (const index of nextMounted) {
-			if (!previousMounted.has(index)) {mountedRowsAdded += 1}
+			if (!previousMounted.has(index)) {
+				mountedRowsAdded += 1
+			}
 		}
 
 		for (const index of previousMounted) {
-			if (!nextMounted.has(index)) {mountedRowsRemoved += 1}
+			if (!nextMounted.has(index)) {
+				mountedRowsRemoved += 1
+			}
 		}
 
 		if (snapshot.mountedCellIds) {
 			const cells = new Set(snapshot.mountedCellIds)
 			for (const id of cells) {
-				if (!previousCells.has(id)) {cellHostsAdded++}
+				if (!previousCells.has(id)) {
+					cellHostsAdded++
+				}
 			}
 
 			for (const id of previousCells) {
-				if (!cells.has(id)) {cellHostsRemoved++}
+				if (!cells.has(id)) {
+					cellHostsRemoved++
+				}
 			}
 
 			previousCells = cells
@@ -299,7 +318,9 @@ export async function runVirtualListInputTrace(
 		mountedSamples.push(snapshot.mountedIndices.length)
 		const gap = visibleGap(snapshot)
 		gapSamples.push(gap.maxGap)
-		if (gap.overscrollGap > 1) {overscrollGapSamples += 1}
+		if (gap.overscrollGap > 1) {
+			overscrollGapSamples += 1
+		}
 		if (gap.contentGap > 1) {
 			contentGapSamples += 1
 			maxContentGap = Math.max(maxContentGap, gap.contentGap)
@@ -318,7 +339,9 @@ export async function runVirtualListInputTrace(
 	let previousDirection = 0
 	for (const delta of nonzeroMovements) {
 		const direction = Math.sign(delta)
-		if (previousDirection !== 0 && previousDirection !== direction) {directionChanges += 1}
+		if (previousDirection !== 0 && previousDirection !== direction) {
+			directionChanges += 1
+		}
 		previousDirection = direction
 	}
 
@@ -351,9 +374,14 @@ export async function runVirtualListInputTrace(
 			maxVelocity: Number(maxVelocity.toFixed(1)),
 		},
 		mountedRows: summarize(mountedSamples),
-		cellHosts: cellCounts.length ? {
-			status: 'collected', counts: summarize(cellCounts), added: cellHostsAdded, removed: cellHostsRemoved,
-		} : { status: 'not-collected' },
+		cellHosts: cellCounts.length
+			? {
+					status: 'collected',
+					counts: summarize(cellCounts),
+					added: cellHostsAdded,
+					removed: cellHostsRemoved,
+				}
+			: { status: 'not-collected' },
 		coverage: {
 			samples: gapSamples.length,
 			gapSamples: gapSamples.filter((gap) => gap > 1).length,
@@ -382,7 +410,9 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		const { start, end } = virtualListBenchVisibleRange(bounded, snapshot.viewportHeight)
 		const mounted = new Set(snapshot.mountedIndices)
 		for (let index = start; index < end; index += 1) {
-			if (!mounted.has(index)) {return false}
+			if (!mounted.has(index)) {
+				return false
+			}
 		}
 
 		return true
@@ -441,7 +471,9 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	let heartbeatStopped = false
 
 	const heartbeat = () => {
-		if (heartbeatStopped) {return}
+		if (heartbeatStopped) {
+			return
+		}
 		const firedAt = now()
 		eventLoopDriftSamples.push(Math.max(0, firedAt - heartbeatDue))
 		heartbeatDue = firedAt + 25
@@ -456,11 +488,15 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	) => {
 		const nextMounted = new Set(snapshot.mountedIndices)
 		for (const index of nextMounted) {
-			if (!previousMounted.has(index)) {mountedRowsAdded += 1}
+			if (!previousMounted.has(index)) {
+				mountedRowsAdded += 1
+			}
 		}
 
 		for (const index of previousMounted) {
-			if (!nextMounted.has(index)) {mountedRowsRemoved += 1}
+			if (!nextMounted.has(index)) {
+				mountedRowsRemoved += 1
+			}
 		}
 
 		previousMounted = nextMounted
@@ -493,12 +529,16 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		missingVisibleRows += coverage.missingVisibleRows
 		maxMissingVisibleRows = Math.max(maxMissingVisibleRows, coverage.missingVisibleRows)
 		maxVisibleGap = Math.max(maxVisibleGap, coverage.maxGap)
-		if (coverage.missingVisibleRows > 0 || coverage.maxGap > 1) {visibleGapSamples += 1}
+		if (coverage.missingVisibleRows > 0 || coverage.maxGap > 1) {
+			visibleGapSamples += 1
+		}
 	}
 
 	for (const targetOffset of trace.streamOffsets) {
 		const issuedAt = now()
-		if (previousStreamIssueAt !== null) {streamIntervalSamples.push(issuedAt - previousStreamIssueAt)}
+		if (previousStreamIssueAt !== null) {
+			streamIntervalSamples.push(issuedAt - previousStreamIssueAt)
+		}
 		previousStreamIssueAt = issuedAt
 		adapter.writeOffset(targetOffset)
 		await wait()
@@ -585,7 +625,9 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	}
 
 	heartbeatStopped = true
-	if (heartbeatTimer !== undefined) {clearTimeout(heartbeatTimer)}
+	if (heartbeatTimer !== undefined) {
+		clearTimeout(heartbeatTimer)
+	}
 	const finishedAt = now()
 
 	return {

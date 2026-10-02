@@ -45,13 +45,10 @@ function run(command, args, cwd) {
 
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
-const dependencies = [
-	"@nativescript/secure-storage",
-	"@nativescript/core"
-]
+const dependencies = ['@nativescript/secure-storage', '@nativescript/core']
 
 const consumers = {
-	"web": `import { secureStorage } from '@octane-xplat/secure-storage'
+	web: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
 const value = secureStorage.impl?.get('key')
 const write = secureStorage.impl?.set('key', 'value')
@@ -59,7 +56,7 @@ void supported
 void value
 void write
 `,
-	"native": `import { secureStorage } from '@octane-xplat/secure-storage'
+	native: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
 const value = secureStorage.impl?.get('key')
 const write = secureStorage.impl?.set('key', 'value')
@@ -67,14 +64,14 @@ void supported
 void value
 void write
 `,
-	"macos": `import { secureStorage } from '@octane-xplat/secure-storage'
+	macos: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
 const value = secureStorage.impl?.get('key')
 const write = secureStorage.impl?.set('key', 'value')
 void supported
 void value
 void write
-`
+`,
 }
 
 const extraFiles = {}
@@ -84,42 +81,21 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		]
+	web: {
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: ['vite/client'],
 	},
-	"native": {
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		]
+	native: {
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
 	},
-	"macos": {
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": []
-	}
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -229,10 +205,10 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
-				}
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

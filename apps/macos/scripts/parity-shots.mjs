@@ -43,7 +43,9 @@ createInterface({ input: host.stdout }).on('line', (line) => {
 
 function nextLine(match, timeoutMs, label) {
 	const buffered = lineQueue.findIndex((line) => match(line))
-	if (buffered >= 0) {return Promise.resolve(lineQueue.splice(buffered, 1)[0])}
+	if (buffered >= 0) {
+		return Promise.resolve(lineQueue.splice(buffered, 1)[0])
+	}
 	return new Promise((resolvePromise, reject) => {
 		const waiter = { match, resolve: resolvePromise }
 		lineWaiters.push(waiter)
@@ -56,7 +58,9 @@ function nextLine(match, timeoutMs, label) {
 
 const send = (command) => host.stdin.write(command + '\n')
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-const closed = new Promise((resolve) => host.once('close', (code, signal) => resolve({ code, signal })))
+const closed = new Promise((resolve) =>
+	host.once('close', (code, signal) => resolve({ code, signal })),
+)
 
 async function cells() {
 	send('cells')
@@ -72,7 +76,9 @@ async function waitForCapture(file, timeoutMs = 600000) {
 			// settle: a still-writing capture grows between checks
 			const size = statSync(path).size
 			await sleep(250)
-			if (existsSync(path) && statSync(path).size === size) {return}
+			if (existsSync(path) && statSync(path).size === size) {
+				return
+			}
 		}
 
 		await sleep(200)
@@ -91,8 +97,12 @@ try {
 	const first = await cells()
 	const maxTop = Math.max(0, first.docHeight - first.viewportHeight)
 	const offsets = []
-	for (let o = 0; o <= maxTop; o += STEP) {offsets.push(o)}
-	if (offsets.length === 0 || offsets[offsets.length - 1] !== maxTop) {offsets.push(maxTop)}
+	for (let o = 0; o <= maxTop; o += STEP) {
+		offsets.push(o)
+	}
+	if (offsets.length === 0 || offsets[offsets.length - 1] !== maxTop) {
+		offsets.push(maxTop)
+	}
 
 	const manifest = {
 		target: 'macos',
@@ -108,13 +118,24 @@ try {
 		const scrolled = await nextLine((l) => l.includes('[scrolled] '), 10000, 'scroll')
 		await sleep(250)
 		const frames = await cells()
-		const sidecar = { requested: offsets[i], scrollTop: JSON.parse(scrolled.slice(scrolled.indexOf('[scrolled] ') + 11)).scrollTop, ...frames }
-		writeFileSync(join(outDir, file.replace(/\.png$/, '.cells.json')), JSON.stringify(sidecar, null, 2))
+		const sidecar = {
+			requested: offsets[i],
+			scrollTop: JSON.parse(scrolled.slice(scrolled.indexOf('[scrolled] ') + 11)).scrollTop,
+			...frames,
+		}
+		writeFileSync(
+			join(outDir, file.replace(/\.png$/, '.cells.json')),
+			JSON.stringify(sidecar, null, 2),
+		)
 		// The capturer watches the window title — drop 'shot-NNN' there.
 		send('title ' + file.replace(/\.png$/, ''))
 		console.log(`[shots] macos waiting for ${file} (scrollTop=${sidecar.scrollTop})`)
 		await waitForCapture(file)
-		manifest.shots.push({ file, scrollTop: sidecar.scrollTop, cellsFile: file.replace(/\.png$/, '.cells.json') })
+		manifest.shots.push({
+			file,
+			scrollTop: sidecar.scrollTop,
+			cellsFile: file.replace(/\.png$/, '.cells.json'),
+		})
 	}
 
 	send('title parity-done')
@@ -125,7 +146,10 @@ try {
 	process.exitCode = 1
 } finally {
 	host.kill('SIGTERM')
-	const result = await Promise.race([closed, new Promise((resolve) => setTimeout(() => resolve(null), 3000))])
+	const result = await Promise.race([
+		closed,
+		new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
+	])
 	if (!result && host.exitCode === null && host.signalCode === null) {
 		host.kill('SIGKILL')
 		await closed

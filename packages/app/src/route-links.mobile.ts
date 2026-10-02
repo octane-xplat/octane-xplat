@@ -4,7 +4,9 @@ import { getStack, pushDeepLink } from '@octane-xplat/ui'
 
 let wired = false
 export function wireRouteLinks(): void {
-	if (wired) {return}
+	if (wired) {
+		return
+	}
 	wired = true
 	const pending: string[] = []
 	let scheduled = false
@@ -22,8 +24,12 @@ export function wireRouteLinks(): void {
 		}
 
 		const initial = consumeInitialUrl()
-		if (initial) {pending.unshift(initial)}
-		for (const url of pending.splice(0)) {pushDeepLink(url)}
+		if (initial) {
+			pending.unshift(initial)
+		}
+		for (const url of pending.splice(0)) {
+			pushDeepLink(url)
+		}
 	}
 
 	const schedule = () => {
@@ -33,7 +39,10 @@ export function wireRouteLinks(): void {
 		}
 	}
 
-	onDeepLink((url) => { pending.push(url); schedule() })
+	onDeepLink((url) => {
+		pending.push(url)
+		schedule()
+	})
 	Application.on(Application.launchEvent, schedule)
 	schedule()
 }

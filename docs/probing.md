@@ -47,8 +47,8 @@ and [counter](../examples/probes/counter.tsrx).
 import type { ProbeContext } from '../scripts/probe/context'
 
 export async function run(ctx: ProbeContext) {
-  ctx.assert('target selected', typeof ctx.target, 'string')
-  ctx.record('target', ctx.target)
+	ctx.assert('target selected', typeof ctx.target, 'string')
+	ctx.record('target', ctx.target)
 }
 ```
 

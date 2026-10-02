@@ -9,21 +9,27 @@ Push notifications for Octane Xplat apps over Firebase Cloud Messaging:
 One API on every target:
 
 ```ts
-import { push } from '@octane-xplat/push';
+import { push } from '@octane-xplat/push'
 
 await push.configure({
-  // web only — ignored on native, which reads google-services.json /
-  // GoogleService-Info.plist from App_Resources
-  firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
-  vapidKey: '…', // web only, required for getToken
-});
+	// web only — ignored on native, which reads google-services.json /
+	// GoogleService-Info.plist from App_Resources
+	firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
+	vapidKey: '…', // web only, required for getToken
+})
 
-const permission = await push.requestPermission();
-const token = await push.getToken();
+const permission = await push.requestPermission()
+const token = await push.getToken()
 
-push.onMessage((message) => { /* foreground messages */ });
-push.onNotificationOpen((message) => { /* taps, incl. cold-start */ });
-push.onTokenRefresh((token) => { /* rotated token — re-register server-side */ });
+push.onMessage((message) => {
+	/* foreground messages */
+})
+push.onNotificationOpen((message) => {
+	/* taps, incl. cold-start */
+})
+push.onTokenRefresh((token) => {
+	/* rotated token — re-register server-side */
+})
 ```
 
 Native config files, iOS entitlements, and the web service worker are

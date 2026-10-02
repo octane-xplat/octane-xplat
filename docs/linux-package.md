@@ -21,22 +21,22 @@ Add the Linux target to `package.json`:
 
 ```json
 {
-  "version": "1.0.0",
-  "scripts": { "build": "xplat build --targets linux" },
-  "xplat": {
-    "targets": {
-      "linux": {
-        "runtime": "webkitgtk",
-        "host": { "scheme": "my-app" },
-        "package": {
-          "applicationId": "com.example.MyApp",
-          "productName": "My App",
-          "executableName": "my-app",
-          "viteConfig": "vite.linux.config.mjs"
-        }
-      }
-    }
-  }
+	"version": "1.0.0",
+	"scripts": { "build": "xplat build --targets linux" },
+	"xplat": {
+		"targets": {
+			"linux": {
+				"runtime": "webkitgtk",
+				"host": { "scheme": "my-app" },
+				"package": {
+					"applicationId": "com.example.MyApp",
+					"productName": "My App",
+					"executableName": "my-app",
+					"viteConfig": "vite.linux.config.mjs"
+				}
+			}
+		}
+	}
 }
 ```
 
@@ -60,15 +60,24 @@ import { octane } from '@octanejs/vite-plugin'
 import { xplatBoundary } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
-  plugins: [...octane(), xplatBoundary('linux')],
-  resolve: {
-    conditions: ['linux', 'web'],
-    extensions: [
-      '.linux.tsrx', '.web.tsrx', '.tsrx',
-      '.linux.tsx', '.web.tsx', '.tsx',
-      '.linux.ts', '.web.ts', '.ts', '.mjs', '.js', '.json',
-    ],
-  },
+	plugins: [...octane(), xplatBoundary('linux')],
+	resolve: {
+		conditions: ['linux', 'web'],
+		extensions: [
+			'.linux.tsrx',
+			'.web.tsrx',
+			'.tsrx',
+			'.linux.tsx',
+			'.web.tsx',
+			'.tsx',
+			'.linux.ts',
+			'.web.ts',
+			'.ts',
+			'.mjs',
+			'.js',
+			'.json',
+		],
+	},
 })
 ```
 

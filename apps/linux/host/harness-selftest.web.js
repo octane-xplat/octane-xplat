@@ -10,7 +10,9 @@
 	const wait = async (predicate) => {
 		const deadline = Date.now() + 5000
 		while (Date.now() < deadline) {
-			if (predicate()) { return }
+			if (predicate()) {
+				return
+			}
 			await new Promise((resolve) => setTimeout(resolve, 50))
 		}
 
@@ -19,21 +21,33 @@
 
 	const text = () => document.body.textContent
 	const clickText = (label, selector = 'button, [role="button"], a') => {
-		const element = [...document.querySelectorAll(selector)].find((node) => node.textContent.trim() === label)
-		if (!element) { throw new Error(`missing action: ${label}`) }
+		const element = [...document.querySelectorAll(selector)].find(
+			(node) => node.textContent.trim() === label,
+		)
+		if (!element) {
+			throw new Error(`missing action: ${label}`)
+		}
 		element.click()
 	}
 
 	const click = (selector) => {
 		const element = document.querySelector(selector)
-		if (!element) { throw new Error(`missing element: ${selector}`) }
+		if (!element) {
+			throw new Error(`missing element: ${selector}`)
+		}
 		element.click()
 	}
 
 	const check = async (name, action) => {
 		checks++
-		try { await action(); log(`HARNESS_STEP ${name}=true`) }
-		catch (error) { failed.push(name); log(`HARNESS_STEP ${name}!=>${error.message}`); throw error }
+		try {
+			await action()
+			log(`HARNESS_STEP ${name}=true`)
+		} catch (error) {
+			failed.push(name)
+			log(`HARNESS_STEP ${name}!=>${error.message}`)
+			throw error
+		}
 	}
 
 	try {
@@ -45,7 +59,9 @@
 
 		await check('textarea', async () => {
 			const field = document.querySelector('#probe-textarea')
-			if (!field) { throw new Error('missing textarea') }
+			if (!field) {
+				throw new Error('missing textarea')
+			}
 			const before = field.offsetHeight
 			field.value = 'line one\nline two\nline three'
 			field.dispatchEvent(new Event('input', { bubbles: true }))
@@ -59,7 +75,9 @@
 
 		await check('counter-route', async () => {
 			clickText('Counter', '[role="button"]')
-			await wait(() => location.pathname === '/demos/demo/counter' && text().includes('Demo count: 0'))
+			await wait(
+				() => location.pathname === '/demos/demo/counter' && text().includes('Demo count: 0'),
+			)
 		})
 
 		await check('route-back', async () => {
@@ -70,12 +88,16 @@
 		await check('virtual-list', async () => {
 			click('#menu-vlist')
 			await wait(() => document.querySelectorAll('#vlist .vx-virtual-list-row').length > 1)
-			if (document.querySelectorAll('#vlist .vx-virtual-list-row').length >= 40) { throw new Error('unbounded virtual rows') }
+			if (document.querySelectorAll('#vlist .vx-virtual-list-row').length >= 40) {
+				throw new Error('unbounded virtual rows')
+			}
 		})
 
 		await check('virtual-list-empty', async () => {
 			click('#vl-clear')
-			await wait(() => document.querySelector('#vlist .vx-virtual-list-empty')?.textContent.includes('No rows'))
+			await wait(() =>
+				document.querySelector('#vlist .vx-virtual-list-empty')?.textContent.includes('No rows'),
+			)
 			history.back()
 			await wait(() => location.pathname === '/')
 		})
@@ -105,7 +127,9 @@
 		})
 
 		await check('no-unhandled-errors', () => {
-			if (errors.length) { throw new Error(errors.join('; ')) }
+			if (errors.length) {
+				throw new Error(errors.join('; '))
+			}
 		})
 	} catch {}
 

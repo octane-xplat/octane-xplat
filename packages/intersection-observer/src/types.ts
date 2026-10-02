@@ -46,7 +46,6 @@ export interface IntersectionObserverInit {
 	threshold?: number | number[]
 }
 
-
 /** Methods and properties shared by all platform observer implementations. */
 export interface IntersectionObserverShape {
 	/** The configured root, or `null` when using the viewport/screen. */

@@ -50,16 +50,16 @@ Both components take `value` (document HTML), `placeholder`, `editable`,
 `onSelectionChange({start, end, active})`, `onFocus`, and `onBlur`. `bind`
 hands back an imperative handle once the native surface exists:
 
-| Method | Web (tiptap) | Android (Aztec) |
-| ------ | ------------ | --------------- |
-| `getHTML()` / `setHTML(html)` | editor `getHTML` / `setContent` | `toPlainHtml` / `fromHtml` — `setHTML` resets undo history |
-| `getJSON()` / `setJSON(doc)` | tiptap `getJSON` / `setContent` | JSON bridge → HTML → Aztec; `null` until `onJSONReady(true)` |
-| `apply(format)` | `chain().focus()` commands | `toggleFormatting(AztecTextFormat…)` |
-| `linkTo(url, anchor)` / `removeLink()` | link mark commands | `AztecText.link` / `removeLink` |
-| `isActive(format)` | `editor.isActive` | `getAppliedStyles` at the selection |
-| `undo()` / `redo()` | history commands | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register |
-| `focus()` / `blur()` / `isFocused()` | editor focus | focus + soft keyboard |
-| `native` | the tiptap `Editor` | the `AztecText` view |
+| Method                                 | Web (tiptap)                    | Android (Aztec)                                                                                                     |
+| -------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `getHTML()` / `setHTML(html)`          | editor `getHTML` / `setContent` | `toPlainHtml` / `fromHtml` — `setHTML` resets undo history                                                          |
+| `getJSON()` / `setJSON(doc)`           | tiptap `getJSON` / `setContent` | JSON bridge → HTML → Aztec; `null` until `onJSONReady(true)`                                                        |
+| `apply(format)`                        | `chain().focus()` commands      | `toggleFormatting(AztecTextFormat…)`                                                                                |
+| `linkTo(url, anchor)` / `removeLink()` | link mark commands              | `AztecText.link` / `removeLink`                                                                                     |
+| `isActive(format)`                     | `editor.isActive`               | `getAppliedStyles` at the selection                                                                                 |
+| `undo()` / `redo()`                    | history commands                | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register |
+| `focus()` / `blur()` / `isFocused()`   | editor focus                    | focus + soft keyboard                                                                                               |
+| `native`                               | the tiptap `Editor`             | the `AztecText` view                                                                                                |
 
 The shared `TiptapFormat` vocabulary is the union both backends accept.
 StarterKit lacks `taskList`, `highlight`, `subscript`/`superscript`, and the

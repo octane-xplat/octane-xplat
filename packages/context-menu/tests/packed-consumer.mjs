@@ -46,14 +46,14 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"octane",
-	"@nativescript-community/octane",
-	"@nativescript/core",
-	"@nativescript/types"
+	'octane',
+	'@nativescript-community/octane',
+	'@nativescript/core',
+	'@nativescript/types',
 ]
 
 const consumers = {
-	"web": `import { ContextMenu, type ContextMenuProps } from '@octane-xplat/context-menu/web'
+	web: `import { ContextMenu, type ContextMenuProps } from '@octane-xplat/context-menu/web'
 const props: ContextMenuProps = { trigger: () => null, items: [{ id: 'copy', title: 'Copy' }] }
 const menu = <ContextMenu {...props} />
 // @ts-expect-error trigger is required
@@ -61,7 +61,7 @@ const missing = <ContextMenu />
 void menu
 void missing
 `,
-	"native": `import { SwiftUIContextMenu, type SwiftUIContextMenuProps } from '@octane-xplat/context-menu/ios'
+	native: `import { SwiftUIContextMenu, type SwiftUIContextMenuProps } from '@octane-xplat/context-menu/ios'
 import { MaterialContextMenu, type MaterialContextMenuProps } from '@octane-xplat/context-menu/android'
 const iosProps: SwiftUIContextMenuProps = { trigger: () => null, items: [{ id: 'copy', title: 'Copy' }] }
 const androidProps: MaterialContextMenuProps = { trigger: () => null, activation: 'longPress' }
@@ -73,10 +73,10 @@ void ios
 void android
 void badIos
 `,
-	"macos": `import { AppKitContextMenu, type AppKitContextMenuProps } from '@octane-xplat/context-menu/macos'
+	macos: `import { AppKitContextMenu, type AppKitContextMenuProps } from '@octane-xplat/context-menu/macos'
 const menu = <AppKitContextMenu trigger={() => null} />
 void menu
-`
+`,
 }
 
 const extraFiles = {}
@@ -86,53 +86,27 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	"web": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [],
-		"subpaths": [
-			"./web"
-		]
+	web: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.web', ''],
+		customConditions: ['web'],
+		types: [],
+		subpaths: ['./web'],
 	},
-	"native": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"types": [
-			"@nativescript/types"
-		],
-		"subpaths": [
-			"./ios",
-			"./android"
-		]
+	native: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+		customConditions: ['native'],
+		types: ['@nativescript/types'],
+		subpaths: ['./ios', './android'],
 	},
-	"macos": {
-		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
-		"customConditions": [
-			"macos"
-		],
-		"types": [],
-		"subpaths": [
-			"./macos"
-		]
-	}
+	macos: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+		subpaths: ['./macos'],
+	},
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -244,15 +218,15 @@ try {
 
 			for (const mode of [
 				{
-					"name": "bundler",
-					"module": "esnext",
-					"moduleResolution": "bundler"
+					name: 'bundler',
+					module: 'esnext',
+					moduleResolution: 'bundler',
 				},
 				{
-					"name": "nodenext",
-					"module": "nodenext",
-					"moduleResolution": "nodenext"
-				}
+					name: 'nodenext',
+					module: 'nodenext',
+					moduleResolution: 'nodenext',
+				},
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}

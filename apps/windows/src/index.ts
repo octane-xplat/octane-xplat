@@ -197,12 +197,19 @@ setTimeout(() => {
 // later one — layer order beats specificity, so 0.35 wins. The unlayered
 // class rule beats the layered id selector on layer-unlayered-probe.
 setTimeout(() => {
-	const hex = (c: any) => (c && typeof c === 'object' ? (c.hex ?? String(c)) : String(c))?.toLowerCase?.()
+	const hex = (c: any) =>
+		(c && typeof c === 'object' ? (c.hex ?? String(c)) : String(c))?.toLowerCase?.()
 	const lp = find('layer-probe')
 	const up = find('layer-unlayered-probe')
-	console.log('[probe] layer-probe=' + (lp ? lp.constructor.name : 'none') + ' opacity=' + lp?.opacity)
+	console.log(
+		'[probe] layer-probe=' + (lp ? lp.constructor.name : 'none') + ' opacity=' + lp?.opacity,
+	)
 	assertEq('layer order beats specificity', lp?.opacity, 0.35)
-	assertEq('unlayered beats layered', hex(up?.style?.backgroundColor ?? up?.backgroundColor), '#22c55e')
+	assertEq(
+		'unlayered beats layered',
+		hex(up?.style?.backgroundColor ?? up?.backgroundColor),
+		'#22c55e',
+	)
 }, 1650)
 
 // Smooth corners (decision #38): uniform-radius classes take the
@@ -327,7 +334,9 @@ const dumpChips = () => {
 				' recog=' +
 				(nv?.gestureRecognizers?.count ?? (nv ? 'android' : 'no-native')) +
 				' loc=' +
-				(loc && size ? `${Math.round(loc.x)},${Math.round(loc.y)} ${Math.round(size.width)}x${Math.round(size.height)}` : 'n/a') +
+				(loc && size
+					? `${Math.round(loc.x)},${Math.round(loc.y)} ${Math.round(size.width)}x${Math.round(size.height)}`
+					: 'n/a') +
 				' uie=' +
 				(nv?.isUserInteractionEnabled ?? nv?.isClickable?.() ?? '?'),
 		)
@@ -363,14 +372,20 @@ const dumpChips = () => {
 			let chain = ''
 			let cur = hit
 			for (let i = 0; cur && i < 6; i++) {
-				const desc = String(cur.description ?? cur).replace(/<|>/g, '').split(':')[0]
+				const desc = String(cur.description ?? cur)
+					.replace(/<|>/g, '')
+					.split(':')[0]
 				chain += ' < ' + desc
 				cur = cur.superview
 			}
 
 			console.log(
 				'[probe] chip hitTest=' +
-					(hit === chip.ios ? 'chip' : hit === chip.ios.subviews?.firstObject ? 'chip-child' : 'other') +
+					(hit === chip.ios
+						? 'chip'
+						: hit === chip.ios.subviews?.firstObject
+							? 'chip-child'
+							: 'other') +
 					' hitIsDescendantOfChip=' +
 					(hit?.isDescendantOfView?.(chip.ios) ?? '?') +
 					' chain=' +
@@ -402,7 +417,9 @@ const dumpChips = () => {
 							k.constructor.name +
 							(k.id ? '#' + k.id : '') +
 							(k.className ? '.' + k.className : '') +
-							(l && s ? `@${Math.round(l.x)},${Math.round(l.y)} ${Math.round(s.width)}x${Math.round(s.height)}` : '') +
+							(l && s
+								? `@${Math.round(l.x)},${Math.round(l.y)} ${Math.round(s.width)}x${Math.round(s.height)}`
+								: '') +
 							' recog=' +
 							(k.ios ? (k.ios.gestureRecognizers?.count ?? 0) : k.android ? 'a' : '?')
 						)
@@ -426,7 +443,10 @@ const dumpChips = () => {
 
 		console.log(
 			'[tapview] ' +
-				((w as any).id ?? (typeof (w as any).text === 'string' ? JSON.stringify((w as any).text.slice(0, 18)) : (w as any).constructor.name)) +
+				((w as any).id ??
+					(typeof (w as any).text === 'string'
+						? JSON.stringify((w as any).text.slice(0, 18))
+						: (w as any).constructor.name)) +
 				' loc=' +
 				`${Math.round(loc.x)},${Math.round(loc.y)} ${Math.round(size.width)}x${Math.round(size.height)}` +
 				' loaded=' +
@@ -906,30 +926,31 @@ if (Application.android) {
 				}
 
 				f.notify({ eventName: 'textChange', object: f, value: 'abcdef' } as any)
-		waitFor(
-			() => f.text === 'abcdef',
-			() => {
-				et.setSelection(1)
-				f.notify({ eventName: 'textChange', object: f, value: 'abcXYZ' } as any)
 				waitFor(
-					() => f.text === 'abcXYZ',
+					() => f.text === 'abcdef',
 					() => {
-						const sel = et.getSelectionStart()
+						et.setSelection(1)
+						f.notify({ eventName: 'textChange', object: f, value: 'abcXYZ' } as any)
+						waitFor(
+							() => f.text === 'abcXYZ',
+							() => {
+								const sel = et.getSelectionStart()
 
-						console.log(
-							'[assert] android setText cursor: ' +
-								(sel === 1 ? 'OK' : 'FAIL') +
-								' (sel was 1 → ' +
-								sel +
-								', text len 6)',
+								console.log(
+									'[assert] android setText cursor: ' +
+										(sel === 1 ? 'OK' : 'FAIL') +
+										' (sel was 1 → ' +
+										sel +
+										', text len 6)',
+								)
+
+								f.notify({ eventName: 'textChange', object: f, value: 'typed!' } as any)
+							},
 						)
-
-						f.notify({ eventName: 'textChange', object: f, value: 'typed!' } as any)
 					},
 				)
 			},
 		)
-		})
 	}, 11500)
 
 	// a11y prop mapping (800f0361): Pressable accessibilityLabel →
@@ -1089,9 +1110,7 @@ if (Application.android) {
 													navigate('demo/:id', { id: 'controls' }, { into: 'demos' })
 													waitFor(
 														() =>
-															collect(tabView()).some(
-																(v) => v?.constructor?.name === 'SVGView',
-															),
+															collect(tabView()).some((v) => v?.constructor?.name === 'SVGView'),
 														() => {
 															const svgs = collect(tabView()).filter(
 																(v) => v?.constructor?.name === 'SVGView',
@@ -1104,7 +1123,9 @@ if (Application.android) {
 
 															console.log(
 																'[assert] icon svgview glyphs: ' +
-																	(svgs.length >= 2 && sized.length === svgs.length ? 'OK' : 'FAIL') +
+																	(svgs.length >= 2 && sized.length === svgs.length
+																		? 'OK'
+																		: 'FAIL') +
 																	` (${svgs.length} svgview, ${sized.length} sized)`,
 															)
 
@@ -1152,8 +1173,11 @@ if (Application.android) {
 		const frame = getStack('root') as any
 		const poll = (condition: () => boolean, done: () => void, tries = 80) => {
 			const tick = () => {
-				if (condition() || --tries <= 0) {done()}
-				else {setTimeout(tick, 100)}
+				if (condition() || --tries <= 0) {
+					done()
+				} else {
+					setTimeout(tick, 100)
+				}
 			}
 
 			tick()
@@ -1392,7 +1416,8 @@ import('@octane-xplat/media').then(({ media }) => {
 		try {
 			const p = await media.capturePhoto()
 			console.log(
-				'[assert] capturePhoto: ' + (p ? 'OK (' + p.name + ')' : 'INFO (null — cancelled or unsupported)'),
+				'[assert] capturePhoto: ' +
+					(p ? 'OK (' + p.name + ')' : 'INFO (null — cancelled or unsupported)'),
 			)
 		} catch (e) {
 			console.log('[assert] capturePhoto: FAIL ' + (e as Error).message)

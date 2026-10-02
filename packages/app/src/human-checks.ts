@@ -43,9 +43,9 @@ export const QA_TRIGGERS: Record<string, { label: string; hold?: boolean }> = {
 	'haptic-preset': { label: 'Fire preset' },
 	'haptic-pattern': { label: 'Fire pattern' },
 	'haptic-hold': { label: 'Hold for haptic', hold: true },
-	'notify': { label: 'Send notification' },
-	'share': { label: 'Share sheet' },
-	'biometric': { label: 'Biometric prompt' },
+	notify: { label: 'Send notification' },
+	share: { label: 'Share sheet' },
+	biometric: { label: 'Biometric prompt' },
 }
 
 const MOBILE: QaTarget[] = ['ios', 'android']
@@ -87,7 +87,8 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		device: 'physical',
 		targets: MOBILE,
 		steps: ['Tap "Play track".', 'Lock the screen or switch to another app.'],
-		expect: 'Playback continues; lock-screen/notification transport shows the track title and works.',
+		expect:
+			'Playback continues; lock-screen/notification transport shows the track title and works.',
 		triggers: ['audio-play'],
 	},
 	{
@@ -96,8 +97,12 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		sense: 'ears',
 		device: 'physical',
 		targets: MOBILE,
-		steps: ['Start "Play track".', 'Trigger an interruption — phone call, or play audio in another app.'],
-		expect: 'Playback pauses on interruption; resume behavior follows platform convention. UI sounds never steal media focus.',
+		steps: [
+			'Start "Play track".',
+			'Trigger an interruption — phone call, or play audio in another app.',
+		],
+		expect:
+			'Playback pauses on interruption; resume behavior follows platform convention. UI sounds never steal media focus.',
 		triggers: ['audio-play'],
 	},
 
@@ -162,7 +167,10 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		id: 'sheet-drag',
 		title: 'Sheet drag + detents',
 		sense: 'hands',
-		steps: ['Open a sheet (Overlays demo, or Test tab → Open sheet).', 'Drag the grabber slowly; flick it up and down.'],
+		steps: [
+			'Open a sheet (Overlays demo, or Test tab → Open sheet).',
+			'Drag the grabber slowly; flick it up and down.',
+		],
 		expect: 'The panel tracks the finger, snaps to detents, and dismisses on a downward fling.',
 		demo: 'overlay',
 	},
@@ -172,7 +180,8 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		sense: 'hands',
 		targets: MOBILE,
 		steps: ['Open the Controls demo and tap a text field.', 'Type, then press the return key.'],
-		expect: 'Keyboard opens, the field stays visible above it, and the return key performs its action.',
+		expect:
+			'Keyboard opens, the field stays visible above it, and the return key performs its action.',
 		demo: 'controls',
 	},
 	{
@@ -248,7 +257,8 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		sense: 'eyes',
 		targets: MEDIA_TARGETS,
 		steps: ['Open the WebView demo.'],
-		expect: 'Real page content renders inside the frame (interior pixels are engine-owned — judge the frame + load, not parity).',
+		expect:
+			'Real page content renders inside the frame (interior pixels are engine-owned — judge the frame + load, not parity).',
 		demo: 'webview',
 	},
 	{
@@ -257,7 +267,10 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		sense: 'eyes',
 		device: 'physical',
 		targets: MOBILE,
-		steps: ['Tap "Send notification" and grant permission.', 'Background the app within a few seconds.'],
+		steps: [
+			'Tap "Send notification" and grant permission.',
+			'Background the app within a few seconds.',
+		],
 		expect: 'A banner appears over the lock screen or the foreground app.',
 		triggers: ['notify'],
 	},

@@ -27,10 +27,19 @@ if (existsSync(dir)) {
 
 const targetsArg = process.argv.find((arg) => arg.startsWith('--targets='))
 const requestedTargets = targetsArg
-	? [...new Set(targetsArg.slice('--targets='.length).split(',').map((target) => target.trim()).filter(Boolean))]
+	? [
+			...new Set(
+				targetsArg
+					.slice('--targets='.length)
+					.split(',')
+					.map((target) => target.trim())
+					.filter(Boolean),
+			),
+		]
 	: null
 
-const unknownTargets = requestedTargets?.filter((target) => !['web', 'ios', 'android', 'macos'].includes(target)) ?? []
+const unknownTargets =
+	requestedTargets?.filter((target) => !['web', 'ios', 'android', 'macos'].includes(target)) ?? []
 if (unknownTargets.length) {
 	console.error(`[parity] unknown target(s): ${unknownTargets.join(', ')}`)
 	process.exit(1)
@@ -52,7 +61,10 @@ if (targets.length === 0) {
 // rgb()/rgba()/hex → canonical '#rrggbb' so 'rgb(59, 130, 246)' and
 // '#3b82f6' compare equal across engines.
 const normalizeColor = (value) => {
-	const rgb = /^rgba?\(\s*([^,\s)]+)[,\s]+([^,\s)]+)[,\s]+([^,/\s)]+)(?:\s*[,/]\s*([^,\s)]+))?\s*\)$/i.exec(value)
+	const rgb =
+		/^rgba?\(\s*([^,\s)]+)[,\s]+([^,\s)]+)[,\s]+([^,/\s)]+)(?:\s*[,/]\s*([^,\s)]+))?\s*\)$/i.exec(
+			value,
+		)
 	if (rgb) {
 		const channel = (part) => {
 			const parsed = Number.parseFloat(part)
@@ -80,7 +92,9 @@ const normalizeColor = (value) => {
 	}
 
 	const expanded = hex.length <= 4 ? [...hex].map((digit) => digit + digit).join('') : hex
-	return expanded.length === 8 && expanded.endsWith('ff') ? `#${expanded.slice(0, 6)}` : `#${expanded}`
+	return expanded.length === 8 && expanded.endsWith('ff')
+		? `#${expanded.slice(0, 6)}`
+		: `#${expanded}`
 }
 
 const normValue = (v, facet) => {
@@ -93,8 +107,12 @@ const normValue = (v, facet) => {
 	}
 
 	if (facet.endsWith('.style.fontWeight')) {
-		if (v.trim().toLowerCase() === 'normal') {return 400}
-		if (v.trim().toLowerCase() === 'bold') {return 700}
+		if (v.trim().toLowerCase() === 'normal') {
+			return 400
+		}
+		if (v.trim().toLowerCase() === 'bold') {
+			return 700
+		}
 	}
 
 	const color = normalizeColor(v)
@@ -117,7 +135,9 @@ function equalValue(a, b, tolerance = NEAR) {
 	}
 
 	if (Array.isArray(a) && Array.isArray(b)) {
-		return a.length === b.length && a.every((value, index) => equalValue(value, b[index], tolerance))
+		return (
+			a.length === b.length && a.every((value, index) => equalValue(value, b[index], tolerance))
+		)
 	}
 
 	return a === b
@@ -159,7 +179,9 @@ const report = (ok, label, detail = '') => {
 }
 
 for (const def of CHECKS) {
-	const applicableTargets = def.targets ? targets.filter((target) => def.targets.includes(target)) : targets
+	const applicableTargets = def.targets
+		? targets.filter((target) => def.targets.includes(target))
+		: targets
 	const equalityTargets = def.equalTargets
 		? applicableTargets.filter((target) => def.equalTargets.includes(target))
 		: applicableTargets

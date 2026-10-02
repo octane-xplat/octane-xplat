@@ -16,13 +16,11 @@ const accessibilityRoles = new Map()
 const scrollHandlers = new WeakMap()
 let nextActionId = 1
 const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
-const injectedGeistFontBase64 = typeof __XPLAT_GEIST_FONT_BASE64__ === 'string'
-	? __XPLAT_GEIST_FONT_BASE64__
-	: null
+const injectedGeistFontBase64 =
+	typeof __XPLAT_GEIST_FONT_BASE64__ === 'string' ? __XPLAT_GEIST_FONT_BASE64__ : null
 
-const injectedGeistLicense = typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string'
-	? __XPLAT_GEIST_FONT_LICENSE__
-	: null
+const injectedGeistLicense =
+	typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string' ? __XPLAT_GEIST_FONT_LICENSE__ : null
 
 let geistLicenseText
 const geistFontDescriptors = new Map()
@@ -64,16 +62,22 @@ function loadBundledGeistFonts() {
 	const fontBytes = injectedGeistFontBase64
 		? Buffer.from(injectedGeistFontBase64, 'base64')
 		: (() => {
-			const path = sourceFontPath('Geist-Variable.ttf')
-			return path ? readFileSync(path) : null
-		})()
+				const path = sourceFontPath('Geist-Variable.ttf')
+				return path ? readFileSync(path) : null
+			})()
 
-	if (!fontBytes) {throw new Error('Could not find the bundled Geist font asset')}
-	const licenseText = injectedGeistLicense ?? (() => {
-		const path = sourceFontPath('OFL.txt')
-		if (!path) {throw new Error('Could not find the Geist font license')}
-		return readFileSync(path, 'utf8')
-	})()
+	if (!fontBytes) {
+		throw new Error('Could not find the bundled Geist font asset')
+	}
+	const licenseText =
+		injectedGeistLicense ??
+		(() => {
+			const path = sourceFontPath('OFL.txt')
+			if (!path) {
+				throw new Error('Could not find the Geist font license')
+			}
+			return readFileSync(path, 'utf8')
+		})()
 
 	geistLicenseText = licenseText
 	const digest = createHash('sha256').update(fontBytes).digest('hex')
@@ -81,8 +85,12 @@ function loadBundledGeistFonts() {
 	const fontPath = join(fontDirectory, `Geist-Variable-${digest}.ttf`)
 	const licensePath = join(fontDirectory, 'Geist-OFL.txt')
 	mkdirSync(fontDirectory, { recursive: true })
-	if (!existsSync(fontPath)) {writeFileSync(fontPath, fontBytes)}
-	if (!existsSync(licensePath)) {writeFileSync(licensePath, licenseText, 'utf8')}
+	if (!existsSync(fontPath)) {
+		writeFileSync(fontPath, fontBytes)
+	}
+	if (!existsSync(licensePath)) {
+		writeFileSync(licensePath, licenseText, 'utf8')
+	}
 
 	const descriptors = CTFontManagerCreateFontDescriptorsFromURL(NSURL.fileURLWithPath(fontPath))
 	for (let index = 0; index < Number(descriptors?.count ?? 0); index++) {
@@ -115,7 +123,9 @@ loadBundledGeistFonts()
 
 function invokeAction(actionId) {
 	const action = actionHandlers.get(actionId)
-	if (action) {action()}
+	if (action) {
+		action()
+	}
 }
 
 class ButtonActionTarget extends NSObject {
@@ -147,7 +157,9 @@ class ButtonActionTarget extends NSObject {
 
 	viewPanned(sender) {
 		const handler = panHandlersByView.get(sender.view)
-		if (!handler) {return}
+		if (!handler) {
+			return
+		}
 
 		const translation = sender.translationInView(sender.view)
 		const nativeState = Number(sender.state)
@@ -169,7 +181,6 @@ class ButtonActionTarget extends NSObject {
 		syncTextViewPlaceholder(node)
 		invokeAction(actionIdsByView.get(notification.object))
 	}
-
 }
 
 const buttonActionTarget = ButtonActionTarget.new()
@@ -200,7 +211,9 @@ class AccessibleStackView extends NSStackView {
 
 	accessibilityPerformPress() {
 		const actionId = actionIdsByView.get(this)
-		if (actionId === undefined || !actionHandlers.has(actionId)) {return false}
+		if (actionId === undefined || !actionHandlers.has(actionId)) {
+			return false
+		}
 		invokeAction(actionId)
 		return true
 	}
@@ -246,15 +259,21 @@ class GridLayoutView extends NSView {
 	}
 
 	accessibilityValue() {
-		return NSNumber.numberWithDouble(Number(gridLayoutNodesByView.get(this)?.props.accessibilityValue ?? 0))
+		return NSNumber.numberWithDouble(
+			Number(gridLayoutNodesByView.get(this)?.props.accessibilityValue ?? 0),
+		)
 	}
 
 	accessibilityMinValue() {
-		return NSNumber.numberWithDouble(Number(gridLayoutNodesByView.get(this)?.props.accessibilityMinValue ?? 0))
+		return NSNumber.numberWithDouble(
+			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMinValue ?? 0),
+		)
 	}
 
 	accessibilityMaxValue() {
-		return NSNumber.numberWithDouble(Number(gridLayoutNodesByView.get(this)?.props.accessibilityMaxValue ?? 100))
+		return NSNumber.numberWithDouble(
+			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMaxValue ?? 100),
+		)
 	}
 
 	accessibilityIsIgnored() {
@@ -298,9 +317,10 @@ function makeStack(props, StackClass = NSStackView) {
 		size: { width: 480, height: 320 },
 	})
 
-	stack.orientation = props.flexDirection === 'row'
-		? NSUserInterfaceLayoutOrientation.Horizontal
-		: NSUserInterfaceLayoutOrientation.Vertical
+	stack.orientation =
+		props.flexDirection === 'row'
+			? NSUserInterfaceLayoutOrientation.Horizontal
+			: NSUserInterfaceLayoutOrientation.Vertical
 
 	stack.alignment = stackAlignmentAttribute(stack, props.alignItems ?? 'stretch')
 	stack.distribution = NSStackViewDistribution.GravityAreas
@@ -311,33 +331,51 @@ function makeStack(props, StackClass = NSStackView) {
 
 function stackAlignmentAttribute(view, value) {
 	const horizontal = view.orientation === NSUserInterfaceLayoutOrientation.Horizontal
-	if (value === 'center') {return horizontal ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX}
-	if (value === 'end' || value === 'flex-end') {return horizontal ? NSLayoutAttribute.Bottom : NSLayoutAttribute.Right}
+	if (value === 'center') {
+		return horizontal ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX
+	}
+	if (value === 'end' || value === 'flex-end') {
+		return horizontal ? NSLayoutAttribute.Bottom : NSLayoutAttribute.Right
+	}
 	if (value === 'stretch' || value === 'start' || value === 'flex-start' || value === 'normal') {
 		return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 	}
 
-	if (value === 'baseline' && horizontal) {return NSLayoutAttribute.FirstBaseline}
+	if (value === 'baseline' && horizontal) {
+		return NSLayoutAttribute.FirstBaseline
+	}
 	return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 }
 
 function stackAlignItems(node) {
 	const classes = nodeClasses(node)
-	if (classes.includes('vx-button') || classes.includes('items-center')) {return 'center'}
-	if (classes.includes('items-start')) {return 'start'}
-	if (classes.includes('items-end')) {return 'end'}
+	if (classes.includes('vx-button') || classes.includes('items-center')) {
+		return 'center'
+	}
+	if (classes.includes('items-start')) {
+		return 'start'
+	}
+	if (classes.includes('items-end')) {
+		return 'end'
+	}
 	return node.props.alignItems ?? 'stretch'
 }
 
 function stackJustifyContent(node) {
-	if (nodeClasses(node).includes('vx-button')) {return 'center'}
-	if (nodeClasses(node).includes('justify-between')) {return 'space-between'}
+	if (nodeClasses(node).includes('vx-button')) {
+		return 'center'
+	}
+	if (nodeClasses(node).includes('justify-between')) {
+		return 'space-between'
+	}
 	return node.props.justifyContent ?? 'start'
 }
 
 function updateCrossAxisConstraints(parent) {
 	const stack = parent.childHost ?? parent.view
-	if (!stack || stack.orientation == null) {return}
+	if (!stack || stack.orientation == null) {
+		return
+	}
 	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
 	const dimension = horizontal ? 'height' : 'width'
 	const alignItems = stackAlignItems(parent)
@@ -346,10 +384,14 @@ function updateCrossAxisConstraints(parent) {
 	const insets = stack.edgeInsets ?? { top: 0, left: 0, bottom: 0, right: 0 }
 	const inset = horizontal ? insets.top + insets.bottom : insets.left + insets.right
 	for (const child of parent.children) {
-		if (child.crossAxisConstraint) {child.crossAxisConstraint.active = false}
+		if (child.crossAxisConstraint) {
+			child.crossAxisConstraint.active = false
+		}
 		child.crossAxisConstraint = null
 		const childView = arrangedView(child)
-		if (alignItems !== 'stretch' || !childView || child.sizeConstraintSpecs?.[dimension]) {continue}
+		if (alignItems !== 'stretch' || !childView || child.sizeConstraintSpecs?.[dimension]) {
+			continue
+		}
 		const anchor = horizontal ? 'heightAnchor' : 'widthAnchor'
 		child.crossAxisConstraint = inset
 			? childView[anchor].constraintEqualToAnchorConstant(stack[anchor], -inset)
@@ -380,7 +422,10 @@ function arrangedView(node) {
  *  plain container: the wrapper is the arranged subview and the child pins
  *  inside it with margin-offset anchors. */
 function makeMarginHost(node) {
-	const host = NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } })
+	const host = NSView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
 	host.translatesAutoresizingMaskIntoConstraints = false
 	host.addSubview(node.view)
 	const insets = marginInsetsOf(node)
@@ -391,7 +436,9 @@ function makeMarginHost(node) {
 		node.view.bottomAnchor.constraintEqualToAnchorConstant(host.bottomAnchor, -insets.bottom),
 	]
 
-	for (const constraint of constraints) {constraint.active = true}
+	for (const constraint of constraints) {
+		constraint.active = true
+	}
 	node.marginHost = host
 	node.marginConstraints = constraints
 	return host
@@ -401,7 +448,9 @@ function makeMarginHost(node) {
  *  stack. Margins set before insert are materialized there instead. */
 function syncMarginHost(node) {
 	const parent = node.parent
-	if (!node.view || !parent) {return}
+	if (!node.view || !parent) {
+		return
+	}
 	const stack = parent.childHost ?? parent.view
 	if (typeof stack?.addViewInGravity !== 'function') {
 		// Grid children are laid out manually and already honor margins.
@@ -442,7 +491,9 @@ function syncMarginHost(node) {
 function setMarginStyle(node, name, value) {
 	const points = Number(value)
 	if (!Number.isFinite(points)) {
-		console.warn('[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value))
+		console.warn(
+			'[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value),
+		)
 		return
 	}
 
@@ -468,12 +519,20 @@ function stackGravity(parent, child) {
 	const leading = horizontal ? NSStackViewGravity.Leading : NSStackViewGravity.Top
 	const trailing = horizontal ? NSStackViewGravity.Trailing : NSStackViewGravity.Bottom
 	const justifyContent = stackJustifyContent(parent)
-	if (justifyContent === 'center') {return NSStackViewGravity.Center}
-	if (justifyContent === 'end' || justifyContent === 'flex-end') {return trailing}
+	if (justifyContent === 'center') {
+		return NSStackViewGravity.Center
+	}
+	if (justifyContent === 'end' || justifyContent === 'flex-end') {
+		return trailing
+	}
 	if (justifyContent === 'space-between') {
 		const index = parent.children.indexOf(child)
-		if (index === 0) {return leading}
-		if (index === parent.children.length - 1) {return trailing}
+		if (index === 0) {
+			return leading
+		}
+		if (index === parent.children.length - 1) {
+			return trailing
+		}
 		return NSStackViewGravity.Center
 	}
 
@@ -482,9 +541,13 @@ function stackGravity(parent, child) {
 
 function moveStackChildren(parent) {
 	const stack = parent.childHost ?? parent.view
-	if (typeof stack?.addViewInGravity !== 'function') {return}
+	if (typeof stack?.addViewInGravity !== 'function') {
+		return
+	}
 	for (const child of parent.children) {
-		if (!child.view) {continue}
+		if (!child.view) {
+			continue
+		}
 		const arranged = arrangedView(child)
 		stack.removeArrangedSubview(arranged)
 		arranged.removeFromSuperview()
@@ -497,22 +560,24 @@ function moveStackChildren(parent) {
 
 function updateStackDistribution(parent) {
 	const stack = parent.childHost ?? parent.view
-	if (stack?.orientation == null) {return}
+	if (stack?.orientation == null) {
+		return
+	}
 	if (stackJustifyContent(parent) === 'space-between') {
 		stack.distribution = NSStackViewDistribution.EqualSpacing
 		return
 	}
 
-	const grows = parent.children.some(
-		(child) => child.view && nodeClasses(child).includes('flex-1'),
-	)
+	const grows = parent.children.some((child) => child.view && nodeClasses(child).includes('flex-1'))
 
 	stack.distribution = grows ? NSStackViewDistribution.Fill : NSStackViewDistribution.GravityAreas
 }
 
 function setStackChildPriorities(parent, child) {
 	const stack = parent.childHost ?? parent.view
-	if (stack?.orientation == null || !child.view) {return}
+	if (stack?.orientation == null || !child.view) {
+		return
+	}
 	const mainAxis = stack.orientation
 	const grow = nodeClasses(child).includes('flex-1')
 	for (const orientation of [
@@ -610,12 +675,13 @@ function setScrollAction(node, handler) {
 
 	if (!node.scrollObserverInstalled) {
 		clipView.postsBoundsChangedNotifications = true
-		node.scrollObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSViewBoundsDidChangeNotification,
-			clipView,
-			null,
-			() => scrollHandlers.get(clipView)?.(),
-		)
+		node.scrollObserver =
+			NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+				NSViewBoundsDidChangeNotification,
+				clipView,
+				null,
+				() => scrollHandlers.get(clipView)?.(),
+			)
 
 		node.scrollObserverInstalled = true
 	}
@@ -646,7 +712,9 @@ function setScrollAction(node, handler) {
 			}
 
 			node.scrollMetrics.events.push(sample)
-			if (node.scrollMetrics.events.length > 2000) {node.scrollMetrics.events.shift()}
+			if (node.scrollMetrics.events.length > 2000) {
+				node.scrollMetrics.events.shift()
+			}
 			setTimeout(() => {
 				sample.afterEventMs = performance.now() - startedAt
 				sample.mountedRows = [...node.container.nodes.values()].filter(
@@ -667,7 +735,9 @@ const layoutHandlers = new WeakMap()
  *  rows through it. */
 function setLayoutAction(node, handler) {
 	const target = arrangedView(node)
-	if (!target || node.type === '#text' || node.type === 'span') {return}
+	if (!target || node.type === '#text' || node.type === 'span') {
+		return
+	}
 
 	if (typeof handler !== 'function') {
 		layoutHandlers.delete(target)
@@ -676,24 +746,27 @@ function setLayoutAction(node, handler) {
 
 	target.postsFrameChangedNotifications = true
 	if (!node.layoutObserver) {
-		node.layoutObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			typeof NSViewFrameDidChangeNotification !== 'undefined'
-				? NSViewFrameDidChangeNotification
-				: 'NSViewFrameDidChangeNotification',
-			target,
-			null,
-			() => layoutHandlers.get(target)?.(),
-		)
+		node.layoutObserver =
+			NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+				typeof NSViewFrameDidChangeNotification !== 'undefined'
+					? NSViewFrameDidChangeNotification
+					: 'NSViewFrameDidChangeNotification',
+				target,
+				null,
+				() => layoutHandlers.get(target)?.(),
+			)
 	}
 
 	layoutHandlers.set(target, () => {
 		const bounds = target.bounds
 		try {
-			node.container.root.eventScope('discrete', () => handler({
-				object: target,
-				width: Number(bounds.size.width ?? 0),
-				height: Number(bounds.size.height ?? 0),
-			}))
+			node.container.root.eventScope('discrete', () =>
+				handler({
+					object: target,
+					width: Number(bounds.size.width ?? 0),
+					height: Number(bounds.size.height ?? 0),
+				}),
+			)
 		} catch (error) {
 			console.error('[macos-event] layout handler failed', error)
 		}
@@ -709,20 +782,26 @@ function setTextFieldPlaceholder(field, props, scheme = 'light') {
 	}
 
 	field.placeholderString = placeholder
-	field.placeholderAttributedString = NSAttributedString.alloc().initWithStringAttributes(placeholder, {
-		[NSFontAttributeName]: field.font,
-		[NSForegroundColorAttributeName]: nativeColor(
-			props.placeholderTextColor != null
-				? String(props.placeholderTextColor)
-				: SCHEME_COLORS[scheme].placeholder,
-		),
-	})
+	field.placeholderAttributedString = NSAttributedString.alloc().initWithStringAttributes(
+		placeholder,
+		{
+			[NSFontAttributeName]: field.font,
+			[NSForegroundColorAttributeName]: nativeColor(
+				props.placeholderTextColor != null
+					? String(props.placeholderTextColor)
+					: SCHEME_COLORS[scheme].placeholder,
+			),
+		},
+	)
 }
 
 function makeTextField(props, multiline = false) {
 	const field = multiline
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
-		: ContentAlignedTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
+		: ContentAlignedTextField.alloc().initWithFrame({
+				origin: { x: 0, y: 0 },
+				size: { width: 320, height: 28 },
+			})
 
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
@@ -742,8 +821,11 @@ function makeTextField(props, multiline = false) {
 		field.textContainer.lineFragmentPadding = 0
 	}
 
-	if (multiline) {field.string = String(props.value ?? '')}
-	else {field.stringValue = String(props.value ?? '')}
+	if (multiline) {
+		field.string = String(props.value ?? '')
+	} else {
+		field.stringValue = String(props.value ?? '')
+	}
 
 	return field
 }
@@ -760,7 +842,10 @@ function makeSwitch(props) {
 }
 
 function makeSlider(props) {
-	const slider = NSSlider.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 24 } })
+	const slider = NSSlider.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 24 },
+	})
 	slider.minValue = Number(props.minValue ?? 0)
 	slider.maxValue = Number(props.maxValue ?? 1)
 	slider.doubleValue = Number(props.value ?? 0)
@@ -774,13 +859,19 @@ function makeSlider(props) {
 }
 
 function makeGridLayout() {
-	const view = GridLayoutView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 28 } })
+	const view = GridLayoutView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 28 },
+	})
 	view.translatesAutoresizingMaskIntoConstraints = false
 	return view
 }
 
 function makeAbsoluteLayout() {
-	const view = AbsoluteLayoutView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 28 } })
+	const view = AbsoluteLayoutView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 28 },
+	})
 	view.translatesAutoresizingMaskIntoConstraints = false
 	return view
 }
@@ -796,22 +887,33 @@ function layoutLength(value, available, fallback) {
 }
 
 function parseGridTracks(spec) {
-	if (typeof spec !== 'string' || !spec.trim()) {return []}
+	if (typeof spec !== 'string' || !spec.trim()) {
+		return []
+	}
 
-	return spec.split(/[\s,]+/).filter(Boolean).map((token) => {
-		if (token === 'auto') {return { kind: 'auto', value: 0 }}
+	return spec
+		.split(/[\s,]+/)
+		.filter(Boolean)
+		.map((token) => {
+			if (token === 'auto') {
+				return { kind: 'auto', value: 0 }
+			}
 
-		const fraction = /^(\d+(?:\.\d+)?|\.\d+)?(?:\*|fr)$/.exec(token)
-		if (fraction) {
-			const weight = Number(fraction[1] || 1)
-			if (weight > 0) {return { kind: 'fraction', value: weight }}
-		}
+			const fraction = /^(\d+(?:\.\d+)?|\.\d+)?(?:\*|fr)$/.exec(token)
+			if (fraction) {
+				const weight = Number(fraction[1] || 1)
+				if (weight > 0) {
+					return { kind: 'fraction', value: weight }
+				}
+			}
 
-		const fixed = /^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/.exec(token)
-		if (fixed) {return { kind: 'fixed', value: Number(fixed[1]) }}
+			const fixed = /^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/.exec(token)
+			if (fixed) {
+				return { kind: 'fixed', value: Number(fixed[1]) }
+			}
 
-		throw new Error('[macos-host] unsupported grid track ' + JSON.stringify(token))
-	})
+			throw new Error('[macos-host] unsupported grid track ' + JSON.stringify(token))
+		})
 }
 
 function gridIndex(value) {
@@ -827,7 +929,9 @@ function gridSpan(value) {
 function gridAreaIsFree(occupied, row, col, rowSpan, colSpan) {
 	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
 		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
-			if (occupied.has(currentRow + ':' + currentCol)) {return false}
+			if (occupied.has(currentRow + ':' + currentCol)) {
+				return false
+			}
 		}
 	}
 
@@ -844,9 +948,11 @@ function occupyGridArea(occupied, row, col, rowSpan, colSpan) {
 
 function autoPlaceGridChildren(parent, placements) {
 	const explicitColumns = parseGridTracks(parent.props.columns).length
-	const placedColumnCount = Math.max(0, ...placements
-		.filter((placement) => placement.col != null)
-		.map((placement) => placement.col + placement.colSpan),
+	const placedColumnCount = Math.max(
+		0,
+		...placements
+			.filter((placement) => placement.col != null)
+			.map((placement) => placement.col + placement.colSpan),
 	)
 
 	const columnCount = Math.max(
@@ -864,17 +970,25 @@ function autoPlaceGridChildren(parent, placements) {
 	}
 
 	for (const placement of placements) {
-		if (placement.row == null || placement.col != null) {continue}
+		if (placement.row == null || placement.col != null) {
+			continue
+		}
 		let col = 0
-		while (!gridAreaIsFree(occupied, placement.row, col, placement.rowSpan, placement.colSpan)) {col++}
+		while (!gridAreaIsFree(occupied, placement.row, col, placement.rowSpan, placement.colSpan)) {
+			col++
+		}
 		placement.col = col
 		occupyGridArea(occupied, placement.row, col, placement.rowSpan, placement.colSpan)
 	}
 
 	for (const placement of placements) {
-		if (placement.col == null || placement.row != null) {continue}
+		if (placement.col == null || placement.row != null) {
+			continue
+		}
 		let row = 0
-		while (!gridAreaIsFree(occupied, row, placement.col, placement.rowSpan, placement.colSpan)) {row++}
+		while (!gridAreaIsFree(occupied, row, placement.col, placement.rowSpan, placement.colSpan)) {
+			row++
+		}
 		placement.row = row
 		occupyGridArea(occupied, row, placement.col, placement.rowSpan, placement.colSpan)
 	}
@@ -882,7 +996,9 @@ function autoPlaceGridChildren(parent, placements) {
 	let cursorRow = 0
 	let cursorCol = 0
 	for (const placement of placements) {
-		if (placement.row != null && placement.col != null) {continue}
+		if (placement.row != null && placement.col != null) {
+			continue
+		}
 		while (true) {
 			const availableColumns = Math.max(columnCount, placement.colSpan)
 			if (cursorCol + placement.colSpan > availableColumns) {
@@ -891,7 +1007,9 @@ function autoPlaceGridChildren(parent, placements) {
 				continue
 			}
 
-			if (gridAreaIsFree(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {break}
+			if (gridAreaIsFree(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {
+				break
+			}
 			cursorCol++
 		}
 
@@ -910,9 +1028,10 @@ function gridAxisTracks(spec, placements, axis) {
 	const indexKey = axis === 'columns' ? 'col' : 'row'
 	const spanKey = axis === 'columns' ? 'colSpan' : 'rowSpan'
 	const explicit = parseGridTracks(spec)
-	const requiredCount = Math.max(1, ...placements.map((placement) =>
-		placement[indexKey] + placement[spanKey],
-	))
+	const requiredCount = Math.max(
+		1,
+		...placements.map((placement) => placement[indexKey] + placement[spanKey]),
+	)
 
 	const tracks = explicit.length
 		? explicit
@@ -928,14 +1047,16 @@ function gridAxisTracks(spec, placements, axis) {
 function gridPreferredSize(child, axis, available) {
 	const name = axis === 'columns' ? 'width' : 'height'
 	const styled = child.props.style?.[name]
-	if (styled != null) {return Math.max(0, layoutLength(styled, available, 0))}
+	if (styled != null) {
+		return Math.max(0, layoutLength(styled, available, 0))
+	}
 
 	const intrinsic = Number(child.view.intrinsicContentSize?.[name] ?? 0)
 	return Number.isFinite(intrinsic) ? Math.max(0, intrinsic) : 0
 }
 
 function resolveGridTrackSizes(tracks, placements, axis, available) {
-	const sizes = tracks.map((track) => track.kind === 'fixed' ? track.value : 0)
+	const sizes = tracks.map((track) => (track.kind === 'fixed' ? track.value : 0))
 	for (const placement of placements) {
 		const start = placement[axis === 'columns' ? 'col' : 'row']
 		const span = placement[axis === 'columns' ? 'colSpan' : 'rowSpan']
@@ -943,27 +1064,38 @@ function resolveGridTrackSizes(tracks, placements, axis, available) {
 		let currentSize = 0
 		for (let index = start; index < Math.min(start + span, tracks.length); index++) {
 			currentSize += sizes[index]
-			if (tracks[index].kind === 'auto') {autoTracks.push(index)}
+			if (tracks[index].kind === 'auto') {
+				autoTracks.push(index)
+			}
 		}
 
-		if (!autoTracks.length) {continue}
+		if (!autoTracks.length) {
+			continue
+		}
 
 		const preferred = gridPreferredSize(placement.child, axis, available)
 		const extra = Math.max(0, preferred - currentSize) / autoTracks.length
-		for (const index of autoTracks) {sizes[index] += extra}
+		for (const index of autoTracks) {
+			sizes[index] += extra
+		}
 	}
 
-	const fixedAndAuto = sizes.reduce((sum, size, index) =>
-		sum + (tracks[index].kind === 'fraction' ? 0 : size), 0,
+	const fixedAndAuto = sizes.reduce(
+		(sum, size, index) => sum + (tracks[index].kind === 'fraction' ? 0 : size),
+		0,
 	)
 
-	const fractionWeight = tracks.reduce((sum, track) =>
-		sum + (track.kind === 'fraction' ? track.value : 0), 0,
+	const fractionWeight = tracks.reduce(
+		(sum, track) => sum + (track.kind === 'fraction' ? track.value : 0),
+		0,
 	)
 
-	const fractionSize = fractionWeight > 0 ? Math.max(0, available - fixedAndAuto) / fractionWeight : 0
+	const fractionSize =
+		fractionWeight > 0 ? Math.max(0, available - fixedAndAuto) / fractionWeight : 0
 	for (let index = 0; index < tracks.length; index++) {
-		if (tracks[index].kind === 'fraction') {sizes[index] = fractionSize * tracks[index].value}
+		if (tracks[index].kind === 'fraction') {
+			sizes[index] = fractionSize * tracks[index].value
+		}
 	}
 
 	return sizes
@@ -971,12 +1103,16 @@ function resolveGridTrackSizes(tracks, placements, axis, available) {
 
 function trackOffset(sizes, index) {
 	let offset = 0
-	for (let current = 0; current < index; current++) {offset += sizes[current]}
+	for (let current = 0; current < index; current++) {
+		offset += sizes[current]
+	}
 	return offset
 }
 
 function layoutGridChildren(parent) {
-	if (!parent?.view) {return}
+	if (!parent?.view) {
+		return
+	}
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
 	const overlayChildren = parent.props.overlayChildren === true
@@ -994,11 +1130,12 @@ function layoutGridChildren(parent) {
 		String(parent.props.rows ?? '').trim() || String(parent.props.columns ?? '').trim(),
 	)
 
-	const hasPlacement = placements.some(({ child, row, col, rowSpan, colSpan }) =>
-		(child.props.row != null && row !== 0) ||
-		(child.props.col != null && col !== 0) ||
-		rowSpan !== 1 ||
-		colSpan !== 1,
+	const hasPlacement = placements.some(
+		({ child, row, col, rowSpan, colSpan }) =>
+			(child.props.row != null && row !== 0) ||
+			(child.props.col != null && col !== 0) ||
+			rowSpan !== 1 ||
+			colSpan !== 1,
 	)
 
 	// Preserve overlay behavior for Slider and Stack. Explicit tracks or
@@ -1006,7 +1143,9 @@ function layoutGridChildren(parent) {
 	// auto-place children with no row or column using the web renderer's default
 	// row flow, unless the host explicitly requests overlay behavior.
 	if (hasTracks || hasPlacement) {
-		if (!overlayChildren) {autoPlaceGridChildren(parent, placements)}
+		if (!overlayChildren) {
+			autoPlaceGridChildren(parent, placements)
+		}
 		const columns = gridAxisTracks(parent.props.columns, placements, 'columns')
 		const rows = gridAxisTracks(parent.props.rows, placements, 'rows')
 		const columnSizes = resolveGridTrackSizes(columns, placements, 'columns', width)
@@ -1022,13 +1161,19 @@ function layoutGridChildren(parent) {
 			const horizontal = child.props.horizontalAlignment ?? 'stretch'
 			const vertical = child.props.verticalAlignment ?? 'stretch'
 			const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
-			const childWidth = style.width == null
-				? (horizontal === 'stretch' ? cellWidth : Math.max(0, Number(intrinsic.width ?? 0)))
-				: layoutLength(style.width, cellWidth, 0)
+			const childWidth =
+				style.width == null
+					? horizontal === 'stretch'
+						? cellWidth
+						: Math.max(0, Number(intrinsic.width ?? 0))
+					: layoutLength(style.width, cellWidth, 0)
 
-			const childHeight = style.height == null
-				? (vertical === 'stretch' ? cellHeight : Math.max(0, Number(intrinsic.height ?? 0)))
-				: layoutLength(style.height, cellHeight, 0)
+			const childHeight =
+				style.height == null
+					? vertical === 'stretch'
+						? cellHeight
+						: Math.max(0, Number(intrinsic.height ?? 0))
+					: layoutLength(style.height, cellHeight, 0)
 
 			let x = cellX
 			if (horizontal === 'center' || horizontal === 'middle') {
@@ -1061,13 +1206,19 @@ function layoutGridChildren(parent) {
 		const horizontal = child.props.horizontalAlignment ?? 'stretch'
 		const vertical = child.props.verticalAlignment ?? 'stretch'
 		const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
-		const childWidth = style.width == null
-			? (horizontal === 'stretch' ? width : Math.max(0, Number(intrinsic.width ?? 0)))
-			: layoutLength(style.width, width, 0)
+		const childWidth =
+			style.width == null
+				? horizontal === 'stretch'
+					? width
+					: Math.max(0, Number(intrinsic.width ?? 0))
+				: layoutLength(style.width, width, 0)
 
-		const childHeight = style.height == null
-			? (vertical === 'stretch' ? height : Math.max(0, Number(intrinsic.height ?? 0)))
-			: layoutLength(style.height, height, 0)
+		const childHeight =
+			style.height == null
+				? vertical === 'stretch'
+					? height
+					: Math.max(0, Number(intrinsic.height ?? 0))
+				: layoutLength(style.height, height, 0)
 
 		let x = 0
 		if (horizontal === 'center' || horizontal === 'middle') {
@@ -1093,37 +1244,43 @@ function layoutGridChildren(parent) {
 }
 
 function layoutAbsoluteChildren(parent) {
-	if (!parent?.view) {return}
+	if (!parent?.view) {
+		return
+	}
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
 
 	for (const child of parent.children) {
-		if (!child.view) {continue}
+		if (!child.view) {
+			continue
+		}
 		const style = child.props.style ?? {}
 		const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
 		const left = layoutLength(child.props.left, width, Number.NaN)
 		const right = layoutLength(child.props.right, width, Number.NaN)
 		const top = layoutLength(child.props.top, height, Number.NaN)
 		const bottom = layoutLength(child.props.bottom, height, Number.NaN)
-		const childWidth = style.width == null
-			? (Number.isFinite(left) && Number.isFinite(right)
-				? Math.max(0, width - left - right)
-				: Math.max(0, Number(intrinsic.width ?? 0)))
-			: layoutLength(style.width, width, 0)
+		const childWidth =
+			style.width == null
+				? Number.isFinite(left) && Number.isFinite(right)
+					? Math.max(0, width - left - right)
+					: Math.max(0, Number(intrinsic.width ?? 0))
+				: layoutLength(style.width, width, 0)
 
-		const childHeight = style.height == null
-			? (Number.isFinite(top) && Number.isFinite(bottom)
-				? Math.max(0, height - top - bottom)
-				: Math.max(0, Number(intrinsic.height ?? 0)))
-			: layoutLength(style.height, height, 0)
+		const childHeight =
+			style.height == null
+				? Number.isFinite(top) && Number.isFinite(bottom)
+					? Math.max(0, height - top - bottom)
+					: Math.max(0, Number(intrinsic.height ?? 0))
+				: layoutLength(style.height, height, 0)
 
-		const x = Number.isFinite(left)
-			? left
-			: Number.isFinite(right) ? width - right - childWidth : 0
+		const x = Number.isFinite(left) ? left : Number.isFinite(right) ? width - right - childWidth : 0
 
 		const offsetTop = Number.isFinite(top)
 			? top
-			: Number.isFinite(bottom) ? height - bottom - childHeight : 0
+			: Number.isFinite(bottom)
+				? height - bottom - childHeight
+				: 0
 
 		child.view.frame = {
 			origin: { x, y: height - offsetTop - childHeight },
@@ -1135,7 +1292,9 @@ function layoutAbsoluteChildren(parent) {
 function performGridAccessibilityAdjustment(view, name) {
 	const node = gridLayoutNodesByView.get(view)
 	const handler = node?.props[name]
-	if (typeof handler !== 'function') {return false}
+	if (typeof handler !== 'function') {
+		return false
+	}
 	try {
 		node.container.root.eventScope('discrete', handler)
 		return true
@@ -1146,7 +1305,10 @@ function performGridAccessibilityAdjustment(view, name) {
 }
 
 function makeImageView(props) {
-	const image = NSImageView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 24, height: 24 } })
+	const image = NSImageView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 24, height: 24 },
+	})
 	image.translatesAutoresizingMaskIntoConstraints = false
 	const match = /^data:[^,]*;base64,(.+)$/s.exec(String(props.src ?? ''))
 	if (match) {
@@ -1233,7 +1395,7 @@ function makeNode(container, id, type, props) {
 			view.action = 'controlChanged'
 		} else {
 			view.delegate = buttonActionTarget
-			}
+		}
 	}
 
 	const node = {
@@ -1264,7 +1426,9 @@ function makeNode(container, id, type, props) {
 		placeholder.textColor = nativeColor('#666666')
 		placeholder.stringValue = String(props.placeholder ?? '')
 		placeholder.translatesAutoresizingMaskIntoConstraints = false
-		placeholder.heightAnchor.constraintEqualToConstant(Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO)).active = true
+		placeholder.heightAnchor.constraintEqualToConstant(
+			Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO),
+		).active = true
 		placeholder.hidden = String(props.value ?? '').length > 0
 		view.addSubview(placeholder)
 		placeholder.leadingAnchor.constraintEqualToAnchorConstant(view.leadingAnchor, 0).active = true
@@ -1293,7 +1457,9 @@ function parseEdgeInsets(value) {
 		return { top: n, left: n, bottom: n, right: n }
 	}
 
-	const parts = String(value).split(/\s+/).map((p) => parseFloat(p) || 0)
+	const parts = String(value)
+		.split(/\s+/)
+		.map((p) => parseFloat(p) || 0)
 	const top = parts[0] ?? 0
 	const right = parts.length > 1 ? parts[1] : top
 	const bottom = parts.length > 2 ? parts[2] : top
@@ -1336,7 +1502,9 @@ function nativeColor(value) {
 		)
 	}
 
-	throw new Error('AppKit spike expects #rrggbb, #rrggbbaa, or rgb()/rgba() colors, received ' + string)
+	throw new Error(
+		'AppKit spike expects #rrggbb, #rrggbbaa, or rgb()/rgba() colors, received ' + string,
+	)
 }
 
 // The renderer has no CSS layer, so the shared `dark`/`ns-dark` scheme classes
@@ -1371,7 +1539,9 @@ const SCHEME_COLORS = {
 function nodeScheme(node) {
 	for (let current = node; current; current = current.parent) {
 		const classes = nodeClasses(current)
-		if (classes.includes('dark') || classes.includes('ns-dark')) {return 'dark'}
+		if (classes.includes('dark') || classes.includes('ns-dark')) {
+			return 'dark'
+		}
 	}
 
 	return 'light'
@@ -1381,15 +1551,21 @@ function nodeScheme(node) {
 // style.color/style.backgroundColor always win over class palette slots.
 function applyThemeColors(node) {
 	const view = node.view
-	if (!view) {return}
+	if (!view) {
+		return
+	}
 	node.scheme = nodeScheme(node)
 	const colors = SCHEME_COLORS[node.scheme]
 	if (node.type === 'label' || node.type === 'textfield' || node.type === 'textview') {
 		view.textColor = nativeColor(node.styleColor ?? colors[node.colorSlot ?? 'text'])
-		if (node.type === 'label') {setLabelText(node, String(view.stringValue ?? ''))}
+		if (node.type === 'label') {
+			setLabelText(node, String(view.stringValue ?? ''))
+		}
 	}
 
-	if (node.type === 'textfield') {setTextFieldPlaceholder(view, node.props, node.scheme)}
+	if (node.type === 'textfield') {
+		setTextFieldPlaceholder(view, node.props, node.scheme)
+	}
 	if (node.type === 'textview' && node.placeholderView) {
 		node.placeholderView.textColor = nativeColor(colors.placeholder)
 	}
@@ -1404,8 +1580,12 @@ function applyThemeColors(node) {
 // a differently-schemed subtree re-resolves its whole branch on insertion.
 function syncScheme(node) {
 	const scheme = nodeScheme(node)
-	if (scheme === (node.scheme ?? 'light')) {return}
-	for (const entry of [node, ...descendants(node)]) {applyThemeColors(entry)}
+	if (scheme === (node.scheme ?? 'light')) {
+		return
+	}
+	for (const entry of [node, ...descendants(node)]) {
+		applyThemeColors(entry)
+	}
 }
 
 function fontForStyle(size, weight = 400) {
@@ -1422,10 +1602,15 @@ function fontForStyle(size, weight = 400) {
 }
 
 function fontForFamilyStyle(size, weight = 400, family) {
-	const firstFamily = String(family ?? '').split(',')[0].trim().replace(/^['"]|['"]$/g, '')
+	const firstFamily = String(family ?? '')
+		.split(',')[0]
+		.trim()
+		.replace(/^['"]|['"]$/g, '')
 	if (firstFamily === 'system-ui' || firstFamily === '-apple-system') {
 		const systemFont = NSFont.systemFontOfSize(Number(size))
-		if (!systemFont) {throw new Error('Failed to create the AppKit system font face')}
+		if (!systemFont) {
+			throw new Error('Failed to create the AppKit system font face')
+		}
 		return systemFont
 	}
 
@@ -1437,7 +1622,9 @@ function setSizeConstraint(node, name, value) {
 	const specs = (node.sizeConstraintSpecs ??= {})
 	if (!spec) {
 		delete specs[name]
-		console.warn('[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value))
+		console.warn(
+			'[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value),
+		)
 	} else {
 		specs[name] = spec
 	}
@@ -1455,7 +1642,9 @@ function setSizeConstraint(node, name, value) {
 	}
 
 	applySizeConstraint(node, name)
-	if (node.parent) {updateCrossAxisConstraints(node.parent)}
+	if (node.parent) {
+		updateCrossAxisConstraints(node.parent)
+	}
 }
 
 function sizeConstraintSpec(value) {
@@ -1479,7 +1668,9 @@ function sizeConstraintSpec(value) {
 }
 
 function sizeConstraintParentView(node) {
-	if (node.parent) {return node.parent.childHost ?? node.parent.view}
+	if (node.parent) {
+		return node.parent.childHost ?? node.parent.view
+	}
 	return node.container.children.includes(node) ? node.container.hostView : null
 }
 
@@ -1491,19 +1682,24 @@ function applySizeConstraint(node, name) {
 	}
 
 	const spec = node.sizeConstraintSpecs?.[name]
-	if (!spec || !node.view) {return}
+	if (!spec || !node.view) {
+		return
+	}
 
 	let constraint
 	if (spec.kind === 'percent') {
 		const parentView = sizeConstraintParentView(node)
-		if (!parentView) {return}
+		if (!parentView) {
+			return
+		}
 		const anchor = name === 'width' ? node.view.widthAnchor : node.view.heightAnchor
 		const parentAnchor = name === 'width' ? parentView.widthAnchor : parentView.heightAnchor
 		constraint = anchor.constraintEqualToAnchorMultiplier(parentAnchor, spec.multiplier)
 	} else {
-		constraint = name === 'width'
-			? node.view.widthAnchor.constraintEqualToConstant(spec.points)
-			: node.view.heightAnchor.constraintEqualToConstant(spec.points)
+		constraint =
+			name === 'width'
+				? node.view.widthAnchor.constraintEqualToConstant(spec.points)
+				: node.view.heightAnchor.constraintEqualToConstant(spec.points)
 	}
 
 	constraints[name] = constraint
@@ -1511,7 +1707,9 @@ function applySizeConstraint(node, name) {
 }
 
 function applySizeConstraints(node) {
-	for (const name of ['width', 'height']) {applySizeConstraint(node, name)}
+	for (const name of ['width', 'height']) {
+		applySizeConstraint(node, name)
+	}
 }
 
 function deactivateSizeConstraints(node) {
@@ -1525,10 +1723,16 @@ function deactivateSizeConstraints(node) {
 }
 
 function applyStyle(node, style) {
-	if (style == null) {return}
-	if (typeof style !== 'object') {throw new Error('AppKit spike expects style to be an object')}
+	if (style == null) {
+		return
+	}
+	if (typeof style !== 'object') {
+		throw new Error('AppKit spike expects style to be an object')
+	}
 	for (const [name, value] of Object.entries(style)) {
-		if (value == null) {continue}
+		if (value == null) {
+			continue
+		}
 		if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)
@@ -1548,7 +1752,9 @@ function applyStyle(node, style) {
 			node.view.edgeInsets = parseEdgeInsets(value)
 		} else if (EDGE_INSET_PROPS.has(name) && node.type === 'flexboxlayout') {
 			const insets = { ...node.view.edgeInsets }
-			for (const edge of EDGE_INSET_PROPS.get(name)) {insets[edge] = Number(value) || 0}
+			for (const edge of EDGE_INSET_PROPS.get(name)) {
+				insets[edge] = Number(value) || 0
+			}
 			node.view.edgeInsets = insets
 		} else if (name === 'backgroundColor' && node.view) {
 			node.styleBg = String(value)
@@ -1561,15 +1767,28 @@ function applyStyle(node, style) {
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
-			if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
-			if (node.parent?.type === 'absolutelayout') {layoutAbsoluteChildren(node.parent)}
+			if (node.parent?.type === 'gridlayout') {
+				layoutGridChildren(node.parent)
+			}
+			if (node.parent?.type === 'absolutelayout') {
+				layoutAbsoluteChildren(node.parent)
+			}
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
 		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.appliedFontWeight = String(value)
-			node.view.font = fontForFamilyStyle(node.view.font.pointSize, value, style.fontFamily ?? node.appliedFontFamily)
+			node.view.font = fontForFamilyStyle(
+				node.view.font.pointSize,
+				value,
+				style.fontFamily ?? node.appliedFontFamily,
+			)
 		} else if (name === 'textAlign' && node.type === 'label') {
-			node.view.alignment = value === 'left' ? NSTextAlignment.Left : value === 'right' ? NSTextAlignment.Right : NSTextAlignment.Center
+			node.view.alignment =
+				value === 'left'
+					? NSTextAlignment.Left
+					: value === 'right'
+						? NSTextAlignment.Right
+						: NSTextAlignment.Center
 		} else if (name === 'borderWidth' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.borderWidth = Number(value)
@@ -1585,9 +1804,18 @@ function applyStyle(node, style) {
 }
 
 function applyClassName(node, value) {
-	const classes = String(value ?? '').split(/\s+/).filter(Boolean)
+	const classes = String(value ?? '')
+		.split(/\s+/)
+		.filter(Boolean)
 	if (node.type === 'label') {
-		const sizes = { 'text-xs': 12, 'text-sm': 13, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 28 }
+		const sizes = {
+			'text-xs': 12,
+			'text-sm': 13,
+			'text-base': 16,
+			'text-lg': 18,
+			'text-xl': 20,
+			'text-2xl': 28,
+		}
 		const lineHeights = { 'text-sm': 20, 'text-lg': 28, 'text-xl': 28, 'text-2xl': 36 }
 		const headingMetrics = {
 			'vx-h1': { size: 32, height: 41 },
@@ -1610,10 +1838,16 @@ function applyClassName(node, value) {
 
 			if (sizes[name]) {
 				node.headingDefaultHeight = undefined
-				node.view.font = fontForFamilyStyle(sizes[name], node.appliedFontWeight ?? 400, node.appliedFontFamily)
+				node.view.font = fontForFamilyStyle(
+					sizes[name],
+					node.appliedFontWeight ?? 400,
+					node.appliedFontFamily,
+				)
 			}
 
-			if (lineHeights[name] != null) {node.classLineHeight = lineHeights[name]}
+			if (lineHeights[name] != null) {
+				node.classLineHeight = lineHeights[name]
+			}
 			if (name === 'font-semibold') {
 				node.appliedFontWeight = '600'
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 600, node.appliedFontFamily)
@@ -1624,17 +1858,32 @@ function applyClassName(node, value) {
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 700, node.appliedFontFamily)
 			}
 
-			if (name === 'text-muted') {node.colorSlot = 'muted'}
-			if (name === 'text-onprimary') {node.colorSlot = 'onprimary'}
+			if (name === 'text-muted') {
+				node.colorSlot = 'muted'
+			}
+			if (name === 'text-onprimary') {
+				node.colorSlot = 'onprimary'
+			}
 		}
 	}
 
-	if (node.type === 'flexboxlayout' || node.type === 'stack' || node.type === 'scrollview' || node.type === 'gridlayout') {
+	if (
+		node.type === 'flexboxlayout' ||
+		node.type === 'stack' ||
+		node.type === 'scrollview' ||
+		node.type === 'gridlayout'
+	) {
 		const gaps = { 'gap-1': 4, 'gap-2': 8, 'gap-3': 12, 'gap-4': 16, 'gap-6': 24 }
 		for (const name of classes) {
-			if (gaps[name] !== undefined) {node.view.spacing = gaps[name]}
-			if (name === 'flex-row') {node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal}
-			if (name === 'flex-col') {node.view.orientation = NSUserInterfaceLayoutOrientation.Vertical}
+			if (gaps[name] !== undefined) {
+				node.view.spacing = gaps[name]
+			}
+			if (name === 'flex-row') {
+				node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal
+			}
+			if (name === 'flex-col') {
+				node.view.orientation = NSUserInterfaceLayoutOrientation.Vertical
+			}
 			if (name === 'items-center' || name === 'items-start' || name === 'items-end') {
 				node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
 			}
@@ -1645,14 +1894,25 @@ function applyClassName(node, value) {
 				node.view.distribution = NSStackViewDistribution.GravityAreas
 			}
 
-			if (name === 'justify-between') {node.view.distribution = NSStackViewDistribution.EqualSpacing}
+			if (name === 'justify-between') {
+				node.view.distribution = NSStackViewDistribution.EqualSpacing
+			}
 			if (name === 'flex-1') {
-				node.view.setContentHuggingPriorityForOrientation(1, NSUserInterfaceLayoutOrientation.Vertical)
-				node.view.setContentCompressionResistancePriorityForOrientation(1, NSUserInterfaceLayoutOrientation.Vertical)
+				node.view.setContentHuggingPriorityForOrientation(
+					1,
+					NSUserInterfaceLayoutOrientation.Vertical,
+				)
+				node.view.setContentCompressionResistancePriorityForOrientation(
+					1,
+					NSUserInterfaceLayoutOrientation.Vertical,
+				)
 			}
 
 			if (name === 'shrink-0') {
-				node.view.setContentHuggingPriorityForOrientation(750, NSUserInterfaceLayoutOrientation.Vertical)
+				node.view.setContentHuggingPriorityForOrientation(
+					750,
+					NSUserInterfaceLayoutOrientation.Vertical,
+				)
 			}
 
 			if (name === 'rounded-full' || name.startsWith('rounded-')) {
@@ -1664,30 +1924,43 @@ function applyClassName(node, value) {
 			if (name === 'bg-primary' || name === 'btn') {
 				node.bgSlot = 'primary'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].primary).CGColor
+				node.view.layer.backgroundColor = nativeColor(
+					SCHEME_COLORS[nodeScheme(node)].primary,
+				).CGColor
 				node.view.edgeInsets = { top: 6, left: 10, bottom: 6, right: 10 }
 			}
 
 			if (name === 'bg-danger') {
 				node.bgSlot = 'danger'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].danger).CGColor
+				node.view.layer.backgroundColor = nativeColor(
+					SCHEME_COLORS[nodeScheme(node)].danger,
+				).CGColor
 			}
 
 			if (name === 'btn-secondary' || name === 'chip' || name === 'chip-off') {
 				node.bgSlot = 'secondary'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].secondary).CGColor
+				node.view.layer.backgroundColor = nativeColor(
+					SCHEME_COLORS[nodeScheme(node)].secondary,
+				).CGColor
 				node.view.edgeInsets = { top: 4, left: 8, bottom: 4, right: 8 }
 			}
 
 			// Panels that paint the web body's --color-surface. On this host the
 			// root view fills the window, so the surface slot re-themes the whole
 			// background the way `body { background }` does in a browser.
-			if (name === 'vx-app' || name === 'sheet-panel' || name === 'overlay-panel' || name === 'modal-panel') {
+			if (
+				name === 'vx-app' ||
+				name === 'sheet-panel' ||
+				name === 'overlay-panel' ||
+				name === 'modal-panel'
+			) {
 				node.bgSlot = 'surface'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].surface).CGColor
+				node.view.layer.backgroundColor = nativeColor(
+					SCHEME_COLORS[nodeScheme(node)].surface,
+				).CGColor
 			}
 		}
 	}
@@ -1697,8 +1970,12 @@ function applyClassName(node, value) {
 			node.view.font = fontForStyle(14, node.appliedFontWeight ?? 400)
 			node.colorSlot = 'text'
 			node.view.drawsBackground = false
-			if (node.type === 'textfield') {node.view.bezeled = false}
-			if (node.type === 'textview') {node.view.textContainerInset = { width: 0, height: 0 }}
+			if (node.type === 'textfield') {
+				node.view.bezeled = false
+			}
+			if (node.type === 'textview') {
+				node.view.textContainerInset = { width: 0, height: 0 }
+			}
 		}
 	}
 
@@ -1708,16 +1985,24 @@ function applyClassName(node, value) {
 	const dark = classes.includes('dark') || classes.includes('ns-dark')
 	if (dark !== Boolean(node.hasDarkClass)) {
 		node.hasDarkClass = dark
-		for (const child of descendants(node)) {applyThemeColors(child)}
+		for (const child of descendants(node)) {
+			applyThemeColors(child)
+		}
 	}
 
-	if (node.parent) {setStackChildPriorities(node.parent, node)}
+	if (node.parent) {
+		setStackChildPriorities(node.parent, node)
+	}
 	updateStackDistribution(node)
 }
 
 function textContent(node) {
-	if (node.type === '#text') {return node.text}
-	if (node.type === 'label') {return node.view.stringValue}
+	if (node.type === '#text') {
+		return node.text
+	}
+	if (node.type === 'label') {
+		return node.view.stringValue
+	}
 	return node.children.map(textContent).join('')
 }
 
@@ -1739,12 +2024,16 @@ function setLabelText(node, text) {
 }
 
 function syncText(parent) {
-	if (parent?.type !== 'label') {return}
+	if (parent?.type !== 'label') {
+		return
+	}
 	setLabelText(parent, parent.children.map(textContent).join(''))
 }
 
 function syncTextViewPlaceholder(node) {
-	if (node?.placeholderView) {node.placeholderView.hidden = String(node.view.string ?? '').length > 0}
+	if (node?.placeholderView) {
+		node.placeholderView.hidden = String(node.view.string ?? '').length > 0
+	}
 }
 
 function setAction(node, value) {
@@ -1761,12 +2050,12 @@ function setAction(node, value) {
 		node.actionId,
 		typeof value === 'function'
 			? () => {
-				try {
-					node.container.root.eventScope('discrete', value)
-				} catch (error) {
-					console.error('[macos-event] press handler failed', error)
+					try {
+						node.container.root.eventScope('discrete', value)
+					} catch (error) {
+						console.error('[macos-event] press handler failed', error)
+					}
 				}
-			}
 			: null,
 	)
 }
@@ -1785,36 +2074,42 @@ function setPanAction(node, value) {
 		node.view,
 		typeof value === 'function'
 			? (event) => {
-				try {
-					node.container.root.eventScope('discrete', () => value(event))
-				} catch (error) {
-					console.error('[macos-event] pan handler failed', error)
+					try {
+						node.container.root.eventScope('discrete', () => value(event))
+					} catch (error) {
+						console.error('[macos-event] pan handler failed', error)
+					}
 				}
-			}
 			: null,
 	)
 }
 
 function setControlAction(node, value, readValue) {
-	if (node.actionId === undefined) {return}
+	if (node.actionId === undefined) {
+		return
+	}
 	actionHandlers.set(
 		node.actionId,
 		typeof value === 'function'
 			? () => {
-				try {
-					node.container.root.eventScope('discrete', () => value(readValue()))
-				} catch (error) {
-					console.error('[macos-event] control handler failed', error)
+					try {
+						node.container.root.eventScope('discrete', () => value(readValue()))
+					} catch (error) {
+						console.error('[macos-event] control handler failed', error)
+					}
 				}
-			}
 			: null,
 	)
 }
 
 function applyAccessibility(node, name, value) {
 	if (node.type === 'flexboxlayout' && node.actionId !== undefined) {
-		if (name === 'accessibilityLabel') {accessibilityLabels.set(node.actionId, String(value ?? ''))}
-		if (name === 'accessibilityRole') {accessibilityRoles.set(node.actionId, String(value ?? ''))}
+		if (name === 'accessibilityLabel') {
+			accessibilityLabels.set(node.actionId, String(value ?? ''))
+		}
+		if (name === 'accessibilityRole') {
+			accessibilityRoles.set(node.actionId, String(value ?? ''))
+		}
 	}
 
 	if (node.type === 'label' && name === 'accessibilityLabel') {
@@ -1825,12 +2120,16 @@ function applyAccessibility(node, name, value) {
 function applyProps(node, props) {
 	node.props = { ...node.props, ...props }
 	if (node.type === '#text') {
-		if ('value' in props) {node.text = String(props.value ?? '')}
+		if ('value' in props) {
+			node.text = String(props.value ?? '')
+		}
 		syncText(node.parent)
 		return
 	}
 
-	if (node.type === 'span') {return}
+	if (node.type === 'span') {
+		return
+	}
 
 	for (const [name, value] of Object.entries(props)) {
 		if (name === 'onLayoutChanged') {
@@ -1840,20 +2139,29 @@ function applyProps(node, props) {
 
 		switch (node.type) {
 			case 'stack':
-				if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'id') {continue}
-				else {console.warn('[macos-host] ignored stack prop ' + name)}
+				if (name === 'spacing') {
+					node.view.spacing = Number(value ?? 0)
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
+					continue
+				} else {
+					console.warn('[macos-host] ignored stack prop ' + name)
+				}
 
 				break
 			case 'flexboxlayout':
-				if (name === 'gap') {node.view.spacing = Number(value ?? 0)}
-				else if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
-				else if (name === 'flexDirection') {
-					node.view.orientation = value === 'row'
-					? NSUserInterfaceLayoutOrientation.Horizontal
-					: NSUserInterfaceLayoutOrientation.Vertical
+				if (name === 'gap') {
+					node.view.spacing = Number(value ?? 0)
+				} else if (name === 'spacing') {
+					node.view.spacing = Number(value ?? 0)
+				} else if (name === 'flexDirection') {
+					node.view.orientation =
+						value === 'row'
+							? NSUserInterfaceLayoutOrientation.Horizontal
+							: NSUserInterfaceLayoutOrientation.Vertical
 
 					node.view.distribution = NSStackViewDistribution.GravityAreas
 					node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
@@ -1865,24 +2173,28 @@ function applyProps(node, props) {
 				} else if (name === 'justifyContent') {
 					node.view.distribution = NSStackViewDistribution.GravityAreas
 					moveStackChildren(node)
-				} else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
 					applyClassName(node, value)
 					moveStackChildren(node)
 					node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
 					updateCrossAxisConstraints(node)
-				}
-				else if (name === 'id') {continue}
-				else if (name === 'onTap') {setAction(node, value)}
-				else if (name === 'onPan') {setPanAction(node, value)}
-				else if (name === 'onTouch') {continue}
-				else if (name === 'onSwipe') {
+				} else if (name === 'id') {
+					continue
+				} else if (name === 'onTap') {
+					setAction(node, value)
+				} else if (name === 'onPan') {
+					setPanAction(node, value)
+				} else if (name === 'onTouch') {
+					continue
+				} else if (name === 'onSwipe') {
 					if (typeof value === 'function') {
 						console.warn('[macos-host] ' + name + ' is unsupported by the AppKit renderer')
 					}
-				}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (
 					[
@@ -1902,41 +2214,58 @@ function applyProps(node, props) {
 						'horizontalAlignment',
 						'verticalAlignment',
 					].includes(name)
-				) {continue}
-				else {console.warn('[macos-host] ignored flexboxlayout prop ' + name)}
+				) {
+					continue
+				} else {
+					console.warn('[macos-host] ignored flexboxlayout prop ' + name)
+				}
 
 				break
 			case 'gridlayout':
-				if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
-				else if (name === 'overlayChildren') {continue}
-				else if (name === 'disabled') {continue}
-				else if (name === 'onPan') {setPanAction(node, value)}
-				else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {continue}
-				else if (name === 'onSwipe') {
+				if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className' || name === 'id') {
+					continue
+				} else if (name === 'overlayChildren') {
+					continue
+				} else if (name === 'disabled') {
+					continue
+				} else if (name === 'onPan') {
+					setPanAction(node, value)
+				} else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
+					continue
+				} else if (name === 'onSwipe') {
 					if (typeof value === 'function') {
 						console.warn('[macos-host] onSwipe is unsupported by the AppKit renderer')
 					}
-				}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (['rows', 'columns'].includes(name)) {
 					layoutGridChildren(node)
-				} else {console.warn('[macos-host] ignored gridlayout prop ' + name)}
+				} else {
+					console.warn('[macos-host] ignored gridlayout prop ' + name)
+				}
 
 				break
 			case 'absolutelayout':
-				if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
-				else if (name === 'onPan') {setPanAction(node, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {
+				if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className' || name === 'id') {
+					continue
+				} else if (name === 'onPan') {
+					setPanAction(node, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
-				} else {console.warn('[macos-host] ignored absolutelayout prop ' + name)}
+				} else {
+					console.warn('[macos-host] ignored absolutelayout prop ' + name)
+				}
 
 				break
-		case 'label':
+			case 'label':
 				if (name === 'text') {
 					setLabelText(node, String(value ?? ''))
 				} else if (name === 'fontSize') {
@@ -1944,48 +2273,70 @@ function applyProps(node, props) {
 				} else if (name === 'style') {
 					applyStyle(node, value)
 					syncText(node)
-				}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'id') {continue}
-				else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) {continue}
-				else if (name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else {
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
+					continue
+				} else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) {
+					continue
+				} else if (name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else {
 					console.warn('[macos-host] ignored label prop ' + name)
 				}
 
 				break
 			case 'button':
-				if (name === 'title') {node.view.title = String(value ?? '')}
-				else if (name === 'enabled') {node.view.enabled = value !== false}
-				else if (name === 'onPress') {
+				if (name === 'title') {
+					node.view.title = String(value ?? '')
+				} else if (name === 'enabled') {
+					node.view.enabled = value !== false
+				} else if (name === 'onPress') {
 					actionHandlers.set(
 						node.actionId,
 						typeof value === 'function'
 							? () => {
-								try {
-									node.container.root.eventScope('discrete', value)
-								} catch (error) {
-									console.error('[macos-event] button handler failed', error)
+									try {
+										node.container.root.eventScope('discrete', value)
+									} catch (error) {
+										console.error('[macos-event] button handler failed', error)
+									}
 								}
-							}
 							: null,
 					)
-				} else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
-				else {console.warn('[macos-host] ignored button prop ' + name)}
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className' || name === 'id') {
+					continue
+				} else {
+					console.warn('[macos-host] ignored button prop ' + name)
+				}
 
 				break
 			case 'scrollview':
-				if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessibilityLabel') {node.view.setAccessibilityLabel?.(String(value ?? ''))}
-				else if (name === 'id' || name === 'horizontal' || name === 'showsVerticalScrollIndicator') {continue}
-				else if (name === 'onScroll') {setScrollAction(node, value)}
-				else if (name.startsWith('on')) {
-					if (typeof value === 'function') {console.warn('[macos-host] ' + name + ' is unsupported on ScrollView')}
+				if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessibilityLabel') {
+					node.view.setAccessibilityLabel?.(String(value ?? ''))
+				} else if (
+					name === 'id' ||
+					name === 'horizontal' ||
+					name === 'showsVerticalScrollIndicator'
+				) {
+					continue
+				} else if (name === 'onScroll') {
+					setScrollAction(node, value)
+				} else if (name.startsWith('on')) {
+					if (typeof value === 'function') {
+						console.warn('[macos-host] ' + name + ' is unsupported on ScrollView')
+					}
+				} else {
+					console.warn('[macos-host] ignored scrollview prop ' + name)
 				}
-				else {console.warn('[macos-host] ignored scrollview prop ' + name)}
 
 				break
 			case 'textfield':
@@ -1994,52 +2345,85 @@ function applyProps(node, props) {
 					if (node.type === 'textview') {
 						node.view.string = String(value ?? '')
 						syncTextViewPlaceholder(node)
+					} else {
+						node.view.stringValue = String(value ?? '')
 					}
-					else {node.view.stringValue = String(value ?? '')}
-				}
-				else if (name === 'placeholder') {
-					if (node.type === 'textfield') {continue}
-					else if (node.placeholderView) {
+				} else if (name === 'placeholder') {
+					if (node.type === 'textfield') {
+						continue
+					} else if (node.placeholderView) {
 						node.placeholderView.stringValue = String(value ?? '')
 						syncTextViewPlaceholder(node)
 					}
+				} else if (name === 'placeholderTextColor' && node.type === 'textfield') {
+					continue
+				} else if (name === 'onTextChange') {
+					setControlAction(node, value, () =>
+						String(node.type === 'textview' ? node.view.string : (node.view.stringValue ?? '')),
+					)
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
+					continue
+				} else if (name === 'rows' && node.type === 'textview') {
+					continue
+				} else if (name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (
+					[
+						'editable',
+						'enabled',
+						'secure',
+						'keyboardType',
+						'returnKeyType',
+						'autoGrow',
+						'maxRows',
+					].includes(name)
+				) {
+					continue
+				} else {
+					console.warn('[macos-host] ignored text control prop ' + name)
 				}
-				else if (name === 'placeholderTextColor' && node.type === 'textfield') {continue}
-				else if (name === 'onTextChange') {
-					setControlAction(node, value, () => String(node.type === 'textview' ? node.view.string : node.view.stringValue ?? ''))
-				}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'id') {continue}
-				else if (name === 'rows' && node.type === 'textview') {continue}
-				else if (name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (['editable', 'enabled', 'secure', 'keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)) {continue}
-				else {console.warn('[macos-host] ignored text control prop ' + name)}
 
 				break
 			case 'switch':
-				if (name === 'checked') {node.view.state = value ? 1 : 0}
-				else if (name === 'onCheckedChange') {
+				if (name === 'checked') {
+					node.view.state = value ? 1 : 0
+				} else if (name === 'onCheckedChange') {
 					setControlAction(node, value, () => node.view.state === 1)
+				} else if (name === 'disabled') {
+					node.view.enabled = value !== true
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className' || name === 'id') {
+					continue
+				} else {
+					console.warn('[macos-host] ignored switch prop ' + name)
 				}
-				else if (name === 'disabled') {node.view.enabled = value !== true}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
-				else {console.warn('[macos-host] ignored switch prop ' + name)}
 
 				break
 			case 'slider':
-				if (name === 'value') {node.view.doubleValue = Number(value ?? 0)}
-				else if (name === 'minValue') {node.view.minValue = Number(value ?? 0)}
-				else if (name === 'maxValue') {node.view.maxValue = Number(value ?? 1)}
-				else if (name === 'onValueChange') {
+				if (name === 'value') {
+					node.view.doubleValue = Number(value ?? 0)
+				} else if (name === 'minValue') {
+					node.view.minValue = Number(value ?? 0)
+				} else if (name === 'maxValue') {
+					node.view.maxValue = Number(value ?? 1)
+				} else if (name === 'onValueChange') {
 					setControlAction(node, value, () => Number(node.view.doubleValue))
+				} else if (name === 'disabled') {
+					node.view.enabled = value !== true
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className' || name === 'id') {
+					continue
+				} else {
+					console.warn('[macos-host] ignored slider prop ' + name)
 				}
-				else if (name === 'disabled') {node.view.enabled = value !== true}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
-				else {console.warn('[macos-host] ignored slider prop ' + name)}
 
 				break
 			case 'image':
@@ -2049,25 +2433,32 @@ function applyProps(node, props) {
 						const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
 						node.view.image = NSImage.alloc().initWithData(data)
 					}
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className' || name === 'id' || name === 'alt') {
+					continue
+				} else if (name === 'accessibilityLabel') {
+					node.view.setAccessibilityLabel?.(String(value ?? ''))
+				} else {
+					console.warn('[macos-host] ignored image prop ' + name)
 				}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id' || name === 'alt') {continue}
-				else if (name === 'accessibilityLabel') {node.view.setAccessibilityLabel?.(String(value ?? ''))}
-				else {console.warn('[macos-host] ignored image prop ' + name)}
 
 				break
 		}
 	}
 
-	if (node.type === 'textfield') {setTextFieldPlaceholder(node.view, node.props, nodeScheme(node))}
+	if (node.type === 'textfield') {
+		setTextFieldPlaceholder(node.view, node.props, nodeScheme(node))
+	}
 
 	if (node.type === 'label') {
 		const style = node.props.style ?? {}
 		if (style.lineHeight == null && style.height == null) {
 			const size = Number(node.view.font?.pointSize ?? 16)
-			const height = style.fontSize == null && node.headingDefaultHeight != null
-				? node.headingDefaultHeight
-				: node.classLineHeight ?? Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO)
+			const height =
+				style.fontSize == null && node.headingDefaultHeight != null
+					? node.headingDefaultHeight
+					: (node.classLineHeight ?? Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
 
 			setSizeConstraint(node, 'height', height)
 		}
@@ -2089,18 +2480,27 @@ function applyProps(node, props) {
 		}
 	}
 
-	if (node.type === 'gridlayout') {layoutGridChildren(node)}
-	else if (node.type === 'absolutelayout') {layoutAbsoluteChildren(node)}
-	else if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
-	else if (node.parent?.type === 'absolutelayout') {layoutAbsoluteChildren(node.parent)}
+	if (node.type === 'gridlayout') {
+		layoutGridChildren(node)
+	} else if (node.type === 'absolutelayout') {
+		layoutAbsoluteChildren(node)
+	} else if (node.parent?.type === 'gridlayout') {
+		layoutGridChildren(node.parent)
+	} else if (node.parent?.type === 'absolutelayout') {
+		layoutAbsoluteChildren(node.parent)
+	}
 }
 
 function detach(container, node) {
 	const previousParent = node.parent
 	const siblings = previousParent?.children ?? container.children
 	const index = siblings.indexOf(node)
-	if (index >= 0) {siblings.splice(index, 1)}
-	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
+	if (index >= 0) {
+		siblings.splice(index, 1)
+	}
+	if (node.crossAxisConstraint) {
+		node.crossAxisConstraint.active = false
+	}
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	if (node.view) {
@@ -2112,9 +2512,15 @@ function detach(container, node) {
 		node.view.removeFromSuperview()
 	}
 
-	if (previousParent?.type === 'gridlayout') {layoutGridChildren(previousParent)}
-	if (previousParent?.type === 'absolutelayout') {layoutAbsoluteChildren(previousParent)}
-	if (previousParent) {updateStackDistribution(previousParent)}
+	if (previousParent?.type === 'gridlayout') {
+		layoutGridChildren(previousParent)
+	}
+	if (previousParent?.type === 'absolutelayout') {
+		layoutAbsoluteChildren(previousParent)
+	}
+	if (previousParent) {
+		updateStackDistribution(previousParent)
+	}
 	syncText(previousParent)
 	node.parent = null
 }
@@ -2122,8 +2528,18 @@ function detach(container, node) {
 function insert(container, parentId, node, beforeId) {
 	detach(container, node)
 	const parent = parentId === null ? null : container.nodes.get(parentId)
-	if (parentId !== null && !parent) {throw new Error('Unknown AppKit parent ' + parentId)}
-	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview' && parent.type !== 'gridlayout' && parent.type !== 'absolutelayout') {
+	if (parentId !== null && !parent) {
+		throw new Error('Unknown AppKit parent ' + parentId)
+	}
+	if (
+		parent &&
+		node.view &&
+		parent.type !== 'stack' &&
+		parent.type !== 'flexboxlayout' &&
+		parent.type !== 'scrollview' &&
+		parent.type !== 'gridlayout' &&
+		parent.type !== 'absolutelayout'
+	) {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
 
@@ -2134,7 +2550,9 @@ function insert(container, parentId, node, beforeId) {
 	node.parent = parent
 	if (node.view) {
 		const parentView = parent?.childHost ?? parent?.view ?? container.hostView
-		if (!parentView) {throw new Error('AppKit host has no parent view for node ' + node.id)}
+		if (!parentView) {
+			throw new Error('AppKit host has no parent view for node ' + node.id)
+		}
 		if (parent) {
 			if (parent.type === 'gridlayout') {
 				parentView.addSubview(node.view)
@@ -2147,7 +2565,9 @@ function insert(container, parentId, node, beforeId) {
 				deactivateSizeConstraints(node)
 				layoutAbsoluteChildren(parent)
 			} else {
-				if (marginInsetsOf(node)) {makeMarginHost(node)}
+				if (marginInsetsOf(node)) {
+					makeMarginHost(node)
+				}
 				parentView.addViewInGravity(arrangedView(node), stackGravity(parent, node))
 				applySizeConstraints(node)
 				setStackChildPriorities(parent, node)
@@ -2170,11 +2590,17 @@ function insert(container, parentId, node, beforeId) {
 
 function remove(container, parentId, node) {
 	const expectedParent = parentId === null ? null : container.nodes.get(parentId)
-	if (node.parent !== expectedParent) {return}
+	if (node.parent !== expectedParent) {
+		return
+	}
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
-	if (index >= 0) {siblings.splice(index, 1)}
-	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
+	if (index >= 0) {
+		siblings.splice(index, 1)
+	}
+	if (node.crossAxisConstraint) {
+		node.crossAxisConstraint.active = false
+	}
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	if (node.view) {
@@ -2189,9 +2615,15 @@ function remove(container, parentId, node) {
 		node.marginConstraints = null
 	}
 
-	if (expectedParent?.type === 'gridlayout') {layoutGridChildren(expectedParent)}
-	if (expectedParent?.type === 'absolutelayout') {layoutAbsoluteChildren(expectedParent)}
-	if (expectedParent) {updateStackDistribution(expectedParent)}
+	if (expectedParent?.type === 'gridlayout') {
+		layoutGridChildren(expectedParent)
+	}
+	if (expectedParent?.type === 'absolutelayout') {
+		layoutAbsoluteChildren(expectedParent)
+	}
+	if (expectedParent) {
+		updateStackDistribution(expectedParent)
+	}
 	node.parent = null
 	syncText(expectedParent)
 }
@@ -2224,38 +2656,50 @@ function applyCommand(container, command) {
 			return
 		case 'update': {
 			const node = container.nodes.get(command.id)
-			if (!node) {throw new Error('Unknown AppKit node ' + command.id)}
+			if (!node) {
+				throw new Error('Unknown AppKit node ' + command.id)
+			}
 			applyProps(node, command.props)
 			return
 		}
 		case 'insert':
 		case 'move': {
 			const node = container.nodes.get(command.id)
-			if (!node) {throw new Error('Unknown AppKit node ' + command.id)}
+			if (!node) {
+				throw new Error('Unknown AppKit node ' + command.id)
+			}
 			insert(container, command.parent, node, command.before)
 			return
 		}
 		case 'remove': {
 			const node = container.nodes.get(command.id)
-			if (node) {remove(container, command.parent, node)}
+			if (node) {
+				remove(container, command.parent, node)
+			}
 			return
 		}
 		case 'destroy': {
 			const node = container.nodes.get(command.id)
-			if (node) {destroy(node)}
+			if (node) {
+				destroy(node)
+			}
 			container.nodes.delete(command.id)
 			return
 		}
 		case 'visibility': {
 			const node = container.nodes.get(command.id)
-			if (node?.view) {node.view.hidden = command.state === 'hidden'}
+			if (node?.view) {
+				node.view.hidden = command.state === 'hidden'
+			}
 			return
 		}
 		case 'ensure-public-instance':
 			return
 		case 'recreate': {
 			const node = container.nodes.get(command.id)
-			if (!node) {throw new Error('Unknown AppKit node ' + command.id)}
+			if (!node) {
+				throw new Error('Unknown AppKit node ' + command.id)
+			}
 			const replacement = makeNode(container, command.id, command.type, command.props)
 			const parent = node.parent
 			const siblings = parent ? parent.children : container.children
@@ -2285,7 +2729,15 @@ const macOSDriver = {
 						// The universal root can swallow a mid-batch failure when it
 						// retries or aborts the attempt — log it here so an
 						// unsupported element cannot silently stall the mount.
-						console.error('[macos-host] command ' + command.op + ' failed for <' + (command.type ?? '?') + '> id=' + command.id, error)
+						console.error(
+							'[macos-host] command ' +
+								command.op +
+								' failed for <' +
+								(command.type ?? '?') +
+								'> id=' +
+								command.id,
+							error,
+						)
 						throw error
 					}
 				}
@@ -2301,7 +2753,9 @@ const macOSDriver = {
 const round = (value) => Math.round(value * 100) / 100
 
 function nodeClasses(node) {
-	return String(node.props?.className ?? '').split(/\s+/).filter(Boolean)
+	return String(node.props?.className ?? '')
+		.split(/\s+/)
+		.filter(Boolean)
 }
 
 function descendants(node, out = []) {
@@ -2315,7 +2769,9 @@ function descendants(node, out = []) {
 
 function withDrawingAppearance(appearance, read) {
 	let value
-	const readValue = () => {value = read()}
+	const readValue = () => {
+		value = read()
+	}
 	if (typeof appearance?.performAsCurrentDrawingAppearance === 'function') {
 		appearance.performAsCurrentDrawingAppearance(readValue)
 	} else {
@@ -2326,14 +2782,20 @@ function withDrawingAppearance(appearance, read) {
 }
 
 function colorValue(color, appearance) {
-	if (!color) {return undefined}
+	if (!color) {
+		return undefined
+	}
 	try {
 		return withDrawingAppearance(appearance, () => {
 			const rgb = color.colorUsingColorSpace?.(NSColorSpace.sRGBColorSpace) ?? color
 			return (
 				'#' +
 				[rgb.redComponent, rgb.greenComponent, rgb.blueComponent]
-					.map((component) => Math.round(Number(component) * 255).toString(16).padStart(2, '0'))
+					.map((component) =>
+						Math.round(Number(component) * 255)
+							.toString(16)
+							.padStart(2, '0'),
+					)
 					.join('')
 			)
 		})
@@ -2353,65 +2815,113 @@ function parityStyle(node, facets) {
 	const out = {}
 	for (const facet of facets) {
 		let value = supplied[facet]
-		if (facet === 'paddingTop' && view?.edgeInsets?.top != null) {value = view.edgeInsets.top}
-		if (facet === 'paddingRight' && view?.edgeInsets?.right != null) {value = view.edgeInsets.right}
-		if (facet === 'paddingBottom' && view?.edgeInsets?.bottom != null) {value = view.edgeInsets.bottom}
-		if (facet === 'paddingLeft' && view?.edgeInsets?.left != null) {value = view.edgeInsets.left}
-		if (facet === 'fontSize' && font?.pointSize != null) {value = font.pointSize}
-		if (facet === 'fontFamily' && font?.familyName) {value = font.familyName}
+		if (facet === 'paddingTop' && view?.edgeInsets?.top != null) {
+			value = view.edgeInsets.top
+		}
+		if (facet === 'paddingRight' && view?.edgeInsets?.right != null) {
+			value = view.edgeInsets.right
+		}
+		if (facet === 'paddingBottom' && view?.edgeInsets?.bottom != null) {
+			value = view.edgeInsets.bottom
+		}
+		if (facet === 'paddingLeft' && view?.edgeInsets?.left != null) {
+			value = view.edgeInsets.left
+		}
+		if (facet === 'fontSize' && font?.pointSize != null) {
+			value = font.pointSize
+		}
+		if (facet === 'fontFamily' && font?.familyName) {
+			value = font.familyName
+		}
 		if (facet === 'fontWeight' && font?.fontDescriptor?.symbolicTraits != null) {
-			value = supplied.fontWeight ?? node.appliedFontWeight ?? (Number(font.fontDescriptor.symbolicTraits) & 2 ? '700' : '400')
+			value =
+				supplied.fontWeight ??
+				node.appliedFontWeight ??
+				(Number(font.fontDescriptor.symbolicTraits) & 2 ? '700' : '400')
 		}
 
 		if (facet === 'lineHeight' && font) {
-			value = supplied.lineHeight ?? (node.type === 'label'
-				? round(Number(view.frame.size.height))
-				: round(Number(font.ascender) - Number(font.descender) + Number(font.leading)))
+			value =
+				supplied.lineHeight ??
+				(node.type === 'label'
+					? round(Number(view.frame.size.height))
+					: round(Number(font.ascender) - Number(font.descender) + Number(font.leading)))
 		}
 
-		if (facet === 'color' && view?.textColor) {value = colorValue(view.textColor) ?? value}
+		if (facet === 'color' && view?.textColor) {
+			value = colorValue(view.textColor) ?? value
+		}
 		if (facet === 'backgroundColor') {
-			value = colorValue(view?.layer?.backgroundColor ? NSColor.colorWithCGColor(view.layer.backgroundColor) : null) ?? value
-			if (value == null && view?.drawsBackground === false) {value = 'rgba(0,0,0,0)'}
+			value =
+				colorValue(
+					view?.layer?.backgroundColor
+						? NSColor.colorWithCGColor(view.layer.backgroundColor)
+						: null,
+				) ?? value
+			if (value == null && view?.drawsBackground === false) {
+				value = 'rgba(0,0,0,0)'
+			}
 		}
 
-		if (facet === 'borderTopWidth' && view?.layer) {value = view.layer.borderWidth}
+		if (facet === 'borderTopWidth' && view?.layer) {
+			value = view.layer.borderWidth
+		}
 		if (facet === 'borderTopColor' && view?.layer?.borderColor) {
 			value = colorValue(NSColor.colorWithCGColor(view.layer.borderColor)) ?? value
 		}
 
-		if (facet === 'borderTopLeftRadius' && view?.layer) {value = view.layer.cornerRadius}
-		if (facet === 'opacity' && view?.alphaValue != null) {value = view.alphaValue}
-		if (facet === 'flexDirection' && view?.orientation != null) {value = stackDirection(view)}
-		if (facet === 'alignItems' && view?.orientation != null) {value = stackAlignItems(node)}
-		if (facet === 'justifyContent' && view?.distribution != null) {value = stackJustifyContent(node)}
+		if (facet === 'borderTopLeftRadius' && view?.layer) {
+			value = view.layer.cornerRadius
+		}
+		if (facet === 'opacity' && view?.alphaValue != null) {
+			value = view.alphaValue
+		}
+		if (facet === 'flexDirection' && view?.orientation != null) {
+			value = stackDirection(view)
+		}
+		if (facet === 'alignItems' && view?.orientation != null) {
+			value = stackAlignItems(node)
+		}
+		if (facet === 'justifyContent' && view?.distribution != null) {
+			value = stackJustifyContent(node)
+		}
 
 		if (value !== undefined && value !== null && value !== '') {
 			out[facet] = String(value)
 		}
 	}
 
-	if (font?.fontName) {out.fontPostScriptName = String(font.fontName)}
+	if (font?.fontName) {
+		out.fontPostScriptName = String(font.fontName)
+	}
 
 	return out
 }
 
 function measureTextLineAdvances(value, font) {
-	if (!value || !font) {return undefined}
-	return String(value).split(/\r\n|\r|\n/).map((line) => {
-		const attributed = NSAttributedString.alloc().initWithStringAttributes(line, {
-			[NSFontAttributeName]: font,
-		})
+	if (!value || !font) {
+		return undefined
+	}
+	return String(value)
+		.split(/\r\n|\r|\n/)
+		.map((line) => {
+			const attributed = NSAttributedString.alloc().initWithStringAttributes(line, {
+				[NSFontAttributeName]: font,
+			})
 
-		return round(Number(attributed.size().width))
-	})
+			return round(Number(attributed.size().width))
+		})
 }
 
 function measureTextLineCount(node) {
-	if (node.type !== 'label') {return undefined}
+	if (node.type !== 'label') {
+		return undefined
+	}
 	const view = node.view
 	const cell = view?.cell
-	if (typeof cell?.cellSizeForBounds !== 'function') {return undefined}
+	if (typeof cell?.cellSizeForBounds !== 'function') {
+		return undefined
+	}
 	const bounds = view.bounds
 	const fit = cell.cellSizeForBounds({
 		origin: { x: 0, y: 0 },
@@ -2446,18 +2956,24 @@ function parityBoxInHost(view, rect, boxView) {
 
 function parityLocalBoxInHost(view, rect, boxView) {
 	const frameOrigin = view.frame.origin
-	return parityBoxInHost(view, {
-		origin: {
-			x: Number(frameOrigin.x) + Number(rect.origin.x),
-			y: Number(frameOrigin.y) + Number(rect.origin.y),
+	return parityBoxInHost(
+		view,
+		{
+			origin: {
+				x: Number(frameOrigin.x) + Number(rect.origin.x),
+				y: Number(frameOrigin.y) + Number(rect.origin.y),
+			},
+			size: rect.size,
 		},
-		size: rect.size,
-	}, boxView)
+		boxView,
+	)
 }
 
 function textContentBox(node, boxNode) {
 	const view = node.view
-	if (!view || !boxNode.view) {return null}
+	if (!view || !boxNode.view) {
+		return null
+	}
 	if (node.type === 'textfield' && typeof view.cell?.titleRectForBounds === 'function') {
 		return parityLocalBoxInHost(view, view.cell.titleRectForBounds(view.bounds), boxNode.view)
 	}
@@ -2467,10 +2983,14 @@ function textContentBox(node, boxNode) {
 		const padding = Number(view.textContainer?.lineFragmentPadding ?? 0)
 		const width = Number(view.bounds.size.width) - 2 * Number(inset.width) - 2 * padding
 		const height = Number(view.bounds.size.height) - 2 * Number(inset.height)
-		return parityLocalBoxInHost(view, {
-			origin: { x: Number(inset.width) + padding, y: Number(inset.height) },
-			size: { width: Math.max(0, width), height: Math.max(0, height) },
-		}, boxNode.view)
+		return parityLocalBoxInHost(
+			view,
+			{
+				origin: { x: Number(inset.width) + padding, y: Number(inset.height) },
+				size: { width: Math.max(0, width), height: Math.max(0, height) },
+			},
+			boxNode.view,
+		)
 	}
 
 	return null
@@ -2507,42 +3027,47 @@ function parityNode(node, boxNode, facets) {
 		const value = String(view?.stringValue ?? '')
 		text = value.trim()
 		textLineAdvances = measureTextLineAdvances(value, view?.font)
-	}
-	else if (node.type === 'button') {
+	} else if (node.type === 'button') {
 		const value = String(view?.title ?? '')
 		text = value.trim()
 		textLineAdvances = measureTextLineAdvances(value, view?.font)
-	}
-	else if (node.type === 'textfield') {
+	} else if (node.type === 'textfield') {
 		const value = String(view?.stringValue ?? '')
 		text = value.trim()
 		textLineAdvances = measureTextLineAdvances(value, view?.font)
-	}
-	else if (node.type === 'textview') {
+	} else if (node.type === 'textview') {
 		const value = String(view?.string ?? '')
 		text = value.trim()
 		textLineAdvances = measureTextLineAdvances(value, view?.font)
 	}
 
-	const placeholderAttributedString = node.type === 'textfield' ? view?.placeholderAttributedString : null
-	const placeholder = node.type === 'textfield'
-		? String(placeholderAttributedString?.string ?? view?.placeholderString ?? '').trim()
-		: node.type === 'textview'
-			? String(node.placeholderView?.stringValue ?? '').trim()
-			: ''
+	const placeholderAttributedString =
+		node.type === 'textfield' ? view?.placeholderAttributedString : null
+	const placeholder =
+		node.type === 'textfield'
+			? String(placeholderAttributedString?.string ?? view?.placeholderString ?? '').trim()
+			: node.type === 'textview'
+				? String(node.placeholderView?.stringValue ?? '').trim()
+				: ''
 
-	const placeholderColor = node.type === 'textfield'
-		? placeholderAttributedString?.attributeAtIndexEffectiveRange?.(NSForegroundColorAttributeName, 0, null)
-			?? NSColor.placeholderTextColor
-		: node.type === 'textview'
-			? node.placeholderView?.textColor
-			: null
+	const placeholderColor =
+		node.type === 'textfield'
+			? (placeholderAttributedString?.attributeAtIndexEffectiveRange?.(
+					NSForegroundColorAttributeName,
+					0,
+					null,
+				) ?? NSColor.placeholderTextColor)
+			: node.type === 'textview'
+				? node.placeholderView?.textColor
+				: null
 
 	const appearance = view?.effectiveAppearance ?? view?.window?.effectiveAppearance
 	const placeholderStyle = placeholderColor
 		? {
 				color: colorValue(placeholderColor, appearance),
-				opacity: round(Number(withDrawingAppearance(appearance, () => placeholderColor.alphaComponent))),
+				opacity: round(
+					Number(withDrawingAppearance(appearance, () => placeholderColor.alphaComponent)),
+				),
 			}
 		: undefined
 
@@ -2569,7 +3094,9 @@ function parityNode(node, boxNode, facets) {
 
 function measureParity(container, facets) {
 	const stage = [...container.nodes.values()].find((node) => node.props?.id === 'parity-stage')
-	if (!stage?.view) {return null}
+	if (!stage?.view) {
+		return null
+	}
 	container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
 	stage.view.layoutSubtreeIfNeeded?.()
 
@@ -2577,9 +3104,13 @@ function measureParity(container, facets) {
 	for (const cell of stage.children.filter((node) => nodeClasses(node).includes('parity-cell'))) {
 		const name = String(cell.props?.id ?? '').replace(/^cell-/, '')
 		const box = descendants(cell).find((node) => nodeClasses(node).includes('parity-box'))
-		if (!box?.view) {continue}
+		if (!box?.view) {
+			continue
+		}
 		box.view.layoutSubtreeIfNeeded?.()
-		for (const scroll of descendants(box).filter((node) => node.type === 'scrollview' && node.view)) {
+		for (const scroll of descendants(box).filter(
+			(node) => node.type === 'scrollview' && node.view,
+		)) {
 			const clip = scroll.view.contentView
 			const document = scroll.view.documentView
 			const y = Math.max(0, Number(document.bounds.size.height) - Number(clip.bounds.size.height))
@@ -2616,7 +3147,9 @@ const HOVER_TRACKING_OPTIONS =
 function dispatchHover(area, phase) {
 	const record = hoverRecordsByArea.get(area)
 	const handler = phase === 'enter' ? record?.enter : record?.exit
-	if (typeof handler !== 'function') {return}
+	if (typeof handler !== 'function') {
+		return
+	}
 	try {
 		handler()
 	} catch (error) {
@@ -2642,7 +3175,9 @@ function observeHover(view, handlers) {
 		null,
 	)
 
-	if (!area) {return () => {}}
+	if (!area) {
+		return () => {}
+	}
 	view.addTrackingArea(area)
 	const record = { view, area, enter: handlers?.enter, exit: handlers?.exit }
 	hoverRecordsByArea.set(area, record)
@@ -2652,7 +3187,9 @@ function observeHover(view, handlers) {
 
 function unobserveHover(view) {
 	const record = hoverRecordByView.get(view)
-	if (!record) {return}
+	if (!record) {
+		return
+	}
 	hoverRecordByView.delete(view)
 	hoverRecordsByArea.delete(record.area)
 	try {
@@ -2685,7 +3222,10 @@ try {
 
 	hoverTrackingTarget = HoverTrackingTarget.new()
 } catch (error) {
-	console.error('[macos-hover] tracking target registration failed — hover affordances disabled', error)
+	console.error(
+		'[macos-hover] tracking target registration failed — hover affordances disabled',
+		error,
+	)
 }
 
 // preferredEdge is the anchor edge the popover attaches to: 'top' places the
@@ -2694,11 +3234,19 @@ try {
 function popoverEdge(placement) {
 	const edges = typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
 	switch (placement) {
-		case 'bottom': {return edges.MinY ?? 1}
-		case 'left': {return edges.MinX ?? 0}
-		case 'right': {return edges.MaxX ?? 2}
+		case 'bottom': {
+			return edges.MinY ?? 1
+		}
+		case 'left': {
+			return edges.MinX ?? 0
+		}
+		case 'right': {
+			return edges.MaxX ?? 2
+		}
 		case 'top':
-		default: {return edges.MaxY ?? 3}
+		default: {
+			return edges.MaxY ?? 3
+		}
 	}
 }
 
@@ -2742,7 +3290,9 @@ function showAnchoredPopup(options) {
 		contentView,
 		closed: false,
 		close() {
-			if (popup.closed) {return}
+			if (popup.closed) {
+				return
+			}
 			popup.closed = true
 			openPopups.delete(popup)
 			try {
@@ -2773,7 +3323,9 @@ function showAnchoredPopup(options) {
 	const controller = NSViewController.alloc().init()
 	controller.view = contentView
 	const fit = popupFittingSize(contentView)
-	if (fit) {controller.preferredContentSize = fit}
+	if (fit) {
+		controller.preferredContentSize = fit
+	}
 
 	const popover = NSPopover.alloc().init()
 	popover.contentViewController = controller
@@ -2786,7 +3338,11 @@ function showAnchoredPopup(options) {
 	openPopups.add(popup)
 
 	try {
-		popover.showRelativeToRectOfViewPreferredEdge(anchor.bounds, anchor, popoverEdge(options.placement))
+		popover.showRelativeToRectOfViewPreferredEdge(
+			anchor.bounds,
+			anchor,
+			popoverEdge(options.placement),
+		)
 	} catch (error) {
 		console.error('[macos-popup] popover presentation failed', error)
 		popup.close()
@@ -2850,7 +3406,9 @@ function attachContextMenu(view, options, onSelect) {
 		)
 
 		menuItem.target = menuActionTarget
-		if (item?.disabled) {menuItem.enabled = false}
+		if (item?.disabled) {
+			menuItem.enabled = false
+		}
 		const actionId = nextActionId++
 		menuItem.tag = actionId
 		const id = item?.id
@@ -2872,16 +3430,16 @@ function attachContextMenu(view, options, onSelect) {
 	// change re-walks).
 	const tagged = []
 	const assign = (hostView) => {
-		if (!hostView || typeof hostView !== 'object') {return}
+		if (!hostView || typeof hostView !== 'object') {
+			return
+		}
 		try {
 			hostView.menu = menu
 			tagged.push(hostView)
 		} catch {}
 
 		const subviews = hostView.subviews
-		const count = typeof subviews?.count === 'function'
-			? subviews.count()
-			: (subviews?.count ?? 0)
+		const count = typeof subviews?.count === 'function' ? subviews.count() : (subviews?.count ?? 0)
 
 		for (let i = 0; i < count; i++) {
 			assign(subviews.objectAtIndex(i))
@@ -2893,19 +3451,29 @@ function attachContextMenu(view, options, onSelect) {
 	return () => {
 		for (const hostView of tagged) {
 			try {
-				if (hostView.menu === menu) {hostView.menu = null}
+				if (hostView.menu === menu) {
+					hostView.menu = null
+				}
 			} catch {}
 		}
 
-		for (const actionId of created) {actionHandlers.delete(actionId)}
+		for (const actionId of created) {
+			actionHandlers.delete(actionId)
+		}
 	}
 }
 
-const DATE_PICKER_STYLES = typeof NSDatePickerStyle === 'object' && NSDatePickerStyle ? NSDatePickerStyle : {}
-const DATE_PICKER_ELEMENTS = typeof NSDatePickerElementFlags === 'object' && NSDatePickerElementFlags ? NSDatePickerElementFlags : {}
+const DATE_PICKER_STYLES =
+	typeof NSDatePickerStyle === 'object' && NSDatePickerStyle ? NSDatePickerStyle : {}
+const DATE_PICKER_ELEMENTS =
+	typeof NSDatePickerElementFlags === 'object' && NSDatePickerElementFlags
+		? NSDatePickerElementFlags
+		: {}
 
 function dateFromMillis(millis) {
-	if (typeof NSDate !== 'function' || !Number.isFinite(millis)) {return null}
+	if (typeof NSDate !== 'function' || !Number.isFinite(millis)) {
+		return null
+	}
 	return NSDate.dateWithTimeIntervalSince1970(millis / 1000)
 }
 
@@ -2915,7 +3483,12 @@ function dateFromMillis(millis) {
  *  inline calendar); 'time' uses HourMinute with the clock-and-calendar
  *  field. Returns a handle with update/detach. */
 function attachDatePicker(view, options, onChange) {
-	if (!view || typeof view.addSubview !== 'function' || typeof NSDatePicker !== 'function' || !buttonActionTarget) {
+	if (
+		!view ||
+		typeof view.addSubview !== 'function' ||
+		typeof NSDatePicker !== 'function' ||
+		!buttonActionTarget
+	) {
 		return null
 	}
 
@@ -2925,11 +3498,12 @@ function attachDatePicker(view, options, onChange) {
 		? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
 		: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
 
-	picker.datePickerStyle = !isTime && options?.style === 'graphical'
-		? (DATE_PICKER_STYLES.Graphical ?? 2)
-		: isTime
-			? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
-			: (DATE_PICKER_STYLES.TextField ?? 0)
+	picker.datePickerStyle =
+		!isTime && options?.style === 'graphical'
+			? (DATE_PICKER_STYLES.Graphical ?? 2)
+			: isTime
+				? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
+				: (DATE_PICKER_STYLES.TextField ?? 0)
 
 	const applyRange = (opts) => {
 		const min = dateFromMillis(opts?.minimumMillis)
@@ -2942,7 +3516,9 @@ function attachDatePicker(view, options, onChange) {
 	picker.enabled = options?.enabled !== false
 
 	const initial = dateFromMillis(options?.selectionMillis)
-	if (initial) {picker.dateValue = initial}
+	if (initial) {
+		picker.dateValue = initial
+	}
 
 	picker.translatesAutoresizingMaskIntoConstraints = false
 	view.addSubview(picker)
@@ -2957,11 +3533,12 @@ function attachDatePicker(view, options, onChange) {
 	picker.action = 'controlChanged'
 	actionHandlers.set(actionId, () => {
 		const date = picker.dateValue
-		const millis = typeof date?.timeIntervalSince1970 === 'number'
-			? date.timeIntervalSince1970 * 1000
-			: null
+		const millis =
+			typeof date?.timeIntervalSince1970 === 'number' ? date.timeIntervalSince1970 * 1000 : null
 
-		if (millis === null) {return}
+		if (millis === null) {
+			return
+		}
 		try {
 			onChange?.(millis)
 		} catch (error) {
@@ -3015,12 +3592,17 @@ try {
 
 	sheetDelegateTarget = SheetDelegateTarget.new()
 } catch (error) {
-	console.error('[macos-leaf] sheet delegate registration failed — window close reporting disabled', error)
+	console.error(
+		'[macos-leaf] sheet delegate registration failed — window close reporting disabled',
+		error,
+	)
 }
 
 function finishSheetDismissal(sheetWindow) {
 	for (const entry of openSheets) {
-		if (entry.sheetWindow !== sheetWindow) {continue}
+		if (entry.sheetWindow !== sheetWindow) {
+			continue
+		}
 		openSheets.delete(entry)
 		const wasClosed = entry.closed
 		entry.closed = true
@@ -3068,7 +3650,9 @@ function presentSheet(view, options) {
 	}
 
 	const close = () => {
-		if (entry.closed) {return}
+		if (entry.closed) {
+			return
+		}
 		entry.closed = true
 		openSheets.delete(entry)
 		try {
@@ -3116,7 +3700,9 @@ function presentSheet(view, options) {
 
 	sheet.contentViewController = controller
 	sheet.releasedWhenClosed = false
-	if (sheetDelegateTarget) {sheet.delegate = sheetDelegateTarget}
+	if (sheetDelegateTarget) {
+		sheet.delegate = sheetDelegateTarget
+	}
 	entry.sheetWindow = sheet
 	openSheets.add(entry)
 
@@ -3156,7 +3742,17 @@ export function createMacOSRoot(hostView) {
 	const container = { hostView, nodes: new Map(), children: [], root: null }
 	const root = createUniversalRoot(container, macOSDriver, {
 		scheduleMicrotask: (callback) => queueMicrotask(callback),
-		onUncaughtError: (error) => console.error('[macos-runtime] uncaught render error name=' + (error&&error.name) + ' message=' + (error&&error.message) + ' value=' + (typeof error === 'object' ? JSON.stringify(error) : String(error)) + ' stack=' + (error&&error.stack)),
+		onUncaughtError: (error) =>
+			console.error(
+				'[macos-runtime] uncaught render error name=' +
+					(error && error.name) +
+					' message=' +
+					(error && error.message) +
+					' value=' +
+					(typeof error === 'object' ? JSON.stringify(error) : String(error)) +
+					' stack=' +
+					(error && error.stack),
+			),
 	})
 
 	container.root = root
@@ -3184,7 +3780,9 @@ export function createMacOSRoot(hostView) {
 				const scrollViews = []
 				for (const node of container.nodes.values()) {
 					nodeTypes[node.type] = (nodeTypes[node.type] ?? 0) + 1
-					if (node.view) {nativeViewCount += 1}
+					if (node.view) {
+						nativeViewCount += 1
+					}
 					if (node.type === 'scrollview' && node.view) {
 						const bounds = node.view.contentView.bounds
 						scrollViews.push({
@@ -3196,14 +3794,20 @@ export function createMacOSRoot(hostView) {
 					}
 
 					const match = /^(?:row-r|bench-row-)(\d+)$/.exec(String(node.props.id ?? ''))
-					if (!match) {continue}
+					if (!match) {
+						continue
+					}
 
 					mappedRowCount += 1
 					const index = Number(match[1])
 					firstMappedRow = Math.min(firstMappedRow, index)
 					lastMappedRow = Math.max(lastMappedRow, index)
-					if (node.parent !== null) {parentedRowCount += 1}
-					if (node.view?.superview != null) {nativeAttachedRowCount += 1}
+					if (node.parent !== null) {
+						parentedRowCount += 1
+					}
+					if (node.view?.superview != null) {
+						nativeAttachedRowCount += 1
+					}
 					if (node.parent !== null && node.view?.superview != null) {
 						mountedRowCount += 1
 						firstMountedRow = Math.min(firstMountedRow, index)
@@ -3236,7 +3840,9 @@ export function createMacOSRoot(hostView) {
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
-				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit ScrollView with id ' + id)
+				}
 				const clipView = node.view.contentView
 				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
 				node.view.reflectScrolledClipView(clipView)
@@ -3251,7 +3857,9 @@ export function createMacOSRoot(hostView) {
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
-				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit ScrollView with id ' + id)
+				}
 				const clipView = node.view.contentView
 				const doc = node.view.documentView
 				const docH = Number(doc.frame.size.height)
@@ -3275,7 +3883,9 @@ export function createMacOSRoot(hostView) {
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
-				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit ScrollView with id ' + id)
+				}
 				const clipView = node.view.contentView
 				const doc = node.view.documentView
 				const clipH = Number(clipView.bounds.size.height)
@@ -3287,10 +3897,13 @@ export function createMacOSRoot(hostView) {
 				// to its top spacer, not the document frame) — prefer it since
 				// docH-derived offsets drift every time estimates rebuild.
 				const published = globalThis.__xplatVlistOffsets?.[id]
-				const offset = typeof published === 'number' ? published : flipped ? originY : docH - clipH - originY
+				const offset =
+					typeof published === 'number' ? published : flipped ? originY : docH - clipH - originY
 				const rows = descendants(node).flatMap((child) => {
 					const match = /^vlist-bench-row-(\d+)$/.exec(String(child.props?.id ?? ''))
-					if (!match || !child.view) {return []}
+					if (!match || !child.view) {
+						return []
+					}
 					try {
 						// Row box relative to the clip's top edge, computed in doc
 						// coordinates so it stays docH-independent like `offset`.
@@ -3338,7 +3951,9 @@ export function createMacOSRoot(hostView) {
 					(candidate) => candidate.props.id === id && candidate.view,
 				)
 
-				if (!node) {throw new Error('No AppKit view with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit view with id ' + id)
+				}
 				const rect = node.view.convertRectToView(node.view.bounds, null)
 				return {
 					x: Number(rect.origin.x),
@@ -3349,22 +3964,22 @@ export function createMacOSRoot(hostView) {
 			},
 			/** Apply a single style prop on a mounted node — margin/layout probes. */
 			setStyle(id, name, value) {
-				const node = [...container.nodes.values()].find(
-					(candidate) => candidate.props.id === id,
-				)
+				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
 
-				if (!node) {throw new Error('No AppKit node with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit node with id ' + id)
+				}
 				applyStyle(node, { [name]: value })
 				container.hostView.layoutSubtreeIfNeeded?.()
 				return this.frameInWindow(id)
 			},
 			/** Ancestor chain for a node id with frames — layout forensics. */
 			ancestors(id) {
-				const node = [...container.nodes.values()].find(
-					(candidate) => candidate.props.id === id,
-				)
+				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
 
-				if (!node) {throw new Error('No AppKit node with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit node with id ' + id)
+				}
 				const chain = []
 				for (let cur = node; cur; cur = cur.parent) {
 					chain.push({
@@ -3393,12 +4008,16 @@ export function createMacOSRoot(hostView) {
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === scrollId,
 				)
 
-				if (!scroll) {throw new Error('No AppKit ScrollView with id ' + scrollId)}
+				if (!scroll) {
+					throw new Error('No AppKit ScrollView with id ' + scrollId)
+				}
 				const stage = [...container.nodes.values()].find(
 					(candidate) => candidate.props.id === 'parity-stage',
 				)
 
-				if (!stage) {throw new Error('No parity stage mounted')}
+				if (!stage) {
+					throw new Error('No parity stage mounted')
+				}
 				container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
 				scroll.view.layoutSubtreeIfNeeded?.()
 				const doc = scroll.view.documentView
@@ -3409,12 +4028,16 @@ export function createMacOSRoot(hostView) {
 				const flipped = flip === true || Number(flip) === 1
 				const cells = []
 				for (const cell of stage.children) {
-					if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {continue}
+					if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {
+						continue
+					}
 					const inDoc = cell.view.convertRectToView(cell.view.bounds, doc)
 					const inWindow = cell.view.convertRectToView(cell.view.bounds, null)
 					cells.push({
 						name: String(cell.props.id ?? '').replace(/^cell-/, ''),
-						top: flipped ? Number(inDoc.origin.y) : docH - Number(inDoc.origin.y) - Number(inDoc.size.height),
+						top: flipped
+							? Number(inDoc.origin.y)
+							: docH - Number(inDoc.origin.y) - Number(inDoc.size.height),
 						height: Number(inDoc.size.height),
 						width: Number(inDoc.size.width),
 						x: Number(inDoc.origin.x),
@@ -3449,19 +4072,21 @@ export function createMacOSRoot(hostView) {
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
-				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				if (!node) {
+					throw new Error('No AppKit ScrollView with id ' + id)
+				}
 				return { ...(node.scrollMetrics ?? { events: [] }) }
 			},
 			inspect(id) {
 				const node = id.startsWith('type:')
 					? [...container.nodes.values()].find(
-						(candidate) => candidate.type === id.slice(5) && candidate.view,
-					)
-					: [...container.nodes.values()].find(
-						(candidate) => candidate.props?.id === id,
-					)
+							(candidate) => candidate.type === id.slice(5) && candidate.view,
+						)
+					: [...container.nodes.values()].find((candidate) => candidate.props?.id === id)
 
-				if (!node?.view) {throw new Error('No AppKit view with id ' + id)}
+				if (!node?.view) {
+					throw new Error('No AppKit view with id ' + id)
+				}
 				const view = node.view
 				const appearance = view.effectiveAppearance ?? view.window?.effectiveAppearance
 				const window = view.window
@@ -3473,109 +4098,132 @@ export function createMacOSRoot(hostView) {
 					backgroundColor: view.layer?.backgroundColor
 						? (colorValue(NSColor.colorWithCGColor(view.layer.backgroundColor), appearance) ?? null)
 						: null,
-					frame: view.frame ? {
-						x: round(Number(view.frame.origin.x)),
-						y: round(Number(view.frame.origin.y)),
-						w: round(Number(view.frame.size.width)),
-						h: round(Number(view.frame.size.height)),
-					} : null,
-					window: window ? {
-						frame: {
-							x: round(Number(window.frame.origin.x)),
-							y: round(Number(window.frame.origin.y)),
-							w: round(Number(window.frame.size.width)),
-							h: round(Number(window.frame.size.height)),
-						},
-						contentSize: window.contentView?.frame?.size
-							? { w: round(Number(window.contentView.frame.size.width)), h: round(Number(window.contentView.frame.size.height)) }
-							: null,
-						fittingSize: window.contentView?.fittingSize
-							? { w: round(Number(window.contentView.fittingSize.width)), h: round(Number(window.contentView.fittingSize.height)) }
-							: null,
-						styleMask: Number(window.styleMask ?? 0),
-						colorScheme: globalThis.__xplatAppKit?.getColorScheme?.() ?? null,
-					} : null,
+					frame: view.frame
+						? {
+								x: round(Number(view.frame.origin.x)),
+								y: round(Number(view.frame.origin.y)),
+								w: round(Number(view.frame.size.width)),
+								h: round(Number(view.frame.size.height)),
+							}
+						: null,
+					window: window
+						? {
+								frame: {
+									x: round(Number(window.frame.origin.x)),
+									y: round(Number(window.frame.origin.y)),
+									w: round(Number(window.frame.size.width)),
+									h: round(Number(window.frame.size.height)),
+								},
+								contentSize: window.contentView?.frame?.size
+									? {
+											w: round(Number(window.contentView.frame.size.width)),
+											h: round(Number(window.contentView.frame.size.height)),
+										}
+									: null,
+								fittingSize: window.contentView?.fittingSize
+									? {
+											w: round(Number(window.contentView.fittingSize.width)),
+											h: round(Number(window.contentView.fittingSize.height)),
+										}
+									: null,
+								styleMask: Number(window.styleMask ?? 0),
+								colorScheme: globalThis.__xplatAppKit?.getColorScheme?.() ?? null,
+							}
+						: null,
 				}
 			},
 			snapshot() {
-						return {
-							labels: [...container.nodes.values()]
-								.filter((node) => node.type === 'label' && node.view)
-								.map((node) => node.view.stringValue),
-							buttons: [...container.nodes.values()]
-								.filter((node) => node.type === 'button' && node.view)
-								.map((node) => node.view.title),
-							pressables: [...container.nodes.values()]
-								.filter(
-									(node) =>
-										node.type === 'flexboxlayout' &&
-										node.actionId !== undefined &&
-										accessibilityRoles.get(node.actionId) === 'button',
-								)
-								.map((node) => accessibilityLabels.get(node.actionId)),
-						}
-					},
-					pressId(id) {
-						const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
-						if (!node || node.actionId === undefined) {
-							throw new Error('No AppKit pressable with id ' + id)
-						}
-
-						invokeAction(node.actionId)
-					},
-					setText(idOrPlaceholder, value) {
-						const node = [...container.nodes.values()].find(
-							(candidate) =>
-								(candidate.type === 'textfield' || candidate.type === 'textview') &&
-								(candidate.props.id === idOrPlaceholder || candidate.props.placeholder === idOrPlaceholder),
+				return {
+					labels: [...container.nodes.values()]
+						.filter((node) => node.type === 'label' && node.view)
+						.map((node) => node.view.stringValue),
+					buttons: [...container.nodes.values()]
+						.filter((node) => node.type === 'button' && node.view)
+						.map((node) => node.view.title),
+					pressables: [...container.nodes.values()]
+						.filter(
+							(node) =>
+								node.type === 'flexboxlayout' &&
+								node.actionId !== undefined &&
+								accessibilityRoles.get(node.actionId) === 'button',
 						)
+						.map((node) => accessibilityLabels.get(node.actionId)),
+				}
+			},
+			pressId(id) {
+				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
+				if (!node || node.actionId === undefined) {
+					throw new Error('No AppKit pressable with id ' + id)
+				}
 
-						if (!node || node.actionId === undefined) {
-							throw new Error('No AppKit text input with id or placeholder ' + idOrPlaceholder)
-						}
+				invokeAction(node.actionId)
+			},
+			setText(idOrPlaceholder, value) {
+				const node = [...container.nodes.values()].find(
+					(candidate) =>
+						(candidate.type === 'textfield' || candidate.type === 'textview') &&
+						(candidate.props.id === idOrPlaceholder ||
+							candidate.props.placeholder === idOrPlaceholder),
+				)
 
-						if (node.type === 'textview') {
-							node.view.string = String(value)
-							buttonActionTarget.textDidChange({ object: node.view })
-						} else {
-							node.view.stringValue = String(value)
-							buttonActionTarget.controlChanged(node.view)
-						}
-					},
-				pressAccessibilityLabel(label) {
-					const node = [...container.nodes.values()].find(
-						(candidate) =>
-							candidate.type === 'flexboxlayout' &&
-							candidate.actionId !== undefined &&
-							accessibilityLabels.get(candidate.actionId) === label,
-					)
+				if (!node || node.actionId === undefined) {
+					throw new Error('No AppKit text input with id or placeholder ' + idOrPlaceholder)
+				}
 
-					if (!node) {throw new Error('No AppKit pressable labeled ' + label)}
-					if (!node.view.accessibilityPerformPress()) {
-						throw new Error('AppKit pressable has no action for ' + label)
-					}
-				},
-				pressButton(title) {
-					const node = [...container.nodes.values()].find(
-						(candidate) => candidate.type === 'button' && candidate.view.title === title,
-					)
+				if (node.type === 'textview') {
+					node.view.string = String(value)
+					buttonActionTarget.textDidChange({ object: node.view })
+				} else {
+					node.view.stringValue = String(value)
+					buttonActionTarget.controlChanged(node.view)
+				}
+			},
+			pressAccessibilityLabel(label) {
+				const node = [...container.nodes.values()].find(
+					(candidate) =>
+						candidate.type === 'flexboxlayout' &&
+						candidate.actionId !== undefined &&
+						accessibilityLabels.get(candidate.actionId) === label,
+				)
 
-					if (!node) {throw new Error('No AppKit button titled ' + title)}
-					node.view.performClick(null)
-				},
-				hover(id, phase) {
-					const node = [...container.nodes.values()].find((candidate) => candidate.props?.id === id && candidate.view)
-					if (!node) {throw new Error('No AppKit view with id ' + id)}
-					const record = hoverRecordByView.get(node.view)
-					if (!record) {throw new Error('No hover observer on ' + id)}
-					const handler = phase === 'exit' ? record.exit : record.enter
-					if (typeof handler !== 'function') {throw new Error('No ' + phase + ' handler on ' + id)}
-					handler()
-				},
-				openPopupCount() {
-					return openPopups.size
-				},
-			}
+				if (!node) {
+					throw new Error('No AppKit pressable labeled ' + label)
+				}
+				if (!node.view.accessibilityPerformPress()) {
+					throw new Error('AppKit pressable has no action for ' + label)
+				}
+			},
+			pressButton(title) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.type === 'button' && candidate.view.title === title,
+				)
+
+				if (!node) {
+					throw new Error('No AppKit button titled ' + title)
+				}
+				node.view.performClick(null)
+			},
+			hover(id, phase) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.props?.id === id && candidate.view,
+				)
+				if (!node) {
+					throw new Error('No AppKit view with id ' + id)
+				}
+				const record = hoverRecordByView.get(node.view)
+				if (!record) {
+					throw new Error('No hover observer on ' + id)
+				}
+				const handler = phase === 'exit' ? record.exit : record.enter
+				if (typeof handler !== 'function') {
+					throw new Error('No ' + phase + ' handler on ' + id)
+				}
+				handler()
+			},
+			openPopupCount() {
+				return openPopups.size
+			},
+		}
 
 		Object.defineProperty(root, '__macosDebug', { value: debug })
 		Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: debug, configurable: true })

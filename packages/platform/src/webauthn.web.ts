@@ -31,7 +31,9 @@ function encode(buffer: ArrayBuffer): string {
 	return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-async function create(options: WebAuthnCreateOptionsJSON): Promise<WebAuthnRegistrationJSON | null> {
+async function create(
+	options: WebAuthnCreateOptionsJSON,
+): Promise<WebAuthnRegistrationJSON | null> {
 	const credential = (await navigator.credentials.create({
 		publicKey: {
 			challenge: decode(options.challenge),

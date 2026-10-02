@@ -1,19 +1,19 @@
 {
 	"name": "@octane-xplat/richtext",
 	"version": "0.8.0",
-	"description": "Native rich-text editing leaf for Octane xplat \u2014 WordPress Aztec on Android (iOS stubbed, deferred)",
+	"description": "Native rich-text editing leaf for Octane xplat — WordPress Aztec on Android (iOS stubbed, deferred)",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
-		"richtext",
-		"rich-text",
-		"editor",
+		"android",
 		"aztec",
-		"android"
+		"cross-platform",
+		"editor",
+		"octane",
+		"rich-text",
+		"richtext",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/richtext",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -41,7 +41,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"macos": {
@@ -59,7 +58,8 @@
 				"types": "./types/index.d.ts",
 				"default": "./dist/native/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",

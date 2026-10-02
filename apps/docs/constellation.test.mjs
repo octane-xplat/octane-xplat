@@ -5,7 +5,9 @@ import { animateConstellation } from './src/constellation.ts'
 
 test('constellation keeps 50–80% fading and follows scroll, motion preference, and cleanup', (t) => {
 	t.mock.timers.enable({ apis: ['setTimeout'] })
-	const dom = new JSDOM('<div id="host"><svg>' + '<polygon />'.repeat(20) + '</svg></div><div id="content"></div>')
+	const dom = new JSDOM(
+		'<div id="host"><svg>' + '<polygon />'.repeat(20) + '</svg></div><div id="content"></div>',
+	)
 	const previousWindow = globalThis.window
 	globalThis.window = dom.window
 	t.after(() => {
@@ -22,7 +24,10 @@ test('constellation keeps 50–80% fading and follows scroll, motion preference,
 	const started = []
 	for (const element of host.querySelectorAll('polygon')) {
 		element.animate = (frames, options) => {
-			assert.deepEqual(frames.map((frame) => frame.opacity), [1, 0.35, 1])
+			assert.deepEqual(
+				frames.map((frame) => frame.opacity),
+				[1, 0.35, 1],
+			)
 			assert.ok(options.duration >= 2340 && options.duration < 4680)
 			assert.ok(!live.has(element), 'an element cannot have overlapping fades')
 			const animation = { cancel: () => live.delete(element) }
@@ -34,7 +39,9 @@ test('constellation keeps 50–80% fading and follows scroll, motion preference,
 	}
 
 	const advance = () => {
-		for (let i = 0; i < 40; i++) { t.mock.timers.tick(300) }
+		for (let i = 0; i < 40; i++) {
+			t.mock.timers.tick(300)
+		}
 	}
 
 	const scrollTo = (top) => {

@@ -302,12 +302,7 @@ if (ns.error) {
 
 		check(scenario, EXPLICIT, unresolved.includes(EXPLICIT) ? null : 'resolved', 'resolved')
 		const errors = output.match(/error TS\d+/g) ?? []
-		check(
-			scenario,
-			'no diagnostics',
-			errors.length ? errors.join(',') : 'clean',
-			'clean',
-		)
+		check(scenario, 'no diagnostics', errors.length ? errors.join(',') : 'clean', 'clean')
 	}
 }
 

@@ -1,20 +1,20 @@
 {
 	"name": "@octane-xplat/notifications",
 	"version": "0.8.0",
-	"description": "Local notifications for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Local notifications for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
-		"octane",
-		"xplat",
+		"android",
 		"cross-platform",
-		"notifications",
+		"ios",
 		"local-notifications",
 		"nativescript",
-		"ios",
-		"android",
-		"web"
+		"notifications",
+		"octane",
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/notifications",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

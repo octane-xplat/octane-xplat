@@ -3,8 +3,12 @@
 	"version": "0.8.0",
 	"description": "System WebView host adapters for desktop Octane applications",
 	"license": "MIT",
+	"files": [
+		"platforms",
+		"src",
+		"types"
+	],
 	"type": "module",
-	"files": ["platforms", "src", "types"],
 	"exports": {
 		"./macos": {
 			"types": "./types/macos.d.ts",
@@ -16,7 +20,9 @@
 	},
 	"xplat": {
 		"macos": {
-			"frameworks": ["WebKit"]
+			"frameworks": [
+				"WebKit"
+			]
 		}
 	}
 }

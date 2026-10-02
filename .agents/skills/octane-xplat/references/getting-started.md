@@ -2,15 +2,15 @@
 
 ## Layout
 
-| Path             | What                                                                                                                                   |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/ui`    | The framework — primitives, styled(), stacks, routes, theme. Published as `@octane-xplat/ui`.                                          |
-| `packages/app`   | Harness app exercising every seam (screens, nav, overlays, probes). Not a product.                                                     |
-| `packages/demos` | Familiar mini-apps and seam-proof demos used as navigation and store payloads. |
-| `apps/web`       | Web entry — vite + `@octanejs/vite-plugin`, `resolve.conditions:['web']`, port 5200.                                                   |
-| `apps/mobile`    | NativeScript entry — `ns build/run`, Vite configured with `xplatNative()`, `resolve.conditions:['native']`.                              |
-| `docs/`          | Design record: decisions ledger, per-domain specs, exploration notes.                                                                  |
-| `scripts/`       | `check-no-dom.mjs` (seam lint).                                                                                                        |
+| Path             | What                                                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| `packages/ui`    | The framework — primitives, styled(), stacks, routes, theme. Published as `@octane-xplat/ui`.               |
+| `packages/app`   | Harness app exercising every seam (screens, nav, overlays, probes). Not a product.                          |
+| `packages/demos` | Familiar mini-apps and seam-proof demos used as navigation and store payloads.                              |
+| `apps/web`       | Web entry — vite + `@octanejs/vite-plugin`, `resolve.conditions:['web']`, port 5200.                        |
+| `apps/mobile`    | NativeScript entry — `ns build/run`, Vite configured with `xplatNative()`, `resolve.conditions:['native']`. |
+| `docs/`          | Design record: decisions ledger, per-domain specs, exploration notes.                                       |
+| `scripts/`       | `check-no-dom.mjs` (seam lint).                                                                             |
 
 ## Commands
 

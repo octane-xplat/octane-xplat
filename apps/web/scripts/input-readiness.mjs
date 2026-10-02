@@ -7,16 +7,22 @@ import { createServer } from 'vite'
 const server = await createServer({
 	root: fileURLToPath(new URL('..', import.meta.url)),
 	server: { port: 0, host: '127.0.0.1', strictPort: true },
-	plugins: [{
-		name: 'input-readiness-fixture',
-		configureServer(server) {
-			server.middlewares.use('/__input_readiness', async (_req, res) => {
-				res.setHeader('Content-Type', 'text/html')
-				res.end(await server.transformIndexHtml('/__input_readiness',
-					'<div id="root"></div><script type="module" src="/test/input-readiness.web.tsrx"></script>'))
-			})
+	plugins: [
+		{
+			name: 'input-readiness-fixture',
+			configureServer(server) {
+				server.middlewares.use('/__input_readiness', async (_req, res) => {
+					res.setHeader('Content-Type', 'text/html')
+					res.end(
+						await server.transformIndexHtml(
+							'/__input_readiness',
+							'<div id="root"></div><script type="module" src="/test/input-readiness.web.tsrx"></script>',
+						),
+					)
+				})
+			},
 		},
-	}],
+	],
 })
 
 let browser
@@ -41,7 +47,9 @@ try {
 	await page.keyboard.type('XY')
 	assert.equal(await page.locator('#input').inputValue(), 'heXYo')
 	assert.equal(await page.locator('#changes').textContent(), '2')
-	console.log('Chromium: keyboard actions, selection replacement, and controlled-write callback counts passed')
+	console.log(
+		'Chromium: keyboard actions, selection replacement, and controlled-write callback counts passed',
+	)
 	assert.equal(await page.locator('#input').evaluate((input) => input.selectionStart), 4)
 	await page.locator('#write').click()
 	assert.equal(await page.locator('#input').inputValue(), 'replacement')
@@ -58,23 +66,34 @@ try {
 		// Chromium AX snapshot is tree evidence, not a screen-reader run.
 		const session = await page.context().newCDPSession(page)
 		const { nodes } = await session.send('Accessibility.getFullAXTree')
-		assert.equal(nodes.some((node) => !node.ignored && node.name?.value === 'Save'), false)
+		assert.equal(
+			nodes.some((node) => !node.ignored && node.name?.value === 'Save'),
+			false,
+		)
 		await session.detach()
 		await page.keyboard.press('Escape')
 		await page.waitForFunction((id) => document.activeElement?.id === id, `open-${name}`)
 		assert.equal(await page.locator('#root').evaluate((root) => root.inert), false)
-		console.log(`Chromium: ${name} Tab cycle, AX background isolation, Escape, and focus restoration passed`)
+		console.log(
+			`Chromium: ${name} Tab cycle, AX background isolation, Escape, and focus restoration passed`,
+		)
 	}
 
 	await page.locator('#open-sheet').click()
 	try {
-		await page.waitForFunction(() => document.activeElement?.id === 'sheet-first', null, { timeout: 10000 })
+		await page.waitForFunction(() => document.activeElement?.id === 'sheet-first', null, {
+			timeout: 10000,
+		})
 	} catch (error) {
-		console.log('Reopen diagnostic:', await page.evaluate(() => ({
-			focus: document.activeElement?.id,
-			sheets: [...document.querySelectorAll('.vx-sheet-layer')].map((node) => node.outerHTML),
-			backgroundInert: document.getElementById('root').inert,
-		})), errors)
+		console.log(
+			'Reopen diagnostic:',
+			await page.evaluate(() => ({
+				focus: document.activeElement?.id,
+				sheets: [...document.querySelectorAll('.vx-sheet-layer')].map((node) => node.outerHTML),
+				backgroundInert: document.getElementById('root').inert,
+			})),
+			errors,
+		)
 
 		throw error
 	}
@@ -92,13 +111,20 @@ try {
 	await page.locator('#exit').evaluate((button) => button.click())
 	await page.waitForFunction(() => document.querySelector('#presence-input')?.closest('[inert]'))
 	assert.notEqual(await focused(), 'presence-input')
-	assert.equal(await page.locator('#presence-input').evaluate((input) => input.closest('[aria-hidden="true"]') !== null), true)
+	assert.equal(
+		await page
+			.locator('#presence-input')
+			.evaluate((input) => input.closest('[aria-hidden="true"]') !== null),
+		true,
+	)
 	await page.locator('#reverse').click()
 	await page.waitForFunction(() => !document.querySelector('#presence-input')?.closest('[inert]'))
 	await page.locator('#presence-input').focus()
 	assert.equal(await focused(), 'presence-input')
 	assert.deepEqual(errors, [])
-	console.log('Input readiness: Chromium keyboard, selection, controlled writes, modal focus/AX isolation, and Presence reversal passed. IME and screen readers were not exercised.')
+	console.log(
+		'Input readiness: Chromium keyboard, selection, controlled writes, modal focus/AX isolation, and Presence reversal passed. IME and screen readers were not exercised.',
+	)
 } finally {
 	await browser?.close()
 	await server.close()

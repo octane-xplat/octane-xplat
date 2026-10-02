@@ -51,9 +51,7 @@ export default function VirtualListWindowedBench() {
 	const renderFooter = () => {
 		const remaining = items.length - range.end
 		return (
-			<View
-				style={{ height: remaining * ROW_HEIGHT + Math.max(0, remaining - 1) * STACK_GAP }}
-			/>
+			<View style={{ height: remaining * ROW_HEIGHT + Math.max(0, remaining - 1) * STACK_GAP }} />
 		)
 	}
 

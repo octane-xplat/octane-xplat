@@ -60,13 +60,13 @@ taken.
 ## Configure once, early
 
 ```ts
-import { push } from '@octane-xplat/push';
+import { push } from '@octane-xplat/push'
 
 await push.configure({
-  // web only — ignored on native, which reads the App_Resources files
-  firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
-  vapidKey: '…', // Web Push certificate key — required for getToken on web
-});
+	// web only — ignored on native, which reads the App_Resources files
+	firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
+	vapidKey: '…', // Web Push certificate key — required for getToken on web
+})
 ```
 
 `configure` is idempotent — repeated calls return the same promise. On
@@ -78,23 +78,25 @@ features.
 ## Permission, token, events
 
 ```ts
-const status = await push.requestPermission(); // 'granted' | 'denied' | 'provisional' | …
-if (status !== 'granted') { /* explain, offer settings */ }
+const status = await push.requestPermission() // 'granted' | 'denied' | 'provisional' | …
+if (status !== 'granted') {
+	/* explain, offer settings */
+}
 
-const token = await push.getToken();           // FCM registration token
-await sendTokenToYourServer(token);
+const token = await push.getToken() // FCM registration token
+await sendTokenToYourServer(token)
 
 push.onMessage((message) => {
-  // foreground: { messageId, title, body, data }
-});
+	// foreground: { messageId, title, body, data }
+})
 
 push.onNotificationOpen((message) => {
-  // user tapped a notification, incl. the cold-start tap that launched the app
-});
+	// user tapped a notification, incl. the cold-start tap that launched the app
+})
 
 push.onTokenRefresh((next) => {
-  // rotated token — re-register it server-side
-});
+	// rotated token — re-register it server-side
+})
 ```
 
 Each `on*` returns an unsubscribe function. Handlers attach cleanly before
