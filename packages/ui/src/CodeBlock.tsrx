@@ -60,7 +60,7 @@ function NativeCodeLine(props: {
 	<label
 		className="vx-codeblock-line-text"
 		whiteSpace={props.wrap ? 'normal' : 'nowrap'}
-		style={{ fontFamily: 'ui-monospace', fontSize: props.fontSize }}
+		style={{ fontFamily: 'monospace', fontSize: props.fontSize }}
 	>
 		<formattedstring>{spans}</formattedstring>
 	</label>
@@ -114,7 +114,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 								text={String(lineNo)}
 								whiteSpace="nowrap"
 					textAlignment="right"
-					style={{ fontFamily: 'ui-monospace', fontSize, color: nativeColor(mutedColor(scheme)), width: 32, paddingRight: 8 }}
+					style={{ fontFamily: 'monospace', fontSize, color: nativeColor(mutedColor(scheme)), width: 32, paddingRight: 8 }}
 							/>
 						) : null}
 						<NativeCodeLine

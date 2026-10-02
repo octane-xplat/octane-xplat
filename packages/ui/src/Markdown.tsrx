@@ -36,7 +36,7 @@ function Inlines(props: { nodes: MdInline[] }) {
 		switch (n.t) {
 			case 'code':
 				out.push(
-					<Text style={{ fontFamily: 'ui-monospace' }}>{n.text}</Text>,
+					<Text style={{ fontFamily: 'monospace' }}>{n.text}</Text>,
 				);
 
 				break;
@@ -81,7 +81,7 @@ export function Markdown(props: { data?: MdDoc }) @{
 					);
 				case 'code':
 					return (
-						<Text className="text-sm" style={{ fontFamily: 'ui-monospace' }}>
+						<Text className="text-sm" style={{ fontFamily: 'monospace' }}>
 							{node.text}
 						</Text>
 					);
