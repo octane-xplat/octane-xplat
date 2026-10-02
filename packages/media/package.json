@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/media",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "Image picking and OS camera capture for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",

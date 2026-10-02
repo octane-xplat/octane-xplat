@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/richtext",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "Native rich-text editing leaf for Octane xplat — WordPress Aztec on Android (iOS stubbed, deferred)",
 	"keywords": [
 		"android",

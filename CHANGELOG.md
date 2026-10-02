@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.0] - 2026-10-02
+
+### Features
+
+- *(intersection-observer)* Add cross-platform visibility package
+- *(intersection-observer)* Support macOS AppKit views
+- *(platform)* Add typed desktop webview host contract
+- *(linux)* Expose desktop host services through WebKitGTK
+- *(macos)* Implement shared WKWebView desktop bridge
+
+### Bug Fixes
+
+- *(release)* Align package repository URLs for provenance
+
 ## [0.8.0] - 2026-10-02
 
 ### Breaking Changes

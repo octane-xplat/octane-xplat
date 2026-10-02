@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/lottie",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "Lottie animation leaf for Octane xplat — lottie-web on web + vendored @nativescript-community/ui-lottie (fork fixes) on native",
 	"repository": {
 		"type": "git",

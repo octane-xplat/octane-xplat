@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/patches",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "pnpm config dependency carrying the framework patch files",
 	"keywords": [
 		"framework",

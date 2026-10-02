@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/picker",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "Select control for Octane xplat — web select + SwiftUI picker (iOS) / Material dropdown (Android)",
 	"keywords": [
 		"android",
