@@ -1,7 +1,7 @@
-// Files — AppKit host leaf.
-import type { FileRef } from './types'
+import type { FileInputFile, FileInputPick } from './props'
 
-function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
+/** Uses AppKit's native open panel as FileInput's default macOS provider. */
+export const pickMacOSFiles: FileInputPick = async ({ accept, multiple }) => {
 	const appKit = globalThis as any
 	const Panel = appKit.NSOpenPanel
 	if (!Panel?.openPanel) {
@@ -11,8 +11,8 @@ function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
 	const panel = Panel.openPanel()
 	panel.canChooseFiles = true
 	panel.canChooseDirectories = false
-	panel.allowsMultipleSelection = multiple
-	const extensions = accept
+	panel.allowsMultipleSelection = !!multiple
+	const extensions = (accept ?? '')
 		.split(',')
 		.map((value) => value.trim())
 		.filter((value) => value.startsWith('.'))
@@ -30,24 +30,10 @@ function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
 	} else if (panel.URL) {
 		urls.push(panel.URL)
 	}
-	return urls.map((url) => ({
+	const files: FileInputFile[] = urls.map((url) => ({
 		name: String(url.lastPathComponent ?? ''),
 		uri: String(url.absoluteString ?? url.path ?? ''),
 	}))
-}
 
-export const files = {
-	async pick(accept = '*/*'): Promise<FileRef | null> {
-		return openPanel(accept)?.[0] ?? null
-	},
-	async pickMultiple(accept = '*/*'): Promise<FileRef[]> {
-		return openPanel(accept, true) ?? []
-	},
-	async readText(_file: FileRef): Promise<string> {
-		throw new Error('unsupported: AppKit file access is not wired')
-	},
-	async writeText(_name: string, _text: string): Promise<FileRef> {
-		throw new Error('unsupported: the AppKit host does not provide a save panel')
-	},
-	release(_file: FileRef): void {},
+	return multiple ? files : files[0] ?? null
 }

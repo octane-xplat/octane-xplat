@@ -37,13 +37,12 @@ portable values are `{ name, uri, size?, mimeType? }` references. A browser
 `File` object cannot be shared with native code, so web additionally supplies
 the selected object as `file`; native apps receive an opaque URI/path and
 consume it through their file service. Web always provides a chooser and
-dropzone drag-and-drop. Native apps register a picker with
+dropzone drag-and-drop. macOS opens AppKit's native `NSOpenPanel` by default.
+iOS and Android apps can register a picker with
 `registerFilePicker(({ accept }) => files.pick(accept))` or pass one through
 the `pick` prop. `files.pick` selects one file; apps that need
 `isMultiple={true}` must supply a provider that returns an array. The UI
-package has no dependency on a file service. The current AppKit `files` leaf
-does not provide a picker, so macOS needs an app-specific provider; the
-component still renders selected references and validation state.
+package has no dependency on a file service.
 
 ## OS-authentic pickers
 

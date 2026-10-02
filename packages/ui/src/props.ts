@@ -890,11 +890,11 @@ export interface FileInputFile {
 	file?: any
 }
 
-/** Native picker seam: `FileInput` calls the registered picker or per-instance
- *  `pick` prop. Adapt `@octane-xplat/files` with
- *  `registerFilePicker(({ accept }) => files.pick(accept))`; that service's
- *  `pick` selects one file, so multi-file apps provide a picker returning an
- *  array. Web always uses the browser file dialog (and dropzone drag/drop). */
+/** Optional native picker override: `FileInput` calls the per-instance `pick`
+ *  or registered picker before its platform default. macOS uses AppKit's
+ *  NSOpenPanel by default; web uses the browser dialog. Other native targets
+ *  can adapt `@octane-xplat/files` with `registerFilePicker(({ accept }) =>
+ *  files.pick(accept))`; multi-file apps provide a picker returning arrays. */
 export type FileInputPick = (options: {
 	accept?: string
 	multiple?: boolean

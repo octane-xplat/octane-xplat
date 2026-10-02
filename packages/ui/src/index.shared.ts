@@ -177,8 +177,8 @@ export { TimeInput } from './TimeInput'
 export { DateTimeInput } from './DateTimeInput'
 export { DateRangeInput } from './DateRangeInput'
 export { FileInput } from './FileInput'
-/** Native file picking needs a provider; adapt the app file service to the
- *  `FileInputPick` shape. Web ignores it unless an instance supplies `pick`. */
+/** Override native file picking with an app-level provider. macOS has an
+ *  AppKit default and web always uses the browser chooser. */
 export { registerFilePicker } from './file-picker'
 export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './calendar-hooks'
 export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'

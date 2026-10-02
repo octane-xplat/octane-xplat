@@ -7,6 +7,7 @@ import { Pressable } from './Pressable.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { formatFileSize, getFilePicker, normalizePicked, validateFiles } from './file-picker'
+import { pickMacOSFiles } from './file-picker.macos'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
@@ -62,14 +63,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	const pick = () => {
 		if (isDisabled || isBusy) return
-		const provider = props.pick ?? getFilePicker()
-		if (!provider) {
-			setValidationErrors([
-				'No file picker is registered — register an adapter for the app file service; multi-file selection needs a provider that returns arrays.',
-			])
-
-			return
-		}
+		const provider = props.pick ?? getFilePicker() ?? pickMacOSFiles
 
 		Promise.resolve(provider({ accept: props.accept, multiple: props.isMultiple })).then((r) => acceptRefs(normalizePicked(r)))
 	}
@@ -132,10 +126,8 @@ function FileInputControl(inputProps: FileInputProps) @{
 }
 
 /**
- * File entry — on macOS `@octane-xplat/files` does not implement picking,
- * so the trigger only becomes active when an app registers a provider via
- * `registerFilePicker`/`pick`; without one the control renders its state
- * (list, clear, validation) and reports the missing provider on tap.
+ * File entry — opens AppKit's native NSOpenPanel by default. Apps can still
+ * override it with `pick`/`registerFilePicker` when they need a custom source.
  * Values are `FileInputFile` `{name, uri, size?, mimeType?}` — the portable
  * `@octane-xplat/files` shape. Drag/drop is not implemented on this leaf.
  */

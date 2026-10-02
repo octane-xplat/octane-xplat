@@ -124,8 +124,7 @@ export { DateInput } from './DateInput.macos.tsrx'
 export { TimeInput } from './TimeInput.macos.tsrx'
 export { DateTimeInput } from './DateTimeInput.macos.tsrx'
 export { DateRangeInput } from './DateRangeInput.macos.tsrx'
-/** Renders + validates, but picking is inert on macOS without a registered
- *  provider (`@octane-xplat/files` does not implement AppKit picking). */
+/** Opens AppKit's native NSOpenPanel by default. */
 export { FileInput } from './FileInput.macos.tsrx'
 export { registerFilePicker } from './file-picker'
 export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './calendar-hooks'

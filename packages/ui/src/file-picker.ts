@@ -3,10 +3,10 @@
  *
  * Values are `FileInputFile` — `{name, uri, size?, mimeType?}` — compatible
  * with `@octane-xplat/files` `FileRef`. The ui package cannot depend on the
- * files leaf (ui keeps zero dependencies), so native picking goes through a
- * registry: an app (or the leaf itself) calls `registerFilePicker` once —
- * e.g. `registerFilePicker(files.pick)` — or passes `pick` per instance.
- * Web never needs it: the browser file dialog is always available.
+ * files leaf (ui keeps zero dependencies), so platform defaults and optional
+ * app overrides provide native picking. macOS calls AppKit's NSOpenPanel;
+ * other native targets can register a picker or pass one per instance. Web
+ * uses the browser file dialog.
  */
 
 import type { FileInputFile, FileInputPick } from './props'

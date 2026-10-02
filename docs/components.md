@@ -134,12 +134,11 @@ contracts and the native picker package boundary.
 
 `FileInput` uses a portable `{name, uri, size?, mimeType?}` reference because
 browser `File` objects do not exist on native targets. On web the optional
-`file` property retains the browser object for upload APIs. Native picking
-requires an app-registered picker such as
-`registerFilePicker(({ accept }) => files.pick(accept))`; multi-file support
-needs a provider that returns arrays. Web uses the browser chooser and
-supports drag and drop in `mode="dropzone"`. The current AppKit file service
-has no picker, so macOS apps provide their own picker if they need selection.
+`file` property retains the browser object for upload APIs. macOS opens the
+native AppKit `NSOpenPanel` by default. iOS and Android apps register a picker
+such as `registerFilePicker(({ accept }) => files.pick(accept))`; multi-file
+support needs a provider that returns arrays. Web uses the browser chooser
+and supports drag and drop in `mode="dropzone"`.
 
 ## Content
 
