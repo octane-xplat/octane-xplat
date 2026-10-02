@@ -99,7 +99,10 @@ export declare const MultiSelector: Component<P.MultiSelectorProps>
 export declare const BaseTypeahead: Component<P.BaseTypeaheadProps>
 export declare const Typeahead: Component<P.TypeaheadProps>
 export declare const TypeaheadItem: Component<P.TypeaheadItemProps>
-export declare function createStaticSource<T extends P.SearchableItem>(items: T[], options?: P.CreateStaticSourceOptions<T>): P.SearchSource<T>
+export declare function createStaticSource<T extends P.SearchableItem>(
+	items: T[],
+	options?: P.CreateStaticSourceOptions<T>,
+): P.SearchSource<T>
 export declare const Token: Component<P.TokenProps>
 export declare const Tokenizer: Component<P.TokenizerProps>
 export declare const ComplexSelector: Component<P.ComplexSelectorProps<any>>
@@ -150,10 +153,15 @@ export declare function useTabListContext(): P.TabListContextValue
 export declare const Toolbar: Component<P.ToolbarProps>
 export declare const OverflowList: Component<P.OverflowListProps>
 export declare function useResizable(config: P.UseResizableSingleConfig): P.ResizableRegion
-export declare function useResizable(config: P.UseResizableMultiConfig): Record<string, P.ResizableRegion>
+export declare function useResizable(
+	config: P.UseResizableMultiConfig,
+): Record<string, P.ResizableRegion>
 export declare const ResizeHandle: Component<P.ResizeHandleProps>
 export declare function pixel(value: number): P.ResizablePixelSize
-export declare function percent(value: number, constraint: { min: P.ResizablePixelSize } | { max: P.ResizablePixelSize }): P.ResizablePercentSize
+export declare function percent(
+	value: number,
+	constraint: { min: P.ResizablePixelSize } | { max: P.ResizablePixelSize },
+): P.ResizablePercentSize
 export declare const Table: Component<P.TableProps>
 export declare const Timeline: Component<P.TimelineProps>
 /** Expandable hierarchy, exported under Astryx's component name. */
@@ -185,7 +193,11 @@ export declare const Image: Component<P.ImageProps>
 export declare const PowerSearch: Component<P.PowerSearchProps>
 export declare const PowerSearchToken: Component<P.PowerSearchTokenProps>
 export declare const PowerSearchFilterEditor: Component<P.PowerSearchEditorProps>
-export { createPowerSearchConfig, usePowerSearchConfig, resolveOperatorLabel } from './generated/power-search-config.js'
+export {
+	createPowerSearchConfig,
+	usePowerSearchConfig,
+	resolveOperatorLabel,
+} from './generated/power-search-config.js'
 export declare const WebView: Component<P.WebViewProps>
 export declare const CameraView: Component
 export declare const Overlay: Component<P.OverlayProps>
@@ -250,7 +262,9 @@ export declare function useImperativeDialog(): P.ImperativeDialogReturn
 export declare function useImperativeAlertDialog(): P.ImperativeAlertDialogReturn
 export declare function useHoverCard(options?: P.HoverCardOptions): P.HoverCardReturn
 export declare function useLightbox(options: P.UseLightboxOptions): P.UseLightboxReturn
-export declare function useScrollableArea(options?: P.UseScrollableAreaOptions): P.UseScrollableAreaResult
+export declare function useScrollableArea(
+	options?: P.UseScrollableAreaOptions,
+): P.UseScrollableAreaResult
 export declare const defaultIndicators: {
 	[N in P.IndicatorName]: P.IndicatorComponent<P.IndicatorMap[N]>
 }

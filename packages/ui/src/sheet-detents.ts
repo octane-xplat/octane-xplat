@@ -1,5 +1,10 @@
 import { FlexboxLayout, Screen, type View } from '@nativescript/core'
-import { DETENT_FLICK_VELOCITY, detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
+import {
+	DETENT_FLICK_VELOCITY,
+	detentOffset,
+	normalizeDetents,
+	snapDetentIndex,
+} from './sheet-snap'
 
 const SNAP_MS = 200
 
@@ -52,7 +57,7 @@ export function attachSheetDetents(
 
 	// Parentless at attach (before RootLayout.open) — fall back to screen
 	// dips; every gesture-time read uses the real parent height.
-	const vh = () => (host.parent?.getActualSize?.().height || Screen.mainScreen.heightDIPs)
+	const vh = () => host.parent?.getActualSize?.().height || Screen.mainScreen.heightDIPs
 	const max = sorted[sorted.length - 1] ?? 0
 	/** Content-sized panels dismiss once the drag covers ~40% of their
 	 *  height (or on a downward fling). */

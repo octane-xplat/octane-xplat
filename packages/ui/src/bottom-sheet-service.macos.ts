@@ -25,7 +25,11 @@ export function closeBottomSheet(result?: ModalOpenResult): void {
  *  `close(result)` from the component or the window itself closing).
  *  `bottomSheetHost` stays null — the sheet lives in a real NSWindow, not
  *  a rendered host element. */
-export const openBottomSheet: OpenBottomSheet = (Component, params, options: BottomSheetOpenOptions = {}) => {
+export const openBottomSheet: OpenBottomSheet = (
+	Component,
+	params,
+	options: BottomSheetOpenOptions = {},
+) => {
 	if (typeof mount() !== 'function') {
 		console.warn('[octane-xplat] Imperative sheets are unsupported by the current AppKit host.')
 		return Promise.reject(new Error('unsupported: AppKit host has no sheet presenter'))
@@ -54,10 +58,14 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options: Bot
 			finish,
 		}
 
-		entry.controller = mount()(Component, { params, close: finish }, {
-			shadeCover: options.hasScrim ?? true,
-			detents: options.snapPoints as number[] | undefined,
-		})
+		entry.controller = mount()(
+			Component,
+			{ params, close: finish },
+			{
+				shadeCover: options.hasScrim ?? true,
+				detents: options.snapPoints as number[] | undefined,
+			},
+		)
 
 		active.add(entry)
 		void entry.controller.closed.then(() => finish('closed'))

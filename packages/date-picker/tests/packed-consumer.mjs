@@ -53,7 +53,7 @@ const dependencies = [
 ]
 
 const consumers = {
-	"native": `import { SwiftUIDatePicker, type SwiftUIDatePickerProps } from '@octane-xplat/date-picker/ios'
+	native: `import { SwiftUIDatePicker, type SwiftUIDatePickerProps } from '@octane-xplat/date-picker/ios'
 import { MaterialDatePicker, type MaterialDatePickerProps } from '@octane-xplat/date-picker/android'
 const iosProps: SwiftUIDatePickerProps = { selection: new Date(), displayedComponents: ['date'] }
 const androidProps: MaterialDatePickerProps = { displayedComponents: 'date' }

@@ -58,7 +58,8 @@ class ButtonActionTarget extends NSObject {
 
 		const translation = sender.translationInView(sender.view)
 		const velocity = sender.velocityInView(sender.view)
-		const flipped = typeof sender.view.isFlipped === 'function' ? sender.view.isFlipped() : sender.view.isFlipped
+		const flipped =
+			typeof sender.view.isFlipped === 'function' ? sender.view.isFlipped() : sender.view.isFlipped
 		const signY = flipped ? 1 : -1
 		const nativeState = Number(sender.state)
 		const state = nativeState === 1 ? 1 : nativeState === 2 ? 2 : nativeState === 3 ? 3 : 0
@@ -1252,7 +1253,9 @@ function performGridAccessibilityAdjustment(view, name) {
 }
 
 class InputImageView extends NSImageView {
-	static { NativeClass(this) }
+	static {
+		NativeClass(this)
+	}
 	hitTest(point) {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
 	}
@@ -1729,8 +1732,10 @@ function applyStyle(node, style) {
 				layer.zPosition = Number(value) || 0
 			} else {
 				// Core Animation layers use y-up coordinates; public drag deltas use y-down.
-				layer.setValueForKeyPath((Number(value) || 0) * (name === 'translateY' ? -1 : 1),
-					name === 'translateY' ? 'transform.translation.y' : 'transform.translation.x')
+				layer.setValueForKeyPath(
+					(Number(value) || 0) * (name === 'translateY' ? -1 : 1),
+					name === 'translateY' ? 'transform.translation.y' : 'transform.translation.x',
+				)
 			}
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
@@ -4274,7 +4279,9 @@ export function createMacOSRoot(hostView, { fontFamily } = {}) {
 			/** Dispatch through the same event scope as the AppKit pan recognizer. */
 			panView(view, event) {
 				const handler = panHandlersByView.get(view)
-				if (!handler) {throw new Error('No AppKit pan handler attached')}
+				if (!handler) {
+					throw new Error('No AppKit pan handler attached')
+				}
 				handler({ ...event, view })
 			},
 			pressId(id) {

@@ -61,7 +61,9 @@ for (const file of jsFiles(distDir)) {
 		for (const hit of text.matchAll(re)) {
 			failures++
 			const line = lines.findIndex((l) => l.includes(hit[0]))
-			console.error(`${relative('.', file)}:${line + 1}: forbidden "${label}" specifier — ${hit[0].trim()}`)
+			console.error(
+				`${relative('.', file)}:${line + 1}: forbidden "${label}" specifier — ${hit[0].trim()}`,
+			)
 		}
 	}
 }

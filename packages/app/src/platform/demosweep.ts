@@ -896,8 +896,8 @@ const STEPS: Step[] = [
 
 					console.log(
 						'[assert] ScrollableArea keeps List out of the shared scroller: ' +
-						(!nested && list ? 'OK' : 'FAIL') +
-						' (list=' +
+							(!nested && list ? 'OK' : 'FAIL') +
+							' (list=' +
 							(list?.constructor?.name ?? 'none') +
 							' nested=' +
 							nested +
@@ -985,7 +985,10 @@ const STEPS: Step[] = [
 	{
 		id: 'lexical-editor',
 		checks: [
-			{ at: 800, run: () => assertHas('lexical ios stub', 'Rich text editing is not supported on iOS yet.') },
+			{
+				at: 800,
+				run: () => assertHas('lexical ios stub', 'Rich text editing is not supported on iOS yet.'),
+			},
 			{ at: 800, run: () => assertMatch('lexical ios status', /unsupported/) },
 		],
 	},
@@ -1065,9 +1068,7 @@ const STEPS: Step[] = [
 					// HoverCard tap mounts the card (touchTrigger 'auto' → 'tap'
 					// on native — the trigger is plain text here).
 					const ok = viewTexts(demosPage()).includes('Hint card text')
-					console.log(
-						'[assert] hovercard card on tap: ' + (ok ? 'OK' : 'FAIL'),
-					)
+					console.log('[assert] hovercard card on tap: ' + (ok ? 'OK' : 'FAIL'))
 				},
 			},
 			{ at: 2600, run: () => fireTap(tapTargetForText(demosPage(), 'Open shade overlay')) },
@@ -1802,7 +1803,9 @@ function probeLexicalFacade() {
 	assertMatch('lexical facade status', /ready/)
 	const hay = viewTexts(demosPage())
 	const jsonOk = hay.some((t) => t.includes('json ok'))
-	console.log('[assert] Android lexical facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay))
+	console.log(
+		'[assert] Android lexical facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay),
+	)
 }
 
 function runStep(i: number) {

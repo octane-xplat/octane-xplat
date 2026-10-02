@@ -38,7 +38,6 @@
 		"./*": "./src/*"
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"macos": {
@@ -49,7 +48,8 @@
 				"default": "./src/index.ts"
 			},
 			"./*": "./src/*"
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"test:packed": "node tests/packed-consumer.mjs"

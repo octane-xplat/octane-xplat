@@ -61,13 +61,13 @@ insets from container tokens on web only.
 
 ## Text
 
-| Component                  | What it is                                  | Key props       |
-| -------------------------- | ------------------------------------------- | --------------- |
-| `Text`                     | Text block                                  |                 |
-| `RichText`, `RichTextSpan` | Inline styled/linked spans inside one block |                 |
-| `Heading`                  | Section heading (shared typography)         |                 |
-| `Kbd`                      | Keyboard-key glyph (⌘K styling hook)        |                 |
-| `Link`, `NavLink`          | Route navigation as text                    | `href`, `route` |
+| Component                                           | What it is                                                | Key props                               |
+| --------------------------------------------------- | --------------------------------------------------------- | --------------------------------------- |
+| `Text`                                              | Text block                                                |                                         |
+| `RichText`, `RichTextSpan`                          | Inline styled/linked spans inside one block               |                                         |
+| `Heading`                                           | Section heading (shared typography)                       |                                         |
+| `Kbd`                                               | Keyboard-key glyph (⌘K styling hook)                      |                                         |
+| `Link`, `NavLink`                                   | Route navigation as text                                  | `href`, `route`                         |
 | [`Markdown`](content-display.md#markdown-documents) | Markdown doc — baked AST or runtime text, streaming-ready | `data`, `text`, `isStreaming`, `fadeIn` |
 
 ## Inputs
@@ -179,28 +179,28 @@ target.
 
 ## Disclosure & navigation
 
-| Component                                  | What it is                                               | Key props                                                 |
-| ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------- |
-| `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                         |
-| `Accordion`                                | List of expanding items                                  | `items`, `multiple`, `open`, `onOpenChange`               |
-| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedIndex`, `onSelectedIndexChanged`         |
-| `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`         |
-| `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                |
-| `TopNav`, `TopNavHeading`, `TopNavItem`    | Top navigation bar and items                             | `heading`, `startContent`, `endContent`, `href`           |
-| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items                 | `collapsible`, `resizable`, `isSelected`                  |
-| `MobileNav`, `MobileNavToggle`             | Mobile navigation drawer and toggle                      | `isOpen`, `onOpenChange`, `side`, `width`                 |
-| `NavIcon`                                  | Circular icon container for navigation                   | `icon`                                                    |
-| `NavHeadingMenu`, `NavHeadingMenuItem`     | Keyboard-operable heading menu                           | `label`, `description`, `href`, `isDisabled`              |
-| `Toolbar`                                  | Labeled action row with start/center/end slots           | `label`, `orientation`, `dividers`                        |
-| `OverflowList`                             | Responsive list that collapses excess items              | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange` |
-| `useResizable`, `ResizeHandle`             | Bounded, optionally persistent panel resizing            | `defaultSize`, `minSize`, `maxSize`, `autoSaveId`         |
-| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`                                      |
-| `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                       |
-| `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                        |
-| `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                             |
+| Component                                  | What it is                                               | Key props                                                       |
+| ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------- |
+| `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                               |
+| `Accordion`                                | List of expanding items                                  | `items`, `multiple`, `open`, `onOpenChange`                     |
+| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedIndex`, `onSelectedIndexChanged`               |
+| `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`               |
+| `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                      |
+| `TopNav`, `TopNavHeading`, `TopNavItem`    | Top navigation bar and items                             | `heading`, `startContent`, `endContent`, `href`                 |
+| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items                 | `collapsible`, `resizable`, `isSelected`                        |
+| `MobileNav`, `MobileNavToggle`             | Mobile navigation drawer and toggle                      | `isOpen`, `onOpenChange`, `side`, `width`                       |
+| `NavIcon`                                  | Circular icon container for navigation                   | `icon`                                                          |
+| `NavHeadingMenu`, `NavHeadingMenuItem`     | Keyboard-operable heading menu                           | `label`, `description`, `href`, `isDisabled`                    |
+| `Toolbar`                                  | Labeled action row with start/center/end slots           | `label`, `orientation`, `dividers`                              |
+| `OverflowList`                             | Responsive list that collapses excess items              | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange`       |
+| `useResizable`, `ResizeHandle`             | Bounded, optionally persistent panel resizing            | `defaultSize`, `minSize`, `maxSize`, `autoSaveId`               |
+| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`                                            |
+| `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                             |
+| `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                              |
+| `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                                   |
 | [`CommandPalette`](command-palette.md)     | Searchable commands; mobile search sheet                 | `open`, `items` / `searchSource`, `searchMode`, `onValueChange` |
-| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items`, `placement`                           |
-| `ContextMenu`                              | Secondary-press action menu                              | `items`, `open`, `onOpenChange`                           |
+| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items`, `placement`                                 |
+| `ContextMenu`                              | Secondary-press action menu                              | `items`, `open`, `onOpenChange`                                 |
 
 `Tabs` hosts named route stacks from `TabSpec`; `TabList` is the smaller
 navigation or page-tab strip for caller-owned content. Use `TabList` without
@@ -282,7 +282,7 @@ its Chat runtime has not been exercised separately.
 | `Dialog`                  | Modal surface with optional header                | `isOpen`, `onOpenChange`, `purpose`, `position`                   |
 | `AlertDialog`             | Required-action confirmation dialog               | `title`, `description`, `actionLabel`, `onAction`                 |
 | `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `snapPoints`, `onOpenChange`                            |
-| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`                  |
+| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`                 |
 | `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                       |
 | `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`                 |
 | `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `onDismiss`                             |

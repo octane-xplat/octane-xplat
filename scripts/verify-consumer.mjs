@@ -285,19 +285,29 @@ try {
 	)
 
 	// ---- xplat add: enable the platforms skipped at scaffold ---------------
-	await gate('xplat add ios android — post-scaffold enablement on packed CLI', 15 * 60 * 1000, () => {
-		const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
-		assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-		assert.ok(existsSync(join(appDir, 'nativescript.config.ts')), 'add produced no nativescript.config.ts')
-		assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
-		assert.ok(existsSync(join(appDir, 'App_Resources/Android')), 'add produced no App_Resources/Android')
-		const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-		assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
-		assert.ok(
-			manifest.devDependencies['@nativescript/android'],
-			'add missed @nativescript/android',
-		)
-	})
+	await gate(
+		'xplat add ios android — post-scaffold enablement on packed CLI',
+		15 * 60 * 1000,
+		() => {
+			const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
+			assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+			assert.ok(
+				existsSync(join(appDir, 'nativescript.config.ts')),
+				'add produced no nativescript.config.ts',
+			)
+			assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
+			assert.ok(
+				existsSync(join(appDir, 'App_Resources/Android')),
+				'add produced no App_Resources/Android',
+			)
+			const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+			assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+			assert.ok(
+				manifest.devDependencies['@nativescript/android'],
+				'add missed @nativescript/android',
+			)
+		},
+	)
 
 	// ---- consumer gates ------------------------------------------------------
 	for (const [name, argv] of [

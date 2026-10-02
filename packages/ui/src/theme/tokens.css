@@ -2,7 +2,7 @@
 @layer xplat-structure, xplat-chrome;
 
 @layer xplat-structure {
-/* xplat-web-only:start — DOM normalization. NativeScript is the reference
+	/* xplat-web-only:start — DOM normalization. NativeScript is the reference
    box model: dip sizes are outer boxes, and a border paints from
    width+color alone. The DOM's UA stylesheet diverges on both counts, so
    normalize the deltas once instead of patching individual rules:
@@ -14,27 +14,27 @@
      phantom ~3px edges wherever a rule sets only one side's width.
    - <img> is a leaf, not inline text (no baseline descender gap).
    - .vx-app columns are flex like their native screen containers. */
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-}
-* {
-	border-width: 0;
-}
-img {
-	display: block;
-}
-/* Shared border declarations paint only after this DOM reset, matching the
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+	* {
+		border-width: 0;
+	}
+	img {
+		display: block;
+	}
+	/* Shared border declarations paint only after this DOM reset, matching the
    NativeScript rule where width + color are sufficient. */
-* {
-	border-style: solid;
-}
-.vx-app {
-	display: flex;
-	flex-direction: column;
-}
-/* Native has no scroll chaining — a ScrollView just bounces inside
+	* {
+		border-style: solid;
+	}
+	.vx-app {
+		display: flex;
+		flex-direction: column;
+	}
+	/* Native has no scroll chaining — a ScrollView just bounces inside
    itself because the parent is never a scroller. contain is the DOM
    equivalent: scroll stays in the leaf it started in. */
 	.vx-scroll {
@@ -87,57 +87,57 @@ img {
 	/* Self-drawn drawer — shared geometry. Native grid children overlay the
    cell (panel pins left via horizontalAlignment in the leaf); DOM
    positioning extras are web-only below. */
-.vx-drawer-panel {
-	width: 280px;
-}
-/* xplat-web-only:start */
-.vx-drawer {
-	display: flex;
-	flex-direction: row;
-	position: relative;
-	overflow: hidden;
-}
-.vx-drawer-main {
-	display: flex;
-	flex: 1;
-	min-width: 0;
-}
-.vx-drawer-backdrop {
-	position: absolute;
-	inset: 0;
-}
-.vx-drawer-panel {
-	position: absolute;
-	z-index: 1;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	overflow: auto;
-}
-/* xplat-web-only:end */
+	.vx-drawer-panel {
+		width: 280px;
+	}
+	/* xplat-web-only:start */
+	.vx-drawer {
+		display: flex;
+		flex-direction: row;
+		position: relative;
+		overflow: hidden;
+	}
+	.vx-drawer-main {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-drawer-backdrop {
+		position: absolute;
+		inset: 0;
+	}
+	.vx-drawer-panel {
+		position: absolute;
+		z-index: 1;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		overflow: auto;
+	}
+	/* xplat-web-only:end */
 
 	.vx-row {
 		flex-direction: row;
 	}
 
-.vx-stack {
-	display: flex;
-}
+	.vx-stack {
+		display: flex;
+	}
 
-.vx-grid,
-.vx-layers {
-	display: grid;
-}
+	.vx-grid,
+	.vx-layers {
+		display: grid;
+	}
 
-/* Internal same-cell overlay — every child lands in grid cell 1,1
+	/* Internal same-cell overlay — every child lands in grid cell 1,1
    (left/top aligned). Used by leaf chrome (video transport, camera
    overlay) that stacks layers directly on a gridlayout. The public `Stack`
    component is a flow container; app-level overlap is `Absolute`. */
-.vx-layers > * {
-	grid-area: 1 / 1;
-	horizontal-align: left;
-	vertical-align: top;
-}
+	.vx-layers > * {
+		grid-area: 1 / 1;
+		horizontal-align: left;
+		vertical-align: top;
+	}
 
 	/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
    positioning is web-only (children position via left/top props) */
@@ -160,8 +160,8 @@ img {
 		user-select: none;
 	}
 
-/* web press feedback */
-/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
+	/* web press feedback */
+	/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
 
 	/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
    or showModal on native; these portal/positioning rules are web-only */
@@ -169,10 +169,10 @@ img {
 		z-index: 1000;
 	}
 
-.vx-overlay-shade {
-	position: absolute;
-	inset: 0;
-}
+	.vx-overlay-shade {
+		position: absolute;
+		inset: 0;
+	}
 
 	.vx-overlay-content {
 		position: relative;
@@ -187,9 +187,9 @@ img {
 		background-color: transparent;
 	}
 
-.vx-tooltip {
-	padding: 4px 8px;
-}
+	.vx-tooltip {
+		padding: 4px 8px;
+	}
 
 	.vx-toast-host {
 		position: fixed;
@@ -220,48 +220,48 @@ img {
    default EditText drawable (kills the Material underline); zero padding
    removes native insets. Legitimate semantics — IME, secure entry,
    selection, autofill, caret, focus — stay platform-native by design. */
-.vx-input,
-.vx-textarea {
-	padding: 0;
-	margin: 0;
-	border-width: 0;
-	background-color: transparent;
-	/* NS placeholder color; web uses the ::placeholder pseudo below. */
-}
-.vx-input-shell {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-input {
-	flex-grow: 1;
-	min-width: 0;
-}
-.vx-input-clear {
-	min-width: 24px;
-	min-height: 24px;
-	justify-content: center;
-	align-items: center;
-}
-/* xplat-web-only:start — DOM-only reset: element UA chrome and the
+	.vx-input,
+	.vx-textarea {
+		padding: 0;
+		margin: 0;
+		border-width: 0;
+		background-color: transparent;
+		/* NS placeholder color; web uses the ::placeholder pseudo below. */
+	}
+	.vx-input-shell {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-input {
+		flex-grow: 1;
+		min-width: 0;
+	}
+	.vx-input-clear {
+		min-width: 24px;
+		min-height: 24px;
+		justify-content: center;
+		align-items: center;
+	}
+	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
    focus outline (normalized to the same thin ring on both). */
-.vx-input,
-.vx-textarea {
-	appearance: none;
-	-webkit-appearance: none;
-}
-.vx-input-shell {
-	display: flex;
-	align-items: center;
-	min-width: 0;
-}
-.vx-input {
-	min-width: 0;
-}
-.vx-input-clear {
-	display: flex;
-	flex: 0 0 auto;
-}
-/* xplat-web-only:end */
+	.vx-input,
+	.vx-textarea {
+		appearance: none;
+		-webkit-appearance: none;
+	}
+	.vx-input-shell {
+		display: flex;
+		align-items: center;
+		min-width: 0;
+	}
+	.vx-input {
+		min-width: 0;
+	}
+	.vx-input-clear {
+		display: flex;
+		flex: 0 0 auto;
+	}
+	/* xplat-web-only:end */
 
 	/* auto-grow owns height — the manual resize handle has no native analog */
 	/* xplat-web-only:start */
@@ -289,16 +289,16 @@ img {
 		vertical-align: stretch;
 	}
 
-.vx-video-centerbtn {
-	width: 56px;
-	height: 56px;
-	align-items: center;
-	justify-content: center;
-}
+	.vx-video-centerbtn {
+		width: 56px;
+		height: 56px;
+		align-items: center;
+		justify-content: center;
+	}
 
-.vx-video-bar {
-	padding: 4px 8px;
-}
+	.vx-video-bar {
+		padding: 4px 8px;
+	}
 
 	.vx-video-btn {
 		padding: 4px;
@@ -309,10 +309,10 @@ img {
 		background-color: transparent;
 	}
 
-.vx-video-time {
-	min-width: 34px;
-	text-align: center;
-}
+	.vx-video-time {
+		min-width: 34px;
+		text-align: center;
+	}
 
 	/* xplat-web-only:start — the <video> element is inline and overlays would
    otherwise swallow pointer events; native layers are hit-transparent by
@@ -350,26 +350,26 @@ img {
 		justify-content: stretch;
 	}
 
-.vx-modalroute-shade {
-	position: absolute;
-	inset: 0;
-	border: 0;
-	padding: 0;
-	cursor: default;
-}
+	.vx-modalroute-shade {
+		position: absolute;
+		inset: 0;
+		border: 0;
+		padding: 0;
+		cursor: default;
+	}
 
-.vx-modalroute-body {
-	position: relative;
-	flex: 1;
-	min-width: 0;
-	overflow: auto;
-}
-/* xplat-web-only:end */
+	.vx-modalroute-body {
+		position: relative;
+		flex: 1;
+		min-width: 0;
+		overflow: auto;
+	}
+	/* xplat-web-only:end */
 
 	/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
    real placeholder text, not currentColor (a full-opacity hint reads as
    a typed value); --placeholder-color is the per-field prop escape. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
 	/* xplat-web-only:start — form controls don't inherit the body font in the
    DOM (UA stylesheet wins); without this they render in the UA face. */
@@ -383,11 +383,11 @@ img {
 
 	/* Self-drawn spinner — the border ring is shared (native rotates the
    view via `animate`; DOM spins via the keyframes below). */
-.vx-spinner {
-	width: 24px;
-	height: 24px;
-}
-/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
+	.vx-spinner {
+		width: 24px;
+		height: 24px;
+	}
+	/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
    the default `refreshThreshold` (64px web / 64dip native); the leaf
    translates it in/out — reveal math lives in refresh.*.ts. */
 	.vx-refresh {
@@ -434,47 +434,47 @@ img {
 
 	/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
    which slides the thumb; identical geometry on web and native. */
-.vx-switch {
-	width: 48px;
-	height: 28px;
-	padding-left: 3px;
-	padding-right: 3px;
-	justify-content: flex-start;
-	align-items: center;
-}
-.vx-switch--on {
-	justify-content: flex-end;
-}
-.vx-switch-thumb {
-	width: 22px;
-	height: 22px;
-}
-/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
-.vx-switch {
-	display: flex;
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	.vx-switch {
+		width: 48px;
+		height: 28px;
+		padding-left: 3px;
+		padding-right: 3px;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.vx-switch--on {
+		justify-content: flex-end;
+	}
+	.vx-switch-thumb {
+		width: 22px;
+		height: 22px;
+	}
+	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
+	.vx-switch {
+		display: flex;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
 	/* Self-drawn slider — host is a grid (native) / relative div (web);
    track + fill + thumb overlay the same box. */
-.vx-slider {
-	height: 28px;
-}
-.vx-slider-track {
-	height: 4px;
-	vertical-align: middle;
-}
-.vx-slider-fill {
-	height: 4px;
-	vertical-align: middle;
-}
-.vx-slider-thumb {
-	width: 20px;
-	height: 20px;
-	vertical-align: middle;
-}
-/* xplat-web-only:start — absolute positioning is DOM-only; native grid
+	.vx-slider {
+		height: 28px;
+	}
+	.vx-slider-track {
+		height: 4px;
+		vertical-align: middle;
+	}
+	.vx-slider-fill {
+		height: 4px;
+		vertical-align: middle;
+	}
+	.vx-slider-thumb {
+		width: 20px;
+		height: 20px;
+		vertical-align: middle;
+	}
+	/* xplat-web-only:start — absolute positioning is DOM-only; native grid
    children center via vertical-align and pin via margin-left. */
 	.vx-slider {
 		position: relative;
@@ -540,772 +540,772 @@ img {
 		flex-direction: column;
 	}
 
-/* Checkbox — 20px box + check glyph; --on fills with primary. */
-.vx-checkbox-row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-checkbox {
-	width: 20px;
-	height: 20px;
-	align-items: center;
-	justify-content: center;
-}
-.vx-checkbox-label {
-	margin-left: 8px;
-}
+	/* Checkbox — 20px box + check glyph; --on fills with primary. */
+	.vx-checkbox-row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-checkbox {
+		width: 20px;
+		height: 20px;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-checkbox-label {
+		margin-left: 8px;
+	}
 
-/* Radio group — column/row of dot options. */
-.vx-radio-group {
-	flex-direction: column;
-}
-.vx-radio-group--row {
-	flex-direction: row;
-}
-.vx-radio-row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-radio {
-	width: 18px;
-	height: 18px;
-	align-items: center;
-	justify-content: center;
-}
-.vx-radio-dot {
-	width: 8px;
-	height: 8px;
-}
-.vx-radio-label {
-	margin-left: 8px;
-}
+	/* Radio group — column/row of dot options. */
+	.vx-radio-group {
+		flex-direction: column;
+	}
+	.vx-radio-group--row {
+		flex-direction: row;
+	}
+	.vx-radio-row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-radio {
+		width: 18px;
+		height: 18px;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-radio-dot {
+		width: 8px;
+		height: 8px;
+	}
+	.vx-radio-label {
+		margin-left: 8px;
+	}
 
 	/* SegmentedControl — equal-width segments in a rounded track; `--on`
    raises the selected one. flex-basis is dead on NS (the shorthand parser
    drops it and the standalone property isn't registered), so width:0 +
    flex-grow:1 is what distributes segments equally on both engines. */
-.vx-segmented {
-	flex-direction: row;
-	padding: 3px;
-}
-.vx-segment {
-	flex-grow: 1;
-	width: 0;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
-.vx-segmented {
-	display: flex;
-}
-.vx-segment {
-	display: flex;
-	cursor: pointer;
-	user-select: none;
-}
-.vx-segment--disabled {
-	cursor: default;
-}
-/* xplat-web-only:end */
+	.vx-segmented {
+		flex-direction: row;
+		padding: 3px;
+	}
+	.vx-segment {
+		flex-grow: 1;
+		width: 0;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
+	.vx-segmented {
+		display: flex;
+	}
+	.vx-segment {
+		display: flex;
+		cursor: pointer;
+		user-select: none;
+	}
+	.vx-segment--disabled {
+		cursor: default;
+	}
+	/* xplat-web-only:end */
 
 	/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
    field owns the remaining width, self-drawn clear. The web leaf hides the
    engine's own search-cancel button so native's (hand-drawn) matches. */
-.vx-search {
-	flex-direction: row;
-	align-items: center;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 10px;
-	padding-right: 6px;
-}
-.vx-search-field {
-	flex-grow: 1;
-	padding-left: 8px;
-	padding-right: 8px;
-}
-.vx-search-clear {
-	width: 24px;
-	height: 24px;
-	align-items: center;
-	justify-content: center;
-}
-/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
+	.vx-search {
+		flex-direction: row;
+		align-items: center;
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 10px;
+		padding-right: 6px;
+	}
+	.vx-search-field {
+		flex-grow: 1;
+		padding-left: 8px;
+		padding-right: 8px;
+	}
+	.vx-search-clear {
+		width: 24px;
+		height: 24px;
+		align-items: center;
+		justify-content: center;
+	}
+	/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
    reset; native's flexbox children carry these from the class already. */
-.vx-search {
-	display: flex;
-}
-.vx-search-icon {
-	display: inline-flex;
-	flex: none;
-}
-.vx-search-field {
-	min-width: 0;
-	border: 0;
-	background: none;
-	appearance: none;
-	-webkit-appearance: none;
-}
-input.vx-search-field::-webkit-search-cancel-button {
-	display: none;
-}
-.vx-search-clear {
-	display: inline-flex;
-	border: 0;
-	padding: 0;
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	.vx-search {
+		display: flex;
+	}
+	.vx-search-icon {
+		display: inline-flex;
+		flex: none;
+	}
+	.vx-search-field {
+		min-width: 0;
+		border: 0;
+		background: none;
+		appearance: none;
+		-webkit-appearance: none;
+	}
+	input.vx-search-field::-webkit-search-cancel-button {
+		display: none;
+	}
+	.vx-search-clear {
+		display: inline-flex;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* Anchored menus — panel + item rows (the Popover leaf positions it). */
-.vx-menu {
-	min-width: 140px;
-	padding: 4px;
-}
-.vx-menu-list {
-	flex-direction: column;
-}
-.vx-menu-item {
-	flex-direction: row;
-	align-items: center;
-	padding: 6px 10px;
-}
-/* xplat-web-only:start — hover affordance and cursor are DOM-only */
-.vx-menu-item {
-	cursor: pointer;
-}
-/* xplat-web-only:end */
+	/* Anchored menus — panel + item rows (the Popover leaf positions it). */
+	.vx-menu {
+		min-width: 140px;
+		padding: 4px;
+	}
+	.vx-menu-list {
+		flex-direction: column;
+	}
+	.vx-menu-item {
+		flex-direction: row;
+		align-items: center;
+		padding: 6px 10px;
+	}
+	/* xplat-web-only:start — hover affordance and cursor are DOM-only */
+	.vx-menu-item {
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
-/* Badge — inline chip row. */
-.vx-badge {
-	flex-direction: row;
-	align-items: center;
-	padding: 1px 6px;
-}
-/* xplat-web-only:start — span is inline by default; needs inline-flex */
-.vx-badge {
-	display: inline-flex;
-}
-/* xplat-web-only:end */
+	/* Badge — inline chip row. */
+	.vx-badge {
+		flex-direction: row;
+		align-items: center;
+		padding: 1px 6px;
+	}
+	/* xplat-web-only:start — span is inline by default; needs inline-flex */
+	.vx-badge {
+		display: inline-flex;
+	}
+	/* xplat-web-only:end */
 
-/* Divider — hairline rule; --h spans width, --v spans height. */
-.vx-separator--h {
-	height: 1px;
-}
-.vx-separator--v {
-	width: 1px;
-	align-self: stretch;
-}
+	/* Divider — hairline rule; --h spans width, --v spans height. */
+	.vx-separator--h {
+		height: 1px;
+	}
+	.vx-separator--v {
+		width: 1px;
+		align-self: stretch;
+	}
 
-/* Skeleton — placeholder block. */
+	/* Skeleton — placeholder block. */
 
-/* Avatar — centered fallback inside the circle. */
-.vx-avatar {
-	align-items: center;
-	justify-content: center;
-}
-.vx-avatar-group {
-	flex-direction: row;
-	align-items: center;
-}
-/* xplat-web-only:start — display:flex for the div-based flex classes */
-.vx-collapsible,
-.vx-collapsible-content,
-.vx-accordion,
-.vx-accordion-item,
-.vx-checkbox-row,
-.vx-checkbox,
-.vx-radio-group,
-.vx-radio-row,
-.vx-radio,
-.vx-menu-list,
-.vx-menu-item,
-.vx-contextmenu,
-.vx-avatar,
-.vx-avatar-group,
-.vx-avatar-group-item {
-	display: flex;
-}
-.vx-checkbox-row,
-.vx-radio-row {
-	cursor: pointer;
-}
-.vx-checkbox-check {
-	display: block;
-}
-/* xplat-web-only:end */
+	/* Avatar — centered fallback inside the circle. */
+	.vx-avatar {
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-avatar-group {
+		flex-direction: row;
+		align-items: center;
+	}
+	/* xplat-web-only:start — display:flex for the div-based flex classes */
+	.vx-collapsible,
+	.vx-collapsible-content,
+	.vx-accordion,
+	.vx-accordion-item,
+	.vx-checkbox-row,
+	.vx-checkbox,
+	.vx-radio-group,
+	.vx-radio-row,
+	.vx-radio,
+	.vx-menu-list,
+	.vx-menu-item,
+	.vx-contextmenu,
+	.vx-avatar,
+	.vx-avatar-group,
+	.vx-avatar-group-item {
+		display: flex;
+	}
+	.vx-checkbox-row,
+	.vx-radio-row {
+		cursor: pointer;
+	}
+	.vx-checkbox-check {
+		display: block;
+	}
+	/* xplat-web-only:end */
 
 	/* Phase-2 form field layer. */
 
-/* FormField — label / control / message column. */
-.vx-field {
-	flex-direction: column;
-}
-.vx-field-label {
-	margin-bottom: 4px;
-}
-.vx-field-description {
-	margin-top: 4px;
-	margin-bottom: 4px;
-}
-.vx-field-status {
-	margin-top: 4px;
-}
-.vx-field-label-row {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 4px;
-}
-.vx-field-status--detached {
-	margin-top: 8px;
-	padding-top: 8px;
-	border-top-width: 1px;
-}
-.vx-fieldgroup {
-	flex-direction: column;
-}
-.vx-fieldgroup-label {
-	margin-bottom: 8px;
-}
+	/* FormField — label / control / message column. */
+	.vx-field {
+		flex-direction: column;
+	}
+	.vx-field-label {
+		margin-bottom: 4px;
+	}
+	.vx-field-description {
+		margin-top: 4px;
+		margin-bottom: 4px;
+	}
+	.vx-field-status {
+		margin-top: 4px;
+	}
+	.vx-field-label-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 4px;
+	}
+	.vx-field-status--detached {
+		margin-top: 8px;
+		padding-top: 8px;
+		border-top-width: 1px;
+	}
+	.vx-fieldgroup {
+		flex-direction: column;
+	}
+	.vx-fieldgroup-label {
+		margin-bottom: 8px;
+	}
 
-/* Item — a reusable shared row (settings/navigation); callers own the
+	/* Item — a reusable shared row (settings/navigation); callers own the
    surrounding chrome. Content List's ListItem is a separate vocabulary. */
-.vx-item {
-	flex-direction: row;
-	align-items: center;
-	width: 100%;
-	padding: 10px 12px;
-	gap: 12px;
-}
-.vx-item-leading,
-.vx-item-trailing {
-	flex-shrink: 0;
-	align-items: center;
-}
-.vx-item-content {
-	flex-direction: column;
-	flex-grow: 1;
-}
+	.vx-item {
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+		padding: 10px 12px;
+		gap: 12px;
+	}
+	.vx-item-leading,
+	.vx-item-trailing {
+		flex-shrink: 0;
+		align-items: center;
+	}
+	.vx-item-content {
+		flex-direction: column;
+		flex-grow: 1;
+	}
 
-/* InputNumber — steppers flanking a centered field. */
-.vx-inputnumber {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-inputnumber-step {
-	padding: 4px 10px;
-	align-items: center;
-	justify-content: center;
-}
-.vx-inputnumber-field {
-	width: 64px;
-	margin-left: 8px;
-	margin-right: 8px;
-	text-align: center;
-}
+	/* InputNumber — steppers flanking a centered field. */
+	.vx-inputnumber {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-inputnumber-step {
+		padding: 4px 10px;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-inputnumber-field {
+		width: 64px;
+		margin-left: 8px;
+		margin-right: 8px;
+		text-align: center;
+	}
 
-/* PinInput — row of single cells. */
-.vx-pininput {
-	flex-direction: row;
-}
-.vx-pininput-cell {
-	width: 40px;
-	margin-right: 8px;
-	text-align: center;
-}
+	/* PinInput — row of single cells. */
+	.vx-pininput {
+		flex-direction: row;
+	}
+	.vx-pininput-cell {
+		width: 40px;
+		margin-right: 8px;
+		text-align: center;
+	}
 
-/* Select — trigger row + check column inside the anchored listbox. */
-.vx-select-trigger {
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	padding: 6px 10px;
-}
-.vx-select-caret {
-	margin-left: 8px;
-}
-.vx-select-check {
-	width: 16px;
-}
-.vx-select-search {
-	margin-bottom: 4px;
-}
+	/* Select — trigger row + check column inside the anchored listbox. */
+	.vx-select-trigger {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 6px 10px;
+	}
+	.vx-select-caret {
+		margin-left: 8px;
+	}
+	.vx-select-check {
+		width: 16px;
+	}
+	.vx-select-search {
+		margin-bottom: 4px;
+	}
 
-/* Token and Typeahead selection anatomy. */
-/* xplat-web-only:start — web leaves use div/span; native leaves select flexboxlayout/gridlayout tags. */
-.vx-token,
-.vx-typeahead,
-.vx-tokenizer,
-.vx-complex-selector-trigger {
-	display: flex;
-	align-items: center;
-}
-.vx-tokenizer {
-	flex-direction: row;
-	flex-wrap: wrap;
-}
-.vx-tokenizer-content,
-.vx-typeahead-content {
-	min-width: 0;
-	flex: 1;
-}
-.vx-tokenizer-token {
-	display: flex;
-}
-.vx-tokenizer--truncated {
-	flex-wrap: nowrap;
-	overflow: hidden;
-}
-.vx-complex-selector {
-	display: flex;
-	flex-direction: row;
-}
-/* xplat-web-only:end */
+	/* Token and Typeahead selection anatomy. */
+	/* xplat-web-only:start — web leaves use div/span; native leaves select flexboxlayout/gridlayout tags. */
+	.vx-token,
+	.vx-typeahead,
+	.vx-tokenizer,
+	.vx-complex-selector-trigger {
+		display: flex;
+		align-items: center;
+	}
+	.vx-tokenizer {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	.vx-tokenizer-content,
+	.vx-typeahead-content {
+		min-width: 0;
+		flex: 1;
+	}
+	.vx-tokenizer-token {
+		display: flex;
+	}
+	.vx-tokenizer--truncated {
+		flex-wrap: nowrap;
+		overflow: hidden;
+	}
+	.vx-complex-selector {
+		display: flex;
+		flex-direction: row;
+	}
+	/* xplat-web-only:end */
 
-/* InputRating — glyph row; --on lights the cell. */
-.vx-rating {
-	flex-direction: row;
-}
-.vx-rating-cell {
-	padding: 2px;
-}
+	/* InputRating — glyph row; --on lights the cell. */
+	.vx-rating {
+		flex-direction: row;
+	}
+	.vx-rating-cell {
+		padding: 2px;
+	}
 
-/* CheckboxGroup — column/row of checkboxes. */
-.vx-checkbox-group {
-	flex-direction: column;
-}
-.vx-checkbox-group--row {
-	flex-direction: row;
-}
-/* xplat-web-only:start — display:flex for the div/span flex classes */
-.vx-field,
-.vx-fieldgroup,
-.vx-item,
-.vx-item-leading,
-.vx-item-content,
-.vx-item-trailing,
-.vx-inputnumber,
-.vx-inputnumber-step,
-.vx-select-trigger,
-.vx-select-list,
-.vx-token,
-.vx-typeahead,
-.vx-tokenizer,
-.vx-tokenizer-token,
-.vx-complex-selector,
-.vx-complex-selector-trigger,
-.vx-rating,
-.vx-rating-cell,
-.vx-checkbox-group {
-	display: flex;
-}
-.vx-rating-cell {
-	cursor: pointer;
-}
-.vx-field-label--hidden,
-.vx-field-description--hidden {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
-}
-/* xplat-web-only:end */
+	/* CheckboxGroup — column/row of checkboxes. */
+	.vx-checkbox-group {
+		flex-direction: column;
+	}
+	.vx-checkbox-group--row {
+		flex-direction: row;
+	}
+	/* xplat-web-only:start — display:flex for the div/span flex classes */
+	.vx-field,
+	.vx-fieldgroup,
+	.vx-item,
+	.vx-item-leading,
+	.vx-item-content,
+	.vx-item-trailing,
+	.vx-inputnumber,
+	.vx-inputnumber-step,
+	.vx-select-trigger,
+	.vx-select-list,
+	.vx-token,
+	.vx-typeahead,
+	.vx-tokenizer,
+	.vx-tokenizer-token,
+	.vx-complex-selector,
+	.vx-complex-selector-trigger,
+	.vx-rating,
+	.vx-rating-cell,
+	.vx-checkbox-group {
+		display: flex;
+	}
+	.vx-rating-cell {
+		cursor: pointer;
+	}
+	.vx-field-label--hidden,
+	.vx-field-description--hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+	/* xplat-web-only:end */
 
-/* Date & file entry layer — Calendar, DateInput, TimeInput, DateTimeInput,
+	/* Date & file entry layer — Calendar, DateInput, TimeInput, DateTimeInput,
    DateRangeInput, FileInput. */
 
-/* FormField status variants. `detached` separates the message from the
+	/* FormField status variants. `detached` separates the message from the
    control with extra spacing; `tooltip` hides the inline span (the
    message rides a tooltip on the field glyph). */
-.vx-field-status--detached {
-	margin-top: 8px;
-}
-.vx-field-label-row {
-	flex-direction: row;
-	align-items: center;
-	margin-bottom: 4px;
-}
-.vx-field-label-row .vx-field-label {
-	margin-bottom: 0;
-}
-.vx-field-label-info {
-	margin-left: 4px;
-}
+	.vx-field-status--detached {
+		margin-top: 8px;
+	}
+	.vx-field-label-row {
+		flex-direction: row;
+		align-items: center;
+		margin-bottom: 4px;
+	}
+	.vx-field-label-row .vx-field-label {
+		margin-bottom: 0;
+	}
+	.vx-field-label-info {
+		margin-left: 4px;
+	}
 
-/* Calendar — header + weekday row + day grid, self-drawn everywhere. */
-.vx-calendar {
-	flex-direction: column;
-}
-.vx-calendar-header {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-calendar-title {
-	flex-grow: 1;
-	text-align: center;
-}
-.vx-calendar-months {
-	flex-direction: row;
-}
-.vx-calendar--two-months .vx-calendar-months {
-	gap: 24px;
-}
-.vx-calendar-month {
-	flex-direction: column;
-}
-.vx-calendar-weeknames,
-.vx-calendar-week {
-	flex-direction: row;
-}
-.vx-calendar-weekname,
-.vx-calendar-weeknumber,
-.vx-calendar-day {
-	width: 36px;
-	height: 32px;
-	text-align: center;
-}
-.vx-calendar-weeknumber {
-	margin-right: 4px;
-}
-.vx-calendar-live {
-	height: 0;
-	font-size: 0;
-}
+	/* Calendar — header + weekday row + day grid, self-drawn everywhere. */
+	.vx-calendar {
+		flex-direction: column;
+	}
+	.vx-calendar-header {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-calendar-title {
+		flex-grow: 1;
+		text-align: center;
+	}
+	.vx-calendar-months {
+		flex-direction: row;
+	}
+	.vx-calendar--two-months .vx-calendar-months {
+		gap: 24px;
+	}
+	.vx-calendar-month {
+		flex-direction: column;
+	}
+	.vx-calendar-weeknames,
+	.vx-calendar-week {
+		flex-direction: row;
+	}
+	.vx-calendar-weekname,
+	.vx-calendar-weeknumber,
+	.vx-calendar-day {
+		width: 36px;
+		height: 32px;
+		text-align: center;
+	}
+	.vx-calendar-weeknumber {
+		margin-right: 4px;
+	}
+	.vx-calendar-live {
+		height: 0;
+		font-size: 0;
+	}
 
-/* Date/Time inputs — icon toggle + input + affordances. */
-.vx-dateinput,
-.vx-timeinput,
-.vx-datetimeinput,
-.vx-daterangeinput {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-dateinput-input,
-.vx-timeinput-input,
-.vx-datetimeinput-input {
-	flex-grow: 1;
-}
-.vx-datetimeinput-segment {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-datetimeinput-datesegment {
-	flex-grow: 1;
-}
-.vx-daterangeinput-trigger {
-	flex-grow: 1;
-}
-.vx-daterangeinput-dialog {
-	flex-direction: row;
-}
-.vx-daterangeinput-presets {
-	flex-direction: column;
-}
-.vx-daterangeinput-preset {
-	flex-direction: row;
-	align-items: center;
-	padding: 6px 10px;
-}
+	/* Date/Time inputs — icon toggle + input + affordances. */
+	.vx-dateinput,
+	.vx-timeinput,
+	.vx-datetimeinput,
+	.vx-daterangeinput {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-dateinput-input,
+	.vx-timeinput-input,
+	.vx-datetimeinput-input {
+		flex-grow: 1;
+	}
+	.vx-datetimeinput-segment {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-datetimeinput-datesegment {
+		flex-grow: 1;
+	}
+	.vx-daterangeinput-trigger {
+		flex-grow: 1;
+	}
+	.vx-daterangeinput-dialog {
+		flex-direction: row;
+	}
+	.vx-daterangeinput-presets {
+		flex-direction: column;
+	}
+	.vx-daterangeinput-preset {
+		flex-direction: row;
+		align-items: center;
+		padding: 6px 10px;
+	}
 
-/* Time wheel — scrollable option columns in the bottom sheet. */
-.vx-timewheel {
-	flex-direction: column;
-}
-.vx-timewheel-columns {
-	flex-direction: row;
-}
-.vx-timewheel-column {
-	flex-grow: 1;
-	height: 180px;
-}
-.vx-timewheel-option {
-	padding: 6px 0;
-	text-align: center;
-}
-.vx-timewheel-actions {
-	flex-direction: row;
-	justify-content: flex-end;
-}
-.vx-timewheel-cancel,
-.vx-timewheel-done {
-	padding: 8px 16px;
-}
+	/* Time wheel — scrollable option columns in the bottom sheet. */
+	.vx-timewheel {
+		flex-direction: column;
+	}
+	.vx-timewheel-columns {
+		flex-direction: row;
+	}
+	.vx-timewheel-column {
+		flex-grow: 1;
+		height: 180px;
+	}
+	.vx-timewheel-option {
+		padding: 6px 0;
+		text-align: center;
+	}
+	.vx-timewheel-actions {
+		flex-direction: row;
+		justify-content: flex-end;
+	}
+	.vx-timewheel-cancel,
+	.vx-timewheel-done {
+		padding: 8px 16px;
+	}
 
-/* FileInput — trigger + list of picked refs. */
-.vx-fileinput {
-	flex-direction: column;
-}
-.vx-fileinput-list {
-	flex-direction: column;
-}
-.vx-fileinput-item {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-fileinput-itemname {
-	flex-grow: 1;
-}
-.vx-fileinput-trigger {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-fileinput-dropzone-hint {
-	flex-direction: column;
-	align-items: center;
-	padding: 16px;
-}
+	/* FileInput — trigger + list of picked refs. */
+	.vx-fileinput {
+		flex-direction: column;
+	}
+	.vx-fileinput-list {
+		flex-direction: column;
+	}
+	.vx-fileinput-item {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-fileinput-itemname {
+		flex-grow: 1;
+	}
+	.vx-fileinput-trigger {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-fileinput-dropzone-hint {
+		flex-direction: column;
+		align-items: center;
+		padding: 16px;
+	}
 
-/* xplat-web-only:start — DOM mechanics: flex display, overlay painting,
+	/* xplat-web-only:start — DOM mechanics: flex display, overlay painting,
    hidden file input, sr-only live region. */
-.vx-calendar,
-.vx-calendar-header,
-.vx-calendar-months,
-.vx-calendar-month,
-.vx-calendar-weeknames,
-.vx-calendar-week,
-.vx-dateinput,
-.vx-timeinput,
-.vx-datetimeinput,
-.vx-datetimeinput-segment,
-.vx-daterangeinput,
-.vx-daterangeinput-dialog,
-.vx-daterangeinput-presets,
-.vx-timewheel,
-.vx-timewheel-columns,
-.vx-timewheel-actions,
-.vx-fileinput,
-.vx-fileinput-list,
-.vx-fileinput-item,
-.vx-fileinput-trigger,
-.vx-fileinput-dropzone-hint,
-.vx-field-label-row {
-	display: flex;
-}
-.vx-calendar-day {
-	padding: 0;
-	border: 0;
-	background: none;
-	font: inherit;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-}
-.vx-calendar-day--disabled {
-	cursor: default;
-}
-.vx-calendar-day--outside {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-.vx-calendar-day--empty {
-	visibility: hidden;
-}
-.vx-calendar-nav {
-	border: 0;
-	background: none;
-	padding: 4px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-}
-.vx-dateinput-toggle,
-.vx-timeinput-toggle,
-.vx-datetimeinput-calendartoggle,
-.vx-datetimeinput-timestoggle,
-.vx-dateinput-clear,
-.vx-timeinput-clear,
-.vx-datetimeinput-clear,
-.vx-daterangeinput-clear,
-.vx-fileinput-clear,
-.vx-fileinput-itemremove {
-	border: 0;
-	background: none;
-	padding: 2px 4px;
-	cursor: pointer;
-}
-.vx-dateinput,
-.vx-timeinput,
-.vx-datetimeinput,
-.vx-daterangeinput {
-	position: relative;
-	gap: 4px;
-}
-.vx-dateinput-input,
-.vx-timeinput-input,
-.vx-datetimeinput-input,
-.vx-daterangeinput-trigger {
-	border: 0;
-	background: none;
-	padding: 6px 4px;
-	font: inherit;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	text-align: left;
-}
-.vx-dateinput-nativeslot,
-.vx-timeinput-nativeslot,
-.vx-datetimeinput-nativeslot {
-	position: relative;
-	display: flex;
-	flex-grow: 1;
-}
-.vx-dateinput-nativeinput,
-.vx-timeinput-nativeinput,
-.vx-datetimeinput-nativeinput {
-	position: relative;
-	z-index: 1;
-	width: 100%;
-}
-.vx-dateinput-overlay,
-.vx-timeinput-overlay,
-.vx-datetimeinput-overlay {
-	position: absolute;
-	inset: 0;
-	display: flex;
-	align-items: center;
-	pointer-events: none;
-	padding: 6px 4px;
-}
-.vx-datetimeinput-timelist {
-	display: flex;
-	flex-direction: column;
-	max-height: 220px;
-	overflow-y: auto;
-}
-.vx-datetimeinput-timeoption {
-	border: 0;
-	background: none;
-	padding: 6px 12px;
-	text-align: left;
-	cursor: pointer;
-}
-.vx-daterangeinput-trigger {
-	border: 0;
-	background: none;
-	padding: 6px 4px;
-	cursor: pointer;
-}
-.vx-fileinput-nativeinput {
-	display: none;
-}
-.vx-fileinput--dropzone {
-	padding: 16px;
-	align-items: center;
-}
-.vx-sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
-}
-/* xplat-web-only:end */
+	.vx-calendar,
+	.vx-calendar-header,
+	.vx-calendar-months,
+	.vx-calendar-month,
+	.vx-calendar-weeknames,
+	.vx-calendar-week,
+	.vx-dateinput,
+	.vx-timeinput,
+	.vx-datetimeinput,
+	.vx-datetimeinput-segment,
+	.vx-daterangeinput,
+	.vx-daterangeinput-dialog,
+	.vx-daterangeinput-presets,
+	.vx-timewheel,
+	.vx-timewheel-columns,
+	.vx-timewheel-actions,
+	.vx-fileinput,
+	.vx-fileinput-list,
+	.vx-fileinput-item,
+	.vx-fileinput-trigger,
+	.vx-fileinput-dropzone-hint,
+	.vx-field-label-row {
+		display: flex;
+	}
+	.vx-calendar-day {
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+	}
+	.vx-calendar-day--disabled {
+		cursor: default;
+	}
+	.vx-calendar-day--outside {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-calendar-day--empty {
+		visibility: hidden;
+	}
+	.vx-calendar-nav {
+		border: 0;
+		background: none;
+		padding: 4px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+	}
+	.vx-dateinput-toggle,
+	.vx-timeinput-toggle,
+	.vx-datetimeinput-calendartoggle,
+	.vx-datetimeinput-timestoggle,
+	.vx-dateinput-clear,
+	.vx-timeinput-clear,
+	.vx-datetimeinput-clear,
+	.vx-daterangeinput-clear,
+	.vx-fileinput-clear,
+	.vx-fileinput-itemremove {
+		border: 0;
+		background: none;
+		padding: 2px 4px;
+		cursor: pointer;
+	}
+	.vx-dateinput,
+	.vx-timeinput,
+	.vx-datetimeinput,
+	.vx-daterangeinput {
+		position: relative;
+		gap: 4px;
+	}
+	.vx-dateinput-input,
+	.vx-timeinput-input,
+	.vx-datetimeinput-input,
+	.vx-daterangeinput-trigger {
+		border: 0;
+		background: none;
+		padding: 6px 4px;
+		font: inherit;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		text-align: left;
+	}
+	.vx-dateinput-nativeslot,
+	.vx-timeinput-nativeslot,
+	.vx-datetimeinput-nativeslot {
+		position: relative;
+		display: flex;
+		flex-grow: 1;
+	}
+	.vx-dateinput-nativeinput,
+	.vx-timeinput-nativeinput,
+	.vx-datetimeinput-nativeinput {
+		position: relative;
+		z-index: 1;
+		width: 100%;
+	}
+	.vx-dateinput-overlay,
+	.vx-timeinput-overlay,
+	.vx-datetimeinput-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		pointer-events: none;
+		padding: 6px 4px;
+	}
+	.vx-datetimeinput-timelist {
+		display: flex;
+		flex-direction: column;
+		max-height: 220px;
+		overflow-y: auto;
+	}
+	.vx-datetimeinput-timeoption {
+		border: 0;
+		background: none;
+		padding: 6px 12px;
+		text-align: left;
+		cursor: pointer;
+	}
+	.vx-daterangeinput-trigger {
+		border: 0;
+		background: none;
+		padding: 6px 4px;
+		cursor: pointer;
+	}
+	.vx-fileinput-nativeinput {
+		display: none;
+	}
+	.vx-fileinput--dropzone {
+		padding: 16px;
+		align-items: center;
+	}
+	.vx-sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+	/* xplat-web-only:end */
 
-/* Phase-3 navigation & wayfinding. */
+	/* Phase-3 navigation & wayfinding. */
 
-/* Breadcrumb — inline trail. */
-.vx-breadcrumb {
-	flex-direction: row;
-	align-items: center;
-	flex-wrap: wrap;
-}
-.vx-breadcrumb-item {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-breadcrumb-sep {
-	margin-left: 6px;
-	margin-right: 6px;
-}
+	/* Breadcrumb — inline trail. */
+	.vx-breadcrumb {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.vx-breadcrumb-item {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-breadcrumb-sep {
+		margin-left: 6px;
+		margin-right: 6px;
+	}
 
-/* Pagination — windowed page buttons. */
-.vx-pagination {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-page-btn {
-	min-width: 28px;
-	height: 28px;
-	padding: 0 6px;
-	margin-right: 4px;
-	align-items: center;
-	justify-content: center;
-}
-.vx-page-ellipsis {
-	margin-right: 4px;
-}
+	/* Pagination — windowed page buttons. */
+	.vx-pagination {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-page-btn {
+		min-width: 28px;
+		height: 28px;
+		padding: 0 6px;
+		margin-right: 4px;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-page-ellipsis {
+		margin-right: 4px;
+	}
 
-/* Stepper — dot + label cells joined by a hairline. */
-.vx-stepper {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-stepper-cell {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-stepper-line {
-	width: 24px;
-	height: 1px;
-}
-.vx-step {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-step-dot {
-	width: 24px;
-	height: 24px;
-	text-align: center;
-}
-.vx-step-label {
-	margin-left: 6px;
-}
+	/* Stepper — dot + label cells joined by a hairline. */
+	.vx-stepper {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-stepper-cell {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-stepper-line {
+		width: 24px;
+		height: 1px;
+	}
+	.vx-step {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-step-dot {
+		width: 24px;
+		height: 24px;
+		text-align: center;
+	}
+	.vx-step-label {
+		margin-left: 6px;
+	}
 
-/* NavigationMenu — row/column of nav items. */
-.vx-navmenu,
-.vx-navmenu--row {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-navmenu--col {
-	flex-direction: column;
-	align-items: flex-start;
-}
-.vx-navmenu-item {
-	flex-direction: row;
-	align-items: center;
-	padding: 6px 10px;
-}
-.vx-navmenu-label {
-	margin-left: 4px;
-}
+	/* NavigationMenu — row/column of nav items. */
+	.vx-navmenu,
+	.vx-navmenu--row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-navmenu--col {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.vx-navmenu-item {
+		flex-direction: row;
+		align-items: center;
+		padding: 6px 10px;
+	}
+	.vx-navmenu-label {
+		margin-left: 4px;
+	}
 
-/* CommandPalette — panel centered by the overlay layer. */
-.vx-commandpalette {
-	width: 360px;
-	padding: 8px;
-}
-/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
-.vx-commandpalette {
-	/* The overlay-content wrapper shrink-wraps the palette, so % would resolve
+	/* CommandPalette — panel centered by the overlay layer. */
+	.vx-commandpalette {
+		width: 360px;
+		padding: 8px;
+	}
+	/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
+	.vx-commandpalette {
+		/* The overlay-content wrapper shrink-wraps the palette, so % would resolve
 	 * against the palette itself instead of the available viewport. */
 		max-width: 90vw;
 	}
@@ -1341,149 +1341,149 @@ input.vx-search-field::-webkit-search-cancel-button {
 
 	/* Phase-4 data display. */
 
-/* Table — header + bounded rows (unvirtualized by design). */
-.vx-table {
-	flex-direction: column;
-}
-.vx-table-head,
-.vx-table-row {
-	flex-direction: row;
-}
-.vx-table-cell {
-	padding: 8px 12px;
-}
-.vx-table-empty {
-	padding: 16px;
-	align-items: center;
-}
-.vx-table-row--selected {
-	background-color: var(--color-surface-secondary);
-}
+	/* Table — header + bounded rows (unvirtualized by design). */
+	.vx-table {
+		flex-direction: column;
+	}
+	.vx-table-head,
+	.vx-table-row {
+		flex-direction: row;
+	}
+	.vx-table-cell {
+		padding: 8px 12px;
+	}
+	.vx-table-empty {
+		padding: 16px;
+		align-items: center;
+	}
+	.vx-table-row--selected {
+		background-color: var(--color-surface-secondary);
+	}
 
-/* Timeline — dot + connector rail beside content. */
-.vx-timeline {
-	flex-direction: column;
-}
-.vx-timeline-item {
-	flex-direction: row;
-}
-.vx-timeline-rail {
-	flex-direction: column;
-	align-items: center;
-	width: 20px;
-}
-.vx-timeline-dot {
-	width: 10px;
-	height: 10px;
-	margin-top: 5px;
-	align-items: center;
-	justify-content: center;
-}
-.vx-timeline-line {
-	width: 1px;
-	flex: 1;
-}
-.vx-timeline-body {
-	flex-direction: column;
-	padding-left: 10px;
-	padding-bottom: 16px;
-}
+	/* Timeline — dot + connector rail beside content. */
+	.vx-timeline {
+		flex-direction: column;
+	}
+	.vx-timeline-item {
+		flex-direction: row;
+	}
+	.vx-timeline-rail {
+		flex-direction: column;
+		align-items: center;
+		width: 20px;
+	}
+	.vx-timeline-dot {
+		width: 10px;
+		height: 10px;
+		margin-top: 5px;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-timeline-line {
+		width: 1px;
+		flex: 1;
+	}
+	.vx-timeline-body {
+		flex-direction: column;
+		padding-left: 10px;
+		padding-bottom: 16px;
+	}
 
-/* Tree — indented collapsible rows. */
-.vx-tree {
-	flex-direction: column;
-}
-.vx-tree-node {
-	flex-direction: column;
-}
-.vx-tree-row {
-	flex-direction: row;
-	align-items: center;
-	padding: 4px 0;
-}
-.vx-tree-caret {
-	width: 14px;
-	margin-left: 4px;
-}
+	/* Tree — indented collapsible rows. */
+	.vx-tree {
+		flex-direction: column;
+	}
+	.vx-tree-node {
+		flex-direction: column;
+	}
+	.vx-tree-row {
+		flex-direction: row;
+		align-items: center;
+		padding: 4px 0;
+	}
+	.vx-tree-caret {
+		width: 14px;
+		margin-left: 4px;
+	}
 
-/* Alert — icon + body callout; tone picks border/text colors. */
-.vx-alert {
-	flex-direction: row;
-	padding: 10px 12px;
-}
-.vx-alert-body {
-	flex-direction: column;
-	flex: 1;
-	margin-left: 8px;
-}
+	/* Alert — icon + body callout; tone picks border/text colors. */
+	.vx-alert {
+		flex-direction: row;
+		padding: 10px 12px;
+	}
+	.vx-alert-body {
+		flex-direction: column;
+		flex: 1;
+		margin-left: 8px;
+	}
 
-/* Card — sectioned container. */
-.vx-card {
-	flex-direction: column;
-}
-.vx-card-header {
-	padding: 12px;
-}
-.vx-card-body {
-	padding: 12px;
-	flex-direction: column;
-}
-.vx-card-footer {
-	padding: 12px;
-}
+	/* Card — sectioned container. */
+	.vx-card {
+		flex-direction: column;
+	}
+	.vx-card-header {
+		padding: 12px;
+	}
+	.vx-card-body {
+		padding: 12px;
+		flex-direction: column;
+	}
+	.vx-card-footer {
+		padding: 12px;
+	}
 
-/* Chip — pressable pill with selected + remove states. */
-.vx-chip {
-	flex-direction: row;
-	align-items: center;
-	padding: 3px 10px;
-}
-.vx-chip-remove {
-	margin-left: 6px;
-}
+	/* Chip — pressable pill with selected + remove states. */
+	.vx-chip {
+		flex-direction: row;
+		align-items: center;
+		padding: 3px 10px;
+	}
+	.vx-chip-remove {
+		margin-left: 6px;
+	}
 
-/* Kbd — keycap glyph. */
-.vx-kbd {
-	padding: 1px 5px;
-}
+	/* Kbd — keycap glyph. */
+	.vx-kbd {
+		padding: 1px 5px;
+	}
 
-/* Empty — centered placeholder. */
-.vx-empty {
-	flex-direction: column;
-	align-items: center;
-	padding: 24px;
-}
-.vx-empty-title {
-	margin-top: 8px;
-}
-.vx-empty-desc {
-	margin-top: 2px;
-}
+	/* Empty — centered placeholder. */
+	.vx-empty {
+		flex-direction: column;
+		align-items: center;
+		padding: 24px;
+	}
+	.vx-empty-title {
+		margin-top: 8px;
+	}
+	.vx-empty-desc {
+		margin-top: 2px;
+	}
 
-/* Banner — notice strip. */
-.vx-banner {
-	flex-direction: row;
-	align-items: center;
-	padding: 8px 12px;
-}
-.vx-banner-body {
-	flex-direction: column;
-	flex: 1;
-	margin-left: 8px;
-}
-.vx-banner-dismiss {
-	margin-left: 8px;
-}
+	/* Banner — notice strip. */
+	.vx-banner {
+		flex-direction: row;
+		align-items: center;
+		padding: 8px 12px;
+	}
+	.vx-banner-body {
+		flex-direction: column;
+		flex: 1;
+		margin-left: 8px;
+	}
+	.vx-banner-dismiss {
+		margin-left: 8px;
+	}
 
-/* User — avatar + text column. */
-.vx-user {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-user-body {
-	flex-direction: column;
-	margin-left: 10px;
-}
+	/* User — avatar + text column. */
+	.vx-user {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-user-body {
+		flex-direction: column;
+		margin-left: 10px;
+	}
 
 	/* ProgressGroup — stacked labeled meters. */
 	.vx-progressgroup {
@@ -1529,10 +1529,10 @@ input.vx-search-field::-webkit-search-cancel-button {
 	}
 	/* xplat-web-only:end */
 
-.vx-heading {
-	margin: 0;
-}
-/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
+	.vx-heading {
+		margin: 0;
+	}
+	/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
 
 	/* utilities (hand-written subset — do NOT adopt Tailwind until
    NativeScript/tailwind#226 is resolved; the plugin strips core-supported
@@ -1597,35 +1597,35 @@ input.vx-search-field::-webkit-search-cancel-button {
 	/* Native Labels keep their natural font height even with line-height set, so
    min-height aligns utilities whose natural metrics fall below their leading.
    Tailwind pairs every text-* size with a leading, same here. */
-.text-2xl {
-	min-height: 36px;
-}
-.text-xl {
-	min-height: 28px;
-}
-.text-lg {
-	min-height: 28px;
-}
-.text-sm {
-	min-height: 20px;
-}
+	.text-2xl {
+		min-height: 36px;
+	}
+	.text-xl {
+		min-height: 28px;
+	}
+	.text-lg {
+		min-height: 28px;
+	}
+	.text-sm {
+		min-height: 20px;
+	}
 
 	/* Corner utilities — consume the --radius-* scale and carry the smooth
    (squircle) corner treatment. Circles stay circular: .rounded-full omits
    corner-shape deliberately (squircle at full radius = a squircle disk,
    not a circle). Opt out per element with `corner-shape: round`. */
-/* xplat-web-only:start — box-shadow is inert on native (elevation is
+	/* xplat-web-only:start — box-shadow is inert on native (elevation is
    Android-only; no shared mapping yet) */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-.btn {
-	padding-top: 10px;
-	padding-right: 16px;
-	padding-bottom: 10px;
-	padding-left: 16px;
-	align-items: center;
-	justify-content: center;
-}
+	.btn {
+		padding-top: 10px;
+		padding-right: 16px;
+		padding-bottom: 10px;
+		padding-left: 16px;
+		align-items: center;
+		justify-content: center;
+	}
 
 	/* Secondary = the same control reading quiet: hairline border, surface
    fill, body-text label. Reserve .bg-primary for the one decisive action
@@ -1645,17 +1645,17 @@ input.vx-search-field::-webkit-search-cancel-button {
 
 	/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
    its own UITabBar and never sees these). */
-.vx-tab {
-	align-items: center;
-	justify-content: center;
-	padding-top: 10px;
-	padding-right: 16px;
-	padding-bottom: 10px;
-	padding-left: 16px;
-}
-.vx-tabicon {
-	margin-right: 6px;
-}
+	.vx-tab {
+		align-items: center;
+		justify-content: center;
+		padding-top: 10px;
+		padding-right: 16px;
+		padding-bottom: 10px;
+		padding-left: 16px;
+	}
+	.vx-tabicon {
+		margin-right: 6px;
+	}
 
 	/* xplat-web-only:start — DOM defaults are display:block (div) and
    inline-block (button); every flex-bearing vx- class needs an explicit
@@ -1685,35 +1685,35 @@ input.vx-search-field::-webkit-search-cancel-button {
 
 	/* harness experiment styles */
 
-.vx-app {
-	padding: 24px;
-}
+	.vx-app {
+		padding: 24px;
+	}
 
 	/* `.vx-app label` above (descendant + type) outranks single-class text
    colors inside the app root — roles that must win escalate here. */
-/* Danger surfaces keep white text in both themes (on-primary flips). */
+	/* Danger surfaces keep white text in both themes (on-primary flips). */
 
-.input {
-	padding-top: 10px;
-	padding-right: 12px;
-	padding-bottom: 10px;
-	padding-left: 12px;
-	/* NS TextField/TextView placeholder color (ignored on web — the
+	.input {
+		padding-top: 10px;
+		padding-right: 12px;
+		padding-bottom: 10px;
+		padding-left: 12px;
+		/* NS TextField/TextView placeholder color (ignored on web — the
 	   ::placeholder pseudo above covers it there). */
-}
+	}
 
-.chip {
-	padding-top: 5px;
-	padding-right: 12px;
-	padding-bottom: 5px;
-	padding-left: 12px;
-}
+	.chip {
+		padding-top: 5px;
+		padding-right: 12px;
+		padding-bottom: 5px;
+		padding-left: 12px;
+	}
 
-/* Selected chip — the one filled element in a group of bordered peers. */
+	/* Selected chip — the one filled element in a group of bordered peers. */
 
-.cell {
-	padding: 12px;
-}
+	.cell {
+		padding: 12px;
+	}
 
 	.gap-2 {
 		gap: 8px;
@@ -1725,10 +1725,10 @@ input.vx-search-field::-webkit-search-cancel-button {
 		z-index: 1100;
 	}
 
-.vx-sheet {
-	max-height: 85%;
-	padding: 24px;
-}
+	.vx-sheet {
+		max-height: 85%;
+		padding: 24px;
+	}
 
 	/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
    The native leaf renders on RootLayout with its own geometry. */
@@ -1759,10 +1759,10 @@ input.vx-search-field::-webkit-search-cancel-button {
 		height: 28px;
 	}
 
-.vx-sheet-grip {
-	width: 36px;
-	height: 4px;
-}
+	.vx-sheet-grip {
+		width: 36px;
+		height: 4px;
+	}
 
 	/* xplat-web-only:start — detents size the panel to the largest fraction
    (overriding the 85% cap) and overlay the grabber; native stacks it as a
@@ -1781,414 +1781,472 @@ input.vx-search-field::-webkit-search-cancel-button {
 	}
 	/* xplat-web-only:end */
 
-/* Shared Chat anatomy — structural defaults used with or without chrome.css. */
-.vx-chatlayout,
-.vx-chatlayout-scroll,
-.vx-chatlayout-messages,
-.vx-chatlist,
-.vx-chatlist-inner,
-.vx-chatmsg,
-.vx-chatmsg-content,
-.vx-chatcomposer,
-.vx-chatcomposer-body,
-.vx-chatcomposer-inputarea,
-.vx-chatcomposer-footer,
-.vx-chatcomposer-header,
-.vx-chattools-list {
-	display: flex;
-	flex-direction: column;
-}
-.vx-chatlayout { flex: 1; min-height: 0; }
-.vx-chatlayout-scroll { flex: 1; min-height: 0; }
-.vx-chatlayout-messages { flex: 1; min-height: 0; }
-.vx-chatlayout-dock,
-.vx-chatlayout-dockinner,
-.vx-chatlist-inner { width: 100%; }
-.vx-chatlist { flex: 1; min-height: 0; }
-.vx-chatlist-spacer { flex: 1; }
-.vx-chatmsg { width: 100%; flex-direction: row; align-items: flex-start; }
-.vx-chatmsg--user { flex-direction: row-reverse; }
-.vx-chatmsg-content { min-width: 0; max-width: 100%; }
-.vx-chatbubble { max-width: 100%; }
-.vx-chatmeta,
-.vx-chatcomposer-header,
-.vx-chatcomposer-footer,
-.vx-chatcomposer-footerright,
-.vx-chatcomposer-footerleft,
-.vx-chatcomposer-headerright,
-.vx-chatcomposer-headerleft,
-.vx-chattools-header,
-.vx-chattools-row,
-.vx-chattools-stats,
-.vx-chatcomposer-tokenwrap,
-.vx-chatinput-tokens,
-.vx-chatsys,
-.vx-chatscroll-wrap,
-.vx-chatdict-btn,
-.vx-chatcomposer-status,
-.vx-chatdict-bars,
-.vx-chat-token {
-	display: flex;
-	align-items: center;
-}
-.vx-chatcomposer-header,
-.vx-chatcomposer-footer { flex-direction: row; justify-content: space-between; }
-.vx-chatcomposer-inputarea { min-width: 0; }
-.vx-chatinput-editable { min-height: 24px; width: 100%; }
-.vx-chattools-row,
-.vx-chatcomposer-status,
-.vx-chatsys,
-.vx-chatdict-bars { flex-direction: row; }
-.vx-chattools-row--toggle { width: 100%; }
-.vx-chatsys { justify-content: center; }
-.vx-chatsys-content { display: flex; flex-direction: row; align-items: center; }
-.vx-chatdrawer-inner { width: 100%; }
-.vx-chatscroll-wrap { justify-content: center; }
-.vx-chatcomposer--disabled,
-.vx-chatinput--disabled { opacity: 0.55; }
+	/* Shared Chat anatomy — structural defaults used with or without chrome.css. */
+	.vx-chatlayout,
+	.vx-chatlayout-scroll,
+	.vx-chatlayout-messages,
+	.vx-chatlist,
+	.vx-chatlist-inner,
+	.vx-chatmsg,
+	.vx-chatmsg-content,
+	.vx-chatcomposer,
+	.vx-chatcomposer-body,
+	.vx-chatcomposer-inputarea,
+	.vx-chatcomposer-footer,
+	.vx-chatcomposer-header,
+	.vx-chattools-list {
+		display: flex;
+		flex-direction: column;
+	}
+	.vx-chatlayout {
+		flex: 1;
+		min-height: 0;
+	}
+	.vx-chatlayout-scroll {
+		flex: 1;
+		min-height: 0;
+	}
+	.vx-chatlayout-messages {
+		flex: 1;
+		min-height: 0;
+	}
+	.vx-chatlayout-dock,
+	.vx-chatlayout-dockinner,
+	.vx-chatlist-inner {
+		width: 100%;
+	}
+	.vx-chatlist {
+		flex: 1;
+		min-height: 0;
+	}
+	.vx-chatlist-spacer {
+		flex: 1;
+	}
+	.vx-chatmsg {
+		width: 100%;
+		flex-direction: row;
+		align-items: flex-start;
+	}
+	.vx-chatmsg--user {
+		flex-direction: row-reverse;
+	}
+	.vx-chatmsg-content {
+		min-width: 0;
+		max-width: 100%;
+	}
+	.vx-chatbubble {
+		max-width: 100%;
+	}
+	.vx-chatmeta,
+	.vx-chatcomposer-header,
+	.vx-chatcomposer-footer,
+	.vx-chatcomposer-footerright,
+	.vx-chatcomposer-footerleft,
+	.vx-chatcomposer-headerright,
+	.vx-chatcomposer-headerleft,
+	.vx-chattools-header,
+	.vx-chattools-row,
+	.vx-chattools-stats,
+	.vx-chatcomposer-tokenwrap,
+	.vx-chatinput-tokens,
+	.vx-chatsys,
+	.vx-chatscroll-wrap,
+	.vx-chatdict-btn,
+	.vx-chatcomposer-status,
+	.vx-chatdict-bars,
+	.vx-chat-token {
+		display: flex;
+		align-items: center;
+	}
+	.vx-chatcomposer-header,
+	.vx-chatcomposer-footer {
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.vx-chatcomposer-inputarea {
+		min-width: 0;
+	}
+	.vx-chatinput-editable {
+		min-height: 24px;
+		width: 100%;
+	}
+	.vx-chattools-row,
+	.vx-chatcomposer-status,
+	.vx-chatsys,
+	.vx-chatdict-bars {
+		flex-direction: row;
+	}
+	.vx-chattools-row--toggle {
+		width: 100%;
+	}
+	.vx-chatsys {
+		justify-content: center;
+	}
+	.vx-chatsys-content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-chatdrawer-inner {
+		width: 100%;
+	}
+	.vx-chatscroll-wrap {
+		justify-content: center;
+	}
+	.vx-chatcomposer--disabled,
+	.vx-chatinput--disabled {
+		opacity: 0.55;
+	}
 
-/* xplat-web-only:start — DOM positioning and clipping for browser overlays. */
-.vx-chatlayout { position: relative; overflow: hidden; }
-.vx-chatpaste-preview { overflow: hidden; }
-/* ---------- dialog / alert dialog ---------- */
+	/* xplat-web-only:start — DOM positioning and clipping for browser overlays. */
+	.vx-chatlayout {
+		position: relative;
+		overflow: hidden;
+	}
+	.vx-chatpaste-preview {
+		overflow: hidden;
+	}
+	/* ---------- dialog / alert dialog ---------- */
 
-/* The panel: column flex on both renderers; web uses a real <dialog> in
+	/* The panel: column flex on both renderers; web uses a real <dialog> in
    the top layer (margin:auto centers it), fullscreen drops the radius and
    fills the viewport. */
-.vx-dialog {
-	display: flex;
-	flex-direction: column;
-}
+	.vx-dialog {
+		display: flex;
+		flex-direction: column;
+	}
 
-/* xplat-web-only:start — the layer is the fixed portal wrapper; the
+	/* xplat-web-only:start — the layer is the fixed portal wrapper; the
    <dialog> element supplies backdrop, focus trap and centering. Anchored
    dialogs switch to explicit position + zero UA margin. */
-.vx-dialog-layer {
-	position: fixed;
-	inset: 0;
-	z-index: 1100;
-	pointer-events: none;
-}
+	.vx-dialog-layer {
+		position: fixed;
+		inset: 0;
+		z-index: 1100;
+		pointer-events: none;
+	}
 
-.vx-dialog-layer .vx-dialog {
-	pointer-events: auto;
-	overflow: auto;
-}
+	.vx-dialog-layer .vx-dialog {
+		pointer-events: auto;
+		overflow: auto;
+	}
 
-dialog.vx-dialog {
-	margin: auto;
-	border-width: 0;
-	outline: none;
-}
+	dialog.vx-dialog {
+		margin: auto;
+		border-width: 0;
+		outline: none;
+	}
 
-.vx-dialog--fullscreen {
-	width: 100%;
-	height: 100%;
-	max-width: none;
-	max-height: none;
-	border-radius: 0;
-}
-/* xplat-web-only:end */
+	.vx-dialog--fullscreen {
+		width: 100%;
+		height: 100%;
+		max-width: none;
+		max-height: none;
+		border-radius: 0;
+	}
+	/* xplat-web-only:end */
 
-.vx-dialog-header {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
+	.vx-dialog-header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
 
-.vx-dialog-header-text {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-}
+	.vx-dialog-header-text {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
 
-.vx-dialog-header-end {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
+	.vx-dialog-header-end {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
 
-.vx-dialog-divider {
-	height: 1px;
-}
+	.vx-dialog-divider {
+		height: 1px;
+	}
 
-.vx-alertdialog-title {
-	margin-bottom: 4px;
-}
+	.vx-alertdialog-title {
+		margin-bottom: 4px;
+	}
 
-.vx-alertdialog-desc {
-	margin-bottom: 16px;
-}
+	.vx-alertdialog-desc {
+		margin-bottom: 16px;
+	}
 
-.vx-alertdialog-actions {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-end;
-	gap: 8px;
-}
+	.vx-alertdialog-actions {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		gap: 8px;
+	}
 
-/* ---------- hover card ---------- */
+	/* ---------- hover card ---------- */
 
-/* xplat-web-only:start — the dashed-underline affordance applies only to
+	/* xplat-web-only:start — the dashed-underline affordance applies only to
    text-only triggers, which the web leaf renders as a <span>. */
-.vx-hovercard-indication {
-	text-decoration: underline dashed;
-	text-underline-offset: 3px;
-}
-/* xplat-web-only:end */
+	.vx-hovercard-indication {
+		text-decoration: underline dashed;
+		text-underline-offset: 3px;
+	}
+	/* xplat-web-only:end */
 
-.vx-hovercard-content {
-	display: flex;
-	flex-direction: column;
-}
+	.vx-hovercard-content {
+		display: flex;
+		flex-direction: column;
+	}
 
-/* ---------- toast stack ---------- */
+	/* ---------- toast stack ---------- */
 
-/* xplat-web-only:start — the viewport is a fixed, click-through top-layer
+	/* xplat-web-only:start — the viewport is a fixed, click-through top-layer
    frame; corner buckets hold the per-position stacks. popover="manual"
    resets: the UA forces inset/width/margin on popovers. */
-.vx-toast-viewport {
-	position: fixed;
-	inset: 0;
-	z-index: 1200;
-	pointer-events: none;
-	width: auto;
-	margin: 0;
-	border-width: 0;
-	background: transparent;
-	overflow: visible;
-	padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
-	padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
-}
+	.vx-toast-viewport {
+		position: fixed;
+		inset: 0;
+		z-index: 1200;
+		pointer-events: none;
+		width: auto;
+		margin: 0;
+		border-width: 0;
+		background: transparent;
+		overflow: visible;
+		padding-block: max(16px, env(safe-area-inset-top, 0px))
+			max(16px, env(safe-area-inset-bottom, 0px));
+		padding-inline: max(16px, env(safe-area-inset-left, 0px))
+			max(16px, env(safe-area-inset-right, 0px));
+	}
 
-.vx-toast-stack {
-	position: absolute;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 8px;
-	width: min(400px, 100%);
-}
+	.vx-toast-stack {
+		position: absolute;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 8px;
+		width: min(400px, 100%);
+	}
 
-.vx-toast-stack--top {
-	top: max(16px, env(safe-area-inset-top, 0px));
-	flex-direction: column-reverse;
-}
+	.vx-toast-stack--top {
+		top: max(16px, env(safe-area-inset-top, 0px));
+		flex-direction: column-reverse;
+	}
 
-.vx-toast-stack--bottom {
-	bottom: max(16px, env(safe-area-inset-bottom, 0px));
-}
+	.vx-toast-stack--bottom {
+		bottom: max(16px, env(safe-area-inset-bottom, 0px));
+	}
 
-.vx-toast-stack--start {
-	inset-inline-start: max(16px, env(safe-area-inset-left, 0px));
-	align-items: flex-start;
-}
+	.vx-toast-stack--start {
+		inset-inline-start: max(16px, env(safe-area-inset-left, 0px));
+		align-items: flex-start;
+	}
 
-.vx-toast-stack--end {
-	inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
-	align-items: flex-end;
-}
+	.vx-toast-stack--end {
+		inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
+		align-items: flex-end;
+	}
 
-.vx-toast-row {
-	pointer-events: auto;
-	width: 100%;
-	max-width: 400px;
-	display: grid;
-	grid-template-rows: 1fr;
-	transition-property: grid-template-rows, opacity, transform;
-	transition-duration: 200ms;
-}
-
-/* Entry: rows fold open from collapsed (supported engines only — others
-   mount open, which is correct anyway). */
-@starting-style {
 	.vx-toast-row {
+		pointer-events: auto;
+		width: 100%;
+		max-width: 400px;
+		display: grid;
+		grid-template-rows: 1fr;
+		transition-property: grid-template-rows, opacity, transform;
+		transition-duration: 200ms;
+	}
+
+	/* Entry: rows fold open from collapsed (supported engines only — others
+   mount open, which is correct anyway). */
+	@starting-style {
+		.vx-toast-row {
+			grid-template-rows: 0fr;
+			opacity: 0;
+		}
+	}
+
+	.vx-toast-row--exiting {
 		grid-template-rows: 0fr;
 		opacity: 0;
 	}
-}
 
-.vx-toast-row--exiting {
-	grid-template-rows: 0fr;
-	opacity: 0;
-}
+	.vx-toast-row > * {
+		min-height: 0;
+		overflow: hidden;
+	}
 
-.vx-toast-row > * {
-	min-height: 0;
-	overflow: hidden;
-}
-
-/* The card re-enables pointer events and stays swipeable horizontally
+	/* The card re-enables pointer events and stays swipeable horizontally
    (vertical drags belong to the dismiss gesture). */
-.vx-toast {
-	pointer-events: auto;
-	touch-action: pan-x;
-	width: 100%;
-}
+	.vx-toast {
+		pointer-events: auto;
+		touch-action: pan-x;
+		width: 100%;
+	}
 
-.vx-toast-content {
-	flex: 1;
-	min-width: 0;
-	overflow-wrap: anywhere;
-}
+	.vx-toast-content {
+		flex: 1;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
 
-/* Persistent live-region pair — screen readers announce mutations to
+	/* Persistent live-region pair — screen readers announce mutations to
    these, unlike the born-with-content per-toast roles. */
-.vx-toast-live {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	clip-path: inset(50%);
-	white-space: nowrap;
-}
-/* xplat-web-only:end */
+	.vx-toast-live {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+	/* xplat-web-only:end */
 
-.vx-toast-inner {
-	display: flex;
-	flex-direction: row;
-	align-items: flex-start;
-	flex-wrap: nowrap;
-	gap: 12px;
-	width: 100%;
-}
+	.vx-toast-inner {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		flex-wrap: nowrap;
+		gap: 12px;
+		width: 100%;
+	}
 
-.vx-toast-end {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	flex-shrink: 0;
-	gap: 8px;
-}
+	.vx-toast-end {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+		gap: 8px;
+	}
 
-/* ---------- scrollable area ---------- */
+	/* ---------- scrollable area ---------- */
 
-/* xplat-web-only:start — the content box carries padding; overflow +
+	/* xplat-web-only:start — the content box carries padding; overflow +
    overscroll/keyboard semantics are set inline by useScrollableArea. */
-.vx-scrollable-content {
-	display: flex;
-	flex-direction: column;
-	min-height: 100%;
-	min-width: 100%;
-}
-/* xplat-web-only:end */
+	.vx-scrollable-content {
+		display: flex;
+		flex-direction: column;
+		min-height: 100%;
+		min-width: 100%;
+	}
+	/* xplat-web-only:end */
 
-/* ---------- carousel ---------- */
+	/* ---------- carousel ---------- */
 
-.vx-carousel {
-	width: 100%;
-}
+	.vx-carousel {
+		width: 100%;
+	}
 
-.vx-carousel-track {
-	display: flex;
-	flex-direction: row;
-}
+	.vx-carousel-track {
+		display: flex;
+		flex-direction: row;
+	}
 
-.vx-carousel-slide {
-	flex: 0 0 auto;
-	min-width: 0;
-}
+	.vx-carousel-slide {
+		flex: 0 0 auto;
+		min-width: 0;
+	}
 
-.vx-carousel-slide--prop {
-	flex: 1 0 100%;
-}
+	.vx-carousel-slide--prop {
+		flex: 1 0 100%;
+	}
 
-/* xplat-web-only:start — overlay controls; native aligns them inside the
+	/* xplat-web-only:start — overlay controls; native aligns them inside the
    grid host instead. */
-.vx-carousel {
-	position: relative;
-}
+	.vx-carousel {
+		position: relative;
+	}
 
-.vx-carousel-viewport {
-	position: relative;
-}
+	.vx-carousel-viewport {
+		position: relative;
+	}
 
-.vx-carousel-btn {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	z-index: 2;
-}
+	.vx-carousel-btn {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 2;
+	}
 
-.vx-carousel-prev {
-	left: 8px;
-}
+	.vx-carousel-prev {
+		left: 8px;
+	}
 
-.vx-carousel-next {
-	right: 8px;
-}
-/* xplat-web-only:end */
+	.vx-carousel-next {
+		right: 8px;
+	}
+	/* xplat-web-only:end */
 
-/* ---------- lightbox ---------- */
+	/* ---------- lightbox ---------- */
 
-/* xplat-web-only:start — full-viewport layer + centered stage; native
+	/* xplat-web-only:start — full-viewport layer + centered stage; native
    docks the same chrome on the RootLayout host. */
-.vx-lightbox-layer {
-	position: fixed;
-	inset: 0;
-	z-index: 1150;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
+	.vx-lightbox-layer {
+		position: fixed;
+		inset: 0;
+		z-index: 1150;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-.vx-lightbox-stage {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	outline: none;
-}
+	.vx-lightbox-stage {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		outline: none;
+	}
 
-.vx-lightbox-media {
-	max-width: 100%;
-	max-height: 100%;
-	object-fit: contain;
-	user-select: none;
-	touch-action: none;
-}
+	.vx-lightbox-media {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		user-select: none;
+		touch-action: none;
+	}
 
-.vx-lightbox-nav {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	z-index: 2;
-}
+	.vx-lightbox-nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 2;
+	}
 
-.vx-lightbox-prev {
-	left: 16px;
-}
+	.vx-lightbox-prev {
+		left: 16px;
+	}
 
-.vx-lightbox-next {
-	right: 16px;
-}
+	.vx-lightbox-next {
+		right: 16px;
+	}
 
-.vx-lightbox-close {
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	z-index: 2;
-}
+	.vx-lightbox-close {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		z-index: 2;
+	}
 
-.vx-lightbox-counter {
-	position: absolute;
-	top: 16px;
-	left: 16px;
-	z-index: 2;
-}
+	.vx-lightbox-counter {
+		position: absolute;
+		top: 16px;
+		left: 16px;
+		z-index: 2;
+	}
 
-.vx-lightbox-caption {
-	position: absolute;
-	bottom: 24px;
-	left: 0;
-	right: 0;
-	text-align: center;
-	z-index: 2;
-}
-/* xplat-web-only:end */
+	.vx-lightbox-caption {
+		position: absolute;
+		bottom: 24px;
+		left: 0;
+		right: 0;
+		text-align: center;
+		z-index: 2;
+	}
+	/* xplat-web-only:end */
 
 	/* ---- content display (Astryx parity) — structure only; chrome.css owns
 	   the skin. Web-only rules sit inside xplat-web-only blocks; the rest must
@@ -2376,13 +2434,22 @@ dialog.vx-dialog {
 	}
 
 	@keyframes vx-progressbar-slide {
-		from { transform: translateX(-100%); }
-		to { transform: translateX(250%); }
+		from {
+			transform: translateX(-100%);
+		}
+		to {
+			transform: translateX(250%);
+		}
 	}
 
 	@keyframes vx-statusdot-pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.4; }
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.4;
+		}
 	}
 
 	.vx-statusdot--pulse {
@@ -2402,8 +2469,12 @@ dialog.vx-dialog {
 	}
 
 	@keyframes vx-md-fade-in {
-		from { opacity: 0; }
-		to { opacity: 1; }
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -2574,7 +2645,9 @@ dialog.vx-dialog {
 		left: 0;
 		top: 0;
 		width: 2px;
-		transition: transform 140ms ease-out, height 140ms ease-out;
+		transition:
+			transform 140ms ease-out,
+			height 140ms ease-out;
 		pointer-events: none;
 	}
 
@@ -2712,1102 +2785,1159 @@ dialog.vx-dialog {
 		}
 	}
 	/* xplat-web-only:end */
-/* Native containers need these rules too; DOM-only clipping stays above.
+	/* Native containers need these rules too; DOM-only clipping stays above.
    Opacity preserves the accessibility subtree while suppressing paint. */
-.vx-visually-hidden {
-	width: 1px;
-	height: 1px;
-	opacity: 0;
-}
+	.vx-visually-hidden {
+		width: 1px;
+		height: 1px;
+		opacity: 0;
+	}
 
-/* ----- Astryx navigation family (task 05) ----- */
+	/* ----- Astryx navigation family (task 05) ----- */
 
-/* NavIcon — circular accent container. */
-.vx-navicon {
-	width: 32;
-	height: 32;
-	border-radius: 16;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-}
-/* xplat-web-only:start — flex display on the DOM span. */
-.vx-navicon {
-	display: inline-flex;
-	width: 32px;
-	height: 32px;
-	border-radius: 9999px;
-}
-/* xplat-web-only:end */
+	/* NavIcon — circular accent container. */
+	.vx-navicon {
+		width: 32;
+		height: 32;
+		border-radius: 16;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+	/* xplat-web-only:start — flex display on the DOM span. */
+	.vx-navicon {
+		display: inline-flex;
+		width: 32px;
+		height: 32px;
+		border-radius: 9999px;
+	}
+	/* xplat-web-only:end */
 
-/* Toolbar — outer chrome + slot row. */
-.vx-toolbar-slot {
-	flex-direction: row;
-	align-items: center;
-	flex-shrink: 0;
-}
-.vx-toolbar-slot--fill {
-	flex-grow: 1;
-}
-/* xplat-web-only:start — display/grid placement and pointer affordances. */
-.vx-toolbar-inner {
-	display: flex;
-	align-items: center;
-	padding: 4px 8px;
-}
-.vx-toolbar-inner--flex {
-	justify-content: space-between;
-}
-.vx-toolbar-inner--grid {
-	display: grid;
-	grid-template-columns: 1fr auto 1fr;
-	align-items: center;
-}
-.vx-toolbar-inner--vertical {
-	flex-direction: column;
-	align-items: stretch;
-}
-.vx-toolbar-slot {
-	display: flex;
-	align-items: center;
-}
-.vx-toolbar-slot--center {
-	justify-content: center;
-	min-width: 0;
-	overflow: hidden;
-}
-.vx-toolbar-slot--end {
-	justify-content: flex-end;
-}
-.vx-toolbar-slot--push {
-	margin-inline-start: auto;
-}
-/* xplat-web-only:end */
+	/* Toolbar — outer chrome + slot row. */
+	.vx-toolbar-slot {
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.vx-toolbar-slot--fill {
+		flex-grow: 1;
+	}
+	/* xplat-web-only:start — display/grid placement and pointer affordances. */
+	.vx-toolbar-inner {
+		display: flex;
+		align-items: center;
+		padding: 4px 8px;
+	}
+	.vx-toolbar-inner--flex {
+		justify-content: space-between;
+	}
+	.vx-toolbar-inner--grid {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+	}
+	.vx-toolbar-inner--vertical {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.vx-toolbar-slot {
+		display: flex;
+		align-items: center;
+	}
+	.vx-toolbar-slot--center {
+		justify-content: center;
+		min-width: 0;
+		overflow: hidden;
+	}
+	.vx-toolbar-slot--end {
+		justify-content: flex-end;
+	}
+	.vx-toolbar-slot--push {
+		margin-inline-start: auto;
+	}
+	/* xplat-web-only:end */
 
-/* TabList — strip + tabs. Native uses the flex row; web layers scroll
+	/* TabList — strip + tabs. Native uses the flex row; web layers scroll
  * overflow + fades + arrow affordances. */
-.vx-tablist {
-	flex-direction: row;
-	align-items: stretch;
-	flex-shrink: 0;
-}
-.vx-tabstrip {
-	flex-direction: row;
-	align-items: flex-end;
-	flex-shrink: 0;
-}
-.vx-tabstrip-scroll {
-	flex-direction: row;
-}
-.vx-tab {
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-end;
-	padding-left: 8;
-	padding-right: 8;
-	flex-shrink: 0;
-}
-.vx-tab-content {
-	flex-direction: column;
-	justify-content: flex-end;
-	align-items: center;
-	height: 100%;
-}
-.vx-tab-indicator {
-	height: 2;
-	width: 100%;
-	border-radius: 1;
-}
-.vx-tablist--fill .vx-tab {
-	flex-grow: 1;
-}
-/* xplat-web-only:start — DOM layout, scroll overflow, fades, arrows. */
-.vx-tablist {
-	display: flex;
-	position: relative;
-}
-.vx-tabstrip {
-	display: flex;
-	flex-wrap: nowrap;
-	min-width: 0;
-}
-.vx-tabstrip--scroll {
-	overflow-x: auto;
-	overflow-y: hidden;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
-}
-.vx-tabstrip--scroll::-webkit-scrollbar {
-	display: none;
-}
-.vx-tab {
-	display: inline-flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-end;
-	position: relative;
-	border: 0;
-	background: none;
-	padding: 0 8px;
-	font: inherit;
-	color: inherit;
-	cursor: pointer;
-	text-decoration: none;
-	user-select: none;
-	white-space: nowrap;
-}
-.vx-tab-hover {
-	position: absolute;
-	inset: 0 0 2px 0;
-	border-radius: 6px;
-}
-.vx-tab:hover .vx-tab-hover {
-	background-color: var(--vx-tab-hover-bg, rgba(0, 0, 0, 0.04));
-}
-.ns-dark .vx-tab:hover .vx-tab-hover,
-.dark .vx-tab:hover .vx-tab-hover {
-	background-color: var(--vx-tab-hover-bg, rgba(255, 255, 255, 0.08));
-}
-.vx-tab-icon {
-	display: inline-flex;
-	margin-right: 4px;
-}
-.vx-tab-labelwrap {
-	position: relative;
-	display: inline-flex;
-	flex-direction: column;
-	overflow: hidden;
-	padding-bottom: 7px;
-}
-.vx-tab-label {
-	white-space: nowrap;
-}
-.vx-tab-labelsizer {
-	/* Selected tabs bold; the invisible semibold duplicate keeps the stop's
+	.vx-tablist {
+		flex-direction: row;
+		align-items: stretch;
+		flex-shrink: 0;
+	}
+	.vx-tabstrip {
+		flex-direction: row;
+		align-items: flex-end;
+		flex-shrink: 0;
+	}
+	.vx-tabstrip-scroll {
+		flex-direction: row;
+	}
+	.vx-tab {
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+		padding-left: 8;
+		padding-right: 8;
+		flex-shrink: 0;
+	}
+	.vx-tab-content {
+		flex-direction: column;
+		justify-content: flex-end;
+		align-items: center;
+		height: 100%;
+	}
+	.vx-tab-indicator {
+		height: 2;
+		width: 100%;
+		border-radius: 1;
+	}
+	.vx-tablist--fill .vx-tab {
+		flex-grow: 1;
+	}
+	/* xplat-web-only:start — DOM layout, scroll overflow, fades, arrows. */
+	.vx-tablist {
+		display: flex;
+		position: relative;
+	}
+	.vx-tabstrip {
+		display: flex;
+		flex-wrap: nowrap;
+		min-width: 0;
+	}
+	.vx-tabstrip--scroll {
+		overflow-x: auto;
+		overflow-y: hidden;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+	.vx-tabstrip--scroll::-webkit-scrollbar {
+		display: none;
+	}
+	.vx-tab {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+		position: relative;
+		border: 0;
+		background: none;
+		padding: 0 8px;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+		text-decoration: none;
+		user-select: none;
+		white-space: nowrap;
+	}
+	.vx-tab-hover {
+		position: absolute;
+		inset: 0 0 2px 0;
+		border-radius: 6px;
+	}
+	.vx-tab:hover .vx-tab-hover {
+		background-color: var(--vx-tab-hover-bg, rgba(0, 0, 0, 0.04));
+	}
+	.ns-dark .vx-tab:hover .vx-tab-hover,
+	.dark .vx-tab:hover .vx-tab-hover {
+		background-color: var(--vx-tab-hover-bg, rgba(255, 255, 255, 0.08));
+	}
+	.vx-tab-icon {
+		display: inline-flex;
+		margin-right: 4px;
+	}
+	.vx-tab-labelwrap {
+		position: relative;
+		display: inline-flex;
+		flex-direction: column;
+		overflow: hidden;
+		padding-bottom: 7px;
+	}
+	.vx-tab-label {
+		white-space: nowrap;
+	}
+	.vx-tab-labelsizer {
+		/* Selected tabs bold; the invisible semibold duplicate keeps the stop's
 	   width stable so selection doesn't shift neighbours. */
-	display: block;
-	height: 0;
-	visibility: hidden;
-	font-weight: 600;
-	pointer-events: none;
-	white-space: nowrap;
-}
-.vx-tab--selected .vx-tab-label {
-	font-weight: 600;
-}
-.vx-tab-end {
-	display: inline-flex;
-	margin-left: 4px;
-}
-.vx-tab-indicator {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
-	border-radius: 1px;
-}
-.vx-tablist--fill .vx-tab {
-	flex: 1 1 0;
-	min-width: 0;
-}
-.vx-tabmenu-chevron {
-	display: inline-flex;
-	margin-left: 4px;
-	transition: transform 120ms ease;
-}
-.vx-tabmenu-chevron--open {
-	transform: rotate(180deg);
-}
-.vx-tabscroll {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	border: 0;
-	background-color: var(--color-surface, #fff);
-	cursor: pointer;
-	padding: 0;
-}
-.vx-tabscroll--start {
-	left: 0;
-}
-.vx-tabscroll--end {
-	right: 0;
-}
-.vx-tabstrip--fade-start {
-	-webkit-mask-image: linear-gradient(to right, transparent 0, black 20px);
-	mask-image: linear-gradient(to right, transparent 0, black 20px);
-}
-.vx-tabstrip--fade-end {
-	-webkit-mask-image: linear-gradient(to left, transparent 0, black 20px);
-	mask-image: linear-gradient(to left, transparent 0, black 20px);
-}
-.vx-tabstrip--fade-both {
-	-webkit-mask-image: linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%);
-	mask-image: linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%);
-}
-.vx-tabmenu {
-	display: flex;
-	flex-direction: column;
-	min-width: 150px;
-	max-height: 300px;
-	overflow-y: auto;
-}
-.vx-tabmenu-heading {
-	padding: 6px 10px;
-}
-.vx-tabmenu-item {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 6px 10px;
-	cursor: pointer;
-}
-.vx-tabmenu-itemcontent {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-}
-.vx-tabmenu-item:hover {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-.ns-dark .vx-tabmenu-item:hover,
-.dark .vx-tabmenu-item:hover {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-.vx-tabmenu-item:focus-visible {
-	outline: 1.5px solid var(--color-text);
-	outline-offset: -1.5px;
-}
-/* Full-bleed: pull the strip out to the host's content edges when the
-   host publishes --container-padding-inline-* vars (Layout seam). */
-.vx-tablist--bleed {
-	margin-inline-start: calc(-1 * var(--container-padding-inline-start, 0px));
-	margin-inline-end: calc(-1 * var(--container-padding-inline-end, 0px));
-}
-/* xplat-web-only:end */
-
-/* OverflowList — hidden measure copy + visible row. */
-.vx-overflowlist {
-	flex-direction: row;
-	align-items: flex-start;
-	flex-shrink: 0;
-}
-/* xplat-web-only:start — DOM layout + the off-screen measurement row. */
-.vx-overflowlist {
-	display: flex;
-	min-width: 0;
-	max-width: 100%;
-}
-.vx-overflowlist--multirow {
-	flex-wrap: wrap;
-	overflow: hidden;
-}
-.vx-overflowlist--fill-parent {
-	width: 100%;
-}
-.vx-overflowlist-measure {
-	display: flex;
-	position: absolute;
-	visibility: hidden;
-	pointer-events: none;
-	flex-wrap: nowrap;
-	height: 0;
-	overflow: hidden;
-	z-index: -1;
-}
-.vx-overflowlist-measure-indicator {
-	display: flex;
-	flex-shrink: 0;
-}
-/* xplat-web-only:end */
-
-/* NavHeadingMenu — menu column + item rows. */
-.vx-navmenu {
-	flex-direction: column;
-}
-.vx-navmenu-item {
-	flex-direction: row;
-	align-items: center;
-	flex-shrink: 0;
-}
-.vx-navmenu--sm .vx-navmenu-item,
-.vx-navmenu-item--sm { padding: 4 8; }
-.vx-navmenu--md .vx-navmenu-item,
-.vx-navmenu-item--md { padding: 8; }
-.vx-navmenu--lg .vx-navmenu-item,
-.vx-navmenu-item--lg { padding: 12; }
-.vx-navmenu-item--disabled { opacity: 0.5; }
-/* xplat-web-only:start */
-.vx-navmenu {
-	display: flex;
-	min-width: 200px;
-}
-.vx-navmenu--sm { min-width: 168px; }
-.vx-navmenu--lg { min-width: 240px; }
-.vx-navmenu-item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	width: 100%;
-	border: 0;
-	background: none;
-	text-decoration: none;
-	color: inherit;
-	cursor: pointer;
-	text-align: start;
-	outline: none;
-	border-radius: 6px;
-	font: inherit;
-}
-@media (hover: hover) {
-	.vx-navmenu-item:hover:not([aria-disabled="true"]) {
+		display: block;
+		height: 0;
+		visibility: hidden;
+		font-weight: 600;
+		pointer-events: none;
+		white-space: nowrap;
+	}
+	.vx-tab--selected .vx-tab-label {
+		font-weight: 600;
+	}
+	.vx-tab-end {
+		display: inline-flex;
+		margin-left: 4px;
+	}
+	.vx-tab-indicator {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 2px;
+		border-radius: 1px;
+	}
+	.vx-tablist--fill .vx-tab {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.vx-tabmenu-chevron {
+		display: inline-flex;
+		margin-left: 4px;
+		transition: transform 120ms ease;
+	}
+	.vx-tabmenu-chevron--open {
+		transform: rotate(180deg);
+	}
+	.vx-tabscroll {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		border: 0;
+		background-color: var(--color-surface, #fff);
+		cursor: pointer;
+		padding: 0;
+	}
+	.vx-tabscroll--start {
+		left: 0;
+	}
+	.vx-tabscroll--end {
+		right: 0;
+	}
+	.vx-tabstrip--fade-start {
+		-webkit-mask-image: linear-gradient(to right, transparent 0, black 20px);
+		mask-image: linear-gradient(to right, transparent 0, black 20px);
+	}
+	.vx-tabstrip--fade-end {
+		-webkit-mask-image: linear-gradient(to left, transparent 0, black 20px);
+		mask-image: linear-gradient(to left, transparent 0, black 20px);
+	}
+	.vx-tabstrip--fade-both {
+		-webkit-mask-image: linear-gradient(
+			to right,
+			transparent 0,
+			black 20px,
+			black calc(100% - 20px),
+			transparent 100%
+		);
+		mask-image: linear-gradient(
+			to right,
+			transparent 0,
+			black 20px,
+			black calc(100% - 20px),
+			transparent 100%
+		);
+	}
+	.vx-tabmenu {
+		display: flex;
+		flex-direction: column;
+		min-width: 150px;
+		max-height: 300px;
+		overflow-y: auto;
+	}
+	.vx-tabmenu-heading {
+		padding: 6px 10px;
+	}
+	.vx-tabmenu-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 6px 10px;
+		cursor: pointer;
+	}
+	.vx-tabmenu-itemcontent {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.vx-tabmenu-item:hover {
 		background-color: rgba(0, 0, 0, 0.05);
 	}
-	.ns-dark .vx-navmenu-item:hover:not([aria-disabled="true"]),
-	.dark .vx-navmenu-item:hover:not([aria-disabled="true"]) {
+	.ns-dark .vx-tabmenu-item:hover,
+	.dark .vx-tabmenu-item:hover {
 		background-color: rgba(255, 255, 255, 0.08);
 	}
-}
-.vx-navmenu-item:focus-visible,
-.vx-navmenu-item:focus {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-.ns-dark .vx-navmenu-item:focus-visible,
-.dark .vx-navmenu-item:focus-visible,
-.ns-dark .vx-navmenu-item:focus,
-.dark .vx-navmenu-item:focus {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-.vx-navmenu-item--disabled { cursor: default; }
-.vx-navmenu-item-icon { display: inline-flex; flex-shrink: 0; }
-.vx-navmenu-item-content {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	min-width: 0;
-}
-.vx-navmenu-item-desc {
-	font-size: 12px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-/* xplat-web-only:end */
+	.vx-tabmenu-item:focus-visible {
+		outline: 1.5px solid var(--color-text);
+		outline-offset: -1.5px;
+	}
+	/* Full-bleed: pull the strip out to the host's content edges when the
+   host publishes --container-padding-inline-* vars (Layout seam). */
+	.vx-tablist--bleed {
+		margin-inline-start: calc(-1 * var(--container-padding-inline-start, 0px));
+		margin-inline-end: calc(-1 * var(--container-padding-inline-end, 0px));
+	}
+	/* xplat-web-only:end */
 
-/* MobileNav — overlay drawer. */
-.vx-mobilenav-backdrop {
-	background-color: rgba(0, 0, 0, 0.4);
-}
-.vx-mobilenav-drawer {
-	flex-direction: column;
-}
-.vx-mobilenav-header {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-mobilenav-content {
-	flex-direction: column;
-}
-.vx-mobilenav-toggle {
-	align-items: center;
-	justify-content: center;
-}
-/* xplat-web-only:start — <dialog> positioning, transition, scroll lock. */
-.vx-mobilenav {
-	position: fixed;
-	inset: 0;
-	max-width: none;
-	max-height: none;
-	width: 100%;
-	height: 100%;
-	border: 0;
-	padding: 0;
-	margin: 0;
-	background: transparent;
-	overscroll-behavior: contain;
-	touch-action: none;
-	--_mobilenav-close-ms: 220;
-}
-.vx-mobilenav::backdrop {
-	background-color: rgba(0, 0, 0, 0);
-	transition: background-color 200ms ease;
-}
-.vx-mobilenav--open::backdrop {
-	background-color: rgba(0, 0, 0, 0.4);
-}
-.vx-mobilenav-drawer {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	display: flex;
-	flex-direction: column;
-	background-color: var(--color-surface, #fff);
-	overflow-y: auto;
-	overscroll-behavior: contain;
-	transition: transform 220ms ease;
-}
-.vx-mobilenav--start .vx-mobilenav-drawer {
-	left: 0;
-	border-right: 1px solid var(--color-border, #eaeaea);
-	transform: translateX(-100%);
-}
-.vx-mobilenav--end .vx-mobilenav-drawer {
-	right: 0;
-	border-left: 1px solid var(--color-border, #eaeaea);
-	transform: translateX(100%);
-}
-.vx-mobilenav--open .vx-mobilenav-drawer {
-	transform: translateX(0);
-}
-.vx-mobilenav-header {
-	display: flex;
-	align-items: center;
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--color-border, #eaeaea);
-}
-.vx-mobilenav-content {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	padding: 8px;
-}
-.vx-mobilenav-toggle {
-	display: inline-flex;
-}
-/* xplat-web-only:end */
+	/* OverflowList — hidden measure copy + visible row. */
+	.vx-overflowlist {
+		flex-direction: row;
+		align-items: flex-start;
+		flex-shrink: 0;
+	}
+	/* xplat-web-only:start — DOM layout + the off-screen measurement row. */
+	.vx-overflowlist {
+		display: flex;
+		min-width: 0;
+		max-width: 100%;
+	}
+	.vx-overflowlist--multirow {
+		flex-wrap: wrap;
+		overflow: hidden;
+	}
+	.vx-overflowlist--fill-parent {
+		width: 100%;
+	}
+	.vx-overflowlist-measure {
+		display: flex;
+		position: absolute;
+		visibility: hidden;
+		pointer-events: none;
+		flex-wrap: nowrap;
+		height: 0;
+		overflow: hidden;
+		z-index: -1;
+	}
+	.vx-overflowlist-measure-indicator {
+		display: flex;
+		flex-shrink: 0;
+	}
+	/* xplat-web-only:end */
 
-/* AppShell — shell grid + landmark areas. */
-.vx-appshell {
-	flex-direction: column;
-}
-.vx-appshell-body {
-	flex-direction: column;
-}
-.vx-appshell-middle {
-	flex-direction: row;
-	flex-grow: 1;
-}
-.vx-appshell-sidenav {
-	flex-direction: column;
-	flex-shrink: 0;
-}
-.vx-appshell-content {
-	flex-direction: column;
-	flex-grow: 1;
-}
-.vx-appshell-header {
-	flex-direction: column;
-	flex-shrink: 0;
-}
-.vx-appshell-banner {
-	flex-direction: column;
-}
-.vx-appshell-mobilebar {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-appshell-drawerhost {
-	/* grid overlay — drawer paints over the shell on native */
-}
-.vx-sidenav-section-title-group {
-	flex-direction: column;
-}
+	/* NavHeadingMenu — menu column + item rows. */
+	.vx-navmenu {
+		flex-direction: column;
+	}
+	.vx-navmenu-item {
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.vx-navmenu--sm .vx-navmenu-item,
+	.vx-navmenu-item--sm {
+		padding: 4 8;
+	}
+	.vx-navmenu--md .vx-navmenu-item,
+	.vx-navmenu-item--md {
+		padding: 8;
+	}
+	.vx-navmenu--lg .vx-navmenu-item,
+	.vx-navmenu-item--lg {
+		padding: 12;
+	}
+	.vx-navmenu-item--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start */
+	.vx-navmenu {
+		display: flex;
+		min-width: 200px;
+	}
+	.vx-navmenu--sm {
+		min-width: 168px;
+	}
+	.vx-navmenu--lg {
+		min-width: 240px;
+	}
+	.vx-navmenu-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		border: 0;
+		background: none;
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		text-align: start;
+		outline: none;
+		border-radius: 6px;
+		font: inherit;
+	}
+	@media (hover: hover) {
+		.vx-navmenu-item:hover:not([aria-disabled='true']) {
+			background-color: rgba(0, 0, 0, 0.05);
+		}
+		.ns-dark .vx-navmenu-item:hover:not([aria-disabled='true']),
+		.dark .vx-navmenu-item:hover:not([aria-disabled='true']) {
+			background-color: rgba(255, 255, 255, 0.08);
+		}
+	}
+	.vx-navmenu-item:focus-visible,
+	.vx-navmenu-item:focus {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.ns-dark .vx-navmenu-item:focus-visible,
+	.dark .vx-navmenu-item:focus-visible,
+	.ns-dark .vx-navmenu-item:focus,
+	.dark .vx-navmenu-item:focus {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+	.vx-navmenu-item--disabled {
+		cursor: default;
+	}
+	.vx-navmenu-item-icon {
+		display: inline-flex;
+		flex-shrink: 0;
+	}
+	.vx-navmenu-item-content {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-navmenu-item-desc {
+		font-size: 12px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	/* xplat-web-only:end */
 
-/* TopNav — bar + slots. */
-.vx-topnav {
-	flex-direction: row;
-	align-items: center;
-	flex-shrink: 0;
-}
-.vx-topnav-start {
-	flex-direction: row;
-	align-items: center;
-	flex-grow: 1;
-	flex-shrink: 1;
-}
-.vx-topnav-center {
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-}
-.vx-topnav-end {
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
-}
-.vx-topnav--mobilebar {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-topnav-mobilebar-end {
-	flex-direction: row;
-	align-items: center;
-	flex-grow: 1;
-	justify-content: flex-end;
-}
-.vx-topnav-heading {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-topnav-heading-text {
-	flex-direction: column;
-}
-.vx-topnav-item {
-	flex-direction: row;
-	align-items: center;
-	flex-shrink: 0;
-}
-.vx-topnav-item--icon {
-	justify-content: center;
-}
-.vx-topnav-item--drawer {
-	align-items: stretch;
-}
-.vx-topnavmenu-item,
-.vx-topnavmegamenu-item {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-topnavmenu-item-title,
-.vx-topnavmegamenu-item-title {
-	flex-grow: 1;
-}
-.vx-topnavmegamenu {
-	flex-direction: row;
-}
-.vx-topnavmegamenu-items {
-	flex-direction: column;
-}
-.vx-topnavmegamenu-featured {
-	flex-direction: column;
-}
-.vx-topnavmegamenu-card {
-	flex-direction: column;
-}
-.vx-topnavmegamenu-card-body {
-	flex-direction: column;
-}
+	/* MobileNav — overlay drawer. */
+	.vx-mobilenav-backdrop {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+	.vx-mobilenav-drawer {
+		flex-direction: column;
+	}
+	.vx-mobilenav-header {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-mobilenav-content {
+		flex-direction: column;
+	}
+	.vx-mobilenav-toggle {
+		align-items: center;
+		justify-content: center;
+	}
+	/* xplat-web-only:start — <dialog> positioning, transition, scroll lock. */
+	.vx-mobilenav {
+		position: fixed;
+		inset: 0;
+		max-width: none;
+		max-height: none;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		padding: 0;
+		margin: 0;
+		background: transparent;
+		overscroll-behavior: contain;
+		touch-action: none;
+		--_mobilenav-close-ms: 220;
+	}
+	.vx-mobilenav::backdrop {
+		background-color: rgba(0, 0, 0, 0);
+		transition: background-color 200ms ease;
+	}
+	.vx-mobilenav--open::backdrop {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+	.vx-mobilenav-drawer {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column;
+		background-color: var(--color-surface, #fff);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		transition: transform 220ms ease;
+	}
+	.vx-mobilenav--start .vx-mobilenav-drawer {
+		left: 0;
+		border-right: 1px solid var(--color-border, #eaeaea);
+		transform: translateX(-100%);
+	}
+	.vx-mobilenav--end .vx-mobilenav-drawer {
+		right: 0;
+		border-left: 1px solid var(--color-border, #eaeaea);
+		transform: translateX(100%);
+	}
+	.vx-mobilenav--open .vx-mobilenav-drawer {
+		transform: translateX(0);
+	}
+	.vx-mobilenav-header {
+		display: flex;
+		align-items: center;
+		padding: 8px 12px;
+		border-bottom: 1px solid var(--color-border, #eaeaea);
+	}
+	.vx-mobilenav-content {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		padding: 8px;
+	}
+	.vx-mobilenav-toggle {
+		display: inline-flex;
+	}
+	/* xplat-web-only:end */
 
-/* NavigationMenu — items strip. */
-.vx-navmenu-strip {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-navmenu-strip--vertical {
-	flex-direction: column;
-	align-items: stretch;
-}
-.vx-navmenu-strip-item {
-	flex-direction: row;
-	align-items: center;
-	flex-shrink: 0;
-}
+	/* AppShell — shell grid + landmark areas. */
+	.vx-appshell {
+		flex-direction: column;
+	}
+	.vx-appshell-body {
+		flex-direction: column;
+	}
+	.vx-appshell-middle {
+		flex-direction: row;
+		flex-grow: 1;
+	}
+	.vx-appshell-sidenav {
+		flex-direction: column;
+		flex-shrink: 0;
+	}
+	.vx-appshell-content {
+		flex-direction: column;
+		flex-grow: 1;
+	}
+	.vx-appshell-header {
+		flex-direction: column;
+		flex-shrink: 0;
+	}
+	.vx-appshell-banner {
+		flex-direction: column;
+	}
+	.vx-appshell-mobilebar {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-appshell-drawerhost {
+		/* grid overlay — drawer paints over the shell on native */
+	}
+	.vx-sidenav-section-title-group {
+		flex-direction: column;
+	}
 
-/* ResizeHandle — hit zone + pill. */
-.vx-resize-handle--h {
-	flex-direction: row;
-	align-items: stretch;
-	width: 8;
-}
-.vx-resize-handle--v {
-	flex-direction: column;
-	align-items: stretch;
-	height: 8;
-}
-.vx-resize-handle-pill {
-	border-radius: 3;
-}
+	/* TopNav — bar + slots. */
+	.vx-topnav {
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.vx-topnav-start {
+		flex-direction: row;
+		align-items: center;
+		flex-grow: 1;
+		flex-shrink: 1;
+	}
+	.vx-topnav-center {
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-topnav-end {
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+	}
+	.vx-topnav--mobilebar {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-topnav-mobilebar-end {
+		flex-direction: row;
+		align-items: center;
+		flex-grow: 1;
+		justify-content: flex-end;
+	}
+	.vx-topnav-heading {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-topnav-heading-text {
+		flex-direction: column;
+	}
+	.vx-topnav-item {
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.vx-topnav-item--icon {
+		justify-content: center;
+	}
+	.vx-topnav-item--drawer {
+		align-items: stretch;
+	}
+	.vx-topnavmenu-item,
+	.vx-topnavmegamenu-item {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-topnavmenu-item-title,
+	.vx-topnavmegamenu-item-title {
+		flex-grow: 1;
+	}
+	.vx-topnavmegamenu {
+		flex-direction: row;
+	}
+	.vx-topnavmegamenu-items {
+		flex-direction: column;
+	}
+	.vx-topnavmegamenu-featured {
+		flex-direction: column;
+	}
+	.vx-topnavmegamenu-card {
+		flex-direction: column;
+	}
+	.vx-topnavmegamenu-card-body {
+		flex-direction: column;
+	}
 
-/* xplat-web-only:start — DOM layout details for the nav family. */
-.vx-appshell {
-	display: flex;
-	min-height: 0;
-}
-.vx-appshell--fill {
-	height: 100dvh;
-	overflow: hidden;
-}
-.vx-appshell-body {
-	display: flex;
-	min-height: 0;
-	flex: 1;
-}
-.vx-appshell-body--fill {
-	overflow: hidden;
-}
-.vx-appshell-middle {
-	display: flex;
-	flex: 1;
-	min-height: 0;
-	min-width: 0;
-}
-.vx-appshell-sidenav {
-	display: flex;
-	min-height: 0;
-}
-.vx-appshell--fill .vx-appshell-sidenav {
-	overflow-y: auto;
-}
-.vx-appshell-content {
-	display: flex;
-	min-width: 0;
-	min-height: 0;
-}
-.vx-appshell--fill .vx-appshell-content {
-	overflow-y: auto;
-}
-.vx-appshell-header {
-	display: flex;
-}
-.vx-appshell-header--sticky {
-	position: sticky;
-	top: 0;
-	z-index: 10;
-}
-.vx-appshell-banner {
-	display: flex;
-}
-.vx-appshell-mobilebar {
-	display: flex;
-	gap: 4px;
-	padding: 4px 8px;
-}
-.vx-appshell-skiplink {
-	position: absolute;
-	left: -10000px;
-	top: 8px;
-	padding: 6px 10px;
-	background-color: var(--color-surface, #fff);
-	border: 1px solid var(--color-border, #eaeaea);
-	border-radius: 6px;
-	z-index: 100;
-}
-.vx-appshell-skiplink:focus {
-	left: 8px;
-}
-.vx-appshell-content:focus {
-	outline: none;
-}
-.vx-topnav {
-	display: flex;
-	min-height: 44px;
-	padding: 4px 8px;
-	gap: 4px;
-}
-.vx-topnav--grid {
-	display: grid;
-	grid-template-columns: 1fr auto 1fr;
-	align-items: center;
-}
-.vx-topnav-start,
-.vx-topnav-center,
-.vx-topnav-end {
-	display: flex;
-	gap: 4px;
-	min-width: 0;
-}
-.vx-topnav-heading {
-	display: flex;
-	gap: 8px;
-	padding: 0 4px;
-}
-.vx-topnav-heading-trigger {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	border: 0;
-	background: none;
-	font: inherit;
-	padding: 0;
-	cursor: pointer;
-}
-.vx-topnav-heading-menubtn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	height: 24px;
-	border: 0;
-	border-radius: 6px;
-	background: none;
-	cursor: pointer;
-	padding: 0;
-}
-.vx-topnav-heading-text {
-	display: flex;
-}
-.vx-topnav-heading-title,
-.vx-topnav-heading-super,
-.vx-topnav-heading-sub {
-	text-decoration: none;
-	color: inherit;
-}
-.vx-topnav-item {
-	display: inline-flex;
-	gap: 6px;
-	border: 0;
-	background: none;
-	font: inherit;
-	text-decoration: none;
-	color: inherit;
-	cursor: pointer;
-	padding: 0 8px;
-	min-height: 32px;
-	border-radius: 6px;
-	text-align: start;
-}
-.vx-topnav-item--sm { min-height: 28px; }
-.vx-topnav-item--lg { min-height: 36px; }
-.vx-topnav-item--icon { width: 32px; padding: 0; justify-content: center; }
-.vx-topnav-item--drawer {
-	width: 100%;
-	border-radius: 0;
-	padding: 0 12px;
-	min-height: 40px;
-}
-.vx-topnav-item--disabled {
-	opacity: 0.5;
-	cursor: default;
-}
-.vx-topnav-item:hover:not([aria-disabled="true"]),
-a.vx-topnav-item:hover:not([aria-disabled="true"]) {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-.ns-dark .vx-topnav-item:hover:not([aria-disabled="true"]),
-.dark .vx-topnav-item:hover:not([aria-disabled="true"]),
-.ns-dark a.vx-topnav-item:hover:not([aria-disabled="true"]),
-.dark a.vx-topnav-item:hover:not([aria-disabled="true"]) {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-.vx-topnav-item-icon { display: inline-flex; }
-.vx-topnavmenu {
-	display: flex;
-	flex-direction: column;
-	min-width: 220px;
-}
-.vx-topnavmenu-item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 10px;
-	text-decoration: none;
-	color: inherit;
-	cursor: pointer;
-	border-radius: 6px;
-}
-.vx-topnavmenu-item:hover {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-.ns-dark .vx-topnavmenu-item:hover,
-.dark .vx-topnavmenu-item:hover {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-.vx-topnavmenu-item-text {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	min-width: 0;
-}
-.vx-topnavmegamenu {
-	display: flex;
-	gap: 16px;
-	max-width: min(720px, 90vw);
-}
-.vx-topnavmegamenu-items {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 4px;
-	min-width: 0;
-	flex: 1;
-}
-.vx-topnavmegamenu-featured {
-	display: flex;
-	min-width: 200px;
-}
-.vx-topnavmegamenu-item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px;
-	border: 0;
-	background: none;
-	font: inherit;
-	text-decoration: none;
-	color: inherit;
-	cursor: pointer;
-	border-radius: 6px;
-	text-align: start;
-}
-.vx-topnavmegamenu-item:hover {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-.ns-dark .vx-topnavmegamenu-item:hover,
-.dark .vx-topnavmegamenu-item:hover {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-.vx-topnavmegamenu-item-text {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	min-width: 0;
-}
-.vx-topnavmegamenu-card {
-	display: flex;
-	border-radius: 8px;
-	overflow: hidden;
-}
-.vx-topnavmegamenu-card-image {
-	display: block;
-	width: 100%;
-	aspect-ratio: 16/9;
-	object-fit: cover;
-}
-.vx-topnavmegamenu-card-body {
-	display: flex;
-	padding: 10px;
-	gap: 4px;
-}
-.vx-topnavmegamenu-card-link {
-	font-size: 13px;
-}
-.vx-navmenu-strip {
-	display: flex;
-	gap: 4px;
-}
-.vx-navmenu-strip-item {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 10px;
-	border: 0;
-	border-radius: 6px;
-	background: none;
-	font: inherit;
-	text-decoration: none;
-	color: inherit;
-	cursor: pointer;
-}
-.vx-navmenu-strip-item:hover:not([disabled]) {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-.ns-dark .vx-navmenu-strip-item:hover:not([disabled]),
-.dark .vx-navmenu-strip-item:hover:not([disabled]) {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-/* ResizeHandle — hit zone sits on the boundary; a 2px pill indicates the
+	/* NavigationMenu — items strip. */
+	.vx-navmenu-strip {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-navmenu-strip--vertical {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.vx-navmenu-strip-item {
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+	}
+
+	/* ResizeHandle — hit zone + pill. */
+	.vx-resize-handle--h {
+		flex-direction: row;
+		align-items: stretch;
+		width: 8;
+	}
+	.vx-resize-handle--v {
+		flex-direction: column;
+		align-items: stretch;
+		height: 8;
+	}
+	.vx-resize-handle-pill {
+		border-radius: 3;
+	}
+
+	/* xplat-web-only:start — DOM layout details for the nav family. */
+	.vx-appshell {
+		display: flex;
+		min-height: 0;
+	}
+	.vx-appshell--fill {
+		height: 100dvh;
+		overflow: hidden;
+	}
+	.vx-appshell-body {
+		display: flex;
+		min-height: 0;
+		flex: 1;
+	}
+	.vx-appshell-body--fill {
+		overflow: hidden;
+	}
+	.vx-appshell-middle {
+		display: flex;
+		flex: 1;
+		min-height: 0;
+		min-width: 0;
+	}
+	.vx-appshell-sidenav {
+		display: flex;
+		min-height: 0;
+	}
+	.vx-appshell--fill .vx-appshell-sidenav {
+		overflow-y: auto;
+	}
+	.vx-appshell-content {
+		display: flex;
+		min-width: 0;
+		min-height: 0;
+	}
+	.vx-appshell--fill .vx-appshell-content {
+		overflow-y: auto;
+	}
+	.vx-appshell-header {
+		display: flex;
+	}
+	.vx-appshell-header--sticky {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+	.vx-appshell-banner {
+		display: flex;
+	}
+	.vx-appshell-mobilebar {
+		display: flex;
+		gap: 4px;
+		padding: 4px 8px;
+	}
+	.vx-appshell-skiplink {
+		position: absolute;
+		left: -10000px;
+		top: 8px;
+		padding: 6px 10px;
+		background-color: var(--color-surface, #fff);
+		border: 1px solid var(--color-border, #eaeaea);
+		border-radius: 6px;
+		z-index: 100;
+	}
+	.vx-appshell-skiplink:focus {
+		left: 8px;
+	}
+	.vx-appshell-content:focus {
+		outline: none;
+	}
+	.vx-topnav {
+		display: flex;
+		min-height: 44px;
+		padding: 4px 8px;
+		gap: 4px;
+	}
+	.vx-topnav--grid {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+	}
+	.vx-topnav-start,
+	.vx-topnav-center,
+	.vx-topnav-end {
+		display: flex;
+		gap: 4px;
+		min-width: 0;
+	}
+	.vx-topnav-heading {
+		display: flex;
+		gap: 8px;
+		padding: 0 4px;
+	}
+	.vx-topnav-heading-trigger {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		border: 0;
+		background: none;
+		font: inherit;
+		padding: 0;
+		cursor: pointer;
+	}
+	.vx-topnav-heading-menubtn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border: 0;
+		border-radius: 6px;
+		background: none;
+		cursor: pointer;
+		padding: 0;
+	}
+	.vx-topnav-heading-text {
+		display: flex;
+	}
+	.vx-topnav-heading-title,
+	.vx-topnav-heading-super,
+	.vx-topnav-heading-sub {
+		text-decoration: none;
+		color: inherit;
+	}
+	.vx-topnav-item {
+		display: inline-flex;
+		gap: 6px;
+		border: 0;
+		background: none;
+		font: inherit;
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		padding: 0 8px;
+		min-height: 32px;
+		border-radius: 6px;
+		text-align: start;
+	}
+	.vx-topnav-item--sm {
+		min-height: 28px;
+	}
+	.vx-topnav-item--lg {
+		min-height: 36px;
+	}
+	.vx-topnav-item--icon {
+		width: 32px;
+		padding: 0;
+		justify-content: center;
+	}
+	.vx-topnav-item--drawer {
+		width: 100%;
+		border-radius: 0;
+		padding: 0 12px;
+		min-height: 40px;
+	}
+	.vx-topnav-item--disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+	.vx-topnav-item:hover:not([aria-disabled='true']),
+	a.vx-topnav-item:hover:not([aria-disabled='true']) {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.ns-dark .vx-topnav-item:hover:not([aria-disabled='true']),
+	.dark .vx-topnav-item:hover:not([aria-disabled='true']),
+	.ns-dark a.vx-topnav-item:hover:not([aria-disabled='true']),
+	.dark a.vx-topnav-item:hover:not([aria-disabled='true']) {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+	.vx-topnav-item-icon {
+		display: inline-flex;
+	}
+	.vx-topnavmenu {
+		display: flex;
+		flex-direction: column;
+		min-width: 220px;
+	}
+	.vx-topnavmenu-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 10px;
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		border-radius: 6px;
+	}
+	.vx-topnavmenu-item:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.ns-dark .vx-topnavmenu-item:hover,
+	.dark .vx-topnavmenu-item:hover {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+	.vx-topnavmenu-item-text {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-topnavmegamenu {
+		display: flex;
+		gap: 16px;
+		max-width: min(720px, 90vw);
+	}
+	.vx-topnavmegamenu-items {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		gap: 4px;
+		min-width: 0;
+		flex: 1;
+	}
+	.vx-topnavmegamenu-featured {
+		display: flex;
+		min-width: 200px;
+	}
+	.vx-topnavmegamenu-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px;
+		border: 0;
+		background: none;
+		font: inherit;
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		border-radius: 6px;
+		text-align: start;
+	}
+	.vx-topnavmegamenu-item:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.ns-dark .vx-topnavmegamenu-item:hover,
+	.dark .vx-topnavmegamenu-item:hover {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+	.vx-topnavmegamenu-item-text {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-topnavmegamenu-card {
+		display: flex;
+		border-radius: 8px;
+		overflow: hidden;
+	}
+	.vx-topnavmegamenu-card-image {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16/9;
+		object-fit: cover;
+	}
+	.vx-topnavmegamenu-card-body {
+		display: flex;
+		padding: 10px;
+		gap: 4px;
+	}
+	.vx-topnavmegamenu-card-link {
+		font-size: 13px;
+	}
+	.vx-navmenu-strip {
+		display: flex;
+		gap: 4px;
+	}
+	.vx-navmenu-strip-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 4px 10px;
+		border: 0;
+		border-radius: 6px;
+		background: none;
+		font: inherit;
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+	}
+	.vx-navmenu-strip-item:hover:not([disabled]) {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.ns-dark .vx-navmenu-strip-item:hover:not([disabled]),
+	.dark .vx-navmenu-strip-item:hover:not([disabled]) {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+	/* ResizeHandle — hit zone sits on the boundary; a 2px pill indicates the
    grip (auto placement: panel side when expanded, center when collapsed). */
-.vx-resize-handle {
-	position: relative;
-	border: 0;
-	background: none;
-	padding: 0;
-	cursor: col-resize;
-}
-.vx-resize-handle--h { cursor: col-resize; width: 8px; }
-.vx-resize-handle--v { cursor: row-resize; height: 8px; }
-.vx-resize-handle--overlay {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: -4px;
-	width: 8px;
-}
-.vx-resize-handle--v.vx-resize-handle--overlay {
-	top: auto;
-	left: 0;
-	right: 0;
-	bottom: -4px;
-	height: 8px;
-	width: auto;
-}
-.vx-resize-handle--divider.vx-resize-handle--h { border-right: 1px solid var(--color-border, #eaeaea); }
-.vx-resize-handle--divider.vx-resize-handle--v { border-bottom: 1px solid var(--color-border, #eaeaea); }
-.vx-resize-handle-pill {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 4px;
-	height: 32px;
-	border-radius: 2px;
-	background-color: var(--color-border-strong, #d4d4d4);
-	opacity: 0;
-	transition: opacity 120ms ease;
-}
-.vx-resize-handle--v .vx-resize-handle-pill {
-	top: auto;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 32px;
-	height: 4px;
-}
-.vx-resize-handle--pill-start .vx-resize-handle-pill { left: 0; }
-.vx-resize-handle--pill-end .vx-resize-handle-pill { right: 0; }
-.vx-resize-handle--pill-center .vx-resize-handle-pill { left: 50%; transform: translate(-50%, -50%); }
-.vx-resize-handle:hover .vx-resize-handle-pill,
-.vx-resize-handle:focus-visible .vx-resize-handle-pill,
-.vx-resize-handle--always .vx-resize-handle-pill {
-	opacity: 1;
-}
-.vx-resize-handle:focus-visible {
-	outline: 1.5px solid var(--color-text, #0a0a0a);
-	outline-offset: -1.5px;
-}
-.vx-resize-handle--disabled { cursor: default; }
-/* xplat-web-only:end */
+	.vx-resize-handle {
+		position: relative;
+		border: 0;
+		background: none;
+		padding: 0;
+		cursor: col-resize;
+	}
+	.vx-resize-handle--h {
+		cursor: col-resize;
+		width: 8px;
+	}
+	.vx-resize-handle--v {
+		cursor: row-resize;
+		height: 8px;
+	}
+	.vx-resize-handle--overlay {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: -4px;
+		width: 8px;
+	}
+	.vx-resize-handle--v.vx-resize-handle--overlay {
+		top: auto;
+		left: 0;
+		right: 0;
+		bottom: -4px;
+		height: 8px;
+		width: auto;
+	}
+	.vx-resize-handle--divider.vx-resize-handle--h {
+		border-right: 1px solid var(--color-border, #eaeaea);
+	}
+	.vx-resize-handle--divider.vx-resize-handle--v {
+		border-bottom: 1px solid var(--color-border, #eaeaea);
+	}
+	.vx-resize-handle-pill {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 4px;
+		height: 32px;
+		border-radius: 2px;
+		background-color: var(--color-border-strong, #d4d4d4);
+		opacity: 0;
+		transition: opacity 120ms ease;
+	}
+	.vx-resize-handle--v .vx-resize-handle-pill {
+		top: auto;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 32px;
+		height: 4px;
+	}
+	.vx-resize-handle--pill-start .vx-resize-handle-pill {
+		left: 0;
+	}
+	.vx-resize-handle--pill-end .vx-resize-handle-pill {
+		right: 0;
+	}
+	.vx-resize-handle--pill-center .vx-resize-handle-pill {
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+	.vx-resize-handle:hover .vx-resize-handle-pill,
+	.vx-resize-handle:focus-visible .vx-resize-handle-pill,
+	.vx-resize-handle--always .vx-resize-handle-pill {
+		opacity: 1;
+	}
+	.vx-resize-handle:focus-visible {
+		outline: 1.5px solid var(--color-text, #0a0a0a);
+		outline-offset: -1.5px;
+	}
+	.vx-resize-handle--disabled {
+		cursor: default;
+	}
+	/* xplat-web-only:end */
 
-/* harness experiment styles */
+	/* harness experiment styles */
 
-.vx-app {
-	padding: 24px;
-}
+	.vx-app {
+		padding: 24px;
+	}
 
-/* `.vx-app label` above (descendant + type) outranks single-class text
+	/* `.vx-app label` above (descendant + type) outranks single-class text
    colors inside the app root — roles that must win escalate here. */
-/* Danger surfaces keep white text in both themes (on-primary flips). */
+	/* Danger surfaces keep white text in both themes (on-primary flips). */
 
-.input {
-	padding-top: 10px;
-	padding-right: 12px;
-	padding-bottom: 10px;
-	padding-left: 12px;
-	/* NS TextField/TextView placeholder color (ignored on web — the
+	.input {
+		padding-top: 10px;
+		padding-right: 12px;
+		padding-bottom: 10px;
+		padding-left: 12px;
+		/* NS TextField/TextView placeholder color (ignored on web — the
 	   ::placeholder pseudo above covers it there). */
-}
+	}
 
-.chip {
-	padding-top: 5px;
-	padding-right: 12px;
-	padding-bottom: 5px;
-	padding-left: 12px;
-}
+	.chip {
+		padding-top: 5px;
+		padding-right: 12px;
+		padding-bottom: 5px;
+		padding-left: 12px;
+	}
 
-/* Selected chip — the one filled element in a group of bordered peers. */
+	/* Selected chip — the one filled element in a group of bordered peers. */
 
-.cell {
-	padding: 12px;
-}
+	.cell {
+		padding: 12px;
+	}
 
-.gap-2 {
-	gap: 8px;
-}
+	.gap-2 {
+		gap: 8px;
+	}
 
-/* In-window sheet — bottom-anchored panel (matches the native RootLayout
+	/* In-window sheet — bottom-anchored panel (matches the native RootLayout
    sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
-.vx-sheet-layer {
-	z-index: 1100;
-}
+	.vx-sheet-layer {
+		z-index: 1100;
+	}
 
-.vx-sheet {
-	max-height: 85%;
-	padding: 24px;
-}
+	.vx-sheet {
+		max-height: 85%;
+		padding: 24px;
+	}
 
-/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
+	/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
    The native leaf renders on RootLayout with its own geometry. */
-.vx-sheet-layer {
-	position: fixed;
-	inset: 0;
-	pointer-events: none;
-}
+	.vx-sheet-layer {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+	}
 
-.vx-sheet-backdrop,
-.vx-sheet {
-	position: absolute;
-	inset: 0;
-	pointer-events: auto;
-}
+	.vx-sheet-backdrop,
+	.vx-sheet {
+		position: absolute;
+		inset: 0;
+		pointer-events: auto;
+	}
 
-.vx-sheet {
-	top: auto;
-	bottom: 0;
-	overflow: auto;
-}
-/* xplat-web-only:end */
+	.vx-sheet {
+		top: auto;
+		bottom: 0;
+		overflow: auto;
+	}
+	/* xplat-web-only:end */
 
-.vx-sheet-grabber {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 28px;
-}
+	.vx-sheet-grabber {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 28px;
+	}
 
-.vx-sheet-grip {
-	width: 36px;
-	height: 4px;
-}
+	.vx-sheet-grip {
+		width: 36px;
+		height: 4px;
+	}
 
-/* xplat-web-only:start — detents size the panel to the largest fraction
+	/* xplat-web-only:start — detents size the panel to the largest fraction
    (overriding the 85% cap) and overlay the grabber; native stacks it as a
    top-aligned grid child. touch-action keeps drags off native scroll. */
-.vx-sheet-detents {
-	max-height: none;
-}
-.vx-sheet-detents > .vx-sheet-grabber {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	cursor: grab;
-	touch-action: none;
-}
-/* xplat-web-only:end */
-
+	.vx-sheet-detents {
+		max-height: none;
+	}
+	.vx-sheet-detents > .vx-sheet-grabber {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 2;
+		cursor: grab;
+		touch-action: none;
+	}
+	/* xplat-web-only:end */
 }
 
 @layer xplat-structure {
-/* Astryx action controls and structured PowerSearch geometry. */
-.vx-button-group,
-.vx-toggle-button-group {
-	flex-direction: row;
-	align-items: stretch;
-}
-.vx-button-group--vertical {
-	flex-direction: column;
-}
-.vx-clickable-card,
-.vx-selectable-card {
-	justify-content: center;
-}
-.vx-power-search,
-.vx-power-search-editor {
-	flex-direction: column;
-}
-.vx-power-search-row,
-.vx-power-search-token-row,
-.vx-power-search-editor-actions {
-	flex-direction: row;
-	align-items: center;
-}
-.vx-power-search-row {
-	flex-wrap: wrap;
-}
-.vx-power-search-input {
-	flex-grow: 1;
-}
-.vx-power-search-result-list {
-	flex-direction: column;
-}
-.vx-power-search-results,
-.vx-power-search-edit {
-	flex-direction: column;
-}
-.vx-power-search-result {
-	padding: 6px 10px;
-}
-.vx-power-search-empty,
-.vx-power-search-count,
-.vx-power-search-status {
-	flex-direction: row;
-}
-.vx-more-menu-sheet-list {
-	flex-direction: column;
-}
+	/* Astryx action controls and structured PowerSearch geometry. */
+	.vx-button-group,
+	.vx-toggle-button-group {
+		flex-direction: row;
+		align-items: stretch;
+	}
+	.vx-button-group--vertical {
+		flex-direction: column;
+	}
+	.vx-clickable-card,
+	.vx-selectable-card {
+		justify-content: center;
+	}
+	.vx-power-search,
+	.vx-power-search-editor {
+		flex-direction: column;
+	}
+	.vx-power-search-row,
+	.vx-power-search-token-row,
+	.vx-power-search-editor-actions {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-power-search-row {
+		flex-wrap: wrap;
+	}
+	.vx-power-search-input {
+		flex-grow: 1;
+	}
+	.vx-power-search-result-list {
+		flex-direction: column;
+	}
+	.vx-power-search-results,
+	.vx-power-search-edit {
+		flex-direction: column;
+	}
+	.vx-power-search-result {
+		padding: 6px 10px;
+	}
+	.vx-power-search-empty,
+	.vx-power-search-count,
+	.vx-power-search-status {
+		flex-direction: row;
+	}
+	.vx-more-menu-sheet-list {
+		flex-direction: column;
+	}
 }
 
 /* Select family: bounded finite lists and search feedback. */
@@ -3872,20 +4002,62 @@ a.vx-topnav-item:hover:not([aria-disabled="true"]) {
 }
 
 /* Command search content shared by the panel and mobile search sheet. */
-.vx-cmdk-input-row { flex-direction: row; align-items: center; }
-.vx-cmdk-search { flex-grow: 1; }
-.vx-cmdk-heading { padding: 8px; font-size: 12px; opacity: 0.7; }
-.vx-cmdk-status { font-size: 12px; padding: 4px; }
-.vx-cmdk-highlighted { background-color: #e4e4e7; }
-.ns-dark .vx-cmdk-highlighted, .dark .vx-cmdk-highlighted { background-color: #333333; }
-.vx-cmdk-item-content { flex-grow: 1; }
-.vx-cmdk-description { font-size: 12px; opacity: 0.7; }
-.vx-cmdk-shortcut { font-size: 12px; margin-left: 8px; }
-.vx-cmdk-footer { padding: 8px; font-size: 12px; }
-.vx-cmdk-cancel { padding: 4px 8px; }
+.vx-cmdk-input-row {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-cmdk-search {
+	flex-grow: 1;
+}
+.vx-cmdk-heading {
+	padding: 8px;
+	font-size: 12px;
+	opacity: 0.7;
+}
+.vx-cmdk-status {
+	font-size: 12px;
+	padding: 4px;
+}
+.vx-cmdk-highlighted {
+	background-color: #e4e4e7;
+}
+.ns-dark .vx-cmdk-highlighted,
+.dark .vx-cmdk-highlighted {
+	background-color: #333333;
+}
+.vx-cmdk-item-content {
+	flex-grow: 1;
+}
+.vx-cmdk-description {
+	font-size: 12px;
+	opacity: 0.7;
+}
+.vx-cmdk-shortcut {
+	font-size: 12px;
+	margin-left: 8px;
+}
+.vx-cmdk-footer {
+	padding: 8px;
+	font-size: 12px;
+}
+.vx-cmdk-cancel {
+	padding: 4px 8px;
+}
 /* xplat-web-only:start */
-.vx-cmdk-input-row { display: flex; gap: 4px; }
-.vx-cmdk-list { overflow-y: auto; }
-.vx-cmdk-item-content { display: flex; flex-direction: column; }
-.vx-cmdk-footer { display: flex; align-items: center; gap: 4px; }
+.vx-cmdk-input-row {
+	display: flex;
+	gap: 4px;
+}
+.vx-cmdk-list {
+	overflow-y: auto;
+}
+.vx-cmdk-item-content {
+	display: flex;
+	flex-direction: column;
+}
+.vx-cmdk-footer {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
 /* xplat-web-only:end */

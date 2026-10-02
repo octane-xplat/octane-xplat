@@ -149,13 +149,35 @@ export { Stepper } from './Stepper.macos.tsrx'
 export { NavigationMenu } from './NavigationMenu.macos.tsrx'
 export { AppShell } from './AppShell.macos.tsrx'
 export { AppShellMobileContext } from './AppShell.macos.tsrx'
-export { TopNav, TopNavHeading, TopNavItem, TopNavMenu, TopNavMegaMenu, TopNavMegaMenuItem, TopNavMegaMenuFeaturedCard } from './TopNav.macos.tsrx'
+export {
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	TopNavMenu,
+	TopNavMegaMenu,
+	TopNavMegaMenuItem,
+	TopNavMegaMenuFeaturedCard,
+} from './TopNav.macos.tsrx'
 export { TopNavRenderContext, useTopNavRenderMode } from './TopNav.macos.tsrx'
-export { SideNav, SideNavSection, SideNavHeading, SideNavItem, SideNavCollapseButton, useSideNavCollapse, SideNavRenderContext, useSideNavRenderMode } from './SideNav.macos.tsrx'
+export {
+	SideNav,
+	SideNavSection,
+	SideNavHeading,
+	SideNavItem,
+	SideNavCollapseButton,
+	useSideNavCollapse,
+	SideNavRenderContext,
+	useSideNavRenderMode,
+} from './SideNav.macos.tsrx'
 export { MobileNav, MobileNavToggle, useAppShellMobile } from './MobileNav.macos.tsrx'
 export { NavIcon } from './NavIcon.macos.tsrx'
 export { NavHeadingMenu, NavHeadingMenuItem } from './NavMenu.macos.tsrx'
-export { NavHeadingMenuContext, NavHeadingCloseContext, useNavHeadingMenuContext, useNavHeadingCloseContext } from './NavMenu.macos.tsrx'
+export {
+	NavHeadingMenuContext,
+	NavHeadingCloseContext,
+	useNavHeadingMenuContext,
+	useNavHeadingCloseContext,
+} from './NavMenu.macos.tsrx'
 export { TabList, Tab, TabMenu, useTabListContext } from './TabList.macos.tsrx'
 export { Toolbar } from './Toolbar.macos.tsrx'
 export { OverflowList } from './OverflowList.macos.tsrx'
@@ -203,7 +225,11 @@ export { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 export { VirtualList } from './VirtualList.macos.tsrx'
 export { Image } from './Image.macos.tsrx'
 export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './PowerSearch.macos.tsrx'
-export { createPowerSearchConfig, usePowerSearchConfig, resolveOperatorLabel } from './power-search-config'
+export {
+	createPowerSearchConfig,
+	usePowerSearchConfig,
+	resolveOperatorLabel,
+} from './power-search-config'
 export { WebView, CameraView } from './hosted-unsupported.macos.tsrx'
 export { Overlay, Popover } from './surfaces.macos.tsrx'
 export { Dialog, DialogHeader } from './Dialog.macos.tsrx'
@@ -286,7 +312,14 @@ export { Citation } from './Citation.macos.tsrx'
 export { Outline } from './Outline.macos.tsrx'
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
 export { useOutlineFromDOM } from './outline-dom.macos.tsrx'
-export { parseOutlineFromMarkdown, outlineFromDoc, markdownHeadings, inlineMarkdownText, slugify, uniqueSlug } from './outline-utils'
+export {
+	parseOutlineFromMarkdown,
+	outlineFromDoc,
+	markdownHeadings,
+	inlineMarkdownText,
+	slugify,
+	uniqueSlug,
+} from './outline-utils'
 export {
 	tokenize,
 	tokenizeAsync,

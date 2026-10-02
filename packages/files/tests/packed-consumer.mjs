@@ -46,16 +46,16 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	"@nativescript-community/ui-document-picker",
-	"@nativescript/core",
-	"@nativescript/types",
-	"@octane-xplat/platform",
-	"@octane-xplat/ui",
-	"octane"
+	'@nativescript-community/ui-document-picker',
+	'@nativescript/core',
+	'@nativescript/types',
+	'@octane-xplat/platform',
+	'@octane-xplat/ui',
+	'octane',
 ]
 
 const consumers = {
-	"web": `import { FileInput, files } from '@octane-xplat/files'
+	web: `import { FileInput, files } from '@octane-xplat/files'
 import type { FileInputProps } from '@octane-xplat/files'
 const inputProps: FileInputProps = { value: null, onChange: () => {} }
 void FileInput
@@ -68,7 +68,7 @@ void picked
 void ref
 void bad
 `,
-	"native": `import { FileInput, files } from '@octane-xplat/files'
+	native: `import { FileInput, files } from '@octane-xplat/files'
 import type { FileInputProps } from '@octane-xplat/files'
 const inputProps: FileInputProps = { value: null, onChange: () => {} }
 void FileInput
@@ -81,7 +81,7 @@ void picked
 void ref
 void bad
 `,
-	"macos": `import { FileInput, files } from '@octane-xplat/files'
+	macos: `import { FileInput, files } from '@octane-xplat/files'
 import type { FileInputProps } from '@octane-xplat/files'
 const inputProps: FileInputProps = { value: null, onChange: () => {} }
 void FileInput

@@ -30,11 +30,7 @@ export function NameForm() {
 	return (
 		<KeyboardAvoiding>
 			<Field label="Name" isOptional>
-				<TextInput
-					value={name}
-					onChange={setName}
-					ref={input}
-				/>
+				<TextInput value={name} onChange={setName} ref={input} />
 			</Field>
 			<Pressable onPress={() => setName('')}>
 				<Text>Clear</Text>
