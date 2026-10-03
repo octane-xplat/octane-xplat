@@ -1,7 +1,24 @@
-import { isAndroid, isIOS } from '@nativescript/core'
+import { isAndroid, isIOS, ScrollView } from '@nativescript/core'
 import type { NativeModifier, Role } from './props'
 import { applyNativeModifiers } from './apply-native-modifiers.native'
 import { rememberGridChildPlacement } from './grid-placement'
+
+/** Android ViewGroups clip every child to the child's own layout bounds
+ *  (`clipChildren`) and to the padding box (`clipToPadding`) — the DOM and
+ *  iOS both default to overflow:visible, so a transformed child (a rotated
+ *  tilt, a translate) or any deliberate overhang is cut off on Android only.
+ *  Scroll containers keep their clip; every other ViewGroup follows the
+ *  shared overflow-visible contract. Runs on `loaded` — the native view
+ *  does not exist yet at ref time. */
+function unclipAndroidContainer(view: any): void {
+	const native = view?.android
+	if (!native || view instanceof ScrollView || typeof native.setClipChildren !== 'function') {
+		return
+	}
+
+	native.setClipChildren(false)
+	native.setClipToPadding(false)
+}
 
 /** Apply only the active device's escape bag after the primitive's own props. */
 export function applyEscapeProps(
@@ -21,6 +38,10 @@ export function applyEscapeProps(
 	}
 
 	rememberGridChildPlacement(view, props)
+
+	if (isAndroid) {
+		view.on?.('loaded', () => unclipAndroidContainer(view))
+	}
 
 	const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
 	if (bag) {
