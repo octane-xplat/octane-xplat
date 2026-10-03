@@ -1,8 +1,8 @@
-import { loadImage } from './image.mjs'
+import { loadImage } from './image'
 import '@nativescript/macos-node-api'
 import { createUniversalRoot } from 'octane/universal/native'
-import { resolveFont as fontForFamilyStyle } from './fonts.mjs'
-export { registerFontFamily } from './fonts.mjs'
+import { resolveFont as fontForFamilyStyle } from './fonts'
+export { registerFontFamily } from './fonts'
 
 const actionHandlers = new Map()
 const actionIdsByView = new WeakMap()

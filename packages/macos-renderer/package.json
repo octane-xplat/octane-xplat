@@ -16,8 +16,8 @@
 	"exports": {
 		".": {
 			"types": "./src/index.d.ts",
-			"import": "./src/index.mjs",
-			"default": "./src/index.mjs"
+			"import": "./src/index.ts",
+			"default": "./src/index.ts"
 		},
 		"./intrinsics": "./src/intrinsics.d.ts",
 		"./jsx-runtime": {
@@ -26,8 +26,8 @@
 		"./jsx-dev-runtime": {
 			"types": "./src/jsx-runtime.d.ts"
 		},
-		"./compat/native-core": "./src/native-core-shim.mjs",
-		"./compat/escape-props": "./src/native-escape-props.mjs"
+		"./compat/native-core": "./src/native-core-shim.ts",
+		"./compat/escape-props": "./src/native-escape-props.ts"
 	},
 	"publishConfig": {
 		"access": "public"

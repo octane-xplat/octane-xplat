@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { loadImage } from '../src/image.mjs'
+import { loadImage } from '../src/image.ts'
 
 test('embedded and local image sources decode without network access; empty sources clear', () => {
 	const old = { NSImage: globalThis.NSImage, NSData: globalThis.NSData, NSURL: globalThis.NSURL }

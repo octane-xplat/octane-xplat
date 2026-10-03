@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
-import { registerFontFamily, resolveFont } from '../src/fonts.mjs'
+import { registerFontFamily, resolveFont } from '../src/fonts.ts'
 
 const originalFont = globalThis.NSFont
 const originalManager = globalThis.NSFontManager
