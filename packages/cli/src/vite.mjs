@@ -3,8 +3,9 @@
 // Everything in here was previously per-app boilerplate (copied between
 // vite.config.native.mts files) or an app-owned workaround: the nativescript
 // renderer rules, the octane→universal/native alias, the platform-suffix
-// extension chain, the deps-bundle plugin exclusions, the HMR watchdog, and
-// the px→dip CSS rewrite. Apps now write:
+// extension chain, the deps-bundle plugin exclusions, the HMR watchdog, the
+// px→dip CSS rewrite, and fs.allow widening for link:/file: dep roots.
+// Apps now write:
 //
 //   import { defineConfig } from 'vite'
 //   import { xplatNative } from '@octane-xplat/cli/vite'
@@ -14,8 +15,8 @@
 // app-specific extras via the `extra` option or a vite mergeConfig wrapper.
 
 import { createRequire } from 'node:module'
-import { readFileSync, realpathSync } from 'node:fs'
-import { dirname, join, relative } from 'node:path'
+import { readFileSync, realpathSync, statSync } from 'node:fs'
+import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.mjs'
 
@@ -507,6 +508,53 @@ const nativeRules = [
 	},
 ]
 
+/**
+ * `link:`/`file:`/`portal:` deps realpath outside the app root. Vite gates
+ * `?inline`/`?raw`/`?url`/`?direct` transforms on `server.fs.allow`
+ * (`isServerAccessDeniedForTransform`), and the dev server's `/ns/m` css
+ * route compiles shared stylesheets through `?inline` — so a linked
+ * framework checkout's css (e.g. @octane-xplat/ui theme tokens) gets
+ * ERR_DENIED_ID and the DOM css module is served in its place, which
+ * crashes the device on `__vite__updateStyle`. Allow each linked dep's
+ * workspace root so content transforms can read it.
+ */
+export const linkedDepFsRoots = (projectRoot, searchForWorkspaceRoot) => {
+	let pkg
+	try {
+		pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
+	} catch {
+		return []
+	}
+
+	const roots = new Set()
+
+	for (const section of [
+		'dependencies',
+		'devDependencies',
+		'optionalDependencies',
+		'peerDependencies',
+	]) {
+		for (const spec of Object.values(pkg[section] ?? {})) {
+			const linkTarget = /^(?:link|file|portal):(.+)$/.exec(spec)?.[1]
+
+			if (!linkTarget) {
+				continue
+			}
+
+			try {
+				const depDir = realpathSync(resolve(projectRoot, linkTarget))
+				// `file:` can also name a tarball — only linked directories can
+				// be served back to the dev server.
+				if (statSync(depDir).isDirectory()) {
+					roots.add(searchForWorkspaceRoot(depDir))
+				}
+			} catch {}
+		}
+	}
+
+	return [...roots]
+}
+
 /** `define` for the `process.env.NODE_ENV` npm convention — upstream octane
  *  packages (and much of the ecosystem) read it bare and assume the consumer
  *  bundler statically rewrites the member expression. The NativeScript
@@ -547,11 +595,12 @@ export async function xplatNative(env, opts = {}) {
 		),
 	}))
 
-	const [{ mergeConfig }, { octaneConfig }, { nativeScriptRenderer }] = await Promise.all([
-		importApp('vite'),
-		importApp('@nativescript-community/vite-octane'),
-		importApp('@nativescript-community/octane/config'),
-	])
+	const [{ mergeConfig, searchForWorkspaceRoot }, { octaneConfig }, { nativeScriptRenderer }] =
+		await Promise.all([
+			importApp('vite'),
+			importApp('@nativescript-community/vite-octane'),
+			importApp('@nativescript-community/octane/config'),
+		])
 
 	const config = mergeConfig(
 		octaneConfig(
@@ -579,6 +628,22 @@ export async function xplatNative(env, opts = {}) {
 				decorator: { legacy: true },
 			},
 			plugins: [pxToDip(), nsHmrClientWatchdog(), xplatBoundary(nativePlatform() ?? 'native')],
+			server: {
+				fs: {
+					// Setting `fs.allow` at all replaces Vite's workspace-root
+					// default — keep the app root/workspace root alongside the
+					// linked-dep roots.
+					allow: [
+						...new Set(
+							[
+								searchForWorkspaceRoot(process.cwd()),
+								process.cwd(),
+								...linkedDepFsRoots(process.cwd(), searchForWorkspaceRoot),
+							].filter(Boolean),
+						),
+					],
+				},
+			},
 			build: {
 				rolldownOptions: {
 					// Dev/HMR universal emit retains JSX in expression props
