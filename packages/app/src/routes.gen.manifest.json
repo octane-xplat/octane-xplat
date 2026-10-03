@@ -6,6 +6,7 @@
 	],
 	"screens": [
 		"about",
+		"broken",
 		"changelog",
 		"demo/:id",
 		"detail",
@@ -28,7 +29,21 @@
 			"source": "src/app/about+modal.tsrx",
 			"loader": false,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
+		},
+		{
+			"name": "broken",
+			"path": "broken",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/broken.tsrx",
+			"loader": true,
+			"guard": false,
+			"head": false,
+			"errorBoundary": true
 		},
 		{
 			"name": "changelog",
@@ -41,7 +56,8 @@
 			"source": "src/app/changelog.tsrx",
 			"loader": true,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "demo/:id",
@@ -56,7 +72,8 @@
 			"source": "src/app/demo/[id].tsrx",
 			"loader": false,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "detail",
@@ -68,7 +85,8 @@
 			"source": "src/app/detail.tsrx",
 			"loader": false,
 			"guard": true,
-			"head": true
+			"head": true,
+			"errorBoundary": false
 		},
 		{
 			"name": "list-nested-probe",
@@ -80,7 +98,8 @@
 			"source": "src/app/list-nested-probe.android.tsrx",
 			"loader": false,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "motion-probe",
@@ -92,7 +111,8 @@
 			"source": "src/app/motion-probe.macos.tsrx",
 			"loader": false,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "notes",
@@ -105,7 +125,8 @@
 			"source": "src/app/notes.md",
 			"loader": true,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "parity",
@@ -117,7 +138,8 @@
 			"source": "src/app/parity.macos.tsrx",
 			"loader": false,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "private",
@@ -129,7 +151,8 @@
 			"source": "src/app/private.tsrx",
 			"loader": false,
 			"guard": true,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "qa",
@@ -141,7 +164,8 @@
 			"source": "src/app/qa.tsrx",
 			"loader": false,
 			"guard": false,
-			"head": false
+			"head": false,
+			"errorBoundary": false
 		}
 	]
 }

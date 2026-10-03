@@ -2,7 +2,17 @@ import { createContext, useContext, useId, useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
 import { TabList, Tab } from './TabList.web.tsrx';
 
-import { canGoBack, layoutsFor, popRoute, screenFor, useModalRoute, useRoute } from './route.web';
+import {
+	canGoBack,
+	errorBoundaryFor,
+	layoutsFor,
+	popRoute,
+	screenFor,
+	useModalRoute,
+	useRoute,
+} from './route.web';
+
+import { RouteBoundary } from './RouteBoundary.web.tsrx';
 
 export type { TabSpec } from './props';
 
@@ -28,7 +38,11 @@ export function Tabs(props: TabsProps) @{
 	// resolveScreen prop wins; the registerScreens table is the fallback —
 	// one registration serves both platforms' outlets. Directory _layout
 	// files wrap the resolved element either way (outermost → innermost).
-	const resolve = (name: string, params: Record<string, unknown>) => {
+	const resolve = (
+		name: string,
+		params: Record<string, unknown>,
+		route: NonNullable<typeof rootRoute> | NonNullable<typeof paneRoute>,
+	) => {
 		const C = screenFor(name);
 		const el = props.resolveScreen
 			? props.resolveScreen(name, params)
@@ -36,7 +50,13 @@ export function Tabs(props: TabsProps) @{
 				? <C {...params} />
 				: null;
 
-		return layoutsFor(name).reduceRight((child, L) => <L>{child}</L>, el);
+		const content = layoutsFor(name).reduceRight((child, L) => <L>{child}</L>, el);
+
+		return (
+			<RouteBoundary boundary={errorBoundaryFor(name)} route={route}>
+				{content}
+			</RouteBoundary>
+		);
 	};
 
 	const routeProps = (route: NonNullable<typeof rootRoute> | NonNullable<typeof paneRoute>) => ({
@@ -45,17 +65,18 @@ export function Tabs(props: TabsProps) @{
 		_pushed: canGoBack(route.stack),
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderData') ? { data: route.loaderData } : {}),
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderError') ? { error: route.loaderError } : {}),
+		...(route.loaderPending === true ? { pending: true } : {}),
 	});
 
 	const presentedWith = (stack: string) => new Set(presented).add(stack);
 	const routed = rootRoute && !presented.has('root')
-		? resolve(rootRoute.name, routeProps(rootRoute))
+		? resolve(rootRoute.name, routeProps(rootRoute), rootRoute)
 		: null;
 
 	// A modal route overlays the shell without replacing it — the screen
 	// gets a `close` prop (popRoute parity with the native showModal root).
 	const modalContent = modal && !presented.has(modal.stack)
-		? resolve(modal.name, { ...routeProps(modal), close: () => popRoute() })
+		? resolve(modal.name, { ...routeProps(modal), close: () => popRoute() }, modal)
 		: null;
 
 	<div className="vx-tabsroot" style={{ display: 'contents' }}>
@@ -84,7 +105,7 @@ export function Tabs(props: TabsProps) @{
 		</TabList>
 		<div className="vx-tabpane" role="tabpanel" id={panelId} aria-labelledby={panelId + '-tab-' + active} tabIndex={0}>
 			{(paneRoute && !presented.has(paneRoute.stack)
-				? <PresentedStacks value={presentedWith(paneRoute.stack)}>{resolve(paneRoute.name, routeProps(paneRoute))}</PresentedStacks>
+				? <PresentedStacks value={presentedWith(paneRoute.stack)}>{resolve(paneRoute.name, routeProps(paneRoute), paneRoute)}</PresentedStacks>
 				: null)
 				?? props.tabs[active]?.render()}
 		</div>

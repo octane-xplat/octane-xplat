@@ -1,9 +1,16 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 
+import type { Route } from './props'
+import { RouteBoundary } from './RouteBoundary.macos.tsrx'
+
 type RouteHostProps = {
 	screen: any
 	layouts: any[]
 	params: Record<string, unknown>
+	/** The route's declared ErrorBoundary export, if any. */
+	boundary?: any
+	/** The committed route being rendered — passed to the boundary. */
+	route?: Route
 }
 
 export function RouteHost(props: RouteHostProps) @{
@@ -15,5 +22,7 @@ export function RouteHost(props: RouteHostProps) @{
 		child = <Layout>{nested}</Layout>
 	}
 
-	<>{child}</>
+	<RouteBoundary boundary={props.boundary} route={props.route}>
+		<>{child}</>
+	</RouteBoundary>
 }

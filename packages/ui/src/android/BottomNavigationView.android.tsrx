@@ -9,7 +9,7 @@ import { getIcon } from '../icons';
 import { Icon } from '../Icon.tsrx';
 import { Pressable } from '../Pressable.tsrx';
 import { Text } from '../Text.tsrx';
-import { layoutsForRoute, screenFor, useRoute } from '../route';
+import { errorBoundaryFor, layoutsForRoute, screenFor, useRoute } from '../route';
 import { RouteHost, screenParamsFor } from '../route-host';
 import type { PlatformTabSpec, PlatformTabsProps, PlatformWidgetProps } from '../props';
 import { applyEscapeProps } from '../escape-props';
@@ -31,6 +31,8 @@ function TabPane(props: TabPaneProps) @{
 			screen={Screen}
 			layouts={layoutsForRoute(route.name)}
 			params={screenParamsFor(route)}
+			boundary={errorBoundaryFor(route.name)}
+			route={route}
 		/>
 	} @else {
 		<>{props.render()}</>

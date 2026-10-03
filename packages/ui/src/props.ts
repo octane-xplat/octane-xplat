@@ -2191,10 +2191,21 @@ export interface Route {
 	 *  push with a fade transition. A `+modal`/`+fade` filename suffix in
 	 *  the route dir sets the manifest default; this field overrides it. */
 	presentation?: 'push' | 'modal' | 'fade'
+	/** Optional URL fragment (without '#') — web serializes it into the
+	 *  pushed URL and scrolls to the matching element instead of the top;
+	 *  deep links and direct URLs carry it through `matchUrl`. Ignored on
+	 *  native. */
+	hash?: string
 	/** Loader result supplied to the route screen as `data`. */
 	loaderData?: unknown
 	/** Loader rejection supplied to the route screen as `error`. */
 	loaderError?: unknown
+	/** Framework-internal: a route whose loader is still in flight at mount
+	 *  — only reachable on web direct-URL/history hydration, where the
+	 *  screen renders before the loader settles. Surfaces as the screen's
+	 *  `pending` prop; pushed routes commit after the loader and never
+	 *  carry it. */
+	loaderPending?: boolean
 	/** Context returned by the route's `beforeLoad` export. It is merged into
 	 * screen props and remains available from `useRoute`. */
 	context?: RouteContext
@@ -2220,6 +2231,18 @@ export interface RouteHead {
 }
 
 export type RouteHeadExport = RouteHead | ((params: Record<string, unknown>) => RouteHead)
+
+/** Props the framework passes to a route's `ErrorBoundary` export when the
+ *  route's rendered subtree throws. `reset` clears the caught error and
+ *  remounts the subtree with the same props — it does not re-run the
+ *  route's `loader` or `beforeLoad` (re-push the route for that), so a
+ *  deterministic render error recatches. `route` is the committed Route
+ *  the boundary is rendering for. */
+export interface RouteErrorBoundaryProps {
+	error: unknown
+	reset: () => void
+	route: Route
+}
 
 export interface LinkProps {
 	href: string
@@ -2254,12 +2277,23 @@ export interface RouteMeta {
 	/** Declared default presentation — set by a `+modal`/`+fade` filename
 	 *  suffix (`app/settings+modal.tsrx` → route 'settings', modal). */
 	presentation?: 'push' | 'modal' | 'fade'
-	/** Optional `loader` named export — a prefetch hook, not a data layer.
-	 *  pushRoute fires it (fire-and-forget) before navigating so the
-	 *  screen's `query$` reads hit a warm cache; boot/deep-link routes
-	 *  skip it (the screen mounts in the same tick anyway). Ignored when
-	 *  `dataMode: 'baked'` — baked routes resolve from `manifest.baked`. */
+	/** Optional `loader` named export — awaited before a pushed route
+	 *  commits: the previous screen stays up until it settles, then the
+	 *  result lands on the new screen as `data` and a rejection as
+	 *  `error`. Web direct-URL and re-parsed history entries mount first
+	 *  and run the loader in place — the screen reads `pending` until
+	 *  `data`/`error` arrive. Not a data layer: live server state stays
+	 *  in `query$`. `dataMode: 'baked'` resolves from `manifest.baked`
+	 *  instead of running at navigation. */
 	loader?: (params: Record<string, unknown>) => unknown
+	/** Optional `ErrorBoundary` named export — a component receiving
+	 *  `RouteErrorBoundaryProps`, rendered in place of the route's layout
+	 *  chain + screen when that subtree throws during render. Loader
+	 *  rejections still surface as the screen's `error` prop — the
+	 *  boundary covers render failures, including a screen that crashes
+	 *  while handling `error`. Absent a declaration, render errors
+	 *  propagate as they always have. */
+	errorBoundary?: any
 	/** Data provenance: 'live' (default) runs `loader` at navigation;
 	 *  'baked' reads build-time output from the manifest's `baked` map —
 	 *  for file routes the loader lives in a `<route>.loader.ts` sibling
@@ -2303,6 +2337,9 @@ export interface RouteSpec {
 	dataMode?: RouteDataMode
 	beforeLoad?: BeforeLoad
 	head?: RouteHeadExport
+	/** Component receiving `RouteErrorBoundaryProps` — the spec form of a
+	 *  route file's `ErrorBoundary` export. */
+	errorBoundary?: any
 	/** Diagnostics label recorded on `RouteMeta.file` (warn strings). */
 	source?: string
 }
@@ -2322,8 +2359,8 @@ export interface RouteSpecSet {
  *  `routes.gen.manifest.json` and `manifestToJson` produces from any
  *  RouteManifest. Same shape whether the routes came from the file dir
  *  or `defineRoutes`, so an external host (e.g. a web SSR tier) consumes
- *  one normalized list. `loader`/`guard`/`head` are presence flags — the
- *  functions don't cross the JSON boundary. */
+ *  one normalized list. `loader`/`guard`/`head`/`errorBoundary` are
+ *  presence flags — the functions don't cross the JSON boundary. */
 export interface RouteManifestJson {
 	version: 1
 	/** Layout dirs present, '' = the root `_layout` — sorted. */
@@ -2347,6 +2384,7 @@ export interface RouteJson {
 	loader: boolean
 	guard: boolean
 	head: boolean
+	errorBoundary: boolean
 }
 
 // ---------- programmatic route typing ----------

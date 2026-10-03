@@ -65,6 +65,12 @@ export function layoutsFor(name: string): any[] {
 	return layoutChain(routeLayouts, name)
 }
 
+/** The route's declared `ErrorBoundary` export, if any — outlets wrap the
+ *  resolved screen in `RouteBoundary` with it. */
+export function errorBoundaryFor(name: string): any {
+	return metaFor(name)?.errorBoundary
+}
+
 function routeAt(stack: string): Route | null {
 	const entries = stacks.get(stack)
 	return entries?.[entries.length - 1] ?? null

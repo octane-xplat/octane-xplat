@@ -299,7 +299,10 @@ export {
 	screenFor,
 	hrefFor,
 	layoutsFor as layoutsForRoute,
+	errorBoundaryFor,
 } from './route.macos'
+
+export { RouteBoundary } from './RouteBoundary.macos.tsrx'
 
 export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-table'
 export { createStore } from './store'

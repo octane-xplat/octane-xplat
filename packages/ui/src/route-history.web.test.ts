@@ -78,3 +78,39 @@ it('loads a direct URL without adding history or running its guard', async () =>
 	expect(guard).not.toHaveBeenCalled()
 	expect(loader).toHaveBeenCalledTimes(1)
 })
+
+it('marks a hydrating loader pending until it settles', async () => {
+	let resolve!: (value: unknown) => void
+	const loader = vi.fn(() => new Promise((yes) => (resolve = yes)))
+	history.replaceState(null, '', '/baked')
+	router.registerRoutes(defineRoutes([{ path: 'baked', screen: () => null, loader }]))
+
+	expect(router.routeFor('root')).toMatchObject({ name: 'baked', loaderPending: true })
+	// hydrateRoute schedules the loader on a microtask — let it fire.
+	await settle()
+	expect(loader).toHaveBeenCalledTimes(1)
+	resolve({ entries: ['baked'] })
+	await settle()
+	expect(router.routeFor('root')).toMatchObject({
+		loaderData: { entries: ['baked'] },
+		loaderPending: false,
+	})
+})
+
+it('marks a rejected hydrating loader pending until it settles to an error', async () => {
+	let reject!: (error: unknown) => void
+	const loader = vi.fn(() => new Promise((_, no) => (reject = no)))
+	history.replaceState(null, '', '/baked')
+	router.registerRoutes(defineRoutes([{ path: 'baked', screen: () => null, loader }]))
+
+	expect(router.routeFor('root')?.loaderPending).toBe(true)
+	await settle()
+	expect(loader).toHaveBeenCalledTimes(1)
+	reject(new Error('offline'))
+	await settle()
+	expect(router.routeFor('root')).toMatchObject({
+		loaderPending: false,
+	})
+
+	expect((router.routeFor('root')!.loaderError as Error).message).toBe('offline')
+})

@@ -97,6 +97,12 @@ export function screenFor(name: string): ScreenTable[string] | undefined {
 	return screens[name]
 }
 
+/** The route's declared `ErrorBoundary` export, if any — outlets wrap the
+ *  resolved screen in `RouteBoundary` with it. */
+export function errorBoundaryFor(name: string): any {
+	return metaFor(name)?.errorBoundary
+}
+
 /** Wrap a screen in its directory `_layout` chain (outermost →
  *  innermost) as a single root component — pushed Pages and modal roots
  *  render this, matching web's outlet wrapping. */
@@ -486,6 +492,8 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 					screen: C,
 					layouts: layoutsForRoute(r.name),
 					params: props,
+					boundary: errorBoundaryFor(r.name),
+					route: r,
 				})
 
 				return page
@@ -549,6 +557,8 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 			screen: C,
 			layouts: layoutsForRoute(r.name),
 			params,
+			boundary: errorBoundaryFor(r.name),
+			route: r,
 		})
 
 		presenter.showModal(host, {

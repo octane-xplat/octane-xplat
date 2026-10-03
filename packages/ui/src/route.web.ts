@@ -88,6 +88,12 @@ export function screenFor(name: string): ScreenTable[string] | undefined {
 	return screens[name]
 }
 
+/** The route's declared `ErrorBoundary` export, if any — outlets wrap the
+ *  resolved screen in `RouteBoundary` with it. */
+export function errorBoundaryFor(name: string): any {
+	return metaFor(name)?.errorBoundary
+}
+
 /** Directory layouts wrapping a route, outermost → innermost — outlets
  *  wrap their resolved element with these (`_layout.tsrx` files). */
 export function layoutsFor(name: string): any[] {
@@ -145,8 +151,11 @@ function hydrateRoute(route: Route): void {
 		return
 	}
 
+	// The screen is already mounted — mark the in-flight load so it can
+	// render `pending` until `data`/`error` arrive.
+	route.loaderPending = true
 	const finish = (result: Pick<Route, 'loaderData' | 'loaderError'>) => {
-		const prepared = { ...route, ...result }
+		const prepared = { ...route, ...result, loaderPending: false }
 		let changed = false
 		if (current === route) {
 			current = prepared

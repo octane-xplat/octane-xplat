@@ -4,12 +4,13 @@ import type { TabsProps } from './props'
 import { cx } from './cx'
 import { TabList, Tab } from './TabList.macos.tsrx'
 import { RouteHost } from './RouteHost.macos.tsrx'
-import { layoutsFor, useRoute, screenFor } from './route.macos'
+import { errorBoundaryFor, layoutsFor, useRoute, screenFor } from './route.macos'
 
 function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
 	const params: Record<string, unknown> = { ...route.params, ...(route.context ?? {}), _stack: route.stack, _pushed: true }
 	if (Object.prototype.hasOwnProperty.call(route, 'loaderData')) {params.data = route.loaderData}
 	if (Object.prototype.hasOwnProperty.call(route, 'loaderError')) {params.error = route.loaderError}
+	if (route.loaderPending === true) {params.pending = true}
 	return params
 }
 
@@ -50,7 +51,7 @@ export function Tabs(props: TabsProps) @{
 		<flexboxlayout flexDirection="column" className="vx-tabpane flex-1">
 			@if (presentable && Screen) {
 				<PresentedStacks value={new Set(presented).add(presentable.stack)}>
-					<RouteHost screen={Screen} layouts={layoutsFor(presentable.name)} params={screenParams(presentable)} />
+					<RouteHost screen={Screen} layouts={layoutsFor(presentable.name)} params={screenParams(presentable)} boundary={errorBoundaryFor(presentable.name)} route={presentable} />
 				</PresentedStacks>
 			} @else {
 				<>{tab?.render()}</>

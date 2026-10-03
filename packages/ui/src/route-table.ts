@@ -143,7 +143,9 @@ function pick(mod: any, file: string): any {
 	}
 
 	const fns = Object.keys(mod ?? {}).filter(
-		(k) => typeof mod[k] === 'function' && !['loader', 'beforeLoad', 'head'].includes(k),
+		(k) =>
+			typeof mod[k] === 'function' &&
+			!['loader', 'beforeLoad', 'head', 'ErrorBoundary'].includes(k),
 	)
 
 	if (fns.length === 1) {
@@ -259,6 +261,11 @@ export function deriveRouteManifest(
 		const beforeLoad = files[key]?.beforeLoad
 		if (typeof beforeLoad === 'function') {
 			meta.beforeLoad = beforeLoad
+		}
+
+		const errorBoundary = files[key]?.ErrorBoundary
+		if (typeof errorBoundary === 'function') {
+			meta.errorBoundary = errorBoundary
 		}
 
 		if (
@@ -400,6 +407,10 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			meta.beforeLoad = spec.beforeLoad
 		}
 
+		if (spec.errorBoundary) {
+			meta.errorBoundary = spec.errorBoundary
+		}
+
 		if (spec.head) {
 			meta.head = spec.head
 		}
@@ -507,6 +518,7 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 				loader: !!meta.loader,
 				guard: !!meta.beforeLoad,
 				head: !!meta.head,
+				errorBoundary: !!meta.errorBoundary,
 			}
 		}),
 	}
@@ -643,7 +655,9 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 		.join('&')
 
 	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
-	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '')
+	return (
+		(path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '') + (r.hash ? '#' + r.hash : '')
+	)
 }
 
 const JSON_PARAM_PREFIX = 'json:'
@@ -731,10 +745,14 @@ export function linkPath(url: string): string {
  *  is the stack prefix ('/demos/demo/x' → stack 'demos'). Unmatched names
  *  fall through as literal routes for pre-manifest callers. */
 export function matchUrl(routes: readonly RouteMeta[], url: string): Route | null {
-	// Fragments aren't route params. Split only the first query delimiter;
-	// a later '?' belongs to its value. Reject malformed percent encoding at
-	// this external-input boundary instead of crashing the mounted app.
-	url = url.split('#', 1)[0]
+	// The fragment isn't a route param — it rides the Route's `hash` field so
+	// web can restore scroll to the element it names. Split only the first
+	// query delimiter; a later '?' belongs to its value. Reject malformed
+	// percent encoding at this external-input boundary instead of crashing
+	// the mounted app.
+	const hashAt = url.indexOf('#')
+	const hash = hashAt === -1 ? undefined : url.slice(hashAt + 1)
+	url = hashAt === -1 ? url : url.slice(0, hashAt)
 	const at = url.indexOf('?')
 	const p = at === -1 ? url : url.slice(0, at)
 	const qs = at === -1 ? undefined : url.slice(at + 1)
@@ -769,6 +787,7 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 		name: m ? m.meta.name : fallbackName,
 		params: { ...query, ...m?.params },
 		presentation: m?.meta.presentation,
+		hash,
 	})
 
 	const root = matchRoute(routes, segs)
@@ -788,10 +807,12 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 	return finish('root', null, segs[0])
 }
 
-/** Fire a route's `loader` export — prefetch, not a data layer: the
- *  screen's own `query$` reads still own the data, this just warms the
- *  cache before mount. Sync throws and async rejections warn rather
- *  than break navigation. */
+/** Fire a route's `loader` without committing navigation — the opt-in
+ *  prefetch primitive, for warming a `query$` cache ahead of a push an
+ *  app expects to make. This is NOT the navigation loader path: a push
+ *  awaits the loader itself (`commitRoute`) and hands its result to the
+ *  screen as `data`/`error`; the value fired here is discarded. Sync
+ *  throws and async rejections warn rather than break navigation. */
 export function runLoader(routes: readonly RouteMeta[], r: Route): void {
 	const loader = routes.find((m) => m.name === r.name)?.loader
 	if (!loader) {

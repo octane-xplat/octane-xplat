@@ -35,6 +35,26 @@ export function Test() @{
 			</HStack>
 		</View>
 
+		<View className="sink-section">
+			<Text className="section-label">Navigation seams</Text>
+			<HStack className="demo-menu">
+				<Pressable
+					id="menu-broken-render"
+					onPress={() => navigate('broken', { fail: 'render' }, { into: 'test' })}
+					className="chip"
+				>
+					<Text>Route boundary →</Text>
+				</Pressable>
+				<Pressable
+					id="menu-broken-loader"
+					onPress={() => navigate('broken', { fail: 'loader' }, { into: 'test' })}
+					className="chip"
+				>
+					<Text>Loader error →</Text>
+				</Pressable>
+			</HStack>
+		</View>
+
 		<Probes />
 		<MediaServices />
 

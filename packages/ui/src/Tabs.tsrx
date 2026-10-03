@@ -2,7 +2,7 @@
 import { useState } from 'octane';
 import { cx } from './cx';
 import { TabList, Tab } from './TabList';
-import { layoutsForRoute, screenFor, useRoute } from './route';
+import { errorBoundaryFor, layoutsForRoute, screenFor, useRoute } from './route';
 import { RouteHost, screenParamsFor } from './route-host';
 import type { TabSpec, TabsProps } from './props';
 
@@ -42,6 +42,8 @@ export function Tabs(props: TabsProps) @{
 					screen={Screen}
 					layouts={layoutsForRoute(route.name)}
 					params={screenParamsFor(route)}
+					boundary={errorBoundaryFor(route.name)}
+					route={route}
 				/>
 			} @else {
 				<>{tab?.render()}</>

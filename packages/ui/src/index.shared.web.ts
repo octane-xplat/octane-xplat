@@ -687,8 +687,10 @@ export {
 	screenFor,
 	hrefFor,
 	layoutsForRoute,
+	errorBoundaryFor,
 } from './route.web'
 
+export { RouteBoundary } from './RouteBoundary'
 export { useBackInterceptor } from './use-back'
 
 export {
@@ -705,6 +707,7 @@ export type {
 	NavLinkProps,
 	Route,
 	RouteContext,
+	RouteErrorBoundaryProps,
 	RouteHead,
 	RouteHeadExport,
 	RouteMeta,

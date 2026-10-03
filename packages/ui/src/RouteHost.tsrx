@@ -1,11 +1,16 @@
 /** @jsxImportSource @nativescript-community/octane */
 
 import type { Route } from './props';
+import { RouteBoundary } from './RouteBoundary.tsrx';
 
 type RouteHostProps = {
 	screen: any;
 	layouts: any[];
 	params: Record<string, unknown>;
+	/** The route's declared ErrorBoundary export, if any. */
+	boundary?: any;
+	/** The committed route being rendered — passed to the boundary. */
+	route?: Route;
 };
 
 /** Props a pushed screen receives inside a swap-pane host — the same shape
@@ -28,6 +33,10 @@ export function screenParamsFor(route: Route): Record<string, unknown> {
 		params.error = route.loaderError;
 	}
 
+	if (route.loaderPending === true) {
+		params.pending = true;
+	}
+
 	return params;
 }
 
@@ -40,5 +49,7 @@ export function RouteHost(props: RouteHostProps) @{
 		child = <Layout>{nested}</Layout>;
 	}
 
-	<>{child}</>
+	<RouteBoundary boundary={props.boundary} route={props.route}>
+		<>{child}</>
+	</RouteBoundary>
 }

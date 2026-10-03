@@ -181,6 +181,22 @@ describe('matchRoute + buildRoutePath', () => {
 		expect(detail.head).toBe(head)
 		expect(m.screens.detail.displayName).toBe('D')
 	})
+
+	it('picks up an ErrorBoundary export without mistaking it for the screen', () => {
+		const boundary = C('Boundary')
+		const m = manifest({
+			// No default/screen export — the lone component still wins over
+			// the reserved boundary export.
+			'./app/detail.tsrx': { Detail: C('D'), ErrorBoundary: boundary },
+			'./app/bare.tsrx': { screen: C('B'), ErrorBoundary: boundary },
+		})
+
+		const detail = m.routes.find((r) => r.name === 'detail')!
+		expect(detail.errorBoundary).toBe(boundary)
+		expect(m.screens.detail.displayName).toBe('D')
+		expect(m.screens.bare.displayName).toBe('B')
+		expect(m.routes.find((r) => r.name === 'bare')!.errorBoundary).toBe(boundary)
+	})
 })
 
 describe('optional segments and catch-alls', () => {
@@ -417,10 +433,22 @@ describe('matchUrl + linkPath', () => {
 		(url) => expect(matchUrl(routes, url)).toBeNull(),
 	)
 
-	it('ignores fragments and preserves query delimiters inside values', () => {
+	it('ignores fragments for params but carries them into route.hash', () => {
 		expect(matchUrl(routes, linkPath('xplat://demo/counter?from=a?b#ignored'))).toMatchObject({
 			params: { id: 'counter', from: 'a?b' },
+			hash: 'ignored',
 		})
+	})
+
+	it('emits route.hash back into the built path', () => {
+		expect(
+			buildRoutePath(routes, {
+				stack: 'root',
+				name: 'detail',
+				params: { from: 'home' },
+				hash: 'section-2',
+			}),
+		).toBe('/detail?from=home#section-2')
 	})
 })
 
@@ -468,10 +496,11 @@ describe('defineRoutes', () => {
 		expect(m.screens.index.displayName).toBe('Root')
 	})
 
-	it('carries presentation, loader, beforeLoad, and head onto the meta', () => {
+	it('carries presentation, loader, beforeLoad, head, and errorBoundary onto the meta', () => {
 		const loader = (p: Record<string, unknown>) => p
 		const beforeLoad = () => ({ ok: true })
 		const head = { title: 'Doc' }
+		const errorBoundary = C('Boundary')
 		const m = defineRoutes([
 			{
 				path: 'doc',
@@ -480,6 +509,7 @@ describe('defineRoutes', () => {
 				loader,
 				beforeLoad,
 				head,
+				errorBoundary,
 			},
 		])
 
@@ -488,6 +518,7 @@ describe('defineRoutes', () => {
 		expect(meta.loader).toBe(loader)
 		expect(meta.beforeLoad).toBe(beforeLoad)
 		expect(meta.head).toBe(head)
+		expect(meta.errorBoundary).toBe(errorBoundary)
 		expect(m.loaders!.doc).toBe(loader)
 	})
 
@@ -609,6 +640,7 @@ describe('defineRoutes', () => {
 				loader,
 				head,
 				dataMode: 'baked',
+				ErrorBoundary: C('GuideError'),
 			},
 		})
 
@@ -623,6 +655,7 @@ describe('defineRoutes', () => {
 					loader,
 					head,
 					dataMode: 'baked',
+					errorBoundary: C('GuideError'),
 					source: './app/guides/[slug]+modal.tsrx',
 				},
 			],
@@ -644,6 +677,7 @@ describe('defineRoutes', () => {
 			loader: true,
 			guard: false,
 			head: true,
+			errorBoundary: true,
 		})
 
 		expect(manifestToJson(spec).layouts).toEqual(['', 'guides'])

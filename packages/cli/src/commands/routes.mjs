@@ -49,7 +49,8 @@ function normSegment(s) {
 const DATAMODE = /export\s+const\s+dataMode\s*=\s*['"](baked|live)['"]/
 // Presence greps for the manifest JSON — codegen records which hooks a
 // route declares without evaluating its module.
-const ROUTE_EXPORTS = /export\s+(?:async\s+)?(?:function|const|let)\s+(loader|beforeLoad|head)\b/g
+const ROUTE_EXPORTS =
+	/export\s+(?:async\s+)?(?:function|const|let)\s+(loader|beforeLoad|head|ErrorBoundary)\b/g
 
 function walk(dir, out = []) {
 	for (const name of readdirSync(dir).sort()) {
@@ -255,7 +256,7 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 			}
 
 			for (const m of src.matchAll(ROUTE_EXPORTS)) {
-				r[m[1] === 'beforeLoad' ? 'guard' : m[1]] = true
+				r[m[1] === 'beforeLoad' ? 'guard' : m[1] === 'ErrorBoundary' ? 'errorBoundary' : m[1]] = true
 			}
 		}
 
@@ -286,6 +287,7 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 			prev.loader ||= r.loader
 			prev.guard ||= r.guard
 			prev.head ||= r.head
+			prev.errorBoundary ||= r.errorBoundary
 		}
 	}
 
@@ -441,6 +443,7 @@ export const bakedRouteData: Record<string, unknown> = ${JSON.stringify(data, nu
 			loader: !!(r.loader || r.md || loaderFiles.has(r.name)),
 			guard: !!r.guard,
 			head: !!r.head,
+			errorBoundary: !!r.errorBoundary,
 		})),
 	}
 
