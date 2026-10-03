@@ -731,6 +731,22 @@ export type {
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store'
+
+// Shared keyed query cache over octane/signals query$
+export {
+	cachedQuery$,
+	invalidateQueries,
+	clearQueryCache,
+	createMemoryQueryStorage,
+} from './query-cache'
+export { platformQueryStorage } from './query-storage.web'
+export type {
+	QueryKey,
+	QueryKeyPart,
+	QueryStorageAdapter,
+	QueryPersistence,
+	CachedQueryOptions,
+} from './query-cache'
 export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
 export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service.web'
 export type {
