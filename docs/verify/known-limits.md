@@ -203,7 +203,11 @@ for the embedded component and its separate app-shell boundary.
 
 Fresh Web release navigation checks on 2026-09-30 pass 14/14, including
 retained guard/loader results during history traversal and cold baked-route
-loads. Native ordering has focused mocked coverage, but the new native release
+loads. The route error-boundary and scroll-restoration contracts added
+post-0.9.0 carry vitest coverage (jsdom on web, the object driver on the
+universal renderer) but no release-harness rows yet — the web scroll claims
+in particular are emulated-DOM evidence, not browser evidence. Native
+ordering has focused mocked coverage, but the new native release
 suite has no passing runtime report. Shared locks blocked follow-up runs;
 the isolated Android release built with Temurin JDK 21, but its newly
 available emulator is lock-blocked. Both iOS releases built but timed out without a
@@ -219,6 +223,8 @@ report; a direct diagnostic launch was denied by `SBMainWorkspace`
 | `popRoute(stack)`                                | `history.back()` regardless of `stack`                                                                                                                                                                              | pops that stack                                                                                                                                                                                                                                                                            | pops that stack                                                                                                                                                                                      | `different` | 0.5.0           |
 | Programmatic routes (`defineRoutes`/`addRoutes`) | literal `path` strings infer names/params at the callsite (`ManifestRoute*` helpers merge into generated types); only runtime-computed paths stay outside the typed surface — use the `Route` shape and `screenFor` | same boundary                                                                                                                                                                                                                                                                              | same boundary                                                                                                                                                                                        | `different` | post-0.6.0·desk |
 | Optional/catch-all segments (`:x?`, `*`/`[...x]`) | absent optional params drop out of the serialized URL; a root-level `*` outranks the named-stack URL fallback, so stack-prefixed deep links resolve on `root` while one is registered                                                        | same boundary                                                                                                                                                                                                                                                                              | same boundary                                                                                                                                                                                        | `same`      | post-0.6.0·desk |
+| Route error boundary (`ErrorBoundary` export)  | `RouteBoundary` wraps the layout+screen subtree; `reset` remounts, re-push retries the loader. Loader rejection stays the screen's `error` prop — it never enters the boundary. Vitest-verified on the DOM renderer | same contract — the portable `@try`/`@catch` host wraps pushed pages, modal roots, and stack roots; vitest-verified via the object driver | same as iOS | `same` | post-0.9.0·vitest |
+| Scroll restoration                             | per-entry positions — push → top or `hash` target, pop/forward → saved position; `scrollRestoration='manual'`; vitest/jsdom-verified, no browser run yet | retained — a pushed entry keeps its page alive beneath, so scroll/list state survives pop. Source-verified; not yet device-verified | same as iOS — swap-pane and fragment-manager pushes keep subtrees alive; not yet device-verified | `different` | post-0.9.0·vitest,desk |
 
 ## Platform services
 

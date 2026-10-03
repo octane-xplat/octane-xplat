@@ -75,9 +75,19 @@ registerRoutes(deriveRouteManifest(files, ['web']))
   wrap screens from outer directory to inner directory on both targets.
 - `+modal` and `+fade` suffixes set a route's default presentation;
   `Route.presentation` overrides it for a particular navigation.
-- A route may export `loader(params)`. Its result reaches the screen as
-  `data`; a rejected loader reaches it as `error`. Loaders run on navigation
-  and do not provide prefetch or a suspense boundary.
+- A route may export `loader(params)` — pushed-route commits await it; the
+  screen mounts once with `data` or `error`. Direct-URL and restored-history
+  hydration can't block their own mount: the screen renders with `pending`,
+  then `data`/`error` land. `runLoader(name, params)` is the separate
+  fire-and-forget prefetch primitive (route-table.ts) — distinct from the
+  navigation loader path.
+- A route may export `ErrorBoundary` — the render error boundary
+  (`{ error, reset, route }`; decision #97). `RouteBoundary` wraps the
+  layout+screen subtree at every outlet; `reset` remounts without rerunning
+  `loader`/`beforeLoad`.
+- `route.hash` is a web-only `#fragment` field — matchUrl captures it,
+  `buildRoutePath` emits it, and the web scroll contract uses it as the
+  push target (decision #98).
 - A route may export `beforeLoad({params, context})`. The guard is awaited
   before an imperative or `NavLink` navigation commits; its returned
   object merges into `Route.context` and screen props. `redirect(route)` is a
@@ -222,15 +232,19 @@ export function Example() {
    `pushRoute(route)` + `popRoute(stack)`; don't try to share transition
    config beyond a small named set (`'push'|'modal'|'fade'`).
 4. **Scroll/memory parity**: Native keeps page views alive in its stack.
-   Web stores scroll offsets by history URL and restores them on back/forward;
-   no native scroll work is needed while pages remain mounted.
+   Web stores scroll offsets by history entry (URL path+query+hash as the
+   fallback key for entries predating registration) — a push starts at the
+   top or a `route.hash` target, back/forward restores the entry's saved
+   position, and modal pushes leave the position beneath untouched. No
+   native scroll work is needed while pages remain mounted (desk-source).
 5. **Typed routes**: `xplat routes` generates route names, params, and
    presentation types. `xplat build` and `xplat typecheck` refresh them too.
    Add a route file, then rerun one of those commands.
-6. **Data**: a route `loader(params)` may return a value or promise. The
-   screen receives `data` after resolution or `error` after rejection. This
-   is the basic route-data seam; prefetch and async boundary integration
-   remain open.
+6. **Data**: a route `loader(params)` may return a value or promise. Push
+   commits await it — the screen receives `data` after resolution or `error`
+   after rejection; direct-URL hydration mounts first with `pending`. The
+   render-boundary seam is `ErrorBoundary` (decision #97); the explicit
+   prefetch primitive is `runLoader`.
 7. **Modal routes**: `+modal` or `presentation: 'modal'` opens a separate
    native root / web overlay while retaining the prior history entry. Params,
    loader values, and route-owned `beforeLoad` context cross as props; the
@@ -324,6 +338,16 @@ Overlay-to-window promotion for `Sheet`/`Popover` on desktop remains open.
    `@nativescript/core` patch. On-device validation is pending.
 
 ## Lab log
+
+> **Lab (route contracts, unit-only, 2026-10-03):** the error-boundary and
+> scroll contracts (#97, #98) shipped with vitest coverage — DOM-renderer
+> catch/reset on jsdom (`RouteBoundary.web.test.tsrx`), universal-renderer
+> catch/reset via the object driver (`RouteBoundary.mobile.test.tsrx`), and
+> the web scroll contract (`route-scroll.web.test.ts`: push-to-top, hash
+> target, per-entry positions incl. two entries sharing a URL, modal-push
+> exemption). No browser or device run — popstate is now a singletoned
+> slot (HMR-safe), and native scroll retention is source-derived, pending
+> the blocked native release suite.
 
 > **Lab (navigation readiness, 2026-09-30, main base `4b43f82d`):**
 > Fresh production Web navigation checks pass 14/14 using

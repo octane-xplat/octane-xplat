@@ -84,6 +84,11 @@ for cold launch and two identical warm deliveries.
 The historical baseline harness has concurrent fixed timers. A failure there
 must be reproduced in isolation before assigning it to a component. Navigation
 checks do not establish passes for pressable hit testing, signals, styled
-variants, switch, drawer, animation, data, or accessibility. Keep their findings
+variants, switch, drawer, animation, data, or accessibility. The route
+error-boundary (`ErrorBoundary` export) and scroll-restoration contracts
+added post-0.9.0 have vitest coverage only — jsdom on web, the object driver
+on the universal renderer (`RouteBoundary.*.test.tsrx`,
+`route-scroll.web.test.ts`) — and no harness rows yet; a passing suite here
+does not cover them. Keep their findings
 in the Silo baseline question with target, revision, reproduction and log
 references; preserve unresolved reports when native execution is blocked.

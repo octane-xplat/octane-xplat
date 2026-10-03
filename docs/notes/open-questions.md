@@ -157,10 +157,11 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     web). The DOM build's SSR output is DOM-correct; the native build never
     sees it.
 21. 🟡 **Route-file config vocabulary** — `loader`, `beforeLoad`, `head`,
-    `+modal`, and `+fade` are implemented; see the
+    `ErrorBoundary`, `+modal`, and `+fade` are implemented; see the
     [route-config record](navigation-notes.md#route-config-surface-implemented).
-    Additional native runtime checks remain pending. `+ssr` is not part of
-    the documented shared presentation contract.
+    The boundary and `pending`/`hash` seams added post-0.9.0 carry
+    jsdom/object-driver coverage only — native runtime checks remain pending.
+    `+ssr` is not part of the documented shared presentation contract.
 22. ✅ **SVG fidelity on native (`svgview` / ui-svg).** — Desk-source closes
     the source contract: `res://`/`~/`/file paths, `File`/`ImageAsset`, inline
     markup strings, and promise/function sources are accepted; the framework

@@ -320,9 +320,10 @@ pushRoute({ stack: 'root', name: 'about', params: {}, presentation: 'modal' })
 ```
 
 A route file can also export `loader(params)` — it runs when the route is
-pushed, before the screen commits. Its awaited result lands on the screen as
-a `data` prop; a rejected loader lands as `error`. That's the default
-`dataMode: 'live'`; the next section covers baking the result in instead.
+pushed and the commit waits for it: the previous screen stays up until the
+promise settles, then the result lands on the screen as `data` and a
+rejection as `error`. That's the default `dataMode: 'live'`; the next
+section covers baking the result in instead.
 
 ```tsx
 // app/detail.tsrx
@@ -335,6 +336,87 @@ export function Detail(props: { data?: { title: string }; error?: unknown }) {
 	return <Text>{props.error ? 'Could not load item' : (props.data?.title ?? 'Loading')}</Text>
 }
 ```
+
+Two entry paths land on a different first paint. A push commits the route
+only after `loader` settles — the screen mounts once, already holding
+`data` or `error`. A direct-URL visit or a history entry from before the
+document loaded can't block its own mount — the screen renders immediately
+with `pending: true`, and `data` or `error` arrive when the loader
+settles. Screens that should stay honest render `pending` before reaching
+for `data`:
+
+```tsx
+export function Detail(props: {
+	data?: { title: string }
+	error?: unknown
+	pending?: boolean
+}) {
+	if (props.pending) return <Text>Loading…</Text>
+	return <Text>{props.error ? 'Could not load' : props.data?.title}</Text>
+}
+```
+
+To rerun a loader, push the route again — there is no loader `refetch`.
+The low-level `runLoader(name, params)` from `route-table` is a different
+primitive: it fires a loader without navigating, for warming a cache ahead
+of a push an app expects to make.
+
+## Catch a screen that fails to render
+
+A **route error boundary** replaces the route's rendered subtree — the
+screen plus its `_layout` chain — when rendering throws. That includes the
+ordinary case (the screen crashes) and the sneaky one: the screen rendering
+a loader `error` prop crashes on the way to its own error UI. Declare one
+by exporting a component named `ErrorBoundary` from the route file; the
+runtime wraps every outlet that presents the route — pushed page, native
+modal root, named stack root, or web root/pane/modal — in a portable
+boundary that renders it instead (decision #97):
+
+```tsx
+// app/detail.tsrx
+import { Pressable, Text } from '@octane-xplat/ui'
+import type { RouteErrorBoundaryProps } from '@octane-xplat/ui'
+
+export function ErrorBoundary(props: RouteErrorBoundaryProps) {
+	return (
+		<Pressable onPress={props.reset}>
+			<Text>{`Route ${props.route.name} failed — tap to retry`}</Text>
+		</Pressable>
+	)
+}
+```
+
+The boundary receives `error` (the thrown value), `route` (the committed
+route object), and `reset`. `reset` clears the caught error and remounts
+the same subtree with the same props — it does **not** rerun `loader` or
+`beforeLoad`, so a deterministic throw recatches. To retry route
+preparation, the boundary re-pushes the route:
+
+```tsx
+export function ErrorBoundary(props: RouteErrorBoundaryProps) {
+	return (
+		<Pressable
+			onPress={() =>
+				pushRoute({
+					stack: props.route.stack,
+					name: props.route.name,
+					params: props.route.params,
+				})
+			}
+		>
+			<Text>Reload route</Text>
+		</Pressable>
+	)
+}
+```
+
+Loader rejections do not enter the boundary — they commit as the screen's
+`error` prop and the screen owns its own error UI. The boundary exists for
+when *that* render fails too. `defineRoutes` specs take `errorBoundary`
+directly; `routes.gen.manifest.json` records an `errorBoundary` presence
+flag for host consumers. A working screen-plus-boundary pair lives in the
+maintained harness at `packages/app/src/app/broken.tsrx` — its loader and
+render can each be made to fail from the Test tab.
 
 ## Bake route data at build time
 
@@ -607,8 +689,9 @@ and loader results are retained during back/forward traversal within the same
 document, including modal entries. Calling `addRoutes` does not discard this
 prepared state. A fresh document parses its URL again; it does not restore
 non-URL screen state or re-run `beforeLoad` automatically. Direct URLs run
-the route loader without adding a history entry, including the generated
-loader for baked data and Markdown.
+the route loader without adding a history entry — the screen mounts with
+`pending: true` until the result lands — including the generated loader for
+baked data and Markdown.
 
 ```ts
 import { popRoute } from '@octane-xplat/ui'
@@ -616,6 +699,35 @@ import { popRoute } from '@octane-xplat/ui'
 // In a Back action; web pops the current browser entry.
 popRoute('root')
 ```
+
+## Keep scroll where the reader left it
+
+Web keeps a scroll position for every history entry. Pushing a route starts
+the new screen at the top — or scrolls to the element whose `id` matches
+`hash` when the pushed route carries one. Back and forward restore the
+position saved for that exact entry, so two pushes sharing a URL keep
+independent positions; a modal push overlays the page without moving the
+content beneath it.
+
+```ts
+// Push detail scrolled to its specs section — URL: /detail?id=x#specs
+pushRoute({ stack: 'root', name: 'detail', params: { id: 'x' }, hash: 'specs' })
+```
+
+The saved position is keyed by the history entry, not the URL. An entry the
+runtime never committed — a URL the browser restored before routes
+registered — falls back to the URL itself (path, query, and hash), which
+still separates a deep link's anchor from the page top. The web leaf sets
+`history.scrollRestoration = 'manual'` at module load so one owner settles
+each navigation. Direct URLs and deep links keep their `#fragment` —
+`route.hash` survives `matchUrl`, so an anchor lands on its element once the
+screen mounts.
+
+Native needs no code here: a pushed page keeps the page beneath it alive,
+and dismissing a modal reveals the same view tree — retained lists resume
+where the reader left them (decision #98). That claim is source-verified,
+not device-verified; see [navigation limits](../verify/known-limits.md#navigation).
+`route.hash` is a web-only field native ignores.
 
 Generated `RouteParams` keeps normal route APIs scalar (`string`) for stable
 URLs. The low-level `Route` type remains open for compatibility: if an object

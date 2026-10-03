@@ -116,10 +116,29 @@ registerRoutes(manifest)
 - `app/_layout.tsrx` → `layouts['']` — the shell the entry renders
   (`export const App = routes.layouts['']` in `index.ts`). Not a route.
 - `app/settings.web.tsrx` → web-only route (skipped by the mobile glob).
-- Component pick: `default` → `screen` → single function export.
+- Component pick: `default` → `screen` → single function export —
+  `ErrorBoundary` is reserved (never the screen).
 - Params arrive as props (native: pushed root's props; web: path segments
   - query). Route names are `string` — literal typing awaits routes.d.ts
     codegen.
+- A route may export `loader(params)` — pushed commits await it; the screen
+  mounts holding `data` or `error`. Direct-URL/history hydration mounts the
+  screen first with `pending: true`, then lands the result.
+- A route may export `ErrorBoundary` — render error boundary with props
+  `{ error, reset, route }` (`RouteErrorBoundaryProps`). It wraps the
+  layout+screen subtree at every outlet (pushed page, native modal root,
+  named stack root, web root/pane/modal). `reset` remounts the same subtree
+  without rerunning `loader`/`beforeLoad`; re-push to retry route data.
+  Loader rejections never enter it — they stay on the screen's `error` prop.
+
+```tsx
+// app/detail.tsrx — a route file's render boundary.
+import type { RouteErrorBoundaryProps } from '@octane-xplat/ui'
+
+export function ErrorBoundary(props: RouteErrorBoundaryProps) {
+	return <Text>{`Route failed: ${String(props.error)}`}</Text>
+}
+```
 
 Adding a route = adding a file; no table edits.
 
@@ -178,11 +197,18 @@ popRoute()
   `:param` substitution (`/demos/demo/counter`); params not in the path
   fall back to the query string (`/detail?from=home`). Names outside the
   manifest keep `/<stack>/<name>?params`.
-- `popRoute` → `history.back()`; `popstate` resyncs the store.
+- `popRoute` → `history.back()`; `popstate` resyncs the store (the listener
+  is a window-slot singleton — re-imports under HMR/test resets do not
+  duplicate it).
 - `Tabs` is the outlet: `useRoute('root')` covers the shell when a root
   route is active; `useRoute(activeTab.stack)` renders a pushed screen in
   the pane via `resolveScreen` prop — or the `registerScreens` table when
   the prop is absent.
+- Scroll: positions save per history entry — a push starts at top or at
+  `route.hash`'s element, pop/forward restores the saved position, and a
+  modal push leaves the position beneath it alone. `route.hash` writes the
+  `#fragment` into the URL; native ignores the field and retains scroll by
+  keeping pushed subtrees alive.
 - Deep links work: `currentRoute()` seeds the initial tab index at boot
   (Vite preview SPA-fallbacks unknown paths to index.html).
 
