@@ -115,6 +115,10 @@ const CSS_DIVERGENCES = [
 		/white-space\s*:\s*pre-wrap\b/,
 		'Label rejects white-space:pre-wrap — "wrap" is the native wrap value (no space/newline preservation)',
 	],
+	[
+		/letter-spacing\s*:\s*[^;{}]*\d(?:px|dip|pt)\b/,
+		'letter-spacing has no length units on native — Android reads the number as em (setLetterSpacing), iOS as pt; use em so all three agree',
+	],
 ]
 
 /**
@@ -162,6 +166,14 @@ function pxToDip() {
 				warn(`${id}: ${hint}`)
 			}
 		}
+
+		// NS letter-spacing semantics are raw em numbers — Android feeds the
+		// parsed value to TextView.setLetterSpacing (em), iOS uses it as a
+		// point kern. The NS css parser drops `em` dimension tokens entirely,
+		// so unit-strip the authored em value. Length units (px/dip/pt)
+		// parse but get misread as em — the divergence warning above points
+		// authors at em.
+		code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
 
 		return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
 	}
