@@ -15,7 +15,7 @@
 // app-specific extras via the `extra` option or a vite mergeConfig wrapper.
 
 import { createRequire } from 'node:module'
-import { readFileSync, realpathSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.mjs'
@@ -203,6 +203,55 @@ function pxToDip() {
 					file.source = process(src, file.fileName, (m) => this.warn(m))
 				}
 			}
+		},
+	}
+}
+
+/** Vite merges `resolve.extensions` by concat, and the ns base config lands a
+ *  generic list (`.tsx,.jsx,.ts,.js,…`) before ours — first-match resolution
+ *  then prefers `svg.ts` over `svg.mobile.ts`, and `registerElement`-style
+ *  side effects in platform leaves never load. Splice the platform chain to
+ *  the front after every merge has run. */
+function nativeExtensionOrder() {
+	return {
+		name: 'xplat-native-extension-order',
+		configResolved(config) {
+			const ours = new Set(nativePlatformExtensions())
+			const rest = (config.resolve?.extensions ?? []).filter((ext) => !ours.has(ext))
+			config.resolve = { ...config.resolve, extensions: [...ours, ...rest] }
+		},
+	}
+}
+
+/** The ns platform resolver and Vite's extension fallback know nothing of the
+ *  `.mobile` tier — upstream platform lists only carry `.ios`/`.android`. An
+ *  unsuffixed relative import (`./svg`) therefore lands on the shared default
+ *  (`svg.ts`) in dev while builds pick `svg.mobile.ts` — silently skipping
+ *  `registerElement`-style side effects. Probe the platform chain for every
+ *  relative specifier before the generic resolvers run. */
+export function nativeRelativeResolution() {
+	const exts = nativePlatformExtensions()
+
+	return {
+		name: 'xplat-native-relative-resolution',
+		resolveId: {
+			order: 'pre',
+			handler(source, importer) {
+				if (!importer || (!source.startsWith('./') && !source.startsWith('../'))) {
+					return null
+				}
+
+				const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
+				const base = resolve(dirname(importerFile), source.split(/[?#]/, 1)[0])
+
+				for (const ext of exts) {
+					if (existsSync(base + ext)) {
+						return base + ext
+					}
+				}
+
+				return null
+			},
 		},
 	}
 }
@@ -639,7 +688,13 @@ export async function xplatNative(env, opts = {}) {
 				// default emits decorator syntax the native JS runtime cannot parse.
 				decorator: { legacy: true },
 			},
-			plugins: [pxToDip(), nsHmrClientWatchdog(), xplatBoundary(nativePlatform() ?? 'native')],
+			plugins: [
+				pxToDip(),
+				nsHmrClientWatchdog(),
+				xplatBoundary(nativePlatform() ?? 'native'),
+				nativeExtensionOrder(),
+				nativeRelativeResolution(),
+			],
 			server: {
 				fs: {
 					// Setting `fs.allow` at all replaces Vite's workspace-root
