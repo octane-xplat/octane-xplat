@@ -135,6 +135,11 @@ function restoreRouteState(): void {
 		if (route) {
 			hydrateRoute(route)
 		}
+
+		// A parsed (never-committed) entry has no prepared scroll state —
+		// a boot hash lands here once the screen mounts.
+		scrollTick += 1
+		settleScroll(true)
 	}
 }
 
@@ -192,23 +197,91 @@ function hydrateRoute(route: Route): void {
 
 const ROUTE_HEAD_ATTR = 'data-octane-xplat-route-head'
 
-// Scroll positions keyed by URL — restored on popstate (native keeps
-// stack pages alive, so only the web leaf needs this). `lastKey` is the
-// outgoing URL: popstate fires after location already changed, so the
-// saved position must be written under the URL we just left.
+// Scroll restoration — the web half of the scroll contract (native keeps
+// stack pages alive, so only this leaf needs it). Positions are keyed by
+// the history-entry id we stamp into history.state — two entries sharing
+// a URL keep independent positions — with the URL (path+query+hash) as
+// the fallback key for entries that predate registration.
+//
+//   push        → top of document, or the element the route's `hash` names
+//   pop/forward → the position saved for that entry (then hash, then top)
+//   modal push  → overlay — the underlying position is left untouched
+//
+// `lastKey` tracks the outgoing entry: popstate fires after location
+// already changed, so the position must be written under the entry we
+// just left.
+if (typeof history !== 'undefined' && 'scrollRestoration' in history) {
+	// The browser's own scroll restoration would race ours on traversal
+	// and reload — the contract above owns scroll instead.
+	history.scrollRestoration = 'manual'
+}
+
 const scrollPositions = new Map<string, number>()
-let lastKey = location.pathname + location.search
-const scrollKey = () => location.pathname + location.search
+const scrollKey = () =>
+	(history.state?.__octaneXplatEntry as string | undefined) ??
+	location.pathname + location.search + location.hash
+
+let lastKey = scrollKey()
 const saveScroll = () => scrollPositions.set(lastKey, window.scrollY)
-const restoreScroll = () => {
-	const y = scrollPositions.get(scrollKey())
-	if (y !== undefined) {
-		requestAnimationFrame(() => window.scrollTo(0, y))
+
+function scrollToHash(hash: string): boolean {
+	const id = hash.slice(1)
+	if (!id) {
+		return false
 	}
+
+	let decoded = id
+	try {
+		decoded = decodeURIComponent(id)
+	} catch {
+		// keep the raw fragment — malformed input just misses the lookup
+	}
+
+	const target = document.getElementById(decoded)
+	if (!target) {
+		return false
+	}
+
+	target.scrollIntoView()
+	return true
+}
+
+// Settles carry the navigation they're for: `scrollTick` advances on every
+// commit/traversal, and a queued settle drops itself when a newer navigation
+// superseded it — otherwise a settle scheduled just before a push could fire
+// on the new entry and fight the push's own scroll. Key and hash are
+// captured at schedule time for the same reason — popstate has already
+// moved `location` when the handler runs, but a queued settle can outlive
+// one more commit.
+let scrollTick = 0
+
+// Defer to rAF so the newly resolved screen has mounted before we measure
+// or scroll it — a still-mounting hash target simply misses to top.
+function settleScroll(restore: boolean): void {
+	const tick = scrollTick
+	const key = scrollKey()
+	const hash = location.hash
+	requestAnimationFrame(() => {
+		if (tick !== scrollTick) {
+			return
+		}
+
+		if (restore) {
+			const y = scrollPositions.get(key)
+			if (y !== undefined) {
+				window.scrollTo(0, y)
+				return
+			}
+		}
+
+		if (!scrollToHash(hash)) {
+			window.scrollTo(0, 0)
+		}
+	})
 }
 
 function parse(): Route | null {
-	return matchUrl(routes, location.pathname + location.search)
+	return matchUrl(routes, location.pathname + location.search + location.hash)
 }
 
 function read(): Route | null {
@@ -337,9 +410,10 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		return
 	}
 
-	saveScroll()
 	read()
-	// Include the entry we are leaving, even if it was the initial URL.
+	// Include the entry we are leaving, even if it was the initial URL —
+	// the replace also mints its entry id, so its scroll position saves
+	// under the same key a later popstate will look up.
 	history.replaceState(
 		{
 			...history.state,
@@ -348,6 +422,9 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		},
 		'',
 	)
+
+	lastKey = scrollKey()
+	saveScroll()
 
 	historyDepth += 1
 	if (route.presentation === 'modal') {
@@ -367,6 +444,14 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 
 	applyHead(modalRoute ?? current ?? null)
 	emit()
+	// A push starts at the top — or the hash target — of the new document.
+	// A modal overlays the current entry instead, so it leaves the
+	// underlying position untouched. The tick still advances so a stale
+	// settle doesn't fire on the modal entry.
+	scrollTick += 1
+	if (route.presentation !== 'modal') {
+		settleScroll(false)
+	}
 }
 
 function presentationFor(name: string): Route['presentation'] {
@@ -398,16 +483,27 @@ export function addBackInterceptor(_fn: () => boolean): () => void {
 	return () => {}
 }
 
-window.addEventListener('popstate', () => {
+// Singletoned like the native back-press wiring: under vite HMR this
+// module's state resets but its popstate listener must not duplicate —
+// the handler delegates through a slot so a reloaded module graph swaps
+// in fresh closures instead of double-settling.
+const host = window as any
+host.__octaneXplatPopstate = () => {
 	navigationRequests.invalidate('history')
 	saveScroll()
 	historyDepth = history.state?.__octaneXplatDepth ?? 0
 	lastKey = scrollKey()
 	restoreRouteState()
 	applyHead(modalRoute ?? current ?? null)
-	restoreScroll()
+	scrollTick += 1
+	settleScroll(true)
 	emit()
-})
+}
+
+if (!host.__octaneXplatRouteWired) {
+	host.__octaneXplatRouteWired = true
+	window.addEventListener('popstate', () => host.__octaneXplatPopstate?.())
+}
 
 /** Current route if it targets `stack`, else null. */
 export function routeFor(stack: string): Route | null {
