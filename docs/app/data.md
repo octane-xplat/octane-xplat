@@ -682,7 +682,7 @@ records to plain data and small payloads.
 Two boundaries worth knowing before you adopt it:
 
 - **One boundary per session.** The in-memory cache is not partitioned by
-  `scope`; the app contract is `clearQueryCache()` on sign-out *before* the
+  `scope`; the app contract is `clearQueryCache()` on sign-out _before_ the
   boundary changes, then let the new boundary repopulate.
 - **Same family, same scope, shared cell.** Two `cachedQuery$` calls that
   resolve the same family in one scope share a query cell — the first

@@ -434,8 +434,7 @@ function loadThroughCache<A, T>(
 			await restoreEntry(entry)
 			if (entry.hasValue) {
 				const timeStale =
-					staleTime !== Number.POSITIVE_INFINITY &&
-					Date.now() - entry.fetchedAt >= staleTime
+					staleTime !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAt >= staleTime
 				if (!entry.invalidated && !timeStale) return entry.value!
 				void startFetch(entry, selection, load, entry.value).catch(() => {})
 				return entry.value!
@@ -483,7 +482,9 @@ export function cachedQuery$<A, T>(
 			state.lastElements = elements
 			return loadThroughCache(elements, options, load, selection, context)
 		},
-		{ key: `xplat:query-cache:${keyString(family.elements)}${options?.key ? `:${options.key}` : ''}` },
+		{
+			key: `xplat:query-cache:${keyString(family.elements)}${options?.key ? `:${options.key}` : ''}`,
+		},
 	)
 	handle.inner$ = inner$
 	const registration = registrationKey(inner$)
@@ -510,7 +511,7 @@ function registrationKey(inner$: QuerySignal<unknown>): string {
 	const discriminator =
 		owner !== null && typeof owner === 'object'
 			? (((owner as { instanceKey?: unknown }).instanceKey ??
-				(owner as { scopeKey?: unknown }).scopeKey) as string | undefined)
+					(owner as { scopeKey?: unknown }).scopeKey) as string | undefined)
 			: undefined
 	return `${inner$.key}${discriminator ?? ''}`
 }
@@ -519,7 +520,6 @@ class CachedQuerySignal<T> implements QuerySignal<T> {
 	readonly [SIGNAL_HANDLE] = true as const
 	readonly kind = 'async' as const
 	inner$!: QuerySignal<T>
-
 
 	get key(): string {
 		return this.inner$.key

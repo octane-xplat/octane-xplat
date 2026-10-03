@@ -135,9 +135,7 @@ describe('cachedQuery$', () => {
 
 	it('forces a fetch on refetch even inside staleTime', async () => {
 		const { calls, load } = recording()
-		const query = screen(() =>
-			cachedQuery$(['forced'], () => 'x', load, { staleTime: 60_000 }),
-		)
+		const query = screen(() => cachedQuery$(['forced'], () => 'x', load, { staleTime: 60_000 }))
 		screen(() => query.latest())
 		await settle()
 		screen(() => query.latest())
@@ -151,16 +149,12 @@ describe('cachedQuery$', () => {
 
 	it('serves fresh entries to new scopes within staleTime without fetching', async () => {
 		const { calls, load } = recording()
-		const first = screen(() =>
-			cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTime: 60_000 }),
-		)
+		const first = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTime: 60_000 }))
 		screen(() => first.latest())
 		await settle()
 		expect(calls).toHaveLength(1)
 
-		const second = screen(() =>
-			cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTime: 60_000 }),
-		)
+		const second = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTime: 60_000 }))
 		screen(() => second.latest())
 		await settle()
 		screen(() => expect(second.latest()).toBe('v1'))
@@ -230,7 +224,11 @@ describe('cachedQuery$', () => {
 	it('does not throw when an owner retired before invalidation', async () => {
 		const scope = createScope({ scopeKey: 'test-screen:retired' })
 		const query = runWithSignalOwner(scope, () =>
-			cachedQuery$(['retired'], () => 'x', async () => 'v'),
+			cachedQuery$(
+				['retired'],
+				() => 'x',
+				async () => 'v',
+			),
 		)
 		runWithSignalOwner(scope, () => query.latest())
 		scope.dispose()
