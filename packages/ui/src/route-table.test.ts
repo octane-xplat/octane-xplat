@@ -373,6 +373,24 @@ describe('optional segments and catch-alls', () => {
 		expect(matchUrl(coreframe.routes, path)!.params).toEqual({ locale: 'fr', '*': 'a/b' })
 	})
 
+	it('a root catch-all claims stack-prefixed URLs too', () => {
+		// Whole-path wins, splat included — the stack read only sees URLs
+		// no route claims at all. Apps needing named-stack links scope
+		// their splats under a prefix instead of a bare root '*'.
+		const m = defineRoutes({
+			routes: [
+				{ path: '*', screen: C('NotFound') },
+				{ path: 'demo/:id', screen: C('Demo') },
+			],
+		})
+
+		expect(matchUrl(m.routes, '/demos/demo/x')!).toMatchObject({
+			stack: 'root',
+			name: '*',
+			params: { '*': 'demos/demo/x' },
+		})
+	})
+
 	it('types: optional and splat params are optional keys', () => {
 		const m = defineRoutes({
 			routes: [

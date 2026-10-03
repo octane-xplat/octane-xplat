@@ -742,8 +742,11 @@ export function linkPath(url: string): string {
 /** Match a URL path+query against the manifest into a Route — the shared
  *  half of web's URL parse and native's deep-link handling. Whole-path
  *  match wins ('/demo/x' → root 'demo/:id'); a non-matching first segment
- *  is the stack prefix ('/demos/demo/x' → stack 'demos'). Unmatched names
- *  fall through as literal routes for pre-manifest callers. */
+ *  is the stack prefix ('/demos/demo/x' → stack 'demos'). Whole-path
+ *  includes catch-alls: a root `*` claims every URL, including
+ *  stack-prefixed ones — apps needing named-stack links scope their
+ *  splats under a prefix. Unmatched names fall through as literal
+ *  routes for pre-manifest callers. */
 export function matchUrl(routes: readonly RouteMeta[], url: string): Route | null {
 	// The fragment isn't a route param — it rides the Route's `hash` field so
 	// web can restore scroll to the element it names. Split only the first

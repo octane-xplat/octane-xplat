@@ -100,7 +100,10 @@ match one URL, static segments win over params, params over optional
 params, and optionals over a catch-all — `docs/new` beats `docs/:id` beats
 `docs/:id?` beats `docs/*rest`. On web the same rule runs in reverse when a
 route is pushed: an optional segment without a value is left out of the
-URL, and a splat param splices in as real path segments.
+URL, and a splat param splices in as real path segments. One boundary: a
+bare root-level `*` claims every URL the manifest doesn't otherwise match —
+including links into named stacks — so apps that use named stacks scope
+their catch-alls under a prefix (like `guides/*`) instead.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'
