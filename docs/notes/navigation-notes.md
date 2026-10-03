@@ -60,7 +60,14 @@ registerRoutes(deriveRouteManifest(files, ['web']))
 ```
 
 - `demo/[id].tsrx` → route name `demo/:id` (`[param]` → `:param`);
-  `foo/index.tsrx` → `foo`; trailing `index` drops.
+  `foo/index.tsrx` → `foo`; trailing `index` drops. `demo/[[ref]].tsrx` →
+  `demo/:ref?` (optional — matches with or without the segment, param absent
+  when unmatched); `docs/[...r].tsrx` → `docs/*r` (terminal catch-all —
+  captures the remaining `/`-joined path into `params.r`; a bare `*` in spec
+  paths lands on `params['*']`). Match order scores static > param >
+  optional > catch-all; `buildRoutePath` drops absent optional segments and
+  splices splat params as real path segments. A mid-path `*` warns at
+  manifest build and matches literally.
 - Platform suffix dedupe by `prefer` rank: web `['web']`, mobile
   `['ios'|'android','mobile']`; suffixes outside `prefer` are skipped.
 - `_layout` files catalog into `layouts[dir]` (`''` = root) — the entry

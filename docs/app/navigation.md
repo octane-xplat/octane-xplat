@@ -79,11 +79,36 @@ destinations, and their file paths supply the names. For example,
 ```
 app/detail.tsrx        → 'detail'
 app/demo/[id].tsrx     → 'demo/:id'
+app/demo/[[ref]].tsrx  → 'demo/:ref?'    (optional segment — matches with or without it)
+app/docs/[...r].tsrx   → 'docs/*r'       (catch-all — captures the rest of the path)
 app/settings.web.tsrx  → 'settings'      (web only — suffixes still apply)
 app/about+modal.tsrx   → 'about'         (modal presentation)
 app/notes.md           → 'notes'         (markdown — baked at codegen)
 app/chat/_layout.tsrx  → wraps every 'chat/*' route
 app/x.loader.ts        → build-time loader for baked route 'x' (never bundles)
+```
+
+An **optional segment** (`[[name]]`, or `:name?` in a programmatic path)
+matches zero or one path segments, so one route can serve
+`/en/guides/setup` and `/guides/setup` alike. When the segment is absent the
+param is simply not set — the screen reads it as `undefined`. A
+**catch-all** (`[...name]` or `*`) must be the last segment of the pattern;
+it captures everything left in the path, `/`-joined, into a param — the
+anonymous `*` form lands on `params['*']`, a named `[...rest]` on
+`params.rest`, and an empty remainder gives `''`. When several patterns can
+match one URL, static segments win over params, params over optional
+params, and optionals over a catch-all — `docs/new` beats `docs/:id` beats
+`docs/:id?` beats `docs/*rest`. On web the same rule runs in reverse when a
+route is pushed: an optional segment without a value is left out of the
+URL, and a splat param splices in as real path segments.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+
+// Screen for ':locale?/guides/:doc' — locale may be absent.
+export function Guide(props: { doc: string; locale?: string }) {
+	return <Text>{`${props.locale ?? 'en'}: ${props.doc}`}</Text>
+}
 ```
 
 Route params land as screen props. Feed them to a
@@ -172,11 +197,16 @@ addRoutes(
 ```
 
 A `RouteSpec.path` uses the route-dir vocabulary — `'docs/:slug'` (or
-`'docs/[slug]'`) declares a param, a trailing `index` or `''` names the
+`'docs/[slug]'`) declares a param, `':locale?'` (or `'[locale?]'`/
+`'[[locale]]'`) an optional segment, a terminal `'*'` (or `'[...rest]'` for
+a named capture) a catch-all, a trailing `index` or `''` names the
 root, and `presentation` replaces the `+modal`/`+fade` suffix. `screen` is
 the component itself, not a module; `loader`, `beforeLoad`, and `head` work
 exactly like the route-file exports. `layouts` keys are path prefixes that
-wrap every route beneath them, the same job `_layout.tsrx` does.
+wrap every route beneath them, the same job `_layout.tsrx` does — they key
+off the route name's literal prefixes, so a route like
+`':locale?/guides/:doc'` nests under `layouts[':locale?/guides']`, not
+`layouts['guides']`.
 
 ```tsx
 import { defineRoutes, registerRoutes, Text } from '@octane-xplat/ui'

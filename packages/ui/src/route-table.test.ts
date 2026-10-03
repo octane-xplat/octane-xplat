@@ -183,6 +183,208 @@ describe('matchRoute + buildRoutePath', () => {
 	})
 })
 
+describe('optional segments and catch-alls', () => {
+	// The Coreframe content-route shapes: a localized document route and a
+	// per-section not-found splat.
+	const coreframe = defineRoutes({
+		routes: [
+			{ path: ':locale?/guides/:doc', screen: C('Doc') },
+			{ path: ':locale?/guides/*', screen: C('NotFound') },
+		],
+	})
+
+	it('optional param present and absent on one route', () => {
+		const { routes } = coreframe
+
+		expect(matchRoute(routes, ['en', 'guides', 'x'])!).toMatchObject({
+			meta: { name: ':locale?/guides/:doc' },
+			params: { locale: 'en', doc: 'x' },
+		})
+
+		const absent = matchRoute(routes, ['guides', 'x'])!
+		expect(absent.meta.name).toBe(':locale?/guides/:doc')
+		expect(absent.params).toEqual({ doc: 'x' })
+		expect('locale' in absent.params).toBe(false)
+	})
+
+	it('optional param backtracks so a later static still aligns', () => {
+		// 'guides' could fill :locale? greedily — the matcher must release
+		// it so the static 'guides' segment aligns and :doc gets 'x'.
+		const { routes } = coreframe
+		expect(matchRoute(routes, ['guides', 'x'])!.params.doc).toBe('x')
+	})
+
+	it('terminal catch-all captures the remaining path, joined', () => {
+		expect(matchRoute(coreframe.routes, ['en', 'guides', 'a', 'b'])!).toMatchObject({
+			meta: { name: ':locale?/guides/*' },
+			params: { locale: 'en', '*': 'a/b' },
+		})
+	})
+
+	it('catch-all matches zero remaining segments', () => {
+		expect(matchRoute(coreframe.routes, ['guides'])!).toMatchObject({
+			meta: { name: ':locale?/guides/*' },
+			params: { '*': '' },
+		})
+	})
+
+	it('decodes per-segment inside the splat', () => {
+		const m = defineRoutes([{ path: 'docs/*', screen: C('D') }])
+		expect(matchRoute(m.routes, ['docs', 'a%20b', 'c'])!.params['*']).toBe('a b/c')
+	})
+
+	it('precedence: static and required params beat optionals and splats', () => {
+		const m = defineRoutes({
+			routes: [
+				{ path: 'docs/*rest', screen: C('Splat') },
+				{ path: 'docs/:id?', screen: C('Opt') },
+				{ path: 'docs/:id', screen: C('Param') },
+				{ path: 'docs/new', screen: C('Static') },
+			],
+		})
+
+		// static > required > optional > splat, regardless of spec order
+		expect(matchRoute(m.routes, ['docs', 'new'])!.meta.name).toBe('docs/new')
+		expect(matchRoute(m.routes, ['docs', 'x'])!.meta.name).toBe('docs/:id')
+		expect(matchRoute(m.routes, ['docs'])!.meta.name).toBe('docs/:id?')
+		expect(matchRoute(m.routes, ['docs', 'a', 'b'])!).toMatchObject({
+			meta: { name: 'docs/*rest' },
+			params: { rest: 'a/b' },
+		})
+	})
+
+	it('sibling optional static beats a bare optional', () => {
+		const m = defineRoutes({
+			routes: [
+				{ path: 'a/:x?', screen: C('Opt') },
+				{ path: 'a/b', screen: C('Static') },
+			],
+		})
+
+		expect(matchRoute(m.routes, ['a', 'b'])!.meta.name).toBe('a/b')
+		expect(matchRoute(m.routes, ['a', 'q'])!.params.x).toBe('q')
+		expect(matchRoute(m.routes, ['a'])!.params).toEqual({})
+	})
+
+	it('file syntax: [[p]] is optional, [...p] is a named catch-all', () => {
+		const m = manifest({
+			'./app/[lang]/[[locale]]/doc.tsrx': { D: C('D') },
+			'./app/files/[...rest].tsrx': { F: C('F') },
+		})
+
+		const doc = m.routes.find((r) => r.name === ':lang/:locale?/doc')!
+		expect(doc.params).toEqual(['lang', 'locale'])
+
+		const files = m.routes.find((r) => r.name === 'files/*rest')!
+		expect(files.params).toEqual(['rest'])
+
+		expect(matchRoute(m.routes, ['en', 'doc'])!).toMatchObject({
+			meta: { name: ':lang/:locale?/doc' },
+			params: { lang: 'en' },
+		})
+
+		expect(matchRoute(m.routes, ['files', 'a', 'b'])!.params.rest).toBe('a/b')
+	})
+
+	it('a mid-path * warns and matches literally', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const m = defineRoutes([{ path: 'a/*/b', screen: C('Mid') }])
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('mid-path'))
+		expect(matchRoute(m.routes, ['a', 'x', 'b'])).toBeNull()
+		expect(matchRoute(m.routes, ['a', '*', 'b'])!.meta.name).toBe('a/*/b')
+		warn.mockRestore()
+	})
+
+	it('buildRoutePath drops an absent optional segment', () => {
+		expect(
+			buildRoutePath(coreframe.routes, {
+				stack: 'root',
+				name: ':locale?/guides/:doc',
+				params: { doc: 'x' },
+			}),
+		).toBe('/guides/x')
+
+		expect(
+			buildRoutePath(coreframe.routes, {
+				stack: 'root',
+				name: ':locale?/guides/:doc',
+				params: { locale: 'en', doc: 'x' },
+			}),
+		).toBe('/en/guides/x')
+	})
+
+	it('buildRoutePath splices a splat param as segments', () => {
+		expect(
+			buildRoutePath(coreframe.routes, {
+				stack: 'root',
+				name: ':locale?/guides/*',
+				params: { '*': 'a/b c' },
+			}),
+		).toBe('/guides/a/b%20c')
+
+		expect(
+			buildRoutePath(coreframe.routes, {
+				stack: 'root',
+				name: ':locale?/guides/*',
+				params: {},
+			}),
+		).toBe('/guides')
+	})
+
+	it('matchUrl routes a localized doc URL end to end', () => {
+		expect(matchUrl(coreframe.routes, '/en/guides/x?tab=2')!).toMatchObject({
+			stack: 'root',
+			name: ':locale?/guides/:doc',
+			params: { locale: 'en', doc: 'x', tab: '2' },
+		})
+
+		expect(matchUrl(coreframe.routes, '/guides/no/such/doc')!).toMatchObject({
+			stack: 'root',
+			name: ':locale?/guides/*',
+			params: { '*': 'no/such/doc' },
+		})
+	})
+
+	it('round-trips optional + splat params through build/match', () => {
+		const path = buildRoutePath(coreframe.routes, {
+			stack: 'root',
+			name: ':locale?/guides/*',
+			params: { locale: 'fr', '*': 'a/b' },
+		})
+
+		expect(path).toBe('/fr/guides/a/b')
+		expect(matchUrl(coreframe.routes, path)!.params).toEqual({ locale: 'fr', '*': 'a/b' })
+	})
+
+	it('types: optional and splat params are optional keys', () => {
+		const m = defineRoutes({
+			routes: [
+				{ path: ':locale?/guides/:doc', screen: C('Doc') },
+				{ path: 'docs/*rest', screen: C('Splat') },
+				{ path: 'files/*', screen: C('Anon') },
+			],
+		})
+
+		expectTypeOf<ManifestRouteParams<typeof m>[':locale?/guides/:doc']>().toEqualTypeOf<{
+			doc: string
+			locale?: string
+		}>()
+
+		expectTypeOf<ManifestRouteParams<typeof m>['docs/*rest']>().toEqualTypeOf<{
+			rest?: string
+		}>()
+
+		expectTypeOf<ManifestRouteParams<typeof m>['files/*']>().toEqualTypeOf<{
+			'*'?: string
+		}>()
+
+		expectTypeOf<ManifestRouteNames<typeof m>>().toEqualTypeOf<
+			':locale?/guides/:doc' | 'docs/*rest' | 'files/*'
+		>()
+	})
+})
+
 describe('matchUrl + linkPath', () => {
 	const { routes } = manifest({
 		'./app/detail.tsrx': { D: C('D') },

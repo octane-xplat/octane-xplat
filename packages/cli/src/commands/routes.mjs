@@ -27,6 +27,25 @@ const PRESENT = /\+(modal|fade|push)$/
 // and is never part of the runtime bundle.
 const LOADER_FILE = /\.loader\.(ts|mts|cts|js|mjs|cjs)$/
 const LOADER_EXTS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
+
+/** One route-dir path segment → normalized pattern segment — mirror of
+ *  `normSegment` in packages/ui/src/route-table.ts: `[x]`→`:x`,
+ *  `[[x]]`/`[x?]`→`:x?` (optional), `[...x]`→`*x` (terminal catch-all). */
+function normSegment(s) {
+	const b = PARAM.exec(s)
+	if (!b) {
+		return s
+	}
+
+	const inner = b[1]
+	if (inner.startsWith('[') && inner.endsWith(']')) {
+		const core = inner.slice(1, -1)
+		return core.startsWith('...') ? '*' + core.slice(3) : ':' + core + '?'
+	}
+
+	return inner.startsWith('...') ? '*' + inner.slice(3) : ':' + inner
+}
+
 const DATAMODE = /export\s+const\s+dataMode\s*=\s*['"](baked|live)['"]/
 // Presence greps for the manifest JSON — codegen records which hooks a
 // route declares without evaluating its module.
@@ -127,16 +146,28 @@ function routeFor(rel, extRe = EXT) {
 		segs.pop()
 	}
 
-	const segments = segs.map((s) => {
-		const m = PARAM.exec(s)
-		return m ? ':' + m[1] : s
-	})
+	const segments = segs.map(normSegment)
 
 	return {
 		name: segments.join('/') || 'index',
-		params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
+		segments,
+		params: segments.flatMap((s) => segmentParam(s) ?? []),
 		presentation,
 	}
+}
+
+/** Normalized pattern segment → param name: ':x'/':x?' → 'x',
+ *  '*'/'*x' → '*'/'x', static segments → undefined. */
+function segmentParam(s) {
+	if (s.startsWith(':')) {
+		return s.endsWith('?') ? s.slice(1, -1) : s.slice(1)
+	}
+
+	if (s.startsWith('*')) {
+		return s.slice(1) || '*'
+	}
+
+	return undefined
 }
 
 /** Generates routes.gen.types.ts + platform manifest glue for a route dir.
@@ -262,8 +293,24 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 
 	const union = list.length ? list.map((r) => `\n\t| '${r.name}'`).join('') : 'never'
 
+	// Optional params (':x?') and splats ('*', '*x') are `?` keys — a route
+	// pushes without them; required params stay required.
+	const paramField = (s) => {
+		if (s.startsWith('*')) {
+			const name = s.slice(1) || '*'
+			return `'${name}'?: string`
+		}
+
+		const name = s.slice(1)
+		return s.endsWith('?') ? `${name.slice(0, -1)}?: string` : `${name}: string`
+	}
+
 	const params = list.map(
-		(r) => `\t'${r.name}': { ${r.params.map((k) => `${k}: string`).join('; ')} }`,
+		(r) =>
+			`\t'${r.name}': { ${r.segments
+				.filter((s) => s.startsWith(':') || s.startsWith('*'))
+				.map(paramField)
+				.join('; ')} }`,
 	)
 
 	const presents = list

@@ -20,6 +20,8 @@
  *  Conventions (route dir = `dir`, default 'app'):
  *    app/detail.tsrx        → route 'detail'
  *    app/demo/[id].tsrx     → route 'demo/:id'  ([param] → :param)
+ *    app/demo/[[ref]].tsrx  → 'demo/:ref?'    ([[p]] = optional param)
+ *    app/docs/[...r].tsrx   → 'docs/*r'       ([...p] = terminal catch-all)
  *    app/foo/index.tsrx     → 'foo'           (index = the dir's own route)
  *    app/settings.web.tsrx  → 'settings' on web only — `prefer` decides
  *    app/_layout.tsrx       → layouts['']     — a shell, not a route
@@ -43,6 +45,56 @@ import type {
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
 const PARAM = /^\[(.+)\]$/
+
+/** One route-dir/spec path segment → normalized pattern segment:
+ *  `[x]`→`:x` · `[[x]]`/`[x?]`→`:x?` (optional param) · `[...x]`→`*x`
+ *  (terminal catch-all). Spec paths may write the normalized forms
+ *  directly (`:x`, `:x?`, `*`, `*x`); a bare `*` captures into
+ *  `params['*']`, a named `*x`/`[...x]` into `params.x`. */
+function normSegment(s: string): string {
+	const b = PARAM.exec(s)
+	if (!b) {
+		return s
+	}
+
+	const inner = b[1]
+	if (inner.startsWith('[') && inner.endsWith(']')) {
+		const core = inner.slice(1, -1)
+		return core.startsWith('...') ? '*' + core.slice(3) : ':' + core + '?'
+	}
+
+	return inner.startsWith('...') ? '*' + inner.slice(3) : ':' + inner
+}
+
+/** Normalized pattern segment → param name: ':x'/':x?' → 'x',
+ *  '*'/'*x' → '*'/'x', static segments → undefined. */
+function segmentParam(s: string): string | undefined {
+	if (s.startsWith(':')) {
+		return s.endsWith('?') ? s.slice(1, -1) : s.slice(1)
+	}
+
+	if (s.startsWith('*')) {
+		return s.slice(1) || '*'
+	}
+
+	return undefined
+}
+
+function segmentParams(segments: readonly string[]): string[] {
+	return segments.flatMap((s) => segmentParam(s) ?? [])
+}
+
+/** A catch-all only matches at the end of a pattern — warn that a
+ *  mid-path '*' is a literal segment, not a remainder capture. */
+function warnOnStraySplat(segments: readonly string[], file: string): void {
+	const at = segments.findIndex((s) => s.startsWith('*'))
+	if (at !== -1 && at !== segments.length - 1) {
+		console.warn(
+			`[octane-xplat] route '${segments.join('/')}' (${file}) has a catch-all segment mid-path — '*' only captures at the end of a pattern and is a literal here`,
+		)
+	}
+}
+
 /** Build-time loader modules — `docs.loader.ts` pairs with route `docs`
  *  for `dataMode: 'baked'`. Never a route itself, never in a runtime glob. */
 const LOADER_FILE = /\.loader\.(ts|mts|cts|js|mjs|cjs|jsx)$/
@@ -175,19 +227,17 @@ export function deriveRouteManifest(
 			segs.pop()
 		}
 
-		const segments = segs.map((s) => {
-			const p = PARAM.exec(s)
-			return p ? ':' + p[1] : s
-		})
-
+		const segments = segs.map(normSegment)
 		const name = segments.join('/') || 'index'
 		const meta: RouteMeta = {
 			name,
 			segments,
-			params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
+			params: segmentParams(segments),
 			file: key,
 			presentation,
 		}
+
+		warnOnStraySplat(segments, key)
 
 		const dataMode = files[key]?.dataMode
 		if (dataMode === 'baked' || dataMode === 'live') {
@@ -254,27 +304,27 @@ export function deriveRouteManifest(
 	return manifest
 }
 
-/** Match-order comparator: static segments (2) outrank params (1), ties
- *  break alphabetically so ordering is total and stable across merges. */
+/** Match-order comparator: static (3) outranks a required param (2),
+ *  which outranks an optional param (1), which outranks a catch-all (0).
+ *  Ties break alphabetically so ordering is total and stable across
+ *  merges. */
 function bySpecificity(a: RouteMeta, b: RouteMeta): number {
+	const weight = (s: string) =>
+		s.startsWith('*') ? 0 : s.startsWith(':') ? (s.endsWith('?') ? 1 : 2) : 3
+
 	return (
-		b.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) -
-			a.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) ||
+		b.segments.reduce((n, s) => n + weight(s), 0) - a.segments.reduce((n, s) => n + weight(s), 0) ||
 		a.name.localeCompare(b.name)
 	)
 }
 
 /** Normalize a programmatic `path` into manifest segments using the
  *  route-dir vocabulary: `'docs/[slug]'` and `'docs/:slug'` are the same
- *  pattern, a trailing `index` drops, `''`/`'index'` name the root route. */
+ *  pattern, `':slug?'`/`'[slug?]'`/`'[[slug]]'` mark an optional segment,
+ *  a terminal `'*'`/`'[...rest]'` is a catch-all, a trailing `index`
+ *  drops, `''`/`'index'` name the root route. */
 function specSegments(path: string): string[] {
-	const segs = path
-		.split('/')
-		.filter(Boolean)
-		.map((s) => {
-			const p = PARAM.exec(s)
-			return p ? ':' + p[1] : s
-		})
+	const segs = path.split('/').filter(Boolean).map(normSegment)
 
 	if (segs[segs.length - 1] === 'index') {
 		segs.pop()
@@ -324,10 +374,12 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 		const meta: RouteMeta = {
 			name,
 			segments,
-			params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
+			params: segmentParams(segments),
 			file: spec.source ?? `programmatic:${spec.path}`,
 			presentation: spec.presentation,
 		}
+
+		warnOnStraySplat(segments, meta.file)
 
 		if (spec.dataMode) {
 			meta.dataMode = spec.dataMode
@@ -462,29 +514,17 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 
 /** Match URL path segments against a manifest — returns the winning meta
  *  plus extracted params, or null. First hit wins (routes are pre-sorted
- *  by specificity). */
+ *  by specificity). A `:param?` segment matches zero or one segment —
+ *  the matcher consumes greedily and backtracks to the absent case so a
+ *  later static can still align; a terminal `*` captures the remaining
+ *  segments `/`-joined into `params['*']` (a named `*rest` into 'rest'). */
 export function matchRoute(
 	routes: readonly RouteMeta[],
 	segs: string[],
 ): { meta: RouteMeta; params: Record<string, unknown> } | null {
 	for (const meta of routes) {
-		if (meta.segments.length !== segs.length) {
-			continue
-		}
-
-		const params: Record<string, unknown> = {}
-		let ok = true
-		for (let i = 0; i < segs.length; i++) {
-			const p = meta.segments[i]
-			if (p.startsWith(':')) {
-				params[p.slice(1)] = decodeRouteParam(decodeURIComponent(segs[i]))
-			} else if (p !== segs[i]) {
-				ok = false
-				break
-			}
-		}
-
-		if (ok) {
+		const params = matchSegments(meta.segments, segs)
+		if (params) {
 			return { meta, params }
 		}
 	}
@@ -492,25 +532,102 @@ export function matchRoute(
 	return null
 }
 
+/** Variable-length pattern match — optional segments try consuming a
+ *  segment first and fall back to absent, so the more specific reading
+ *  wins; a backtracking miss deletes the tentative param before the
+ *  absent retry. */
+function matchSegments(pattern: readonly string[], segs: string[]): Record<string, unknown> | null {
+	const params: Record<string, unknown> = {}
+
+	const walk = (pi: number, si: number): boolean => {
+		if (pi === pattern.length) {
+			return si === segs.length
+		}
+
+		const p = pattern[pi]
+		if (p.startsWith('*')) {
+			// Non-terminal '*' (warned about at manifest build) is a literal.
+			if (pi !== pattern.length - 1) {
+				return p === segs[si] && walk(pi + 1, si + 1)
+			}
+
+			params[segmentParam(p)!] = segs
+				.slice(si)
+				.map((s) => decodeURIComponent(s))
+				.join('/')
+
+			return true
+		}
+
+		if (p.startsWith(':') && p.endsWith('?')) {
+			const name = p.slice(1, -1)
+			if (si < segs.length) {
+				params[name] = decodeRouteParam(decodeURIComponent(segs[si]))
+				if (walk(pi + 1, si + 1)) {
+					return true
+				}
+
+				delete params[name]
+			}
+
+			return walk(pi + 1, si)
+		}
+
+		if (si >= segs.length) {
+			return false
+		}
+
+		if (p.startsWith(':')) {
+			params[p.slice(1)] = decodeRouteParam(decodeURIComponent(segs[si]))
+			return walk(pi + 1, si + 1)
+		}
+
+		return p === segs[si] && walk(pi + 1, si + 1)
+	}
+
+	return walk(0, 0) ? params : null
+}
+
 /** Serialize a Route to a URL path (no origin): manifest routes substitute
- *  `:param` segments from params (leftover params → query string);
+ *  `:param` segments from params (leftover params → query string); a
+ *  `:param?` segment with no value drops out of the path entirely, and a
+ *  terminal `*`/`*rest` splices in its `/`-joined param value.
  *  non-manifest names keep the legacy `/<stack>/<name>?params` shape. */
 export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 	const meta = routes.find((m) => m.name === r.name)
 	let segs: string[]
 	let rest: Record<string, unknown> = r.params
 	if (meta) {
-		segs = meta.segments.map((s) => {
-			if (!s.startsWith(':')) {
-				return s
+		segs = meta.segments.flatMap((s, i) => {
+			// A mid-path '*' is a literal segment (manifest build warns).
+			const p = s.startsWith('*') && i !== meta.segments.length - 1 ? undefined : segmentParam(s)
+			if (p === undefined) {
+				return [s]
 			}
 
-			const v = r.params[s.slice(1)]
+			const v = r.params[p]
+			if (s.startsWith('*')) {
+				if (v === undefined || v === null || v === '') {
+					return []
+				}
+
+				const enc = encodeRouteParam(v, r.name, p)
+				// '/' in a splat value is a segment boundary; a JSON-encoded
+				// non-scalar stays one encoded segment instead.
+				return enc.startsWith(JSON_PARAM_PREFIX)
+					? [encodeURIComponent(enc)]
+					: enc.split('/').map(encodeURIComponent)
+			}
+
+			if (s.endsWith('?') && (v === undefined || v === null || v === '')) {
+				return [] // optional segment absent — drop it from the path
+			}
+
 			if (v === undefined) {
 				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`)
 			}
 
-			return encodeURIComponent(encodeRouteParam(v, r.name, s.slice(1)))
+			return [encodeURIComponent(encodeRouteParam(v, r.name, p))]
 		})
 
 		rest = Object.fromEntries(Object.entries(r.params).filter(([k]) => !meta.params.includes(k)))

@@ -2356,21 +2356,42 @@ export interface RouteJson {
  *  published declarations carry no value binding for it. */
 declare const specRouteTypes: unique symbol
 
-/** ':id' or '[id]' segment → 'id'; a static segment contributes nothing. */
-type RouteParamOf<S extends string> = S extends `:${infer P}`
-	? P
-	: S extends `[${infer P}]`
-		? P
-		: never
-
 type TrimSlashes<P extends string> = P extends `/${infer R}`
 	? TrimSlashes<R>
 	: P extends `${infer R}/`
 		? TrimSlashes<R>
 		: P
 
-/** Route-dir vocabulary at the type level: '[id]' normalizes to ':id'. */
-type NormSegment<S extends string> = S extends `[${infer P}]` ? `:${P}` : S
+/** Route-dir vocabulary at the type level, mirroring `normSegment` in
+ *  route-table.ts: '[id]' → ':id', '[[id]]'/'[id?]' → ':id?',
+ *  '[...rest]' → '*rest'. */
+type NormSegment<S extends string> = S extends `[${infer P}]`
+	? P extends `[...${infer R}]`
+		? `*${R}`
+		: P extends `[${infer Q}]`
+			? `:${Q}?`
+			: P extends `...${infer R}`
+				? `*${R}`
+				: `:${P}`
+	: S
+
+/** Normalized segment → param name, split by kind: required params are
+ *  non-optional in the params record, optional params and splats are `?`d. */
+type ParamOfKind<S extends string, Kind extends 'req' | 'opt' | 'all'> = S extends `*${infer P}`
+	? Kind extends 'req'
+		? never
+		: P extends ''
+			? '*'
+			: P
+	: S extends `:${infer P}`
+		? P extends `${infer Q}?`
+			? Kind extends 'req'
+				? never
+				: Q
+			: Kind extends 'opt'
+				? never
+				: P
+		: never
 
 type NormPath<P extends string> = P extends `${infer Head}/${infer Tail}`
 	? `${NormSegment<Head>}/${NormPath<Tail>}`
@@ -2387,16 +2408,28 @@ export type RouteNameOfPath<P extends string> =
 				: N
 		: never
 
-/** Param names in a spec path — `'docs/[slug]'` and `'docs/:slug'` both
- *  give `'slug'`; static-only paths give `never`. */
-export type RoutePathParams<Path extends string> =
+/** Param names in a spec path by kind — `'docs/[slug]'` and
+ *  `'docs/:slug'` both give `'slug'`; static-only paths give `never`. */
+type PathParams<Path extends string, Kind extends 'req' | 'opt' | 'all'> =
 	TrimSlashes<Path> extends infer P extends string
 		? P extends `${infer Head}/${infer Tail}`
-			? RouteParamOf<Head> | RoutePathParams<Tail>
-			: RouteParamOf<P>
+			? ParamOfKind<NormSegment<Head>, Kind> | PathParams<Tail, Kind>
+			: ParamOfKind<NormSegment<P>, Kind>
 		: never
 
-type RouteParamRecord<Path extends string> = { [K in RoutePathParams<Path>]: string }
+/** Every param name in a spec path — required, optional, and splat. */
+export type RoutePathParams<Path extends string> = PathParams<Path, 'all'>
+
+type Simplify<T> = { [K in keyof T]: T[K] } & {}
+
+/** Params record for a spec path: required params are required keys,
+ *  optional params (`:x?`) and splats (`*`, `*rest`) are `?` keys —
+ *  `':locale?/docs/:doc'` → `{ locale?: string; doc: string }`. */
+type RouteParamRecord<Path extends string> = Simplify<
+	{ [K in PathParams<Path, 'req'>]: string } & {
+		[K in PathParams<Path, 'opt'>]?: string
+	}
+>
 
 type SpecPaths<Specs extends readonly RouteSpec[]> = Specs[number] extends infer S
 	? S extends { path: infer P extends string }
