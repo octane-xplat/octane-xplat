@@ -29,6 +29,13 @@ test('lingui extract finds messages in .tsrx via tsrxExtractor', () => {
 		const messages = Object.values(catalog).map((entry) => entry.message)
 		assert.ok(messages.includes('Extraction control from tsx'), 'tsx control extracted')
 		assert.ok(messages.includes('Extraction probe from tsrx'), 'tsrx message extracted')
+		// Origins must point at the authored .tsrx line — the extractor feeds
+		// compile()'s sourcemap to Lingui so compiled-output lines don't leak.
+		const tsrxEntry = Object.values(catalog).find(
+			(entry) => entry.message === 'Extraction probe from tsrx',
+		)
+
+		assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', 8]])
 	} finally {
 		rmSync(`${fixture}/locales`, { recursive: true, force: true })
 		rmSync(`${fixture}/node_modules`, { recursive: true, force: true })

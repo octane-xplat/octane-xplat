@@ -12,5 +12,5 @@ export default defineConfig({
 		},
 	],
 	extractors: [babelExtractor, tsrxExtractor],
-	format: formatter({ lineNumbers: false, style: 'lingui' }),
+	format: formatter({ lineNumbers: true, style: 'lingui' }),
 })
