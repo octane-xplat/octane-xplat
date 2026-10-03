@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
-import { memo, useEffect, useRef } from 'octane';
+import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
 import type { PlatformListProps, PlatformWidgetProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
@@ -10,6 +10,10 @@ import { ActivityIndicator } from '../ActivityIndicator.tsrx';
 import { applyEscapeProps } from '../escape-props';
 import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';
 import { createPullToRefresh } from '../refresh';
+import { createListViewabilityTracker } from '../list-viewability-core';
+import { observeListViewability } from '../list-viewability-observer.ios';
+import type { ListVisibilityObserver } from '../list-viewability-runtime';
+import { scrollListToIndex, type PlatformListRuntime } from '../list-viewability-runtime';
 
 function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;
@@ -43,14 +47,48 @@ function UITableViewInner(props: {
 	style?: any;
 	id?: string;
 	items: any[];
+	initialScrollIndex?: number;
+	viewabilityConfig?: PlatformListProps['viewabilityConfig'];
 	renderItem: (item: any, index: number) => any;
 	estimatedItemHeight?: number;
 	onEndReached?: () => void;
 	ios?: Record<string, any>;
 	modifiers?: PlatformWidgetProps<PlatformListProps>['modifiers'];
 	refresh?: RefreshBag;
+	runtime: PlatformListRuntime;
 }) @{
 	const lv = useRef<any>(null);
+	const renderCell = useCallback(
+		(item: any, index: number) => <gridlayout>{props.renderItem(item, index)}</gridlayout>,
+		[props.renderItem],
+	);
+
+	const visibility = useRef<ListVisibilityObserver | null>(null);
+	const tracker = useRef(createListViewabilityTracker());
+	useEffect(() => {
+		const list = props.runtime.list.current;
+		if (!list) return;
+		visibility.current = observeListViewability(list, () => ({
+			items: props.runtime.items.current,
+			config: props.runtime.config.current,
+			update: (rows, items, config) => tracker.current.update(rows, items, config, props.runtime.onChange.current),
+		}));
+
+		return () => {
+			visibility.current?.dispose();
+			visibility.current = null;
+			tracker.current.dispose();
+		};
+	}, []);
+
+	useEffect(() => {
+		visibility.current?.refresh();
+	}, [props.items, props.viewabilityConfig]);
+
+	useEffect(() => {
+		scrollListToIndex(props.runtime.list.current, props.initialScrollIndex, props.items.length);
+	}, [props.initialScrollIndex, props.items.length]);
+
 	useEffect(() => {
 		const bag = props.refresh;
 		if (!bag || !lv.current) return;
@@ -70,6 +108,7 @@ function UITableViewInner(props: {
 	<listview
 		ref={(v: any) => {
 			lv.current = v;
+			props.runtime.list.current = v;
 			applyEscapeProps(v, props);
 		}}
 		id={props.id}
@@ -79,7 +118,7 @@ function UITableViewInner(props: {
 		iosEstimatedRowHeight={props.estimatedItemHeight}
 		onLoadMoreItems={props.onEndReached}
 		onLoaded={rejectNestedScrollView}
-		renderItem={(item: any, index: number) => <gridlayout>{props.renderItem(item, index)}</gridlayout>}
+		renderItem={renderCell}
 		{...props.ios}
 	/>
 }
@@ -95,6 +134,10 @@ function UITableViewInner(props: {
 // components are consts, not hoisted functions.)
 const MemoListView = memo(UITableViewInner, (a, b) =>
 	a.items === b.items &&
+	a.initialScrollIndex === b.initialScrollIndex &&
+	a.viewabilityConfig?.itemVisiblePercentThreshold === b.viewabilityConfig?.itemVisiblePercentThreshold &&
+	a.viewabilityConfig?.minimumViewTime === b.viewabilityConfig?.minimumViewTime &&
+	a.runtime === b.runtime &&
 	a.className === b.className &&
 	a.style === b.style &&
 	a.id === b.id &&
@@ -118,6 +161,25 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
  *  own bounce, and the docked phase holds via contentInset — the same
  *  mechanics UIRefreshControl uses, without its OS spinner. */
 export function UITableView(props: PlatformWidgetProps<PlatformListProps>) @{
+	const runtime = useRef<PlatformListRuntime>({
+		list: { current: null },
+		items: { current: props.items },
+		config: { current: props.viewabilityConfig },
+		onChange: { current: props.onViewableItemsChanged },
+	});
+
+	runtime.current.items.current = props.items;
+	runtime.current.config.current = props.viewabilityConfig;
+	runtime.current.onChange.current = props.onViewableItemsChanged;
+	useImperativeHandle(props.ref, () => ({
+		scrollToIndex: (index, options) => scrollListToIndex(
+			runtime.current.list.current,
+			index,
+			runtime.current.items.current.length,
+			options?.animated,
+		),
+	}), [props.ref]);
+
 	const refreshCapable = props.onRefresh != null || props.refreshing != null;
 	const cfg = useRef<RefreshConfig>({});
 	cfg.current = {
@@ -154,6 +216,9 @@ export function UITableView(props: PlatformWidgetProps<PlatformListProps>) @{
 					ios={props.ios}
 					modifiers={props.modifiers}
 					refresh={refresh.current}
+					initialScrollIndex={props.initialScrollIndex}
+					viewabilityConfig={props.viewabilityConfig}
+					runtime={runtime.current}
 				/>
 				<flexboxlayout
 					ref={(v: any) => {
@@ -178,6 +243,9 @@ export function UITableView(props: PlatformWidgetProps<PlatformListProps>) @{
 				onEndReached={props.onEndReached}
 				ios={props.ios}
 				modifiers={props.modifiers}
+				initialScrollIndex={props.initialScrollIndex}
+				viewabilityConfig={props.viewabilityConfig}
+				runtime={runtime.current}
 			/>
 		}
 	} @else {

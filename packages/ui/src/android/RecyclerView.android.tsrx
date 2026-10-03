@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
-import { memo, useEffect, useRef } from 'octane';
+import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
 import type { PlatformListProps, PlatformWidgetProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
@@ -10,6 +10,10 @@ import { ActivityIndicator } from '../ActivityIndicator.tsrx';
 import { applyEscapeProps } from '../escape-props';
 import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';
 import { createPullToRefresh } from '../refresh';
+import { createListViewabilityTracker } from '../list-viewability-core';
+import { observeListViewability } from '../list-viewability-observer.android';
+import type { ListVisibilityObserver } from '../list-viewability-runtime';
+import { scrollListToIndex, type PlatformListRuntime } from '../list-viewability-runtime';
 
 function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;
@@ -43,13 +47,47 @@ function RecyclerViewInner(props: {
 	style?: any;
 	id?: string;
 	items: any[];
+	initialScrollIndex?: number;
+	viewabilityConfig?: PlatformListProps['viewabilityConfig'];
 	renderItem: (item: any, index: number) => any;
 	onEndReached?: () => void;
 	android?: Record<string, any>;
 	modifiers?: PlatformWidgetProps<PlatformListProps>['modifiers'];
 	refresh?: RefreshBag;
+	runtime: PlatformListRuntime;
 }) @{
 	const lv = useRef<any>(null);
+	const renderCell = useCallback(
+		(item: any, index: number) => <gridlayout>{props.renderItem(item, index)}</gridlayout>,
+		[props.renderItem],
+	);
+
+	const visibility = useRef<ListVisibilityObserver | null>(null);
+	const tracker = useRef(createListViewabilityTracker());
+	useEffect(() => {
+		const list = props.runtime.list.current;
+		if (!list) return;
+		visibility.current = observeListViewability(list, () => ({
+			items: props.runtime.items.current,
+			config: props.runtime.config.current,
+			update: (rows, items, config) => tracker.current.update(rows, items, config, props.runtime.onChange.current),
+		}));
+
+		return () => {
+			visibility.current?.dispose();
+			visibility.current = null;
+			tracker.current.dispose();
+		};
+	}, []);
+
+	useEffect(() => {
+		visibility.current?.refresh();
+	}, [props.items, props.viewabilityConfig]);
+
+	useEffect(() => {
+		scrollListToIndex(props.runtime.list.current, props.initialScrollIndex, props.items.length);
+	}, [props.initialScrollIndex, props.items.length]);
+
 	useEffect(() => {
 		const bag = props.refresh;
 		if (!bag || !lv.current) return;
@@ -69,6 +107,7 @@ function RecyclerViewInner(props: {
 	<listview
 		ref={(v: any) => {
 			lv.current = v;
+			props.runtime.list.current = v;
 			applyEscapeProps(v, props);
 		}}
 		id={props.id}
@@ -77,7 +116,7 @@ function RecyclerViewInner(props: {
 		items={props.items}
 		onLoadMoreItems={props.onEndReached}
 		onLoaded={rejectNestedScrollView}
-		renderItem={(item: any, index: number) => <gridlayout>{props.renderItem(item, index)}</gridlayout>}
+		renderItem={renderCell}
 		{...props.android}
 	/>
 }
@@ -93,6 +132,10 @@ function RecyclerViewInner(props: {
 // compiled components are consts, not hoisted functions.)
 const MemoListView = memo(RecyclerViewInner, (a, b) =>
 	a.items === b.items &&
+	a.initialScrollIndex === b.initialScrollIndex &&
+	a.viewabilityConfig?.itemVisiblePercentThreshold === b.viewabilityConfig?.itemVisiblePercentThreshold &&
+	a.viewabilityConfig?.minimumViewTime === b.viewabilityConfig?.minimumViewTime &&
+	a.runtime === b.runtime &&
 	a.className === b.className &&
 	a.style === b.style &&
 	a.id === b.id &&
@@ -102,8 +145,9 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
 	a.refresh === b.refresh
 );
 
-/** RecyclerView — the platform recycling list (Android RecyclerView via
- *  NativeScript `listview`). `items` is a plain array, ItemsSource, or
+/** RecyclerView — the Android public compatibility name for NativeScript
+ *  `listview`, backed by `android.widget.ListView`/`AbsListView` in core
+ *  9.1.x. `items` is a plain array, ItemsSource, or
  *  ObservableArray — the driver binds `items[index]` into the recycled
  *  cell's root and skips rebinds whose row, item, and renderer are
  *  unchanged. Cell identity = the recycled host view, not the item.
@@ -115,6 +159,25 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
  *  inside a clipped wrapper while the drag accumulates — no
  *  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
 export function RecyclerView(props: PlatformWidgetProps<PlatformListProps>) @{
+	const runtime = useRef<PlatformListRuntime>({
+		list: { current: null },
+		items: { current: props.items },
+		config: { current: props.viewabilityConfig },
+		onChange: { current: props.onViewableItemsChanged },
+	});
+
+	runtime.current.items.current = props.items;
+	runtime.current.config.current = props.viewabilityConfig;
+	runtime.current.onChange.current = props.onViewableItemsChanged;
+	useImperativeHandle(props.ref, () => ({
+		scrollToIndex: (index, options) => scrollListToIndex(
+			runtime.current.list.current,
+			index,
+			runtime.current.items.current.length,
+			options?.animated,
+		),
+	}), [props.ref]);
+
 	const refreshCapable = props.onRefresh != null || props.refreshing != null;
 	const cfg = useRef<RefreshConfig>({});
 	cfg.current = {
@@ -142,6 +205,9 @@ export function RecyclerView(props: PlatformWidgetProps<PlatformListProps>) @{
 					android={props.android}
 					modifiers={props.modifiers}
 					refresh={refresh.current}
+					initialScrollIndex={props.initialScrollIndex}
+					viewabilityConfig={props.viewabilityConfig}
+					runtime={runtime.current}
 				/>
 				<flexboxlayout
 					ref={(v: any) => {
@@ -165,6 +231,9 @@ export function RecyclerView(props: PlatformWidgetProps<PlatformListProps>) @{
 				onEndReached={props.onEndReached}
 				android={props.android}
 				modifiers={props.modifiers}
+				initialScrollIndex={props.initialScrollIndex}
+				viewabilityConfig={props.viewabilityConfig}
+				runtime={runtime.current}
 			/>
 		}
 	} @else {

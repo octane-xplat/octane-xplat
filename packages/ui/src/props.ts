@@ -934,15 +934,56 @@ export interface RefreshProps {
 	refreshThreshold?: number
 }
 
+/** A logical row reported by a platform list's viewability callback. */
+export interface ListVisibleItem<T = any> {
+	item: T
+	index: number
+}
+
+/** A change to the set of rows that meet the configured viewability rules. */
+export interface ListViewabilityChange<T = any> extends ListVisibleItem<T> {
+	isViewable: boolean
+}
+
+/** Current viewable rows and the rows that entered or left in this update.
+ *  Both arrays are ordered by data index. */
+export interface ListViewabilityInfo<T = any> {
+	viewableItems: readonly ListVisibleItem<T>[]
+	changed: readonly ListViewabilityChange<T>[]
+}
+
+/** Percentage of each row that must intersect the list viewport and how
+ *  long it must remain visible before it is reported. Defaults match the
+ *  NativeScript feed contract: 50 percent for 250 milliseconds. */
+export interface ListViewabilityConfig {
+	itemVisiblePercentThreshold?: number
+	minimumViewTime?: number
+}
+
+/** Imperative operations exposed by `UITableView` and `RecyclerView`. */
+export interface PlatformListHandle {
+	/** Scroll to a valid item index. Invalid or unavailable indexes are no-ops. */
+	scrollToIndex(index: number, options?: { animated?: boolean }): void
+}
+
 /** Props for platform-authentic list widgets (`UITableView`/`RecyclerView`).
  *  Shared content `List` has its own `ListProps` below. */
-export interface PlatformListProps extends RefreshProps {
+export interface PlatformListProps<T = any> extends RefreshProps {
 	className?: any
 	style?: any
 	id?: string
-	items: any[]
-	renderItem: (item: any, index: number) => any
+	items: T[]
+	renderItem: (item: T, index: number) => any
 	renderEmpty?: () => any
+	/** Ref to a platform-neutral list handle. It is cleared on unmount. */
+	ref?: Octane.Ref<PlatformListHandle>
+	/** Initial row to scroll to after the list mounts. Invalid indexes are
+	 *  ignored. */
+	initialScrollIndex?: number
+	/** Rows crossing the threshold and dwell time are reported by logical data
+	 *  index, not by recycled native cell identity. */
+	viewabilityConfig?: ListViewabilityConfig
+	onViewableItemsChanged?: (info: ListViewabilityInfo<T>) => void
 	/** iOS row-height estimate (UITableView only). */
 	estimatedItemHeight?: number
 	/** Called when the list approaches its end. */
