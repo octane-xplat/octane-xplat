@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lottie",
 	"version": "0.9.0",
-	"description": "Lottie animation leaf for Octane xplat — lottie-web on web + vendored @nativescript-community/ui-lottie (fork fixes) on native",
+	"description": "Lottie animation leaf for Octane xplat — lottie-web on web, NativeScript on mobile, and Airbnb Lottie on AppKit",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/octane-xplat/octane-xplat",
@@ -107,6 +107,23 @@
 		"platforms": {
 			"android": "6.0.0",
 			"ios": "6.0.1"
+		}
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"AppKit",
+				"QuartzCore"
+			],
+			"swiftWholeModuleOptimization": true,
+			"swiftHeaderImports": [
+				"AppKit/AppKit.h",
+				"QuartzCore/QuartzCore.h"
+			],
+			"resources": {
+				"PrivacyInfo.xcprivacy": "platforms/macos/resources/PrivacyInfo.xcprivacy"
+			},
+			"notices": "platforms/macos/resources/THIRD-PARTY-NOTICES.txt"
 		}
 	}
 }

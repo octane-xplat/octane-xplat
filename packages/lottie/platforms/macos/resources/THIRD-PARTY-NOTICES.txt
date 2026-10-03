@@ -1,0 +1,10 @@
+Airbnb Lottie 4.6.1 includes the following source dependencies:
+
+- Airbnb Lottie 4.6.1 — Apache-2.0. See ../LICENSE-Lottie-Apache-2.0.txt.
+- ZIPFoundation 0.9.20 — MIT. See ../LICENSE-ZIPFoundation-MIT.txt.
+- EpoxyCore 0.11.0 — Apache-2.0. See ../LICENSE-EpoxyCore-Apache-2.0.txt.
+- LRUCache 1.0.4 — MIT. See ../LICENSE-LRUCache-MIT.txt.
+
+This file identifies the licenses included with the native engine. The
+individual license texts are included at the package root and in the macOS app
+bundle's THIRD-PARTY-NOTICES.txt.

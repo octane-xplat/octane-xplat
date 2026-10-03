@@ -4,8 +4,9 @@ import { Lottie } from '@octane-xplat/lottie';
 import type { LottieHandle } from '@octane-xplat/lottie';
 import animation from './pinjump-anim';
 
-/** Shared `Lottie` demo — same animation data, same props, on lottie-web
- *  (web) and vendored ui-lottie (native). Buttons drive the
+/** Shared `Lottie` demo — same animation data and props on lottie-web
+ *  (web), vendored ui-lottie (iOS/Android), and Airbnb Lottie (AppKit).
+ *  Buttons drive the
  *  controlled `playing` prop and the `ref` handle; status surfaces the
  *  normalized events (duration is ms on both platforms). */
 export function LottieDemo() @{

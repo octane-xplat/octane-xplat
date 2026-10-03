@@ -7,6 +7,7 @@ Start here when you need to understand a framework decision or investigate its i
 ## Find the record you need
 
 - [Animation and gesture notes](animation-notes.md)
+- [Native macOS AppKit support for Lottie](lottie-appkit-investigation.md)
 - [Architecture notes](architecture-notes.md)
 - [Select audit against Astryx’s selector family](astryx-parity-select.md)
 - [Table parity audit: Xplat Table + DataGrid and Astryx](astryx-parity-table.md)

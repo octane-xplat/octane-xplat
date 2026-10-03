@@ -1,61 +1,126 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
-import { cp, mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises'
+import { spawn } from 'node:child_process'
+import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
 import { resolve, join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildMacOSNative as standardBuild, writeNativeBootstrap } from '../../../cli/src/macos/native.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../../cli/src/macos/native.mjs'
 import { hostBundle } from '../../../cli/src/macos/jsc-host/runtime.mjs'
 import { macOSExecutable } from '../../../cli/src/macos/executables.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '../../../..')
-const upstream = resolve(process.argv[2] ?? '')
-assert.ok(process.argv[2], 'Pass the opensrc path for airbnb/lottie-ios@4.6.1')
-const version = JSON.parse(await readFile(join(upstream, 'package.json'), 'utf8')).version
-assert.equal(version, '4.6.1', 'Expected opensrc upstream 4.6.1 archive')
+const leaf = join(repo, 'packages/lottie')
+const animation = {
+	v: '5.7.0',
+	fr: 30,
+	ip: 0,
+	op: 30,
+	w: 100,
+	h: 100,
+	nm: 'AppKit fixture',
+	ddd: 0,
+	assets: [],
+	layers: [
+		{
+			ddd: 0,
+			ind: 1,
+			ty: 1,
+			nm: 'moving solid',
+			sr: 1,
+			ks: {
+				o: { a: 0, k: 100 },
+				r: { a: 0, k: 0 },
+				p: {
+					a: 1,
+					k: [
+						{
+							t: 0,
+							s: [0, 50, 0],
+							e: [100, 50, 0],
+							o: { x: 0.33, y: 0.33 },
+							i: { x: 0.67, y: 0.67 },
+						},
+						{ t: 30, s: [100, 50, 0] },
+					],
+				},
+				a: { a: 0, k: [0, 0, 0] },
+				s: { a: 0, k: [100, 100, 100] },
+			},
+			sw: 20,
+			sh: 20,
+			sc: '#ff0000',
+			ip: 0,
+			op: 30,
+			st: 0,
+			bm: 0,
+		},
+	],
+}
+
 await mkdir(join(repo, 'research'), { recursive: true })
 const app = await mkdtemp(join(repo, 'research/lottie-appkit-'))
-const leaf = join(app, 'leaf')
-await mkdir(join(leaf, 'platforms/macos/src'), { recursive: true })
-await cp(join(upstream, 'Sources'), join(leaf, 'platforms/macos/src/upstream'), { recursive: true })
-await cp(join(here, 'Bridge.swift'), join(leaf, 'platforms/macos/src/Bridge.swift'))
-await writeFile(join(leaf, 'package.json'), JSON.stringify({
-	name: 'xplat-lottie-feasibility', private: true, version: '0.0.0',
-	xplat: { macos: { frameworks: ['AppKit', 'QuartzCore'] } },
-}))
 await mkdir(join(app, 'node_modules'))
-await symlink(leaf, join(app, 'node_modules/xplat-lottie-feasibility'))
-await writeFile(join(app, 'package.json'), JSON.stringify({
-	private: true, dependencies: { 'xplat-lottie-feasibility': '0.0.0' },
-}))
-console.log(`UPSTREAM airbnb/lottie-ios ${version}`)
-let build = standardBuild
-if (process.argv.includes('--wmo')) {
-	// Isolated compiler experiment, never rewrite the production builder.
-	const builderURL = new URL('../../../cli/src/macos/native.mjs', import.meta.url)
-	let source = await readFile(builderURL, 'utf8')
-	source = source.replace('timeout: 180_000', 'timeout: 600_000')
-	source = source.replace("'-emit-library',", "'-emit-library', '-whole-module-optimization',")
-	source = source.replace('headers.push(generated)',
-		`await writeFile(generated, '#import <AppKit/AppKit.h>\\n#import <QuartzCore/QuartzCore.h>\\n' + await readFile(generated, 'utf8'))\n\t\t\t\theaders.push(generated)`)
-	source = source.replace(/from '(\.\/[^']+)'/g,
-		(_, path) => `from '${new URL(path, builderURL).href}'`)
-	const experimental = join(app, 'experimental-native.mjs')
-	await writeFile(experimental, source)
-	build = (await import(experimental)).buildMacOSNative
-	console.log('EXPERIMENTAL WMO; 600-second timeout; explicit AppKit/QuartzCore header imports')
-}
-process.chdir(app) // Swift auxiliary outputs belong to scratch, never the repo root.
-const artifact = await build(app)
+await mkdir(join(app, 'node_modules/@octane-xplat'))
+await symlink(leaf, join(app, 'node_modules/@octane-xplat/lottie'))
+await writeFile(
+	join(app, 'package.json'),
+	JSON.stringify({
+		private: true,
+		dependencies: { '@octane-xplat/lottie': 'workspace:*' },
+	}),
+)
+
+const fixturePath = join(app, 'animation.json')
+const fixtureJSON = JSON.stringify(animation)
+await writeFile(fixturePath, fixtureJSON)
+
+console.log('Building the pinned Airbnb source through the production macOS native builder')
+process.chdir(app) // Swift auxiliary outputs stay in the ignored scratch app.
+const artifact = await buildMacOSNative(app)
+assert.ok(artifact.leaves.includes('@octane-xplat/lottie'))
+assert.ok(artifact.resources.some((resource) => resource.destination === 'PrivacyInfo.xcprivacy'))
+assert.ok(artifact.notices.some((notice) => notice.leaf === '@octane-xplat/lottie'))
+
 const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
 const host = await macOSExecutable(app, 'macos-arm64/host')
-const result = spawnSync(host, [
-	join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-	join(here, 'probe.cjs'), artifact.metadata, bootstrap,
-], { encoding: 'utf8', timeout: 20_000 })
+const result = await new Promise((resolveRun) => {
+	const child = spawn(
+		host,
+		[
+			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+			join(here, 'probe.cjs'),
+			artifact.metadata,
+			bootstrap,
+		],
+		{
+			cwd: app,
+			env: {
+				...process.env,
+				LOTTIE_FIXTURE_PATH: fixturePath,
+			},
+		},
+	)
+
+	let stdout = ''
+	let stderr = ''
+	const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
+	child.stdout.setEncoding('utf8').on('data', (chunk) => {
+		stdout += chunk
+	})
+
+	child.stderr.setEncoding('utf8').on('data', (chunk) => {
+		stderr += chunk
+	})
+
+	child.once('close', (status, signal) => {
+		clearTimeout(timeout)
+		resolveRun({ status, signal, stdout, stderr })
+	})
+})
+
 console.log(result.stdout)
 console.log(result.stderr)
-assert.equal(result.status, 0, 'Real JSC host probe must exit successfully')
-assert.match(result.stderr + result.stdout, /LOTTIE_APPKIT_FEASIBILITY_OK/)
-console.log(`Artifact retained under ${app}`)
+assert.equal(result.status, 0, `Real JSC host exited ${result.status ?? result.signal}`)
+assert.match(result.stderr + result.stdout, /LOTTIE_APPKIT_INTEGRATION_OK/)
+console.log(`Production native artifact and real JavaScriptCore checks passed in ${app}`)

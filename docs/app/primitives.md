@@ -855,7 +855,7 @@ export function Clip() {
 
 ### Lottie animations
 
-`Lottie` plays a Lottie animation — `src` (URL; native also accepts `~/`
+`Lottie` plays a Lottie animation — `src` (URL; mobile native also accepts `~/`
 bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
 `{`-JSON) or `data` (inline animation object), `autoPlay`, `loop`,
 `playing`, `progress` (normalized 0..1), `speed`, `fit`
@@ -863,8 +863,9 @@ bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
 handle (`play`/`pause`/`stop`/`seekTo`/`setSpeed`/`progress`/`duration`/
 `isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `pnpm add
 @octane-xplat/lottie`. `lottie-web` is a real dependency; the NativeScript
-plugin is vendored in the leaf (`src/vendor/ui-lottie` — a git
-submodule of `octane-xplat/ui-lottie`, branch `xplat-vendored`), so apps declare nothing extra.
+plugin is vendored in the leaf (`src/vendor/ui-lottie` — a git submodule of
+`octane-xplat/ui-lottie`, branch `xplat-vendored`). AppKit compiles Airbnb
+Lottie 4.6.1 from the leaf's pinned Swift source; apps add no engine dependency.
 Durations are milliseconds and progress is 0..1 on every target — the
 plugin reports seconds and the leaf normalizes. Use the maintained
 [LottieDemo](../../packages/demos/src/LottieDemo.tsrx) for bounded playback
@@ -897,10 +898,13 @@ It renders an unsupported label and calls `onError` on mount. It supplies no
 playback handle and does not emit `onLoaded` or `onEnded`. The macOS WKWebView
 renderer uses the web implementation instead.
 
-The experimental native macOS AppKit target does not play Lottie animations.
-It renders an unsupported label and calls `onError` on mount. It supplies no
-playback handle and does not emit `onLoaded` or `onEnded`. The macOS WKWebView
-renderer uses the web implementation instead.
+AppKit supports inline `data`, raw JSON in `src`, absolute JSON file paths,
+`file://` URLs, and HTTPS JSON URLs. It rejects relative paths, `~/` and
+`res://` aliases, HTTP URLs, `.lottie`/`.zip` archives, and external image
+assets. `ref.native` is the AppKit `LottieAnimationView`. The WKWebView frontend
+uses the web implementation instead. See [known limits](../verify/known-limits.md#primitives)
+and the [AppKit integration record](../notes/lottie-appkit-investigation.md) for the
+source boundary and runtime evidence.
 
 ### Camera preview
 

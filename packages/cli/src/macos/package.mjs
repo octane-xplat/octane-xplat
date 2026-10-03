@@ -361,6 +361,12 @@ export async function packageMacOS(appRoot) {
 			nativeLibraries.push(path)
 		}
 
+		for (const resource of native.resources ?? []) {
+			const destination = join(resourcesPath, resource.destination)
+			await mkdir(dirname(destination), { recursive: true })
+			await cp(resource.source, destination)
+		}
+
 		if (iconPath) {
 			await cp(iconPath, join(resourcesPath, 'AppIcon.icns'))
 		}
@@ -376,6 +382,11 @@ export async function packageMacOS(appRoot) {
 							`Metadata generator\n${await readFile(join(prebuiltRoot, 'licenses/metadata-generator.txt'), 'utf8')}`,
 						]
 					: []),
+				...(await Promise.all(
+					(native.notices ?? []).map(
+						async ({ leaf, source }) => `${leaf}\n${await readFile(source, 'utf8')}`,
+					),
+				)),
 			].join('\n\n'),
 		)
 

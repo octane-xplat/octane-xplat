@@ -22,14 +22,17 @@ support. Bamboo-generated CSS is unavailable on AppKit; Home uses only its
 existing AppKit styles. See the [non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks)
 for runnable verification and runtime boundaries.
 
-Native macOS AppKit cannot play Lottie animations. Its explicit leaf displays
-an unsupported label, reports `onError` on mount, and supplies no playback
-handle or loaded/ended events. The harness motion-package route is also
-unsupported: mobile gesture and reduced-motion hosts are not AppKit hosts.
-The separate AppKit UI ref-animation fixture does not establish motion-package
-support. Bamboo-generated CSS is unavailable on AppKit; Home uses only its
-existing AppKit styles. See the [non-visual macOS checks](../apps/macos/README.md#non-visual-smoke-checks)
-for runnable verification and runtime boundaries.
+The AppKit Lottie leaf uses Airbnb Lottie 4.6.1 and supports inline JSON in
+`data`, raw JSON in `src`, absolute local JSON files, `file://` URLs, and HTTPS
+JSON. Relative paths, `~/`/`res://` bundle aliases, HTTP URLs, `.lottie`/`.zip`
+archives, and external image assets are not supported there. Fit modes map to
+AppKit content modes, but pixel parity has not been visually reviewed. The
+harness motion-package route remains unsupported because its gesture and
+reduced-motion hosts are mobile-only. Bamboo-generated CSS is unavailable on
+AppKit; Home uses only its existing AppKit styles. See the
+[Lottie integration record](../notes/lottie-appkit-investigation.md) and
+[non-visual macOS checks](../apps/macos/README.md#non-visual-smoke-checks) for
+the runtime evidence and its boundaries.
 
 A **seam** is a part where shared code meets platform behavior, such as
 opening a keyboard or camera. Each row describes one feature or seam.

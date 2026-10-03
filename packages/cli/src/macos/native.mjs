@@ -146,6 +146,44 @@ function select(root, nativeRoot, patterns, label) {
 	return [...files].sort()
 }
 
+function resourceMap(root, nativeRoot, value, label) {
+	if (value === undefined) {
+		return []
+	}
+
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		throw new Error(`${label} must map app resource paths to package files`)
+	}
+
+	return Object.entries(value)
+		.sort(([left], [right]) => left.localeCompare(right))
+		.map(([destination, source]) => {
+			if (
+				!destination.trim() ||
+				isAbsolute(destination) ||
+				destination.split(/[\\/]/).some((part) => part === '..' || part === '.') ||
+				typeof source !== 'string' ||
+				!source.trim()
+			) {
+				throw new Error(`${label} must use safe relative app paths and package files`)
+			}
+
+			return { destination, source: select(root, nativeRoot, [source], label)[0] }
+		})
+}
+
+function noticeFile(root, nativeRoot, value, label) {
+	if (value === undefined) {
+		return null
+	}
+
+	if (typeof value !== 'string' || !value.trim()) {
+		throw new Error(`${label} must be a package-relative file inside platforms/macos`)
+	}
+
+	return select(root, nativeRoot, [value], label)[0]
+}
+
 /** Resolve runtime dependencies in dependency order, including pnpm/workspace links. */
 export function discoverMacOSNative(appRoot) {
 	const packages = new Map()
@@ -205,6 +243,10 @@ export function discoverMacOSNative(appRoot) {
 				'frameworks',
 				'libraries',
 				'defines',
+				'swiftWholeModuleOptimization',
+				'swiftHeaderImports',
+				'resources',
+				'notices',
 			])
 
 			for (const key of Object.keys(config ?? {})) {
@@ -271,6 +313,38 @@ export function discoverMacOSNative(appRoot) {
 				const frameworks = strings(config?.frameworks, `${manifest.name} frameworks`)
 				const libraries = strings(config?.libraries, `${manifest.name} libraries`)
 				const defines = strings(config?.defines, `${manifest.name} defines`)
+				const swiftHeaderImports = strings(
+					config?.swiftHeaderImports,
+					`${manifest.name} swiftHeaderImports`,
+				)
+
+				for (const header of swiftHeaderImports) {
+					if (
+						!/^[A-Za-z][A-Za-z0-9_]*\/[A-Za-z0-9_./-]+\.h$/.test(header) ||
+						header.split('/').includes('..')
+					) {
+						throw new Error(`${manifest.name}: invalid Swift Objective-C header import ${header}`)
+					}
+				}
+
+				const swiftWholeModuleOptimization = config?.swiftWholeModuleOptimization ?? false
+				if (typeof swiftWholeModuleOptimization !== 'boolean') {
+					throw new Error(`${manifest.name}: swiftWholeModuleOptimization must be boolean`)
+				}
+
+				if (swiftHeaderImports.length && !sources.some((path) => extname(path) === '.swift')) {
+					throw new Error(`${manifest.name}: swiftHeaderImports require Swift sources`)
+				}
+
+				const resources = resourceMap(
+					root,
+					nativeRoot,
+					config?.resources,
+					`${manifest.name} resources`,
+				)
+
+				const notices = noticeFile(root, nativeRoot, config?.notices, `${manifest.name} notices`)
+
 				for (const name of [...frameworks, ...libraries]) {
 					if (!/^[A-Za-z0-9_+-]+$/.test(name)) {
 						throw new Error(`${manifest.name}: invalid system framework/library ${name}`)
@@ -295,6 +369,10 @@ export function discoverMacOSNative(appRoot) {
 					frameworks,
 					libraries,
 					defines,
+					swiftWholeModuleOptimization,
+					swiftHeaderImports,
+					resources,
+					notices,
 					files,
 					dependencyRoots,
 				}
@@ -307,6 +385,19 @@ export function discoverMacOSNative(appRoot) {
 	}
 
 	visit(appRoot)
+	const resourceDestinations = new Set()
+	for (const leaf of leaves) {
+		for (const { destination } of leaf.resources) {
+			if (resourceDestinations.has(destination)) {
+				throw new Error(
+					`[macos-native] Multiple leaves package the same app resource: ${destination}`,
+				)
+			}
+
+			resourceDestinations.add(destination)
+		}
+	}
+
 	const defineValues = new Map()
 	for (const leaf of leaves) {
 		for (const define of leaf.defines) {
@@ -592,6 +683,10 @@ export async function buildMacOSNative(
 					[
 						'-emit-library',
 						'-O',
+						...(leaf.swiftWholeModuleOptimization ? ['-whole-module-optimization'] : []),
+						...(leaf.swiftWholeModuleOptimization
+							? ['-emit-module-path', join(staging, `${leaf.id}.swiftmodule`)]
+							: []),
 						'-target',
 						target,
 						'-sdk',
@@ -621,7 +716,18 @@ export async function buildMacOSNative(
 					`${leaf.name}: link Swift dylib`,
 				)
 
-				headers.push(generated)
+				if (leaf.swiftHeaderImports.length) {
+					const validated = join(staging, `${leaf.id}-Swift-validated.h`)
+					await writeFile(
+						validated,
+						leaf.swiftHeaderImports.map((header) => `#import <${header}>`).join('\n') +
+							`\n#import ${JSON.stringify(generated)}\n`,
+					)
+
+					headers.push(validated)
+				} else {
+					headers.push(generated)
+				}
 			} else {
 				await run(
 					toolchain.clang,
@@ -727,6 +833,16 @@ export async function buildMacOSNative(
 			fingerprint,
 			libraries,
 			leaves: leaves.map((leaf) => leaf.name),
+			resources: leaves.flatMap((leaf) =>
+				leaf.resources.map(({ destination, source }) => ({
+					leaf: leaf.name,
+					destination,
+					source,
+				})),
+			),
+			notices: leaves.flatMap((leaf) =>
+				leaf.notices ? [{ leaf: leaf.name, source: leaf.notices }] : [],
+			),
 			sha256,
 		}
 
