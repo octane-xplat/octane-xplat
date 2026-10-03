@@ -374,3 +374,22 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     tractable — but only worth it if drift keeps biting; `check-native-dist`'s
     `\p{` tripwire plus the iOS sim smoke cover the known class today.
     Revisit after a second incident of this class.
+44. 🔬 **Should `cachedQuery$` move upstream to `octane/signals`?** — The
+    shared keyed cache works because patched descriptors capture
+    `instanceOwner` at construction, letting `invalidateQueries` reach a
+    screen-owned query from module code. That is an internal field, not a
+    public seam; an upstream-owned primitive (a query registry or an
+    exported resolve/dedupe hook) would make the cache portable instead of
+    patch-coupled. Revisit if the patch set shrinks or upstream publishes a
+    resource-handle write path.
+45. 🟡 **Is `platformQueryStorage` correct on device?** — The native
+    adapter maps `ApplicationSettings` `getString`/`setString`/`remove` to
+    the storage contract, verified at source level only (same pattern as
+    `resize-persist`). Lab: persist a record in the native fixture app,
+    restart it, and confirm the query restores `d` without a request.
+46. 🔬 **Does republish need a first-class "set query cell value" seam?** —
+    Fan-out currently retries each owner and serves the fresh value through
+    the loader, which forces a load-mode distinction (`serve` vs `forced`)
+    around `retry()`. Upstream has `adoptResourceValue` internally for this
+    exact write; if it (or an equivalent) became public, publish-after-fetch
+    would be a direct cell write with no loader re-entry.

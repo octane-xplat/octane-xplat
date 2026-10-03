@@ -2,7 +2,7 @@
 
 ID: fetch-remote-data
 Targets: web, ios, android
-Related APIs: query$, signal$, derived$, skip, octane/signals, octane/signals/client, @try, @pending, @catch, useStore, refetch, retry, reset, snapshot, latest, optimistic$, action$
+Related APIs: query$, signal$, derived$, skip, octane/signals, octane/signals/client, @try, @pending, @catch, useStore, refetch, retry, reset, snapshot, latest, optimistic$, action$, cachedQuery$, invalidateQueries, clearQueryCache, platformQueryStorage, QueryStorageAdapter
 
 ## Starting point
 
@@ -16,6 +16,7 @@ Rouzer route tree are outside this recipe's scope.
 - Re-run the request when its inputs change; pause it when inputs are absent.
 - Refresh or retry on demand without losing the data on screen.
 - Apply writes and reconcile them with cached query data.
+- Share query results across screens and reconcile writes through keyed invalidation.
 - Work inside modals, sheets, and list cells where context cannot cross.
 
 ## Acceptance criteria
@@ -27,6 +28,7 @@ Rouzer route tree are outside this recipe's scope.
 - AC5: The reader knows the native footguns: `$`-suffix naming, the per-module `octane/signals` runtime import, `useStore` for non-signal state, and that module-level queries avoid the cross-root context limit.
 - AC6: The reader can choose between a module-level and a screen-owned `query$` for route-param-driven data, and knows the stacked-navigation hazard of copying route params into shared selector signals during render.
 - AC7: The reader can pass cancellation to the transport, rely on unmount retiring component-owned requests and subscriptions, and prevent an obsolete response from replacing a later selection.
+- AC8: The reader can share a query's result across screens with `cachedQuery$`, invalidate it by exact or prefix key after a mutation, and opt into persisted records via a `QueryStorageAdapter` with version, max-age, and auth boundary scoping.
 
 ## Documentation
 
@@ -37,3 +39,4 @@ Rouzer route tree are outside this recipe's scope.
 - AC5: [Rules that bite on native](../docs/app/data.md#rules-that-bite-on-native).
 - AC6: [Module scope vs screen scope](../docs/app/data.md#module-scope-vs-screen-scope).
 - AC7: [Module scope vs screen scope](../docs/app/data.md#module-scope-vs-screen-scope), [maintained data probe](../packages/app/src/data-probe.tsrx), and [lifecycle regression trace](../packages/app/src/data-trace.ts).
+- AC8: [The shared query cache](../docs/app/data.md#the-shared-query-cache).
