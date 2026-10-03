@@ -47,8 +47,10 @@ const { resolveCandidateFilePath } = await import(pathToFileURL(patchedViteModul
 const roots = []
 
 const makeProject = (packageJson) => {
-	const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-vite-node-modules-')))
-	roots.push(root)
+	const sandbox = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-vite-node-modules-')))
+	roots.push(sandbox)
+	const root = join(sandbox, 'app')
+	mkdirSync(root)
 	writeFileSync(join(root, 'package.json'), JSON.stringify(packageJson))
 	return root
 }
@@ -73,9 +75,8 @@ describe('patched NativeScript Vite node_modules fallback', () => {
 			dependencies: { icons: 'link:../linked-icons' },
 		})
 
-		const linkedRoot = join(projectRoot, '..', 'linked-icons')
+		const linkedRoot = join(dirname(projectRoot), 'linked-icons')
 		mkdirSync(linkedRoot, { recursive: true })
-		roots.push(linkedRoot)
 		writeFileSync(join(linkedRoot, 'package.json'), JSON.stringify({ name: 'icons' }))
 		const expected = writeResolvedFile(linkedRoot, 'node_modules/@iconify/utils/lib/index.mjs')
 
