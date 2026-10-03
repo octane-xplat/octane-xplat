@@ -7,6 +7,7 @@ import assert from 'node:assert/strict'
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
+
 const stack = source.slice(
 	source.indexOf('class AccessibleStackView'),
 	source.indexOf('// The macOS Slider'),

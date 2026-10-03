@@ -7,6 +7,7 @@ export type * from './types'
 export async function ensureJSONBridge(): Promise<boolean> {
 	return true
 }
+
 export function jsonBridgeReady(): boolean {
 	return true
 }

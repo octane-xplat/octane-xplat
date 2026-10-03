@@ -21,6 +21,7 @@ describe('composed refs', () => {
 		if (typeof ref !== 'function') {
 			throw new Error('Expected a callback ref')
 		}
+
 		ref(element)
 		expect(callback).toHaveBeenLastCalledWith(element)
 		expect(objectRef.current).toBe(element)

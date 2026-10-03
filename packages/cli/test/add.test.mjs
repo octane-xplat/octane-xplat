@@ -42,6 +42,7 @@ test('xplat add enables a skipped platform and is idempotent', (t) => {
 		manifest.devDependencies['@nativescript/ios'],
 		TPL.devDependencies['@nativescript/ios'],
 	)
+
 	assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
 	assert.match(manifest.scripts.typecheck, /tsconfig\.native\.json/)
 

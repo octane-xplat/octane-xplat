@@ -222,7 +222,9 @@ describe('CommandPalette search and selection', () => {
 			const { props, controller } = setup({ items: [{ key: 'one', label: 'One' }] })
 			props.onOpenChange = (open) => {
 				calls++
-				if (accept) { props.open = open }
+				if (accept) {
+					props.open = open
+				}
 			}
 
 			controller.configure()
@@ -239,5 +241,4 @@ describe('CommandPalette search and selection', () => {
 			expect(controller.store.get()).toMatchObject({ open: true, query: '', highlighted: null })
 		}
 	})
-
 })

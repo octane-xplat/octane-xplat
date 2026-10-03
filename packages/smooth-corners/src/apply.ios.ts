@@ -42,6 +42,7 @@ function toCGPath(cmds: PathCommand[]): any {
 					rad(c.startDeg + c.sweepDeg),
 					c.sweepDeg < 0,
 				)
+
 				break
 			case 'Z':
 				CGPathCloseSubpath(p)
@@ -67,6 +68,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 	if (!v || !size) {
 		return
 	}
+
 	const path = toCGPath(generateCommands(size.w, size.h, props.corners))
 
 	let mask = v[MASK_KEY] as any
@@ -105,6 +107,7 @@ export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
 	if (!layer) {
 		return
 	}
+
 	const shadow = props.shadow
 	if (!shadow) {
 		layer.shadowPath = null
@@ -116,6 +119,7 @@ export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
 	if (!size) {
 		return
 	}
+
 	// Spread grows the outline — regenerate larger, recenter via the offset.
 	const spread = shadow.spread ?? 0
 	const w = size.w + spread * 2

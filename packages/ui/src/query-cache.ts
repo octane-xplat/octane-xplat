@@ -140,7 +140,9 @@ interface CacheFamily {
 
 /** Deterministic JSON encoding: sorted object fields, JSON scalar rules. */
 function canonicalize(value: unknown): string {
-	if (value === undefined || value === null) return 'null'
+	if (value === undefined || value === null) {
+		return 'null'
+	}
 	switch (typeof value) {
 		case 'boolean':
 		case 'string':
@@ -151,10 +153,12 @@ function canonicalize(value: unknown): string {
 			if (Array.isArray(value)) {
 				return `[${value.map(canonicalize).join(',')}]`
 			}
+
 			const prototype = Object.getPrototypeOf(value)
 			if (prototype !== null && prototype !== Object.prototype) {
 				throw new TypeError('query cache keys and selections must be JSON-serializable')
 			}
+
 			const fields = Object.keys(value as Record<string, unknown>).sort()
 			return `{${fields
 				.filter((field) => (value as Record<string, unknown>)[field] !== undefined)
@@ -180,10 +184,15 @@ function keyString(elements: readonly string[]): string {
 }
 
 function isPrefix(prefix: readonly string[], elements: readonly string[]): boolean {
-	if (prefix.length > elements.length) return false
-	for (let i = 0; i < prefix.length; i++) {
-		if (prefix[i] !== elements[i]) return false
+	if (prefix.length > elements.length) {
+		return false
 	}
+	for (let i = 0; i < prefix.length; i++) {
+		if (prefix[i] !== elements[i]) {
+			return false
+		}
+	}
+
 	return true
 }
 
@@ -199,12 +208,14 @@ function familyFor(key: QueryKey): CacheFamily {
 	if (elements.length === 0) {
 		throw new TypeError('cachedQuery$ requires a non-empty key')
 	}
+
 	const id = keyString(elements)
 	let family = families.get(id)
 	if (family === undefined) {
 		family = { elements, queries: new Map() }
 		families.set(id, family)
 	}
+
 	return family
 }
 
@@ -226,15 +237,19 @@ function entryFor<T>(
 			persistChecked: false,
 			persist,
 		}
+
 		entries.set(id, entry)
 	} else if (persist !== undefined) {
 		entry.persist = persist
 	}
+
 	return entry
 }
 
 function matchingElements(key: QueryKey | undefined, exact: boolean) {
-	if (key === undefined) return () => true
+	if (key === undefined) {
+		return () => true
+	}
 	const elements = elementsOf(key)
 	return (candidate: readonly string[]) =>
 		exact
@@ -279,11 +294,15 @@ function republish(
 	for (const family of families.values()) {
 		for (const [registration, query] of [...family.queries]) {
 			const selected = query.state.lastElements
-			if (selected === undefined || !matches(selected)) continue
+			if (selected === undefined || !matches(selected)) {
+				continue
+			}
 			try {
 				withLoadMode(mode, () => query.facade.republishRetry())
 			} catch (error) {
-				if (error instanceof ScopeDisposedError) family.queries.delete(registration)
+				if (error instanceof ScopeDisposedError) {
+					family.queries.delete(registration)
+				}
 			}
 		}
 	}
@@ -295,14 +314,19 @@ function storageKey(scope: string, entry: CacheEntry): string {
 
 function persistWrite(entry: CacheEntry): void {
 	const persist = entry.persist
-	if (persist === undefined || !entry.hasValue) return
+	if (persist === undefined || !entry.hasValue) {
+		return
+	}
 	let scope: string | null
 	try {
 		scope = persist.scope?.() ?? null
 	} catch {
 		return
 	}
-	if (scope === null) return
+
+	if (scope === null) {
+		return
+	}
 	const envelope = JSON.stringify({ v: persist.version, t: entry.fetchedAt, d: entry.value })
 	try {
 		Promise.resolve(persist.storage.set(storageKey(scope, entry), envelope)).catch(() => {})
@@ -314,21 +338,29 @@ function persistWrite(entry: CacheEntry): void {
 async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 	entry.persistChecked = true
 	const persist = entry.persist
-	if (persist === undefined) return
+	if (persist === undefined) {
+		return
+	}
 	let scope: string | null
 	try {
 		scope = persist.scope?.() ?? null
 	} catch {
 		return
 	}
-	if (scope === null) return
+
+	if (scope === null) {
+		return
+	}
 	let raw: string | null | undefined
 	try {
 		raw = await persist.storage.get(storageKey(scope, entry))
 	} catch {
 		return
 	}
-	if (raw == null) return
+
+	if (raw == null) {
+		return
+	}
 	try {
 		const envelope = JSON.parse(raw)
 		if (
@@ -340,6 +372,7 @@ async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 		) {
 			throw new Error('stale envelope')
 		}
+
 		entry.value = envelope.d as T
 		entry.hasValue = true
 		entry.fetchedAt = envelope.t
@@ -354,14 +387,19 @@ async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 
 function removePersisted(entry: CacheEntry): void {
 	const persist = entry.persist
-	if (persist === undefined) return
+	if (persist === undefined) {
+		return
+	}
 	let scope: string | null
 	try {
 		scope = persist.scope?.() ?? null
 	} catch {
 		return
 	}
-	if (scope === null) return
+
+	if (scope === null) {
+		return
+	}
 	try {
 		Promise.resolve(persist.storage.remove(storageKey(scope, entry))).catch(() => {})
 	} catch {
@@ -375,16 +413,21 @@ function startFetch<A, T>(
 	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
 	previous: T | undefined,
 ): Promise<T> {
-	if (entry.inflight !== undefined) return entry.inflight
+	if (entry.inflight !== undefined) {
+		return entry.inflight
+	}
 	const controller = new AbortController()
 	entry.controller = controller
 	const context: QueryContext<T> =
 		previous === undefined ? { signal: controller.signal } : { signal: controller.signal, previous }
+
 	const request: Promise<T> = Promise.resolve().then(() => load(selection, context))
 	entry.inflight = request
 	request.then(
 		(value) => {
-			if (entry.inflight !== request) return
+			if (entry.inflight !== request) {
+				return
+			}
 			entry.inflight = undefined
 			entry.controller = undefined
 			entry.value = value
@@ -395,11 +438,14 @@ function startFetch<A, T>(
 			republish('serve', (elements) => elementsEqual(elements, entry.elements))
 		},
 		() => {
-			if (entry.inflight !== request) return
+			if (entry.inflight !== request) {
+				return
+			}
 			entry.inflight = undefined
 			entry.controller = undefined
 		},
 	)
+
 	return request
 }
 
@@ -414,34 +460,48 @@ function loadThroughCache<A, T>(
 	const staleTime = options?.staleTime ?? 0
 	const mode = loadMode
 
-	if (entry.inflight !== undefined) return entry.inflight
+	if (entry.inflight !== undefined) {
+		return entry.inflight
+	}
 	if (entry.hasValue) {
-		if (mode === 'serve') return entry.value!
+		if (mode === 'serve') {
+			return entry.value!
+		}
 		const timeStale =
 			staleTime !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAt >= staleTime
+
 		const stale = entry.invalidated || timeStale
-		if (!stale && mode !== 'forced') return entry.value!
+		if (!stale && mode !== 'forced') {
+			return entry.value!
+		}
 		if (mode === 'forced' || context.previous !== undefined) {
 			return startFetch(entry, selection, load, context.previous ?? entry.value)
 		}
+
 		// Normal mode on a fresh mount: serve the stale value now and let the
 		// background fetch republish the update when it lands.
 		void startFetch(entry, selection, load, entry.value).catch(() => {})
 		return entry.value!
 	}
+
 	if (!entry.persistChecked && entry.persist !== undefined) {
 		return (async () => {
 			await restoreEntry(entry)
 			if (entry.hasValue) {
 				const timeStale =
 					staleTime !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAt >= staleTime
-				if (!entry.invalidated && !timeStale) return entry.value!
+
+				if (!entry.invalidated && !timeStale) {
+					return entry.value!
+				}
 				void startFetch(entry, selection, load, entry.value).catch(() => {})
 				return entry.value!
 			}
+
 			return startFetch(entry, selection, load, context.previous)
 		})()
 	}
+
 	return startFetch(entry, selection, load, context.previous)
 }
 
@@ -472,6 +532,7 @@ export function cachedQuery$<A, T>(
 			'cachedQuery$ supports promise queries only; stream queries stay plain query$',
 		)
 	}
+
 	const family = familyFor(key)
 	const state: { lastElements: readonly string[] | undefined } = { lastElements: undefined }
 	const handle = new CachedQuerySignal<T>()
@@ -486,6 +547,7 @@ export function cachedQuery$<A, T>(
 			key: `xplat:query-cache:${keyString(family.elements)}${options?.key ? `:${options.key}` : ''}`,
 		},
 	)
+
 	handle.inner$ = inner$
 	const registration = registrationKey(inner$)
 	const existing = family.queries.get(registration)
@@ -496,6 +558,7 @@ export function cachedQuery$<A, T>(
 		// writes to the registered state; only the fan-out facade updates.
 		existing.facade = handle as CachedQuerySignal<unknown>
 	}
+
 	return handle
 }
 
@@ -513,6 +576,7 @@ function registrationKey(inner$: QuerySignal<unknown>): string {
 			? (((owner as { instanceKey?: unknown }).instanceKey ??
 					(owner as { scopeKey?: unknown }).scopeKey) as string | undefined)
 			: undefined
+
 	return `${inner$.key}${discriminator ?? ''}`
 }
 
@@ -593,8 +657,11 @@ export interface InvalidateQueriesOptions {
 export function invalidateQueries(key?: QueryKey, options?: InvalidateQueriesOptions): void {
 	const matches = matchingElements(key, options?.exact === true)
 	for (const entry of entries.values()) {
-		if (matches(entry.elements)) entry.invalidated = true
+		if (matches(entry.elements)) {
+			entry.invalidated = true
+		}
 	}
+
 	republish('normal', matches)
 }
 
@@ -611,7 +678,9 @@ export interface ClearQueryCacheOptions {
 export function clearQueryCache(key?: QueryKey, options?: ClearQueryCacheOptions): void {
 	const matches = matchingElements(key, options?.exact === true)
 	for (const entry of [...entries.values()]) {
-		if (!matches(entry.elements)) continue
+		if (!matches(entry.elements)) {
+			continue
+		}
 		entry.controller?.abort()
 		removePersisted(entry)
 		entries.delete(keyString(entry.elements))

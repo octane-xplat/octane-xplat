@@ -29,7 +29,9 @@ import type {
  *  runtime locale on web; falls back to 'en' when Intl is reduced. */
 export function resolveLocale(locale?: string): string {
 	if (locale) {
-		try { return new Intl.DateTimeFormat(locale).resolvedOptions().locale } catch {}
+		try {
+			return new Intl.DateTimeFormat(locale).resolvedOptions().locale
+		} catch {}
 	}
 
 	try {
@@ -60,6 +62,7 @@ export function daysInMonth(year: number, month: number): number {
 	if (month === 2) {
 		return isLeapYear(year) ? 29 : 28
 	}
+
 	return [4, 6, 9, 11].includes(month) ? 30 : 31
 }
 
@@ -79,9 +82,11 @@ export function plainDateCreate(year: number, month: number, day: number): Plain
 	if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
 		return null
 	}
+
 	if (month < 1 || month > 12 || day < 1 || day > daysInMonth(year, month)) {
 		return null
 	}
+
 	return { year, month, day }
 }
 
@@ -106,6 +111,7 @@ export function plainDateFromISO(iso: string): PlainDate | null {
 	if (!m) {
 		return null
 	}
+
 	return plainDateCreate(Number(m[1]), Number(m[2]), Number(m[3]))
 }
 
@@ -175,6 +181,7 @@ export function normalizeDayOfWeek(value: DayOfWeek | DayOfWeekName | undefined)
 	if (value == null) {
 		return 0
 	}
+
 	if (typeof value === 'number') {
 		return (value >= 0 && value <= 6 ? value : 0) as DayOfWeek
 	}
@@ -296,17 +303,20 @@ export const DATE_FORMAT_WITH_WEEKDAY: DateFormatOptions = {
 	month: 'long',
 	day: 'numeric',
 }
+
 export const DATE_FORMAT_SHORT_WITH_WEEKDAY: DateFormatOptions = {
 	weekday: 'short',
 	month: 'short',
 	day: 'numeric',
 	year: 'numeric',
 }
+
 export const DATE_FORMAT_LONG: DateFormatOptions = {
 	year: 'numeric',
 	month: 'long',
 	day: 'numeric',
 }
+
 export const DATE_FORMAT_MONTH_YEAR: DateFormatOptions = { year: 'numeric', month: 'long' }
 export const DATE_FORMAT_SHORT: DateFormatOptions = { month: 'short', day: 'numeric' }
 export const DATE_FORMAT_SHORT_WITH_YEAR: DateFormatOptions = {
@@ -340,6 +350,7 @@ function fallbackFormat(pd: PlainDate, options: DateFormatOptions): string {
 	if (options.year) {
 		parts.push(String(pd.year))
 	}
+
 	return parts.join(' ')
 }
 
@@ -373,6 +384,7 @@ export function formatSharedDate(pd: PlainDate, format: SharedDateFormat, locale
 	if (format === 'system_date') {
 		return plainDateToISO(pd)
 	}
+
 	return plainDateFormat(pd, SHARED_FORMAT_OPTIONS[format], locale)
 }
 
@@ -385,9 +397,11 @@ export function formatDateValue(
 	if (!pd) {
 		return iso
 	}
+
 	if (typeof format === 'function') {
 		return format(iso)
 	}
+
 	return formatSharedDate(pd, format ?? 'date_long', locale)
 }
 
@@ -396,11 +410,13 @@ export function formatRangeDisplay(range: DateRange | null | undefined, locale?:
 	if (!range) {
 		return ''
 	}
+
 	const start = plainDateFromISO(range.start)
 	const end = plainDateFromISO(range.end)
 	if (!start || !end) {
 		return ''
 	}
+
 	const sameYear = start.year === end.year && start.year === plainDateToday().year
 	const fmt = sameYear ? DATE_FORMAT_SHORT : DATE_FORMAT_SHORT_WITH_YEAR
 	return `${plainDateFormat(start, fmt, locale)} – ${plainDateFormat(end, fmt, locale)}`
@@ -416,6 +432,7 @@ export function isLocaleDayFirst(locale?: string): boolean {
 		const parts = new Intl.DateTimeFormat(locale ?? resolveLocale(), {
 			calendar: 'gregory',
 		}).formatToParts(new Date(2000, 0, 15))
+
 		return parts.findIndex((p) => p.type === 'day') < parts.findIndex((p) => p.type === 'month')
 	} catch {
 		return false
@@ -489,6 +506,7 @@ export function parseDateInput(input: string, locale?: string): PlainDate | null
 	if (!trimmed) {
 		return null
 	}
+
 	const currentYear = new Date().getFullYear()
 
 	const iso = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
@@ -557,12 +575,14 @@ export function parseISOTime(time: string): ParsedTime | null {
 	if (!m) {
 		return null
 	}
+
 	const hour = Number(m[1])
 	const minute = Number(m[2])
 	const second = m[3] != null ? Number(m[3]) : 0
 	if (hour > 23 || minute > 59 || second > 59) {
 		return null
 	}
+
 	return { hour, minute, second }
 }
 
@@ -576,6 +596,7 @@ export function formatDisplayTime12h(time: ISOTimeString, includeSeconds = false
 	if (!p) {
 		return time
 	}
+
 	const h12 = p.hour % 12 || 12
 	const ampm = p.hour < 12 ? 'AM' : 'PM'
 	const min = pad2(p.minute)
@@ -587,6 +608,7 @@ export function formatDisplayTime24h(time: ISOTimeString, includeSeconds = false
 	if (!p) {
 		return time
 	}
+
 	const base = `${pad2(p.hour)}:${pad2(p.minute)}`
 	return includeSeconds ? `${base}:${pad2(p.second)}` : base
 }
@@ -608,15 +630,19 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
 		if (!hasMeridiem) {
 			return hour
 		}
+
 		if (hour < 1 || hour > 12) {
 			return null
 		}
+
 		if (isPM && hour !== 12) {
 			return hour + 12
 		}
+
 		if (isAM && hour === 12) {
 			return 0
 		}
+
 		return hour
 	}
 
@@ -659,13 +685,16 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
 		if (!Number.isFinite(hour) || !Number.isFinite(minute) || !Number.isFinite(second)) {
 			return null
 		}
+
 		if (minute > 59 || second > 59 || minute < 0 || second < 0) {
 			return null
 		}
+
 		const hour24 = hasMeridiem ? to24(hour) : hour <= 23 ? hour : null
 		if (hour24 == null) {
 			return null
 		}
+
 		return formatISOTime({ hour: hour24, minute, second }, includeSeconds)
 	}
 
@@ -678,6 +707,7 @@ export function compareTime(a: ISOTimeString, b: ISOTimeString): number {
 	if (!pa || !pb) {
 		return 0
 	}
+
 	return pa.hour * 3600 + pa.minute * 60 + pa.second - (pb.hour * 3600 + pb.minute * 60 + pb.second)
 }
 
@@ -689,9 +719,11 @@ export function isTimeInRange(
 	if (min && compareTime(time, min) < 0) {
 		return false
 	}
+
 	if (max && compareTime(time, max) > 0) {
 		return false
 	}
+
 	return true
 }
 
@@ -703,9 +735,11 @@ export function clampTime(
 	if (min && compareTime(time, min) < 0) {
 		return min
 	}
+
 	if (max && compareTime(time, max) > 0) {
 		return max
 	}
+
 	return time
 }
 
@@ -719,6 +753,7 @@ export function adjustTime(
 	if (!p || !Number.isFinite(deltaMinutes)) {
 		return time
 	}
+
 	const total = (((p.hour * 60 + p.minute + deltaMinutes) % (24 * 60)) + 24 * 60) % (24 * 60)
 	return formatISOTime(
 		{ hour: Math.floor(total / 60), minute: total % 60, second: p.second },
@@ -737,10 +772,12 @@ export function splitDateTime(dt: ISODateTimeString | undefined): {
 	if (!dt) {
 		return {}
 	}
+
 	const i = dt.indexOf('T')
 	if (i === -1) {
 		return { date: dt as unknown as ISODateString }
 	}
+
 	return { date: dt.slice(0, i) as ISODateString, time: dt.slice(i + 1) as ISOTimeString }
 }
 
@@ -751,6 +788,7 @@ export function combineDateTime(
 	if (!date || !time) {
 		return undefined
 	}
+
 	return `${date}T${time}` as ISODateTimeString
 }
 
@@ -779,6 +817,7 @@ export function presentationFromNativePicker(
 	if (nativePicker === undefined) {
 		return undefined
 	}
+
 	switch (nativePicker) {
 		case 'touch':
 			return 'adaptive-native'
@@ -830,14 +869,22 @@ export function resolveInputSurface(
 }
 
 /** Localized wall-clock display; ISO time remains zone-free and parsing bounded. */
-export function formatLocalizedTime(time: ISOTimeString, hasSeconds: boolean, hourFormat: '12h' | '24h', locale: string): string {
+export function formatLocalizedTime(
+	time: ISOTimeString,
+	hasSeconds: boolean,
+	hourFormat: '12h' | '24h',
+	locale: string,
+): string {
 	const parsed = parseISOTime(time)
 	if (!parsed) {
 		return time
 	}
 
 	return new Intl.DateTimeFormat(locale, {
-		hour: 'numeric', minute: '2-digit', ...(hasSeconds ? { second: '2-digit' as const } : {}),
-		hourCycle: hourFormat === '24h' ? 'h23' : 'h12', timeZone: 'UTC',
+		hour: 'numeric',
+		minute: '2-digit',
+		...(hasSeconds ? { second: '2-digit' as const } : {}),
+		hourCycle: hourFormat === '24h' ? 'h23' : 'h12',
+		timeZone: 'UTC',
 	}).format(new Date(Date.UTC(2000, 0, 1, parsed.hour, parsed.minute, parsed.second ?? 0)))
 }

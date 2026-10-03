@@ -42,6 +42,7 @@ export function useFieldControlProps<
 	const ownLabel =
 		props.accessibilityLabel ??
 		(props.label && props.label !== field?.label ? props.label : undefined)
+
 	const ariaDescribedBy =
 		[props.web?.['aria-describedby'], field?.descriptionId, field?.statusId]
 			.filter(Boolean)

@@ -34,6 +34,7 @@ export function tokenizeChatText(text: string, tokens: ChatComposerToken[]): Cha
 		if (token) {
 			parts.push({ kind: 'token', token, index: match.index })
 		}
+
 		lastIndex = match.index + match[0].length
 	}
 

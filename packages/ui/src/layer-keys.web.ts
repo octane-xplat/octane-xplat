@@ -19,7 +19,11 @@ export function captureLayerFocus(getTarget?: () => any): () => void {
 	const initial = document.activeElement as HTMLElement | null
 	return () => {
 		const target = getTarget?.() ?? initial
-		if (target?.isConnected !== false && typeof target?.focus === 'function' && !target.closest?.('[inert]')) {
+		if (
+			target?.isConnected !== false &&
+			typeof target?.focus === 'function' &&
+			!target.closest?.('[inert]')
+		) {
 			target.focus({ preventScroll: true })
 		}
 	}

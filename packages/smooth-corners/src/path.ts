@@ -214,6 +214,7 @@ function arcToCenter(
 	if (x0 === x1 && y0 === y1) {
 		return null
 	}
+
 	if (rx <= 0 || ry <= 0) {
 		return null
 	}
@@ -248,9 +249,11 @@ function arcToCenter(
 	if (sweep && sweepDeg <= 0) {
 		sweepDeg += 360
 	}
+
 	if (!sweep && sweepDeg >= 0) {
 		sweepDeg -= 360
 	}
+
 	return { c: 'A', cx, cy, r, startDeg: start, sweepDeg, x: x1, y: y1 }
 }
 
@@ -273,6 +276,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
 		if (!Number.isFinite(n)) {
 			throw new Error(`smooth-corners: bad path token '${t}' in '${d}'`)
 		}
+
 		return n
 	}
 
@@ -292,12 +296,14 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
 		if (!cmd) {
 			throw new Error(`smooth-corners: path data missing command: '${d}'`)
 		}
+
 		const rel = cmd === cmd.toLowerCase()
 		const upper = cmd.toUpperCase()
 		const arity = ARITY[upper]
 		if (arity === undefined) {
 			throw new Error(`smooth-corners: unsupported path command '${cmd}'`)
 		}
+
 		if (upper === 'S' || upper === 'Q' || upper === 'T') {
 			throw new Error(`smooth-corners: '${upper}' commands are not supported`)
 		}
@@ -432,6 +438,7 @@ export function generateCommands(
 	if (width <= 0 || height <= 0) {
 		return RECT
 	}
+
 	const corners = resolveOptions(options)
 	const anyContinuous =
 		corners.topLeft.curve === 'continuous' ||

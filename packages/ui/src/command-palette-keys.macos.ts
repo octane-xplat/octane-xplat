@@ -71,6 +71,5 @@ export function bindCommandPaletteKeys(
 		if (observer) {
 			notifications.removeObserver(observer)
 		}
-
 	}
 }

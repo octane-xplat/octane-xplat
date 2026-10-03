@@ -47,6 +47,7 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
 			if (!path) {
 				return
 			}
+
 			const bg = state.view?.backgroundColor ?? state.view?.style?.backgroundColor
 			const border = state.props.border
 			if (bg) {
@@ -98,6 +99,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 				if (!path) {
 					return
 				}
+
 				if (android.os.Build.VERSION.SDK_INT >= 30) {
 					outline.setPath(path)
 				} else {

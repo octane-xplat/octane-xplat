@@ -42,6 +42,7 @@ const previewReady = new Promise((resolve, reject) => {
 		if (settled) {
 			return
 		}
+
 		settled = true
 		clearTimeout(timeout)
 		if (error) {
@@ -705,6 +706,7 @@ try {
 	hiddenPage.on('pageerror', (e) =>
 		errors.push(`pageerror @${hiddenPage.url()}: ${e.stack ?? e.message}`),
 	)
+
 	hiddenPage.on('console', (m) => m.type() === 'error' && errors.push('console.error: ' + m.text()))
 	await hiddenPage.addInitScript(() => {
 		Object.defineProperty(document, 'visibilityState', {

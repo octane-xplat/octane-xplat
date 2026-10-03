@@ -157,9 +157,11 @@ export function createDateDisabledCheck(
 		if (minPd && plainDateIsBefore(date, minPd)) {
 			return true
 		}
+
 		if (maxPd && plainDateIsAfter(date, maxPd)) {
 			return true
 		}
+
 		if (input.dateConstraints) {
 			for (const constraint of input.dateConstraints) {
 				if (!constraint(plainDateToDate(date))) {
@@ -173,6 +175,7 @@ export function createDateDisabledCheck(
 			if (input.maxRangeSpan != null && span > input.maxRangeSpan) {
 				return true
 			}
+
 			// The anchor itself stays selectable below the minimum — clicking it
 			// again is the "move the start" escape hatch (commit-or-cancel is
 			// decided by the picker, not the constraint).
@@ -233,10 +236,12 @@ export function applyRangePick(
 	if (!day || !anchorPd) {
 		return { kind: 'cancel' }
 	}
+
 	if (plainDateIsEqual(day, anchorPd)) {
 		if ((minRangeSpan ?? 1) > 1) {
 			return { kind: 'cancel' }
 		}
+
 		return { kind: 'commit', range: { start: iso, end: iso } }
 	}
 
@@ -279,6 +284,7 @@ export function getInitialFocusDate(input: {
 	if (minPd && plainDateIsBefore(base, minPd)) {
 		base = minPd
 	}
+
 	if (maxPd && plainDateIsAfter(base, maxPd)) {
 		base = maxPd
 	}
@@ -291,6 +297,7 @@ export function getInitialFocusDate(input: {
 			base.month,
 			daysInMonth(base.year, base.month),
 		)!
+
 		if (minPd && plainDateIsBefore(leadingMonthEnd, minPd)) {
 			base = plainDateAddMonths(monthStart(base), 1)
 			if (base.day > daysInMonth(base.year, base.month)) {
@@ -328,6 +335,7 @@ export function navigationBounds(
 		prevMonth.month,
 		daysInMonth(prevMonth.year, prevMonth.month),
 	)!
+
 	const nextStart = plainDateAddMonths(baseMonth, numberOfMonths)
 	return {
 		canNavigatePrevious: !(minPd && plainDateIsBefore(prevEnd, minPd)),
@@ -430,16 +438,20 @@ export function computeCellRounding(state: DayCellState, continuity: CellContinu
 	if (!dayCarriesBand(state)) {
 		return 'none'
 	}
+
 	const left = !continuity.before
 	const right = !continuity.after
 	if (left && right) {
 		return 'both'
 	}
+
 	if (left) {
 		return 'start'
 	}
+
 	if (right) {
 		return 'end'
 	}
+
 	return 'none'
 }

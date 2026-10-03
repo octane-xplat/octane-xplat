@@ -109,6 +109,7 @@ describe('range picking', () => {
 			kind: 'commit',
 			range: { start: '2026-03-10', end: '2026-03-10' },
 		})
+
 		expect(applyRangePick('2026-03-10', '2026-03-10', 2)).toEqual({ kind: 'cancel' })
 	})
 })
@@ -121,6 +122,7 @@ describe('date constraints', () => {
 		const weekend = createDateDisabledCheck({
 			dateConstraints: [(d: Date) => d.getDay() !== 0 && d.getDay() !== 6],
 		})
+
 		expect(weekend(plainDateFromISO('2026-10-03')!)).toBe(true) // Saturday
 		expect(weekend(plainDateFromISO('2026-10-05')!)).toBe(false)
 	})

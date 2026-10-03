@@ -7,6 +7,7 @@ export function pan(ctx: ProbeContext, id: string, dx: number, cancelled = false
 	if (!observers.length) {
 		throw new Error(`No native pan observer: ${id}`)
 	}
+
 	for (const [state, deltaX] of [
 		[1, 0],
 		[2, dx],

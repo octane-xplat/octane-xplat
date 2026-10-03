@@ -43,7 +43,11 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 			state.emit('onLoad', { url: state.inline ? undefined : view.URL?.absoluteString })
 		},
 
-		'webView:didFailProvisionalNavigation:withError:'(view: WKWebView, navigation: any, error: NSError) {
+		'webView:didFailProvisionalNavigation:withError:'(
+			view: WKWebView,
+			navigation: any,
+			error: NSError,
+		) {
 			;(this as any)['webView:didFailNavigation:withError:'](view, navigation, error)
 		},
 
@@ -163,7 +167,12 @@ export function updateWebView(
 				}
 
 				view.evaluateJavaScriptCompletionHandler(measureScript, (result: any, error: any) => {
-					if (states.get(view) !== created || generation !== created.generation || error || !result) {
+					if (
+						states.get(view) !== created ||
+						generation !== created.generation ||
+						error ||
+						!result
+					) {
 						return
 					}
 

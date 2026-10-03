@@ -12,9 +12,7 @@ let pos = 0
 
 beforeEach(async () => {
 	vi.resetModules()
-	vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
-		setTimeout(() => cb(0), 0),
-	)
+	vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => setTimeout(() => cb(0), 0))
 
 	pos = 0
 	Object.defineProperty(window, 'scrollY', { get: () => pos, configurable: true })

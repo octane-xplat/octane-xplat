@@ -7,8 +7,10 @@ export function followHref(href: string): void {
 	if (!href) {
 		return
 	}
+
 	if (pushDeepLink(href)) {
 		return
 	}
+
 	window.location.href = href
 }

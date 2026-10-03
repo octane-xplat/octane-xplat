@@ -53,11 +53,17 @@ export function runWebViewFixture(first: string, second: string, missing: string
 			let heightMatches = false
 			for (let index = 0; index < Number(constraints?.count ?? 0); index++) {
 				const constraint = constraints.objectAtIndex(index)
-				if (Number(constraint.firstAttribute) === 8 && Number(constraint.constant) === size.height)
-					{heightMatches = true}
+				if (
+					Number(constraint.firstAttribute) === 8 &&
+					Number(constraint.constant) === size.height
+				) {
+					heightMatches = true
+				}
 			}
 
-			if (!heightMatches) {return fail('matchContents height constraint')}
+			if (!heightMatches) {
+				return fail('matchContents height constraint')
+			}
 			measured = true
 		},
 		onError: (event) => {

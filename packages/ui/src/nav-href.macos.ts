@@ -7,6 +7,7 @@ export function followHref(href: string): void {
 	if (!href) {
 		return
 	}
+
 	if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
 		const open = (globalThis as any).__xplatAppKitOpenWindow
 		if (typeof open === 'function') {

@@ -255,6 +255,7 @@ describe('computeBoundaries/computeSegments', () => {
 		for (const len of [0, 3, 6, 9, 12]) {
 			b = computeBoundaries(b, len, 3)
 		}
+
 		expect(b).toEqual([6, 9, 12])
 	})
 

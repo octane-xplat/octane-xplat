@@ -349,11 +349,7 @@ settles. Screens that should stay honest render `pending` before reaching
 for `data`:
 
 ```tsx
-export function Detail(props: {
-	data?: { title: string }
-	error?: unknown
-	pending?: boolean
-}) {
+export function Detail(props: { data?: { title: string }; error?: unknown; pending?: boolean }) {
 	if (props.pending) return <Text>Loading…</Text>
 	return <Text>{props.error ? 'Could not load' : props.data?.title}</Text>
 }
@@ -415,7 +411,7 @@ export function ErrorBoundary(props: RouteErrorBoundaryProps) {
 
 Loader rejections do not enter the boundary — they commit as the screen's
 `error` prop and the screen owns its own error UI. The boundary exists for
-when *that* render fails too. `defineRoutes` specs take `errorBoundary`
+when _that_ render fails too. `defineRoutes` specs take `errorBoundary`
 directly; `routes.gen.manifest.json` records an `errorBoundary` presence
 flag for host consumers. A working screen-plus-boundary pair lives in the
 maintained harness at `packages/app/src/app/broken.tsrx` — its loader and

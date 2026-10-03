@@ -711,7 +711,16 @@ describe('date-family keyboard and locale parity', () => {
 })
 
 it('keeps translated selection and clear announcements after the calendar closes', () => {
-	const { el } = mount(<DateInput value="2026-03-05" onChange={() => {}} presentation="popover" locale="fr-FR" hasClear messages={{ selected: (date) => `Choisi : ${date}`, cleared: 'Effacé' }} />)
+	const { el } = mount(
+		<DateInput
+			value="2026-03-05"
+			onChange={() => {}}
+			presentation="popover"
+			locale="fr-FR"
+			hasClear
+			messages={{ selected: (date) => `Choisi : ${date}`, cleared: 'Effacé' }}
+		/>,
+	)
 	click(el.querySelector('.vx-dateinput-toggle')!)
 	click(document.querySelector('button[data-date="2026-03-09"]')!)
 	expect(document.querySelector('.vx-dateinput-popover')).toBeNull()
@@ -723,11 +732,29 @@ it('keeps translated selection and clear announcements after the calendar closes
 
 it('repairs highlighted time options when bounds and display locale change', () => {
 	const change = vi.fn()
-	const { el, render } = mount(<DateTimeInput presentation="popover" value="2026-03-05T10:00" timeOptionInterval={15} onChange={change} />)
+	const { el, render } = mount(
+		<DateTimeInput
+			presentation="popover"
+			value="2026-03-05T10:00"
+			timeOptionInterval={15}
+			onChange={change}
+		/>,
+	)
 	const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
 	focus(input)
 	key(input, 'End')
-	render(<DateTimeInput presentation="popover" locale="fr-FR" hourFormat="24h" value="2026-03-05T10:00" min="2026-03-05T10:00" max="2026-03-05T11:00" timeOptionInterval={15} onChange={change} />)
+	render(
+		<DateTimeInput
+			presentation="popover"
+			locale="fr-FR"
+			hourFormat="24h"
+			value="2026-03-05T10:00"
+			min="2026-03-05T10:00"
+			max="2026-03-05T11:00"
+			timeOptionInterval={15}
+			onChange={change}
+		/>,
+	)
 	const active = document.getElementById(input.getAttribute('aria-activedescendant')!)!
 	expect(active.textContent).toBe('10:00')
 	key(input, 'End')
@@ -757,7 +784,16 @@ it('waits for the parent to accept a controlled month before moving focus', () =
 
 it('announces a rejected date after Enter and clears the error on external correction', () => {
 	const change = vi.fn()
-	const { el, render } = mount(<DateInput presentation="popover" value="2026-03-05" min="2026-03-05" locale="fr-FR" messages={{ invalidDate: 'Date refusée' }} onChange={change} />)
+	const { el, render } = mount(
+		<DateInput
+			presentation="popover"
+			value="2026-03-05"
+			min="2026-03-05"
+			locale="fr-FR"
+			messages={{ invalidDate: 'Date refusée' }}
+			onChange={change}
+		/>,
+	)
 	const input = el.querySelector('input') as HTMLInputElement
 	fireInput(input, '2026-03-04')
 	key(input, 'Enter')

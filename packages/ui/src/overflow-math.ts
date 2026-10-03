@@ -121,6 +121,7 @@ function packRows(
 			if (onLastRow && reserve > 0) {
 				break
 			}
+
 			rowWidth = candidate
 			placed++
 			continue
@@ -129,6 +130,7 @@ function packRows(
 		if (row >= maxRows) {
 			break
 		}
+
 		row++
 		rowWidth = 0
 		i-- // re-attempt this item as the first on the new row
@@ -142,6 +144,7 @@ function countRows(orderedWidths: number[], gap: number, availableWidth: number)
 	if (orderedWidths.length === 0) {
 		return 0
 	}
+
 	let rows = 1
 	let rowWidth = 0
 	for (let i = 0; i < orderedWidths.length; i++) {
@@ -220,6 +223,7 @@ export function computeOverflow(input: ComputeOverflowInput): ComputeOverflowRes
 			floor,
 			ceiling,
 		)
+
 		const visibleCount = clamp(fitCount, floor, ceiling)
 		return { visibleCount, rows: visibleCount > 0 ? 1 : 0 }
 	}

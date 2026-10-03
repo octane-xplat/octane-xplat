@@ -64,6 +64,7 @@ export function playbackTransition(input: TransitionInput, delay = 0): Transitio
 			when: _when,
 			...timing
 		} = input
+
 		const result: TransitionInput = {
 			default: { ...timing.default, delay: (timing.default?.delay ?? 0) + delay },
 		}
@@ -86,6 +87,7 @@ export function playbackTransition(input: TransitionInput, delay = 0): Transitio
 		when: _when,
 		...timing
 	} = input
+
 	return { ...timing, delay: (timing.delay ?? 0) + delay }
 }
 

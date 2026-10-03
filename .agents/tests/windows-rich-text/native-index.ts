@@ -6,14 +6,19 @@ import { WindowsUICase, changeRichText } from './windows-ui-case.tsrx'
 function inspect(page: Page, stage: number) {
 	const labels = ['mixed', 'deep', 'order', 'explicit'].map((id) => {
 		const view: any = page.getViewById(id)
-		if (!view) throw new Error('Missing label ' + id)
+		if (!view) {
+			throw new Error('Missing label ' + id)
+		}
 		const inner = view.nativeTextViewProtected
-		if (!inner) throw new Error('Missing inner TextBlock for ' + id)
+		if (!inner) {
+			throw new Error('Missing inner TextBlock for ' + id)
+		}
 		const runs = []
 		for (let i = 0; i < inner.Inlines.Size; i++) {
 			const run = inner.Inlines.GetAt(i)
 			runs.push({ text: run.Text, weight: run.FontWeight.Weight, style: Number(run.FontStyle) })
 		}
+
 		return {
 			id,
 			text: view.text,
@@ -24,8 +29,10 @@ function inspect(page: Page, stage: number) {
 			innerSize: { width: inner.ActualWidth, height: inner.ActualHeight },
 		}
 	})
+
 	console.log('[rich-text-native] ' + JSON.stringify({ stage, labels }))
 }
+
 Application.run({
 	create() {
 		const page = new Page()
@@ -46,14 +53,17 @@ Application.run({
 								retainedFormatted: !!retained.formattedText,
 							}),
 					)
+
 					return
 				}
+
 				changeRichText(++stage)
 				setTimeout(step, 800)
 			} catch (error) {
 				console.log('[rich-text-native-error] ' + String(error))
 			}
 		}
+
 		setTimeout(step, 3000)
 		return page
 	},

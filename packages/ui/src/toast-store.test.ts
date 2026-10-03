@@ -29,6 +29,7 @@ describe('toast store', () => {
 			viewportId: 'screen',
 			options: { body: 'second' },
 		})
+
 		expect(second).not.toBe(first)
 
 		const ignored = pushToast(

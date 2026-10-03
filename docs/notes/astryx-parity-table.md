@@ -348,19 +348,19 @@ tree, pinned-column, richer-filter, or editing presentation.
 
 Checks actually run:
 
-| Check | Result / evidence boundary |
-| --- | --- |
-| Table web/model suite | 23 tests pass; jsdom controls use a nonwindowed list substitute |
-| Table native component integration | 1 object-driver test passes; real native checkbox/Pressable/stack leaves, list substitute |
-| Native checkbox regression | 1 object-driver test passes for mixed/boolean/disabled transitions |
-| AppKit renderer suite | 9 tests pass, including semantic mixed state independent of translated/arbitrary value text |
-| Source/build/consumer checks | Table web/iOS/Android source typechecks and web/native builds; UI web/native builds; table packed Bundler/NodeNext checks; UI macOS barrel and packed consumers pass |
-| Recipes and changed-file lint | Recipe structure/links pass; changed TSRX files and new TS/MJS files pass focused checks |
-| Chromium interactive fixture | 15 assertions pass; run `b9d23c12-04ca-4de8-87de-951967fd0529` |
-| Chromium selection fixture | 8 assertions pass, including windowed row 51 of 60; run `50cc3cf4-ce93-4f68-949f-8456d35d2b99` |
-| AppKit selection fixture | 8 assertions pass after semantic-state refinement; run `3807b0fb-ea89-43ff-88df-4fc165966997` |
-| Chromium / AppKit geometry fixtures | 8 assertions each pass; runs `cbcb85a2-9b2a-4bb7-a49b-85f6d80f9cb1` / `f44581ce-1926-4cd2-8b04-d617fda9f8a9` |
-| iOS / Android selection fixtures | Both fail before assertions on the unrelated Unicode property-regex parse error; runs `d138d553-9564-4136-af67-933d1ec2495a` / `f8f1373d-940f-4bcb-8327-661ddc9e5c00` |
+| Check                               | Result / evidence boundary                                                                                                                                            |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Table web/model suite               | 23 tests pass; jsdom controls use a nonwindowed list substitute                                                                                                       |
+| Table native component integration  | 1 object-driver test passes; real native checkbox/Pressable/stack leaves, list substitute                                                                             |
+| Native checkbox regression          | 1 object-driver test passes for mixed/boolean/disabled transitions                                                                                                    |
+| AppKit renderer suite               | 9 tests pass, including semantic mixed state independent of translated/arbitrary value text                                                                           |
+| Source/build/consumer checks        | Table web/iOS/Android source typechecks and web/native builds; UI web/native builds; table packed Bundler/NodeNext checks; UI macOS barrel and packed consumers pass  |
+| Recipes and changed-file lint       | Recipe structure/links pass; changed TSRX files and new TS/MJS files pass focused checks                                                                              |
+| Chromium interactive fixture        | 15 assertions pass; run `b9d23c12-04ca-4de8-87de-951967fd0529`                                                                                                        |
+| Chromium selection fixture          | 8 assertions pass, including windowed row 51 of 60; run `50cc3cf4-ce93-4f68-949f-8456d35d2b99`                                                                        |
+| AppKit selection fixture            | 8 assertions pass after semantic-state refinement; run `3807b0fb-ea89-43ff-88df-4fc165966997`                                                                         |
+| Chromium / AppKit geometry fixtures | 8 assertions each pass; runs `cbcb85a2-9b2a-4bb7-a49b-85f6d80f9cb1` / `f44581ce-1926-4cd2-8b04-d617fda9f8a9`                                                          |
+| iOS / Android selection fixtures    | Both fail before assertions on the unrelated Unicode property-regex parse error; runs `d138d553-9564-4136-af67-933d1ec2495a` / `f8f1373d-940f-4bcb-8327-661ddc9e5c00` |
 
 Pinned submodules were initialized and frozen dependencies installed. Root
 postinstall failed in unrelated image-crop type generation on removed

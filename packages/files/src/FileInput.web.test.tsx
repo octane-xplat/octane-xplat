@@ -25,6 +25,7 @@ afterEach(() => {
 	for (const root of roots.splice(0)) {
 		act(() => root.unmount())
 	}
+
 	document.body.innerHTML = ''
 })
 

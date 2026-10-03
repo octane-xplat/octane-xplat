@@ -40,10 +40,12 @@ function findByClass(node: any, cls: string): any {
 	if (!node) {
 		return undefined
 	}
+
 	const classes = String(node.props?.className ?? '').split(' ')
 	if (classes.includes(cls)) {
 		return node
 	}
+
 	for (const child of node.children ?? []) {
 		const hit = findByClass(child, cls)
 		if (hit) {
@@ -215,6 +217,7 @@ describe('native indicators + list', () => {
 		expect(() =>
 			disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView }),
 		).toThrow('no "tap" listener')
+
 		expect(calls).toBe(0)
 		disabled.root.unmount()
 

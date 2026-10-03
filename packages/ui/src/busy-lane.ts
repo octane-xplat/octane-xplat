@@ -20,6 +20,7 @@ export function createBusyIndicatorLane(): BusyIndicatorLane {
 			if (isBusy === next) {
 				return
 			}
+
 			isBusy = next
 			for (const listener of listeners) {
 				listener()

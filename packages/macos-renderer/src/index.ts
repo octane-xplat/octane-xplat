@@ -549,6 +549,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 		bottom: 0,
 		left: 0,
 	})
+
 	if (name === 'margin') {
 		insets.top = insets.right = insets.bottom = insets.left = points
 	} else {
@@ -1943,6 +1944,7 @@ function applyClassName(node: ElementNode, value: any) {
 			'text-xl': 28,
 			'text-2xl': 36,
 		}
+
 		const headingMetrics: Record<string, { size: number; height: number }> = {
 			'vx-h1': { size: 32, height: 41 },
 			'vx-h2': { size: 24, height: 31 },
@@ -2008,6 +2010,7 @@ function applyClassName(node: ElementNode, value: any) {
 			'gap-4': 16,
 			'gap-6': 24,
 		}
+
 		for (const name of classes) {
 			if (gaps[name] !== undefined) {
 				node.view!.spacing = gaps[name]
@@ -2113,6 +2116,7 @@ function applyClassName(node: ElementNode, value: any) {
 				node.appliedFontWeight ?? 400,
 				node.appliedFontFamily,
 			)
+
 			node.colorSlot = 'text'
 			node.view!.drawsBackground = false
 			if (node.type === 'textfield') {
@@ -4057,6 +4061,7 @@ appKitBridge.showLayer = (options: PropBag) =>
 			createMacOSRoot(view, { fontFamily: fontFamilyForView(anchor) }),
 		fittingSize: popupFittingSize,
 	})
+
 appKitBridge.attachContextMenu = attachContextMenu
 appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet
@@ -4087,6 +4092,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		children: [],
 		root: null,
 	}
+
 	const root = createUniversalRoot(container, macOSDriver, {
 		scheduleMicrotask: (callback) => queueMicrotask(callback),
 		onUncaughtError: (error: any) =>

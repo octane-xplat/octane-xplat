@@ -12,6 +12,7 @@ import {
 	sharedCalls,
 	sharedSelection$,
 } from '../tests/query-cache.fixture.mobile.tsrx'
+
 import { clearQueryCache, invalidateQueries } from './query-cache'
 import type { ProbeRequest } from '../tests/query-cache.fixture.mobile.tsrx'
 
@@ -35,6 +36,7 @@ async function settle() {
 	for (let i = 0; i < 12; i++) {
 		await Promise.resolve()
 	}
+
 	flushUniversalSync(() => {})
 }
 
@@ -42,6 +44,7 @@ function requests() {
 	const calls: ProbeRequest[] = []
 	const load = (id: string, { signal }: { signal: AbortSignal }) =>
 		new Promise<string>((resolve, reject) => calls.push({ id, signal, resolve, reject }))
+
 	return { calls, load }
 }
 
@@ -49,6 +52,7 @@ afterEach(() => {
 	for (const root of roots.splice(0)) {
 		root.unmount()
 	}
+
 	sharedCalls.splice(0)
 	sharedSelection$.set('a')
 	clearQueryCache()

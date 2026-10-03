@@ -23,7 +23,9 @@ function screen<T>(body: (scope: Scope) => T): T {
 }
 
 afterEach(() => {
-	for (const scope of liveScopes.splice(0)) scope.dispose()
+	for (const scope of liveScopes.splice(0)) {
+		scope.dispose()
+	}
 })
 
 async function settle(rounds = 12): Promise<void> {
@@ -39,6 +41,7 @@ function deferred<T>() {
 		resolve = res
 		reject = rej
 	})
+
 	return { promise, resolve, reject }
 }
 
@@ -51,6 +54,7 @@ function recording() {
 		calls.push({ selection, signal: context.signal, previous: context.previous })
 		return Promise.resolve(`v${calls.length}`)
 	}
+
 	return { calls, load }
 }
 
@@ -62,6 +66,7 @@ describe('cachedQuery$', () => {
 			calls.push({ selection, signal: context.signal, previous: undefined })
 			return gate.promise
 		}
+
 		const first = screen(() => cachedQuery$(['dedupe'], () => 'one', load))
 		const second = screen(() => cachedQuery$(['dedupe'], () => 'one', load))
 
@@ -97,6 +102,7 @@ describe('cachedQuery$', () => {
 			fetch++
 			return fetch === 1 ? Promise.resolve('v1') : gate.promise
 		}
+
 		const query = screen(() => cachedQuery$(['inv'], () => 'x', load))
 		screen(() => query.latest())
 		await settle()
@@ -108,6 +114,7 @@ describe('cachedQuery$', () => {
 			expect(query.latest()).toBe('v1')
 			expect(query.snapshot().refreshing).toBe(true)
 		})
+
 		await settle()
 		expect(calls).toHaveLength(2)
 		screen(() => expect(query.latest()).toBe('v1'))
@@ -168,6 +175,7 @@ describe('cachedQuery$', () => {
 			calls.push({ selection, signal: context.signal, previous: context.previous })
 			return calls.length === 1 ? Promise.resolve('v1') : gate.promise
 		}
+
 		const first = screen(() => cachedQuery$(['swr'], () => 'x', load))
 		screen(() => first.latest())
 		await settle()
@@ -194,6 +202,7 @@ describe('cachedQuery$', () => {
 			calls.push({ selection, signal: context.signal, previous: context.previous })
 			return gate.promise
 		}
+
 		const query = screen(() => cachedQuery$(['errors'], () => 'x', load))
 		screen(() => query.latest())
 		gate.reject(new Error('offline'))
@@ -230,6 +239,7 @@ describe('cachedQuery$', () => {
 				async () => 'v',
 			),
 		)
+
 		runWithSignalOwner(scope, () => query.latest())
 		scope.dispose()
 		expect(() => invalidateQueries(['retired'])).not.toThrow()
@@ -265,6 +275,7 @@ describe('persistence', () => {
 				persist: persistence(storage),
 			}),
 		)
+
 		screen(() => query.latest())
 		await settle()
 		screen(() => expect(query.latest()).toBe('restored'))
@@ -279,6 +290,7 @@ describe('persistence', () => {
 				persist: persistence(storage),
 			}),
 		)
+
 		screen(() => query.latest())
 		await settle()
 		expect(calls).toHaveLength(1)
@@ -297,12 +309,14 @@ describe('persistence', () => {
 			storedKey('user-1', ['persisted-version', 'x']),
 			envelope('v0', 'old', Date.now() - 120_000),
 		)
+
 		const { calls, load } = recording()
 		const query = screen(() =>
 			cachedQuery$(['persisted-version'], () => 'x', load, {
 				persist: { ...persistence(storage), version: 'v2', maxAge: 60_000 },
 			}),
 		)
+
 		screen(() => query.latest())
 		await settle()
 		expect(calls).toHaveLength(1)
@@ -325,12 +339,14 @@ describe('persistence', () => {
 			},
 			remove: storage.remove,
 		}
+
 		const { calls, load } = recording()
 		const query = screen(() =>
 			cachedQuery$(['unscoped'], () => 'x', load, {
 				persist: { storage: spy, version: 'v1', scope: () => null },
 			}),
 		)
+
 		screen(() => query.latest())
 		await settle()
 		expect(calls).toHaveLength(1)
@@ -350,6 +366,7 @@ describe('persistence', () => {
 			maxAge: undefined as number | undefined,
 			scope: () => boundary,
 		}
+
 		const options = { staleTime: 60_000, persist }
 
 		// Under user-2 the user-1 record is invisible — a fresh request runs

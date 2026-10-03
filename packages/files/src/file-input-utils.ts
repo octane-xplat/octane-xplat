@@ -12,6 +12,7 @@ export function normalizePicked(result: FileInputFile[] | FileInputFile | null):
 	if (result == null) {
 		return []
 	}
+
 	return Array.isArray(result) ? result : [result]
 }
 
@@ -36,25 +37,31 @@ export function fileAccepts(file: FileInputFile, accept: string | undefined): bo
 	if (!accept) {
 		return true
 	}
+
 	const tokens = accept
 		.split(',')
 		.map((t) => t.trim().toLowerCase())
 		.filter(Boolean)
+
 	if (!tokens.length) {
 		return true
 	}
+
 	const name = file.name.toLowerCase()
 	const mime = (file.mimeType ?? '').toLowerCase()
 	return tokens.some((token) => {
 		if (token === '*/*') {
 			return true
 		}
+
 		if (token.startsWith('.')) {
 			return name.endsWith(token)
 		}
+
 		if (token.endsWith('/*')) {
 			return mime.startsWith(token.slice(0, -1))
 		}
+
 		return mime === token
 	})
 }
@@ -63,12 +70,15 @@ export function formatFileSize(bytes: number): string {
 	if (bytes < 1024) {
 		return `${bytes} B`
 	}
+
 	if (bytes < 1024 * 1024) {
 		return `${(bytes / 1024).toFixed(1)} KB`
 	}
+
 	if (bytes < 1024 * 1024 * 1024) {
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 	}
+
 	return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 

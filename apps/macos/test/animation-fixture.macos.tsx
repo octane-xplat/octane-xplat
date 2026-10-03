@@ -50,6 +50,7 @@ export function runAnimationFixture() {
 			if (!reduced) {
 				check(x.value > 0 && x.value < 100, 'No intermediate translation sample')
 			}
+
 			root.render(Content, { revision: 1 })
 			await wait(40)
 			check(x === previous, 'Controller changed across renders')
@@ -62,6 +63,7 @@ export function runAnimationFixture() {
 			if (!reduced) {
 				check(x.value !== -40 && x.value !== stopped, 'Spring did not sample')
 			}
+
 			await wait(2200)
 			check(x.value === -40, 'Spring did not settle exactly')
 			check(

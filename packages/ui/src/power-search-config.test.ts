@@ -16,6 +16,7 @@ describe('PowerSearch config helpers', () => {
 			{ name: 'Ada', age: 37 },
 			{ name: 'Bob', age: 18 },
 		]
+
 		const result = applyFilters(
 			[
 				{ field: 'name', operator: 'contains', value: { type: 'string', value: 'ad' } },
@@ -32,6 +33,7 @@ describe('PowerSearch config helpers', () => {
 		const { config } = createPowerSearchConfig([
 			{ key: 'title', type: 'string', label: 'Title' },
 		] as const)
+
 		const source = createPowerSearchSource(createInternalConfig(config), 10)
 		expect(source.search('title foo')).toEqual(
 			expect.arrayContaining([

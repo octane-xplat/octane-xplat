@@ -12,7 +12,10 @@ const stages = new Map(
 		})
 		.map((result) => [result.stage, result]),
 )
-for (const stage of [0, 1, 2, 3, 4]) assert.ok(stages.has(stage), 'missing stage ' + stage)
+
+for (const stage of [0, 1, 2, 3, 4]) {
+	assert.ok(stages.has(stage), 'missing stage ' + stage)
+}
 const label = (stage, id) => {
 	const value = stages.get(stage).labels.find((value) => value.id === id)
 	assert.ok(value, 'missing label ' + id)
@@ -21,9 +24,11 @@ const label = (stage, id) => {
 		value.innerSize.width > 0 && value.innerSize.height > 0,
 		'positive inner geometry ' + id,
 	)
+
 	assert.ok(Math.abs(value.size.width - 280) < 1, 'requested label width ' + id)
 	return value
 }
+
 for (const stage of [0, 1, 2, 3]) {
 	const explicit = label(stage, 'explicit')
 	assert.equal(explicit.nativeText, 'First run bold run')
@@ -31,14 +36,17 @@ for (const stage of [0, 1, 2, 3]) {
 		explicit.runs.map((run) => run.weight),
 		[400, 700],
 	)
+
 	const deep = label(stage, 'deep')
 	assert.equal(deep.nativeText, 'plain outer inner tail end')
 	assert.deepEqual(
 		deep.runs.map((run) => run.weight),
 		[400, 700, 700, 700, 400],
 	)
+
 	assert.equal(deep.runs[2].style, 2, 'WinUI italic enum')
 }
+
 for (const stage of [0, 1, 2]) {
 	const mixed = label(stage, 'mixed')
 	assert.equal(mixed.nativeText, stage === 0 ? 'First run bold run end' : 'First run UPDATED end')
@@ -46,15 +54,20 @@ for (const stage of [0, 1, 2]) {
 		mixed.runs.map((run) => run.weight),
 		stage === 2 ? [400, 400, 400] : [400, 700, 400],
 	)
-	if (stage === 2) assert.equal(mixed.runs[1].style, 2, 'removed bold becomes italic')
+
+	if (stage === 2) {
+		assert.equal(mixed.runs[1].style, 2, 'removed bold becomes italic')
+	}
 	assert.equal(mixed.runs.map((run) => run.text).join(''), mixed.nativeText)
 }
+
 assert.equal(label(0, 'order').nativeText, 'AB')
 assert.equal(label(2, 'order').nativeText, 'BA')
 assert.deepEqual(
 	label(2, 'order').runs.map((run) => run.weight),
 	[700, 400],
 )
+
 assert.equal(label(3, 'mixed').nativeText, 'First run  end')
 assert.equal(label(3, 'mixed').formatted, false)
 assert.equal(stages.get(4).contentEmpty, true)

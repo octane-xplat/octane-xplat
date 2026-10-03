@@ -16,6 +16,7 @@ export const runPropertyNames = [
 	'backgroundColor',
 	'textDecoration',
 ]
+
 export const styleProperties = runPropertyNames.map((name) => ({
 	name,
 	isSet: (style: object) => Object.hasOwn(style, name),
@@ -27,31 +28,45 @@ export class MockViewBase {
 	private styleEvents = new Map<string, Set<Handler>>()
 	style: any = new Proxy({} as Record<string, unknown>, {
 		get: (target, name: string) => {
-			if (name === 'on')
+			if (name === 'on') {
 				return (type: string, fn: Handler) => {
 					const handlers = this.styleEvents.get(type) ?? new Set()
 					handlers.add(fn)
 					this.styleEvents.set(type, handlers)
 				}
-			if (name === 'off')
+			}
+
+			if (name === 'off') {
 				return (type: string, fn: Handler) => this.styleEvents.get(type)?.delete(fn)
+			}
+
 			return target[name] ?? this.parent?.style[name]
 		},
 		set: (target, name: string, value) => {
-			if (value === unsetValue) delete target[name]
-			else target[name] = value
-			for (const fn of [...(this.styleEvents.get(`${name}Change`) ?? [])])
+			if (value === unsetValue) {
+				delete target[name]
+			} else {
+				target[name] = value
+			}
+
+			for (const fn of [...(this.styleEvents.get(`${name}Change`) ?? [])]) {
 				fn({ eventName: `${name}Change` })
+			}
+
 			return true
 		},
 	})
 	eachChild(_callback: (child: MockViewBase) => boolean): void {}
 	_addView(child: MockViewBase): void {
-		if (child.parent) throw new Error('View already has a parent')
+		if (child.parent) {
+			throw new Error('View already has a parent')
+		}
 		child.parent = this
 	}
 	_removeView(child: MockViewBase): void {
-		if (child.parent !== this) throw new Error('View not added')
+		if (child.parent !== this) {
+			throw new Error('View not added')
+		}
 		child.parent = null
 	}
 	inlineStyle: string | null = null
@@ -68,16 +83,22 @@ export class MockViewBase {
 			handlers = new Set()
 			this.handlers.set(type, handlers)
 		}
+
 		handlers.add(handler)
 	}
 
 	off(type: string, handler?: Handler): void {
-		if (handler) this.handlers.get(type)?.delete(handler)
-		else this.handlers.delete(type)
+		if (handler) {
+			this.handlers.get(type)?.delete(handler)
+		} else {
+			this.handlers.delete(type)
+		}
 	}
 
 	notify(data: { eventName: string; object?: unknown; [field: string]: unknown }): void {
-		for (const handler of [...(this.handlers.get(data.eventName) ?? [])]) handler(data)
+		for (const handler of [...(this.handlers.get(data.eventName) ?? [])]) {
+			handler(data)
+		}
 	}
 
 	setInlineStyle(css: string): void {
@@ -103,7 +124,9 @@ export class MockLayoutBase extends MockView {
 
 	removeChild(child: MockView): void {
 		const index = this.children.indexOf(child)
-		if (index === -1) throw new Error(`${child.typeName} is not a child of ${this.typeName}`)
+		if (index === -1) {
+			throw new Error(`${child.typeName} is not a child of ${this.typeName}`)
+		}
 		this.children.splice(index, 1)
 		child.parent = null
 	}
@@ -121,9 +144,13 @@ export class MockContentView extends MockView {
 	}
 
 	set content(view: MockView | null) {
-		if (this.#content !== null) this.#content.parent = null
+		if (this.#content !== null) {
+			this.#content.parent = null
+		}
 		this.#content = view
-		if (view !== null) view.parent = this
+		if (view !== null) {
+			view.parent = this
+		}
 	}
 }
 
@@ -134,9 +161,13 @@ export class MockTextBase extends MockView {
 		return this.formatted
 	}
 	set formattedText(value: MockFormattedString | null) {
-		if (this.formatted) this._removeView(this.formatted)
+		if (this.formatted) {
+			this._removeView(this.formatted)
+		}
 		this.formatted = value
-		if (value) this._addView(value)
+		if (value) {
+			this._addView(value)
+		}
 	}
 
 	get text(): string {
@@ -146,7 +177,9 @@ export class MockTextBase extends MockView {
 	/** Like core's `Property`: a changed write raises `textChange`, whoever wrote it. */
 	set text(value: string) {
 		const oldValue = this.#text
-		if (oldValue === value) return
+		if (oldValue === value) {
+			return
+		}
 		this.#text = value
 		this.notify({
 			eventName: 'textChange',
@@ -172,13 +205,14 @@ export class MockSpan extends MockViewBase {
 	}
 	constructor() {
 		super()
-		for (const name of runPropertyNames)
+		for (const name of runPropertyNames) {
 			Object.defineProperty(this, name, {
 				get: () => this.style[name],
 				set: (value) => {
 					this.style[name] = value
 				},
 			})
+		}
 	}
 }
 
@@ -194,16 +228,23 @@ class Runs extends Array<MockSpan> {
 	}
 	splice(start: number, count: number, ...added: MockSpan[]): MockSpan[] {
 		// Core really adds before removing; catch a driver's unsafe replace/move.
-		for (const span of added) this.owner._addView(span)
+		for (const span of added) {
+			this.owner._addView(span)
+		}
 		const removed = super.splice(start, count, ...added)
-		for (const span of removed) this.owner._removeView(span)
+		for (const span of removed) {
+			this.owner._removeView(span)
+		}
 		return removed
 	}
 	push(...added: MockSpan[]): number {
-		for (const span of added) this.owner._addView(span)
+		for (const span of added) {
+			this.owner._addView(span)
+		}
 		return super.push(...added)
 	}
 }
+
 export class MockFormattedString extends MockViewBase {
 	readonly spans = new Runs(this)
 }
@@ -222,18 +263,25 @@ export class MockTabViewItem extends MockViewBase {
 	}
 
 	set view(value: MockView | null) {
-		if (this.#view === value) return
+		if (this.#view === value) {
+			return
+		}
 		if (this.#view !== null) {
 			throw new Error(
 				'Changing the view of an already loaded TabViewItem is not currently supported.',
 			)
 		}
+
 		this.#view = value
-		if (value !== null) value.parent = this
+		if (value !== null) {
+			value.parent = this
+		}
 	}
 
 	_removeView(view: MockViewBase): void {
-		if (view.parent !== this) throw new Error('View not added to this instance.')
+		if (view.parent !== this) {
+			throw new Error('View not added to this instance.')
+		}
 		view.parent = null
 	}
 }
@@ -251,13 +299,21 @@ export class MockTabView extends MockView {
 	set items(value: MockTabViewItem[] | null) {
 		this.assignments++
 		for (const item of value ?? []) {
-			if (!item.view) throw new Error('TabViewItem must have a view.')
+			if (!item.view) {
+				throw new Error('TabViewItem must have a view.')
+			}
 		}
+
 		for (const item of this.#items ?? []) {
-			if (!value?.includes(item)) item.parent = null
+			if (!value?.includes(item)) {
+				item.parent = null
+			}
 		}
+
 		this.#items = value
-		for (const item of value ?? []) item.parent = this
+		for (const item of value ?? []) {
+			item.parent = this
+		}
 	}
 }
 
@@ -283,14 +339,18 @@ export class MockListView extends MockView {
 	}
 
 	set items(value: unknown) {
-		if (value === this.#items) return
+		if (value === this.#items) {
+			return
+		}
 		this.#items = value
 		this.refresh()
 	}
 
 	refresh(): void {
 		this.reloads++
-		for (const cell of this.cells) this.prepare(cell)
+		for (const cell of this.cells) {
+			this.prepare(cell)
+		}
 	}
 
 	/** Bring rows into view, one new cell each. */
@@ -313,12 +373,14 @@ export class MockListView extends MockView {
 		if (cell.view === null && typeof this.itemTemplate === 'function') {
 			cell.view = (this.itemTemplate as () => MockView)()
 		}
+
 		const args = {
 			eventName: 'itemLoading',
 			object: this,
 			index: cell.index,
 			view: cell.view,
 		}
+
 		this.notify(args)
 		cell.view = args.view
 	}
@@ -335,6 +397,7 @@ const LAYOUTS = [
 	'StackLayout',
 	'WrapLayout',
 ]
+
 const CONTENT_VIEWS = ['Frame', 'Page', 'ScrollView']
 const TEXT_VIEWS = ['Button', 'HtmlView', 'Label', 'TextField', 'TextView']
 const LEAVES = [
@@ -370,9 +433,13 @@ export function createCoreMock(): Record<string, unknown> {
 		TabViewItem: MockTabViewItem,
 		unsetValue,
 	}
+
 	const derive = (names: readonly string[], Base: new () => object): void => {
-		for (const name of names) core[name] = { [name]: class extends Base {} }[name]
+		for (const name of names) {
+			core[name] = { [name]: class extends Base {} }[name]
+		}
 	}
+
 	derive(LAYOUTS, MockLayoutBase)
 	derive(CONTENT_VIEWS, MockContentView)
 	derive(TEXT_VIEWS, MockTextBase)

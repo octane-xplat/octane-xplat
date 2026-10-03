@@ -82,16 +82,16 @@ reproduce the installed driver's failure.
 
 ## Verification and limits
 
-| Check | Result | Evidence boundary |
-| --- | --- | --- |
-| Owning upstream suite | 61 tests pass | Driver, registry/config, ListView and new rich-text lifecycle mocks |
-| Maintained candidate source and emitted package | 12 tests pass each | Includes actual compiled Text JSX, context, signal updates, keyed reorder, removal and component cleanup |
-| Driver strict TypeScript | Pass | Source/build evidence |
-| Existing shared native suite | 88 tests pass | Universal/object-driver regressions; not native OS behavior |
-| Android physical native case | Pass | TextView text and actual CustomTypefaceSpan typefaces; reactive text/formatting, ordered spans, rich removal |
-| iOS simulator native case | Pass | UILabel attributed text and native bold/bold-italic font traits; formatting update and rich removal |
-| Windows native run/geometry case | Parked | SSH handshake blocker; no candidate Windows runtime evidence |
-| `pnpm check:patches`, `pnpm check:recipes` | Pass | Patch synchronization and recipe structure |
+| Check                                           | Result             | Evidence boundary                                                                                            |
+| ----------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Owning upstream suite                           | 61 tests pass      | Driver, registry/config, ListView and new rich-text lifecycle mocks                                          |
+| Maintained candidate source and emitted package | 12 tests pass each | Includes actual compiled Text JSX, context, signal updates, keyed reorder, removal and component cleanup     |
+| Driver strict TypeScript                        | Pass               | Source/build evidence                                                                                        |
+| Existing shared native suite                    | 88 tests pass      | Universal/object-driver regressions; not native OS behavior                                                  |
+| Android physical native case                    | Pass               | TextView text and actual CustomTypefaceSpan typefaces; reactive text/formatting, ordered spans, rich removal |
+| iOS simulator native case                       | Pass               | UILabel attributed text and native bold/bold-italic font traits; formatting update and rich removal          |
+| Windows native run/geometry case                | Parked             | SSH handshake blocker; no candidate Windows runtime evidence                                                 |
+| `pnpm check:patches`, `pnpm check:recipes`      | Pass               | Patch synchronization and recipe structure                                                                   |
 
 The compiled Text test retains two component mounts across updates/reorder,
 observes one cleanup on keyed removal and the second on conditional removal,

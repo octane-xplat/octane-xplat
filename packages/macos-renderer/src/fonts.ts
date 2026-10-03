@@ -56,11 +56,7 @@ export function registerFontFamily(family: string, faces: readonly FontFace[]) {
 }
 
 /** Resolve an explicit family stack, falling back to the weighted system font. */
-export function resolveFont(
-	size: number,
-	weight: number | string = 400,
-	family?: string,
-): NSFont {
+export function resolveFont(size: number, weight: number | string = 400, family?: string): NSFont {
 	const parsed = aliases.get(String(weight).toLowerCase()) ?? Number(weight)
 	const numeric = Number.isFinite(parsed) ? Math.min(900, Math.max(100, parsed)) : 400
 	const [, nativeWeight, managerWeight] = weights.find(([limit]) => numeric <= limit)!

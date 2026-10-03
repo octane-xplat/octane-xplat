@@ -16,6 +16,7 @@ export const webBasisSource: ResizableBasisSource = {
 		if (typeof window === 'undefined') {
 			return null
 		}
+
 		return direction === 'horizontal' ? window.innerWidth : window.innerHeight
 	},
 	observe: (containerRef, _direction, cb) => {
@@ -29,6 +30,7 @@ export const webBasisSource: ResizableBasisSource = {
 		if (typeof window === 'undefined') {
 			return () => {}
 		}
+
 		window.addEventListener('resize', cb)
 		return () => window.removeEventListener('resize', cb)
 	},

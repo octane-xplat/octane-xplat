@@ -256,7 +256,8 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 			}
 
 			for (const m of src.matchAll(ROUTE_EXPORTS)) {
-				r[m[1] === 'beforeLoad' ? 'guard' : m[1] === 'ErrorBoundary' ? 'errorBoundary' : m[1]] = true
+				r[m[1] === 'beforeLoad' ? 'guard' : m[1] === 'ErrorBoundary' ? 'errorBoundary' : m[1]] =
+					true
 			}
 		}
 

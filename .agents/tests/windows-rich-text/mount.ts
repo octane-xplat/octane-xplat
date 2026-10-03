@@ -4,12 +4,14 @@ import type {
 	UniversalHostCommand,
 	UniversalRoot,
 } from 'octane/universal/native'
+
 import {
 	createNativeScriptContainer,
 	type NativeScriptContainer,
 	nativeScriptDriver,
 	releaseNativeScriptContainer,
 } from '@rich-text/driver'
+
 import type { MockView } from './core-mock.js'
 
 export type Command = UniversalHostCommand
@@ -21,21 +23,25 @@ export const create = (id: number, type: string, props: Record<string, unknown> 
 	type,
 	props,
 })
+
 export const insert = (
 	id: number,
 	parent: number | null = null,
 	before: number | null = null,
 ): Command => ({ op: 'insert', id, parent, before })
+
 export const update = (id: number, props: Record<string, unknown>): Command => ({
 	op: 'update',
 	id,
 	props,
 })
+
 export const remove = (id: number, parent: number | null = null): Command => ({
 	op: 'remove',
 	id,
 	parent,
 })
+
 export const destroy = (id: number): Command => ({ op: 'destroy', id })
 export const event = (id: number, type: string, listener: Listener | null): Command => ({
 	op: 'event',
@@ -43,6 +49,7 @@ export const event = (id: number, type: string, listener: Listener | null): Comm
 	type,
 	listener,
 })
+
 export const listener = (id: number): Listener => ({
 	id,
 	priority: 'discrete',
@@ -52,7 +59,9 @@ const live: NativeScriptContainer[] = []
 
 /** Release every container `mount` created; for an `afterEach`. */
 export function releaseMounted(): void {
-	for (const container of live.splice(0)) releaseNativeScriptContainer(container)
+	for (const container of live.splice(0)) {
+		releaseNativeScriptContainer(container)
+	}
 }
 
 /** A driver container over a mock host whose root records dispatched events. */
@@ -66,6 +75,7 @@ export function mount<H extends MockView>(host: H) {
 			dispatched.push({ listener: id, data })
 		},
 	} as unknown as UniversalRoot
+
 	return {
 		container,
 		host,
@@ -76,6 +86,7 @@ export function mount<H extends MockView>(host: H) {
 				version: 1,
 				commands,
 			}
+
 			nativeScriptDriver.prepareBatch(container, batch, {} as never).apply()
 		},
 		view<T>(id: number): T {

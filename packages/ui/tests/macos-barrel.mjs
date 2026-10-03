@@ -17,10 +17,14 @@ export async function buildMacOSBarrel(
 			{
 				name: 'ui-macos-barrel-fixture',
 				resolveId(id) {
-					if (id === entry) {return entry}
+					if (id === entry) {
+						return entry
+					}
 				},
 				load(id) {
-					if (id === entry) {return `export * from '@octane-xplat/ui'`}
+					if (id === entry) {
+						return `export * from '@octane-xplat/ui'`
+					}
 				},
 			},
 		],

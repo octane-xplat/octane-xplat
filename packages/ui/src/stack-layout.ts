@@ -69,10 +69,12 @@ export function resolveStackLayout(props: StackProps): ResolvedStackLayout {
 	const paddingInlineStart = spacingPx(
 		props.paddingInlineStart ?? props.paddingInline ?? props.padding,
 	)
+
 	const paddingInlineEnd = spacingPx(props.paddingInlineEnd ?? props.paddingInline ?? props.padding)
 	const paddingBlockStart = spacingPx(
 		props.paddingBlockStart ?? props.paddingBlock ?? props.padding,
 	)
+
 	const paddingBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock ?? props.padding)
 
 	return {
@@ -105,36 +107,47 @@ export function stackWebStyle(
 	if (layout.gap !== undefined) {
 		style.gap = layout.gap
 	}
+
 	if (layout.flexWrap !== undefined) {
 		style.flexWrap = layout.flexWrap
 	}
+
 	if (layout.paddingInlineStart !== undefined) {
 		style.paddingInlineStart = layout.paddingInlineStart
 	}
+
 	if (layout.paddingInlineEnd !== undefined) {
 		style.paddingInlineEnd = layout.paddingInlineEnd
 	}
+
 	if (layout.paddingBlockStart !== undefined) {
 		style.paddingBlockStart = layout.paddingBlockStart
 	}
+
 	if (layout.paddingBlockEnd !== undefined) {
 		style.paddingBlockEnd = layout.paddingBlockEnd
 	}
+
 	if (layout.scrollable) {
 		style.overflow = 'auto'
 	}
+
 	if (props.width != null) {
 		style.width = props.width
 	}
+
 	if (props.height != null) {
 		style.height = props.height
 	}
+
 	if (props.maxWidth != null) {
 		style.maxWidth = props.maxWidth
 	}
+
 	if (props.minHeight != null) {
 		style.minHeight = props.minHeight
 	}
+
 	return style
 }
 
@@ -165,5 +178,6 @@ export function stackItemStyle(props: StackItemProps): Record<string, any> {
 	if (props.isScrollable) {
 		style.overflow = 'auto'
 	}
+
 	return style
 }

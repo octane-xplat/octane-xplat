@@ -41,6 +41,7 @@ const parseTargets = (value) => {
 		.split(',')
 		.map((s) => s.trim())
 		.filter(Boolean)
+
 	if (ids.length === 0) {
 		throw new Error(`--targets needs a comma list: ${selectableTargets.join(', ')}`)
 	}

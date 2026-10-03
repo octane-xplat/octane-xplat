@@ -128,7 +128,13 @@ export function isolateModalFocus(
 	}
 
 	const token = {}
-	const removeLayer = registerLayer({ token, depth, behavior: 'close', dismiss, contains: (target) => panel.contains(target) })
+	const removeLayer = registerLayer({
+		token,
+		depth,
+		behavior: 'close',
+		dismiss,
+		contains: (target) => panel.contains(target),
+	})
 	scopes.push(scope)
 	updateIsolation()
 
@@ -142,7 +148,11 @@ export function isolateModalFocus(
 
 	const focusInside = () => (tabStops(panel)[0] ?? panel).focus({ preventScroll: true })
 	const onFocus = (event: FocusEvent) => {
-		if (topScope() === scope && !panel.contains(event.target as Node) && !layerContains(event.target)) {
+		if (
+			topScope() === scope &&
+			!panel.contains(event.target as Node) &&
+			!layerContains(event.target)
+		) {
 			focusInside()
 		}
 	}

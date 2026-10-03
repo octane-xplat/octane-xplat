@@ -655,9 +655,7 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 		.join('&')
 
 	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
-	return (
-		(path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '') + (r.hash ? '#' + r.hash : '')
-	)
+	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '') + (r.hash ? '#' + r.hash : '')
 }
 
 const JSON_PARAM_PREFIX = 'json:'

@@ -392,6 +392,7 @@ export {
 	useCalendarConstraints,
 	useCalendarNavigation,
 } from './generated/calendar-hooks.js'
+
 export { isSameDay, isDateInRange, getWeekNumber } from './generated/calendar-core.js'
 export type { CalendarDay, CalendarMonthGrid } from './generated/calendar-core.js'
 export type {
@@ -402,6 +403,7 @@ export type {
 	UseCalendarNavigationOptions,
 	UseCalendarNavigationReturn,
 } from './generated/calendar-hooks.js'
+
 export { useFieldControl } from './generated/field-context.js'
 
 export declare const Blockquote: Component<P.BlockquoteProps>
@@ -421,6 +423,7 @@ export declare function useOutlineFromDOM(
 	containerRef?: unknown,
 	options?: P.OutlineFromDOMOptions,
 ): P.OutlineItem[]
+
 export {
 	parseOutlineFromMarkdown,
 	outlineFromDoc,
@@ -429,6 +432,7 @@ export {
 	slugify,
 	uniqueSlug,
 } from './generated/outline-utils.js'
+
 export {
 	tokenize,
 	tokenizeAsync,
@@ -455,6 +459,7 @@ export type {
 	MenuRadioItemProps as DropdownMenuRadioItemProps,
 	MenuSubMenuProps as DropdownMenuSubMenuProps,
 } from './generated/props.js'
+
 export declare const ContextMenuItem: Component<P.MenuItemProps>
 export declare const ContextMenuDivider: Component<P.MenuDividerProps>
 export declare const ContextMenuCheckboxItem: Component<P.MenuCheckboxItemProps>
@@ -469,6 +474,7 @@ export type {
 	MenuRadioItemProps as ContextMenuRadioItemProps,
 	MenuSubMenuProps as ContextMenuSubMenuProps,
 } from './generated/props.js'
+
 export declare const BreadcrumbMenuItem: Component<P.MenuItemProps>
 export declare const BreadcrumbMenuDivider: Component<P.MenuDividerProps>
 export declare const BreadcrumbMenuCheckboxItem: Component<P.MenuCheckboxItemProps>

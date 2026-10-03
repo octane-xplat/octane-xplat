@@ -38,6 +38,7 @@ const VALID_COLORS = new Set([
 	'accent',
 	'inherit',
 ])
+
 const VALID_WEIGHTS = new Set(['normal', 'medium', 'semibold', 'bold'])
 
 /** Class list for the type/color/weight axes; null when nothing applies. */

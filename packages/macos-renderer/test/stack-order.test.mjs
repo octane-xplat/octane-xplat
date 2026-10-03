@@ -8,6 +8,7 @@ import { runInNewContext } from 'node:vm'
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
+
 const detachment = source.slice(
 	source.indexOf('function detach('),
 	source.indexOf('function insert('),

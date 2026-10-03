@@ -147,6 +147,7 @@ export function trimStreamingArtifacts(input: string): string {
 			while (tail[idx + len] === ch) {
 				len++
 			}
+
 			scan = idx + len
 			if (len > 3) {
 				continue

@@ -1,10 +1,10 @@
 appId: ${APP_ID}
 ---
 - launchApp
-- assertVisible: "Maestro counter"
-- assertVisible: "Count: 0"
-- tapOn: "Increment"
-- assertVisible: "Count: 1"
-- tapOn: "Increment"
-- assertVisible: "Count: 2"
+- assertVisible: 'Maestro counter'
+- assertVisible: 'Count: 0'
+- tapOn: 'Increment'
+- assertVisible: 'Count: 1'
+- tapOn: 'Increment'
+- assertVisible: 'Count: 2'
 - stopApp

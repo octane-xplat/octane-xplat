@@ -50,6 +50,7 @@ function devWarn(what: string, msg: string) {
 	if (warned.has(k)) {
 		return
 	}
+
 	warned.add(k)
 	console.warn(`[octane-xplat] ${what}: ${msg}`)
 }
@@ -100,6 +101,7 @@ export function createResizableRegion(
 		if (persisted?.size != null) {
 			return persisted.size
 		}
+
 		const d = toPixels(cfg.defaultSize, basisValue ?? 0)
 		return d ?? 0
 	}
@@ -150,6 +152,7 @@ export function createResizableRegion(
 		if (!cfg.collapsible || isCollapsed()) {
 			return
 		}
+
 		setCollapsed(true)
 		cfg.onCollapseChange?.(true)
 		cfg.onSizeChange?.(0)
@@ -162,6 +165,7 @@ export function createResizableRegion(
 		if (wasCollapsed) {
 			cfg.onCollapseChange?.(false)
 		}
+
 		cfg.onSizeChange?.(chosenSize)
 		notify()
 	}
@@ -172,6 +176,7 @@ export function createResizableRegion(
 				'useResizable',
 				`resize(${String(newSize)}) is not a pixel size. Keeping the current size. Percentages configure the hook; they are not a programmatic input.`,
 			)
+
 			return
 		}
 
@@ -182,6 +187,7 @@ export function createResizableRegion(
 		if (wasCollapsed) {
 			cfg.onCollapseChange?.(false)
 		}
+
 		cfg.onSizeChange?.(clamped)
 		notify()
 	}
@@ -277,10 +283,12 @@ export function createResizableRegion(
 			if (gestureBasis != null) {
 				return
 			} // frozen mid-gesture
+
 			const next = basis.measure(containerRef, direction)
 			if (next == null || next === basisValue) {
 				return
 			}
+
 			basisValue = next
 			// Re-resolve the selection against the new basis.
 			chosenSize = clampSize(chosenSize, resolvedMin(), resolvedMax(), snaps())
@@ -312,6 +320,7 @@ export function regionConfigFrom(
 	if (!resizable) {
 		return null
 	}
+
 	if (resizable === true) {
 		return { defaultSize: 260, minSize: 180, maxSize: 480 }
 	}

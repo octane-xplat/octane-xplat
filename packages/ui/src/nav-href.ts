@@ -11,9 +11,11 @@ export function followHref(href: string): void {
 	if (!href) {
 		return
 	}
+
 	if (pushDeepLink(href)) {
 		return
 	}
+
 	if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
 		Utils.openUrl(href)
 		return

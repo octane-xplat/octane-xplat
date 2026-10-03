@@ -8,6 +8,7 @@ const { octane } = await import(pathToFileURL(req.resolve('octane/compiler/vite'
 const { nativeScriptRenderer } = await import(
 	pathToFileURL(req.resolve('@nativescript-community/octane/config')).href
 )
+
 const octaneRoot = dirname(dirname(dirname(req.resolve('octane/universal/native'))))
 const octanePackage = JSON.parse(readFileSync(join(octaneRoot, 'package.json'), 'utf8'))
 const esm = (id: string) => {
@@ -15,16 +16,20 @@ const esm = (id: string) => {
 	const target = typeof entry.node === 'string' ? entry.node : entry.node.import
 	return join(octaneRoot, target)
 }
+
 const driver = resolve(
 	process.env.RICH_TEXT_DRIVER ??
 		join(dirname(req.resolve('@nativescript-community/octane')), 'driver.js'),
 )
+
 export default defineConfig({
 	plugins: [
 		{
 			name: 'rich-text-octane-deps',
 			resolveId(id) {
-				if (id.startsWith('octane/')) return esm(id)
+				if (id.startsWith('octane/')) {
+					return esm(id)
+				}
 			},
 		},
 		octane({

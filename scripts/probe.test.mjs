@@ -335,6 +335,7 @@ test('scrub delivers touch actions and local coordinates with observer context',
 		() => dispatchScrub({ ...view, isLoaded: false }, [{ x: 0, y: 0 }], 128),
 		/loaded touch/,
 	)
+
 	const unsupported = await execute({
 		run(ctx) {
 			ctx.scrub('chart', [{ x: 0, y: 0 }])

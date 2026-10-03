@@ -60,6 +60,7 @@ a.nativeViewProtected.ActualHeight = 90
 for (const fn of a.listeners) {
 	fn()
 }
+
 flush()
 assert.equal(child.nativeViewProtected.Width, 150)
 assert.equal(child.nativeViewProtected.Height, 90)
@@ -98,12 +99,14 @@ b.style.paddingLeft = 23
 for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {
 	fn()
 }
+
 flush()
 assert.equal(child.nativeViewProtected.Width, 164)
 b.style.paddingLeft = 210
 for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {
 	fn()
 }
+
 flush()
 assert.equal(child.nativeViewProtected.Width, 0)
 child._clearPercentParent()

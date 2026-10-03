@@ -53,6 +53,7 @@ export function toPixels(size: ResizableSize | undefined, basis: number): number
 	if (size == null) {
 		return null
 	}
+
 	if (typeof size === 'number') {
 		return size
 	}
@@ -82,9 +83,11 @@ export function toPixels(size: ResizableSize | undefined, basis: number): number
 		if ('min' in size && size.min) {
 			return Math.max(px, size.min.value)
 		}
+
 		if ('max' in size && size.max) {
 			return Math.min(px, size.max.value)
 		}
+
 		return px
 	}
 

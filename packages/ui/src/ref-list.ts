@@ -17,6 +17,7 @@ export function refList<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<T>[]
 	for (const ref of refs) {
 		collect(ref)
 	}
+
 	return list
 }
 

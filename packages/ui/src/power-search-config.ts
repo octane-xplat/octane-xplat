@@ -106,9 +106,11 @@ export function createInternalConfig(config: PowerSearchConfig): PowerSearchInte
 			if (!field) {
 				return undefined
 			}
+
 			if (field.defaultOperator) {
 				return operatorMap.get(fieldKey)?.get(field.defaultOperator)
 			}
+
 			return field.operators[0]
 		},
 		getVisibleFields: () => config.fields,
@@ -130,6 +132,7 @@ function truncate(str: string, maxLength: number): string {
 	if (chars.length <= maxLength) {
 		return str
 	}
+
 	const keep = Math.max(maxLength - 1, 0)
 	return chars.slice(0, keep).join('') + '\u2026'
 }
@@ -209,13 +212,16 @@ export function formatFilterValue(
 			if (items.length === 0) {
 				return ''
 			}
+
 			if (items.length === 1) {
 				return truncate(items[0], maxLength)
 			}
+
 			const joined = items.join(', ')
 			if (joined.length <= maxLength) {
 				return joined
 			}
+
 			return t('@astryx.powersearch.valueEditor.itemsCount', { count: items.length })
 		}
 		case 'enum_list': {
@@ -223,21 +229,25 @@ export function formatFilterValue(
 			if (items.length === 0) {
 				return ''
 			}
+
 			if (operatorValue.type === 'enum_list') {
 				const labels = items.map((v) => formatEnumLabel(v, operatorValue.values))
 				if (labels.length === 1) {
 					return truncate(labels[0], maxLength)
 				}
+
 				const joined = labels.join(', ')
 				if (joined.length <= maxLength) {
 					return joined
 				}
+
 				return t('@astryx.powersearch.valueEditor.itemsCount', { count: labels.length })
 			}
 
 			if (items.length === 1) {
 				return truncate(items[0], maxLength)
 			}
+
 			return t('@astryx.powersearch.valueEditor.itemsCount', { count: items.length })
 		}
 		case 'entity_list': {
@@ -245,13 +255,16 @@ export function formatFilterValue(
 			if (entities.length === 0) {
 				return ''
 			}
+
 			if (entities.length === 1) {
 				return truncate(entities[0].label, maxLength)
 			}
+
 			const joined = entities.map((e) => e.label).join(', ')
 			if (joined.length <= maxLength) {
 				return joined
 			}
+
 			return t('@astryx.powersearch.valueEditor.entitiesCount', { count: entities.length })
 		}
 		case 'time':
@@ -346,6 +359,7 @@ function buildFieldItems(config: PowerSearchInternalConfig): PowerSearchItem[] {
 			if (!groups.has(field.group)) {
 				groups.set(field.group, [])
 			}
+
 			groups.get(field.group)!.push(item)
 		} else {
 			ungrouped.push(item)
@@ -420,6 +434,7 @@ export function createPowerSearchSource(
 				if (field.isValueMatchAllowed === false) {
 					continue
 				}
+
 				const fieldLabel = field.label.toLowerCase()
 
 				let hasExactOperatorMatch = false
@@ -431,6 +446,7 @@ export function createPowerSearchSource(
 						if (matches.length > 0) {
 							hasExactOperatorMatch = true
 						}
+
 						for (const match of matches) {
 							const id = `${field.key}:${op.key}:value:${match.displayValue}`
 							if (!seen.has(id)) {
@@ -459,6 +475,7 @@ export function createPowerSearchSource(
 					const isOperatorPrefix = field.operators.some((op) =>
 						opLabel(op).toLowerCase().startsWith(remainder),
 					)
+
 					if (!isOperatorPrefix) {
 						const rawValue = query.slice(fieldPrefix.length)
 						for (const op of field.operators) {
@@ -677,9 +694,11 @@ function toStringValues(value: unknown): string[] | null {
 	if (typeof value === 'string') {
 		return [value]
 	}
+
 	if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
 		return value
 	}
+
 	return null
 }
 
@@ -715,19 +734,23 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
 			if (operator === BooleanOps.IS_TRUE) {
 				return Boolean(fieldValue) === true
 			}
+
 			if (operator === BooleanOps.IS_FALSE) {
 				return Boolean(fieldValue) === false
 			}
+
 			return true
 		}
 		case 'string': {
 			if (typeof fieldValue !== 'string') {
 				return false
 			}
+
 			const handler = stringOpHandlers[operator]
 			if (handler) {
 				return handler(fieldValue.toLowerCase(), filterValue.value.toLowerCase())
 			}
+
 			return true
 		}
 		case 'integer':
@@ -735,29 +758,35 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
 			if (typeof fieldValue !== 'number') {
 				return false
 			}
+
 			const handler = numberOpHandlers[operator]
 			if (handler) {
 				return handler(fieldValue, filterValue.value)
 			}
+
 			return true
 		}
 		case 'date_absolute': {
 			if (!(fieldValue instanceof Date) && typeof fieldValue !== 'number') {
 				return false
 			}
+
 			const ts = toUnixSeconds(fieldValue)
 			if (operator === DateOps.BEFORE) {
 				return ts < filterValue.unixSeconds
 			}
+
 			if (operator === DateOps.AFTER) {
 				return ts > filterValue.unixSeconds
 			}
+
 			return true
 		}
 		case 'date_range': {
 			if (!(fieldValue instanceof Date) && typeof fieldValue !== 'number') {
 				return false
 			}
+
 			const ts = toUnixSeconds(fieldValue)
 			if (operator === DateOps.BETWEEN) {
 				const nowSeconds = Date.now() / 1000
@@ -772,12 +801,15 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
 			if (typeof fieldValue !== 'string') {
 				return false
 			}
+
 			if (operator === EnumOps.IS) {
 				return fieldValue === filterValue.value
 			}
+
 			if (operator === EnumOps.IS_NOT) {
 				return fieldValue !== filterValue.value
 			}
+
 			return true
 		}
 		case 'enum_list':
@@ -786,12 +818,15 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
 			if (values == null) {
 				return false
 			}
+
 			if (operator === ListOps.IS_ANY_OF) {
 				return values.some((v) => filterValue.value.includes(v))
 			}
+
 			if (operator === ListOps.IS_NONE_OF) {
 				return values.every((v) => !filterValue.value.includes(v))
 			}
+
 			return true
 		}
 		case 'time':
@@ -840,6 +875,7 @@ export function createPowerSearchConfig<const D extends ReadonlyArray<FieldDefin
 		if (filters.length === 0) {
 			return [...data]
 		}
+
 		return data.filter((row) =>
 			filters.every((f) => matchesFilter(row as Record<string, unknown>, f)),
 		)

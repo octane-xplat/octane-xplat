@@ -89,6 +89,7 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 		manifest.devDependencies['@octanejs/vite-plugin'],
 		TPL.devDependencies['@octanejs/vite-plugin'],
 	)
+
 	assert.equal(manifest.dependencies['@octane-xplat/ui'], TPL.dependencies['@octane-xplat/ui'])
 })
 
@@ -112,6 +113,7 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 		manifest.devDependencies['@nativescript/ios'],
 		TPL.devDependencies['@nativescript/ios'],
 	)
+
 	assert.equal(manifest.devDependencies['@nativescript/android'], undefined)
 })
 
@@ -151,6 +153,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 		manifest.devDependencies['@nativescript/ios'],
 		TPL.devDependencies['@nativescript/ios'],
 	)
+
 	assert.equal(manifest.dependencies['@nativescript/core'], TPL.dependencies['@nativescript/core'])
 
 	// The web-only scaffold's yaml lacked native patch entries — add restores

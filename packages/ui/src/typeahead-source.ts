@@ -14,10 +14,12 @@ export function createStaticSource<T extends SearchableItem>(
 			if (lower === '') {
 				return items
 			}
+
 			return items.filter((item) => {
 				if (item.label.toLowerCase().includes(lower)) {
 					return true
 				}
+
 				return getKeywords
 					? getKeywords(item).some((kw) => kw.toLowerCase().includes(lower))
 					: false
@@ -35,6 +37,7 @@ export function characterCount(str: string): number {
 	if (str === '') {
 		return 0
 	}
+
 	const Segmenter = (Intl as any).Segmenter
 	if (typeof Segmenter === 'function') {
 		const segmenter = new Segmenter(undefined, { granularity: 'grapheme' })
@@ -42,6 +45,7 @@ export function characterCount(str: string): number {
 		for (const _ of segmenter.segment(str)) {
 			count++
 		}
+
 		return count
 	}
 

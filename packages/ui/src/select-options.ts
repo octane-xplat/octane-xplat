@@ -35,6 +35,7 @@ export function toggleVisibleSelection(selected: string[], options: SelectOption
 	if (!enabled.length) {
 		return selected
 	}
+
 	const allSelected = enabled.every((value) => selected.includes(value))
 	return allSelected
 		? selected.filter((value) => !enabled.includes(value))

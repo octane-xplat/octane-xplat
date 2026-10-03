@@ -162,6 +162,7 @@ function installLexicalDomShim(zeed: any): void {
 							if (typeof k === 'string') {
 								writeStyleProp(el, k, v)
 							}
+
 							return true
 						},
 					},
@@ -261,6 +262,7 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
 		'@lexical/rich-text',
 		() => import('@lexical/rich-text'),
 	)
+
 	const list = await tryImport('lex-list', '@lexical/list', () => import('@lexical/list'))
 	const link = await tryImport('lex-link', '@lexical/link', () => import('@lexical/link'))
 	const code = await tryImport('lex-code', '@lexical/code', () => import('@lexical/code'))
@@ -269,6 +271,7 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
 		'@lexical/extension',
 		() => import('@lexical/extension'),
 	)
+
 	const zeed = await tryImport('zeed-dom', 'zeed-dom', () => import('zeed-dom'))
 
 	if (!lexical || !html || !rt || !list || !link || !code || !ext || !zeed) {

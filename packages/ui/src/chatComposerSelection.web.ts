@@ -10,6 +10,7 @@ export function getSelectionRangeInside(editable: HTMLElement): Range | null {
 	if (!selection || selection.rangeCount === 0) {
 		return null
 	}
+
 	const range = selection.getRangeAt(0)
 	if (!editable.contains(range.startContainer) || !editable.contains(range.endContainer)) {
 		return null
@@ -23,6 +24,7 @@ export function restoreSelectionRange(range: Range): void {
 	if (!selection) {
 		return
 	}
+
 	selection.removeAllRanges()
 	selection.addRange(range)
 }
@@ -32,6 +34,7 @@ export function placeCaretAtEnd(editable: HTMLElement): boolean {
 	if (!selection) {
 		return false
 	}
+
 	const range = document.createRange()
 	range.selectNodeContents(editable)
 	range.collapse(false)
@@ -45,6 +48,7 @@ export function ensureCaretInside(editable: HTMLElement): Selection | null {
 	if (!selection) {
 		return null
 	}
+
 	if (selection.rangeCount > 0) {
 		const existing = selection.getRangeAt(0)
 		if (editable.contains(existing.startContainer)) {
@@ -65,6 +69,7 @@ export function isSelectionAtStart(editable: HTMLElement): boolean {
 	if (!selection || selection.rangeCount === 0) {
 		return false
 	}
+
 	const range = selection.getRangeAt(0)
 	return isBoundaryAtEdge(editable, range.startContainer, range.startOffset, 'start')
 }
@@ -74,6 +79,7 @@ export function isSelectionAtEnd(editable: HTMLElement): boolean {
 	if (!selection || selection.rangeCount === 0) {
 		return false
 	}
+
 	const range = selection.getRangeAt(0)
 	return isBoundaryAtEdge(editable, range.endContainer, range.endOffset, 'end')
 }
@@ -87,10 +93,12 @@ function isBoundaryAtEdge(
 	if (!editable.contains(container) || !isAtNodeEdge(container, offset, edge)) {
 		return false
 	}
+
 	for (let node: Node | null = container; node && node !== editable;) {
 		if (hasContentSibling(node, edge)) {
 			return false
 		}
+
 		node = node.parentNode
 	}
 
@@ -127,6 +135,7 @@ export function insertTextAtCursor(editable: HTMLElement, text: string): boolean
 	if (!selection || selection.rangeCount === 0) {
 		return false
 	}
+
 	const range = selection.getRangeAt(0)
 	range.deleteContents()
 	const textNode = document.createTextNode(text)
