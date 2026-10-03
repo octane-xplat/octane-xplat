@@ -172,8 +172,127 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fa
          }
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
+diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
+index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9b13796f9 100644
+--- a/hmr/server/websocket-module-specifiers.js
++++ b/hmr/server/websocket-module-specifiers.js
+@@ -1,4 +1,4 @@
+-import { existsSync, readdirSync, readFileSync, realpathSync } from 'fs';
++import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'fs';
+ import * as path from 'path';
+ import * as PAT from './constants.js';
+ import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
+@@ -328,6 +328,60 @@ export function resolveVendorFromCandidate(specifier) {
+     }
+     return null;
+ }
++const depFallbackDirsCache = new Map();
++/**
++ * `node_modules` dirs reachable through the app's dependency specs rather than
++ * its workspace layout — consulted when neither the project root nor the
++ * workspace root can anchor a served `/node_modules/` tail:
++ *  - `link:`/`file:`/`portal:` deps keep their own `node_modules` at the real
++ *    target; a linked package's transitive deps never reach the app's store.
++ *  - pnpm's isolated virtual store keeps every non-hoisted package under
++ *    `node_modules/.pnpm/<name>@<ver>/node_modules/`.
++ * Importer info is gone from the URL — first hit wins, same as the workspace
++ * scan above. Cached per project root; the set only changes on install.
++ */
++function listDepFallbackDirs(projectRoot) {
++    const cached = depFallbackDirsCache.get(projectRoot);
++    if (cached) {
++        return cached;
++    }
++    const dirs = [];
++    const pushIfPresent = (dir) => {
++        if (existsSync(dir))
++            dirs.push(dir);
++    };
++    const pnpmStore = path.join(projectRoot, 'node_modules', '.pnpm');
++    try {
++        for (const entry of readdirSync(pnpmStore, { withFileTypes: true })) {
++            if (entry.isDirectory() && !entry.name.startsWith('.')) {
++                pushIfPresent(path.join(pnpmStore, entry.name, 'node_modules'));
++            }
++        }
++    }
++    catch {
++    }
++    try {
++        const pkg = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8'));
++        for (const section of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies']) {
++            for (const spec of Object.values(pkg[section] ?? {})) {
++                const target = /^(?:link|file|portal):(.+)$/.exec(String(spec))?.[1];
++                if (!target)
++                    continue;
++                try {
++                    const depDir = realpathSync(path.resolve(projectRoot, target));
++                    if (statSync(depDir).isDirectory())
++                        pushIfPresent(path.join(depDir, 'node_modules'));
++                }
++                catch {
++                }
++            }
++        }
++    }
++    catch {
++    }
++    depFallbackDirsCache.set(projectRoot, dirs);
++    return dirs;
++}
+ const workspaceNodeModulesDirsCache = new Map();
+ /**
+  * `node_modules` dirs that can hold a package the served URL no longer
+@@ -428,6 +482,16 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+             }
+         }
+     }
++    // Deps reachable only through the app's dependency specs — linked-package
++    // node_modules, pnpm's virtual store — still resolve to real files.
++    if (cleaned.includes('/node_modules/')) {
++        const tail = cleaned.slice(cleaned.lastIndexOf('/node_modules/') + '/node_modules/'.length);
++        for (const nmDir of listDepFallbackDirs(projectRoot)) {
++            const absPath = path.resolve(nmDir, tail);
++            if (absPath.startsWith(nmDir + path.sep) && existsSync(absPath))
++                return absPath;
++        }
++    }
+     return null;
+ }
+ /**
+@@ -557,22 +621,17 @@ export function filterExistingNodeModulesTransformCandidates(spec, candidates, p
+             // through to the existing project/workspace logic.
+         }
+         if (mapped === null) {
+-            if (!hasDistinctWorkspaceRoot) {
++            const relFromProject = path.relative(resolvedProjectRoot, resolved);
++            const insideProjectRoot = relFromProject !== '' && !relFromProject.startsWith('..') && !path.isAbsolute(relFromProject);
++            if (insideProjectRoot) {
+                 mapped = candidate;
+             }
+             else {
+-                const relFromProject = path.relative(resolvedProjectRoot, resolved);
+-                const insideProjectRoot = relFromProject !== '' && !relFromProject.startsWith('..') && !path.isAbsolute(relFromProject);
+-                if (insideProjectRoot) {
+-                    mapped = candidate;
+-                }
+-                else {
+-                    // Hoisted `node_modules/<pkg>/...` file lives above projectRoot.
+-                    // Rewrite the URL to its fs-anchored form so Vite reads it directly
+-                    // instead of bouncing through bare-specifier resolution that the
+-                    // hoisted package's `exports` field may refuse.
+-                    mapped = `/@fs${resolved.replace(/\\/g, '/')}${querySuffix}`;
+-                }
++                // File resolves outside the project root — hoisted workspace
++                // node_modules, pnpm's `.pnpm` store, or a link:/file:/portal:
++                // dep's own node_modules. Serve the fs-anchored URL so Vite
++                // reads it directly; the root-relative URL would miss.
++                mapped = `/@fs${resolved.replace(/\\/g, '/')}${querySuffix}`;
+             }
+         }
+         if (seen.has(mapped))
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index a11fbd5d24579cdf572a91f70cb06561bfa43cd0..75906db5f3c2cb552b947388a21d29918285849d 100644
+index a11fbd5d24579cdf572a91f70cb06561bfa43cd0..c887334efce2c2f6cf85c7508276109467ff3737 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
@@ -194,6 +313,21 @@ index a11fbd5d24579cdf572a91f70cb06561bfa43cd0..75906db5f3c2cb552b947388a21d2991
          }
          candidates.push(...MODULE_CANDIDATE_EXTS.map((ext) => `${base}.${ext}`));
      }
+@@ -149,8 +154,12 @@ export function resolveFsAnchoredSpec(spec, serverRoot, workspaceRoot) {
+     for (const root of roots) {
+         const rootPosix = root.replace(/\\/g, '/').replace(/\/$/, '');
+         const fsId = `/@fs${rootPosix}${spec.startsWith('/') ? '' : '/'}${spec}`;
+-        if (resolveCandidateFilePath(fsId, serverRoot, workspaceRoot)) {
+-            return fsId;
++        // The fs id is a guess composed under a root — serve the path the
++        // resolver actually found (it may live in a dep's own node_modules,
++        // outside both roots).
++        const resolved = resolveCandidateFilePath(fsId, serverRoot, workspaceRoot);
++        if (resolved) {
++            return `/@fs${resolved.replace(/\\/g, '/')}`;
+         }
+     }
+     return null;
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
 index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52a90c6399 100644
 --- a/hmr/server/websocket-served-module-helpers.js

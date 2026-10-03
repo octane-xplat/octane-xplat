@@ -69,7 +69,10 @@ patchedDependencies:
   # beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin
   # redirects `octane` → `octane/universal/native`. tsconfig-paths and the generated
   # build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS
-  # so `.mobile` leaves resolve under mapped imports and `ns build`.
+  # so `.mobile` leaves resolve under mapped imports and `ns build`. Served `/node_modules/`
+  # tails now also scan pnpm's `.pnpm` store and `link:`/`file:`/`portal:` dep roots — a
+  # linked package's transitive deps (e.g. @iconify/utils under @octane-xplat/icons) resolve
+  # nowhere else and 404 the dev session.
   "@nativescript/vite@8.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.17.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
