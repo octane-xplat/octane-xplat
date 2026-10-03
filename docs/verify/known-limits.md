@@ -19,7 +19,7 @@ handle or loaded/ended events. The harness motion-package route is also
 unsupported: mobile gesture and reduced-motion hosts are not AppKit hosts.
 The separate AppKit UI ref-animation fixture does not establish motion-package
 support. Bamboo-generated CSS is unavailable on AppKit; Home uses only its
-existing AppKit styles. See the [non-visual macOS checks](../apps/macos/README.md#non-visual-smoke-checks)
+existing AppKit styles. See the [non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks)
 for runnable verification and runtime boundaries.
 
 A **seam** is a part where shared code meets platform behavior, such as
@@ -88,15 +88,15 @@ export function PackedToggle(props: { packed: boolean; onChange: (value: boolean
 }
 ```
 
-| Need                                   | Web                                                                  | iOS                                                              | Android                                                                             |
-| -------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Recycled list                          | `ScrollableArea` + `@for`                                            | `UITableView` (`ui/ios`)                                         | `RecyclerView` (`ui/android`)                                                       |
-| Shared modal surface                   | `Dialog`, `AlertDialog`, `BottomSheet`                               | shared self-drawn surfaces                                       | shared self-drawn surfaces                                                          |
-| Platform modal dialog                  | —                                                                    | `UIModal` / `openModal` (`ui/ios`)                               | `MaterialDialog` / `openModal` (`ui/android`)                                       |
-| Edge-swipe drawer                      | `Drawer` (self-drawn, no edge swipe)                                 | `SideDrawer` (`ui/ios`)                                          | `DrawerLayout` (`ui/android`)                                                       |
-| OS switch / slider / spinner / tab bar | shared self-drawn set                                                | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
+| Need                                   | Web                                                                                | iOS                                                              | Android                                                                             |
+| -------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Recycled list                          | `ScrollableArea` + `@for`                                                          | `UITableView` (`ui/ios`)                                         | `RecyclerView` (`ui/android`)                                                       |
+| Shared modal surface                   | `Dialog`, `AlertDialog`, `BottomSheet`                                             | shared self-drawn surfaces                                       | shared self-drawn surfaces                                                          |
+| Platform modal dialog                  | —                                                                                  | `UIModal` / `openModal` (`ui/ios`)                               | `MaterialDialog` / `openModal` (`ui/android`)                                       |
+| Edge-swipe drawer                      | `Drawer` (self-drawn, no edge swipe)                                               | `SideDrawer` (`ui/ios`)                                          | `DrawerLayout` (`ui/android`)                                                       |
+| OS switch / slider / spinner / tab bar | shared self-drawn set                                                              | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
 | Hover interactions                     | `HoverCard`, `Tooltip` (shared; macOS HoverCard = in-window layer via host bridge) | `HoverCard` opens on tap; `Tooltip` passes through               | `HoverCard` opens on tap; `Tooltip` passes through                                  |
-| Liquid glass                           | —                                                                    | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)                | —                                                                                   |
+| Liquid glass                           | —                                                                                  | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)                | —                                                                                   |
 
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in
 web builds. `ui/native` is plumbing (root-layout helpers), not components.
@@ -196,7 +196,7 @@ pushes themselves work through the swap-pane route store.
 AppKit macOS embeds the shared `WebView` using WKWebView. Content sizing runs
 after load or measurement-prop changes, not continuously as page content changes.
 The viewport can impose a minimum measured height. Scroll disabling sets hidden document overflow; page scripts can still scroll.
-`sandbox` remains browser-only. See [content sizing](primitives.md#webview-content-sizing)
+`sandbox` remains browser-only. See [content sizing](../app/primitives.md#webview-content-sizing)
 for the embedded component and its separate app-shell boundary.
 
 ## Navigation

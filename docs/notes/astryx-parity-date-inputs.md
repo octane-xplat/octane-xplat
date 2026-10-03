@@ -356,7 +356,7 @@ distinct and unchanged. Touch scrollers/snapping wheels are outside this batch.
 
 Verification for this batch is automated handler/source/build evidence; no
 screenshots, OS input, or assistive-technology sessions were used. The guide's
-[language and keyboard section](date-picker.md#keyboard-and-app-language),
+[language and keyboard section](../platform/date-picker.md#keyboard-and-app-language),
 `date-picker` recipe AC7, and maintained web demo cover the portable contract
 and its native limitations. Coverage and actual per-target evidence are recorded
 separately in local Silo after committing.

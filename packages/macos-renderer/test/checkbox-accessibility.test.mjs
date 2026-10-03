@@ -1,9 +1,12 @@
 import { readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
-const source = readFileSync(new URL('../src/index.mjs', import.meta.url), 'utf8')
+const source = stripTypeScriptTypes(
+	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+)
 const stack = source.slice(
 	source.indexOf('class AccessibleStackView'),
 	source.indexOf('// The macOS Slider'),

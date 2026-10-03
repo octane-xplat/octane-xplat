@@ -543,7 +543,12 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 		return
 	}
 
-	const insets: Record<string, number> = (node.marginInsets ??= { top: 0, right: 0, bottom: 0, left: 0 })
+	const insets: Record<string, number> = (node.marginInsets ??= {
+		top: 0,
+		right: 0,
+		bottom: 0,
+		left: 0,
+	})
 	if (name === 'margin') {
 		insets.top = insets.right = insets.bottom = insets.left = points
 	} else {
@@ -984,7 +989,13 @@ function gridSpan(value: any) {
 	return Number.isFinite(span) ? Math.max(1, Math.floor(span)) : 1
 }
 
-function gridAreaIsFree(occupied: Set<string>, row: number, col: number, rowSpan: number, colSpan: number) {
+function gridAreaIsFree(
+	occupied: Set<string>,
+	row: number,
+	col: number,
+	rowSpan: number,
+	colSpan: number,
+) {
 	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
 		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
 			if (occupied.has(currentRow + ':' + currentCol)) {
@@ -996,7 +1007,13 @@ function gridAreaIsFree(occupied: Set<string>, row: number, col: number, rowSpan
 	return true
 }
 
-function occupyGridArea(occupied: Set<string>, row: number, col: number, rowSpan: number, colSpan: number) {
+function occupyGridArea(
+	occupied: Set<string>,
+	row: number,
+	col: number,
+	rowSpan: number,
+	colSpan: number,
+) {
 	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
 		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
 			occupied.add(currentRow + ':' + currentCol)
@@ -1119,7 +1136,12 @@ function gridPreferredSize(child: ElementNode, axis: 'rows' | 'columns', availab
 	return Number.isFinite(intrinsic) ? Math.max(0, intrinsic) : 0
 }
 
-function resolveGridTrackSizes(tracks: GridTrack[], placements: GridPlacement[], axis: 'rows' | 'columns', available: number) {
+function resolveGridTrackSizes(
+	tracks: GridTrack[],
+	placements: GridPlacement[],
+	axis: 'rows' | 'columns',
+	available: number,
+) {
 	const sizes = tracks.map((track) => (track.kind === 'fixed' ? track.value : 0))
 	for (const placement of placements) {
 		const start = placement[axis === 'columns' ? 'col' : 'row']!
@@ -1815,7 +1837,11 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)
-			node.view!.font = fontForFamilyStyle(value, weight, style.fontFamily ?? node.appliedFontFamily)
+			node.view!.font = fontForFamilyStyle(
+				value,
+				weight,
+				style.fontFamily ?? node.appliedFontFamily,
+			)
 		} else if (name === 'fontFamily' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.appliedFontFamily = String(value)
 			const size = style.fontSize ?? node.view!.font.pointSize
@@ -1911,7 +1937,12 @@ function applyClassName(node: ElementNode, value: any) {
 			'text-2xl': 28,
 		}
 
-		const lineHeights: Record<string, number> = { 'text-sm': 20, 'text-lg': 28, 'text-xl': 28, 'text-2xl': 36 }
+		const lineHeights: Record<string, number> = {
+			'text-sm': 20,
+			'text-lg': 28,
+			'text-xl': 28,
+			'text-2xl': 36,
+		}
 		const headingMetrics: Record<string, { size: number; height: number }> = {
 			'vx-h1': { size: 32, height: 41 },
 			'vx-h2': { size: 24, height: 31 },
@@ -1970,7 +2001,13 @@ function applyClassName(node: ElementNode, value: any) {
 		node.type === 'scrollview' ||
 		node.type === 'gridlayout'
 	) {
-		const gaps: Record<string, number> = { 'gap-1': 4, 'gap-2': 8, 'gap-3': 12, 'gap-4': 16, 'gap-6': 24 }
+		const gaps: Record<string, number> = {
+			'gap-1': 4,
+			'gap-2': 8,
+			'gap-3': 12,
+			'gap-4': 16,
+			'gap-6': 24,
+		}
 		for (const name of classes) {
 			if (gaps[name] !== undefined) {
 				node.view!.spacing = gaps[name]
@@ -2071,7 +2108,11 @@ function applyClassName(node: ElementNode, value: any) {
 
 	if (node.type === 'textfield' || node.type === 'textview') {
 		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
-			node.view!.font = fontForFamilyStyle(14, node.appliedFontWeight ?? 400, node.appliedFontFamily)
+			node.view!.font = fontForFamilyStyle(
+				14,
+				node.appliedFontWeight ?? 400,
+				node.appliedFontFamily,
+			)
 			node.colorSlot = 'text'
 			node.view!.drawsBackground = false
 			if (node.type === 'textfield') {
@@ -2670,7 +2711,12 @@ function detach(container: RootContainer, node: ElementNode) {
 	node.parent = null
 }
 
-function insert(container: RootContainer, parentId: number | null, node: ElementNode, beforeId: number | null) {
+function insert(
+	container: RootContainer,
+	parentId: number | null,
+	node: ElementNode,
+	beforeId: number | null,
+) {
 	detach(container, node)
 	const parent = (parentId === null ? null : container.nodes.get(parentId)) ?? null
 	if (parentId !== null && !parent) {
@@ -3639,7 +3685,11 @@ try {
 /** Builds an NSMenu from serialized items and attaches it as `view.menu` —
  *  AppKit presents it on right-click and drives enablement. Returns a
  *  detach. */
-function attachContextMenu(view: NSView, options: ContextMenuOptions, onSelect: (id: string | undefined) => void) {
+function attachContextMenu(
+	view: NSView,
+	options: ContextMenuOptions,
+	onSelect: (id: string | undefined) => void,
+) {
 	if (
 		!view ||
 		!menuActionTarget ||
@@ -3892,8 +3942,8 @@ function finishSheetDismissal(sheetWindow: any) {
  *  Returns { close, update }. */
 function presentSheet(view: NSView, options: PropBag) {
 	if (
-		typeof globalThis.NSWindow?.alloc !== 'function' ||
-		typeof globalThis.NSViewController?.alloc !== 'function' ||
+		typeof (globalThis as any).NSWindow?.alloc !== 'function' ||
+		typeof (globalThis as any).NSViewController?.alloc !== 'function' ||
 		typeof options?.component !== 'function'
 	) {
 		return null
@@ -4001,10 +4051,12 @@ function presentSheet(view: NSView, options: PropBag) {
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
 appKitBridge.observeHover = observeHover
 appKitBridge.showAnchoredPopup = showAnchoredPopup
-appKitBridge.showLayer = (options) => showWindowLayer(options, {
-	createRoot: (view, anchor) => createMacOSRoot(view, { fontFamily: fontFamilyForView(anchor) }),
-	fittingSize: popupFittingSize,
-})
+appKitBridge.showLayer = (options: PropBag) =>
+	showWindowLayer(options, {
+		createRoot: (view: NSView, anchor: NSView) =>
+			createMacOSRoot(view, { fontFamily: fontFamilyForView(anchor) }),
+		fittingSize: popupFittingSize,
+	})
 appKitBridge.attachContextMenu = attachContextMenu
 appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet
@@ -4028,7 +4080,13 @@ export interface MacOSRootOptions {
 
 export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptions = {}) {
 	rootFontFamilies.set(hostView, fontFamily)
-	const container: RootContainer = { hostView, fontFamily, nodes: new Map(), children: [], root: null }
+	const container: RootContainer = {
+		hostView,
+		fontFamily,
+		nodes: new Map(),
+		children: [],
+		root: null,
+	}
 	const root = createUniversalRoot(container, macOSDriver, {
 		scheduleMicrotask: (callback) => queueMicrotask(callback),
 		onUncaughtError: (error: any) =>

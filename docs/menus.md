@@ -122,7 +122,7 @@ and VoiceOver/TalkBack announcements have not been verified by this task.
 Native action/state regression tests use the universal object driver, not a
 running device. macOS renderer accessibility support is narrower than web ARIA;
 checked indicators are rendered, but OS checked/radio announcements are unverified.
-For platform-native OS menus, see [the separate context-menu leaf](context-menu.md).
+For platform-native OS menus, see [the separate context-menu leaf](platform/context-menu.md).
 
 ## Keep a long breadcrumb trail usable
 

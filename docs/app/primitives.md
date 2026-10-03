@@ -1052,7 +1052,7 @@ inside the surface, the background leaves keyboard and accessibility queries,
 and dismissal returns focus to the opener, including when a nested surface
 closes. The maintained browser check covers Chromium, Firefox, and WebKit;
 Chromium also checks the accessibility tree. It does not qualify iOS Safari or
-screen-reader behavior; see [input readiness evidence](input-readiness-notes.md).
+screen-reader behavior; see [input readiness evidence](../notes/input-readiness-notes.md).
 
 Native content mounts in a separate Octane root: component context does not
 cross that boundary. Pass values as props or subscribe to shared state in

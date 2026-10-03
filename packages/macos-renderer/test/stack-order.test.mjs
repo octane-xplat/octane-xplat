@@ -1,18 +1,21 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
 // Exercise the production insertion path without loading the Objective-C bridge.
-const source = readFileSync(new URL('../src/index.mjs', import.meta.url), 'utf8')
+const source = stripTypeScriptTypes(
+	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+)
 const detachment = source.slice(
-	source.indexOf('function detach(container,'),
-	source.indexOf('function insert(container,'),
+	source.indexOf('function detach('),
+	source.indexOf('function insert('),
 )
 
 const insertion = source.slice(
-	source.indexOf('function insert(container,'),
-	source.indexOf('\nfunction ', source.indexOf('function insert(container,') + 1),
+	source.indexOf('function insert('),
+	source.indexOf('\nfunction ', source.indexOf('function insert(') + 1),
 )
 
 function fixture() {

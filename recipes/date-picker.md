@@ -36,4 +36,4 @@ picker bundled with `@octane-xplat/files`.
 - AC5: [OS-authentic picker entries](../docs/platform/date-picker.md#os-authentic-pickers) and [platform APIs](../docs/platform/date-picker.md#platform-apis).
 - AC6: [web shared-control example](../packages/demos/src/NativeDatePickerDemo.web.tsrx), [iOS example](../packages/demos/src/NativeDatePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativeDatePickerDemo.android.tsrx), [macOS host note](../packages/demos/src/NativeDatePickerDemo.macos.tsrx), and targeted typegen/tests.
 
-- AC7: [Keyboard and app language](../docs/date-picker.md#keyboard-and-app-language), the [web demo](../packages/demos/src/NativeDatePickerDemo.web.tsrx), and [keyboard regressions](../packages/ui/src/date-entry.web.test.tsx).
+- AC7: [Keyboard and app language](../docs/platform/date-picker.md#keyboard-and-app-language), the [web demo](../packages/demos/src/NativeDatePickerDemo.web.tsrx), and [keyboard regressions](../packages/ui/src/date-entry.web.test.tsx).

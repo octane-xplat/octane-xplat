@@ -569,4 +569,4 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 
 See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
 
-Shared menu parts and their state/keyboard contracts are explained in [Add actions and choices to a menu](menus.md).
+Shared menu parts and their state/keyboard contracts are explained in [Add actions and choices to a menu](../menus.md).
