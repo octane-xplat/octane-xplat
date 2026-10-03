@@ -37,7 +37,7 @@ export function CollectionLeaves(props: any) @{
 	</stacklayout>
 }
 
-export	const ChildContext = createContext('default')
+export	const ChildContext: any = createContext('default')
 function OwnedChild(props: any) @{
 	const context = useContext(ChildContext);
  useLayoutEffect(() => { props.events.push(`mount:${props.name}`); return () => props.events.push(`cleanup:${props.name}`); }, []);

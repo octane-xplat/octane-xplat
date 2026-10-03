@@ -60,6 +60,7 @@
 		"../../packages/**/*.test.*",
 		"../../packages/*/src/vendor",
 		"../../packages/create/template",
-		"../../packages/lingui/tests"
+		"../../packages/lingui/tests",
+		"../../packages/macos-renderer"
 	]
 }
