@@ -1,4 +1,9 @@
-const families = new Map()
+interface FontFace {
+	weight: number
+	descriptor: NSFontDescriptor
+}
+
+const families = new Map<string, FontFace[]>()
 const weights = [
 	[100, -0.8, 1],
 	[200, -0.6, 2],
@@ -27,7 +32,7 @@ const aliases = new Map([
 const systemFamilies = new Set(['system-ui', '-apple-system', 'sans-serif'])
 
 /** Associate an app-owned family with native descriptors, without loading assets. */
-export function registerFontFamily(family, faces) {
+export function registerFontFamily(family: string, faces: readonly FontFace[]) {
 	if (!family?.trim() || !faces?.length) {
 		throw new Error('A font family needs a name and at least one face')
 	}
@@ -51,10 +56,14 @@ export function registerFontFamily(family, faces) {
 }
 
 /** Resolve an explicit family stack, falling back to the weighted system font. */
-export function resolveFont(size, weight = 400, family) {
+export function resolveFont(
+	size: number,
+	weight: number | string = 400,
+	family?: string,
+): NSFont {
 	const parsed = aliases.get(String(weight).toLowerCase()) ?? Number(weight)
 	const numeric = Number.isFinite(parsed) ? Math.min(900, Math.max(100, parsed)) : 400
-	const [, nativeWeight, managerWeight] = weights.find(([limit]) => numeric <= limit)
+	const [, nativeWeight, managerWeight] = weights.find(([limit]) => numeric <= limit)!
 	const systemFont = () => {
 		const font = NSFont.systemFontOfSizeWeight(Number(size), nativeWeight)
 		if (!font) {
@@ -76,7 +85,7 @@ export function resolveFont(size, weight = 400, family) {
 
 		const faces = families.get(trimmed.toLowerCase())
 		if (faces) {
-			const face = faces.find((face) => numeric <= face.weight) ?? faces.at(-1)
+			const face = faces.find((face) => numeric <= face.weight) ?? faces.at(-1)!
 			const font = NSFont.fontWithDescriptorSize(face.descriptor, Number(size))
 			if (font) {
 				return font

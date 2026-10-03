@@ -34,7 +34,8 @@
 	},
 	"scripts": {
 		"test": "node --test test/*.test.mjs",
-		"test:packed": "node test/packed-consumer.mjs"
+		"test:packed": "node test/packed-consumer.mjs",
+		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208"

@@ -5,11 +5,23 @@ if (!webKit) {
 	throw new Error('Unable to load the system WebKit framework')
 }
 
-const states = new WeakMap()
+interface WebViewState {
+	props: Record<string, any>
+	generation: number
+	loaded: boolean
+	navigation: any
+	delegate: any
+	inline?: boolean
+	source?: any
+	emit(name: string, payload: any): void
+	measure(): void
+}
+
+const states = new WeakMap<object, WebViewState>()
 
 const EmbeddedNavigationDelegate = NSObject.extend(
 	{
-		'webView:didStartProvisionalNavigation:'(view, navigation) {
+		'webView:didStartProvisionalNavigation:'(view: WKWebView, navigation: any) {
 			const state = states.get(view)
 			if (!state) {
 				return
@@ -20,7 +32,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 			state.loaded = false
 		},
 
-		'webView:didFinishNavigation:'(view, navigation) {
+		'webView:didFinishNavigation:'(view: WKWebView, navigation: any) {
 			const state = states.get(view)
 			if (!state || state.navigation !== navigation) {
 				return
@@ -31,11 +43,11 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 			state.emit('onLoad', { url: state.inline ? undefined : view.URL?.absoluteString })
 		},
 
-		'webView:didFailProvisionalNavigation:withError:'(view, navigation, error) {
-			this['webView:didFailNavigation:withError:'](view, navigation, error)
+		'webView:didFailProvisionalNavigation:withError:'(view: WKWebView, navigation: any, error: NSError) {
+			;(this as any)['webView:didFailNavigation:withError:'](view, navigation, error)
 		},
 
-		'webView:didFailNavigation:withError:'(view, navigation, error) {
+		'webView:didFailNavigation:withError:'(view: WKWebView, navigation: any, error: NSError) {
 			const state = states.get(view)
 			if (!state || state.navigation !== navigation) {
 				return
@@ -52,7 +64,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 			})
 		},
 
-		'webViewWebContentProcessDidTerminate:'(view) {
+		'webViewWebContentProcessDidTerminate:'(view: WKWebView) {
 			const state = states.get(view)
 			if (!state) {
 				return
@@ -91,7 +103,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 	},
 )
 
-const scrollScript = (enabled) => `(() => {
+const scrollScript = (enabled: any) => `(() => {
 	const id = '__octane_xplat_scroll';
 	document.getElementById(id)?.remove();
 	if (${enabled === false}) {
@@ -108,7 +120,7 @@ const measureScript = `(() => {
 	return JSON.stringify({width: Math.max(body.scrollWidth, root.scrollWidth), height: Math.max(body.scrollHeight, root.scrollHeight)});
 })()`
 
-export function makeWebView() {
+export function makeWebView(): WKWebView {
 	const view = WKWebView.alloc().initWithFrameConfiguration(
 		{ origin: { x: 0, y: 0 }, size: { width: 320, height: 150 } },
 		WKWebViewConfiguration.new(),
@@ -118,39 +130,44 @@ export function makeWebView() {
 	return view
 }
 
-export function updateWebView(node, changed, resize) {
-	const view = node.view
+export function updateWebView(
+	node: import('./index').ElementNode,
+	changed: Record<string, any>,
+	resize: (height: number) => void,
+) {
+	const view = node.view as WKWebView
 	let state = states.get(view)
 	if (!state) {
-		state = {
+		// `created` is a const so the closures below keep their declared type.
+		const created: WebViewState = {
 			props: node.props,
 			generation: 0,
 			loaded: false,
 			navigation: null,
 			delegate: EmbeddedNavigationDelegate.alloc().init(),
-			emit(name, payload) {
-				const handler = state.props[name]
+			emit(name: string, payload: any) {
+				const handler = created.props[name]
 				if (handler) {
 					try {
-						node.container.root.eventScope('discrete', () => handler(payload))
+						node.container.root!.eventScope('discrete', () => handler(payload))
 					} catch (error) {
 						console.error('[macos-event] WebView handler failed', error)
 					}
 				}
 			},
 			measure() {
-				const generation = state.generation
-				view.evaluateJavaScriptCompletionHandler(scrollScript(state.props.scrollEnabled), null)
-				if (!state.props.matchContents && !state.props.onLayoutContent) {
+				const generation = created.generation
+				view.evaluateJavaScriptCompletionHandler(scrollScript(created.props.scrollEnabled), null)
+				if (!created.props.matchContents && !created.props.onLayoutContent) {
 					return
 				}
 
-				view.evaluateJavaScriptCompletionHandler(measureScript, (result, error) => {
-					if (states.get(view) !== state || generation !== state.generation || error || !result) {
+				view.evaluateJavaScriptCompletionHandler(measureScript, (result: any, error: any) => {
+					if (states.get(view) !== created || generation !== created.generation || error || !result) {
 						return
 					}
 
-					let size
+					let size: any
 					try {
 						size = JSON.parse(String(result))
 					} catch {
@@ -167,17 +184,18 @@ export function updateWebView(node, changed, resize) {
 						return
 					}
 
-					if (state.props.matchContents) {
+					if (created.props.matchContents) {
 						resize(size.height)
 					}
 
-					state.emit('onLayoutContent', size)
+					created.emit('onLayoutContent', size)
 				})
 			},
 		}
 
-		states.set(view, state) // WKWebView holds its delegate weakly.
-		view.navigationDelegate = state.delegate
+		states.set(view, created) // WKWebView holds its delegate weakly.
+		view.navigationDelegate = created.delegate
+		state = created
 	}
 
 	state.props = node.props
@@ -218,7 +236,7 @@ export function updateWebView(node, changed, resize) {
 	}
 }
 
-export function disposeWebView(view) {
+export function disposeWebView(view: WKWebView) {
 	states.delete(view)
 	view.navigationDelegate = null
 	view.stopLoading()

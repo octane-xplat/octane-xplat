@@ -62,7 +62,7 @@ globalThis.NSURL = {
 }
 
 globalThis.NSURLRequest = { requestWithURL: (url) => url }
-const { makeWebView, updateWebView, disposeWebView } = await import('../src/webview.mjs')
+const { makeWebView, updateWebView, disposeWebView } = await import('../src/webview.ts')
 
 function fixture(props) {
 	const events = [],

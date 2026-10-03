@@ -1,5 +1,5 @@
 /** Local and embedded sources avoid synchronous network work on AppKit's main thread. */
-export function loadImage(source) {
+export function loadImage(source: unknown): NSImage | null {
 	const src = String(source ?? '')
 	const match = /^data:[^,]*;base64,(.+)$/s.exec(src)
 	if (match) {
