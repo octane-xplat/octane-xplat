@@ -55,7 +55,7 @@ export const GROUPS = [
 	{
 		dir: 'verify',
 		label: 'Check your app',
-		slugs: ['testing', 'probing', 'navigation-checks', 'known-limits'],
+		slugs: ['testing', 'maestro', 'probing', 'navigation-checks', 'known-limits'],
 	},
 ]
 

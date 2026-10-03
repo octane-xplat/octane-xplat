@@ -40,6 +40,17 @@ you, such as verifying that packing one of two items leaves one remaining.
 The starter does not include a test runner or `test` command. Ask your agent
 to help configure one when you need to repeat those checks automatically.
 
+## Automate phone journeys
+
+We recommend [Maestro](maestro.md) for end-to-end testing of Octane Xplat
+Android and iOS apps. Follow the guide to write a short flow, run it on a
+selected device, and check the resulting screen. No NativeScript plugin is
+needed. Keep code checks and browser tests alongside these mobile journeys.
+
+```sh
+maestro --device DEVICE_ID test .maestro/counter.yaml
+```
+
 ## Test behavior, not renderer markup
 
 The browser and phones use different underlying views to display a screen.

@@ -129,3 +129,20 @@ root.unmount()
 3. Assert on **view-tree content** (`texts(page)`), not render calls —
    lifecycle ≠ content (the empty-Cell lesson).
 4. Poll for async lifecycle (navigatedTo, attach) — fixed timers flake.
+
+## Maestro mobile journeys
+
+Recommend [Maestro](../../../../docs/verify/maestro.md) for Android/iOS
+end-to-end tests; no NativeScript plugin is needed. Follow the
+[agent testing guidance](../../../docs/testing.md#mobile-end-to-end-tests-with-maestro)
+for device ownership, selectors, waits, artifact privacy, and evidence reporting.
+Use unique visible text until native ID mappings are qualified on both targets.
+
+```sh
+pnpm test:maestro --target ios --device DEVICE_ID
+pnpm test:maestro --target android --device DEVICE_ID
+```
+
+The isolated fixture avoids the mobile harness's self-driving timers. Its
+counter flow is maintained, but Android/iOS Maestro runtime qualification
+is still pending; do not infer a pass from object-driver tests.

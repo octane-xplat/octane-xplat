@@ -28,3 +28,6 @@ packages/motion/types/value.d.ts
 apps/mobile/navigation-results/
 apps/mobile/navigation-project/platforms/
 apps/mobile/navigation-project/package-lock.json
+
+# Native Maestro smoke app build outputs.
+apps/maestro/platforms/

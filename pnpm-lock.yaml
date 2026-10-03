@@ -181,6 +181,49 @@ importers:
         specifier: 8.3.0
         version: 8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)
 
+  apps/maestro:
+    dependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.4
+        version: 0.2.4(patch_hash=3315d07db6dfd3d9c5ed4c0c6f36952745ddcfd9db76a4c7ac6fb0d16b9d4d5e)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      octane:
+        specifier: 0.6.3
+        version: 0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/vite-octane':
+        specifier: 0.2.1
+        version: 0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(@nativescript/vite@8.0.17(patch_hash=49f4f58657c0f43d4df46adc6e2cc971ff69bdfd6889c87bddbff8eaec1ca1d0)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+      '@nativescript/android':
+        specifier: 9.1.1
+        version: 9.1.1
+      '@nativescript/ios':
+        specifier: 9.1.0
+        version: 9.1.0
+      '@nativescript/types':
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=3dc11d16cb6622cce4d19875174015db65e6d9f67cf05ac912d7d2236ea0bf09)
+      '@nativescript/vite':
+        specifier: 8.0.17
+        version: 8.0.17(patch_hash=49f4f58657c0f43d4df46adc6e2cc971ff69bdfd6889c87bddbff8eaec1ca1d0)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@octanejs/vite-plugin':
+        specifier: 0.1.61
+        version: 0.1.61(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)
+
   apps/mobile:
     dependencies:
       '@nativescript-community/gesturehandler':

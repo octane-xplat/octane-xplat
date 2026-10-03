@@ -19,6 +19,8 @@ Workflows:
 
 - [Access and compose component refs](component-refs.md)
 
+- [Test mobile journeys with Maestro](mobile-e2e.md)
+
 - [Probe one platform case](probe-platform-case.md)
 
 - [Animate shared components](component-motion.md)

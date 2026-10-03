@@ -58,7 +58,8 @@
 		"test:typegen": "pnpm --filter tsrx-typegen test",
 		"check:optional-services": "node scripts/check-optional-services.mjs",
 		"check:pack": "pnpm -r --filter './packages/**' --if-present run pack:check",
-		"smoke:macos": "pnpm --filter @xplat/macos smoke && pnpm --filter @xplat/macos test:animation && pnpm probe run examples/probes/signals.ts --target macos && pnpm probe run examples/probes/counter.tsrx --target macos && pnpm probe run examples/probes/lottie.macos.tsrx --target macos --deps @octane-xplat/lottie"
+		"smoke:macos": "pnpm --filter @xplat/macos smoke && pnpm --filter @xplat/macos test:animation && pnpm probe run examples/probes/signals.ts --target macos && pnpm probe run examples/probes/counter.tsrx --target macos && pnpm probe run examples/probes/lottie.macos.tsrx --target macos --deps @octane-xplat/lottie",
+		"test:maestro": "node scripts/maestro.mjs"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",
