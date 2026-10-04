@@ -21,6 +21,6 @@
 		"src/*.tsrx",
 		"src/*/index.ts"
 	],
-	"exclude": ["src/*.macos.*", "src/*.linux.*", "src/*.windows.*", "**/*.test.*"],
+	"exclude": ["src/*.linux.*", "src/*.windows.*", "**/*.test.*"],
 	"files": ["src/index.linux.ts"]
 }

@@ -1925,6 +1925,9 @@ importers:
       '@nativescript/types':
         specifier: 9.0.0
         version: 9.0.0(patch_hash=3dc11d16cb6622cce4d19875174015db65e6d9f67cf05ac912d7d2236ea0bf09)
+      '@octane-xplat/macos-renderer':
+        specifier: workspace:*
+        version: link:../macos-renderer
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))

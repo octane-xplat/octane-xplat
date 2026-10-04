@@ -96,7 +96,15 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 		// build; --macos-only retains runtime/declaration export parity.
 		if (!overlaysOnly) {
 			const runtimeValues = await buildMacOSBarrel(consumerRoot)
-			const declaration = join(packageLink, 'types/index.macos.d.ts')
+			const consumerManifest = JSON.parse(
+				readFileSync(join(packageLink, 'package.json'), 'utf8'),
+			)
+
+			const declaration = join(
+				packageLink,
+				consumerManifest.exports['.'].macos.types,
+			)
+
 			const program = ts.createProgram([declaration], {
 				moduleResolution: ts.ModuleResolutionKind.Bundler,
 				module: ts.ModuleKind.ESNext,

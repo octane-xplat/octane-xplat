@@ -5,7 +5,7 @@
 		"moduleSuffixes": [".macos", ""],
 		"rootDir": ".",
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/index.macos.d.ts"]
+			"@octane-xplat/ui": ["../ui/types/generated/index.macos.d.ts"]
 		}
 	},
 	"include": ["src/index.macos.ts", "examples/sortable.macos.tsx"]
