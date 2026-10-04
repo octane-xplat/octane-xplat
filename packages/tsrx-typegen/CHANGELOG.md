@@ -1,5 +1,14 @@
 # Changelog
 
+## [tsrx-typegen-v0.2.2] - 2026-10-04
+
+### Bug Fixes
+
+- *(tsrx-typegen)* Normalize Windows project source paths
+- *(typegen)* Validate the published package tarball
+- *(typegen)* Handle case-only declaration renames
+
+
 ## [tsrx-typegen-v0.2.1] - 2026-10-02
 
 ### Bug Fixes
