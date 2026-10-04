@@ -120,6 +120,16 @@ export function createListViewabilityTracker<T>() {
 
 	function dispose() {
 		disposed = true
+		reset()
+	}
+
+	function reset() {
+		const changed: ListViewabilityChange<T>[] = [...active].map(([index, item]) => ({
+			index,
+			item,
+			isViewable: false,
+		}))
+
 		for (const { timer } of pending.values()) {
 			clearTimeout(timer)
 		}
@@ -127,7 +137,10 @@ export function createListViewabilityTracker<T>() {
 		pending.clear()
 		active.clear()
 		latestCandidates.clear()
+		emit(changed)
+		latestItems = []
+		latestCallback = undefined
 	}
 
-	return { update, dispose }
+	return { update, reset, dispose }
 }

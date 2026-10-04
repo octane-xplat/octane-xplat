@@ -26,19 +26,21 @@ function createRoot() {
 	const container = createObjectContainer('nativescript')
 	const driver = createObjectDriver('nativescript')
 	const listViews: Array<{ scrollToIndex: ReturnType<typeof vi.fn>; scrollToIndexAnimated: ReturnType<typeof vi.fn> }> = []
+	const scrollToIndex = vi.fn()
+	const scrollToIndexAnimated = vi.fn()
 	const getPublicInstance = driver.getPublicInstance.bind(driver)
 	driver.getPublicInstance = (host, id) => {
 		const view: any = getPublicInstance(host, id)
 		if (view?.type === 'listview') {
-			view.scrollToIndex = vi.fn()
-			view.scrollToIndexAnimated = vi.fn()
+			view.scrollToIndex = scrollToIndex
+			view.scrollToIndexAnimated = scrollToIndexAnimated
 			listViews.push(view)
 		}
 
 		return view
 	}
 
-	return { root: createUniversalRoot(container, driver), listViews }
+	return { root: createUniversalRoot(container, driver), listViews, scrollToIndex, scrollToIndexAnimated }
 }
 
 describe('platform list handle', () => {
@@ -68,5 +70,30 @@ describe('platform list handle', () => {
 		}
 
 		expect(next.current).toBeNull()
+	})
+
+	it.each([
+		['UITableView', UITableView],
+		['RecyclerView', RecyclerView],
+	] as const)('%s restores deferred initial positions once and keeps them across page appends', async (_name, List) => {
+		const { root, listViews } = createRoot()
+		const props = { renderItem: (_item: string) => null }
+		try {
+			flushUniversalSync(() => root.render(List, { ...props, items: [], initialScrollIndex: 2 }))
+			expect(listViews).toHaveLength(0)
+
+			flushUniversalSync(() => root.render(List, { ...props, items: ['a'], initialScrollIndex: 2 }))
+			expect(listViews).toHaveLength(1)
+			expect(listViews[0].scrollToIndex).not.toHaveBeenCalled()
+
+			flushUniversalSync(() => root.render(List, { ...props, items: ['a', 'b', 'c'], initialScrollIndex: 2 }))
+			await vi.waitFor(() => expect(listViews[0].scrollToIndex).toHaveBeenCalledTimes(1))
+			expect(listViews[0].scrollToIndex).toHaveBeenCalledWith(2)
+
+			flushUniversalSync(() => root.render(List, { ...props, items: ['a', 'b', 'c', 'd'], initialScrollIndex: 2 }))
+			expect(listViews[0].scrollToIndex).toHaveBeenCalledTimes(1)
+		} finally {
+			root.unmount()
+		}
 	})
 })

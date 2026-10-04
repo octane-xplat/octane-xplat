@@ -13,7 +13,7 @@ import { createPullToRefresh } from '../refresh';
 import { createListViewabilityTracker } from '../list-viewability-core';
 import { observeListViewability } from '../list-viewability-observer.android';
 import type { ListVisibilityObserver } from '../list-viewability-runtime';
-import { scrollListToIndex, type PlatformListRuntime } from '../list-viewability-runtime';
+import { createInitialListScrollRestorer, scrollListToIndex, type PlatformListRuntime } from '../list-viewability-runtime';
 
 function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;
@@ -64,6 +64,12 @@ function RecyclerViewInner(props: {
 
 	const visibility = useRef<ListVisibilityObserver | null>(null);
 	const tracker = useRef(createListViewabilityTracker());
+	const initialScroll = useRef(createInitialListScrollRestorer());
+	const tryInitialScroll = () => initialScroll.current.tryScroll(
+		props.runtime.list.current,
+		props.initialScrollIndex,
+		props.items.length,
+	);
 	useEffect(() => {
 		const list = props.runtime.list.current;
 		if (!list) return;
@@ -71,7 +77,7 @@ function RecyclerViewInner(props: {
 			items: props.runtime.items.current,
 			config: props.runtime.config.current,
 			update: (rows, items, config) => tracker.current.update(rows, items, config, props.runtime.onChange.current),
-		}));
+		}), () => tracker.current.reset());
 
 		return () => {
 			visibility.current?.dispose();
@@ -85,7 +91,7 @@ function RecyclerViewInner(props: {
 	}, [props.items, props.viewabilityConfig]);
 
 	useEffect(() => {
-		scrollListToIndex(props.runtime.list.current, props.initialScrollIndex, props.items.length);
+		tryInitialScroll();
 	}, [props.initialScrollIndex, props.items.length]);
 
 	useEffect(() => {
@@ -109,13 +115,17 @@ function RecyclerViewInner(props: {
 			lv.current = v;
 			props.runtime.list.current = v;
 			applyEscapeProps(v, props);
+			if (v) tryInitialScroll();
 		}}
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
 		items={props.items}
 		onLoadMoreItems={props.onEndReached}
-		onLoaded={rejectNestedScrollView}
+		onLoaded={(event: any) => {
+			rejectNestedScrollView(event);
+			tryInitialScroll();
+		}}
 		renderItem={renderCell}
 		{...props.android}
 	/>
