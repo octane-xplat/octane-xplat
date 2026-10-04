@@ -360,6 +360,8 @@ export declare function addRoutes(manifest: P.RouteManifest): void
 export declare function screenFor(name: string): P.ScreenTable[string] | undefined
 export declare function hrefFor(route: P.Route): string
 export declare function layoutsForRoute(name: string): any[]
+export declare function errorBoundaryFor(name: string): any
+export declare const RouteBoundary: Component<{ boundary?: any; route?: any }>
 export declare function deriveRouteManifest(
 	files: Record<string, any>,
 	prefer: readonly string[],
