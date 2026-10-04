@@ -1,4 +1,9 @@
-import type { SafeAreaInsets } from './props'
+export interface SafeAreaInsets {
+	top: number
+	right: number
+	bottom: number
+	left: number
+}
 
 /** The AppKit root view begins below the title bar; there are no additional
  * safe-area insets in this window-hosted renderer. */

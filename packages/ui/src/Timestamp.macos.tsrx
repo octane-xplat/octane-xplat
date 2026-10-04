@@ -105,7 +105,7 @@ export function Timestamp(props: TimestampProps) @{
 					))}
 				</flexboxlayout>
 			}
-			placement="top"
+			placement="above"
 		>
 			{labelNode}
 		</HoverCard>

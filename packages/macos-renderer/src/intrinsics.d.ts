@@ -7,11 +7,20 @@ export namespace JSX {
 
 	export interface HostProps {
 		id?: string
+		key?: string | number
+		ref?: unknown
 		className?: string
 		style?: Record<string, unknown>
 		children?: unknown
+		flexGrow?: number
+		textAlignment?: string
+		onTap?: (event?: any) => void
 		accessibilityLabel?: string
 		accessibilityRole?: string
+		accessibilityHint?: string
+		accessibilityValue?: string
+		accessibilityState?: Record<string, unknown>
+		accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	}
 
 	export interface IntrinsicElements {

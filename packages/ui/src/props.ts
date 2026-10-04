@@ -390,6 +390,8 @@ export interface RichTextProps extends LayoutChildProps {
 	style?: any
 	children?: any
 	id?: string
+	/** Optional explicit accessible name override for the text block. */
+	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
@@ -1262,6 +1264,8 @@ export interface SwitchProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
+	/** Optional explicit accessible name override for the switch. */
+	accessibilityLabel?: string
 	checked?: boolean
 	onCheckedChange?: (checked: boolean) => void
 	/** Platform-specific properties are applied after shared props. */
@@ -2289,6 +2293,7 @@ export interface LinkProps {
 	href: string
 	target?: string
 	className?: any
+	style?: any
 	children?: any
 }
 
@@ -2296,6 +2301,7 @@ export interface NavLinkProps {
 	route: Route
 	activeClassName?: string
 	className?: any
+	style?: any
 	children?: any
 }
 

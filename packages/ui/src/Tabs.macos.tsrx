@@ -6,6 +6,8 @@ import { TabList, Tab } from './TabList.macos.tsrx'
 import { RouteHost } from './RouteHost.macos.tsrx'
 import { errorBoundaryFor, layoutsFor, useRoute, screenFor } from './route.macos'
 
+export type { TabSpec } from './props'
+
 function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
 	const params: Record<string, unknown> = { ...route.params, ...(route.context ?? {}), _stack: route.stack, _pushed: true }
 	if (Object.prototype.hasOwnProperty.call(route, 'loaderData')) {params.data = route.loaderData}
