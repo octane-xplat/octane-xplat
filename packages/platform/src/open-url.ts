@@ -15,7 +15,9 @@ function openSettingsPage(): boolean {
 		}
 
 		if (Application.android) {
-			const activity = Utils.android.getCurrentActivity()
+			// `Utils.android` is a {} stub in the pinned Windows core build.
+			const androidUtils = Utils.android as any
+			const activity = androidUtils.getCurrentActivity()
 
 			if (!activity) {
 				return false
@@ -25,7 +27,7 @@ function openSettingsPage(): boolean {
 				(android.provider.Settings as any).ACTION_APPLICATION_DETAILS_SETTINGS,
 			)
 
-			intent.setData(android.net.Uri.parse(`package:${Utils.android.getPackageName()}`))
+			intent.setData(android.net.Uri.parse(`package:${androidUtils.getPackageName()}`))
 			activity.startActivity(intent)
 			return true
 		}

@@ -11,7 +11,9 @@ function toText(value: unknown): string | null {
 
 function read(): string | null {
 	if (Application.android) {
-		const clipboard = Utils.android
+		// `Utils.android` is a {} stub in the pinned Windows core build; this
+		// branch only runs under the Application.android guard.
+		const clipboard = (Utils.android as any)
 			.getApplicationContext()
 			?.getSystemService(
 				android.content.Context.CLIPBOARD_SERVICE,

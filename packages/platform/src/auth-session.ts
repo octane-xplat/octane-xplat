@@ -106,8 +106,10 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 	return new Promise((resolve) => {
 		const scheme = options.callbackScheme
 		const intentUrl = (intent: any) => intent?.getDataString?.()
+		// `Utils.android` is a {} stub in the pinned Windows core build.
+		const androidUtils = Utils.android as any
 		const initialActivity =
-			Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
+			androidUtils.getCurrentActivity() ?? Application.android.foregroundActivity
 
 		const initialUrl = intentUrl(initialActivity?.getIntent?.())
 		let finished = false
@@ -131,7 +133,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 		}
 
 		const onResume = () => {
-			const activity = Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
+			const activity = androidUtils.getCurrentActivity() ?? Application.android.foregroundActivity
 			// Core's onNewIntent calls setIntent(), so a redirect delivered while
 			// the Custom Tab was open is already the activity's intent here; a
 			// resume without a matching URL is a user dismiss.
@@ -147,7 +149,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 		Application.on(Application.resumeEvent, onResume)
 
 		try {
-			const activity = Utils.android.getCurrentActivity()
+			const activity = androidUtils.getCurrentActivity()
 			const tabs = (globalThis as any).androidx?.browser?.customtabs?.CustomTabsIntent
 			if (activity && tabs) {
 				new tabs.Builder().build().launchUrl(activity, android.net.Uri.parse(url))

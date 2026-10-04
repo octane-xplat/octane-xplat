@@ -6,5 +6,5 @@
 		"customConditions": ["native"],
 		"lib": ["ESNext"]
 	},
-	"include": ["src/index.ts"]
+	"include": ["src/index.ts", "../ui/src/svg-element.d.ts"]
 }

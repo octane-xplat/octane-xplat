@@ -14,7 +14,9 @@ declare const com: {
 	}
 }
 
-const androidContext = () => Utils.android.getApplicationContext()
+// `Utils.android` is a {} stub in the pinned Windows core build; callers only
+// reach this under the Application.android guard.
+const androidContext = () => (Utils.android as any).getApplicationContext()
 
 export const playPreset = () => {
 	if (Application.android) {

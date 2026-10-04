@@ -26,7 +26,8 @@ declare const com: {
 
 export const createAudioPlayer = (): AudioPlayer => {
 	const actions = com.xplat.audio.AudioBridge
-	const context = Utils.android.getApplicationContext()
+	// `Utils.android` is a {} stub in the pinned Windows core build.
+	const context = (Utils.android as any).getApplicationContext()
 	const listeners = new Set<(snapshot: AudioSnapshot) => void>()
 	let queue: Track[] = []
 	let index = -1

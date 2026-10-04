@@ -2,7 +2,7 @@ import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@n
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
-import { sheetHost } from '@xplat/app/platform/sheet'
+import { bottomSheetHost as sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick'
 import {
 	getColorScheme,

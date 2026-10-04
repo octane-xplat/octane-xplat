@@ -17,7 +17,8 @@ export function readReducedMotion(): boolean {
 		return true
 	}
 
-	const context = Utils.android.getApplicationContext()
+	// `Utils.android` is a {} stub in the pinned Windows core build.
+	const context = (Utils.android as any).getApplicationContext()
 	return (
 		platform.android.provider.Settings.Global.getFloat(
 			context.getContentResolver(),
