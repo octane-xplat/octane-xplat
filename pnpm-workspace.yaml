@@ -75,7 +75,7 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   workerd: true
-  '@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=c8105652ae70656eb545f1d25d883e75f3756c3e1402209ccc1af2aecee3eb9f)': true
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=12dccc81d6ac0106e534f20aae0d51361f37e48d975552ad99d868c47983a6b8)': true
   # firebase (web push) postinstalls: @firebase/util's is a React Native
   # bundling shim, protobufjs's prints a deprecation banner — neither needed.
   '@firebase/util': false
