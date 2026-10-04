@@ -360,11 +360,19 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     `.macos` declaration twins in leaf packages are handwritten and absent
     from the tsrx-typegen manifest; nothing catches a stale one when the
     shared types change. Options: teach typegen to emit the macos twin, or
-    add a drift check.
+    add a drift check. ✅ Resolved for `packages/ui`: its macOS sources are
+    now in the types program, so `types/generated/index.macos.d.ts` is
+    emitted from `src/index.macos.ts` like every other platform twin. The
+    `.macos` twins in the other leaf packages (gif, share, table, …) are
+    still handwritten — the same include-in-types-program pattern applies
+    to them.
 42. 🔬 **Packed-consumer tests don't exercise the `macos` export
     condition.** — `test:packed` verifies web + native under Bundler and
     NodeNext; the `macos` condition (`index.macos.ts` + handwritten `.d.ts`)
-    is only exercised by building apps/macos itself.
+    is only exercised by building apps/macos itself. ✅ Resolved for
+    `packages/ui`: `test:macos` runs `packed-consumer.mjs --macos-only`,
+    which packs the tarball and checks runtime/declaration export parity
+    under both Bundler and NodeNext resolution.
 43. 🔬 **Should macOS run a no-ICU V8 parity engine?** — The macOS host
     embeds system JavaScriptCore via Holepunch `libjsc` (a `js.h`/`napi`
     adapter over `JavaScriptCore.framework`), while iOS/Android run embedded
