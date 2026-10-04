@@ -143,6 +143,7 @@ function canonicalize(value: unknown): string {
 	if (value === undefined || value === null) {
 		return 'null'
 	}
+
 	switch (typeof value) {
 		case 'boolean':
 		case 'string':
@@ -187,6 +188,7 @@ function isPrefix(prefix: readonly string[], elements: readonly string[]): boole
 	if (prefix.length > elements.length) {
 		return false
 	}
+
 	for (let i = 0; i < prefix.length; i++) {
 		if (prefix[i] !== elements[i]) {
 			return false
@@ -250,6 +252,7 @@ function matchingElements(key: QueryKey | undefined, exact: boolean) {
 	if (key === undefined) {
 		return () => true
 	}
+
 	const elements = elementsOf(key)
 	return (candidate: readonly string[]) =>
 		exact
@@ -297,6 +300,7 @@ function republish(
 			if (selected === undefined || !matches(selected)) {
 				continue
 			}
+
 			try {
 				withLoadMode(mode, () => query.facade.republishRetry())
 			} catch (error) {
@@ -317,6 +321,7 @@ function persistWrite(entry: CacheEntry): void {
 	if (persist === undefined || !entry.hasValue) {
 		return
 	}
+
 	let scope: string | null
 	try {
 		scope = persist.scope?.() ?? null
@@ -327,6 +332,7 @@ function persistWrite(entry: CacheEntry): void {
 	if (scope === null) {
 		return
 	}
+
 	const envelope = JSON.stringify({ v: persist.version, t: entry.fetchedAt, d: entry.value })
 	try {
 		Promise.resolve(persist.storage.set(storageKey(scope, entry), envelope)).catch(() => {})
@@ -341,6 +347,7 @@ async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 	if (persist === undefined) {
 		return
 	}
+
 	let scope: string | null
 	try {
 		scope = persist.scope?.() ?? null
@@ -351,6 +358,7 @@ async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 	if (scope === null) {
 		return
 	}
+
 	let raw: string | null | undefined
 	try {
 		raw = await persist.storage.get(storageKey(scope, entry))
@@ -361,6 +369,7 @@ async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 	if (raw == null) {
 		return
 	}
+
 	try {
 		const envelope = JSON.parse(raw)
 		if (
@@ -390,6 +399,7 @@ function removePersisted(entry: CacheEntry): void {
 	if (persist === undefined) {
 		return
 	}
+
 	let scope: string | null
 	try {
 		scope = persist.scope?.() ?? null
@@ -400,6 +410,7 @@ function removePersisted(entry: CacheEntry): void {
 	if (scope === null) {
 		return
 	}
+
 	try {
 		Promise.resolve(persist.storage.remove(storageKey(scope, entry))).catch(() => {})
 	} catch {
@@ -416,6 +427,7 @@ function startFetch<A, T>(
 	if (entry.inflight !== undefined) {
 		return entry.inflight
 	}
+
 	const controller = new AbortController()
 	entry.controller = controller
 	const context: QueryContext<T> =
@@ -428,6 +440,7 @@ function startFetch<A, T>(
 			if (entry.inflight !== request) {
 				return
 			}
+
 			entry.inflight = undefined
 			entry.controller = undefined
 			entry.value = value
@@ -441,6 +454,7 @@ function startFetch<A, T>(
 			if (entry.inflight !== request) {
 				return
 			}
+
 			entry.inflight = undefined
 			entry.controller = undefined
 		},
@@ -463,10 +477,12 @@ function loadThroughCache<A, T>(
 	if (entry.inflight !== undefined) {
 		return entry.inflight
 	}
+
 	if (entry.hasValue) {
 		if (mode === 'serve') {
 			return entry.value!
 		}
+
 		const timeStale =
 			staleTime !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAt >= staleTime
 
@@ -474,6 +490,7 @@ function loadThroughCache<A, T>(
 		if (!stale && mode !== 'forced') {
 			return entry.value!
 		}
+
 		if (mode === 'forced' || context.previous !== undefined) {
 			return startFetch(entry, selection, load, context.previous ?? entry.value)
 		}
@@ -494,6 +511,7 @@ function loadThroughCache<A, T>(
 				if (!entry.invalidated && !timeStale) {
 					return entry.value!
 				}
+
 				void startFetch(entry, selection, load, entry.value).catch(() => {})
 				return entry.value!
 			}
@@ -681,6 +699,7 @@ export function clearQueryCache(key?: QueryKey, options?: ClearQueryCacheOptions
 		if (!matches(entry.elements)) {
 			continue
 		}
+
 		entry.controller?.abort()
 		removePersisted(entry)
 		entries.delete(keyString(entry.elements))

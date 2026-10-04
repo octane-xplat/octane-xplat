@@ -181,6 +181,7 @@ test('the shared layer registry can defer dismissal of a native surface', () => 
 		canDismiss: () => top,
 		onDismiss: () => dismissed++,
 	})
+
 	dispatch({ type: 10, keyCode: 53 })
 	assert.equal(surface.closed, false)
 	assert.equal(dismissed, 0)

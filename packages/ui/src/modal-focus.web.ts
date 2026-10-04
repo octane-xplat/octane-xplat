@@ -135,6 +135,7 @@ export function isolateModalFocus(
 		dismiss,
 		contains: (target) => panel.contains(target),
 	})
+
 	scopes.push(scope)
 	updateIsolation()
 

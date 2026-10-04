@@ -18,7 +18,7 @@ export function observeListViewability(
 	return observeLoadedListPeer(
 		list,
 		() => list?.android as android.widget.AbsListView | undefined,
-		native => {
+		(native) => {
 			let observer: android.view.ViewTreeObserver | null = null
 			let scheduled = false
 			let disposed = false

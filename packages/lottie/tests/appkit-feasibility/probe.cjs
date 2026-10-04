@@ -1,6 +1,8 @@
 var assertions = 0
 function check(value, message) {
-	if (!value) {throw Error(message)}
+	if (!value) {
+		throw Error(message)
+	}
 	assertions++
 }
 
@@ -14,7 +16,9 @@ function pump(seconds) {
 function waitFor(predicate, message, seconds) {
 	var deadline = Date.now() + seconds * 1000
 	while (Date.now() < deadline) {
-		if (predicate()) {return}
+		if (predicate()) {
+			return
+		}
 		pump(0.01)
 	}
 

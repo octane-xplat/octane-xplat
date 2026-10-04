@@ -17,8 +17,8 @@ const presetNames: Record<HapticPreset, string> = {
 export const createHaptics = (): Haptics => {
 	const android = Boolean(Application.android)
 	const context = android
-		// `Utils.android` is a {} stub in the pinned Windows core build.
-		? (Application.android.foregroundActivity ?? (Utils.android as any).getApplicationContext())
+		? // `Utils.android` is a {} stub in the pinned Windows core build.
+			(Application.android.foregroundActivity ?? (Utils.android as any).getApplicationContext())
 		: undefined
 
 	let disposed = false

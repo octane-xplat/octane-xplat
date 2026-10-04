@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/secure-storage",
 	"version": "0.9.0",
-	"description": "Keychain/Keystore-backed secure storage for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Keychain/Keystore-backed secure storage for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"cross-platform",

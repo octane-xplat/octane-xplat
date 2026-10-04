@@ -9,10 +9,12 @@ function inspect(page: Page, stage: number) {
 		if (!view) {
 			throw new Error('Missing label ' + id)
 		}
+
 		const inner = view.nativeTextViewProtected
 		if (!inner) {
 			throw new Error('Missing inner TextBlock for ' + id)
 		}
+
 		const runs = []
 		for (let i = 0; i < inner.Inlines.Size; i++) {
 			const run = inner.Inlines.GetAt(i)

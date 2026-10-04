@@ -15,7 +15,7 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 async function saveSession(token: string) {
 	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return null
 	const store = secureStorage.impl
-	if (!await store.set('session-token', token)) return null
+	if (!(await store.set('session-token', token))) return null
 	return await store.get('session-token')
 }
 ```

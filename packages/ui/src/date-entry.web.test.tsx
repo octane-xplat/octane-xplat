@@ -721,6 +721,7 @@ it('keeps translated selection and clear announcements after the calendar closes
 			messages={{ selected: (date) => `Choisi : ${date}`, cleared: 'Effacé' }}
 		/>,
 	)
+
 	click(el.querySelector('.vx-dateinput-toggle')!)
 	click(document.querySelector('button[data-date="2026-03-09"]')!)
 	expect(document.querySelector('.vx-dateinput-popover')).toBeNull()
@@ -740,6 +741,7 @@ it('repairs highlighted time options when bounds and display locale change', () 
 			onChange={change}
 		/>,
 	)
+
 	const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
 	focus(input)
 	key(input, 'End')
@@ -755,6 +757,7 @@ it('repairs highlighted time options when bounds and display locale change', () 
 			onChange={change}
 		/>,
 	)
+
 	const active = document.getElementById(input.getAttribute('aria-activedescendant')!)!
 	expect(active.textContent).toBe('10:00')
 	key(input, 'End')
@@ -794,6 +797,7 @@ it('announces a rejected date after Enter and clears the error on external corre
 			onChange={change}
 		/>,
 	)
+
 	const input = el.querySelector('input') as HTMLInputElement
 	fireInput(input, '2026-03-04')
 	key(input, 'Enter')

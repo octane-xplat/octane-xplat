@@ -117,12 +117,28 @@ export async function runOverlayFixture() {
 	const live = () => surfaces.filter((surface) => !surface.closed)
 	const waitFor = async (condition: () => boolean, message: string) => {
 		const deadline = Date.now() + 2000
-		while (!condition() && Date.now() < deadline) {await tick()}
-		check(condition(), message + '; key=' + !!app.keyWindow + ', main=' + !!app.mainWindow + ', live=' + live().map(surface => surface.panel.accessibilityLabel).join(','))
+		while (!condition() && Date.now() < deadline) {
+			await tick()
+		}
+		check(
+			condition(),
+			message +
+				'; key=' +
+				!!app.keyWindow +
+				', main=' +
+				!!app.mainWindow +
+				', live=' +
+				live()
+					.map((surface) => surface.panel.accessibilityLabel)
+					.join(','),
+		)
 	}
 
 	try {
-		await waitFor(() => app.keyWindow === window || !!app.keyWindow?.isEqual?.(window), 'fixture window did not become key')
+		await waitFor(
+			() => app.keyWindow === window || !!app.keyWindow?.isEqual?.(window),
+			'fixture window did not become key',
+		)
 		root.render(Content, {})
 		await tick()
 		const opener = root.__macosDebug.findId('opener')
@@ -159,7 +175,10 @@ export async function runOverlayFixture() {
 		)
 
 		root.render(Content, { activeSheet: 'first' })
-		await waitFor(() => live().length === 1 && live()[0].panel.accessibilityLabel === 'First', 'switcher did not present')
+		await waitFor(
+			() => live().length === 1 && live()[0].panel.accessibilityLabel === 'First',
+			'switcher did not present',
+		)
 		const switcher = live()[0]
 		root.render(Content, { activeSheet: 'second' })
 		await tick()
@@ -246,7 +265,10 @@ export async function runOverlayFixture() {
 		await tick()
 		app.activateIgnoringOtherApps(true)
 		window.makeKeyAndOrderFront(null)
-		await waitFor(() => app.keyWindow === window || !!app.keyWindow?.isEqual?.(window), 'imperative sheet needs a key window')
+		await waitFor(
+			() => app.keyWindow === window || !!app.keyWindow?.isEqual?.(window),
+			'imperative sheet needs a key window',
+		)
 		const pending = openBottomSheet(
 			SheetContent,
 			{ value: 1 },

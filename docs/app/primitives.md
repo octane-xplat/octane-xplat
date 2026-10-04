@@ -1177,9 +1177,7 @@ export function SaveButton() {
 	const dialog = useImperativeDialog()
 	return (
 		<>
-			<Button onPress={() => dialog.show(<Text>Saved changes</Text>)}>
-				Save
-			</Button>
+			<Button onPress={() => dialog.show(<Text>Saved changes</Text>)}>Save</Button>
 			{dialog.element}
 		</>
 	)
@@ -1204,7 +1202,11 @@ export function GalleryActions() {
 	const lightbox = useLightbox({ media })
 	return (
 		<>
-			<Button onPress={() => alert.show({ title: 'Remove photo?', actionLabel: 'Remove', onAction: alert.hide })}>
+			<Button
+				onPress={() =>
+					alert.show({ title: 'Remove photo?', actionLabel: 'Remove', onAction: alert.hide })
+				}
+			>
 				Remove
 			</Button>
 			<Button onPress={() => lightbox.open()}>View photo</Button>
@@ -1227,10 +1229,15 @@ function Details(props: { params: { title: string }; close: (result?: unknown) =
 
 export function OpenDetails() {
 	return (
-		<Button onPress={() => {
-			void openBottomSheet(Details, { title: 'Packing list' }, { label: 'Details' })
-				.then((result) => console.log(result))
-		}}>Open details</Button>
+		<Button
+			onPress={() => {
+				void openBottomSheet(Details, { title: 'Packing list' }, { label: 'Details' }).then(
+					(result) => console.log(result),
+				)
+			}}
+		>
+			Open details
+		</Button>
 	)
 }
 ```

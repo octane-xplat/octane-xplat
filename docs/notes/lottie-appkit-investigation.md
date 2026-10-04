@@ -24,12 +24,12 @@ assertion that future releases behave identically.
 
 ## Engine choice (source evidence)
 
-| Candidate | AppKit path | Assessment |
-| --- | --- | --- |
-| Airbnb Lottie 4.6.1 | `LottieAnimationView` inherits an actual `NSView`; AppKit content modes and flipped coordinates are implemented | Recommended: native view/layer lifecycle and existing control API closely match our leaf |
-| LottieFiles dotLottie | macOS 11+; Swift wrapper around Rust engine, with DotLottiePlayer and WgpuNative XCFramework targets | Viable alternative if dotLottie features drive the choice; needs binary-framework integration, dependency/license inventory and its own runtime audit |
-| Samsung rlottie | C++ renderer produces surface buffers; no ready AppKit view | Reject for this task: own view, clock, buffer presentation and events required; upstream now declares it unmaintained |
-| lottie-web in WKWebView | Browser engine in an embedded web surface | Different rendering architecture; not the native AppKit integration requested |
+| Candidate               | AppKit path                                                                                                     | Assessment                                                                                                                                            |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Airbnb Lottie 4.6.1     | `LottieAnimationView` inherits an actual `NSView`; AppKit content modes and flipped coordinates are implemented | Recommended: native view/layer lifecycle and existing control API closely match our leaf                                                              |
+| LottieFiles dotLottie   | macOS 11+; Swift wrapper around Rust engine, with DotLottiePlayer and WgpuNative XCFramework targets            | Viable alternative if dotLottie features drive the choice; needs binary-framework integration, dependency/license inventory and its own runtime audit |
+| Samsung rlottie         | C++ renderer produces surface buffers; no ready AppKit view                                                     | Reject for this task: own view, clock, buffer presentation and events required; upstream now declares it unmaintained                                 |
+| lottie-web in WKWebView | Browser engine in an embedded web surface                                                                       | Different rendering architecture; not the native AppKit integration requested                                                                         |
 
 Sources: [Airbnb package manifest](https://github.com/airbnb/lottie-ios/blob/4.6.1/Package.swift),
 [AppKit base](https://github.com/airbnb/lottie-ios/blob/4.6.1/Sources/Public/macOS/LottieAnimationViewBase.macOS.swift),
@@ -76,24 +76,24 @@ the renderer's virtual child list.
 
 ## Shared contract mapping
 
-| Public surface | Native mapping / ownership |
-| --- | --- |
-| `data` | Serialize JSON in JS; parse `Data` in Swift. It wins over `src`. Parse failure emits `onError`, never `onLoaded`. |
-| Raw JSON `src` | Uses the same parser as `data`. |
-| Absolute file / `file://` | Read and parse off the UI thread; install on the main thread. Relative paths are rejected. |
-| `~/`, `res://`, relative paths | Unsupported on AppKit; the leaf does not map bundle aliases or working-directory paths. |
-| HTTPS URL | `URLSession` fetch with HTTP status handling, cancellation and a source-generation token. A successful remote fetch is not covered by the deterministic runtime fixture. Source-relative image assets are unsupported. |
-| HTTP URL | Rejected; AppKit remote sources require HTTPS. |
-| `.lottie` / `.zip` | Rejected; archive and multi-animation selection are not part of this leaf contract. |
-| `autoPlay`, `playing` | Apply after a successful load; controlled `playing` wins. Pause/resume use engine methods. |
-| `progress`, `seekTo` | Clamp finite values to 0..1, set the playhead, and read real-time progress during playback. Seeking while playing resumes from the requested position. |
-| `duration()` / `onLoaded.duration` | Engine seconds × 1000; return zero before successful load. |
-| `speed`, `setSpeed` | Finite values set `animationSpeed`. Positive speed 2 was exercised; zero/negative direction behavior is unverified. |
-| `loop` | `.loop` / `.playOnce`; looping playback does not emit a finite end event. |
-| `play`, `pause`, `stop` | Resume from current position, freeze current position, stop/reset to zero respectively. |
-| `onEnded` | Only a genuine finite completion with `finished == true`; cancellation is not completion. |
-| `fit` | contain → `scaleAspectFit`, cover → `scaleAspectFill`, fill → `scaleToFill`. Mapping and source setter compile; pixel parity and live resize have not been visually checked. |
-| `ref`, `native` | Stable `LottieHandle`; cleanup removes the AppKit view. `native` is the real `LottieAnimationView`; the adapter stays private. |
+| Public surface                     | Native mapping / ownership                                                                                                                                                                                             |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data`                             | Serialize JSON in JS; parse `Data` in Swift. It wins over `src`. Parse failure emits `onError`, never `onLoaded`.                                                                                                      |
+| Raw JSON `src`                     | Uses the same parser as `data`.                                                                                                                                                                                        |
+| Absolute file / `file://`          | Read and parse off the UI thread; install on the main thread. Relative paths are rejected.                                                                                                                             |
+| `~/`, `res://`, relative paths     | Unsupported on AppKit; the leaf does not map bundle aliases or working-directory paths.                                                                                                                                |
+| HTTPS URL                          | `URLSession` fetch with HTTP status handling, cancellation and a source-generation token. A successful remote fetch is not covered by the deterministic runtime fixture. Source-relative image assets are unsupported. |
+| HTTP URL                           | Rejected; AppKit remote sources require HTTPS.                                                                                                                                                                         |
+| `.lottie` / `.zip`                 | Rejected; archive and multi-animation selection are not part of this leaf contract.                                                                                                                                    |
+| `autoPlay`, `playing`              | Apply after a successful load; controlled `playing` wins. Pause/resume use engine methods.                                                                                                                             |
+| `progress`, `seekTo`               | Clamp finite values to 0..1, set the playhead, and read real-time progress during playback. Seeking while playing resumes from the requested position.                                                                 |
+| `duration()` / `onLoaded.duration` | Engine seconds × 1000; return zero before successful load.                                                                                                                                                             |
+| `speed`, `setSpeed`                | Finite values set `animationSpeed`. Positive speed 2 was exercised; zero/negative direction behavior is unverified.                                                                                                    |
+| `loop`                             | `.loop` / `.playOnce`; looping playback does not emit a finite end event.                                                                                                                                              |
+| `play`, `pause`, `stop`            | Resume from current position, freeze current position, stop/reset to zero respectively.                                                                                                                                |
+| `onEnded`                          | Only a genuine finite completion with `finished == true`; cancellation is not completion.                                                                                                                              |
+| `fit`                              | contain → `scaleAspectFit`, cover → `scaleAspectFill`, fill → `scaleToFill`. Mapping and source setter compile; pixel parity and live resize have not been visually checked.                                           |
+| `ref`, `native`                    | Stable `LottieHandle`; cleanup removes the AppKit view. `native` is the real `LottieAnimationView`; the adapter stays private.                                                                                         |
 
 Loading API sources: [animation helpers](https://github.com/airbnb/lottie-ios/blob/4.6.1/Sources/Public/Animation/LottieAnimationHelpers.swift),
 [dotLottie helpers](https://github.com/airbnb/lottie-ios/blob/4.6.1/Sources/Public/DotLottie/DotLottieFileHelpers.swift).

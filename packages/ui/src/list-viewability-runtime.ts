@@ -16,7 +16,13 @@ export function scrollListToIndex(
 	itemsLength: number,
 	animated = false,
 ): boolean {
-	if (!list || list.isLoaded === false || !Number.isInteger(index) || index! < 0 || index! >= itemsLength) {
+	if (
+		!list ||
+		list.isLoaded === false ||
+		!Number.isInteger(index) ||
+		index! < 0 ||
+		index! >= itemsLength
+	) {
 		return false
 	}
 
@@ -25,6 +31,7 @@ export function scrollListToIndex(
 	} else {
 		list.scrollToIndex(index)
 	}
+
 	return true
 }
 
@@ -108,6 +115,7 @@ export function observeLoadedListPeer<T>(
 		if (nativeObserver !== null || peer !== null) {
 			detach()
 		}
+
 		peer = next
 		nativeObserver = attach(next)
 	}
@@ -116,6 +124,7 @@ export function observeLoadedListPeer<T>(
 		attachPeer()
 		nativeObserver?.refresh()
 	}
+
 	const onUnloaded = () => detach()
 	const onLayoutChanged = () => {
 		attachPeer()

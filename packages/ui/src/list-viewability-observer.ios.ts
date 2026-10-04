@@ -18,7 +18,7 @@ export function observeListViewability(
 	return observeLoadedListPeer(
 		list,
 		() => list?.ios as UITableView | undefined,
-		table => {
+		(table) => {
 			const observer = ContentOffsetObserver.alloc().init() as ContentOffsetObserver
 			let scheduled = false
 			let disposed = false
@@ -40,7 +40,8 @@ export function observeListViewability(
 					const offset = Number(table.contentOffset?.y ?? 0)
 					const insets = table.adjustedContentInset ?? table.contentInset
 					const top = offset + Number(insets?.top ?? 0)
-					const bottom = offset + Number(table.bounds?.size?.height ?? 0) - Number(insets?.bottom ?? 0)
+					const bottom =
+						offset + Number(table.bounds?.size?.height ?? 0) - Number(insets?.bottom ?? 0)
 					const rows: VisibleListRow[] = []
 					const paths = Array.from(table.indexPathsForVisibleRows ?? []) as NSIndexPath[]
 					for (const path of paths) {

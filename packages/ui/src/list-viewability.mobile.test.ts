@@ -25,6 +25,7 @@ describe('platform list viewability', () => {
 			undefined,
 			onChange,
 		)
+
 		expect(onChange).not.toHaveBeenCalled()
 		vi.advanceTimersByTime(249)
 		expect(onChange).not.toHaveBeenCalled()
@@ -37,6 +38,7 @@ describe('platform list viewability', () => {
 			],
 			changed: [{ index: 0, item: 'first', isViewable: true }],
 		})
+
 		tracker.dispose()
 	})
 
@@ -65,6 +67,7 @@ describe('platform list viewability', () => {
 			viewableItems: [],
 			changed: [{ index: 0, item: after, isViewable: false }],
 		})
+
 		tracker.dispose()
 	})
 
@@ -84,6 +87,7 @@ describe('platform list viewability', () => {
 			viewableItems: [{ index: 0, item: after }],
 			changed: [{ index: 0, item: after, isViewable: true }],
 		})
+
 		tracker.dispose()
 	})
 
@@ -91,7 +95,12 @@ describe('platform list viewability', () => {
 		vi.useFakeTimers()
 		const onChange = vi.fn()
 		const tracker = createListViewabilityTracker<string>()
-		tracker.update([{ index: 0, visiblePercent: 100 }], ['active'], { minimumViewTime: 0 }, onChange)
+		tracker.update(
+			[{ index: 0, visiblePercent: 100 }],
+			['active'],
+			{ minimumViewTime: 0 },
+			onChange,
+		)
 		tracker.update([{ index: 1, visiblePercent: 100 }], ['active', 'pending'], undefined, onChange)
 		tracker.reset()
 		vi.advanceTimersByTime(250)
@@ -100,6 +109,7 @@ describe('platform list viewability', () => {
 			viewableItems: [],
 			changed: [{ index: 0, item: 'active', isViewable: false }],
 		})
+
 		expect(onChange).toHaveBeenCalledTimes(2)
 		tracker.dispose()
 	})
@@ -115,9 +125,13 @@ describe('platform list viewability', () => {
 			},
 			off: (event: string, callback: () => void) => listeners.get(event)?.delete(callback),
 		}
+
 		const emit = (event: string) => {
-			for (const callback of listeners.get(event) ?? []) callback()
+			for (const callback of listeners.get(event) ?? []) {
+				callback()
+			}
 		}
+
 		const firstPeer = {}
 		const secondPeer = {}
 		let currentPeer: object | null = null
@@ -147,7 +161,7 @@ describe('platform list viewability', () => {
 		expect(attach).toHaveBeenCalledTimes(2)
 		observer.dispose()
 		expect(attach.mock.results[1].value.dispose).toHaveBeenCalledTimes(1)
-		expect([...listeners.values()].every(handlers => handlers.size === 0)).toBe(true)
+		expect([...listeners.values()].every((handlers) => handlers.size === 0)).toBe(true)
 		expect(reset).toHaveBeenCalledTimes(2)
 	})
 

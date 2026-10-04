@@ -16,6 +16,7 @@ const stages = new Map(
 for (const stage of [0, 1, 2, 3, 4]) {
 	assert.ok(stages.has(stage), 'missing stage ' + stage)
 }
+
 const label = (stage, id) => {
 	const value = stages.get(stage).labels.find((value) => value.id === id)
 	assert.ok(value, 'missing label ' + id)
@@ -58,6 +59,7 @@ for (const stage of [0, 1, 2]) {
 	if (stage === 2) {
 		assert.equal(mixed.runs[1].style, 2, 'removed bold becomes italic')
 	}
+
 	assert.equal(mixed.runs.map((run) => run.text).join(''), mixed.nativeText)
 }
 

@@ -137,23 +137,23 @@ Use it from a setup function or event handler:
 import { secureStorage } from '@octane-xplat/secure-storage'
 
 async function rememberSession(token: string): Promise<boolean> {
-    if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) return false
-    return secureStorage.impl.set('session-token', token)
+	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return false
+	return secureStorage.impl.set('session-token', token)
 }
 
 async function restoreSession(): Promise<string | null> {
-    if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) return null
-    try {
-        return await secureStorage.impl.get('session-token')
-    } catch {
-        // Tell the user that restoring the session failed; do not log the error.
-        return null
-    }
+	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return null
+	try {
+		return await secureStorage.impl.get('session-token')
+	} catch {
+		// Tell the user that restoring the session failed; do not log the error.
+		return null
+	}
 }
 
 async function forgetSession(): Promise<boolean> {
-    if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) return false
-    return secureStorage.impl.remove('session-token')
+	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return false
+	return secureStorage.impl.remove('session-token')
 }
 ```
 

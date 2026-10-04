@@ -64,6 +64,7 @@ export function runWebViewFixture(first: string, second: string, missing: string
 			if (!heightMatches) {
 				return fail('matchContents height constraint')
 			}
+
 			measured = true
 		},
 		onError: (event) => {

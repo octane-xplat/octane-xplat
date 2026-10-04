@@ -61,12 +61,14 @@ export class MockViewBase {
 		if (child.parent) {
 			throw new Error('View already has a parent')
 		}
+
 		child.parent = this
 	}
 	_removeView(child: MockViewBase): void {
 		if (child.parent !== this) {
 			throw new Error('View not added')
 		}
+
 		child.parent = null
 	}
 	inlineStyle: string | null = null
@@ -127,6 +129,7 @@ export class MockLayoutBase extends MockView {
 		if (index === -1) {
 			throw new Error(`${child.typeName} is not a child of ${this.typeName}`)
 		}
+
 		this.children.splice(index, 1)
 		child.parent = null
 	}
@@ -147,6 +150,7 @@ export class MockContentView extends MockView {
 		if (this.#content !== null) {
 			this.#content.parent = null
 		}
+
 		this.#content = view
 		if (view !== null) {
 			view.parent = this
@@ -164,6 +168,7 @@ export class MockTextBase extends MockView {
 		if (this.formatted) {
 			this._removeView(this.formatted)
 		}
+
 		this.formatted = value
 		if (value) {
 			this._addView(value)
@@ -180,6 +185,7 @@ export class MockTextBase extends MockView {
 		if (oldValue === value) {
 			return
 		}
+
 		this.#text = value
 		this.notify({
 			eventName: 'textChange',
@@ -231,16 +237,19 @@ class Runs extends Array<MockSpan> {
 		for (const span of added) {
 			this.owner._addView(span)
 		}
+
 		const removed = super.splice(start, count, ...added)
 		for (const span of removed) {
 			this.owner._removeView(span)
 		}
+
 		return removed
 	}
 	push(...added: MockSpan[]): number {
 		for (const span of added) {
 			this.owner._addView(span)
 		}
+
 		return super.push(...added)
 	}
 }
@@ -266,6 +275,7 @@ export class MockTabViewItem extends MockViewBase {
 		if (this.#view === value) {
 			return
 		}
+
 		if (this.#view !== null) {
 			throw new Error(
 				'Changing the view of an already loaded TabViewItem is not currently supported.',
@@ -282,6 +292,7 @@ export class MockTabViewItem extends MockViewBase {
 		if (view.parent !== this) {
 			throw new Error('View not added to this instance.')
 		}
+
 		view.parent = null
 	}
 }
@@ -342,6 +353,7 @@ export class MockListView extends MockView {
 		if (value === this.#items) {
 			return
 		}
+
 		this.#items = value
 		this.refresh()
 	}
