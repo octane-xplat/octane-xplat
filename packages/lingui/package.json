@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/lingui",
-	"version": "0.9.0",
+	"version": "0.10.0",
 	"description": "Lingui localization runtime for Octane xplat — core macros, signal-free locale store, per-target locale detection",
 	"keywords": [
 		"android",

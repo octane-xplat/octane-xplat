@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/macos-renderer",
-	"version": "0.8.0",
+	"version": "0.10.0",
 	"description": "Experimental AppKit renderer for Octane on macOS",
 	"license": "MIT",
 	"repository": {

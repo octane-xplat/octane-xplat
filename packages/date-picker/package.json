@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/date-picker",
-	"version": "0.9.0",
+	"version": "0.10.0",
 	"description": "Platform-specific date and time selection controls for Octane xplat",
 	"repository": {
 		"type": "git",

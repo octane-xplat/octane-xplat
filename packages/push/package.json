@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/push",
-	"version": "0.9.0",
+	"version": "0.10.0",
 	"description": "Push notifications for Octane xplat — Firebase Cloud Messaging via @nativescript/firebase-messaging on iOS/Android and the Firebase JS SDK on web",
 	"keywords": [
 		"android",

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/smooth-corners",
-	"version": "0.7.3",
+	"version": "0.10.0",
 	"description": "Exact-match smooth corners for Octane xplat — one generated curve (Rosenfeld continuous, Figma squircle, superellipse, clothoid) clipped natively on web, iOS, Android, and macOS",
 	"keywords": [
 		"clip-path",
