@@ -150,6 +150,54 @@ The shared `TiptapFormat` vocabulary is the union the facades expose. StarterKit
 lacks `taskList`, `highlight`, `subscript`/`superscript`, and the `align*`
 formats — they work on Android and no-op on web and AppKit.
 
+## Web engine extensions
+
+On web, `TiptapEditor` mounts a real tiptap `Editor`, and you can hand it
+extra tiptap extensions through the `web` prop. Extensions teach the editor
+new content and commands — for example a `Mark` adds a kind of inline
+formatting. Add the `@tiptap/*` packages you import to the app's
+dependencies at the pinned `3.28.0` version, the same pin the rest of the
+editor stack uses. Your entries run after the built-in StarterKit, so
+everything StarterKit provides keeps working:
+
+```tsx
+import { TiptapEditor } from '@octane-xplat/tiptap'
+import { Mark } from '@tiptap/core'
+
+const Spoiler = Mark.create({
+	name: 'spoiler',
+	parseHTML: () => [{ tag: 'span[data-spoiler]' }],
+	renderHTML: () => ['span', { 'data-spoiler': '' }, 0],
+})
+
+export function Notes() {
+	return <TiptapEditor web={{ extensions: [Spoiler] }} />
+}
+```
+
+`web.starterKit` accepts the same options object as `StarterKit.configure()`,
+so you can tune or disable individual built-ins. Pass `false` to replace the
+kit entirely — your `extensions` must then provide the base schema
+(document, paragraph, and text nodes at minimum). An extension named
+`starterKit` inside `extensions` also replaces the built-in, so StarterKit
+is never registered twice.
+
+```tsx
+import { TiptapEditor } from '@octane-xplat/tiptap'
+
+export function Notes() {
+	// StarterKit minus the link mark, plus whatever the app adds.
+	return <TiptapEditor web={{ starterKit: { link: false } }} />
+}
+```
+
+`web` options configure the browser engine only. Android's Aztec editor and
+the bundled AppKit engine cannot run DOM/ProseMirror extension objects, so
+they ignore the prop — code that relies on a custom schema (custom marks in
+saved JSON, extension commands through `handle.native`) is web-only behavior.
+Keep the option object stable across renders: tiptap fixes the schema when
+the editor is constructed.
+
 ## macOS AppKit editing
 
 The AppKit target supports all three editor components. Each mounts a local
@@ -364,7 +412,9 @@ the maintained example.
   trailing nodes) do not fully interconvert.
 - Android has no WebView bridge: the editor never instantiates
   `prosemirror-view`/`EditorView`, so browser-only tiptap extensions (drag
-  handles, bubble menus) do not apply on native.
+  handles, bubble menus) do not apply on native. Caller-supplied `web`
+  extensions likewise configure only the browser engine — the Android facade
+  and bundled AppKit engine ignore the prop.
 - Lexical: no live `LexicalEditor` on Android — the facade's serialized
   state is a conversion format, and custom plugins/nodes are web-only via
   direct `@octanejs/lexical` import. Selection positions reported through

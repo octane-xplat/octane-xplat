@@ -23,6 +23,29 @@ export function Notes() {
 }
 ```
 
+On web the `web` prop configures the underlying tiptap `Editor`: `extensions`
+appends caller `Extension`/`Node`/`Mark` entries after the built-in
+StarterKit, and `starterKit` takes `StarterKit.configure()` options or
+`false` to hand the schema to `extensions` entirely. A caller `starterKit`
+entry replaces the built-in instead of registering it twice. The options are
+web-only — the Android facade and bundled AppKit engine cannot host
+DOM-bound ProseMirror extensions and ignore the prop.
+
+```tsx
+import { TiptapEditor } from '@octane-xplat/tiptap'
+import { Mark } from '@tiptap/core'
+
+const Spoiler = Mark.create({
+	name: 'spoiler',
+	parseHTML: () => [{ tag: 'span[data-spoiler]' }],
+	renderHTML: () => ['span', { 'data-spoiler': '' }, 0],
+})
+
+export function Notes() {
+	return <TiptapEditor web={{ extensions: [Spoiler] }} />
+}
+```
+
 `value`/`onChange` exchange document HTML. `getJSON`/`setJSON` exchange
 tiptap document JSON: synchronous on web, bridged on native after
 `onJSONReady(true)` — the lazy bridge reports `false` (and `getJSON()`

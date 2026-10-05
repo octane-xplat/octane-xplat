@@ -1,7 +1,8 @@
-import { useImperativeHandle, useEffect, useRef } from 'octane'
+import { useImperativeHandle, useEffect, useMemo, useRef } from 'octane'
 import { EditorContent, useEditor } from '@octanejs/tiptap'
 import StarterKit from '@tiptap/starter-kit'
-import type { TiptapEditorHandle, TiptapEditorProps, TiptapFormat } from './types'
+import type { Extensions } from '@tiptap/core'
+import type { TiptapEditorHandle, TiptapEditorProps, TiptapFormat, TiptapWebOptions } from './types'
 
 export const supported = true
 
@@ -56,6 +57,20 @@ function activeFormats(editor: any): TiptapFormat[] {
 	return out
 }
 
+/** Extension list for the web engine: the built-in StarterKit (optionally
+ *  configured) followed by caller extras. `starterKit: false` or a
+ *  starterKit-named caller entry hands the schema over to the caller —
+ *  registering two StarterKits trips tiptap's duplicate-name warning. */
+function resolveExtensions(web: TiptapWebOptions | undefined): Extensions {
+	const extras = web?.extensions ?? []
+	if (web?.starterKit === false || extras.some((ext) => ext?.name === 'starterKit')) {
+		return extras
+	}
+
+	const kit = web?.starterKit ? StarterKit.configure(web.starterKit) : StarterKit
+	return [kit, ...extras]
+}
+
 /** Unified editor facade, web half — a thin adapter over the published
  *  `@octanejs/tiptap` binding (useEditor + EditorContent + StarterKit). */
 export function TiptapEditor(props: TiptapEditorProps) @{
@@ -65,8 +80,15 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 	const lastJSONInput = useRef(JSON.stringify(props.json))
 	const bound = useRef<TiptapEditorHandle | undefined>(undefined)
 
+	// tiptap fixes the schema at construction; memoized on the option values
+	// so a stable caller config never re-triggers setOptions.
+	const extensions = useMemo(
+		() => resolveExtensions(props.web),
+		[props.web?.extensions, props.web?.starterKit],
+	)
+
 	const editor = useEditor({
-		extensions: [StarterKit],
+		extensions,
 		content: (props.json ?? props.value ?? '') as any,
 		editable: props.editable !== false,
 		autofocus: props.autofocus ?? false,

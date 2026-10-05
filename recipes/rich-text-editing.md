@@ -49,6 +49,11 @@ the platform file-suffix boundary for divergent imports.
   external controlled updates without replaying an unchanged input, and
   dispose their views on unmount. Docs explain asynchronous commands and
   snapshot getters, frame styling, engine gaps, and runtime evidence limits.
+- AC9: On web, callers extend the mounted tiptap `Editor` through the
+  `web` prop — extra `Extension`/`Node`/`Mark` entries append after
+  StarterKit, `starterKit` options configure or remove the kit, and a
+  caller `starterKit` entry never double-registers. Docs state the
+  boundary: Android (Aztec) and AppKit ignore `web` options.
 
 ## Documentation
 
@@ -72,3 +77,6 @@ the platform file-suffix boundary for divergent imports.
 - AC8: [macOS AppKit editing](../docs/app/rich-text.md#macos-appkit-editing),
   [isolated WebKit fixture](../packages/richtext/test/verify-wk.mjs), and
   [packed AppKit consumer](../packages/richtext/test/packed-consumer.mjs).
+- AC9: [Web engine extensions](../docs/app/rich-text.md#web-engine-extensions);
+  `packages/tiptap/src/TiptapEditor.web.test.tsrx` covers the schema/command
+  and StarterKit-replacement behavior.
