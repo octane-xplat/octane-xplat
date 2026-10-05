@@ -15,6 +15,7 @@ export type {
 	Locale,
 	PermissionKind,
 	PermissionResult,
+	RandomImpl,
 	OpenSettingsImpl,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
@@ -35,6 +36,7 @@ export { systemBars } from './system-bars.web'
 export { announce } from './a11y.web'
 export { locale } from './locale.web'
 export { webAuthn } from './webauthn.web'
+export { random } from './random.web'
 export { authSession } from './auth-session.web'
 export { onDeepLink, consumeInitialUrl } from './deep-links.web'
 export { useAppState, useBackHandler } from './lifecycle.web'

@@ -42,6 +42,20 @@ export interface Locale {
 
 export type PermissionResult = 'granted' | 'denied' | 'unsupported'
 
+/**
+ * OS CSPRNG: fills buffers from the platform's cryptographic entropy source
+ * (SecRandomCopyBytes on iOS/macOS, java.security.SecureRandom on Android,
+ * crypto.getRandomValues on web/Linux). `supported` is false where no source
+ * is bound — `fill`/`bytes` throw there rather than weaken to Math.random.
+ */
+export interface RandomImpl {
+	readonly supported: boolean
+	/** Fill `view` entirely with secure random bytes; returns `view`. */
+	fill<T extends ArrayBufferView>(view: T): T
+	/** Return `length` freshly generated secure random bytes. */
+	bytes(length: number): Uint8Array
+}
+
 export type PermissionKind = 'notifications' | 'camera' | 'photos' | 'location'
 
 export type ConnectionType =

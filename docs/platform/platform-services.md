@@ -173,6 +173,29 @@ The leaf does not open authentication prompts. See the
 [leaf's macOS contract](../../packages/secure-storage/README.md#macos-appkit) for return
 values, storage scope, and non-visual verification commands.
 
+## Generate secure random bytes
+
+Use `random` from `@octane-xplat/platform` when a feature needs values an
+attacker cannot guess — a sign-in nonce, a salt, or key material. It fills a
+byte array from the operating system's secure random source, never from
+`Math.random()`:
+
+```ts
+import { random } from '@octane-xplat/platform'
+
+const nonce = random.bytes(16)
+
+// Or fill a view you already own — a Uint8Array, DataView, or other typed array.
+const salt = new Uint8Array(32)
+random.fill(salt)
+```
+
+Browsers use `crypto.getRandomValues`, iOS and macOS use `SecRandomCopyBytes`,
+and Android uses `java.security.SecureRandom`. Every currently shipping target
+has a bound source except Windows, where `random.supported` is `false` —
+check the flag and disable or defer the feature there rather than catching
+errors or weakening the secret.
+
 ## Desktop webview host protocol
 
 A `.web` frontend can run in a browser or a system webview. In a desktop
@@ -295,6 +318,7 @@ JavaScript runtime (Annotation 2).
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
 | `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
+| `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                               | `supported: false` on Windows                                                                                                                                                        |
 | `openSettings`                      | capability; `open()`                                                                         | unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
 | `media.capturePhoto()`              | still capture through the OS camera UI                                                       | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops                                                |

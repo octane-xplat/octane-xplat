@@ -10,6 +10,7 @@ import type {
 	Locale,
 	OpenSettingsImpl,
 	PermissionResult,
+	RandomImpl,
 	WebAuthnImpl,
 	WindowSize,
 } from './types'
@@ -29,6 +30,7 @@ export type {
 	Locale,
 	PermissionKind,
 	PermissionResult,
+	RandomImpl,
 	OpenSettingsImpl,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
@@ -152,6 +154,7 @@ export const webAuthn: Capability<WebAuthnImpl> = {
 }
 
 export { authSession } from './auth-session.macos'
+export { random } from './random.macos'
 export const openSettings: Capability<OpenSettingsImpl> = {
 	supported: false,
 	ensure: unsupported,

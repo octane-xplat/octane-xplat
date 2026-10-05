@@ -17,6 +17,20 @@ storage.setString('bag', 'Carry-on')
 const bag = storage.getString('bag')
 ```
 
+## `random` — OS CSPRNG
+
+`random.bytes(length)` returns a `Uint8Array` of secure random bytes;
+`random.fill(view)` fills any `ArrayBufferView` in place. Web uses
+`crypto.getRandomValues`, iOS/macOS `SecRandomCopyBytes`, Android
+`java.security.SecureRandom`. `random.supported` is `false` on Windows —
+no weaker fallback exists.
+
+```ts
+import { random } from '@octane-xplat/platform'
+
+const nonce = random.bytes(16)
+```
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

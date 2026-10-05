@@ -27,13 +27,17 @@ test('packed macOS consumer resolves generated declarations and the announce con
 	const entry = join(directory, 'consumer.ts')
 	writeFileSync(
 		entry,
-		`import { announce } from '@octane-xplat/platform'
+		`import { announce, random } from '@octane-xplat/platform'
 const fn: (text: string) => void = announce
 const result: void = fn('Saved ✓')
 // @ts-expect-error only string messages are accepted
 announce(42)
 // @ts-expect-error no delivery acknowledgement
 const delivered: boolean = announce('Saved')
+const make: (length: number) => Uint8Array = random.bytes
+const fill: (view: Uint8Array) => Uint8Array = random.fill
+// @ts-expect-error fill expects a buffer view, not a length
+random.fill(16)
 `,
 	)
 
