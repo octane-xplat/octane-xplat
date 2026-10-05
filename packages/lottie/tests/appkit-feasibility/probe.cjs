@@ -3,6 +3,7 @@ function check(value, message) {
 	if (!value) {
 		throw Error(message)
 	}
+
 	assertions++
 }
 
@@ -19,6 +20,7 @@ function waitFor(predicate, message, seconds) {
 		if (predicate()) {
 			return
 		}
+
 		pump(0.01)
 	}
 

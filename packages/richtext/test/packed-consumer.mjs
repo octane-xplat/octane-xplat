@@ -159,6 +159,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	console.log('[packed editors] skipping AppKit build/run — needs an Apple Silicon Mac')
 	process.exit(0)
 }
+
 run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
 console.log('[packed editors] production AppKit build and native metadata pass')
 const executable = join(

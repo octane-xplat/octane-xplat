@@ -120,6 +120,7 @@ export async function runOverlayFixture() {
 		while (!condition() && Date.now() < deadline) {
 			await tick()
 		}
+
 		check(
 			condition(),
 			message +
@@ -139,6 +140,7 @@ export async function runOverlayFixture() {
 			() => app.keyWindow === window || !!app.keyWindow?.isEqual?.(window),
 			'fixture window did not become key',
 		)
+
 		root.render(Content, {})
 		await tick()
 		const opener = root.__macosDebug.findId('opener')
@@ -179,6 +181,7 @@ export async function runOverlayFixture() {
 			() => live().length === 1 && live()[0].panel.accessibilityLabel === 'First',
 			'switcher did not present',
 		)
+
 		const switcher = live()[0]
 		root.render(Content, { activeSheet: 'second' })
 		await tick()
@@ -269,6 +272,7 @@ export async function runOverlayFixture() {
 			() => app.keyWindow === window || !!app.keyWindow?.isEqual?.(window),
 			'imperative sheet needs a key window',
 		)
+
 		const pending = openBottomSheet(
 			SheetContent,
 			{ value: 1 },

@@ -101,6 +101,7 @@ describe('platform list viewability', () => {
 			{ minimumViewTime: 0 },
 			onChange,
 		)
+
 		tracker.update([{ index: 1, visiblePercent: 100 }], ['active', 'pending'], undefined, onChange)
 		tracker.reset()
 		vi.advanceTimersByTime(250)

@@ -25,6 +25,7 @@ const load = (compiled, host) => {
 		RangeError,
 		...host,
 	}
+
 	vm.runInNewContext(compiled, context)
 	return context.exports
 }
@@ -45,6 +46,7 @@ const appleHost = ({ status = 0, seed = 7 } = {}) => ({
 		for (let i = 0; i < count; i++) {
 			bytes[i] = (seed + i * 31) & 0xff
 		}
+
 		return status
 	},
 	interop: { bufferFromData: (data) => data.__bytes },
@@ -55,6 +57,7 @@ const expected = (length, seed = 7) => {
 	for (let i = 0; i < length; i++) {
 		out[i] = (seed + i * 31) & 0xff
 	}
+
 	return out
 }
 
@@ -100,6 +103,7 @@ test('web random chunks fills past the 64 KiB getRandomValues quota', () => {
 			return view
 		},
 	}
+
 	const { random } = load(webCompiled, { crypto })
 	assert.equal(random.supported, true)
 
@@ -121,6 +125,7 @@ test('web random reports unsupported when crypto is absent', () => {
 test('native random dispatches to SecRandomCopyBytes under Application.ios', () => {
 	const require = (name) =>
 		name === '@nativescript/core' ? { Application: { ios: {} } } : {}
+
 	const { random } = load(nativeCompiled, { ...appleHost(), require })
 	assert.equal(random.supported, true)
 	assert.deepEqual(random.bytes(8), expected(8))
@@ -133,6 +138,7 @@ test('native random dispatches to SecureRandom under Application.android', () =>
 		bytes.length = 32
 		return bytes
 	}
+
 	const java = {
 		security: {
 			SecureRandom: class {
@@ -144,8 +150,10 @@ test('native random dispatches to SecureRandom under Application.android', () =>
 			},
 		},
 	}
+
 	const require = (name) =>
 		name === '@nativescript/core' ? { Application: { android: {} } } : {}
+
 	const { random } = load(nativeCompiled, { require, java, Array: FakeArray })
 	assert.equal(random.supported, true)
 
