@@ -14,22 +14,45 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 	const inner = useRef<RichTextEditorHandle | null>(null)
 	const [exposedHandle, setHandle] = useState<TiptapEditorHandle | null>(null)
 	useImperativeHandle<TiptapEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])
-	const jsonReady = useRef(false)
 	const lastJSON = useRef<string | undefined>(undefined)
+	const appliedHost = useRef<RichTextEditorHandle | null>(null)
+	// Latest doc requested for the host — by `json` prop or `setJSON`. Kept
+	// after a successful push so a rebound (recreated) host still gets it.
+	const desiredDoc = useRef<TiptapJSON | undefined>(undefined)
+
+	// Push the requested doc once both halves are up — the JSON bridge
+	// (async module load) and the bound host (ref/onReady timing). Skips the
+	// stamp the host already shows, so editor-emitted echoes and repeat props
+	// never reach setHTML; a different host always gets its own copy.
+	const applyDoc = () => {
+		const host = inner.current
+		const doc = desiredDoc.current
+		if (!host || doc === undefined || !jsonBridgeReady()) return
+		const stamp = JSON.stringify(doc)
+		if (stamp === lastJSON.current && appliedHost.current === host) return
+		const html = jsonToHTML(doc)
+		if (html != null) {
+			lastJSON.current = stamp
+			appliedHost.current = host
+			host.setHTML(html)
+		}
+	}
 
 	const bindHost = useCallback((h: RichTextEditorHandle | null) => {
 		inner.current = h
+		if (h) {
+			// The ref binds inside the leaf's commit, before its own `value`
+			// seed — defer so `json` keeps precedence over `value`.
+			queueMicrotask(applyDoc)
+		}
 
 		setHandle((previous) => previous?.native === h?.native ? previous : h ? ({
 			getHTML: () => h.getHTML(),
 			setHTML: (html: string) => h.setHTML(html),
 			getJSON: () => (jsonBridgeReady() ? htmlToJSON(h.getHTML()) : null),
 			setJSON: (doc) => {
-				const html = jsonBridgeReady() ? jsonToHTML(doc) : null
-				if (html != null) {
-					lastJSON.current = JSON.stringify(doc)
-					h.setHTML(html)
-				}
+				desiredDoc.current = doc
+				applyDoc()
 			},
 			apply: (format) => h.apply(format),
 			linkTo: (url, anchor) => h.linkTo(url, anchor),
@@ -45,25 +68,28 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 	}, [])
 
 	// The bridge loads once per process — dynamic imports of the DOM-free
-	// tiptap slices, plus the zeed-dom parse shim.
+	// tiptap slices, plus the zeed-dom parse shim. A doc that arrived before
+	// it settles is applied here, not dropped.
 	useEffect(() => {
+		let alive = true
 		ensureJSONBridge().then((ok) => {
-			jsonReady.current = ok
+			if (!alive) return
 			props.onJSONReady?.(ok)
+			applyDoc()
 		})
+
+		return () => {
+			alive = false
+		}
 	}, [])
 
-	// `json` prop → editor content, when the bridge is up and the doc wasn't
-	// emitted by the editor itself.
+	// `json` prop → editor content. It may land before the bridge settles or
+	// before the host binds — park it in desiredDoc and let the readiness
+	// flushes apply it.
 	useEffect(() => {
-		if (!props.json || !jsonBridgeReady() || !inner.current) return
-		const stamp = JSON.stringify(props.json)
-		if (stamp === lastJSON.current) return
-		const html = jsonToHTML(props.json)
-		if (html != null) {
-			lastJSON.current = stamp
-			inner.current.setHTML(html)
-		}
+		if (!props.json) return
+		desiredDoc.current = props.json
+		applyDoc()
 	}, [props.json])
 
 	const emitJSON = () => {
@@ -71,6 +97,7 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 		const doc = htmlToJSON(inner.current.getHTML())
 		if (doc) {
 			lastJSON.current = JSON.stringify(doc)
+			appliedHost.current = inner.current
 			props.onJSONChange?.(doc)
 		}
 	}
@@ -83,7 +110,12 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 		placeholder={props.placeholder}
 		editable={props.editable}
 		autofocus={props.autofocus}
-		onReady={props.onReady}
+		onReady={() => {
+			// Host signalled ready after the leaf's own initial content seed —
+			// the last apply point that still outranks a `value` prop.
+			applyDoc()
+			props.onReady?.()
+		}}
 		onChange={(html) => {
 			props.onChange?.(html)
 			emitJSON()

@@ -94,8 +94,9 @@ export interface LexicalEditorProps {
 	/** Document HTML. Seed at mount; external changes re-push. */
 	value?: string
 	/** Serialized editor state. Takes precedence over `value` when both
-	 *  arrive. On native it waits for the doc-model modules (see
-	 *  `onJSONReady`). */
+	 *  arrive. On native it waits for the doc-model modules and host
+	 *  readiness (see `onJSONReady`); a doc that arrives early is applied
+	 *  once both are up rather than dropped. */
 	json?: LexicalJSON
 	placeholder?: string
 	editable?: boolean

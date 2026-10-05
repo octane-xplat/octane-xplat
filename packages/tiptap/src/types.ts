@@ -89,7 +89,9 @@ export interface TiptapEditorProps {
 	 *  setContent, preserving the diff loop the editor emitted is skipped). */
 	value?: string
 	/** Document JSON. Takes precedence over `value` when both arrive. On
-	 *  native it waits for the schema modules (see `onJSONReady`). */
+	 *  native it waits for the schema modules and host readiness (see
+	 *  `onJSONReady`); a doc that arrives early is applied once both are up
+	 *  rather than dropped. */
 	json?: TiptapJSON
 	placeholder?: string
 	editable?: boolean
