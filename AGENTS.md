@@ -19,6 +19,7 @@ working agreements and detail moved out of this entry point.
 | Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
 | Write or review docs; change public behavior or setup   | [Documentation audience and coverage](.agents/docs/documentation.md)                                                 |
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
+| Plan Coreframe's role on Xplat or an app migration      | [Coreframe role](.agents/docs/coreframe-role.md)                                                                     |
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
 | Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
 | Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
