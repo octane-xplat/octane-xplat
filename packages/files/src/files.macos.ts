@@ -1,5 +1,11 @@
 // Files — AppKit host leaf.
-import type { FileRef } from './types'
+import type {
+	FileExportOptions,
+	FileExportResult,
+	FileReadBytesOptions,
+	FileRef,
+	Files,
+} from './types'
 
 function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
 	const appKit = globalThis as any
@@ -42,7 +48,7 @@ function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
 	}))
 }
 
-export const files = {
+export const files: Files = {
 	async pick(accept = '*/*'): Promise<FileRef | null> {
 		return openPanel(accept)?.[0] ?? null
 	},
@@ -52,7 +58,20 @@ export const files = {
 	async readText(_file: FileRef): Promise<string> {
 		throw new Error('unsupported: AppKit file access is not wired')
 	},
+	async readBytes(_file: FileRef, _opts?: FileReadBytesOptions): Promise<Uint8Array> {
+		throw new Error('unsupported: AppKit file access is not wired')
+	},
 	async writeText(_name: string, _text: string): Promise<FileRef> {
+		throw new Error('unsupported: the AppKit host does not provide a save panel')
+	},
+	async writeBytes(_name: string, _bytes: Uint8Array): Promise<FileRef> {
+		throw new Error('unsupported: the AppKit host does not provide a save panel')
+	},
+	async export(
+		_name: string,
+		_bytes: Uint8Array,
+		_opts?: FileExportOptions,
+	): Promise<FileExportResult> {
 		throw new Error('unsupported: the AppKit host does not provide a save panel')
 	},
 	release(_file: FileRef): void {},

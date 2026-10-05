@@ -46,3 +46,38 @@ if (file) {
 	}
 }
 ```
+
+## Binary reads, writes, and export
+
+`files.readBytes(ref, { maxBytes?, signal? })` reads the full contents as a
+`Uint8Array`. It works on `content://` picks (read through Android's
+`ContentResolver`), iOS picker copies, sandbox files, and web object URLs.
+`maxBytes` rejects oversized files mid-read instead of loading them, and
+`signal` aborts the read with an `AbortError`.
+
+```ts
+const bytes = await files.readBytes(file, { maxBytes: 10 * 1024 * 1024 })
+```
+
+`files.writeBytes(name, bytes)` mirrors `writeText`: on native it writes into
+the app sandbox (Documents) and returns a `FileRef`; on web it starts a
+browser download. `name` must be a bare file name — paths like `../x` or
+`a/b` are rejected, and `writeText` enforces the same rule.
+
+`files.export(name, bytes, { mimeType? })` asks the user where to save the
+data and resolves `saved`, `cancelled`, or `unavailable`. `saved` means the
+platform committed the bytes — Android flushes them through
+`ContentResolver` to the picked document, iOS completes the export-as-copy
+flow, and web closes a File System Access writable. Browsers without
+`showSaveFilePicker` and the AppKit leaf report `unavailable`; a share-sheet
+presentation never counts as `saved`.
+
+```ts
+const result = await files.export('report.pdf', pdfBytes, { mimeType: 'application/pdf' })
+if (result === 'cancelled') console.log('user dismissed')
+```
+
+Picked refs are only guaranteed readable within the picking session. Android
+`content://` grants are not persisted by the picker, and iOS import-mode
+copies live in a temp folder — copy what you need with `writeBytes`, and
+call `files.release(ref)` when done.

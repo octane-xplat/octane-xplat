@@ -11,4 +11,11 @@ export type {
 } from '../src/props.js'
 
 export { files } from '../src/files.macos.js'
-export type { FileRef } from '../src/types.js'
+export type {
+	FileExportOptions,
+	FileExportResult,
+	FilePickOptions,
+	FileReadBytesOptions,
+	FileRef,
+	Files,
+} from '../src/types.js'

@@ -341,6 +341,31 @@ const file = await files.writeText('packing.txt', 'Passport\nCharger')
 if (file) console.log(file.name) // web: a download, not a persistent file path
 ```
 
+`files.readBytes(ref)` and `files.writeBytes(name, bytes)` move binary data
+through the same `FileRef` contract: `readBytes` returns a `Uint8Array` and
+accepts `maxBytes` (reject oversized files mid-read) plus an abort `signal`;
+`writeBytes` writes into the app sandbox on native and downloads on web.
+`files.export(name, bytes)` opens the platform save/export UI and resolves
+`saved`, `cancelled`, or `unavailable` — it never reports `saved` from
+presentation alone.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const picked = await files.pick('image/*')
+if (picked) {
+	const bytes = await files.readBytes(picked, { maxBytes: 8 * 1024 * 1024 })
+	files.release(picked)
+	const result = await files.export(picked.name, bytes, { mimeType: 'image/png' })
+	if (result === 'saved') console.log('export committed')
+}
+```
+
+File names for `writeText`/`writeBytes`/`export` must be bare names, not
+paths — separators and `..` are rejected. Picked `content://` (Android) and
+import-copy (iOS) refs are session-scoped; copy durable data with
+`writeBytes` rather than retaining the URI.
+
 ## Share text and URLs
 
 Use the shared `share` service to offer text or a link to the system's sharing

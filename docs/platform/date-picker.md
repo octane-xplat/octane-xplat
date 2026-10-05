@@ -158,8 +158,8 @@ Selection is built in: the browser chooser is used on web and Linux, the
 NativeScript document picker on iOS and Android, and AppKit's `NSOpenPanel`
 on macOS. Multi-file selection is supported on each of those paths. An
 optional `pick` prop can override the default for app-specific sources. The
-AppKit files leaf provides picking; its `readText` and `writeText` methods
-remain unsupported.
+AppKit files leaf provides picking; its `readText`/`readBytes`, `writeText`/
+`writeBytes`, and `export` methods remain unsupported.
 
 ```tsx
 import { FileInput } from '@octane-xplat/files'
