@@ -406,7 +406,11 @@ export async function runTarget(target, args, onResult, signal) {
 
 			if (target === 'web') {
 				const { chromium } = await importFrom(appFor('web'), 'playwright')
-				browser = await chromium.launch()
+				browser = await chromium.launch({
+					// Synthetic capture device + auto-accepted permission prompts so
+					// getUserMedia cases exercise the real capture path headlessly.
+					args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
+				})
 				page = await browser.newPage()
 				page.on('pageerror', fail)
 				page.on('response', async (response) => {
