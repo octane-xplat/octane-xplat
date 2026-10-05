@@ -15,12 +15,16 @@ try {
 						'apps/mobile/types/globals.d.ts',
 						'packages/platform/src/auth-session.ts',
 						'packages/media/src/media.ts',
+						'packages/recorder/src/index.ts',
+						'packages/recorder/src/recorder.ios.ts',
+						'packages/recorder/src/recorder.android.ts',
 					]
 				: [
 						'packages/platform/src/auth-session.web.ts',
 						'packages/media/src/media.web.ts',
 						'packages/audio/src/audio.web.ts',
 						'packages/sounds/src/sounds.web.ts',
+						'packages/recorder/src/recorder.web.ts',
 					]
 
 		const config = join(scratch, `${target}.json`)

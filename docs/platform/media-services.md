@@ -16,11 +16,12 @@ Check the support table for each feature and platform you use.
 
 From your app folder, install the package for the feature you need:
 
-| Feature                            | Command                          |
-| ---------------------------------- | -------------------------------- |
-| Advanced vibration patterns        | `pnpm add @octane-xplat/haptics` |
-| Short sound effects                | `pnpm add @octane-xplat/sounds`  |
-| Audio tracks and playback controls | `pnpm add @octane-xplat/audio`   |
+| Feature                            | Command                            |
+| ---------------------------------- | ---------------------------------- |
+| Advanced vibration patterns        | `pnpm add @octane-xplat/haptics`   |
+| Short sound effects                | `pnpm add @octane-xplat/sounds`    |
+| Audio tracks and playback controls | `pnpm add @octane-xplat/audio`     |
+| Microphone recording to WAV        | `pnpm add @octane-xplat/recorder`  |
 
 The packages include their JavaScript and Android plugin dependencies.
 Advanced haptics on iOS also needs the Pulsar Swift package and source
@@ -263,6 +264,67 @@ NativeScript. iOS uses AVPlayer with Now Playing metadata, remote transport
 commands, interruption observation, and the app's audio background mode. Both
 platform adapters are implemented, but route and interruption coexistence with
 short effects still need device verification.
+
+## Recording audio
+
+Use `createAudioRecorder()` when the app needs microphone capture — a voice
+memo, a dictated block, an attachment. `recorder.start()` requests the
+microphone when the user hasn't been asked yet, or call
+`recorder.requestPermission()` yourself from a settings screen so the prompt
+timing is yours. `stop()` resolves a `RecordingResult` whose `bytes` are a
+complete **WAV file** (16-bit PCM) on every target — pass it to an upload or
+transcription call as-is.
+
+```ts
+import { createAudioRecorder } from '@octane-xplat/recorder'
+
+const recorder = createAudioRecorder()
+await recorder.start() // asks for the mic if still undetermined
+// ... later, when the user releases or taps stop:
+const take = await recorder.stop()
+console.log(take.mimeType, take.bytes.byteLength, take.durationSeconds)
+// 'audio/wav', the full file length, seconds recorded
+recorder.dispose()
+```
+
+Watch `snapshot()` while a take is open: `state` moves between `recording`,
+`paused`, `interrupted` (the OS suspended capture — a phone call, a silenced
+mic, a disconnected route; it becomes `paused` when the interruption clears
+and `resume()` continues the same take), and `error`. `permission` reports
+`undetermined`, `granted`, `denied`, `unavailable` (no usable input device), or
+`unsupported` — a refused or failed `start()` rejects *and* updates the
+snapshot, so always catch it.
+
+```ts
+import { createAudioRecorder } from '@octane-xplat/recorder'
+
+const recorder = createAudioRecorder()
+const off = recorder.subscribe((snapshot) => {
+	console.log(snapshot.state, snapshot.permission, snapshot.meterLevel)
+})
+try {
+	await recorder.start()
+} catch (error) {
+	console.log(`Cannot record: ${recorder.snapshot().permission}`)
+}
+await recorder.pause()
+await recorder.resume() // also resumes a cleared interruption
+await recorder.cancel() // discards the take entirely
+off()
+recorder.dispose()
+```
+
+`recorder.restart()` discards the open take and starts a new one — handy for
+"try again" in a dictation UI. On native, `take.path` names the temp file the
+take was written to; your app owns deleting it. `permissions.ensure('microphone')`
+from `@octane-xplat/platform` also delegates to this leaf when it is installed.
+
+Native recording runs `AVAudioRecorder` on iOS and `AudioRecord` on Android;
+the web target captures through `getUserMedia` and an AudioWorklet tap
+(ScriptProcessor fallback). Android captures in the foreground only —
+background microphone use needs an app-owned foreground service, which the
+package does not start. Real-device permission prompts, interruption recovery,
+route coexistence, and mic audio quality still need on-device qualification.
 
 ## Check your integration
 
