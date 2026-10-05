@@ -2,7 +2,7 @@
 import { useState, useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { RichTextEditor, supported as leafSupported } from '@octane-xplat/richtext'
 import type { RichTextEditorHandle } from '@octane-xplat/richtext'
-import type { TiptapEditorHandle, TiptapEditorProps } from './types'
+import type { TiptapEditorHandle, TiptapEditorProps, TiptapJSON } from './types'
 import { ensureJSONBridge, htmlToJSON, jsonBridgeReady, jsonToHTML } from './json-bridge'
 
 export const supported = leafSupported
