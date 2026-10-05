@@ -152,6 +152,66 @@ The shared `TiptapFormat` vocabulary is the union the facades expose. StarterKit
 lacks `taskList`, `highlight`, `subscript`/`superscript`, and the `align*`
 formats — they work on Android and no-op on web and AppKit.
 
+## Ordinary editing subset by platform
+
+The engine rows below describe the path each package exposes. Android's
+Aztec-backed behavior is not runtime-qualified by this baseline yet; see the
+verification table after the capability matrix.
+
+| Capability | Web | Android | iOS | macOS AppKit |
+| --- | --- | --- | --- | --- |
+| Engine | Live Tiptap or Lexical editor | Aztec `AztecText` with Tiptap/Lexical document conversion | Unsupported placeholder; `supported` is false | Bundled editor in WKWebView |
+| Fresh mount with initial content | Supported | Supported by the facade and Aztec leaf | Unsupported | Supported after `onReady` |
+| User edits and change events | Live engine events | Aztec text/change callbacks | Unsupported | WebKit editor events |
+| Controlled replacement | `value` or `json` updates the live editor | `value` HTML or converted JSON updates Aztec | Unsupported | Host sends property updates to the bundled editor |
+| Read-only | `editable={false}` | `editable={false}` on Aztec | Unsupported | `editable={false}` in the bundled editor |
+| Focus and blur | Editor focus callbacks and handle | Aztec focus callbacks and handle | Unsupported | Asynchronous WebKit callbacks and handle |
+| Selection | Engine selection callback | Aztec selection callback when the selection changes | Unsupported | Snapshot from the bundled editor |
+| Undo | Live engine history | Keyboard edits only; `setHTML` and format commands do not enter history | Unsupported | Live engine history |
+| Save and reopen | HTML or that engine's JSON | HTML is canonical; JSON conversion is best effort | Unsupported | HTML or that engine's JSON |
+| Disposal | Component unmount | Native view teardown | Placeholder only | WebKit view and message handler teardown |
+| Custom engine options | Tiptap `web.extensions`/`web.starterKit`; Lexical `web.nodes`/`web.plugins` | Ignored | Ignored | Ignored by the AppKit host |
+
+On Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
+Lexical plugins, transforms, and browser views do not run. The facades do not
+create live ProseMirror or Lexical editor instances there. Aztec's ordinary
+rich-text baseline does not include recursive or nested document fidelity;
+nested-structure probes fail, so this surface is not suitable for Foxtrot's
+recursive documents.
+
+```tsx
+import { LexicalEditor } from '@octane-xplat/lexical'
+
+export function AndroidNotes() {
+	return <LexicalEditor value="<p>Saved as HTML</p>" onChange={saveHtml} />
+}
+
+declare function saveHtml(html: string): void
+```
+
+## Baseline verification status
+
+| Baseline row | Android Aztec runtime | Native object-driver fake host |
+| --- | --- | --- |
+| Fresh mount with initial content | Not run | JSON seed and readiness ordering pass |
+| User edits | Not run | Callback path simulated by the fake host; no keyboard input |
+| Controlled replacement | Not run | Later JSON replacement and duplicate suppression pass |
+| Read-only | Not run | Not covered |
+| Focus and blur | Not run | Not covered |
+| Selection | Not run | Not covered |
+| Undo | Not run | Fake command is a no-op; not covered |
+| Save and reopen | Not run | Not covered |
+| Events | Not run | Fake `onChange` to `onJSONChange` conversion passes |
+| Disposal | Not run | Late bridge completion after unmount is ignored |
+
+The fake-host rows come from the Tiptap and Lexical native object-driver tests;
+they do not mount Aztec. No Android runtime result is claimed. The iOS package
+entry remains an unsupported placeholder, and no iOS editor behavior is
+inferred from object-driver coverage. Native package builds and those
+object-driver suites pass, but they do not run NativeScript's iOS metadata
+generator or compile and launch an iOS app; the external-user simulator was
+not available for this task.
+
 ## Web engine extensions
 
 On web, `TiptapEditor` mounts a real tiptap `Editor`, and you can hand it

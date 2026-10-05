@@ -40,8 +40,9 @@ export type TiptapJSON = { type: string; content?: unknown[] } & Record<string, 
 /** Engine options for the web target only. The `.web` entry mounts a real
  *  tiptap `Editor`, so callers can extend its schema here. The Android
  *  facade (Aztec leaf) and the bundled AppKit engine cannot host DOM-bound
- *  ProseMirror/tiptap extension objects and ignore these options — a caller
- *  extension is web behavior, not shared contract. */
+ *  ProseMirror/tiptap extension objects and ignore these options. Caller
+ *  plugins, node views, and browser menus are web behavior, not shared
+ *  contract. */
 export interface TiptapWebOptions {
 	/** Extra tiptap extensions appended after the built-in StarterKit — any
 	 *  `Extension`/`Node`/`Mark` from `@tiptap/*` or app code. An entry named

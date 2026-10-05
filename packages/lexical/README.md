@@ -88,10 +88,10 @@ export function NoteEditor() {
 ```
 
 The `web` options are ignored on native. Native still edits with Aztec on
-Android and uses the fixed headless conversion node set for JSON; plugin
-components, browser DOM nodes, and arbitrary JavaScript transforms do not
-run there. Apps replacing the web defaults can set both replacement options
-and register the node classes Lexical requires for their documents.
+Android and uses the fixed headless conversion node set for JSON. Caller
+plugins, custom nodes, browser views, and arbitrary JavaScript transforms do
+not run there. Apps replacing the web defaults can set both replacement
+options and register the node classes Lexical requires for their documents.
 
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'
@@ -102,6 +102,36 @@ export function NoteEditor() {
 		<LexicalEditor
 			web={{ replaceNodes: true, nodes: [BadgeNode], replacePlugins: true, plugins: <BadgePlugin /> }}
 		/>
+	)
+}
+```
+
+## Engine and feature boundary
+
+| Target | Editing engine | `web` options | Caller plugins, custom nodes, and browser views |
+| --- | --- | --- | --- |
+| Web | Lexical `LexicalComposer` with the facade's default nodes and plugins | `nodes`, `plugins`, and replacement flags apply | Supported by the web Lexical engine |
+| Android | WordPress Aztec `AztecText`; a headless Lexical editor converts serialized state to and from HTML | Ignored | Unsupported; no live Lexical editor, plugin, transform, custom node, or browser view runs |
+| iOS | Unsupported placeholder from `@octane-xplat/richtext` | Ignored | Unsupported; `supported` is `false` |
+| macOS AppKit | Bundled Lexical editor in WKWebView | Ignored by the AppKit host | Unsupported through this facade |
+
+On Android, save HTML as the canonical document. Lexical serialized state is
+a best-effort conversion through the fixed built-in node set; it is not a live
+Lexical editor state that supports commands or plugins.
+Nested-structure probes fail on the Aztec path; this ordinary rich-text
+baseline is not suitable for recursive documents.
+
+```tsx
+import { useState } from 'octane'
+import { LexicalEditor, supported } from '@octane-xplat/lexical'
+import { Text } from '@octane-xplat/ui'
+
+export function Notes() {
+	const [html, setHTML] = useState('<p>Travel notes</p>')
+	return supported ? (
+		<LexicalEditor value={html} editable onChange={setHTML} />
+	) : (
+		<Text>Editing is unavailable on this target</Text>
 	)
 }
 ```

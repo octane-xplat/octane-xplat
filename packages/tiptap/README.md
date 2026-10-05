@@ -28,8 +28,9 @@ appends caller `Extension`/`Node`/`Mark` entries after the built-in
 StarterKit, and `starterKit` takes `StarterKit.configure()` options or
 `false` to hand the schema to `extensions` entirely. A caller `starterKit`
 entry replaces the built-in instead of registering it twice. The options are
-web-only — the Android facade and bundled AppKit engine cannot host
-DOM-bound ProseMirror extensions and ignore the prop.
+web-only. Android and AppKit do not run caller ProseMirror extensions,
+plugins, node views, or browser menus. A passed `web` option has no effect on
+those targets.
 
 ```tsx
 import { TiptapEditor } from '@octane-xplat/tiptap'
@@ -43,6 +44,36 @@ const Spoiler = Mark.create({
 
 export function Notes() {
 	return <TiptapEditor web={{ extensions: [Spoiler] }} />
+}
+```
+
+## Engine and feature boundary
+
+| Target | Editing engine | `web` options | Caller extensions, plugins, and browser views |
+| --- | --- | --- | --- |
+| Web | Tiptap `Editor` + `EditorContent` | `extensions` and `starterKit` apply | Supported by the web Tiptap engine |
+| Android | WordPress Aztec `AztecText`; a DOM-free Tiptap bridge converts JSON to and from HTML | Ignored | Unsupported; no live ProseMirror view, plugin, node view, or browser menu runs |
+| iOS | Unsupported placeholder from `@octane-xplat/richtext` | Ignored | Unsupported; `supported` is `false` |
+| macOS AppKit | Bundled Tiptap editor in WKWebView | Ignored by the AppKit host | Unsupported through this facade |
+
+On Android, keep HTML as the canonical saved document. Tiptap JSON is a
+best-effort conversion of Aztec's flat formatting model. Replacing HTML clears
+Aztec's undo history, and Android undo covers keyboard edits only.
+Nested-structure probes fail on the Aztec path; this ordinary rich-text
+baseline is not suitable for recursive documents.
+
+```tsx
+import { useState } from 'octane'
+import { TiptapEditor, supported } from '@octane-xplat/tiptap'
+import { Text } from '@octane-xplat/ui'
+
+export function Notes() {
+	const [html, setHTML] = useState('<p>Travel notes</p>')
+	return supported ? (
+		<TiptapEditor value={html} editable onChange={setHTML} />
+	) : (
+		<Text>Editing is unavailable on this target</Text>
+	)
 }
 ```
 

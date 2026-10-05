@@ -40,8 +40,8 @@ export type LexicalFormat =
 export type LexicalJSON = { root: Record<string, unknown> } & Record<string, unknown>
 
 /** Web-only extensions for the live Lexical composer. These options are ignored
- *  by native backends; native plugin and node support requires a separate native
- *  implementation. */
+ *  by native backends; caller plugins, custom nodes, transforms, and browser
+ *  views require a separate native implementation. */
 export interface LexicalWebOptions {
 	/** Additional Lexical node classes or replacements. By default these are
 	 *  added to the facade's built-in node set. Set `replaceNodes` to use this
