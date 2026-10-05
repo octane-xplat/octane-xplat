@@ -347,7 +347,8 @@ accepts `maxBytes` (reject oversized files mid-read) plus an abort `signal`;
 `writeBytes` writes into the app sandbox on native and downloads on web.
 `files.export(name, bytes)` opens the platform save/export UI and resolves
 `saved`, `cancelled`, or `unavailable` — it never reports `saved` from
-presentation alone.
+presentation alone. One export can be in flight at a time; a concurrent call
+rejects with an `ExportBusyError`.
 
 ```ts
 import { files } from '@octane-xplat/files'

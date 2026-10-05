@@ -67,12 +67,14 @@ export const files: Files = {
 	async writeBytes(_name: string, _bytes: Uint8Array): Promise<FileRef> {
 		throw new Error('unsupported: the AppKit host does not provide a save panel')
 	},
+	// FileExportResult names this leaf as the 'unavailable' case — the AppKit
+	// host offers no save panel, so report it instead of throwing.
 	async export(
 		_name: string,
 		_bytes: Uint8Array,
 		_opts?: FileExportOptions,
 	): Promise<FileExportResult> {
-		throw new Error('unsupported: the AppKit host does not provide a save panel')
+		return 'unavailable'
 	},
 	release(_file: FileRef): void {},
 }

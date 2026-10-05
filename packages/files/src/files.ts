@@ -1,10 +1,23 @@
 // Files — native leaf. FileRef wraps an opaque native URI. App-document paths
 // are still used for writes; picked Android SAF references may be content://
 // URIs and must be read through ContentResolver.
-import { openFilePicker, saveFile } from '@nativescript-community/ui-document-picker'
-import { Application, File, getFileAccess, knownFolders, path } from '@nativescript/core'
-import { assertSafeFileName, exactBuffer, fileTooLarge, throwIfAborted } from './file-bytes'
-import type { FileExportOptions, FileExportResult, FileReadBytesOptions, FileRef, Files } from './types'
+import { openFilePicker } from '@nativescript-community/ui-document-picker'
+import { Application, File, knownFolders, path, Utils } from '@nativescript/core'
+import {
+	assertSafeFileName,
+	exactBuffer,
+	exportBusy,
+	fileTooLarge,
+	throwIfAborted,
+} from './file-bytes'
+
+import type {
+	FileExportOptions,
+	FileExportResult,
+	FileReadBytesOptions,
+	FileRef,
+	Files,
+} from './types'
 
 const docs = () => knownFolders.documents()
 const READ_CHUNK = 64 * 1024
@@ -245,15 +258,6 @@ function androidExport(
 
 			try {
 				writeAndroidBytes(uri.toString(), bytes)
-				try {
-					activity
-						.getContentResolver()
-						.takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-				} catch {
-					// Not every provider grants persistable permission; the write
-					// already committed, so the result stays 'saved'.
-				}
-
 				resolve('saved')
 			} catch (error) {
 				reject(error)
@@ -270,17 +274,111 @@ function androidExport(
 	})
 }
 
-async function iosExport(name: string, bytes: Uint8Array): Promise<FileExportResult> {
-	// saveFile writes a temp copy and presents UIDocumentPickerViewController in
-	// export-as-copy mode; it resolves true after the system commits the copy
-	// to the chosen destination and false on cancel.
-	const nsData = NSData.dataWithBytesLength(bytes as any, bytes.byteLength)
-	const saved = await saveFile({ name, data: nsData })
-	try {
-		knownFolders.temp().getFile(name).removeSync()
-	} catch {}
+// One export UI at a time: Android listeners share the activity-result event,
+// and the iOS picker delegate below is kept alive in this slot (the
+// controller's `delegate` property is weak). A second concurrent export would
+// corrupt the first, so `files.export` fails fast instead.
+let activeExport: { delegate?: any; controller?: any } | null = null
 
-	return saved ? 'saved' : 'cancelled'
+// Per-call delegate — defined lazily because NSObject and the picker symbols
+// only exist on iOS, while this module also loads on Android.
+let IosExportDelegate: any = null
+
+function iosExportDelegateClass(): any {
+	if (IosExportDelegate) {
+		return IosExportDelegate
+	}
+
+	IosExportDelegate = class extends NSObject {
+		static ObjCProtocols = [UIDocumentPickerDelegate]
+		finish: ((saved: boolean) => void) | null = null
+
+		documentPickerDidPickDocumentAtURL(controller: any, _url: any): void {
+			this.settle(controller, true)
+		}
+		documentPickerDidPickDocumentsAtURLs(controller: any, urls: any): void {
+			this.settle(controller, urls.count > 0)
+		}
+		documentPickerWasCancelled(controller: any): void {
+			this.settle(controller, false)
+		}
+		private settle(controller: any, saved: boolean): void {
+			const finish = this.finish
+			this.finish = null
+			controller.delegate = null
+			finish?.(saved)
+		}
+	}
+
+	return IosExportDelegate
+}
+
+function iosVisibleViewController(): any {
+	const app = UIApplication.sharedApplication
+	const keyWindow = app.keyWindow || (app.windows.count > 0 && app.windows[0])
+	// Utils.ios is only populated on iOS — typed as an empty bag elsewhere.
+	const getVisible = (Utils.ios as any)?.getVisibleViewController
+	return keyWindow && typeof getVisible === 'function'
+		? getVisible(keyWindow.rootViewController)
+		: null
+}
+
+// Own export picker rather than the upstream plugin's saveFile: that helper
+// runs an async promise executor (a failed temp write or a missing visible
+// controller leaves the promise unsettled) and holds the picker delegate in
+// one weak module slot, so overlapping calls drop the earlier request.
+async function iosExport(
+	name: string,
+	bytes: Uint8Array,
+	slot: { delegate?: any; controller?: any },
+): Promise<FileExportResult> {
+	const tempPath = path.join(knownFolders.temp().path, name)
+	const staged = NSData.dataWithBytesLength(bytes as any, bytes.byteLength).writeToFileAtomically(
+		tempPath,
+		true,
+	)
+
+	const removeTemp = () => {
+		try {
+			File.fromPath(tempPath).removeSync()
+		} catch {}
+	}
+
+	if (!staged) {
+		throw new Error(`Failed to stage export file: ${name}`)
+	}
+
+	const visibleVC = iosVisibleViewController()
+	if (!visibleVC) {
+		removeTemp()
+		throw new Error('No visible view controller to present the export picker')
+	}
+
+	return new Promise<FileExportResult>((resolve, reject) => {
+		try {
+			const controller = UIDocumentPickerViewController.alloc().initForExportingURLsAsCopy(
+				[NSURL.fileURLWithPath(tempPath)] as any,
+				true,
+			)
+
+			const delegate = iosExportDelegateClass().new()
+			// `saved` only after the system commits the export-as-copy to the
+			// chosen destination; dismissal settles as 'cancelled'.
+			delegate.finish = (saved: boolean) => {
+				removeTemp()
+				resolve(saved ? 'saved' : 'cancelled')
+			}
+
+			slot.delegate = delegate
+			slot.controller = controller
+			controller.delegate = delegate
+			controller.shouldShowFileExtensions = true
+			visibleVC.presentViewControllerAnimatedCompletion(controller, true, null)
+		} catch (error) {
+			removeTemp()
+			reject(error)
+		}
+	})
 }
 
 export const files: Files = {
@@ -314,7 +412,18 @@ export const files: Files = {
 		if (Application.android) {
 			writeAndroidBytes(p, bytes)
 		} else {
-			getFileAccess().writeBufferSync(p, bytes as any)
+			// FileSystemAccess.writeBufferSync drops the writeToFileAtomically
+			// result and swallows errors without an onError callback, so a
+			// failed write would resolve with a ref to a missing file. Check
+			// the BOOL — it is the platform's overwrite confirmation.
+			const written = NSData.dataWithBytesLength(
+				bytes as any,
+				bytes.byteLength,
+			).writeToFileAtomically(p, true)
+
+			if (!written) {
+				throw new Error(`Failed to write file: ${p}`)
+			}
 		}
 
 		return { name, uri: p }
@@ -325,7 +434,21 @@ export const files: Files = {
 		opts?: FileExportOptions,
 	): Promise<FileExportResult> {
 		assertSafeFileName(name)
-		return Application.android ? androidExport(name, bytes, opts) : iosExport(name, bytes)
+		if (activeExport) {
+			throw exportBusy()
+		}
+
+		const slot: { delegate?: any; controller?: any } = {}
+		activeExport = slot
+		try {
+			return Application.android
+				? await androidExport(name, bytes, opts)
+				: await iosExport(name, bytes, slot)
+		} finally {
+			if (activeExport === slot) {
+				activeExport = null
+			}
+		}
 	},
 	release(ref: FileRef): void {
 		const cachePrefix = knownFolders.temp().path + '/'

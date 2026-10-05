@@ -63,6 +63,8 @@ export interface Files {
 	/**
 	 * User-directed export to a destination the user picks: the Android SAF
 	 * create action, iOS export-as-copy picker, web `showSaveFilePicker`.
+	 * Only one export can be in flight — a concurrent call rejects with an
+	 * `ExportBusyError`.
 	 */
 	export(name: string, bytes: Uint8Array, opts?: FileExportOptions): Promise<FileExportResult>
 	/** Free the ref's backing resource (revoke object URLs, delete temp copies). */

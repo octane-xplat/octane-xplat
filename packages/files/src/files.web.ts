@@ -1,8 +1,21 @@
 // Files — web leaf. Desktop webview hosts own real pickers and file:// refs;
 // outside a host this uses opaque object URLs and browser downloads.
 import { desktopHost } from '@octane-xplat/platform/host/web'
-import { assertSafeFileName, concatBytes, exactBuffer, fileTooLarge, throwIfAborted } from './file-bytes'
-import type { FileExportOptions, FileExportResult, FileReadBytesOptions, FileRef, Files } from './types'
+import {
+	assertSafeFileName,
+	concatBytes,
+	exactBuffer,
+	fileTooLarge,
+	throwIfAborted,
+} from './file-bytes'
+
+import type {
+	FileExportOptions,
+	FileExportResult,
+	FileReadBytesOptions,
+	FileRef,
+	Files,
+} from './types'
 
 // Object URLs this leaf minted, keyed by URL, so readBytes returns exact bytes
 // without a fetch round-trip and release can drop the backing Blob.
@@ -110,10 +123,12 @@ export const files: Files = {
 		const blob = objectBlobs.get(ref.uri)
 		if (blob) {
 			if (opts?.maxBytes != null && blob.size > opts.maxBytes) {
-				throw fileTooLarge(ref.name, opts.maxBytes)
+				throw fileTooLarge(ref.uri, opts.maxBytes)
 			}
 
-			return new Uint8Array(await blob.arrayBuffer())
+			const bytes = new Uint8Array(await blob.arrayBuffer())
+			throwIfAborted(opts?.signal)
+			return bytes
 		}
 
 		// Host file:// refs need a host binary read, which the desktop service
@@ -156,9 +171,7 @@ export const files: Files = {
 		opts?: FileExportOptions,
 	): Promise<FileExportResult> {
 		assertSafeFileName(name)
-		const picker = (window as any).showSaveFilePicker as
-			| ((opts: any) => Promise<any>)
-			| undefined
+		const picker = (window as any).showSaveFilePicker as ((opts: any) => Promise<any>) | undefined
 
 		if (typeof picker !== 'function') {
 			return 'unavailable'

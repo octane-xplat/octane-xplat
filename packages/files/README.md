@@ -70,7 +70,9 @@ platform committed the bytes — Android flushes them through
 `ContentResolver` to the picked document, iOS completes the export-as-copy
 flow, and web closes a File System Access writable. Browsers without
 `showSaveFilePicker` and the AppKit leaf report `unavailable`; a share-sheet
-presentation never counts as `saved`.
+presentation never counts as `saved`. Only one export can run at a time — a
+concurrent call rejects with an `ExportBusyError` rather than stealing the
+open picker's result.
 
 ```ts
 const result = await files.export('report.pdf', pdfBytes, { mimeType: 'application/pdf' })

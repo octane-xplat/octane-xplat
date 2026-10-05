@@ -49,6 +49,19 @@ describe('files.readBytes (web)', () => {
 		)
 	})
 
+	it('rejects when the signal aborts during blob.arrayBuffer()', async () => {
+		const controller = new AbortController()
+		vi.spyOn(Blob.prototype, 'arrayBuffer').mockImplementation(async () => {
+			controller.abort()
+			return new Uint8Array([1]).buffer
+		})
+
+		const ref = await files.writeBytes('a.bin', new Uint8Array([1]))
+		await expect(files.readBytes(ref, { signal: controller.signal })).rejects.toThrowError(
+			expect.objectContaining({ name: 'AbortError' }),
+		)
+	})
+
 	it('reads foreign URLs through fetch with the cap applied', async () => {
 		const body = new Uint8Array([1, 2, 3, 4])
 		vi.stubGlobal(

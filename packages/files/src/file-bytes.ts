@@ -23,6 +23,13 @@ export function fileTooLarge(name: string, maxBytes: number): Error {
 	return new Error(`${name}: file exceeds the ${maxBytes}-byte limit`)
 }
 
+/** Named rejection for a second `files.export` while one is in flight. */
+export function exportBusy(): Error {
+	const error = new Error('files.export: an export is already in progress')
+	error.name = 'ExportBusyError'
+	return error
+}
+
 export function throwIfAborted(signal: AbortSignal | undefined): void {
 	if (!signal?.aborted) {
 		return
