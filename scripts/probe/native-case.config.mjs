@@ -56,6 +56,12 @@ export default async function nativeCaseConfig(project, target) {
 				'.tsx',
 				`.${target}.ts`,
 				'.mobile.ts',
+				// Platform .js before the shared default: NativeScript plugins
+				// ship `main: "index"` with only `index.ios.js`/`index.android.js`
+				// on disk — without this tier a leaf's plugin dep cannot resolve
+				// in the case bundle even though the host bundle resolves it.
+				`.${target}.js`,
+				'.mobile.js',
 				'.ts',
 				'.mjs',
 				'.js',

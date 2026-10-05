@@ -2,6 +2,7 @@ import * as gesturehandler from '@nativescript-community/gesturehandler'
 import { Application, File, Frame, knownFolders, Page, path } from '@nativescript/core'
 import * as core from '@nativescript/core'
 import * as animationFrame from '@nativescript/core/animation-frame'
+import * as utils from '@nativescript/core/utils'
 import * as native from '@nativescript-community/octane'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
@@ -13,6 +14,7 @@ const modules = {
 	'@nativescript/core': core,
 	'@nativescript-community/gesturehandler': gesturehandler,
 	'@nativescript/core/animation-frame': animationFrame,
+	'@nativescript/core/utils': utils,
 	'@nativescript-community/octane': native,
 	'octane/universal/native': native,
 	'octane/signals': signals,
@@ -56,7 +58,28 @@ setInterval(async () => {
 		Application.loadAppCss()
 
 		const module = { exports: {} }
-		const load = (name) => modules[name] ?? require(name)
+		// Externalized imports not in `modules` fall through to NativeScript's
+		// require, which resolves a package subpath literally — '@nativescript/core/utils'
+		// never reaches `utils/index.js`. Retry the directory-index spellings
+		// plugins actually ship before giving up.
+		const load = (name) => {
+			if (modules[name]) {
+				return modules[name]
+			}
+
+			for (const candidate of [
+				name,
+				`${name}/index.ios`,
+				`${name}/index.android`,
+				`${name}/index`,
+			]) {
+				try {
+					return require(candidate)
+				} catch {}
+			}
+
+			return require(name)
+		}
 		new Function('require', 'module', 'exports', source)(load, module, module.exports)
 		await module.exports.start(control, (result) => {
 			console.log('[xplat-probe] ' + JSON.stringify(result))
