@@ -1,0 +1,26 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// styled-system/* resolves into packages/app's generated sources — the
+		// files must exist before these tasks run.
+		"typecheck": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"outputs": []
+		},
+		"build": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../tsrx-typegen/src/**",
+				"../../scripts/check-native-dist.mjs",
+				"../../scripts/sync-ui-barrels.mjs"
+			],
+			"outputs": ["dist/**", "types/**"]
+		},
+		"test": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"outputs": []
+		}
+	}
+}

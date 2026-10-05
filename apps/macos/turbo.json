@@ -1,0 +1,20 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"outputs": []
+		},
+		"build": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../tsrx-typegen/src/**",
+				"../../scripts/check-native-dist.mjs",
+				"../../scripts/sync-ui-barrels.mjs"
+			],
+			"outputs": ["dist/**", "types/**"]
+		}
+	}
+}

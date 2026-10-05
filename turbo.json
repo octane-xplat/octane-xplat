@@ -1,0 +1,92 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
+	"tasks": {
+		// Declarations consumed by dependents' typecheck (exports.types →
+		// types/generated). ^typegen ordering guarantees dep d.ts exist; the edge
+		// also folds each dep package's file hash in — even for script-less deps,
+		// whose typegen node is a no-op that still hashes their files.
+		// tsrx-typegen is a workspace-linked bin (src/, no build step) — its
+		// sources are real inputs to every package's typegen.
+		"typegen": {
+			"dependsOn": ["^typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
+			"outputs": ["types/**"]
+		},
+		// @xplat/app only: xplat routes → tracked src/routes.gen.*, bamboo codegen
+		// → gitignored src/styled-system/. Consumers resolve styled-system via
+		// tsconfig paths, so app-consuming apps order it via @xplat/app#gen.
+		"gen": {
+			"dependsOn": ["^typegen"],
+			"outputs": ["src/routes.gen*", "src/styled-system/**"]
+		},
+		// vite lib builds write dist/{web,native,...}; build scripts also run
+		// typegen inline, so types/** is an output here too.
+		"build": {
+			"dependsOn": ["^typegen"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../tsrx-typegen/src/**",
+				"../../scripts/check-native-dist.mjs",
+				"../../scripts/sync-ui-barrels.mjs"
+			],
+			"outputs": ["dist/**", "types/**"]
+		},
+		"typecheck": {
+			"dependsOn": ["^typegen"],
+			"outputs": []
+		},
+		"test": {
+			"dependsOn": ["^typegen"],
+			"outputs": []
+		},
+		"test:native": {
+			"dependsOn": ["^typegen"],
+			"outputs": []
+		},
+		"test:macos": {
+			"dependsOn": ["^typegen"],
+			"outputs": []
+		},
+		// Boots a real macOS harness process — observable side effects, keep uncached.
+		"test:macos-runtime": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
+		// Packs the package and installs the tarball in a temp consumer — side
+		// effects outside outputs/, keep uncached. Needs this package's dist first.
+		"test:packed": {
+			"dependsOn": ["build"],
+			"cache": false
+		},
+		"pack:check": {
+			"dependsOn": ["build"],
+			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
+			"outputs": []
+		},
+		"typegen:check": {
+			"dependsOn": ["typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
+			"outputs": []
+		},
+		"typecheck:consumer": {
+			"dependsOn": ["typegen"],
+			"outputs": []
+		},
+		"typecheck:macos": {
+			"dependsOn": ["^typegen"],
+			"outputs": []
+		},
+		"check-types": {
+			"dependsOn": ["^typegen"],
+			"outputs": []
+		},
+		// lint is a single repo-wide pass (oxlint + tsrx rules sweep), not a
+		// per-package boundary — exposed for `turbo run lint` but never cached:
+		// its real input set is the whole repo, which package hashing can't
+		// express for a root script.
+		"//#lint": {
+			"cache": false
+		}
+	}
+}

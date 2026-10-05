@@ -1,0 +1,25 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// Same whole-repo `include` as the mobile program — hash all package
+		// sources, not just declared dependencies.
+		"typecheck": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../packages/**/*.ts",
+				"../../packages/**/*.tsx",
+				"../../packages/**/*.tsrx",
+				"../../packages/**/*.mts",
+				"../../packages/**/*.cts",
+				"../../packages/*/package.json",
+				"../../packages/*/tsconfig*.json",
+				"../../packages/*/tsrx-typegen.json",
+				"!../../packages/**/node_modules/**",
+				"!../../packages/**/.turbo/**"
+			],
+			"outputs": []
+		}
+	}
+}

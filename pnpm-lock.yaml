@@ -66,6 +66,9 @@ importers:
       oxlint:
         specifier: 1.74.0
         version: 1.74.0(oxlint-tsgolint@7.0.2002)
+      turbo:
+        specifier: 2.11.4
+        version: 2.11.4
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -350,6 +353,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 0.4.11
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -384,6 +390,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 0.4.11
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)
       playwright:
         specifier: 1.63.0
         version: 1.63.0
@@ -5230,6 +5239,36 @@ packages:
     resolution: {integrity: sha512-Y8cK9aggNRsqJVaKUlEYs4s7CvQ1b1ta2DVPyAimb0I2qhzjNk+A+mxvll/klL0RlfuIUei8BF7YWiua4kQqww==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
+  '@turbo/darwin-64@2.11.4':
+    resolution: {integrity: sha512-fEmcQVa95k79tZjcay5b2A4cpR/VrlNUki4AN7EbA+32vj5C5rBUE1q3i2yOFxsB2n01sOlzIZ+s2p2zADCTig==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@turbo/darwin-arm64@2.11.4':
+    resolution: {integrity: sha512-SgXCVgBC1v+bdE6+KQGV6Kob7nBYo75zxzNFFuA4jLdM0J8lYamdTUoZSHLR0dy+kXVEYZqSC98CKqC17NG3Og==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@turbo/linux-64@2.11.4':
+    resolution: {integrity: sha512-MWM7Au6NPJMBmHJAzFzQ/PACYNRpBOqnBkj+7csdR+YhJ+0XBg4Z64wFwLnGFDac0gc+YlasWOZ5t05bGs54aQ==}
+    cpu: [x64]
+    os: [android, linux]
+
+  '@turbo/linux-arm64@2.11.4':
+    resolution: {integrity: sha512-rRVOh0UNlLbKPuf70FokqjahO/hCGgBmgvZcNXUPayn8Wk0zXIsVoNKpr0UQUhhR+KMiibvBKkVAGDViDFQHKA==}
+    cpu: [arm64]
+    os: [android, linux]
+
+  '@turbo/windows-64@2.11.4':
+    resolution: {integrity: sha512-COr+++1GwDg09XbJdm3sP1gEQApeV43UknYP9h82qet1tAGJrGQAxKVTMrf2JMsMw8MkJRnQj3gAVuQmV1kIyQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@turbo/windows-arm64@2.11.4':
+    resolution: {integrity: sha512-gh5lwDA2d4aBdLvTANhFsFEgxbBqKZ4m4dCyChw9GoX8b+Esk8H3p25Q+rlWCUVJ2o6Hne10ZTL0QSFfWD4gIA==}
+    cpu: [arm64]
+    os: [win32]
+
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
@@ -7806,6 +7845,10 @@ packages:
   tunnel@0.0.6:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
     engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
+
+  turbo@2.11.4:
+    resolution: {integrity: sha512-nedZtJ2hjWpU/JBFq7Aj1GQBxQ56si+kIUmNZBUX35O35TIuhSBR6/u3yHHmk81U+RBdBcVjvLQ3/iOFzMwKsA==}
+    hasBin: true
 
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
@@ -11425,6 +11468,24 @@ snapshots:
       '@tufjs/canonical-json': 2.0.0
       minimatch: 10.2.6
 
+  '@turbo/darwin-64@2.11.4':
+    optional: true
+
+  '@turbo/darwin-arm64@2.11.4':
+    optional: true
+
+  '@turbo/linux-64@2.11.4':
+    optional: true
+
+  '@turbo/linux-arm64@2.11.4':
+    optional: true
+
+  '@turbo/windows-64@2.11.4':
+    optional: true
+
+  '@turbo/windows-arm64@2.11.4':
+    optional: true
+
   '@types/chai@5.2.3':
     dependencies:
       '@types/deep-eql': 4.0.2
@@ -14284,6 +14345,15 @@ snapshots:
       - supports-color
 
   tunnel@0.0.6: {}
+
+  turbo@2.11.4:
+    optionalDependencies:
+      '@turbo/darwin-64': 2.11.4
+      '@turbo/darwin-arm64': 2.11.4
+      '@turbo/linux-64': 2.11.4
+      '@turbo/linux-arm64': 2.11.4
+      '@turbo/windows-64': 2.11.4
+      '@turbo/windows-arm64': 2.11.4
 
   typed-array-buffer@1.0.3:
     dependencies:

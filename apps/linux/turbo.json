@@ -1,0 +1,16 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"outputs": []
+		},
+		// `xplat build --targets linux` is a native desktop build whose artifacts
+		// land outside dist/ — not safely restorable, so never cached.
+		"build": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"cache": false
+		}
+	}
+}

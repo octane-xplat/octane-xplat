@@ -31,3 +31,4 @@ apps/mobile/navigation-project/package-lock.json
 
 # Native Maestro smoke app build outputs.
 apps/maestro/platforms/
+.turbo/

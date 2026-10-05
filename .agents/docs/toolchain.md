@@ -6,6 +6,29 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 
+- **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
+  `turbo.json` at the root). `pnpm typegen`, `pnpm typecheck`, the
+  `typecheck:{web,mobile,macos,linux,windows,docs}` filters, `pnpm
+  build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
+  delegate to `turbo run`. Results cache locally under `.turbo/` (gitignored —
+  shared across worktrees of this clone): a no-op `pnpm typecheck` is ~200ms
+  and touching a leaf package reruns only that package's tasks plus its
+  dependents. Graph shape: every task `dependsOn: ["^typegen"]`, which both
+  orders dependency declaration emit first and folds each dep's file hash into
+  the dependent — the edge covers even script-less deps because turbo still
+  hashes their files through the no-op task node. `apps/mobile` and
+  `apps/windows` typecheck `../../packages/**/*` literally, so their
+  `turbo.json` hashes all package sources directly (explicit input globs are
+  filesystem walks, not git-aware — `node_modules` and `.turbo` logs are
+  negated there). App packages order `@xplat/app#gen` (routes.gen +
+  styled-system) ahead of `typecheck`/`build`/`test`. `test:packed`,
+  `test:macos-runtime`, and `apps/linux`'s `build` are `cache: false` — their
+  side effects land outside declared `outputs`. `lint` stays a single
+  repo-wide pass; `turbo run lint` works via the `//#lint` root task but is
+  uncached for the same reason. Package-level `typecheck` scripts (charts,
+  dnd-kit, icons, image-crop, smooth-corners, table, macos-renderer) are
+  reachable via bare `turbo run typecheck` but stay out of `pnpm typecheck`'s
+  scope.
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
   `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
   Consequence: every package must declare what it imports (no transitive-dep

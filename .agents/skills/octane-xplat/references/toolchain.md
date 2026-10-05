@@ -78,6 +78,19 @@ octane 0.6.3, @nativescript-community/octane 0.2.1, @nativescript/core
 9.1.2, vite 8.3.0, @octanejs/vite-plugin 0.1.61, tsrx toolchain pinned.
 Beta/fast-moving deps stay exact-pinned — bump deliberately.
 
+## Task graph (Turborepo)
+
+`pnpm typegen` / `typecheck` / `build:packages` / `build:web` and the package
+tests inside `pnpm test` run through `turbo` (pinned devDep, root
+`turbo.json`). Tasks cache in `.turbo/` — a no-op `pnpm typecheck` is ~200ms;
+edits rerun only the touched package and its dependents. Per-package
+typecheck/build/test read dependency sources and generated `types/`, so
+`dependsOn: ["^typegen"]` carries both ordering and dep-file hashing;
+`apps/mobile`/`apps/windows` hash all of `packages/**` because their tsconfigs
+`include` it literally. Repo-wide single-pass commands (`pnpm lint`, the
+`check:*` scripts, native `ns`/`xplat` builds) stay outside the cache. Details:
+`.agents/docs/toolchain.md`.
+
 ## pnpm workspace specifics
 
 - `nodeLinker: isolated` in pnpm-workspace.yaml — NativeScript's vendor

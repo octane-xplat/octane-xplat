@@ -13,7 +13,8 @@
 		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
 		"sqlite:readiness": "node scripts/sqlite-readiness.mjs",
 		"parity": "vite build && node scripts/parity.mjs",
-		"dev:app": "pnpm --filter @xplat/app gen && vite"
+		"dev:app": "pnpm --filter @xplat/app gen && vite",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
@@ -26,6 +27,7 @@
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/sqlite": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
 		"playwright": "1.63.0",
 		"typescript": "5.9.3",
 		"vite": "8.3.0",

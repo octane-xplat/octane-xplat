@@ -12,7 +12,8 @@
 		"bench:vlist:android": "pnpm --filter @xplat/app gen && node scripts/bench-virtual-list.mjs android",
 		"ios:app": "pnpm --filter @xplat/app gen && ns run ios",
 		"android:app": "pnpm --filter @xplat/app gen && ns run android",
-		"debug:ios:app": "pnpm --filter @xplat/app gen && ns debug ios"
+		"debug:ios:app": "pnpm --filter @xplat/app gen && ns debug ios",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
@@ -58,6 +59,7 @@
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
 	}
