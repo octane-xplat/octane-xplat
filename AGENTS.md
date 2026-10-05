@@ -24,6 +24,24 @@ working agreements and detail moved out of this entry point.
 | Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
 | Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
 
+## Framework principles
+
+Standing criteria for judgment calls; the critical rules encode the mechanics.
+
+- **Parity first.** Strive for identical behavior and pixel parity across
+  platforms. Where parity is genuinely unachievable, expose platform entry
+  points or an explicitly documented API subset with matching behavior —
+  never silent divergence.
+- **Proven engines first.** Build on proven engines and libraries; treat
+  from-scratch implementation as a last resort — but reject dependencies
+  whose abstractions fundamentally mismatch Octane Xplat's model.
+- **Study the ecosystem.** Learn from successful React Native packages and
+  competing frameworks; borrow architecture that fits these principles, and
+  respect attribution and licensing.
+- **Evidence before commitment.** Resolve unknowns and prove feasibility with
+  probes and smoke tests before committing to an architecture; keep
+  source/build evidence distinct from actual platform behavior.
+
 ## Critical rules
 
 - Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies
