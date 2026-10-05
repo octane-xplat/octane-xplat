@@ -8,6 +8,7 @@
 		"build": "pnpm --filter @xplat/app gen && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
+		"smoke:lexical-editor": "node scripts/lexical-editor-smoke.mjs",
 		"bench:vlist": "pnpm --filter @xplat/app gen && vite build && node scripts/bench-virtual-list.mjs",
 		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
 		"sqlite:readiness": "node scripts/sqlite-readiness.mjs",

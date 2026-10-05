@@ -41,8 +41,11 @@ the platform file-suffix boundary for divergent imports.
   `toggleFormatting`, `undo`, and both facades' JSON bridges.
 - AC7: The lexical variant (`LexicalEditor`, `@octane-xplat/lexical`)
   exchanges lexical serialized editor state — the two facades' JSON shapes
-  are not interchangeable, and docs say so. Its fixed plugin set is
-  intentional; custom extensions import `@octanejs/lexical` directly on web.
+  are not interchangeable, and docs say so. On web, `web.nodes` adds custom
+  node classes and `web.plugins` composes Octane plugin components inside the
+  composer; `replaceNodes` and `replacePlugins` explicitly select caller-owned
+  node and plugin sets. Native ignores `web` and retains its existing
+  conversion/editing boundary.
 
 - AC8: On AppKit, all three facades load bundled editor documents without a
   server, report readiness, exchange HTML (and the facade’s own JSON), accept
@@ -54,6 +57,10 @@ the platform file-suffix boundary for divergent imports.
   StarterKit, `starterKit` options configure or remove the kit, and a
   caller `starterKit` entry never double-registers. Docs state the
   boundary: Android (Aztec) and AppKit ignore `web` options.
+- AC10: On web, the lexical facade reports `onJSONReady(true)` once its live
+  handle exists, forwards focus and blur events, and covers mount, editable
+  mode, controlled HTML updates, history, disposal/remount, plus a custom node
+  JSON/HTML round-trip in component and real-browser smoke tests.
 
 ## Documentation
 
@@ -80,3 +87,10 @@ the platform file-suffix boundary for divergent imports.
 - AC9: [Web engine extensions](../docs/app/rich-text.md#web-engine-extensions);
   `packages/tiptap/src/TiptapEditor.web.test.tsrx` covers the schema/command
   and StarterKit-replacement behavior.
+- AC10: [`packages/lexical/README.md`](../packages/lexical/README.md) documents
+  the web-only customization boundary;
+  [`LexicalEditor.web.test.tsrx`](../packages/lexical/src/LexicalEditor.web.test.tsrx)
+  covers the component contract. Run
+  `pnpm --filter @xplat/web smoke:lexical-editor` to exercise real Chromium
+  keyboard input, history, controlled updates, focus, custom nodes, read-only
+  mode, and remount lifecycle without inspecting screenshots.

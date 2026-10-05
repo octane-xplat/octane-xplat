@@ -505,12 +505,15 @@ export function Notes() {
 ```
 
 `@octane-xplat/lexical` (the `LexicalEditor` component) is the same facade
-over lexical: web and macOS run a fixed-plugin `LexicalComposer` via
-`@octanejs/lexical@0.2.0`; Android delegates editing to `RichTextEditor` and
+over lexical: web and macOS run a `LexicalComposer` with built-in defaults via
+`@octanejs/lexical@0.2.0`; only the web DOM component accepts custom node and
+plugin options. Android delegates editing to `RichTextEditor` and
 round-trips serialized editor state through a headless `createEditor` +
-`@lexical/html` over `zeed-dom`. No live `LexicalEditor` exists on Android —
-`dispatchCommand`, node transforms, and arbitrary plugins are web-only
-(apps needing them import `@octanejs/lexical` directly). `@lexical/link`
+`@lexical/html` over `zeed-dom`. Web callers can add node classes and plugin
+components through `LexicalEditor`'s `web` prop; native renderers ignore that
+web-only option bag and keep their existing engine boundaries. No live
+`LexicalEditor` exists on Android — `dispatchCommand` and node transforms
+are unavailable there. `@lexical/link`
 carries an ICU patch (its URL-matcher literal is a parse error without
 ICU); `lexical` core's `new RegExp('\p{Emoji}')` already degrades safely.
 `@lexical/*` pins to `0.51.0`; `@octanejs/lexical` pins to `0.2.0` for the

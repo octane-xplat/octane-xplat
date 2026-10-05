@@ -1,4 +1,6 @@
 import type { Octane } from 'octane/jsx-runtime'
+import type { OctaneNode } from 'octane'
+import type { Klass, LexicalNode, LexicalNodeReplacement } from 'lexical'
 
 /** Format vocabulary shared by the web (lexical core + registered nodes)
  *  and native (Aztec) backends. On web, `taskList`/`highlight`/`subscript`/
@@ -36,6 +38,27 @@ export type LexicalFormat =
  *  `EditorState.toJSON()` shape). Opaque here — callers round-trip through
  *  lexical's own schema on both platforms. */
 export type LexicalJSON = { root: Record<string, unknown> } & Record<string, unknown>
+
+/** Web-only extensions for the live Lexical composer. These options are ignored
+ *  by native backends; native plugin and node support requires a separate native
+ *  implementation. */
+export interface LexicalWebOptions {
+	/** Additional Lexical node classes or replacements. By default these are
+	 *  added to the facade's built-in node set. Set `replaceNodes` to use this
+	 *  list as the complete custom node registry instead. */
+	nodes?: readonly (Klass<LexicalNode> | LexicalNodeReplacement)[]
+	/** Replace the facade's built-in custom node registry with `nodes`. Core
+	 *  Lexical nodes remain managed by Lexical. Defaults to `false`. */
+	replaceNodes?: boolean
+	/** Replace the default history, list, link, and autofocus plugins with the
+	 *  plugin components supplied in `plugins`. Defaults to `false`. The rich
+	 *  text surface and facade change/ref bindings remain installed. */
+	replacePlugins?: boolean
+	/** Additional Octane plugin components rendered inside the Lexical composer,
+	 *  or the replacement plugin composition when `replacePlugins` is `true`.
+	 *  Use a fragment when composing more than one plugin. */
+	plugins?: OctaneNode
+}
 
 export interface LexicalEditorHandle {
 	/** AppKit: returns the latest WebKit snapshot; commands are asynchronous. */
@@ -78,16 +101,18 @@ export interface LexicalEditorProps {
 	editable?: boolean
 	autofocus?: boolean
 	onReady?: () => void
-	/** Fires once when the native lexical bridge settles — `true` if the
-	 *  DOM-free lexical modules loaded, `false` on runtimes that can't host
-	 *  them (JSON calls then no-op / return null). Never fires on web. */
-	/** AppKit: fires true with mounted engine readiness; no headless conversion bridge. */
+	/** Reports when serialized JSON access is available. Web and AppKit report
+	 *  `true` when their live editor handle exists. Native reports whether its
+	 *  lazy DOM-free conversion bridge loaded; unsupported runtimes report
+	 *  `false` and JSON getters return `null`. */
 	onJSONReady?: (ready: boolean) => void
 	onChange?: (html: string) => void
 	onJSONChange?: (doc: LexicalJSON) => void
 	onSelectionChange?: (event: { start: number; end: number; active: LexicalFormat[] }) => void
 	onFocus?: () => void
 	onBlur?: () => void
+	/** Web-only Lexical node and plugin composition. Ignored by native backends. */
+	web?: LexicalWebOptions
 	ref?: Octane.Ref<LexicalEditorHandle>
 	android?: Record<string, any>
 	ios?: Record<string, any>

@@ -64,12 +64,64 @@ export function DocumentCopy() {
 }
 ```
 
-The facade's plugin set is fixed on purpose. Apps needing custom nodes,
-plugins, or transforms import `@octanejs/lexical` directly on web — the
-facade does not expose a composer/plugin surface it cannot honor on
-native. There is no live `LexicalEditor` on Android: no `dispatchCommand`,
-no node transforms; `native` returns the `AztecText` and the headless
-editor used for conversions is an internal detail.
+On web, `web.nodes` adds custom Lexical node classes to the facade's built-in
+nodes, and `web.plugins` renders additional Octane plugin components inside
+the Lexical composer. Set `replaceNodes` to `true` when `web.nodes` should be
+the full custom node registry. Set `replacePlugins` to `true` to replace the
+default history, list, link, and autofocus plugins with your own composition;
+the rich-text surface and facade change/ref bindings remain installed. This
+lets a custom node keep its Lexical JSON type and HTML representation during
+a round-trip.
+
+```tsx
+import { LexicalEditor } from '@octane-xplat/lexical'
+import { BadgeNode, BadgePlugin } from './lexical-extensions'
+
+export function NoteEditor() {
+	return (
+		<LexicalEditor
+			value='<p><span data-badge>Voyager</span></p>'
+			web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }}
+		/>
+	)
+}
+```
+
+The `web` options are ignored on native. Native still edits with Aztec on
+Android and uses the fixed headless conversion node set for JSON; plugin
+components, browser DOM nodes, and arbitrary JavaScript transforms do not
+run there. Apps replacing the web defaults can set both replacement options
+and register the node classes Lexical requires for their documents.
+
+```tsx
+import { LexicalEditor } from '@octane-xplat/lexical'
+import { BadgeNode, BadgePlugin } from './lexical-extensions'
+
+export function NoteEditor() {
+	return (
+		<LexicalEditor
+			web={{ replaceNodes: true, nodes: [BadgeNode], replacePlugins: true, plugins: <BadgePlugin /> }}
+		/>
+	)
+}
+```
+
+Focus callbacks report focus entering or leaving the editable surface.
+`onJSONReady(true)` fires once the web editor handle exists, so `getJSON()` is
+available from `onReady` and after readiness. On native, `onJSONReady` still
+reports when the lazy conversion bridge settles.
+
+```tsx
+<LexicalEditor
+	onJSONReady={(ready) => console.log('JSON ready:', ready)}
+	onFocus={() => console.log('Editor focused')}
+	onBlur={() => console.log('Editor blurred')}
+/>
+```
+
+There is no live `LexicalEditor` on Android: no `dispatchCommand`, no node
+transforms; `native` returns the `AztecText` and the headless editor used for
+conversions is an internal detail.
 
 The lexical family pins to `0.51.0` and `@octanejs/lexical` to `0.2.0`
 (peers `octane ^0.6.0`). `@lexical/link` carries a workspace patch for its

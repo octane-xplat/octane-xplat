@@ -102,7 +102,9 @@ See the maintained examples
 
 Both components take `value` (document HTML), `placeholder`, `editable`,
 `autofocus`, and the callbacks `onReady`, `onChange(html)`,
-`onSelectionChange({start, end, active})`, `onFocus`, and `onBlur`. `ref`
+`onSelectionChange({start, end, active})`, `onFocus`, and `onBlur`. Lexical
+also reports `onJSONReady(true)` when its web handle or native conversion
+bridge can serve JSON. `ref`
 hands back an imperative handle once the native surface exists:
 
 ```tsx
@@ -202,8 +204,8 @@ the editor is constructed.
 
 The AppKit target supports all three editor components. Each mounts a local
 **WKWebView**, the system browser view, inside the native layout. Tiptap uses
-the same StarterKit facade as web; Lexical uses the same fixed node and plugin
-set as web. `RichTextEditor` uses StarterKit for HTML editing. The editor
+the same StarterKit facade as web; Lexical uses its built-in node and plugin
+defaults. `RichTextEditor` uses StarterKit for HTML editing. The editor
 documents are bundled with the packages: no CDN, server, or network connection
 is needed. The `richtext` leaf owns the small Swift host independently of the
 general WebView component. The CLI compiles it through the normal
@@ -252,8 +254,9 @@ Engine-specific limits:
 - Tiptap’s current web facade does not display `placeholder`; AppKit retains
   that limitation. RichText exposes the placeholder as an accessible label;
   its visual empty-paragraph hint is not implemented.
-- Lexical retains its sealed plugin set. Custom nodes, plugins, and direct
-  `dispatchCommand` access are unavailable through the native handle. Its
+- Lexical custom nodes and plugins are configurable through `web` on the web
+  DOM editor; native renderers ignore those options. Direct `dispatchCommand`
+  access is unavailable through the native handle. Its
   selection offsets remain the web facade’s best-effort flat text offsets.
   `horizontalRule` and checklist commands depend on the registered plugin
   handlers; the fixed facade does not add dedicated checklist or horizontal
@@ -341,10 +344,9 @@ export function Notes() {
 }
 ```
 
-Web renders a fixed-plugin `LexicalComposer` (rich text, history, lists,
-links, autofocus) whose node set is exactly the facade vocabulary —
-`taskList` joins the default set via `ListItemNode`, and `AutoLinkNode`
-parses docs produced by fuller editors. Native renders `RichTextEditor` and
+Web renders a LexicalComposer with the facade's built-in nodes and plugins
+(rich text, history, lists, links, autofocus); `AutoLinkNode` parses docs
+produced by fuller editors. Native renders `RichTextEditor` and
 converts to/from **lexical serialized editor state** through a lazy
 headless `createEditor` (no `@lexical/headless` — it pulls `happy-dom`)
 with `zeed-dom` standing in for the DOM. `getJSON`/`setJSON` therefore
@@ -364,13 +366,25 @@ export function Notes() {
 }
 ```
 
-The composition is sealed by design: apps needing custom nodes, plugins, or
-transformers import `@octanejs/lexical` directly on web rather than the
-facade growing a plugin surface it cannot honor on native. On Android there
-is no live `LexicalEditor` — `dispatchCommand`, node transforms, and plugin
-behaviors do not exist; `native` still returns the real editing surface
-(the `AztecText`), and the headless editor is an internal conversion
-detail.
+On web, `web.nodes` adds Lexical node classes to the built-in nodes and
+`web.plugins` renders Octane plugin components inside the composer. Set
+`replaceNodes` to true when `web.nodes` is the complete custom-node registry.
+These options only affect the web DOM editor; native renderers ignore them.
+See the package README for a complete custom-node round-trip example.
+
+```tsx
+import { LexicalEditor } from '@octane-xplat/lexical'
+import { BadgeNode, BadgePlugin } from './lexical-extensions'
+
+export function Notes() {
+	return <LexicalEditor web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }} />
+}
+```
+
+On Android there is no live `LexicalEditor` — `dispatchCommand`, node
+transforms, and plugin behaviors do not exist; `native` still returns the
+real editing surface (`AztecText`), and the headless editor is an internal
+conversion detail.
 
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'

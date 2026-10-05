@@ -46,9 +46,8 @@ import type { LexicalEditorHandle, LexicalEditorProps, LexicalFormat } from './t
 
 export const supported = true
 
-/** The facade's fixed node set — Aztec's capability surface plus
- *  AutoLinkNode (parsing safety for docs produced by fuller editors). Apps
- *  needing custom nodes or plugins import @octanejs/lexical directly. */
+/** The facade's default node set — Aztec's capability surface plus
+ *  AutoLinkNode (parsing safety for docs produced by fuller editors). */
 const NODES = [
 	HeadingNode,
 	QuoteNode,
@@ -241,10 +240,8 @@ function activeFormats(editor: any): LexicalFormat[] {
 	return out
 }
 
-/** Unified editor facade, web half — a fixed-plugin LexicalComposer over
- *  the published `@octanejs/lexical` binding. The composition is sealed on
- *  purpose: the facade's contract is the native-compatible vocabulary, and
- *  apps that need arbitrary plugins use the upstream package directly. */
+/** Unified editor facade, web half — a LexicalComposer over the published
+ *  `@octanejs/lexical` binding, with optional web-only node and plugin composition. */
 export function LexicalEditor(props: LexicalEditorProps) @{
 	const editorRef = useRef<any>(null)
 	const lastEmitted = useRef<string | undefined>(undefined)
@@ -257,7 +254,9 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 
 	const initialConfig = {
 		namespace: 'octane-xplat/lexical',
-		nodes: NODES,
+		nodes: props.web?.replaceNodes
+			? props.web.nodes ?? []
+			: [...new Set([...NODES, ...(props.web?.nodes ?? [])])],
 		editable: props.editable !== false,
 		editorState: props.json != null
 			? JSON.stringify(props.json)
@@ -317,6 +316,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 		}
 
 		setHandle(bound.current!)
+		props.onJSONReady?.(true)
 		props.onReady?.()
 	}
 
@@ -376,6 +376,8 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 						placeholder={null}
 						className="vx-lexical-input"
 						style={{ outline: 'none' }}
+						onFocus={props.onFocus}
+						onBlur={props.onBlur}
 					/>
 				}
 				placeholder={
@@ -395,12 +397,17 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 				}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
-			<HistoryPlugin />
-			<ListPlugin />
-			<LinkPlugin />
-			{props.autofocus ? <AutoFocusPlugin /> : null}
+			{!props.web?.replacePlugins ? (
+				<>
+					<HistoryPlugin />
+					<ListPlugin />
+					<LinkPlugin />
+					{props.autofocus ? <AutoFocusPlugin /> : null}
+				</>
+			) : null}
 			<OnChangePlugin onChange={emitChange} />
 			<EditorRefPlugin editorRef={attach} />
+			{props.web?.plugins}
 		</LexicalComposer>
 	</div>
 }
