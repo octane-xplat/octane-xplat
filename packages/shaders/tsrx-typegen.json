@@ -1,0 +1,7 @@
+{
+	"targets": {
+		"pack": {
+			"emit": false
+		}
+	}
+}

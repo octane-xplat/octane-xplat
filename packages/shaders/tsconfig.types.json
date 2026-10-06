@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"skipLibCheck": true,
+		"outDir": "types"
+	},
+	"include": ["src/types.ts"]
+}

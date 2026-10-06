@@ -68,6 +68,7 @@ minimumReleaseAgeExclude:
   - '@nativescript/windows@0.1.0-alpha.144'
   - nativescript@9.1.2-dev.2026-09-24-36031892256
   - '@octanejs/tiptap@0.0.51'
+  - shaders@4.0.0
 allowBuilds:
   '@nativescript/core': true
   nativescript: true

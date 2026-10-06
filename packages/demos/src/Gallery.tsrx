@@ -23,7 +23,7 @@ import { ActionControlsDemo } from './ActionControlsDemo.tsrx';
 import { PowerSearchDemo } from './PowerSearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { LottieDemo } from './LottieDemo.tsrx';
-import { CameraDemo, AnimatedImageDemo, CanvasDemo } from './hosted-demos';
+import { CameraDemo, AnimatedImageDemo, CanvasDemo, ShaderDemo } from './hosted-demos';
 import { AuthDemo } from './AuthDemo.tsrx';
 import { PushDemo } from './PushDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
@@ -94,6 +94,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'auth', title: 'Provider sign-in', kind: 'proof' },
 	{ id: 'push', title: 'Push notifications', kind: 'proof' },
 	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
+	{ id: 'shaders', title: 'Shader / SimplexNoise', kind: 'proof' },
 	{ id: 'effects', title: 'Shader effects', kind: 'proof' },
 ];
 
@@ -154,6 +155,7 @@ const renderAuth = () => <AuthDemo />;
 const renderPush = () => <PushDemo />;
 const renderCanvas = () => <CanvasDemo />;
 const renderEffects = () => <EffectsDemo />;
+const renderShaders = () => <ShaderDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -205,6 +207,7 @@ export const RENDER: Record<string, () => any> = {
 	auth: renderAuth,
 	push: renderPush,
 	canvas: renderCanvas,
+	shaders: renderShaders,
 	effects: renderEffects,
 };
 

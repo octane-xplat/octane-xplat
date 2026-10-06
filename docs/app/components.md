@@ -567,6 +567,7 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/haptics` | `createHaptics`                                                      | Capability-aware haptics                  |
 | `@octane-xplat/sounds`  | `createSoundBank`                                                    | Short UI sound effects                    |
 | `@octane-xplat/effects` | `ShaderEffect` (`/ios`, `/android` only)                             | View-effect shaders (Metal stitch / AGSL) |
+| `@octane-xplat/shaders` | `createShader`, `createSharedDevice`, `prefersReducedMotion`         | `shaders` engine on Canvas (WebGPU; iOS/Android experimental) |
 | `@octane-xplat/auth`    | `appleAuth`, `googleAuth`, `AppleSignInButton`, `GoogleSignInButton` | Provider sign-in (Apple / Google SDKs)    |
 
 See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
