@@ -18,6 +18,7 @@ Start here when you need to understand a framework decision or investigate its i
 - [Framework notes](framework-notes.md)
 - [Native SVG rendering on AppKit](icon-svg-notes.md)
 - [Input and focus readiness evidence](input-readiness-notes.md)
+- [iOS editor backing-surface decision](ios-editor-backing-surface.md)
 - [Module-resolution notes](module-resolution-notes.md)
 - [Navigation notes](navigation-notes.md)
 - [Open questions](open-questions.md)
