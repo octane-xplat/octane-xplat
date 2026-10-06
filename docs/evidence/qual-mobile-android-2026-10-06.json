@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "schema": 1,
+      "runId": "d33e7911-ca45-4479-b397-105e9684ea6d",
+      "case": "/Users/alec/dev/alloc/worktrees/octane-xplat/grand-hippo/octane-xplat/research/qual-mobile.tsrx",
+      "target": "android",
+      "host": "NativeScript",
+      "interaction": "gesture-observer-dispatch",
+      "status": "pass",
+      "durationMs": 1410,
+      "assertions": [
+        {
+          "name": "root stack at base",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "pushed route name",
+          "pass": true,
+          "actual": "qual/pushed",
+          "expected": "qual/pushed"
+        },
+        {
+          "name": "pushed route param",
+          "pass": true,
+          "actual": "42",
+          "expected": "42"
+        },
+        {
+          "name": "canGoBack after push",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "modal route open",
+          "pass": true,
+          "actual": "qual/modal",
+          "expected": "qual/modal"
+        },
+        {
+          "name": "modal dismissed",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "pushed route survives modal",
+          "pass": true,
+          "actual": "qual/pushed",
+          "expected": "qual/pushed"
+        },
+        {
+          "name": "root back at base",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "canGoBack at base",
+          "pass": true,
+          "actual": false,
+          "expected": false
+        },
+        {
+          "name": "press-pushed route param",
+          "pass": true,
+          "actual": "press",
+          "expected": "press"
+        },
+        {
+          "name": "named stack route",
+          "pass": true,
+          "actual": "qual/pushed",
+          "expected": "qual/pushed"
+        },
+        {
+          "name": "named stack param",
+          "pass": true,
+          "actual": "tab",
+          "expected": "tab"
+        },
+        {
+          "name": "named stack popped",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "storage empty before write",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "storage round-trip",
+          "pass": true,
+          "actual": "{\"count\":7,\"label\":\"\u00fcpload\"}",
+          "expected": "{\"count\":7,\"label\":\"\u00fcpload\"}"
+        },
+        {
+          "name": "storage cleared",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "hosted auth supported",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "restore before sign-in",
+          "pass": true,
+          "actual": "unauthenticated",
+          "expected": "unauthenticated"
+        },
+        {
+          "name": "sign-in succeeds",
+          "pass": true,
+          "actual": "success",
+          "expected": "success"
+        },
+        {
+          "name": "session opened begin url",
+          "pass": true,
+          "actual": "https://auth.example.test/login?attempt=a1",
+          "expected": "https://auth.example.test/login?attempt=a1"
+        },
+        {
+          "name": "session used attempt scheme",
+          "pass": true,
+          "actual": "qualauth",
+          "expected": "qualauth"
+        },
+        {
+          "name": "complete got callback",
+          "pass": true,
+          "actual": "qualauth://cb?state=st-1&code=code-1",
+          "expected": "qualauth://cb?state=st-1&code=code-1"
+        },
+        {
+          "name": "complete got attempt data",
+          "pass": true,
+          "actual": "a1",
+          "expected": "a1"
+        },
+        {
+          "name": "pkce verifier minted",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "pkce challenge derived",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "access token after sign-in",
+          "pass": true,
+          "actual": "at-1",
+          "expected": "at-1"
+        },
+        {
+          "name": "bearer on api path",
+          "pass": true,
+          "actual": "Bearer at-1",
+          "expected": "Bearer at-1"
+        },
+        {
+          "name": "no bearer on auth mount",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "no bearer on foreign origin",
+          "pass": true,
+          "actual": null,
+          "expected": null
+        },
+        {
+          "name": "restore across client instance",
+          "pass": true,
+          "actual": "authenticated",
+          "expected": "authenticated"
+        },
+        {
+          "name": "restored access token",
+          "pass": true,
+          "actual": "at-1",
+          "expected": "at-1"
+        },
+        {
+          "name": "expired token refreshes",
+          "pass": true,
+          "actual": "at-2",
+          "expected": "at-2"
+        },
+        {
+          "name": "refresh ran once",
+          "pass": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "name": "refresh got session",
+          "pass": true,
+          "actual": "rt-1",
+          "expected": "rt-1"
+        },
+        {
+          "name": "readText round-trip",
+          "pass": true,
+          "actual": "xplat qualification upload payload",
+          "expected": "xplat qualification upload payload"
+        },
+        {
+          "name": "readBytes length",
+          "pass": true,
+          "actual": 34,
+          "expected": 34
+        },
+        {
+          "name": "upload status",
+          "pass": true,
+          "actual": 200,
+          "expected": 200
+        },
+        {
+          "name": "upload authorized",
+          "pass": true,
+          "actual": "Bearer at-2",
+          "expected": "Bearer at-2"
+        },
+        {
+          "name": "upload body",
+          "pass": true,
+          "actual": "xplat qualification upload payload",
+          "expected": "xplat qualification upload payload"
+        },
+        {
+          "name": "revoke saw session",
+          "pass": true,
+          "actual": "rt-1",
+          "expected": "rt-1"
+        },
+        {
+          "name": "restore after sign-out",
+          "pass": true,
+          "actual": "unauthenticated",
+          "expected": "unauthenticated"
+        }
+      ],
+      "measurements": {
+        "target": "android",
+        "transport calls": 4,
+        "upload ref": "/data/user/0/org.octanexplat.probe.p9558091deee2b917.p06457573c40e7ebb/files/qual-upload.txt",
+        "refresh count": 1
+      },
+      "errors": [],
+      "device": "emulator-5556",
+      "cache": "/Users/alec/dev/alloc/worktrees/octane-xplat/grand-hippo/octane-xplat/research/probes/9558091deee2b917/build-06457573c40e7ebb"
+    }
+  ]
+}
