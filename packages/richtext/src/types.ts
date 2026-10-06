@@ -48,6 +48,33 @@ export interface RichTextEditorHandle {
 	 *  toggles and programmatic edits do not register. */
 	undo(): void
 	redo(): void
+	/** Split the block at the caret into two siblings — the Enter-key
+	 *  semantic (a non-collapsed selection is deleted first). Android: a
+	 *  real block break through Aztec's watcher pipeline — a caret inside
+	 *  a list item produces a sibling `<li>`. Inside hidden block markup
+	 *  Aztec does not understand (`<div data-*>` wrappers), this is a line
+	 *  break, not a new node — it serializes as `<br>`. Returns false when
+	 *  there is no valid selection. AppKit: returns false — the engine
+	 *  transport is asynchronous and cannot report application. */
+	split(): boolean
+	/** Merge the block at the caret into the previous block — the
+	 *  Backspace-at-block-start semantic. Returns false unless the
+	 *  selection is a collapsed caret directly after a block boundary. */
+	join(): boolean
+	/** Demote the block(s) in the selection. Aztec semantics: a list item
+	 *  nests under its previous sibling; a plain paragraph, heading,
+	 *  quote, or preformat line gains a literal `\t` indent. Hidden
+	 *  `<div data-*>` nodes are opaque to Aztec and cannot be demoted.
+	 *  Returns false when Aztec reports no indentable selection. */
+	indent(): boolean
+	/** Promote the block(s) in the selection one level — the inverse of
+	 *  `indent()`. Returns false when Aztec reports no outdentable
+	 *  selection. */
+	outdent(): boolean
+	/** Whether `indent()` can apply to the current selection. */
+	canIndent(): boolean
+	/** Whether `outdent()` can apply to the current selection. */
+	canOutdent(): boolean
 	focus(): void
 	blur(): void
 	isFocused(): boolean

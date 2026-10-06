@@ -178,6 +178,45 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		},
 		undo: () => e.undo(),
 		redo: () => e.redo(),
+		split: () => {
+			const selStart = e.getSelectionStart()
+			const selEnd = e.getSelectionEnd()
+			if (selStart < 0 || selEnd < 0) return false
+			const start = Math.min(selStart, selEnd)
+			const end = Math.max(selStart, selEnd)
+			const text = e.getText()
+			if (end > String(text).length) return false
+			if (end > start) text.delete(start, end)
+			text.insert(start, '\n')
+			e.setSelection(start + 1)
+			emitChange()
+			return true
+		},
+		join: () => {
+			const start = e.getSelectionStart()
+			if (start <= 0 || e.getSelectionEnd() !== start) return false
+			const text = e.getText()
+			const s = String(text)
+			if (start > s.length || s.charAt(start - 1) !== '\n') return false
+			text.delete(start - 1, start)
+			e.setSelection(start - 1)
+			emitChange()
+			return true
+		},
+		indent: () => {
+			if (!e.isIndentAvailable()) return false
+			e.indent()
+			emitChange()
+			return true
+		},
+		outdent: () => {
+			if (!e.isOutdentAvailable()) return false
+			e.outdent()
+			emitChange()
+			return true
+		},
+		canIndent: () => Boolean(e.isIndentAvailable()),
+		canOutdent: () => Boolean(e.isOutdentAvailable()),
 		focus: () => {
 			e.requestFocus()
 			showKeyboard(e)

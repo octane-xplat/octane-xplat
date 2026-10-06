@@ -49,6 +49,15 @@ export function createEditorSession(
 		isActive: (format) => active.includes(format),
 		undo: () => command('undo'),
 		redo: () => command('redo'),
+		// Structural commands are Aztec-only for now: the AppKit transport
+		// is one-way async dispatch, so a synchronous "applied" result cannot
+		// be reported and a fire-and-forget forward would lie to the caller.
+		split: () => false,
+		join: () => false,
+		indent: () => false,
+		outdent: () => false,
+		canIndent: () => false,
+		canOutdent: () => false,
 		focus: () => command('focus'),
 		blur: () => command('blur'),
 		isFocused: () => focused,
