@@ -2,7 +2,7 @@
 
 > Choose a native editor for the Tiptap and Lexical leaves without mistaking ordinary rich text for Foxtrot document compatibility.
 
-Decision #101: **provisional**, 2026-10-05. Evidence: upstream source and documentation; a compile/link diagnostic is prepared but was not run in this spike. No iOS app, keyboard, selection, accessibility, or pixel-parity qualification is claimed.
+Decision #101: **provisional**, 2026-10-05. Evidence: upstream source and documentation; compile/link diagnostic ran 2026-10-06 and passed, while the NS metadata check reproduced the declared Foundation/UIKit loss blocker under iPhoneSimulator27.0.sdk with the @nativescript/ios 9.1.0 clang-17 generator ([results](evidence/ios-editor-backing/results.md)). No iOS app, keyboard, selection, accessibility, or pixel-parity qualification is claimed.
 
 ## Recommendation
 
@@ -130,7 +130,7 @@ An ObjC wrapper reduces exposed surface and avoids exporting Swift generic/Codab
 
 ## Bounded spike and remaining gates
 
-[Compile diagnostic](evidence/ios-editor-backing/compile.sh), [Swift facade](evidence/ios-editor-backing/SurfaceProbe.swift), [Objective-C consumer](evidence/ios-editor-backing/ObjCConsumer.m) and [execution record](evidence/ios-editor-backing/results.md) are retained for editor-package maintainers to rerun when the engine or Xcode changes. No engine implementation is vendored and no editor package behavior changes here. The diagnostic checks core/history/lists, custom ElementNode API availability, native view exposure and generated-header linking. It does not test custom attributes, JSON roundtrip, input or metadata.
+[Compile diagnostic](evidence/ios-editor-backing/compile.sh), [Swift facade](evidence/ios-editor-backing/SurfaceProbe.swift), [Objective-C consumer](evidence/ios-editor-backing/ObjCConsumer.m), [metadata check](evidence/ios-editor-backing/metadata-check.sh) and [execution record](evidence/ios-editor-backing/results.md) are retained for editor-package maintainers to rerun when the engine or Xcode changes. No engine implementation is vendored and no editor package behavior changes here. The diagnostic checks core/history/lists, custom ElementNode API availability, native view exposure and generated-header linking. It does not test custom attributes, JSON roundtrip, input or metadata.
 
 1. Compile/link the pinned engine and bridge; verify real NativeScript metadata and mount with the unmodified supported toolchain. Stop if the required UIKit/wrapper declarations are absent.
 2. On an owned iOS device/simulator, prove the baseline matrix: initial content, edits, mark/link/list changes, directed selection, IME, read-only, echo/replacement, undo/redo, save/reopen and mount/dispose/remount. Exercise real OS input; handler dispatch is insufficient. Qualify VoiceOver on a device separately.
