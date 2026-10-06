@@ -1,7 +1,8 @@
 import type { Octane } from 'octane/jsx-runtime'
 
-/** Android uses WordPress Aztec; AppKit uses StarterKit in WKWebView.
- * iOS is stubbed. Web/Windows use the tiptap facade instead of this leaf. */
+/** Android uses WordPress Aztec; iOS uses AztecEditor-iOS; AppKit uses
+ * StarterKit in WKWebView. Web/Windows use the tiptap facade instead of
+ * this leaf. */
 export type RichTextFormat =
 	| 'bold'
 	| 'italic'
@@ -34,26 +35,36 @@ export interface RichTextEditorHandle {
 	 *  markup). */
 	/** AppKit: returns the latest WebKit snapshot; commands are asynchronous. */
 	getHTML(): string
-	/** Replace the document. Android resets Aztec history; AppKit uses engine history. */
+	/** Replace the document. Android resets Aztec history; the iOS
+	 *  `setHTML` variant is likewise non-undoable; AppKit uses engine
+	 *  history. */
 	setHTML(html: string): void
 	/** Toggle a format at the current selection. `link` needs
-	 *  `linkTo(url, anchor)` instead. */
+	 *  `linkTo(url, anchor)` instead. iOS has no taskList or text-alignment
+	 *  engine support — those calls report a console warning and do not
+	 *  change the document. */
 	apply(format: RichTextFormat): void
 	/** Insert or re-target a link over the current selection. */
 	linkTo(url: string, anchor?: string): void
 	removeLink(): void
-	/** Formats active at the selection — powers toolbar highlight state. */
+	/** Formats active at the selection — powers toolbar highlight state.
+	 *  iOS always reports false for taskList and the align* formats (no
+	 *  engine support). */
 	isActive(format: RichTextFormat): boolean
 	/** Android: Aztec's history batches keyboard input only — format
-	 *  toggles and programmatic edits do not register. */
+	 *  toggles and programmatic edits do not register. iOS: the engine
+	 *  undoManager covers format toggles and keyboard input; `setHTML` and
+	 *  split/join edits sit outside it. */
 	undo(): void
 	redo(): void
 	/** Split the block at the caret into two siblings — the Enter-key
 	 *  semantic (a non-collapsed selection is deleted first). Android: a
 	 *  real block break through Aztec's watcher pipeline — a caret inside
-	 *  a list item produces a sibling `<li>`. Inside hidden block markup
-	 *  Aztec does not understand (`<div data-*>` wrappers), this is a line
-	 *  break, not a new node — it serializes as `<br>`. Returns false when
+	 *  a list item produces a sibling `<li>`. iOS routes through Aztec's
+	 *  `insertText` newline handling for the same semantics. Inside hidden
+	 *  block markup Aztec does not understand (`<div data-*>` wrappers),
+	 *  this is a line break, not a new node — it serializes as `<br>`.
+	 *  Returns false when
 	 *  there is no valid selection. AppKit: returns false — the engine
 	 *  transport is asynchronous and cannot report application. */
 	split(): boolean
@@ -65,11 +76,14 @@ export interface RichTextEditorHandle {
 	 *  nests under its previous sibling; a plain paragraph, heading,
 	 *  quote, or preformat line gains a literal `\t` indent. Hidden
 	 *  `<div data-*>` nodes are opaque to Aztec and cannot be demoted.
-	 *  Returns false when Aztec reports no indentable selection. */
+	 *  iOS: `increaseIndent` acts on list/quote depth and falls back to a
+	 *  `\t` insert on plain blocks. Returns false when Aztec reports no
+	 *  indentable selection (iOS: when the view is not editable). */
 	indent(): boolean
 	/** Promote the block(s) in the selection one level — the inverse of
-	 *  `indent()`. Returns false when Aztec reports no outdentable
-	 *  selection. */
+	 *  `indent()`. iOS has no plain-block outdent, so this applies only to
+	 *  list items and blockquotes. Returns false when Aztec reports no
+	 *  outdentable selection. */
 	outdent(): boolean
 	/** Whether `indent()` can apply to the current selection. */
 	canIndent(): boolean
@@ -78,7 +92,8 @@ export interface RichTextEditorHandle {
 	focus(): void
 	blur(): void
 	isFocused(): boolean
-	/** The platform surface — `AztecText` on Android. */
+	/** The platform surface — `AztecText` on Android, the
+	 *  `XplatAztecEditorView` facade on iOS. */
 	/** AppKit: the XplatEditorHost transport, not the browser engine instance. */
 	native: any
 }

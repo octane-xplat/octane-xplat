@@ -301,6 +301,9 @@ importers:
       '@octane-xplat/push':
         specifier: workspace:*
         version: link:../../packages/push
+      '@octane-xplat/richtext':
+        specifier: workspace:*
+        version: link:../../packages/richtext
       '@octane-xplat/secure-storage':
         specifier: workspace:*
         version: link:../../packages/secure-storage

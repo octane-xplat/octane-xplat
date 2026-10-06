@@ -50,7 +50,7 @@ export function RichTextEditorDemo() @{
 	<View className="gap-4">
 		<Heading level={2}>Rich text editor</Heading>
 		<Text className="text-sm text-muted">
-			Aztec on Android · StarterKit in AppKit WebKit · iOS is stubbed.
+			Aztec on Android · AztecEditor-iOS on iOS · StarterKit in AppKit WebKit.
 		</Text>
 		<RichTextEditor
 			id="richtext-editor"

@@ -961,36 +961,36 @@ const STEPS: Step[] = [
 		],
 	},
 	{
-		// iOS leaf is a stub until the Swift facade lands — the demo must
-		// still mount and report 'unsupported'.
+		// iOS leaf mounts the AztecEditor-iOS facade — the demo must reach
+		// 'ready' and the element must carry the native editor view.
 		id: 'richtext-editor',
 		checks: [
+			{ at: 800, run: () => assertMatch('richtext ios status', /ready/) },
 			{
 				at: 800,
-				run: () => assertHas('richtext ios stub', 'Rich text editing is not supported on iOS yet.'),
+				run: () => {
+					const el: any = findOnRoot('richtext-editor')
+					const ios = el?.ios ?? el?.nativeView
+					console.log(
+						'[assert] richtext ios mounts XplatAztecEditorView: ' +
+							(ios && String(ios.constructor?.name ?? '').includes('XplatAztecEditorView')
+								? 'OK'
+								: 'FAIL' + ' (' + String(ios?.constructor?.name ?? ios) + ')'),
+					)
+				},
 			},
-			{ at: 800, run: () => assertMatch('richtext ios status', /unsupported/) },
 		],
 	},
 	{
+		// The tiptap facade delegates to the same leaf — on iOS it now
+		// mounts the Aztec-backed editor and reaches 'ready'.
 		id: 'tiptap-editor',
-		checks: [
-			{
-				at: 800,
-				run: () => assertHas('tiptap ios stub', 'Rich text editing is not supported on iOS yet.'),
-			},
-			{ at: 800, run: () => assertMatch('tiptap ios status', /unsupported/) },
-		],
+		checks: [{ at: 800, run: () => assertMatch('tiptap ios status', /ready/) }],
 	},
 	{
+		// Same leaf delegation for the lexical facade.
 		id: 'lexical-editor',
-		checks: [
-			{
-				at: 800,
-				run: () => assertHas('lexical ios stub', 'Rich text editing is not supported on iOS yet.'),
-			},
-			{ at: 800, run: () => assertMatch('lexical ios status', /unsupported/) },
-		],
+		checks: [{ at: 800, run: () => assertMatch('lexical ios status', /ready/) }],
 	},
 	{
 		id: 'layout',

@@ -23,7 +23,8 @@
 		"dist",
 		"types",
 		"src",
-		"platforms"
+		"platforms",
+		"nativescript.config.ts"
 	],
 	"type": "module",
 	"exports": {

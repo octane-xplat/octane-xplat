@@ -40,6 +40,7 @@
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
 		"@octane-xplat/push": "workspace:*",
+		"@octane-xplat/richtext": "workspace:*",
 		"@octane-xplat/secure-storage": "workspace:*",
 		"@octane-xplat/share": "workspace:*",
 		"@octane-xplat/sheet": "workspace:*",

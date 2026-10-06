@@ -79,26 +79,38 @@ it unsafe to claim stable structured storage. See the
 
 ## iOS
 
-Neither package mounts an iOS editing engine. Both route through the leaf's
-`supported = false` entry, which renders a visible placeholder. Their
-headless JSON conversion modules may still load, but conversion readiness is
-not editor readiness ([Tiptap facade](../../packages/tiptap/src/TiptapEditor.tsrx),
-[Lexical facade](../../packages/lexical/src/LexicalEditor.tsrx),
-[iOS leaf](../../packages/richtext/src/RichTextEditor.ios.tsrx)). A real
-simulator run passed 2/2 assertions for the unsupported flag and placeholder;
-it did not exercise editing ([runtime results](../evidence/nested-tree-editor-ios-2026-10-06.json),
-[verification report](../verify/nested-tree-editor.md)).
+The leaf now mounts AztecEditor-iOS (`Aztec.TextView`) through the
+`XplatAztecEditorView` Swift facade in
+[`platforms/ios/src`](../../packages/richtext/platforms/ios/src/XplatAztecEditor.swift),
+wired as a pinned-revision Swift Package via the leaf's plugin-level
+[`nativescript.config.ts`](../../packages/richtext/nativescript.config.ts)
+([iOS leaf](../../packages/richtext/src/RichTextEditor.ios.tsrx)). A 2026-10-06
+simulator probe (iPhone 17e, iOS 27.0, `research/aztec-ios` case, run
+`e21e9b48-7df5-4bb3-98c4-cdcd84509067`) passed 14/14 assertions: the leaf
+mounts the facade view, `onReady` fires, `getHTML`/`setHTML` round-trip,
+`focus`/`blur` reach first responder, and unsupported formats report false.
+That run exercised handle calls only — no OS input, IME, paste, toolbar
+round-trip, or VoiceOver — so every row below stays **Partial** and mostly
+source-marked. `taskList` and the `align*` formats are honestly
+unavailable: `apply` logs a warning and does not mutate, `isActive` returns
+`false`.
+
+Both facades still route through this leaf ([Tiptap facade](../../packages/tiptap/src/TiptapEditor.tsrx),
+[Lexical facade](../../packages/lexical/src/LexicalEditor.tsrx)). Their
+headless JSON conversion modules plus the leaf's HTML interchange carry the
+same caveats as on Android; decision #101's hosted iOS entries for tiptap
+and lexical remain the intended future work.
 
 | Contract row | Tiptap | Lexical |
 | --- | --- | --- |
-| Document | **Unsupported** — no iOS document editor ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — no iOS document editor ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Storage | **Unsupported** — no editable document store; the Tiptap JSON converter may run without an editor ([facade source](../../packages/tiptap/src/TiptapEditor.tsrx), [decision ledger](decisions.md), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — no editable document store; the Lexical JSON converter may run without an editor ([facade source](../../packages/lexical/src/LexicalEditor.tsrx), [decision ledger](decisions.md), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Lifecycle | **Unsupported** — only the placeholder mounts; there is no editor readiness or handle lifecycle. JSON bridge readiness is separate ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — only the placeholder mounts; there is no editor readiness or handle lifecycle. JSON bridge readiness is separate ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Controlled updates | **Unsupported** — no editor receives `value` or `json` updates ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — no editor receives `value` or `json` updates ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Editing and history | **Unsupported** — no editing engine or history ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — no editing engine or history ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Focus and selection | **Unsupported** — no editable surface to focus or select ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — no editable surface to focus or select ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Events and results | **Unsupported** — the placeholder reports no editor events or capability error result ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | **Unsupported** — the placeholder reports no editor events or capability error result ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
-| Unsupported request today | The package reports `supported = false` and renders the placeholder; there is no editor error result or editor `onReady` callback. `onJSONReady` may separately report conversion-module readiness ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [facade source](../../packages/tiptap/src/TiptapEditor.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). | The package reports `supported = false` and renders the placeholder; there is no editor error result or editor `onReady` callback. `onJSONReady` may separately report conversion-module readiness ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [facade source](../../packages/lexical/src/LexicalEditor.tsrx), [runtime](../evidence/nested-tree-editor-ios-2026-10-06.json)). |
+| Document | **Partial** — the Aztec surface parses and edits paragraphs, headings, lists, links, marks, sub/superscript; task nodes, alignment, and unknown markup are outside it. The probe verified HTML load/serialize round-trip on simulator; no editing input run yet ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx), [facade](../../packages/richtext/platforms/ios/src/XplatAztecEditor.swift)). | **Partial** — same leaf evidence; the Lexical serialized-state bridge converts through HTML, unverified on iOS ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). |
+| Storage | **Partial** — HTML is canonical via `getHTML`/`setHTML`; JSON rides the facade's bridge. No versioned restricted format or pre-mutation validation ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). | **Partial** — same leaf evidence ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). |
+| Lifecycle | **Partial** — initial mount, readiness, and handle binding are probe-verified on simulator; editable toggles and callback teardown exist in source but dispose/remount is unverified ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). | **Partial** — same leaf evidence ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). |
+| Controlled updates | **Partial** — echo suppression and external `value` replacement exist in source; no revisions or stale-request checks ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). | **Partial** — same leaf evidence ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). |
+| Editing and history | **Partial** — format toggles, structural commands, and `undoManager`-backed undo exist in source; keyboard, IME, paste, and history coverage are unqualified on iOS ([facade](../../packages/richtext/platforms/ios/src/XplatAztecEditor.swift)). | **Partial** — same leaf evidence ([facade](../../packages/richtext/platforms/ios/src/XplatAztecEditor.swift)). |
+| Focus and selection | **Partial** — `focus()`/`blur()` reaching first responder is probe-verified on simulator; selection callbacks are wired in source over UITextViewDelegate; no directed selection setter or JSON-path positions ([facade](../../packages/richtext/platforms/ios/src/XplatAztecEditor.swift)). | **Partial** — same leaf evidence ([facade](../../packages/richtext/platforms/ios/src/XplatAztecEditor.swift)). |
+| Events and results | **Partial** — ready/change/selection/focus/blur callbacks exist in source; events carry no origin/revision and commands have no committed-state acknowledgement ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). | **Partial** — same leaf evidence ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). |
+| Unsupported request today | `apply('taskList'|'alignLeft'|'alignCenter'|'alignRight')` logs a warning and does not mutate; `isActive` returns `false` for them; `apply('link')` returns without action — use `linkTo` ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). | Same as Tiptap ([source](../../packages/richtext/src/RichTextEditor.ios.tsrx)). |
 
 ## Updating these declarations
 

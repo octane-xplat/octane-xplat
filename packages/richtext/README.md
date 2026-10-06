@@ -1,9 +1,10 @@
 # `@octane-xplat/richtext`
 
 The native rich-text editing leaf: WordPress Aztec's `AztecText` on Android —
-a `Spannable`-backed `EditText`, not a WebView. iOS mounts an unsupported
-placeholder until the Aztec-iOS Swift facade lands; web and Windows
-return `supported: false` (the `@octane-xplat/tiptap` facade covers web).
+a `Spannable`-backed `EditText`, not a WebView. iOS mounts AztecEditor-iOS
+(`Aztec.TextView`) through the `XplatAztecEditorView` Swift facade in
+`platforms/ios`; web and Windows return `supported: false` (the
+`@octane-xplat/tiptap` facade covers web).
 
 ```tsx
 import { useState } from 'octane'
@@ -112,6 +113,13 @@ export function Formatting() {
 
 The Android Aztec dependency (`org.wordpress:aztec:v2.1.7`) arrives through
 the leaf's `platforms/android/include.gradle` — no app-level gradle work.
+On iOS the leaf declares AztecEditor-iOS as a pinned-revision Swift Package
+in its plugin-level `nativescript.config.ts` and compiles
+`platforms/ios/src/XplatAztecEditor.swift` into the app — NativeScript
+plugin discovery applies both when the app depends on
+`@octane-xplat/richtext`. iOS has no task-list or text-alignment surface:
+`apply('taskList')` and the `align*` formats report a warning and leave the
+document unchanged, and `isActive` returns `false` for them.
 See the framework guide for the full contract and the demo:
 [`docs/app/rich-text.md`](../../docs/app/rich-text.md) and
 [`packages/demos/src/RichTextEditorDemo.tsrx`](../demos/src/RichTextEditorDemo.tsrx).
