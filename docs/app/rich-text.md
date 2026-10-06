@@ -169,10 +169,13 @@ On Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
 Lexical plugins, transforms, and browser views do not run. The facades do not
 create live ProseMirror or Lexical editor instances there. The 2026-10-06
 [nested-tree run](../verify/nested-tree-editor.md) preserved the three-level
-HTML hierarchy and attributes through synthetic edits and save/reopen. It
-also flattened paragraphs and accumulated `<br>` elements on reopen; it did
-not test OS input or structural commands. This is not full Foxtrot-document
-support.
+HTML hierarchy and attributes through synthetic edits and save/reopen, and a
+follow-up run exercised the leaf's `split`/`join`/`indent`/`outdent` commands:
+they perform real structural edits on Aztec's own block model (nested lists
+demote, items split and merge) but cannot reshape `toggle-item` divs, which
+Aztec treats as opaque hidden-block markup. It also flattened paragraphs —
+top-level `<p>` included — and accumulated `<br>` elements on reopen; it did
+not test OS input. This is not full Foxtrot-document support.
 
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'

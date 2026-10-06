@@ -26,6 +26,16 @@ Content in/out is document HTML via Aztec `fromHtml`/`toPlainHtml`. The
 `focus`/`blur`, `native`) once the editor exists, and `onSelectionChange`
 reports the active `RichTextFormat` set at the caret.
 
+Structural commands exist on the Aztec surface: `split()` breaks the block
+at the caret, `join()` merges a block into the previous one from a
+collapsed caret at its start, and `indent()`/`outdent()` demote or promote
+the selected blocks — a real nested-list restructure on `<ul>`/`<ol>`, a
+`\t` indent on plain blocks. `canIndent()`/`canOutdent()` report whether
+the current selection can take the command. All six return `false` when
+the command cannot apply; markup Aztec does not understand (for example
+`<div data-*>` wrappers) is opaque to them. On AppKit the commands return
+`false` — the engine transport cannot report a synchronous result.
+
 ```tsx
 import { useRef } from 'octane'
 import { RichTextEditor, type RichTextEditorHandle } from '@octane-xplat/richtext'

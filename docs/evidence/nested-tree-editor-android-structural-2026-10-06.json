@@ -1,0 +1,464 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "schema": 1,
+      "runId": "748eec34-112a-4084-ad4d-20e0424b6816",
+      "case": "/Users/alec/dev/alloc/worktrees/octane-xplat/russet-hound/octane-xplat/research/foxtrot-native-editor/aztec.android.tsrx",
+      "target": "android",
+      "host": "NativeScript",
+      "interaction": "gesture-observer-dispatch",
+      "status": "pass",
+      "durationMs": 3101,
+      "assertions": [
+        {
+          "name": "Android editing surface supported",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "loaded: three toggle nodes",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "loaded: balanced toggle wrappers",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "loaded: recursive parent-child-grandchild order",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "loaded: parent attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "loaded: child attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "loaded: grandchild attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "loaded: text remains at matching hierarchy depth",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "loaded: all labels serialized",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterParentEdit: three toggle nodes",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "afterParentEdit: balanced toggle wrappers",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "afterParentEdit: recursive parent-child-grandchild order",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterParentEdit: parent attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterParentEdit: child attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterParentEdit: grandchild attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterParentEdit: text remains at matching hierarchy depth",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterParentEdit: all labels serialized",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "parent edit reached Aztec Editable",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterChildEdit: three toggle nodes",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "afterChildEdit: balanced toggle wrappers",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "afterChildEdit: recursive parent-child-grandchild order",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterChildEdit: parent attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterChildEdit: child attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterChildEdit: grandchild attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterChildEdit: text remains at matching hierarchy depth",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterChildEdit: all labels serialized",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "child edit reached Aztec Editable",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterGrandchildEdit: three toggle nodes",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "afterGrandchildEdit: balanced toggle wrappers",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "afterGrandchildEdit: recursive parent-child-grandchild order",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterGrandchildEdit: parent attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterGrandchildEdit: child attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterGrandchildEdit: grandchild attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterGrandchildEdit: text remains at matching hierarchy depth",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "afterGrandchildEdit: all labels serialized",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "grandchild edit reached Aztec Editable",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "programmatic Editable inserts are outside exposed undo history",
+          "pass": true,
+          "actual": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child edited \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild edited \ud83d\ude80</div></div></div>",
+          "expected": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child edited \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild edited \ud83d\ude80</div></div></div>"
+        },
+        {
+          "name": "reopened: three toggle nodes",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "reopened: balanced toggle wrappers",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "reopened: recursive parent-child-grandchild order",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "reopened: parent attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "reopened: child attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "reopened: grandchild attrs",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "reopened: text remains at matching hierarchy depth",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "reopened: all labels serialized",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "reopened serialization retains all edited labels",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "split returns true inside toggle item",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "split inserted a line break in native text",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "split inside hidden div serializes as a line break",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "split preserves all three toggle wrappers",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "join merges the line back",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "join restored the grandchild label",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "join refuses a mid-block caret",
+          "pass": true,
+          "actual": false,
+          "expected": false
+        },
+        {
+          "name": "canIndent sees the list item",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "indent demotes a list item",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "indented item nests under previous sibling",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "outdent promotes the item back",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "outdented list is a single level",
+          "pass": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "name": "sibling order survives demote/promote",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "split inside a list item returns true",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "split produced a sibling list item",
+          "pass": true,
+          "actual": 3,
+          "expected": 3
+        },
+        {
+          "name": "split divided the label at the caret",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "join merges the split item back",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "join restored two items",
+          "pass": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "name": "join restored the label",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        }
+      ],
+      "measurements": {
+        "nativeClass": "org.wordpress.aztec.AztecText",
+        "fixtureGrammar": "toggleItem+; toggleItem = paragraph toggleItem*",
+        "inputHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\"><p>Parent \ud83e\uddea</p><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\"><p>Child \u65e5\u672c\u8a9e</p><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\"><p>Grandchild \ud83d\ude80</p></div></div></div>",
+        "initialNativeText": "Parent \ud83e\uddea\nChild \u65e5\u672c\u8a9e\nGrandchild \ud83d\ude80",
+        "handleMethods": [
+          "apply",
+          "blur",
+          "canIndent",
+          "canOutdent",
+          "focus",
+          "getHTML",
+          "indent",
+          "isActive",
+          "isFocused",
+          "join",
+          "linkTo",
+          "native",
+          "outdent",
+          "redo",
+          "removeLink",
+          "setHTML",
+          "split",
+          "undo"
+        ],
+        "nativeCapabilities": {
+          "fromHtml": "function",
+          "toPlainHtml": "function",
+          "undo": "function",
+          "redo": "function",
+          "setSelection": "function"
+        },
+        "loadedHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild \ud83d\ude80</div></div></div>",
+        "afterParentEditHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild \ud83d\ude80</div></div></div>",
+        "afterChildEditHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child edited \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild \ud83d\ude80</div></div></div>",
+        "afterGrandchildEditHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child edited \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild edited \ud83d\ude80</div></div></div>",
+        "undoHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child edited \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild edited \ud83d\ude80</div></div></div>",
+        "undoText": "Parent edited \ud83e\uddea\nChild edited \u65e5\u672c\u8a9e\nGrandchild edited \ud83d\ude80",
+        "reopenedHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent edited \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child edited \u65e5\u672c\u8a9e<br><br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild edited \ud83d\ude80<br><br></div><br><br><br></div><br><br></div>",
+        "toggleCanIndent": false,
+        "toggleCanOutdent": false,
+        "splitToggleHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild<br><br> \ud83d\ude80</div></div></div>",
+        "toggleIndentResult": false,
+        "toggleIndentHTML": "<div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"todo\" data-task-priority=\"high\" data-task-created-at=\"123\">Parent \ud83e\uddea<br><div data-type=\"toggle-item\" data-item-type=\"checklist\" data-is-checked=\"true\">Child \u65e5\u672c\u8a9e<br><div data-type=\"toggle-item\" data-item-type=\"task\" data-task-state=\"doing\" data-task-priority=\"low\">Grandchild \ud83d\ude80</div></div></div>",
+        "listLoadedHTML": "<ul><li>Alpha</li><li>Beta</li></ul>",
+        "listLoadedText": "Alpha\nBeta",
+        "indentedListHTML": "<ul><li>Alpha<ul style=\"text-align:left;\"><li>Beta</li></ul></li></ul>",
+        "outdentedListHTML": "<ul><li>Alpha</li><li>Beta</li></ul>",
+        "splitListHTML": "<ul><li>Alpha</li><li>Be</li><li>ta</li></ul>",
+        "joinedListHTML": "<ul><li>Alpha</li><li>Beta</li></ul>",
+        "topLevelParagraphHTML": "one<br><br>two",
+        "structuralSummary": "split/join/indent/outdent/canIndent/canOutdent are real Aztec commands on the linear model: lists get true demote/promote/split/merge; hidden toggle-item divs get line-level breaks only.",
+        "mechanism": "handle commands over AztecText (Editable newline insert/delete, BlockFormatter indent/outdent) + setHTML/getHTML; no OS input in this run"
+      },
+      "errors": [],
+      "device": "emulator-5556",
+      "cache": "/Users/alec/dev/alloc/worktrees/octane-xplat/russet-hound/octane-xplat/research/probes/5c9dcbd3bfa10b39/build-5a271d6337902de8"
+    }
+  ]
+}

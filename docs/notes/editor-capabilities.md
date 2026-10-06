@@ -67,10 +67,15 @@ facade.
 | Unsupported request today | `apply('link')` returns without action in the Aztec leaf. A failed/unavailable JSON bridge can report `onJSONReady(false)` or leave conversion unavailable; there is no general error event ([leaf source](../../packages/richtext/src/RichTextEditor.android.tsrx), [facade source](../../packages/tiptap/src/TiptapEditor.tsrx)). | `apply('link')` returns without action in the same leaf. A failed JSON conversion may produce no document update; there is no general error event ([leaf source](../../packages/richtext/src/RichTextEditor.android.tsrx), [facade source](../../packages/lexical/src/LexicalEditor.tsrx)). |
 
 The Android nested-tree run is narrower than full recursive-document support:
-it used Aztec `Editable.insert`, not OS input, and did not test split, merge,
-indent, or outdent commands. The hierarchy survives that HTML path, but the
-paragraph and repeated-reopen drift make it unsafe to claim stable structured
-storage. See the [full runtime scope](../verify/nested-tree-editor.md).
+it used handle commands and `Editable.insert` — not OS input. The follow-up
+structural run proved `split`/`join`/`indent`/`outdent` on Aztec's own block
+model (a real nested `<ul>` demote/promote and item split/merge on device),
+while `indent`/`outdent` correctly refuse inside `toggle-item` divs, which
+Aztec stores as opaque hidden-block markup — Foxtrot node demote/promote is
+not implementable through this surface. The hierarchy survives the HTML path,
+but the global `<p>`→`<br>` flattening and repeated-reopen `<br>` drift make
+it unsafe to claim stable structured storage. See the
+[full runtime scope](../verify/nested-tree-editor.md).
 
 ## iOS
 
