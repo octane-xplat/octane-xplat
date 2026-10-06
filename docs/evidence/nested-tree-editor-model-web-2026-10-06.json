@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "schema": 1,
+      "runId": "9ae31b5c-ef34-448c-a2c5-53de8092a265",
+      "case": "/Users/alec/dev/alloc/octane-xplat/research/foxtrot-native-editor/model.ts",
+      "target": "web",
+      "host": "Chromium",
+      "interaction": "dom-dispatch",
+      "status": "pass",
+      "durationMs": 4,
+      "assertions": [
+        {
+          "name": "nested document valid",
+          "pass": true,
+          "actual": "toggleItem",
+          "expected": "toggleItem"
+        },
+        {
+          "name": "task attrs retained",
+          "pass": true,
+          "actual": "high",
+          "expected": "high"
+        },
+        {
+          "name": "checked child retained",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "local text transaction",
+          "pass": true,
+          "actual": "edited Parent \ud83e\uddea",
+          "expected": "edited Parent \ud83e\uddea"
+        },
+        {
+          "name": "nested structure after edit",
+          "pass": true,
+          "actual": false,
+          "expected": false
+        },
+        {
+          "name": "outdent makes sibling",
+          "pass": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "name": "outdent preserves descendants",
+          "pass": true,
+          "actual": false,
+          "expected": false
+        },
+        {
+          "name": "structured reopen equals edited doc",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "StarterKit rejects Foxtrot custom nodes",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        },
+        {
+          "name": "unknown nodes must be explicit errors",
+          "pass": true,
+          "actual": true,
+          "expected": true
+        }
+      ],
+      "measurements": {
+        "evidenceScope": "bounded schema/model transactions only; no EditorView, input, native adapter or arbitrary extension qualification"
+      },
+      "errors": [],
+      "device": null,
+      "cache": "/Users/alec/dev/alloc/octane-xplat/research/probes/060aa01ce2895375/build-a936e2da5b84e422"
+    }
+  ]
+}

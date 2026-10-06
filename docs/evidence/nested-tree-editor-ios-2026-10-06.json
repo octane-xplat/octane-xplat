@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "schema": 1,
+      "runId": "49021805-1f18-42d5-b862-459a9a7ae5f7",
+      "case": "/Users/alec/dev/alloc/octane-xplat/research/foxtrot-native-editor/placeholder.ios.tsrx",
+      "target": "ios",
+      "host": "NativeScript",
+      "interaction": "gesture-observer-dispatch",
+      "status": "pass",
+      "durationMs": 28,
+      "assertions": [
+        {
+          "name": "existing iOS editor explicitly unsupported",
+          "pass": true,
+          "actual": false,
+          "expected": false
+        },
+        {
+          "name": "unsupported state visible",
+          "pass": true,
+          "actual": "Rich text editing is not supported on iOS yet.",
+          "expected": "Rich text editing is not supported on iOS yet."
+        }
+      ],
+      "measurements": {
+        "scope": "placeholder boundary only; no iOS editing engine exercised"
+      },
+      "errors": [],
+      "device": "CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B",
+      "cache": "/Users/alec/dev/alloc/octane-xplat/research/probes/cb982c01497412cd/build-bcf505caddf4a3ae"
+    }
+  ]
+}
