@@ -79,11 +79,90 @@ The retained `apps/mobile` build products (2026-09-30, same `@nativescript/ios` 
 
 The supplied plan's metadata blocker is confirmed and now precisely characterized: under the current toolchain (Xcode 27.0 → iPhoneSimulator27.0.sdk, `@nativescript/ios` 9.1.0 clang-17 generator), **every NativeScript-hosted surface is blocked** — no `UIView`/`NSObject` metadata exists to subclass or instantiate, matching decision #101's stated stop condition. This blocks the adapter spike's NS-runtime gate (step 1) regardless of the clean compile/link result. The standalone native compile is unaffected; a non-NS host, an upstream generator update to a clang that recognizes `found_incompatible_headers__check_search_paths`, or a diagnosed modulemap workaround would each change this verdict and are out of scope here.
 
+## Modulemap workaround: RUN, metadata restored (2026-10-06)
+
+[metadata-check-featureflag.sh](metadata-check-featureflag.sh) reruns the identical
+generator invocation with two additions injected at the position `OTHER_CFLAGS`
+occupies in `build-step-metadata-generator.py` (`other_cflags_parsed` lands between
+framework search paths and preprocessor defines):
+
+```
+-Xclang -fmodule-feature -Xclang found_incompatible_headers__check_search_paths
+-D__STDC_WANT_LIB_EXT1__=0
+```
+
+Result: **`Result: 52046 declarations from 173 top level modules`** (53,106
+`verbose: Included` serializations; `metadata-arm64.bin` 9,615,668 bytes) vs. the
+43-declaration / 8-module baseline. Serialized `ts/` now includes `objc!Foundation`,
+`objc!UIKit`, `objc!WebKit`, `objc!CoreText`, `objc!CoreFoundation` and
+`NSObject`, `NSString`, `NSAttributedString`, `UIView`, `UITextView`,
+`UITextRange`, `UITextInput`, `NSTextStorage`, `WKWebView`. The probe class
+serializes completely — `readonly view: UIView` and
+`snapshotAndReturnError: string | null` are present, i.e. the silent member loss
+on `XplatEditorSurfaceProbe` is gone.
+
+### Why both flags are needed
+
+`-fmodule-feature` alone yields 709 declarations from 12 modules:
+`_DarwinFoundation1` builds, but `_DarwinFoundation2` fails on a single real
+error — `usr/include/_string.h:176: unknown type name 'rsize_t'`. The chain:
+`sys/_types/_rsize_t.h` does `#define __need_rsize_t` + `#include <stddef.h>`;
+under `-fmodules` + `-fbuiltin-headers-in-system-modules` the include resolves
+into the now-available `_c_standard_library_obsolete` module, whose stub
+`stddef.h` gates `rsize_t` behind `__STDC_WANT_LIB_EXT1__` instead of honouring
+`__need_*` — a circular dead end. `-D__STDC_WANT_LIB_EXT1__=0` removes the only
+demand site (`_string.h`'s `memset_s`); every SDK use is guarded by
+`defined(...) && >= 1`, so `=0` cleanly disables Annex K blocks. Cost: Annex K
+declarations (`memset_s` et al.) are absent from the metadata — nothing the
+adapter needs.
+
+`-fmodule-feature` claims a feature clang 17 does not implement. That is safe
+here because the feature's real behaviour — preferring compiler builtins over
+obsolete SDK stubs when search paths collide — is only needed for
+misconfiguration detection; the residual cost is confined to the simd subtree.
+
+### Residual errors (benign class)
+
+74 errors remain, all pre-existing clang-17/SDK friction unrelated to the
+workaround: `simd/math.h` `INFINITY` undeclared (stub `float.h` swallows builtin
+macros under modules — same class as the "simd/Accelerate builtins" exceptions
+recorded for the good 2026-09-30 SDK-26.5 run) and
+`SolveImplementationTyped.h` argument-count errors in Accelerate/vecLib. Affected
+modules: `simd`, `GLKit`, `ModelIO`, `AVFoundation`, `Speech`, `Photos`,
+`MetalPerformanceShaders` — none required by the editor adapter.
+
+### Dead ends ruled out
+
+- `-Xclang -fno-builtin-headers-in-system-modules` (with `-fmodule-feature`):
+  flag reaches cc1 (last position, after the generator's own `-fbuiltin-…`),
+  result unchanged at 709 declarations — the builtin→obsolete remap is not the
+  rsize_t mechanism.
+- `-Xclang -ivfsoverlay -Xclang overlay.yaml` remapping
+  `DarwinFoundation1.modulemap` to a patched copy without
+  `_c_standard_library_obsolete`: flag reaches cc1 in both invocations but the
+  modulemap is still read from the real SDK path (error unchanged). Overlay
+  mechanics verified working on host clang (`#error` probe fires); the
+  generator's modulemap loading path does not consult the overlay VFS. (Also
+  noted: `iPhoneSimulator27.0.sdk` is a symlink to `iPhoneSimulator.sdk`; the
+  overlay was pointed at the resolved path and still ignored.)
+
+### Real-build delivery
+
+`OTHER_CFLAGS` in `apps/mobile/App_Resources/iOS/build.xcconfig` feeds
+`other_cflags_parsed` in the generator invocation, so the shipping line is:
+
+```
+OTHER_CFLAGS = $(inherited) -Xclang -fmodule-feature -Xclang found_incompatible_headers__check_search_paths -D__STDC_WANT_LIB_EXT1__=0
+```
+
+(verified position in `build-step-metadata-generator.py` `generate_metadata`).
+
 ## Checks run
 
 - `bash -n docs/notes/evidence/ios-editor-backing/compile.sh`: passed.
 - `compile.sh` under `native_builds` reservation: passed (see above).
 - `metadata-check.sh` under the same reservation: ran to completion; loss bug reproduced (see above).
+- `metadata-check-featureflag.sh` (and direct generator invocations with the same clang args) under `native_builds` reservation: 52,046 declarations / 173 modules; required symbols and probe `view` verified in `ts/` (see above).
 - `pnpm check:decisions`: passed, with existing warnings for #15/#27 free-text statuses and #71/#92 divergent statements.
 - `pnpm check:recipes`: passed structural/local-link checks. No recipe affected; design work does not close runtime criteria.
 
