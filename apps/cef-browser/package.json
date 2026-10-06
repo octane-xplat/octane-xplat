@@ -1,0 +1,48 @@
+{
+	"name": "@xplat/cef-browser",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"xplat": "xplat",
+		"dev": "xplat dev --targets macos",
+		"build": "vite build --config vite.dev.config.mjs",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"cef:fetch": "bash scripts/fetch-cef.sh",
+		"cef:runtime": "bash scripts/build-cef-runtime.sh",
+		"run:host": "bash scripts/run.sh"
+	},
+	"dependencies": {
+		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@octane-xplat/macos-renderer": "workspace:*",
+		"octane": "0.6.3"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octanejs/vite-plugin": "0.1.61",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"xplat": {
+		"targets": {
+			"macos": {
+				"runtime": "appkit-node-api",
+				"dev": {
+					"viteConfig": "vite.dev.config.mjs",
+					"bundleFile": "dist/dev/app.cjs"
+				}
+			}
+		},
+		"macos": {
+			"frameworks": [
+				"AppKit"
+			],
+			"includePaths": [
+				"platforms/macos/cef"
+			],
+			"defines": [
+				"CEF_API_VERSION=15400"
+			]
+		}
+	}
+}

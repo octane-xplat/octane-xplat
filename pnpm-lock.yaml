@@ -79,6 +79,31 @@ importers:
         specifier: 2.9.1
         version: 2.9.1
 
+  apps/cef-browser:
+    dependencies:
+      '@nativescript/macos-node-api':
+        specifier: 0.4.4-next.2026-08-09-31292056208
+        version: 0.4.4-next.2026-08-09-31292056208
+      '@octane-xplat/macos-renderer':
+        specifier: workspace:*
+        version: link:../../packages/macos-renderer
+      octane:
+        specifier: 0.6.3
+        version: 0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@octanejs/vite-plugin':
+        specifier: 0.1.61
+        version: 0.1.61(octane@0.6.3(patch_hash=be42db652bc5638c70959e1810942e21631569dfe948b78f3f3bc23e65439d5e)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)
+
   apps/docs:
     dependencies:
       '@octane-xplat/ui':
