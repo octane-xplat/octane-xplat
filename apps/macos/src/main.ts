@@ -1,6 +1,6 @@
-import { harnessFontOptions } from './fonts.mjs'
-import { createAppKitWindow, fitWindowToContent } from './appkit.mjs'
-import App from './App.tsx'
+import { harnessFontOptions } from './fonts'
+import { createAppKitWindow, fitWindowToContent } from './appkit'
+import App from './App'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
@@ -32,10 +32,15 @@ void applicationClosed.then(() => {
 	mainWindow.close()
 	app.delegate = null
 	appKit.delegate = null
-	globalThis.__xplatStopHost?.()
+	const stopHost = (globalThis as { __xplatStopHost?: () => void }).__xplatStopHost
+	stopHost?.()
 })
 
-if (process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1') {
+const externalRunLoop =
+	(globalThis as typeof globalThis & { process: { env: Record<string, string | undefined> } })
+		.process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
+
+if (externalRunLoop) {
 	app.finishLaunching()
 	app.activateIgnoringOtherApps(true)
 } else {

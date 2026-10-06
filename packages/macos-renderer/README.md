@@ -164,7 +164,7 @@ Registration does not change the renderer default. Registered weights resolve
 to the first face at or above the requested weight, or the heaviest face.
 Invalid names, empty face lists, and missing descriptors or invalid weights are
 rejected. The renderer does not read assets, register Geist automatically, or
-write a font cache. The [harness font setup](../../apps/macos/src/fonts.mjs)
+write a font cache. The [harness font setup](../../apps/macos/src/fonts.ts)
 demonstrates app-owned descriptors and packaged font bytes.
 
 ```js

@@ -1,4 +1,4 @@
-import '../src/appkit.mjs'
+import '../src/appkit'
 import { announce } from '@octane-xplat/platform'
 
 declare const NSApplication: any

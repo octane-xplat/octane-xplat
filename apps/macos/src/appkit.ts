@@ -1,7 +1,8 @@
-import { harnessFontOptions } from './fonts.mjs'
-import { announceAppKit } from './accessibility.mjs'
+import { harnessFontOptions } from './fonts'
+import { announceAppKit } from './accessibility'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-renderer'
 
 const app = NSApplication.sharedApplication
 
@@ -9,12 +10,88 @@ const app = NSApplication.sharedApplication
 // instances; windowing state is shared through globalThis so delegates
 // registered by one copy see windows created by the other.
 
+type WindowKind = 'regular' | 'dialog' | 'popup'
+
+interface WindowSize {
+	width: number
+	height: number
+}
+
+type MacOSRoot = UniversalRoot & { __macosDebug?: { [key: string]: any } }
+
+interface WindowControllerBase {
+	window: NSWindow
+	contentView?: NSView
+	isClosed: boolean
+	closed: Promise<void>
+	onCloseRequested?: (() => boolean | void) | null
+	setTitle(title: string): void
+	close(): void
+	__didClose(): void
+}
+
+interface AppKitWindowController extends WindowControllerBase {
+	kind: WindowKind
+	data: unknown
+	root: MacOSRoot | null
+	setSize(next: WindowSize): void
+}
+
+interface PlatformServices {
+	appState: 'active' | 'inactive' | string
+	appStateListeners: Set<() => void>
+	windowResizeListeners: Set<(window?: NSWindow) => void>
+	deepLinkListeners: Set<(url: string) => void>
+	pendingUrls: string[]
+	primaryWindow: NSWindow | null
+	appearanceListeners: Set<() => void>
+	appearanceObserved: boolean
+}
+
+interface MacosWindowingShared {
+	resolver: ((data: unknown, controller: AppKitWindowController) => unknown) | null
+	appDelegate: AppDelegate | null
+	byNative: Map<NSWindow, WindowControllerBase>
+	terminateAfterLastWindowClosed: boolean
+	windowCloseHandlers: Map<NSWindow, () => void>
+	parentWindows: Map<NSWindow, NSWindow>
+	running: boolean
+	eventPumpErrorReported: boolean
+	applicationClosed: Promise<void>
+	resolveApplicationClosed?: (value: void | PromiseLike<void>) => void
+	platformServices: PlatformServices
+}
+
+interface OpenWindowOptions {
+	kind?: string
+	parent?: NSWindow | WindowControllerBase | null
+	title?: string
+	size?: WindowSize
+	data?: unknown
+	component?: UniversalComponent
+	props?: unknown
+	[key: string]: any
+}
+
+declare global {
+	var __xplatMacosWindowing: MacosWindowingShared | undefined
+	var __xplatAppKitOpenWindow: ((options: OpenWindowOptions) => AppKitWindowController) | undefined
+
+	var __xplatAppKitMountSheet:
+		| ((
+				component: UniversalComponent,
+				props: unknown,
+				options?: OpenWindowOptions,
+		  ) => AppKitWindowController)
+		| undefined
+}
+
 const shared = (globalThis.__xplatMacosWindowing ??= {
 	resolver: null,
 	appDelegate: null,
 	byNative: new Map(),
 	terminateAfterLastWindowClosed: false,
-})
+} as MacosWindowingShared)
 
 shared.terminateAfterLastWindowClosed ??= false
 
@@ -39,7 +116,7 @@ shared.platformServices ??= {
 
 const applicationClosed = shared.applicationClosed
 
-function controllerFor(nativeWindow) {
+function controllerFor(nativeWindow: NSWindow): WindowControllerBase | null {
 	const direct = shared.byNative.get(nativeWindow)
 	if (direct) {
 		return direct
@@ -54,11 +131,15 @@ function controllerFor(nativeWindow) {
 	return null
 }
 
-function sameNativeWindow(left, right) {
-	return left === right || Boolean(left?.isEqual?.(right)) || Boolean(right?.isEqual?.(left))
+function sameNativeWindow(left: unknown, right: unknown): boolean {
+	return (
+		left === right ||
+		Boolean((left as { isEqual?(value: unknown): boolean } | null)?.isEqual?.(right)) ||
+		Boolean((right as { isEqual?(value: unknown): boolean } | null)?.isEqual?.(left))
+	)
 }
 
-function closeOwnedWindows(parentWindow) {
+function closeOwnedWindows(parentWindow: NSWindow) {
 	const children = [...shared.byNative.entries()]
 		.filter(([nativeWindow]) => {
 			const ownerWindow = shared.parentWindows.get(nativeWindow)
@@ -86,7 +167,7 @@ function closeOwnedWindows(parentWindow) {
 	}
 }
 
-function takeNativeWindowValue(map, nativeWindow) {
+function takeNativeWindowValue<T>(map: Map<NSWindow, T>, nativeWindow: NSWindow): T | null {
 	const direct = map.get(nativeWindow)
 	if (direct) {
 		map.delete(nativeWindow)
@@ -134,13 +215,13 @@ class AppDelegate extends NSObject {
 		}
 	}
 
-	windowDidResize(notification) {
+	windowDidResize(notification: any) {
 		for (const listener of shared.platformServices.windowResizeListeners) {
 			listener(notification.object)
 		}
 	}
 
-	applicationOpenURLs(application, urls) {
+	applicationOpenURLs(_application: any, urls: any) {
 		for (const url of urls ?? []) {
 			const string = String(url?.absoluteString ?? url)
 			if (shared.platformServices.deepLinkListeners.size === 0) {
@@ -155,13 +236,13 @@ class AppDelegate extends NSObject {
 
 	// KVO — `observeValueForKeyPath:ofObject:change:context:` on the shared
 	// delegate, registered for NSApplication.effectiveAppearance below.
-	observeValueForKeyPathOfObjectChangeContext(keyPath) {
+	observeValueForKeyPathOfObjectChangeContext(keyPath: string) {
 		if (keyPath === 'effectiveAppearance') {
 			shared.platformServices.appearanceListeners?.forEach((listener) => listener())
 		}
 	}
 
-	windowShouldClose(nativeWindow) {
+	windowShouldClose(nativeWindow: NSWindow) {
 		const controller = controllerFor(nativeWindow)
 		try {
 			const shouldClose = controller?.onCloseRequested?.() !== false
@@ -178,8 +259,8 @@ class AppDelegate extends NSObject {
 
 	// A regular secondary window may outlive the main window. AppKit's
 	// last-window policy handles application termination.
-	windowWillClose(notification) {
-		const nativeWindow = notification.object
+	windowWillClose(notification: any) {
+		const nativeWindow = notification.object as NSWindow
 		const controller = controllerFor(nativeWindow)
 		if (controller) {
 			controller.__didClose()
@@ -231,9 +312,9 @@ class AppDelegate extends NSObject {
 	}
 }
 
-function appDelegate() {
+function appDelegate(): AppDelegate {
 	if (!shared.appDelegate) {
-		shared.appDelegate = AppDelegate.new()
+		shared.appDelegate = AppDelegate.new() as AppDelegate
 	}
 
 	return shared.appDelegate
@@ -244,7 +325,7 @@ function appDelegate() {
 function installPlatformServices() {
 	// The renderer seeds the same global with observeHover/showAnchoredPopup —
 	// merge onto it rather than replacing or bailing on an early return.
-	const bridge = (globalThis.__xplatAppKit ??= {})
+	const bridge = ((globalThis as any).__xplatAppKit ??= {})
 	const services = shared.platformServices
 	const info = NSBundle.mainBundle.infoDictionary ?? {}
 	Object.assign(bridge, {
@@ -270,7 +351,7 @@ function installPlatformServices() {
 				orientation: Number(size.width ?? 0) >= Number(size.height ?? 0) ? 'landscape' : 'portrait',
 			}
 		},
-		announce(text) {
+		announce(text: string) {
 			if (shared.running) {
 				announceAppKit(text, app)
 			}
@@ -279,12 +360,12 @@ function installPlatformServices() {
 			const value = NSPasteboard.generalPasteboard.stringForType('public.utf8-plain-text')
 			return value == null ? null : String(value)
 		},
-		writeClipboard(value) {
+		writeClipboard(value: string) {
 			const pasteboard = NSPasteboard.generalPasteboard
 			pasteboard.clearContents()
 			return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
 		},
-		shareContent({ text, url, title }) {
+		shareContent({ text, url, title }: { text?: string; url?: string; title?: string }) {
 			const anchor = services.primaryWindow?.contentView
 			if (!anchor || typeof NSSharingServicePicker === 'undefined') {
 				return 'unavailable'
@@ -323,7 +404,7 @@ function installPlatformServices() {
 				return 'unavailable'
 			}
 		},
-		openUrl(url) {
+		openUrl(url: string) {
 			const target = NSURL.URLWithString(String(url))
 			if (!target) {
 				return false
@@ -331,7 +412,7 @@ function installPlatformServices() {
 
 			return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
 		},
-		openPath(path) {
+		openPath(path: string) {
 			return Boolean(NSWorkspace.sharedWorkspace.openURL(NSURL.fileURLWithPath(String(path))))
 		},
 		getColorScheme() {
@@ -339,7 +420,7 @@ function installPlatformServices() {
 			const match = appearance?.bestMatchFromAppearancesWithNames?.(['NSAppearanceNameDarkAqua'])
 			return match === 'NSAppearanceNameDarkAqua' ? 'dark' : 'light'
 		},
-		onAppearanceChange(listener) {
+		onAppearanceChange(listener: () => void) {
 			services.appearanceListeners.add(listener)
 			if (!services.appearanceObserved) {
 				services.appearanceObserved = true
@@ -348,25 +429,25 @@ function installPlatformServices() {
 
 			return () => services.appearanceListeners.delete(listener)
 		},
-		storageGet(key) {
+		storageGet(key: string) {
 			const value = NSUserDefaults.standardUserDefaults.stringForKey(String(key))
 			return value == null ? null : String(value)
 		},
-		storageSet(key, value) {
+		storageSet(key: string, value: string) {
 			NSUserDefaults.standardUserDefaults.setObjectForKey(String(value), String(key))
 		},
-		storageRemove(key) {
+		storageRemove(key: string) {
 			NSUserDefaults.standardUserDefaults.removeObjectForKey(String(key))
 		},
-		onAppStateChange(listener) {
+		onAppStateChange(listener: () => void) {
 			services.appStateListeners.add(listener)
 			return () => services.appStateListeners.delete(listener)
 		},
-		onWindowResize(listener) {
+		onWindowResize(listener: (window?: NSWindow) => void) {
 			services.windowResizeListeners.add(listener)
 			return () => services.windowResizeListeners.delete(listener)
 		},
-		onDeepLink(listener) {
+		onDeepLink(listener: (url: string) => void) {
 			services.deepLinkListeners.add(listener)
 			for (const pending of services.pendingUrls.splice(0)) {
 				listener(pending)
@@ -404,13 +485,13 @@ const REGULAR_STYLE =
 	NSWindowStyleMask.Miniaturizable |
 	NSWindowStyleMask.Resizable
 
-function makeContentView(size) {
+function makeContentView(size: WindowSize): NSView {
 	return NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size })
 }
 
 const WINDOW_KINDS = new Set(['regular', 'dialog', 'popup'])
 
-function normalizeWindowSize(size, source = 'openWindow') {
+function normalizeWindowSize(size: WindowSize | undefined, source = 'openWindow'): WindowSize {
 	if (
 		!size ||
 		typeof size !== 'object' ||
@@ -425,7 +506,10 @@ function normalizeWindowSize(size, source = 'openWindow') {
 	return { width: size.width, height: size.height }
 }
 
-function resolveParentWindow(parentOption, kind) {
+function resolveParentWindow(
+	parentOption: NSWindow | WindowControllerBase | null | undefined,
+	kind: string,
+): NSWindow | null {
 	if (
 		parentOption !== null &&
 		typeof parentOption !== 'object' &&
@@ -439,7 +523,7 @@ function resolveParentWindow(parentOption, kind) {
 	}
 
 	const explicitParent =
-		parentOption && 'window' in parentOption ? parentOption.window : parentOption
+		parentOption && 'window' in parentOption ? parentOption.window : (parentOption as NSWindow)
 
 	const parentWindow = explicitParent ?? (kind === 'regular' ? null : app.keyWindow)
 
@@ -461,7 +545,7 @@ function resolveParentWindow(parentOption, kind) {
 	return parentWindow
 }
 
-export function createAppKitWindow(options = {}) {
+export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: boolean } = {}) {
 	if (options === null || typeof options !== 'object' || Array.isArray(options)) {
 		throw new TypeError('createAppKitWindow options must be an object')
 	}
@@ -498,8 +582,8 @@ export function createAppKitWindow(options = {}) {
 	contentView.widthAnchor.constraintEqualToConstant(640).active = true
 	contentView.heightAnchor.constraintEqualToConstant(420).active = true
 	nativeWindow.contentView = contentView
-	let resolveWindowClosed
-	const windowClosed = new Promise((resolve) => {
+	let resolveWindowClosed!: () => void
+	const windowClosed = new Promise<void>((resolve) => {
 		resolveWindowClosed = resolve
 	})
 
@@ -522,7 +606,10 @@ export function createAppKitWindow(options = {}) {
  * intrinsic size, so an unclamped fitting can collapse) and capped at the
  * screen's visible height. One-shot: the window stays resizable afterwards.
  */
-export function fitWindowToContent(nativeWindow, floor = { width: 640, height: 420 }) {
+export function fitWindowToContent(
+	nativeWindow: NSWindow | null | undefined,
+	floor = { width: 640, height: 420 },
+) {
 	const contentView = nativeWindow?.contentView
 	const fit = contentView?.fittingSize
 	const width = Number(fit?.width)
@@ -532,12 +619,12 @@ export function fitWindowToContent(nativeWindow, floor = { width: 640, height: 4
 	}
 
 	const screenHeight = Number(
-		nativeWindow.screen?.visibleFrame?.size?.height ??
+		nativeWindow?.screen?.visibleFrame?.size?.height ??
 			NSScreen.mainScreen?.visibleFrame?.size?.height ??
 			0,
 	)
 
-	nativeWindow.setContentSize({
+	nativeWindow?.setContentSize({
 		width: Math.max(floor.width, Math.ceil(width)),
 		height: Math.max(
 			floor.height,
@@ -547,7 +634,9 @@ export function fitWindowToContent(nativeWindow, floor = { width: 640, height: 4
 }
 
 /** Install the app-owned resolver that maps openWindow data to a component. */
-export function setWindowContentResolver(resolve) {
+export function setWindowContentResolver(
+	resolve: ((data: unknown, controller: AppKitWindowController) => unknown) | null,
+) {
 	if (resolve !== null && typeof resolve !== 'function') {
 		throw new TypeError('setWindowContentResolver expects a function or null')
 	}
@@ -561,7 +650,7 @@ export function setWindowContentResolver(resolve) {
  * sheet on the parent (default: key window), 'popup' is a non-activating
  * child panel. Requested size and title are hints.
  */
-export function openWindow(options = {}) {
+export function openWindow(options: OpenWindowOptions = {}): AppKitWindowController {
 	if (options === null || typeof options !== 'object' || Array.isArray(options)) {
 		throw new TypeError('openWindow options must be an object')
 	}
@@ -590,10 +679,10 @@ export function openWindow(options = {}) {
 					NSWindowStyleMask.Closable
 				: NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 
-	let nativeWindow
-	let controller
+	let nativeWindow: NSWindow | undefined
+	let controller: AppKitWindowController | undefined
 	try {
-		nativeWindow = (kind === 'popup' ? NSPanel : NSWindow)
+		nativeWindow = ((kind === 'popup' ? NSPanel : NSWindow) as NSClass<NSWindow>)
 			.alloc()
 			.initWithContentRectStyleMaskBackingDefer(
 				{ origin: { x: 0, y: 0 }, size },
@@ -611,55 +700,55 @@ export function openWindow(options = {}) {
 		nativeWindow.delegate = appDelegate()
 		nativeWindow.contentView = makeContentView(size)
 
-		let resolveWindowClosed
+		let resolveWindowClosed!: () => void
 		controller = {
-			kind,
+			kind: kind as WindowKind,
 			window: nativeWindow,
 			data: options.data ?? null,
 			root: null,
 			isClosed: false,
-			closed: new Promise((resolve) => {
+			closed: new Promise<void>((resolve) => {
 				resolveWindowClosed = resolve
 			}),
 			onCloseRequested: null,
-			setTitle(title) {
-				nativeWindow.title = String(title)
+			setTitle(title: string) {
+				nativeWindow!.title = String(title)
 			},
-			setSize(next) {
-				nativeWindow.setContentSize(normalizeWindowSize(next, 'setSize'))
+			setSize(next: WindowSize) {
+				nativeWindow!.setContentSize(normalizeWindowSize(next, 'setSize'))
 			},
 			// Explicit close is a command; NSWindow.close() skips windowShouldClose,
 			// which is reserved for user/performClose requests and their veto callback.
 			close() {
-				if (controller.isClosed) {
+				if (controller!.isClosed) {
 					return
 				}
 
-				closeOwnedWindows(nativeWindow)
+				closeOwnedWindows(nativeWindow!)
 				if (kind === 'dialog' && parentWindow) {
 					parentWindow.endSheet(nativeWindow)
 				} else {
-					nativeWindow.close()
+					nativeWindow!.close()
 				}
 
-				controller.__didClose()
+				controller!.__didClose()
 			},
 			__didClose() {
-				if (controller.isClosed) {
+				if (controller!.isClosed) {
 					return
 				}
 
-				controller.isClosed = true
+				controller!.isClosed = true
 				try {
-					closeOwnedWindows(nativeWindow)
+					closeOwnedWindows(nativeWindow!)
 				} catch (error) {
 					console.error('[macos] failed to close owned windows while closing a window', error)
 				}
 
-				shared.byNative.delete(nativeWindow)
-				shared.parentWindows.delete(nativeWindow)
-				const root = controller.root
-				controller.root = null
+				shared.byNative.delete(nativeWindow!)
+				shared.parentWindows.delete(nativeWindow!)
+				const root = controller!.root
+				controller!.root = null
 				try {
 					root?.unmount()
 				} catch (error) {
@@ -672,7 +761,7 @@ export function openWindow(options = {}) {
 
 		shared.byNative.set(nativeWindow, controller)
 		if (kind !== 'regular') {
-			shared.parentWindows.set(nativeWindow, parentWindow)
+			shared.parentWindows.set(nativeWindow, parentWindow!)
 		}
 
 		const component =
@@ -687,14 +776,17 @@ export function openWindow(options = {}) {
 			)
 		}
 
-		controller.root = createMacOSRoot(nativeWindow.contentView, harnessFontOptions)
-		controller.root.render(component, options.props ?? { data: controller.data, controller })
+		controller.root = createMacOSRoot(nativeWindow.contentView, harnessFontOptions) as MacOSRoot
+		controller.root.render(
+			component as UniversalComponent,
+			options.props ?? { data: controller.data, controller },
+		)
 
 		if (kind === 'dialog') {
-			const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet
+			const beginSheet = parentWindow!.beginSheetCompletionHandler ?? parentWindow!.beginSheet
 			beginSheet.call(parentWindow, nativeWindow, null)
 		} else if (kind === 'popup') {
-			parentWindow.addChildWindowOrdered(nativeWindow, NSWindowOrderingMode?.Above ?? 1)
+			parentWindow!.addChildWindowOrdered(nativeWindow, NSWindowOrderingMode?.Above ?? 1)
 			nativeWindow.orderFront(null)
 		} else {
 			nativeWindow.center()
@@ -723,7 +815,7 @@ export function openWindow(options = {}) {
  * Create a bare AppKit window for a non-Octane host view (currently the desktop
  * WKWebView bridge). Unlike openWindow, this does not create a universal root.
  */
-export function createHostedWindow(options = {}) {
+export function createHostedWindow(options: OpenWindowOptions = {}) {
 	if (options === null || typeof options !== 'object' || Array.isArray(options)) {
 		throw new TypeError('createHostedWindow options must be an object')
 	}
@@ -758,8 +850,8 @@ export function createHostedWindow(options = {}) {
 		shared.parentWindows.set(nativeWindow, parentWindow)
 	}
 
-	let resolveWindowClosed
-	const closed = new Promise((resolve) => {
+	let resolveWindowClosed!: () => void
+	const closed = new Promise<void>((resolve) => {
 		resolveWindowClosed = resolve
 	})
 
@@ -783,7 +875,7 @@ export function createHostedWindow(options = {}) {
 		get isClosed() {
 			return isClosed
 		},
-		setTitle(title) {
+		setTitle(title: string) {
 			nativeWindow.title = String(title)
 		},
 		close() {
@@ -822,6 +914,6 @@ export function createHostedWindow(options = {}) {
 export function debugWindows() {
 	return [...shared.byNative.entries()].map(([nativeWindow, controller]) => ({
 		title: String(nativeWindow.title ?? ''),
-		debug: controller.root?.__macosDebug ?? null,
+		debug: (controller as AppKitWindowController).root?.__macosDebug ?? null,
 	}))
 }

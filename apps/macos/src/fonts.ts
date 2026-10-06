@@ -11,7 +11,7 @@ const injectedGeistFontBase64 =
 const injectedGeistLicense =
 	typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string' ? __XPLAT_GEIST_FONT_LICENSE__ : null
 
-const geistFontDescriptors = new Map()
+const geistFontDescriptors = new Map<string, any>()
 const GEIST_WEIGHT_FACES = [
 	[100, 'Geist-Thin'],
 	[200, 'Geist-ExtraLight'],
@@ -22,9 +22,9 @@ const GEIST_WEIGHT_FACES = [
 	[700, 'Geist-Bold'],
 	[800, 'Geist-ExtraBold'],
 	[Infinity, 'Geist-Black'],
-]
+] as const
 
-function sourceFontPath(filename) {
+function sourceFontPath(filename: string) {
 	const candidates = [
 		resolve(process.cwd(), 'packages/app/src/assets/fonts', filename),
 		resolve(process.cwd(), '../../packages/app/src/assets/fonts', filename),
@@ -53,7 +53,7 @@ function loadBundledGeistFonts() {
 				throw new Error('Could not find the Geist font license')
 			}
 
-			return readFileSync(path, 'utf8')
+			return readFileSync(path, 'utf8') as string
 		})()
 
 	const digest = createHash('sha256').update(fontBytes).digest('hex')

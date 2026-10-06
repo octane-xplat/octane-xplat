@@ -22,7 +22,7 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 	const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
 	const mode = process.env.OCTANE_MACOS_VLIST_MODE
 	const entry = packaged
-		? 'src/main.mjs'
+		? 'src/main.ts'
 		: virtualListBench
 			? mode === 'variable'
 				? 'src/VirtualListVariableWindowedBench.tsx'

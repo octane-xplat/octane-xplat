@@ -87,7 +87,7 @@ production Vite config that emits one CommonJS host bundle.
   [native source recipe](macos-native-code.md).
 
 - AC10: [AppKit fonts](../docs/app/styling.md#appkit-fonts) and the
-  [maintained harness font setup](../apps/macos/src/fonts.mjs).
+  [maintained harness font setup](../apps/macos/src/fonts.ts).
 
 - AC11: [Renderer setup](../packages/macos-renderer/README.md) and the
   [packed renderer consumer](../packages/macos-renderer/test/packed-consumer.mjs).

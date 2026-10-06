@@ -44,9 +44,9 @@ test('macOS announce returns void, ignores blank text, and reads the current hos
 
 test('AppKit notification has the exact text and medium priority on every request', async () => {
 	const calls = []
-	const source = await readFile(
-		new URL('../../../apps/macos/src/accessibility.mjs', import.meta.url),
-		'utf8',
+	const source = ts.transpile(
+		await readFile(new URL('../../../apps/macos/src/accessibility.ts', import.meta.url), 'utf8'),
+		{ module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 	)
 
 	const context = {
@@ -74,13 +74,13 @@ test('AppKit notification has the exact text and medium priority on every reques
 })
 
 test('installed host stops posting when its lifecycle terminates and retains no announcement state', async () => {
-	const source = await readFile(
-		new URL('../../../apps/macos/src/appkit.mjs', import.meta.url),
-		'utf8',
+	const source = ts.transpile(
+		await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'),
+		{ module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 	)
 
 	const parsed = ts.createSourceFile(
-		'appkit.mjs',
+		'appkit.js',
 		source,
 		ts.ScriptTarget.Latest,
 		true,

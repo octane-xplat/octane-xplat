@@ -1,6 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSWebView } from '@octane-xplat/desktop-webview/macos'
-import { createAppKitWindow } from './src/appkit.mjs'
+import { createAppKitWindow } from './src/appkit'
 import { createDesktopWebViewHost, type AppKitHostServices } from './src/desktop-webview-host'
 
 import type { ProofEvents, ProofResult, ProofServices } from './src/webview-proof-contracts'

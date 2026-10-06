@@ -30,7 +30,7 @@ for (const custom of [false, true]) {
 		[
 			`import { runFontFixture } from ${JSON.stringify(join(appRoot, 'test/font-fixture.macos.tsx'))}`,
 			...(custom
-				? [`import { harnessFontOptions } from ${JSON.stringify(join(appRoot, 'src/fonts.mjs'))}`]
+				? [`import { harnessFontOptions } from ${JSON.stringify(join(appRoot, 'src/fonts.ts'))}`]
 				: []),
 			`NSApplication.sharedApplication`,
 			`runFontFixture(${custom ? 'harnessFontOptions, true' : ''})`,

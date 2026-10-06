@@ -4,4 +4,4 @@
 // needs the name declared in a program with no Node types. Kept narrow on
 // purpose: `process.env.FOO` reads stay type errors because the bundler
 // define cannot rewrite them either.
-declare const process: { env: { NODE_ENV?: string } }
+declare const process: { env: { NODE_ENV?: string }; cwd(): string }

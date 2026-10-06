@@ -1,11 +1,11 @@
-import { harnessFontOptions } from '../../apps/macos/src/fonts.mjs'
+import { harnessFontOptions } from '../../apps/macos/src/fonts.ts'
 import '@nativescript/macos-node-api'
 import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import * as renderer from '@octane-xplat/macos-renderer'
-import { createAppKitWindow, fitWindowToContent } from '../../apps/macos/src/appkit.mjs'
+import { createAppKitWindow, fitWindowToContent } from '../../apps/macos/src/appkit.ts'
 
 globalThis.__xplatDevModules = {
 	'octane/universal/native': native,

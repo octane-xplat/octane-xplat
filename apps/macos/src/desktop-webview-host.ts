@@ -13,7 +13,7 @@ type AppInfo = ReturnType<FrameworkHostServices['app']['getInfo']>
 type AppState = ReturnType<FrameworkHostServices['app']['getState']>
 type WindowSize = ReturnType<FrameworkHostServices['app']['getWindowSize']>
 type PermissionResult = Awaited<ReturnType<FrameworkHostServices['notifications']['ensure']>>
-import { createHostedWindow } from './appkit.mjs'
+import { createHostedWindow } from './appkit'
 
 export interface AppKitHostServices {
 	appInfo: AppInfo

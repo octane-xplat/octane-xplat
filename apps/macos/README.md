@@ -9,8 +9,8 @@ packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
 keep-running behavior.
 
 ```js
-// In apps/macos/src/main.mjs, using this harness's host helper.
-import { createAppKitWindow } from './appkit.mjs'
+// In apps/macos/src/main.ts, using this harness's host helper.
+import { createAppKitWindow } from './appkit'
 
 const host = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 // host.contentView is the NSView passed to createMacOSRoot below.
@@ -24,13 +24,13 @@ for an independent consumer setup.
 
 The renderer defaults to Apple's system font. This harness explicitly registers
 Geist and selects it on each root to keep its demo typography consistent.
-`src/fonts.mjs` owns the font assets, license, and registration; the packaged
+`src/fonts.ts` owns the font assets, license, and registration; the packaged
 host embeds the font bytes and license. See [AppKit fonts](../../docs/app/styling.md#appkit-fonts)
 for application font ownership and fallback behavior.
 
 ```js
-// In the harness entry; fonts.mjs registers the app-owned Geist descriptors.
-import { harnessFontOptions } from './fonts.mjs'
+// In the harness entry; fonts.ts registers the app-owned Geist descriptors.
+import { harnessFontOptions } from './fonts'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 
 const root = createMacOSRoot(host.contentView, harnessFontOptions)

@@ -373,7 +373,7 @@ export function registerAppFont(regularDescriptor: NSFontDescriptor) {
 }
 ```
 
-The macOS harness's [font setup](../../apps/macos/src/fonts.mjs) loads its own
+The macOS harness's [font setup](../../apps/macos/src/fonts.ts) loads its own
 Geist assets and license, registers weighted descriptors, and explicitly sets
 `fontFamily: 'Geist'` on its roots. Renderer-hosted popups and sheets inherit
 the owning root's default family. Custom assets must also be included in a

@@ -1,11 +1,11 @@
-import { harnessFontOptions } from './fonts.mjs'
+import { harnessFontOptions } from './fonts'
 import '@nativescript/macos-node-api'
 import * as octaneNative from 'octane/universal/native'
 import * as octaneSignals from 'octane/signals'
 import * as octaneSignalsClient from 'octane/signals/client'
 import * as octaneInternalClient from 'octane/internal/client'
 import * as renderer from '@octane-xplat/macos-renderer'
-import { createAppKitWindow, debugWindows, fitWindowToContent } from './appkit.mjs'
+import { createAppKitWindow, debugWindows, fitWindowToContent } from './appkit'
 import { createDevBench } from './dev-bench.mjs'
 
 const { hmrUniversalComponent, UNIVERSAL_HMR } = octaneNative
