@@ -318,7 +318,7 @@ JavaScript runtime (Annotation 2).
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
 | `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
-| `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                               | `supported: false` on Windows                                                                                                                                                        |
+| `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | `supported: false` on Windows                                                                                                                                                        |
 | `openSettings`                      | capability; `open()`                                                                         | unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
 | `media.capturePhoto()`              | still capture through the OS camera UI                                                       | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops                                                |
@@ -555,7 +555,23 @@ by displaying its `message` with a retry action. Web credential operations can
 reject; catch the rejection and keep sign-in available. If neither capability
 is supported, show an unavailable state or your app's alternative sign-in
 method. Closing a native session should exercise the cancel path; target
-runtime verification remains pending.
+runtime verification remains pending. Apps whose backend can issue and redeem
+a sign-in attempt get the whole ceremony from `createHostedAuth` in
+`@octane-xplat/auth` — a PKCE attempt, the hosted page in a system browser, a
+callback exchange, and stored Bearer credentials — instead of wiring
+`authSession` themselves. The backend contract plugs in as a `HostedAuthFlow`
+(`begin`/`complete`, plus optional `refresh`/`revoke`); the client owns the
+ceremony lifecycle, credential storage, and access-token transport:
+
+```ts
+import { createHostedAuth } from '@octane-xplat/auth'
+
+const auth = createHostedAuth({
+	apiOrigin: 'https://api.example.com',
+	flow: myBackendAuthFlow, // see the @octane-xplat/auth README
+})
+const result = await auth.signIn()
+```
 
 ```ts
 import { authSession } from '@octane-xplat/platform'

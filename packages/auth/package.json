@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/auth",
 	"version": "0.10.0",
-	"description": "Sign in with Apple + Google Sign-In for Octane xplat — native SDKs on iOS/Android, platform web SDKs in the browser",
+	"description": "Sign in with Apple + Google Sign-In + hosted-auth sessions for Octane xplat — native SDKs on iOS/Android, platform web SDKs in the browser",
 	"keywords": [
 		"android",
 		"apple",
@@ -12,6 +12,7 @@
 		"nativescript",
 		"oauth",
 		"octane",
+		"pkce",
 		"sign-in",
 		"web",
 		"xplat"
@@ -80,7 +81,8 @@
 	"dependencies": {
 		"@nativescript/apple-sign-in": "2.0.0",
 		"@nativescript/google-signin": "2.1.1",
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/secure-storage": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

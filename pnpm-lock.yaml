@@ -617,6 +617,9 @@ importers:
       '@octane-xplat/platform':
         specifier: workspace:*
         version: link:../platform
+      '@octane-xplat/secure-storage':
+        specifier: workspace:*
+        version: link:../secure-storage
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4

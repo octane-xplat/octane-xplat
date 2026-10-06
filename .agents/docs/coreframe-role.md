@@ -19,11 +19,11 @@ analysis this boundary is grounded in.
 
 ## The three owners
 
-| Owner              | Scope after migration                                                                                                                                                                                                                                                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **octane-xplat**   | Client runtime on every target: UI core, routing/navigation, signals/stores/query, styling normalization, platform services, capability leaves, DOM + NativeScript + desktop renderers, `xplat` build/doctor/typecheck.                                                                                                       |
-| **Coreframe**      | App platform: generated project and upgrade path, dev/preview orchestration, Worker hosting and typed API contract, auth server, database workflow, deploys, dashboard, managed assets, i18n pipeline, Leylines, diagnostics, recipes and agent rules.                                                                          |
-| **The app itself** | Product code: screens and features, domain state, API route definitions and handlers, schema, product engines (editors, sync, media pipelines), and platform files for product-specific capabilities.                                                                                                                          |
+| Owner              | Scope after migration                                                                                                                                                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **octane-xplat**   | Client runtime on every target: UI core, routing/navigation, signals/stores/query, styling normalization, platform services, capability leaves, DOM + NativeScript + desktop renderers, `xplat` build/doctor/typecheck.                                |
+| **Coreframe**      | App platform: generated project and upgrade path, dev/preview orchestration, Worker hosting and typed API contract, auth server, database workflow, deploys, dashboard, managed assets, i18n pipeline, Leylines, diagnostics, recipes and agent rules. |
+| **The app itself** | Product code: screens and features, domain state, API route definitions and handlers, schema, product engines (editors, sync, media pipelines), and platform files for product-specific capabilities.                                                  |
 
 ## What Coreframe keeps owning
 
@@ -41,7 +41,7 @@ concerns.
   Worker handlers and request-scoped middleware (`ctx.db`, auth identity),
   scheduled jobs (`@coreframe/jobs`), object storage and signed uploads.
 - **Accounts**: Better Auth server, sessions, passkey/email/social
-  configuration, SES email. The native *client* side of sessions is undecided —
+  configuration, SES email. The native _client_ side of sessions is undecided —
   see open questions.
 - **Data workflow**: Drizzle schema and migrations, local database lifecycle,
   deploy-time and held migrations, both PostgreSQL and SQLite/libSQL dialects.
@@ -88,12 +88,12 @@ concerns.
 
 What you can assume exists, and what you must build or verify.
 
-| Assume Coreframe provides                                          | Assume Xplat provides                                                                            | The app must build/port                                                                    |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| Worker, typed API contract, auth server, DB, deploys — unchanged   | Components, routes, signals/stores, styling normalization on every target                          | React/Panda screens → Octane components; Valtio → signals or app-owned stores               |
-| Dev server and preview for the web/worker loop                     | `secure-storage`, `sqlite`, `files`, `media`, `share`, `haptics` leaves                            | A native session transport to the Worker (open question; do not invent one silently)         |
-| Dashboard, managed assets, i18n catalogs, Leylines                 | `authSession` hosted ceremonies; native WebAuthn is deliberately unsupported                       | Product engines inside a suitable host (e.g. editor in an isolated `WebView`)               |
-| Upgrade path and recipes for adopted integrations                  | Suffix resolution for `.web`/`.mobile`/`.ios`/`.android` platform files                            | App-specific capability adapters (workspace FS watch, voice, desktop shell bridges)          |
+| Assume Coreframe provides                                        | Assume Xplat provides                                                        | The app must build/port                                                                                                             |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Worker, typed API contract, auth server, DB, deploys — unchanged | Components, routes, signals/stores, styling normalization on every target    | React/Panda screens → Octane components; Valtio → signals or app-owned stores                                                       |
+| Dev server and preview for the web/worker loop                   | `secure-storage`, `sqlite`, `files`, `media`, `share`, `haptics` leaves      | Nothing — `createHostedAuth` in `@octane-xplat/auth` carries the ceremony; Coreframe owns its Worker contract as a `HostedAuthFlow` |
+| Dashboard, managed assets, i18n catalogs, Leylines               | `authSession` hosted ceremonies; native WebAuthn is deliberately unsupported | Product engines inside a suitable host (e.g. editor in an isolated `WebView`)                                                       |
+| Upgrade path and recipes for adopted integrations                | Suffix resolution for `.web`/`.mobile`/`.ios`/`.android` platform files      | App-specific capability adapters (workspace FS watch, voice, desktop shell bridges)                                                 |
 
 Do not assume: browser SDKs (`posthog-js`, Fontsource, PWA plugins, browser
 Leylines) have native equivalents; DOM globals or React node views run in
@@ -109,12 +109,16 @@ lists above as direction; these are the edges that still need a decision.
 1. **Dev orchestration split**: does `coreframe dev` orchestrate `xplat` for
    iOS/Android targets, or does the app run two CLIs? Who owns the web Vite
    config — Coreframe's plugin set or `xplat dev`'s?
-2. **Native session/auth contract**: Coreframe's Flutter shell uses a
-   same-origin loopback proxy (fixed port `55901`, `/api` allowlist,
-   host-only HttpOnly cookies, Worker validating the exact origin). On
-   NativeScript there is no WebView cookie jar; the options are
-   `authSession`-based hosted ceremonies with an explicit token exchange or a
-   new proxy contract. Unspecified until decided.
+2. **Native session/auth contract**: resolved in the generic direction —
+   `createHostedAuth` in `@octane-xplat/auth` runs an `authSession`-hosted
+   PKCE ceremony against a product-supplied `HostedAuthFlow` (attempt →
+   callback → credential exchange → refresh/revoke), persists credentials in
+   `secure-storage`, and attaches/refreshes Bearer on authorized API calls.
+   Coreframe owns its Worker contract (`/api/auth/native/*`) as such a flow;
+   no Coreframe names or paths live in xplat. Coreframe's Flutter shell still
+   uses a same-origin loopback proxy (fixed port `55901`, `/api` allowlist,
+   host-only HttpOnly cookies, Worker validating the exact origin); that
+   contract is unchanged and remains the Flutter transport.
 3. **Styling**: Panda CSS is Coreframe's web styling system; Xplat normalizes
    through `styled()`/CSS. Do migrated apps drop Panda, keep it web-only, or
    does Xplat absorb a styling contract?

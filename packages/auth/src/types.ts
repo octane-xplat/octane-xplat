@@ -160,3 +160,200 @@ export interface GoogleSignInButtonProps extends SignInButtonBaseProps {
 	/** 'wide' and 'icon' are native-only shapes; web renders 'standard'. */
 	variant?: 'standard' | 'wide' | 'icon'
 }
+
+/* ------------------------------------------------------------------ */
+/* Hosted-auth client (native session transport)                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Minimal string KV the credential store needs — satisfied by
+ * `@octane-xplat/secure-storage`'s `SecureStore` and any host bridge.
+ */
+export interface HostedAuthCredentialStore {
+	get(key: string): Promise<string | null>
+	set(key: string, value: string): Promise<unknown>
+	remove(key: string): Promise<unknown>
+}
+
+/**
+ * DOM-free request init — `Response`/`RequestInit` types are not declared in
+ * the native typecheck program, so the client contract is this narrow shape
+ * which both runtimes' `fetch` accept at runtime.
+ */
+export interface HostedAuthRequestInit {
+	method?: string
+	headers?: Record<string, string> | Iterable<readonly [string, string]>
+	body?: unknown
+	signal?: unknown
+}
+
+/** The slice of `fetch`'s `Response` the client exposes. */
+export interface HostedAuthResponse {
+	readonly status: number
+	readonly ok: boolean
+	readonly headers: { get(name: string): string | null }
+	json(): Promise<unknown>
+	text(): Promise<string>
+}
+
+export type HostedAuthFetch = (
+	url: string,
+	init?: HostedAuthRequestInit,
+) => Promise<HostedAuthResponse>
+
+/** What a hosted browser ceremony returns — matches `authSession`'s result. */
+export type HostedAuthSessionResult =
+	| { type: 'success'; url: string }
+	| { type: 'cancel' }
+	| { type: 'error'; message: string }
+
+export interface HostedAuthSession {
+	readonly supported: boolean
+	open(url: string, options: { callbackScheme: string }): Promise<HostedAuthSessionResult>
+}
+
+/** Credential record the client persists between sessions. */
+export interface HostedAuthCredentials {
+	/** Short-lived access credential — Bearer on authorized API requests. */
+	token: string
+	/** `token` expiry in milliseconds since epoch. */
+	expiresAt: number
+	/** Durable session credential — mints access tokens; revoked on sign-out. */
+	sessionToken: string
+}
+
+/** Fresh single-use PKCE pair the client generates for each ceremony. */
+export interface HostedAuthPkce {
+	/** High-entropy verifier kept out of the hosted URL and deep link. */
+	verifier: string
+	/** base64url(SHA-256(verifier)) sent in the sign-in attempt. */
+	challenge: string
+}
+
+/** Dependencies the client hands to the flow for each backend call. */
+export interface HostedAuthFlowContext {
+	/** DOM-free transport bound to the client's `fetch` config. */
+	fetch: HostedAuthFetch
+	/** The ceremony's PKCE pair — present during `begin` and `complete`. */
+	pkce?: HostedAuthPkce
+}
+
+export interface HostedAuthAttempt {
+	/** Absolute URL to open in the system browser. */
+	url: string
+	/** Custom URL scheme the browser callback returns on. */
+	callbackScheme: string
+	/**
+	 * Server-issued state the callback's `state` query parameter must echo.
+	 * When set, the client rejects mismatched callbacks before `complete`.
+	 */
+	state?: string
+	/** Flow-private data handed back to `complete` (e.g. an attempt id). */
+	data?: unknown
+}
+
+/**
+ * A product's hosted-auth wire contract — where requests go and what they
+ * carry. The client owns the ceremony lifecycle, credential storage, and
+ * access-token transport; the flow owns the backend's attempt, redemption,
+ * refresh, and revocation calls.
+ */
+export interface HostedAuthFlow {
+	/**
+	 * Issue the sign-in attempt against the backend and return the hosted
+	 * page to open. `context.pkce` is the ceremony's verifier/challenge.
+	 */
+	begin(context: HostedAuthFlowContext): Promise<HostedAuthAttempt>
+	/**
+	 * Redeem the system-browser callback URL into credentials. Return `null`
+	 * — or throw — to fail the sign-in.
+	 */
+	complete(
+		callbackUrl: string,
+		attempt: HostedAuthAttempt,
+		context: HostedAuthFlowContext,
+	): Promise<HostedAuthCredentials | null>
+	/**
+	 * Mint a fresh credential record from the durable session credential.
+	 * Return `null` when the session is expired or revoked — the client
+	 * clears stored credentials. Throw for transient failures.
+	 */
+	refresh?(
+		credentials: HostedAuthCredentials,
+		context: HostedAuthFlowContext,
+	): Promise<HostedAuthCredentials | null>
+	/** Revoke the durable session credential — best-effort. */
+	revoke?(credentials: HostedAuthCredentials, context: HostedAuthFlowContext): Promise<void>
+}
+
+export interface HostedAuthConfig {
+	/** HTTPS origin of the hosted backend; same-origin requests may carry Bearer tokens. */
+	apiOrigin: string
+	/** The product's hosted-auth wire contract. */
+	flow: HostedAuthFlow
+	/**
+	 * Which same-origin paths get `Authorization: Bearer <access token>` on
+	 * `fetch`. Default: every `/api/*` path except the `/api/auth` mount.
+	 */
+	authorizePath?(pathname: string): boolean
+	/** Credential persistence — defaults to `@octane-xplat/secure-storage`. */
+	storage?: HostedAuthCredentialStore
+	/** Secure-storage key for the credential blob — default `hosted-auth`. */
+	storageKey?: string
+	/** Transport override — defaults to the global `fetch`. */
+	fetch?: HostedAuthFetch
+	/** Ceremony override — defaults to the platform `authSession` capability. */
+	authSession?: HostedAuthSession
+	/** Clock override for expiry checks — defaults to `Date.now`. */
+	now?: () => number
+}
+
+export type HostedAuthSignInResult =
+	| { status: 'success' }
+	/** The user dismissed the hosted ceremony, or it ended without a callback. */
+	| { status: 'cancelled' }
+	| { status: 'error'; message: string }
+
+export type HostedAuthStatus = 'authenticated' | 'unauthenticated'
+
+/**
+ * Hosted-auth client: PKCE + a system-browser ceremony
+ * (ASWebAuthenticationSession / Custom Tab) driven by a `HostedAuthFlow`
+ * backend contract, credentials in secure storage, Bearer attach + refresh
+ * for authorized API calls. Works unchanged on every target — `supported`
+ * reports whether the hosted ceremony can run (false on web).
+ */
+export interface HostedAuth {
+	/**
+	 * Whether the hosted ceremony can run on this target — the platform
+	 * `authSession` capability plus an OS CSPRNG. Web reports false: browser
+	 * apps keep the cookie session flow.
+	 */
+	readonly supported: boolean
+	/**
+	 * Load persisted credentials into memory. Resolves `authenticated` when a
+	 * durable session token was stored — the access token may still need a
+	 * refresh before the first API call.
+	 */
+	restore(): Promise<HostedAuthStatus>
+	/**
+	 * Run the hosted sign-in ceremony: `flow.begin` → `authSession` →
+	 * `flow.complete`. Stores the credential record on success.
+	 */
+	signIn(): Promise<HostedAuthSignInResult>
+	/**
+	 * A currently valid access token, minting a fresh one from the stored
+	 * session credential when expired. Resolves `null` when there is no usable
+	 * credential — sign in again.
+	 */
+	getAccessToken(): Promise<string | null>
+	/**
+	 * `fetch` that attaches `Authorization: Bearer <access token>` to
+	 * `authorizePath`-matching requests under `apiOrigin` and replays once
+	 * after a refresh when the server rejects the token. Other URLs pass
+	 * through.
+	 */
+	fetch(url: string, init?: HostedAuthRequestInit): Promise<HostedAuthResponse>
+	/** Revoke the durable session via `flow.revoke` and clear stored credentials. */
+	signOut(): Promise<void>
+}

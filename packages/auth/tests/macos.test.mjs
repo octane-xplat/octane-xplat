@@ -12,6 +12,8 @@ const compile = async (file) =>
 	})
 
 const apple = await compile('apple.macos')
+const sha256Module = {}
+vm.runInNewContext(await compile('sha256'), { exports: sha256Module })
 const domain = 'com.apple.AuthenticationServices.AuthorizationError'
 function loadApple({ failure, presentationWindow = {}, state = 1, stateError = null } = {}) {
 	const controllers = [],
@@ -20,6 +22,7 @@ function loadApple({ failure, presentationWindow = {}, state = 1, stateError = n
 	const exports = {}
 	vm.runInNewContext(apple, {
 		exports,
+		require: (id) => (id === './sha256' ? sha256Module : {}),
 		objc: { import() {} },
 		NSApplication: { sharedApplication: { keyWindow: presentationWindow } },
 		NSObject: {

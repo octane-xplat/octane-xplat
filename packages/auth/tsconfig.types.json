@@ -10,7 +10,8 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
-		"rootDir": "src"
+		"rootDir": "src",
+		"customConditions": ["web"]
 	},
 	"include": [
 		"src/apple.ts",
@@ -24,6 +25,9 @@
 		"src/index.ts",
 		"src/index.web.ts",
 		"src/native-elements.d.ts",
+		"src/base64.ts",
+		"src/hosted.ts",
+		"src/sha256.ts",
 		"src/types.ts"
 	]
 }
