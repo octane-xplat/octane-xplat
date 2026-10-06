@@ -23,6 +23,27 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 		}
 
 		plugins.push({
+			name: 'xplat-bamboo:nativescript-entry-graph',
+			enforce: 'post',
+			transform(code, id) {
+				// @nativescript/vite builds from a generated entry
+				// (`virtual:entry-with-polyfills`). Under HMR that entry boots
+				// the app over HTTP instead of statically importing the app's
+				// main module, so `import 'virtual:bamboo.css'` there never
+				// enters the bundle's module graph — while class values still
+				// compile, tripping bamboocss's entry-graph check at buildEnd.
+				// Import the stylesheet from the generated entry itself so it
+				// is in the graph in every mode; the emitted asset then flows
+				// through the same generateBundle path as every other .css.
+				if (id !== '\0virtual:entry-with-polyfills' || code.includes('virtual:bamboo.css')) {
+					return
+				}
+
+				return { code: `${code}\nimport 'virtual:bamboo.css';\n`, map: null }
+			},
+		})
+
+		plugins.push({
 			name: 'xplat-bamboo:nativescript-output',
 			enforce: 'post',
 			options: {
