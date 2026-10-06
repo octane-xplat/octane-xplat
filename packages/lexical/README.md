@@ -118,8 +118,12 @@ export function NoteEditor() {
 On Android, save HTML as the canonical document. Lexical serialized state is
 a best-effort conversion through the fixed built-in node set; it is not a live
 Lexical editor state that supports commands or plugins.
-Nested-structure probes fail on the Aztec path; this ordinary rich-text
-baseline is not suitable for recursive documents.
+The 2026-10-06 [Aztec nested-tree run](../../docs/verify/nested-tree-editor.md)
+preserved nested wrappers, attributes, and child order through synthetic text
+edits and save/reopen, but flattened paragraphs and accumulated `<br>` elements
+on reopen. That run exercised the shared Aztec HTML leaf, not Lexical's JSON
+conversion or structural commands. See the
+[per-row capability record](../../docs/notes/editor-capabilities.md).
 
 ```tsx
 import { useState } from 'octane'
@@ -165,4 +169,4 @@ The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](../../docs/rich-text.md#macos-appkit-editing).
+host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).

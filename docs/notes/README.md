@@ -15,6 +15,7 @@ Start here when you need to understand a framework decision or investigate its i
 - [CSS support notes](css-support-notes.md)
 - [Decisions](decisions.md)
 - [Showcase plan and demo evidence](demos.md)
+- [Editor capability declarations](editor-capabilities.md)
 - [Framework notes](framework-notes.md)
 - [Native SVG rendering on AppKit](icon-svg-notes.md)
 - [Input and focus readiness evidence](input-readiness-notes.md)

@@ -60,6 +60,9 @@ A strict adapter must validate schema/version/types/attributes before any mutati
 
 This is the shared **qualification target**, not today's API or support claim. Both packages expose the same meaning within this subset on Web/iOS/Android, while keeping engine-specific JSON formats. It deliberately excludes Foxtrot tasks and collaboration. Existing facade no-ops or permissive conversion do not satisfy it.
 
+The current per-package, per-platform status against this target is recorded
+in [Editor capability declarations](editor-capabilities.md).
+
 | Boundary | Required matching behavior |
 | --- | --- |
 | Document | Paragraphs, hard breaks, headings 1–3, flat ordered/bullet lists; inline text with bold/italic/strikethrough and links. Preserve Unicode, marks, list ordering/start and href. Nested/custom/task nodes, embeds, tables, colors, alignment, code and additional marks are outside the baseline until separately declared and tested |

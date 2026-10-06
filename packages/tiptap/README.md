@@ -56,11 +56,13 @@ export function Notes() {
 | iOS | Unsupported placeholder from `@octane-xplat/richtext` | Ignored | Unsupported; `supported` is `false` |
 | macOS AppKit | Bundled Tiptap editor in WKWebView | Ignored by the AppKit host | Unsupported through this facade |
 
-On Android, keep HTML as the canonical saved document. Tiptap JSON is a
-best-effort conversion of Aztec's flat formatting model. Replacing HTML clears
-Aztec's undo history, and Android undo covers keyboard edits only.
-Nested-structure probes fail on the Aztec path; this ordinary rich-text
-baseline is not suitable for recursive documents.
+On Android, keep HTML as the facade's canonical interchange. Tiptap JSON is a
+best-effort conversion over Aztec HTML, not a live ProseMirror document. The
+2026-10-06 [Aztec nested-tree run](../../docs/verify/nested-tree-editor.md)
+preserved nested wrappers, attributes, and child order through synthetic text
+edits and save/reopen. It also flattened paragraphs and accumulated `<br>`
+elements on reopen; it did not qualify Tiptap JSON, OS input, or structural
+tree commands. See the [per-row capability record](../../docs/notes/editor-capabilities.md).
 
 ```tsx
 import { useState } from 'octane'
@@ -130,4 +132,4 @@ The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](../../docs/rich-text.md#macos-appkit-editing).
+host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).

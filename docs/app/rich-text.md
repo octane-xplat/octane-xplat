@@ -154,30 +154,25 @@ formats — they work on Android and no-op on web and AppKit.
 
 ## Ordinary editing subset by platform
 
-The engine rows below describe the path each package exposes. Android's
-Aztec-backed behavior is not runtime-qualified by this baseline yet; see the
-verification table after the capability matrix.
+For the current status of every decision #101 contract row on Web, Android,
+and iOS for both packages, see the [editor capability declarations](../notes/editor-capabilities.md).
+The package-level `supported` flag means an editing surface exists on that
+target; it does not qualify each contract row.
 
-| Capability | Web | Android | iOS | macOS AppKit |
-| --- | --- | --- | --- | --- |
-| Engine | Live Tiptap or Lexical editor | Aztec `AztecText` with Tiptap/Lexical document conversion | Unsupported placeholder; `supported` is false | Bundled editor in WKWebView |
-| Fresh mount with initial content | Supported | Supported by the facade and Aztec leaf | Unsupported | Supported after `onReady` |
-| User edits and change events | Live engine events | Aztec text/change callbacks | Unsupported | WebKit editor events |
-| Controlled replacement | `value` or `json` updates the live editor | `value` HTML or converted JSON updates Aztec | Unsupported | Host sends property updates to the bundled editor |
-| Read-only | `editable={false}` | `editable={false}` on Aztec | Unsupported | `editable={false}` in the bundled editor |
-| Focus and blur | Editor focus callbacks and handle | Aztec focus callbacks and handle | Unsupported | Asynchronous WebKit callbacks and handle |
-| Selection | Engine selection callback | Aztec selection callback when the selection changes | Unsupported | Snapshot from the bundled editor |
-| Undo | Live engine history | Keyboard edits only; `setHTML` and format commands do not enter history | Unsupported | Live engine history |
-| Save and reopen | HTML or that engine's JSON | HTML is canonical; JSON conversion is best effort | Unsupported | HTML or that engine's JSON |
-| Disposal | Component unmount | Native view teardown | Placeholder only | WebKit view and message handler teardown |
-| Custom engine options | Tiptap `web.extensions`/`web.starterKit`; Lexical `web.nodes`/`web.plugins` | Ignored | Ignored | Ignored by the AppKit host |
+| Target | Editing engine | Current boundary |
+| --- | --- | --- |
+| Web | Tiptap mounts Tiptap; Lexical mounts Lexical | Package source exposes web editing APIs. The provided browser runtime evidence tests ProseMirror's document model, not either mounted editor's browser interaction or full lifecycle. |
+| Android | Both facades edit through Aztec; Tiptap and Lexical JSON are conversion layers | ADB input, focus, selection, and keyboard undo have bounded runtime evidence. A separate Aztec run preserves nested HTML wrappers but exposes paragraph flattening and repeated-reopen drift. |
+| iOS | Neither package mounts an editing engine | The package reports `supported = false` and renders a placeholder; a simulator run verifies this boundary only. |
 
 On Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
 Lexical plugins, transforms, and browser views do not run. The facades do not
-create live ProseMirror or Lexical editor instances there. Aztec's ordinary
-rich-text baseline does not include recursive or nested document fidelity;
-nested-structure probes fail, so this surface is not suitable for Foxtrot's
-recursive documents.
+create live ProseMirror or Lexical editor instances there. The 2026-10-06
+[nested-tree run](../verify/nested-tree-editor.md) preserved the three-level
+HTML hierarchy and attributes through synthetic edits and save/reopen. It
+also flattened paragraphs and accumulated `<br>` elements on reopen; it did
+not test OS input or structural commands. This is not full Foxtrot-document
+support.
 
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'
@@ -204,7 +199,9 @@ declare function saveHtml(html: string): void
 | Events | `onReady`, `onChange`, `onFocus`, and `onSelectionChange` passed; `onBlur` was not observed | Fake `onChange` to `onJSONChange` conversion passes |
 | Disposal | Not run; the probe timed out before unmount | Late bridge completion after unmount is ignored |
 
-The fake-host rows come from the Tiptap and Lexical native object-driver tests;
+The table below records the earlier ordinary-edit probe and fake-host rows;
+it does not include the separate nested-tree run linked above. The fake-host
+rows come from the Tiptap and Lexical native object-driver tests;
 they do not mount Aztec. Android was probed on 2026-10-05 using the API 35
 Google APIs arm64 AVD `octane-prime-larkspur` (`emulator-5556`). The successful
 assertion segment used the real NativeScript host and `AztecText`; keyboard
@@ -215,11 +212,9 @@ save/reopen and disposal remain unverified. A later fresh-cache run again
 passed mount, readiness, controlled replacement, and read-only checks, then
 timed out before keyboard text reached Aztec; it adds no user-edit evidence.
 
-The iOS package entry remains an unsupported placeholder, and no iOS editor
-behavior is inferred from object-driver coverage. Native package builds and
-those object-driver suites pass, but they do not run NativeScript's iOS
-metadata generator or compile and launch an iOS app; the external-user
-simulator was not available for this task.
+The iOS package entry remains an unsupported placeholder. Native package
+builds and object-driver suites do not establish iOS editing behavior; the
+separate simulator run verifies only the unsupported flag and visible label.
 
 ## Web engine extensions
 
@@ -278,7 +273,7 @@ defaults. `RichTextEditor` uses StarterKit for HTML editing. The editor
 documents are bundled with the packages: no CDN, server, or network connection
 is needed. The `richtext` leaf owns the small Swift host independently of the
 general WebView component. The CLI compiles it through the normal
-[macOS native leaf workflow](macos-native.md).
+[macOS native leaf workflow](../platform/macos-native.md).
 
 Use the same imports and give the editor a bounded height, for example:
 
@@ -338,8 +333,8 @@ with `pnpm --filter @octane-xplat/richtext --filter @octane-xplat/tiptap
 `pnpm --filter @octane-xplat/richtext test:packed`. These checks require an
 Apple Silicon Mac with Xcode’s command-line tools.
 
-The maintained [isolated WebKit fixture](../packages/richtext/test/verify-wk.mjs)
-and [packed AppKit consumer](../packages/richtext/test/packed-consumer.mjs) check
+The maintained [isolated WebKit fixture](../../packages/richtext/test/verify-wk.mjs)
+and [packed AppKit consumer](../../packages/richtext/test/packed-consumer.mjs) check
 local engine loading, HTML/JSON interchange, refs, controlled updates, and
 teardown without screenshots. Command dispatch is separate from real OS
 keyboard input, selection, and hit-testing; those interactions remain
