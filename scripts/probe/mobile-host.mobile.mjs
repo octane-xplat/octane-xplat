@@ -2,7 +2,10 @@ import * as gesturehandler from '@nativescript-community/gesturehandler'
 import { Application, File, Frame, knownFolders, Page, path } from '@nativescript/core'
 import * as core from '@nativescript/core'
 import * as animationFrame from '@nativescript/core/animation-frame'
+import * as application from '@nativescript/core/application'
+import * as applicationSettings from '@nativescript/core/application-settings'
 import * as utils from '@nativescript/core/utils'
+import lazy from '@nativescript/core/utils/lazy'
 import * as native from '@nativescript-community/octane'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
@@ -14,7 +17,12 @@ const modules = {
 	'@nativescript/core': core,
 	'@nativescript-community/gesturehandler': gesturehandler,
 	'@nativescript/core/animation-frame': animationFrame,
+	// Leaf/plugin Android entries import these subpaths directly; without a
+	// map entry the case-side require misses outside the host's own graph.
+	'@nativescript/core/application': application,
+	'@nativescript/core/application-settings': applicationSettings,
 	'@nativescript/core/utils': utils,
+	'@nativescript/core/utils/lazy': lazy,
 	'@nativescript-community/octane': native,
 	'octane/universal/native': native,
 	'octane/signals': signals,
@@ -80,6 +88,7 @@ setInterval(async () => {
 
 			return require(name)
 		}
+
 		new Function('require', 'module', 'exports', source)(load, module, module.exports)
 		await module.exports.start(control, (result) => {
 			console.log('[xplat-probe] ' + JSON.stringify(result))
