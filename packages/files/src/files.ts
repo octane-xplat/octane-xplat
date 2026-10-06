@@ -154,8 +154,9 @@ function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array 
 		input.close()
 	}
 
-	// ArrayBuffer.from converts a Java byte[] — an NS Android runtime builtin.
-	return new Uint8Array((ArrayBuffer as any).from(out.toByteArray()))
+	// ArrayBuffer.from is an NS Android runtime builtin that takes a
+	// java.nio.ByteBuffer — wrap the byte[] rather than marshalling per byte.
+	return new Uint8Array((ArrayBuffer as any).from(java.nio.ByteBuffer.wrap(out.toByteArray())))
 }
 
 // Picked iOS refs come from the picker's Import mode, so they are app-owned
