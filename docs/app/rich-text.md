@@ -193,24 +193,33 @@ declare function saveHtml(html: string): void
 
 | Baseline row | Android Aztec runtime | Native object-driver fake host |
 | --- | --- | --- |
-| Fresh mount with initial content | Not run | JSON seed and readiness ordering pass |
-| User edits | Not run | Callback path simulated by the fake host; no keyboard input |
-| Controlled replacement | Not run | Later JSON replacement and duplicate suppression pass |
-| Read-only | Not run | Not covered |
-| Focus and blur | Not run | Not covered |
-| Selection | Not run | Not covered |
-| Undo | Not run | Fake command is a no-op; not covered |
-| Save and reopen | Not run | Not covered |
-| Events | Not run | Fake `onChange` to `onJSONChange` conversion passes |
-| Disposal | Not run | Late bridge completion after unmount is ignored |
+| Fresh mount with initial content | Passed on NativeScript `AztecText` | JSON seed and readiness ordering pass |
+| User edits | Passed: ADB keyboard text reached Aztec and emitted `onChange` | Callback path simulated by the fake host; no keyboard input |
+| Controlled replacement | Passed; triggered with probe handler dispatch | Later JSON replacement and duplicate suppression pass |
+| Read-only | Passed native checks: key listener is null and focus is disabled; OS typing suppression was not tested | Not covered |
+| Focus and blur | Focus and `onFocus` passed during ADB keyboard input; blur did not complete before probe timeout | Not covered |
+| Selection | Passed during ADB keyboard input | Not covered |
+| Undo | Passed; Aztec undo removed the keyboard insertion | Fake command is a no-op; not covered |
+| Save and reopen | Not run; the probe timed out during blur before snapshot/remount | Not covered |
+| Events | `onReady`, `onChange`, `onFocus`, and `onSelectionChange` passed; `onBlur` was not observed | Fake `onChange` to `onJSONChange` conversion passes |
+| Disposal | Not run; the probe timed out before unmount | Late bridge completion after unmount is ignored |
 
 The fake-host rows come from the Tiptap and Lexical native object-driver tests;
-they do not mount Aztec. No Android runtime result is claimed. The iOS package
-entry remains an unsupported placeholder, and no iOS editor behavior is
-inferred from object-driver coverage. Native package builds and those
-object-driver suites pass, but they do not run NativeScript's iOS metadata
-generator or compile and launch an iOS app; the external-user simulator was
-not available for this task.
+they do not mount Aztec. Android was probed on 2026-10-05 using the API 35
+Google APIs arm64 AVD `octane-prime-larkspur` (`emulator-5556`). The successful
+assertion segment used the real NativeScript host and `AztecText`; keyboard
+input came from `adb shell input tap` and `adb shell input text`. Controlled
+replacement used probe handler dispatch, which does not establish OS
+hit-testing. The overall probe ended with a timeout while waiting for blur, so
+save/reopen and disposal remain unverified. A later fresh-cache run again
+passed mount, readiness, controlled replacement, and read-only checks, then
+timed out before keyboard text reached Aztec; it adds no user-edit evidence.
+
+The iOS package entry remains an unsupported placeholder, and no iOS editor
+behavior is inferred from object-driver coverage. Native package builds and
+those object-driver suites pass, but they do not run NativeScript's iOS
+metadata generator or compile and launch an iOS app; the external-user
+simulator was not available for this task.
 
 ## Web engine extensions
 
