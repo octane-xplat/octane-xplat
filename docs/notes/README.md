@@ -24,6 +24,7 @@ Start here when you need to understand a framework decision or investigate its i
 - [Navigation notes](navigation-notes.md)
 - [Open questions](open-questions.md)
 - [Optional-service qualification](optional-service-qualification.md)
+- [OTA bundle-redirect gate](ota-updates.md)
 - [Platform-service notes (packages/platform)](platform-notes.md)
 - [Primitive notes (packages/ui)](primitive-notes.md)
 - [Select family implementation plan](select-implementation-plan.md)
