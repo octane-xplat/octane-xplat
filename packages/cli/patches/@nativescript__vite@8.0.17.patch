@@ -1,3 +1,36 @@
+diff --git a/helpers/project.js b/helpers/project.js
+index ef8a029f7e6e66cdeaa344a6af18af28145b8b05..b06cce4f6909d61b538295124ebb1d80a1eb31bf 100644
+--- a/helpers/project.js
++++ b/helpers/project.js
+@@ -73,7 +73,11 @@ function denoConfigHasWorkspace(dir) {
+  *  - `lerna.json`
+  *  - `nx.json`        (Nx)
+  *  - `rush.json`      (Rush)
+- *  - `turbo.json`     (Turborepo)
++ *  - `turbo.json`     (Turborepo) — NOT self-declaring: Turborepo scatters
++ *    per-package `turbo.json` task configs (`"extends": ["//"]`) into every
++ *    workspace package, so the file alone marks a package dir, not a root.
++ *    Real turbo roots still resolve through their workspace declaration
++ *    (`pnpm-workspace.yaml`, `lerna.json`, or `package.json#workspaces`)
+  *  - `deno.json` / `deno.jsonc` containing a `workspace` field
+  *  - `package.json` containing a `workspaces` field (npm/yarn workspaces)
+  *
+@@ -106,6 +110,15 @@ export function findMonorepoWorkspaceRoot(start = getProjectRootPath()) {
+                     return current;
+                 continue;
+             }
++            if (marker === 'turbo.json') {
++                // turbo.json is not self-declaring: Turborepo writes
++                // per-package task configs (`"extends": ["//"]`) into
++                // workspace packages, so a lone turbo.json marks a package
++                // dir, not a root. Every real turbo root still resolves —
++                // its workspace is declared by pnpm-workspace.yaml,
++                // lerna.json, or package.json#workspaces.
++                continue;
++            }
+             if (existsSync(join(current, marker)))
+                 return current;
+         }
 diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
 index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
 --- a/helpers/ts-config-paths.js
