@@ -193,3 +193,15 @@ patchedDependencies:
   # boot). Same fix as linkifyjs: try/catch new RegExp with an ASCII-range fallback — the
   # matcher only feeds autolink, which native doesn't use.
   "@lexical/link@0.51.0": packages/cli/patches/@lexical__link@0.51.0.patch
+  # ui-image 5.x regressed two iOS prefetch behaviors the 4.x line shipped (still present in
+  # 4.6.20): prefetchToCacheType ignores its cacheType argument — SDWebImagePrefetcher's
+  # default context stores to disk+memory either way, so a 'disk' prefetch also decodes and
+  # warms memory, diverging from Android's bytes-only Glide downloadOnly — and
+  # getContextFromOptions drops PrefetchOptions.headers because it never sets
+  # SDWebImageContextDownloadRequestModifier, so prefetch({headers}) silently sends no
+  # headers on iOS while Android's CustomGlideUrl forwards them. Ports upstream's own 4.x
+  # implementation — SDWebImageContextStoreCacheType on the prefetch context plus the
+  # request-modifier branch in getContextFromOptions — and additionally sets
+  # SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original
+  # bytes to disk.
+  "@nativescript-community/ui-image@5.0.17": packages/cli/patches/@nativescript-community__ui-image@5.0.17.patch

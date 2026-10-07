@@ -69,6 +69,14 @@ request-modifier branch its display path has; an upstream patch is needed) —
 and ignored on web, where a plain `<img>` cannot send custom headers.
 `concurrency` caps parallel fetches JS-side (default 5).
 
+iOS parity note: `ui-image` 5.x dropped the 4.x wiring that let prefetch honor
+its cache level and forward request `headers`. The framework patch set
+(`@nativescript-community__ui-image@5.0.17.patch`, applied automatically via
+`xplat patches apply` / `@octane-xplat/patches`) restores both — a disk prefetch
+writes encoded bytes to disk without decoding or warming memory (matching
+Android's Glide `downloadOnly`), a memory prefetch stays off disk, and a
+prefetch carrying `headers` sends them on iOS the same as Android.
+
 ## Divergences from core `Image`
 
 - **No SVG sources** — Glide/SDWebImage don't decode SVG. Keep core `Image`

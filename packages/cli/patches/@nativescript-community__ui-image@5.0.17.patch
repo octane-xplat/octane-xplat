@@ -1,0 +1,30 @@
+diff --git a/index.ios.js b/index.ios.js
+index 55c24ed3cbcd7eb0b17ddd3ea86f4ba72bf5e8fb..c4d2344fffbcea691c25099548e09a15355795d1 100644
+--- a/index.ios.js
++++ b/index.ios.js
+@@ -108,6 +108,16 @@ function getContextFromOptions(options) {
+     if (transformers.length > 0) {
+         context.setValueForKey(SDImagePipelineTransformer.transformerWithTransformers(transformers), SDWebImageContextImageTransformer);
+     }
++    if (options.headers) {
++        const requestModifier = SDWebImageDownloaderRequestModifier.requestModifierWithBlock((request) => {
++            const newRequest = request.mutableCopy();
++            Object.keys(options.headers).forEach((k) => {
++                newRequest.addValueForHTTPHeaderField(options.headers[k], k);
++            });
++            return newRequest.copy();
++        });
++        context.setValueForKey(requestModifier, SDWebImageContextDownloadRequestModifier);
++    }
+     return context;
+ }
+ // This is not the best solution as their might be a lot of corner cases
+@@ -177,6 +187,8 @@ export class ImagePipeline {
+     prefetchToCacheType(uri, cacheType, options = {}) {
+         return new Promise((resolve, reject) => {
+             const context = getContextFromOptions(options);
++            context.setObjectForKey(cacheType, SDWebImageContextStoreCacheType);
++            context.setObjectForKey(cacheType, SDWebImageContextOriginalStoreCacheType);
+             SDWebImagePrefetcher.sharedImagePrefetcher.context = context;
+             SDWebImagePrefetcher.sharedImagePrefetcher.prefetchURLsProgressCompleted([getUri(uri)], null, (finished, skipped) => {
+                 if (finished && !skipped) {
