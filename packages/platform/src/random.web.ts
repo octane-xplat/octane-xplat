@@ -23,7 +23,9 @@ export const random: RandomImpl = {
 		// getRandomValues caps a single call at 64 KiB — chunk larger fills.
 		const target = new Uint8Array(view.buffer, view.byteOffset, view.byteLength)
 		for (let offset = 0; offset < target.length; offset += 65536) {
-			crypto.getRandomValues(target.subarray(offset, offset + 65536))
+			const chunk = new Uint8Array(new ArrayBuffer(Math.min(65536, target.length - offset)))
+			crypto.getRandomValues(chunk)
+			target.set(chunk, offset)
 		}
 
 		return view
