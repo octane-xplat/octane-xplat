@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { ImageSource } from '@nativescript/core';
-import { useMemo } from 'octane';
+import { useMemo, useRef } from 'octane';
 import type { ImageProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
@@ -18,6 +18,24 @@ import { createSizedImageBinding } from './image-sizing';
 export function Image(props: ImageProps) @{
 	const svg = useMemo(() => (isSvgSrc(props.src) ? svgSource(props.src) : null), [props.src]);
 	const sizing = useMemo(() => createSizedImageBinding(), []);
+	const imageRef = useRef<any>(null);
+	const boundRef = useRef({ key: props.recyclingKey, src: props.src });
+	const bound = boundRef.current;
+	boundRef.current = { key: props.recyclingKey, src: props.src };
+	// expo-image `recyclingKey`: platform-list cells rebind the same view, and
+	// Android's setUri keeps drawing the previous bitmap until the new fetch
+	// resolves. Clear it before the ref re-binds the next src — only when
+	// identity AND source both changed (same src = same bitmap).
+	if (
+		bound.key != null &&
+		props.recyclingKey != null &&
+		bound.key !== props.recyclingKey &&
+		bound.src !== props.src &&
+		imageRef.current
+	) {
+		imageRef.current.imageSource = null;
+	}
+
 	const source = useMemo(() => {
 		const comma = props.src.indexOf(',');
 		if (
@@ -45,6 +63,7 @@ export function Image(props: ImageProps) @{
 	} @else {
 		<image
 			ref={(v: any) => {
+				imageRef.current = v;
 				applyEscapeProps(v, props);
 				if (v) {
 					sizing.update(v, source);

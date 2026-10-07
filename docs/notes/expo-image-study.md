@@ -21,13 +21,13 @@ findings — symptoms, profiling steps, and fixes an app can apply today — see
 | 1 | Decode to the laid-out view size, not the source size | **Adapt** (NS already supports it; we don't use it) | High — this is very likely the feed-jank fix |
 | 2 | A real memory cache (bitmap pool + sized LRU), not NS's 5 MB `LruCache` | **Adapt** (needs Glide/SDWebImage leaf or tuning `useCache`) | High — cache misses mid-scroll = re-decode = jank |
 | 3 | `prefetch()` that warms the *byte/disk* cache, decode deferred to display | **Portable** | High for feed warmup |
-| 4 | `recyclingKey` prop — blank the view when a recycled cell's identity changes | **Portable** | Medium; kills stale-image flashes in lists |
+| 4 | `recyclingKey` prop — blank the view when a recycled cell's identity changes | **Applied** (adapted — gated on `src` change too) | Medium; kills stale-image flashes on Android platform lists |
 | 5 | Placeholders as pipeline loaders (blurhash/thumbhash decode into the same cache/target path) | **Adapt** | Medium; fixes the "placeholder vs final" flicker class |
 | 6 | `cachePolicy` as two orthogonal axes (transformed-image cache + original-bytes cache) | **Adapt** | Medium; NS core only exposes `useCache` bool |
 | 7 | `contentFit`/`contentPosition` via matrix math, not platform scaleType | **Adapt** | Medium — needed for parity-grade positioning |
 | 8 | Multi-`source` array → closest-pixel-count selection (`srcset` for native) | **Portable** | Low-medium; future-facing |
-| 9 | Gate per-load events on a JS listener flag (`hasImageLoadedListener`) | **Portable** | Low; cheap bridge-hop win |
-| 10 | `SharedRef`/`useImage`, SF Symbols, `sfEffect`, Live Text, HDR, `webMaxViewportWidth` | **Irrelevant** | Expo/Apple-surface chrome |
+| 9 | Gate per-load events on a JS listener flag (`hasImageLoadedListener`) | **Redundant** — the NS driver model is already listener-gated | None; no unconditional hops exist to remove |
+| 10 | `SharedRef`/`useImage`, SF Symbols, `sfEffect`, Live Text, HDR, `webMaxViewportWidth` | **Irrelevant** (confirmed; see verdict note) | Expo/Apple-surface chrome |
 
 ## L1 — decode to view size (the headliner)
 
@@ -124,6 +124,38 @@ placeholder. Semantics: "when list-cell identity changes, show blank/placeholder
 never the previous item's bitmap." Trivially portable — the octane leaf can
 clear `src`/`setImageDrawable(null)` on key change before applying the new src.
 
+**Verdict (applied 2026-10-06): applies, adapted.** The flash is real, but only
+on one platform and one list kind:
+
+- **List kind.** Only the driver-owned platform lists (`UITableView.ios`,
+  `RecyclerView.android`) rebind: `list-view.js bind()` re-renders the same
+  cell root ("a diff of the cell's tree — rather than a remount"), so a
+  recycled cell's `<image>` survives with its old bitmap. `VirtualList` —
+  native, web, and macOS — re-keys pooled rows by `rowKey`, so a rebound row
+  unmounts/remounts and gets a fresh, empty image view. `recyclingKey` only
+  matters inside `UITableView`/`RecyclerView`.
+- **Platform.** iOS already blanks: the shared
+  `_createImageSourceFromSrc` sets `imageSource = null` for every string `src`
+  (`packages/core/ui/image/image-common`). Android does not —
+  `org.nativescript.widgets.ImageView.setUri` clears the bitmap only when the
+  URI is *empty*, so a recycled cell keeps drawing the prior item until the
+  new fetch resolves (remote `http`, `~/` file, and `res://` srcs all route
+  through `setUri`).
+
+**Shipped:** `ImageProps.recyclingKey`; the native `Image` leaf
+(`src/Image.tsrx`) clears `view.imageSource` during render when the key changes
+between binds *and* `src` differs — the src check skips a pointless
+blank-and-reload when a recycled row happens to share the previous item's URL
+(expo blanks on key change alone). Clearing during render lands before the
+sized binding's ref re-issue of `src`, which starts the new load. Pinned by
+`src/image-recycling.mobile.test.ts` (object-driver assertions; the `setUri`
+behavior itself is desk-source). Web and macOS leaves ignore the prop by
+design — documented on `ImageProps` — because their lists remount keyed rows
+rather than rebind a reused host. If the in-flight `@octane-xplat/image` leaf
+lands on an engine that retains the previous drawable through a load (Glide's
+default), it should honor the same `recyclingKey` prop — the contract is
+already public.
+
 ## L5 — placeholders as pipeline citizens
 
 blurhash/thumbhash are not side-channels: they're **registered loaders in the
@@ -153,12 +185,15 @@ Worth adopting the four-value prop even if NS v1 only honors the memory axis.
 `configureCache` (iOS-only: `maxDiskSize`/`maxMemoryCount`/`maxMemoryCost`)
 shows the pressure-release API shape if we ever need it.
 
-## Application verdicts (L3 + L6, applied 2026-10)
+## Application verdicts (applied 2026-10)
 
 | Lesson | Verdict | Why |
 | ------ | ------- | --- |
 | L3 prefetch | **Applied in `@octane-xplat/gif`; rejected for core `Image`** | `getImagePipeline().prefetchToDiskCache()` gives the real "bytes on disk, decode at display" semantic on both engines (Fresco disk cache; SDWebImage disk store). Exported as `prefetch(srcs, options?) → Promise<boolean>`; web warms the HTTP cache through a throwaway `<img>`; macOS resolves `false` (no pipeline). Core `Image` was *not* given a prefetch: NS `ImageCache` keeps a private LRU the `<image>` view never reads, so exposing it would promise warmth that never arrives. |
+| L4 recyclingKey | **Applied — adapted to the two surfaces that actually need it** | The flash is real only where a recycled host keeps its view *and* the platform keeps its bitmap: `UITableView`/`RecyclerView` cells rebind in place (`bind()` diffs the same tree), and Android `setUri` retains the drawable for non-empty URIs while iOS nulls `imageSource` per string `src`. `ImageProps.recyclingKey` clears the bitmap on key+src change (see the L4 section for evidence and the same-src refinement). `VirtualList`/web/macOS re-key rows instead of rebinding, so they intentionally ignore the prop. |
 | L6 cachePolicy | **Adapted — no four-value prop exposed anywhere** | Neither engine surface supports the two orthogonal axes. NS core offers only Android `useCache` (already reachable via `Image`'s `android` escape bag; iOS ignores it). The ui-image `Img` offers a single "bypass" axis (`noCache`: Android evicts the URI then loads; iOS `SDWebImageOptions.FromLoaderOnly`) — still not a per-axis policy. Rather than paper over the missing axes, `AnimatedImage` gained `ios`/`android`/`web` escape bags (the `ImageProps` convention) so `noCache`, `cacheKey`, `decodeWidth`, and friends are reachable as explicitly platform props. |
+| L9 listener gating | **Redundant — no unconditional hops exist** | `Image` emits no per-load events, and the universal driver attaches native listeners only for supplied `onX` props — prop presence *is* the listener flag. Keep any future `onLoad`/`onError` prop-gated the same way and carry `cacheType` on the payload. |
+| L10 Expo/Apple chrome | **Confirmed irrelevant** | `useImage`/`loadAsync` overlaps the shipped `prefetch` (L3) plus `ImageSource` srcs; SF Symbols already reachable via `sys://` icon names and `iosSymbolEffect`/`iosSymbolScale` through the `ios` escape bag. The rest — `sfEffect`, Live Text, HDR, `useAppleWebpCodec`, web srcset machinery, `decodeFormat` — has no octane contract to express it in. |
 
 ## L7 — fit/position via matrix
 
@@ -180,12 +215,30 @@ can't express it.
 - **Event gating**: `hasImageLoadedListener` (both modules) skips the
   per-image-load bridge hop when no one subscribes `imageLoaded`. Same win
   applies to any per-load callback we'd emit through NS marshaling.
+  **Verdict (2026-10-06): redundant** — there is nothing to gate. `Image`
+  emits no load events, and the universal driver only attaches a native
+  listener when an `onX` prop is actually supplied (`onX` → `addEventListener`
+  in `driver.js`); expo's flag exists because its native module always posts
+  to JS and filters client-side. Prop presence *is* the listener flag here.
+  If a future image leaf adds `onLoad`/`onError`, keeping them prop-gated is
+  the structural default — and put `cacheType` on the payload as noted below.
 - **`onLoad` carries `cacheType`** (`none`/`disk`/`memory`) — cheap and very
   useful for perf probes ("did this frame hit memory?").
 - **Chrome, skip**: `SharedRef`/`useImage`/`loadAsync`, `sf:` symbols +
   `sfEffect`, `enableLiveTextInteraction`, `preferHighDynamicRange`,
   `useAppleWebpCodec`, `webMaxViewportWidth`/`responsivePolicy` (web-side
   srcset machinery), `decodeFormat: 'rgb'` (RGB_565 — niche memory cut).
+  **Verdict (2026-10-06): confirmed irrelevant**, with two footnotes so the
+  decision stays informed rather than reflexive. (a) A `useImage`-style
+  imperative handle overlaps what we already plan — `Image.prefetch` (L3)
+  warms the cache and `ImageSource` instances can pass through `src` — so no
+  extra shared API is warranted. (b) SF Symbols aren't entirely absent from
+  our surface: `Icon.select` already exposes `sys://` names, and NS core
+  `<image>` supports `iosSymbolEffect`/`iosSymbolScale`, reachable through the
+  `ios` escape bag if a platform-authentic case ever wants them. The rest —
+  `sfEffect` animation sugar, Live Text, HDR, `useAppleWebpCodec`, web-side
+  srcset machinery, `decodeFormat` — is Expo/Apple chrome with no octane
+  contract to express it in.
 
 ## NativeScript feasibility
 

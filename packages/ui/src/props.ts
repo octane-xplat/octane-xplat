@@ -1204,6 +1204,13 @@ export interface ImageProps extends LayoutChildProps {
 	id?: string
 	src: string
 	alt?: string
+	/** Item identity for recycled platform-list cells (RecyclerView/UITableView
+	 *  rebind the same view). When the key changes between binds, the previous
+	 *  bitmap is cleared before the new `src` load starts, so the cell never
+	 *  flashes the prior item's image (expo-image's `recyclingKey`). Web and
+	 *  macOS leaves ignore it: their lists remount keyed rows rather than
+	 *  rebinding a reused host. */
+	recyclingKey?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
