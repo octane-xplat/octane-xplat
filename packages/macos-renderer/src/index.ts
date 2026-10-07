@@ -43,8 +43,8 @@ export interface ElementNode {
 	scrollObserverInstalled: boolean
 	text: string
 	// Per-kind extras: placeholderView, marginHost, marginConstraints,
-	// crossAxisConstraint, sizeConstraints, styleBg, bgSlot, layoutObserver,
-	// scrollObserver, scheme, textRuns, appliedClassName, ...
+	// crossAxisConstraint, sizeConstraints, placementPins, styleBg, bgSlot,
+	// layoutObserver, scrollObserver, scheme, textRuns, appliedClassName, ...
 	[key: string]: any
 }
 
@@ -1217,6 +1217,58 @@ function trackOffset(sizes: number[], index: number) {
 	return offset
 }
 
+/** Pin a grid/absolute child to the rect its parent's layout pass computed.
+ *  Children are translates=false views, so Auto Layout owns their frames —
+ *  an imperative frame write only holds until the next solve shrinks the
+ *  child back to fitting size. Each axis gets one edge pin against the
+ *  parent plus one size pin, so parent geometry stays an input; a pin set
+ *  that also implied the parent's size would outrank the window's
+ *  500-priority WindowSizeStayPut hold and lock the window at the content's
+ *  fitting size. */
+function pinLayoutChild(
+	child: ElementNode,
+	parentView: any,
+	x: number,
+	top: number,
+	width: number,
+	height: number,
+) {
+	const pins = (child.placementPins ??= {})
+	if (!pins.leading) {
+		pins.leading = child.view!.leadingAnchor.constraintEqualToAnchorConstant(
+			parentView.leadingAnchor,
+			0,
+		)
+
+		pins.top = child.view!.topAnchor.constraintEqualToAnchorConstant(parentView.topAnchor, 0)
+		pins.width = child.view!.widthAnchor.constraintEqualToConstant(0)
+		pins.height = child.view!.heightAnchor.constraintEqualToConstant(0)
+		for (const pin of [pins.leading, pins.top, pins.width, pins.height]) {
+			pin.active = true
+		}
+	}
+
+	pins.leading.constant = x
+	pins.top.constant = top
+	pins.width.constant = width
+	pins.height.constant = height
+}
+
+/** Drop the pins a grid/absolute parent installed — a constraint that keeps
+ *  referencing the old parent view is invalid once the child reparents. */
+function releasePlacementPins(node: ElementNode) {
+	const pins = node.placementPins
+	if (!pins) {
+		return
+	}
+
+	for (const pin of Object.values(pins) as { active: boolean }[]) {
+		pin.active = false
+	}
+
+	node.placementPins = null
+}
+
 function layoutGridChildren(parent: ElementNode | undefined) {
 	if (!parent?.view) {
 		return
@@ -1302,10 +1354,7 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 			}
 
 			top += layoutLength(style.top, cellHeight, 0) + Number(style.marginTop ?? 0)
-			child.view!.frame = {
-				origin: { x, y: height - top - childHeight },
-				size: { width: childWidth, height: childHeight },
-			}
+			pinLayoutChild(child, parent.view, x, top, childWidth, childHeight)
 		}
 
 		return
@@ -1346,10 +1395,7 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 			y = height - childHeight - Number(style.marginTop ?? 0)
 		}
 
-		child.view!.frame = {
-			origin: { x, y },
-			size: { width: childWidth, height: childHeight },
-		}
+		pinLayoutChild(child, parent.view, x, height - y - childHeight, childWidth, childHeight)
 	}
 }
 
@@ -1394,10 +1440,7 @@ function layoutAbsoluteChildren(parent: ElementNode | undefined) {
 				? height - bottom - childHeight
 				: 0
 
-		child.view.frame = {
-			origin: { x, y: height - offsetTop - childHeight },
-			size: { width: childWidth, height: childHeight },
-		}
+		pinLayoutChild(child, parent.view, x, offsetTop, childWidth, childHeight)
 	}
 }
 
@@ -2725,6 +2768,7 @@ function detach(container: RootContainer, node: ElementNode) {
 
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
+	releasePlacementPins(node)
 	if (node.view) {
 		const parentView = previousParent?.childHost ?? previousParent?.view
 		if (parentView?.removeArrangedSubview) {
@@ -2846,6 +2890,7 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
+	releasePlacementPins(node)
 	if (node.view) {
 		const parentView = expectedParent?.childHost ?? expectedParent?.view
 		if (parentView?.removeArrangedSubview) {

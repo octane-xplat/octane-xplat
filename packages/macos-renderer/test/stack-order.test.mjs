@@ -52,6 +52,7 @@ function fixture() {
 		syncScheme: noop,
 		updateStackDistribution: noop,
 		deactivateSizeConstraints: noop,
+		releasePlacementPins: noop,
 		syncText: noop,
 	})
 
