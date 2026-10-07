@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'octane';
+import { useMemo, useState, useEffect, useRef } from 'octane';
 import { View, Text, pushRoute } from '@octane-xplat/ui';
 import { createHighlighterCoreSync } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
@@ -58,6 +58,49 @@ function CodeBlock(props: { code: string; lang: string }) @{
 			</>
 		}
 	</Text></View>
+}
+
+function TableBlock(props: { rows: string[][]; dir: string }) @{
+	const scroll = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		const element = scroll.current;
+		if (!element) return;
+
+		const block = element.parentElement;
+		if (!block) return;
+
+		const updateEdges = () => {
+			const maxScroll = element.scrollWidth - element.clientWidth;
+			block.classList.toggle('has-overflow', maxScroll > 1);
+			block.classList.toggle('clips-left', element.scrollLeft > 1);
+			block.classList.toggle('clips-right', element.scrollLeft < maxScroll - 1);
+		};
+
+		updateEdges();
+		element.addEventListener('scroll', updateEdges, { passive: true });
+		const observer = new ResizeObserver(updateEdges);
+		observer.observe(element);
+		if (element.firstElementChild) observer.observe(element.firstElementChild);
+		return () => {
+			element.removeEventListener('scroll', updateEdges);
+			observer.disconnect();
+		};
+	}, [props.rows]);
+
+	<View className="table-block">
+		<View className="table-scroll" ref={scroll} web={{ role: 'region', 'aria-label': 'Scrollable table', tabIndex: 0 }}>
+			<View className="table">
+				@for (const r of props.rows; index ri; key ri) {
+					<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
+						@for (const c of r; index ci; key ci) {
+							<Text className="td"><Spans spans={inlineSpans(c)} dir={props.dir} /></Text>
+						}
+					</View>
+				}
+			</View>
+		</View>
+	</View>
 }
 
 const REPO = 'https://github.com/octane-xplat/octane-xplat';
@@ -152,22 +195,7 @@ function BlockView(props: { b: Block; lede?: boolean; dir: string }) @{
 
 	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} />;
 	if (b.kind === 'hr') return <View className="hr" />;
-	if (b.kind === 'table') {
-		return <View className="table-block">
-			<Text className="table-scroll-hint">Scroll horizontally to view all columns</Text>
-			<View className="table-scroll" web={{ role: 'region', 'aria-label': 'Scrollable table', tabIndex: 0 }}>
-				<View className="table">
-					@for (const r of b.rows; index ri; key ri) {
-						<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
-							@for (const c of r; index ci; key ci) {
-								<Text className="td"><Spans spans={inlineSpans(c)} dir={props.dir} /></Text>
-							}
-						</View>
-					}
-				</View>
-			</View>
-		</View>
-	}
+	if (b.kind === 'table') return <TableBlock rows={b.rows} dir={props.dir} />;
 
 	return <></>;
 }
