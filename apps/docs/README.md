@@ -8,7 +8,7 @@ pnpm --filter @xplat/docs dev
 ```
 
 Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
-`docs/verify/`. Keep contributor and historical records in `docs/notes/`;
+`docs/verify/`. Keep contributor records intended for publication in `docs/notes/`; internal parity audits and runtime investigations live in `.agents/docs/parity/`;
 the sidebar links to their index rather than listing every record. Page URLs
 stay independent of guide folders, so moving a guide keeps its existing URL.
 

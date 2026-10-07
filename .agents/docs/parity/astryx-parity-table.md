@@ -10,12 +10,12 @@ Astryx's [package export map][exports] exposes `@astryxdesign/core/Table` throug
 
 Local evidence:
 
-- [Table.tsrx](../../packages/ui/src/Table.tsrx), [Table.web.tsrx](../../packages/ui/src/Table.web.tsrx), and [Table.macos.tsrx](../../packages/ui/src/Table.macos.tsrx): direct header/body rendering; no row-model or plugin pipeline. The unsuffixed file is a native leaf, not a shared headless engine.
-- [props.ts](../../packages/ui/src/props.ts): `TableColumn`, `TableProps`, and `VirtualListProps` contracts.
-- [tokens.css](../../packages/ui/src/theme/tokens.css) and [chrome.css](../../packages/ui/src/theme/chrome.css): row/cell flex layout, padding, border, and header weight. No stock sticky header or horizontal viewport.
-- [ComponentsDemo.tsrx](../../packages/demos/src/ComponentsDemo.tsrx): two columns and three fruit rows, demonstrating `label`, `width: 50`, and `align: 'right'`. It does not exercise interaction, empty states, identity changes, or large data.
-- No dedicated UI `Table` test was found in `packages/ui` source/tests. `route-table.test.ts` tests routing, not this component. Virtual-list tests and the [VirtualList demo](../../packages/demos/src/VirtualList.tsrx) exercise the separate list primitive.
-- [table.ts](../../packages/table/src/table.ts), [DataGrid.tsrx](../../packages/table/src/DataGrid.tsrx), [props.ts](../../packages/table/src/props.ts), and [table.test.ts](../../packages/table/src/table.test.ts) establish a separate existing data-grid tier. Its tests cover row models, sorting, global filtering, pagination, store notifications, option updates, and controlled sorting. They do not establish rendered controls or platform runtime parity.
+- [Table.tsrx](../../../packages/ui/src/Table.tsrx), [Table.web.tsrx](../../../packages/ui/src/Table.web.tsrx), and [Table.macos.tsrx](../../../packages/ui/src/Table.macos.tsrx): direct header/body rendering; no row-model or plugin pipeline. The unsuffixed file is a native leaf, not a shared headless engine.
+- [props.ts](../../../packages/ui/src/props.ts): `TableColumn`, `TableProps`, and `VirtualListProps` contracts.
+- [tokens.css](../../../packages/ui/src/theme/tokens.css) and [chrome.css](../../../packages/ui/src/theme/chrome.css): row/cell flex layout, padding, border, and header weight. No stock sticky header or horizontal viewport.
+- [ComponentsDemo.tsrx](../../../packages/demos/src/ComponentsDemo.tsrx): two columns and three fruit rows, demonstrating `label`, `width: 50`, and `align: 'right'`. It does not exercise interaction, empty states, identity changes, or large data.
+- No dedicated UI `Table` test was found in `packages/ui` source/tests. `route-table.test.ts` tests routing, not this component. Virtual-list tests and the [VirtualList demo](../../../packages/demos/src/VirtualList.tsrx) exercise the separate list primitive.
+- [table.ts](../../../packages/table/src/table.ts), [DataGrid.tsrx](../../../packages/table/src/DataGrid.tsrx), [props.ts](../../../packages/table/src/props.ts), and [table.test.ts](../../../packages/table/src/table.test.ts) establish a separate existing data-grid tier. Its tests cover row models, sorting, global filtering, pagination, store notifications, option updates, and controlled sorting. They do not establish rendered controls or platform runtime parity.
 
 ## Current Xplat coverage: engine versus presentation
 

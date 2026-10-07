@@ -26,10 +26,10 @@ screenshots, devices, or Astryx runtime were inspected.
 ## What xplat actually has
 
 The canonical value and prop contracts are in
-[`packages/ui/src/props.ts`](../../packages/ui/src/props.ts). The five components
-are exported by [`index.shared.ts`](../../packages/ui/src/index.shared.ts),
-[`index.shared.web.ts`](../../packages/ui/src/index.shared.web.ts), and
-[`index.macos.ts`](../../packages/ui/src/index.macos.ts).
+[`packages/ui/src/props.ts`](../../../packages/ui/src/props.ts). The five components
+are exported by [`index.shared.ts`](../../../packages/ui/src/index.shared.ts),
+[`index.shared.web.ts`](../../../packages/ui/src/index.shared.web.ts), and
+[`index.macos.ts`](../../../packages/ui/src/index.macos.ts).
 
 | Capability                    | Current source coverage                                                                                                                                                                                                                                                | Remaining boundary                                                                                                                                |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -37,10 +37,10 @@ are exported by [`index.shared.ts`](../../packages/ui/src/index.shared.ts),
 | Calendar grid                 | `Calendar.web.tsrx`, `Calendar.tsrx`, and `Calendar.macos.tsrx` render their own cells over `calendar-core.ts` and `datetime.ts`. Props include `numberOfMonths`, `focusDate`, `weekStartsOn`, `hasOutsideDays`, `hasWeekNumbers`, and `hasVariableRowCount`.          | Keyboard support differs by target; a portable grid is already implemented, not a missing leaf.                                                   |
 | Range selection               | `CalendarProps` discriminates `mode: 'single'                                                                                                                                                                                                                          | 'range'`; `DateRangeInput`exists in all three platform variants.`DateRange`, `presets`, `minRangeSpan`, and `maxRangeSpan` are public.            | Preset constraint enforcement and controlled-state handling lag Astryx; mobile/macOS lack web hover preview. |
 | Time and combined entry       | `TimeInput` supports parsing, seconds, `hourFormat`, and `increment`; `DateTimeInput` uses ISO local date-time values, boundary-day time constraints, `timeIncrement`, and `timeOptionInterval`. Native `TimeWheelPanel.tsrx` supplies scrollable choices.             | Time-option keyboard navigation and touch interaction are thinner than Astryx.                                                                    |
-| OS-authentic date/time picker | [`packages/date-picker/package.json`](../../packages/date-picker/package.json) exports only `/ios`, `/android`, `/macos`.                                                                                                                                              | No shared root or `/web` date-picker export. Its contracts use `Date`, unlike the shared controls.                                                |
-| General option picker         | [`packages/picker/package.json`](../../packages/picker/package.json) exposes iOS `SwiftUIPicker`, Android `MaterialDropdown`, and web `Select`. Web `SelectProps` has string values and `options`.                                                                     | It selects arbitrary options; it supplies neither date parsing nor calendar/range semantics.                                                      |
+| OS-authentic date/time picker | [`packages/date-picker/package.json`](../../../packages/date-picker/package.json) exports only `/ios`, `/android`, `/macos`.                                                                                                                                              | No shared root or `/web` date-picker export. Its contracts use `Date`, unlike the shared controls.                                                |
+| General option picker         | [`packages/picker/package.json`](../../../packages/picker/package.json) exposes iOS `SwiftUIPicker`, Android `MaterialDropdown`, and web `Select`. Web `SelectProps` has string values and `options`.                                                                     | It selects arbitrary options; it supplies neither date parsing nor calendar/range semantics.                                                      |
 
-The current [`docs/platform/date-picker.md`](../platform/date-picker.md) already documents shared
+The current [`docs/platform/date-picker.md`](../../../docs/platform/date-picker.md) already documents shared
 entry and explicitly says the former `@octane-xplat/date-picker/web` `DateInput`
 was removed. **There is no surviving web leaf to extend:** browser-native entry
 now belongs to the shared `DateInput`/`TimeInput`/`DateTimeInput` web variants.
@@ -50,16 +50,16 @@ The native leaf is also **not modal-only**:
 - `SwiftUIDatePicker` embeds SwiftUI `DatePicker`, with `pickerStyle` values
   `automatic`, `compact`, `graphical`, and `wheel`; `selection`/
   `onSelectionChange`, `minimumDate`, and `maximumDate` are in
-  [`src/ios/types.ts`](../../packages/date-picker/src/ios/types.ts).
+  [`src/ios/types.ts`](../../../packages/date-picker/src/ios/types.ts).
 - `MaterialDatePicker` embeds Compose Material 3 `DatePicker` or `TimePicker`.
   `variant: 'picker' | 'input'` chooses the platform calendar or text-entry
   mode; `initialDate` is uncontrolled and `selectableDates` bounds selection.
   `displayedComponents: 'dateAndTime'` falls back to date-only. See
-  [`src/android/types.ts`](../../packages/date-picker/src/android/types.ts) and
+  [`src/android/types.ts`](../../../packages/date-picker/src/android/types.ts) and
   `platforms/android/java/com/octanexplat/datepicker/XplatDatePickerProvider.kt`.
 - `AppKitDatePicker` embeds `NSDatePicker`, with `components` and
   `pickerStyle: 'textField' | 'graphical'`. See
-  [`src/macos/types.ts`](../../packages/date-picker/src/macos/types.ts).
+  [`src/macos/types.ts`](../../../packages/date-picker/src/macos/types.ts).
 
 The Expo dialog wrappers were not ported. These widgets may open OS-owned
 surfaces internally, but the package itself exposes embedded controls, with
@@ -85,7 +85,7 @@ not the draft. Browser-native segments in
 use a real `input type="date"`; they should not be described as an Astryx text
 mask. A fixed mask would be a separate product choice, not required parity.
 
-Xplat's [`datetime.ts`](../../packages/ui/src/datetime.ts) already provides
+Xplat's [`datetime.ts`](../../../packages/ui/src/datetime.ts) already provides
 `parseDateInput`, locale numeric ordering, English month names, and committed
 formatting. It deliberately has no native `Date` parsing fallback; it also
 accepts two-digit years, ordinal days, and year-first slash input. Exact parser
@@ -106,7 +106,7 @@ interval; Escape cancels it.
 checks `min`, `max`, each `dateConstraints` predicate, and inclusive range spans
 relative to the pending anchor. It does not promise that every interior day of
 a committed range passes the predicates. Xplat's `createDateDisabledCheck` and
-`applyRangePick` in [`calendar-core.ts`](../../packages/ui/src/calendar-core.ts)
+`applyRangePick` in [`calendar-core.ts`](../../../packages/ui/src/calendar-core.ts)
 already implement the same endpoint/span and second-pick model.
 
 Astryx's [`DateRangeInput.tsx`](https://raw.githubusercontent.com/facebook/astryx/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/DateRangeInput/DateRangeInput.tsx)
@@ -226,9 +226,9 @@ currently establish an all-interior-days-valid range invariant.
 ## Verification and documentation coverage
 
 Existing maintained evidence includes
-[`date-entry.web.test.tsx`](../../packages/ui/src/date-entry.web.test.tsx) for web parsing,
+[`date-entry.web.test.tsx`](../../../packages/ui/src/date-entry.web.test.tsx) for web parsing,
 calendar picks, range ordering/bounds, clearing, time stepping, and presets, and
-[`datetime.test.ts`](../../packages/ui/src/datetime.test.ts) for date math and
+[`datetime.test.ts`](../../../packages/ui/src/datetime.test.ts) for date math and
 parsers. These tests do not establish the residual behaviors listed above.
 
 Audit checks:
@@ -240,7 +240,7 @@ Audit checks:
 packages/ui/src/datetime.test.ts packages/ui/src/date-entry.test.tsx`;
   execution was blocked because `vitest` is unavailable in this worktree.
   Existing test cases were inspected, not executed.
-- Attempted `pnpm exec oxfmt --check docs/notes/astryx-parity-date-inputs.md`;
+- Attempted `pnpm exec oxfmt --check docs/.agents/docs/parity/astryx-parity-date-inputs.md`;
   execution was blocked because `oxfmt` is unavailable. Markdown was reviewed
   directly; no dependency installation was performed for this audit.
 - Targets run: none. No browser, native, or packaged-consumer behavior is
@@ -356,7 +356,7 @@ distinct and unchanged. Touch scrollers/snapping wheels are outside this batch.
 
 Verification for this batch is automated handler/source/build evidence; no
 screenshots, OS input, or assistive-technology sessions were used. The guide's
-[language and keyboard section](../platform/date-picker.md#keyboard-and-app-language),
+[language and keyboard section](../../../docs/platform/date-picker.md#keyboard-and-app-language),
 `date-picker` recipe AC7, and maintained web demo cover the portable contract
 and its native limitations. Coverage and actual per-target evidence are recorded
 separately in local Silo after committing.

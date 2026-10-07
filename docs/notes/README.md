@@ -9,8 +9,6 @@ Start here when you need to understand a framework decision or investigate its i
 - [Animation and gesture notes](animation-notes.md)
 - [Native macOS AppKit support for Lottie](lottie-appkit-investigation.md)
 - [Architecture notes](architecture-notes.md)
-- [Select audit against Astryx’s selector family](astryx-parity-select.md)
-- [Table parity audit: Xplat Table + DataGrid and Astryx](astryx-parity-table.md)
 - [Charts (@octane-xplat/charts)](charts.md)
 - [CSS support notes](css-support-notes.md)
 - [Decisions](decisions.md)
@@ -40,5 +38,4 @@ Start here when you need to understand a framework decision or investigate its i
 
 ## Recent component work
 
-- [Command palette audit](astryx-parity-commandpalette.md) and [implementation plan](command-palette-plan.md).
-- [Date-input parity audit](astryx-parity-date-inputs.md).
+- [Implementation plan](command-palette-plan.md). The source parity audit is an internal implementation record.

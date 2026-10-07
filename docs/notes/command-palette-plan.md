@@ -1,6 +1,6 @@
 # Command palette implementation plan
 
-> Close the core gaps identified in [the Astryx audit](astryx-parity-commandpalette.md)
+> Close the core gaps identified in the internal Astryx parity audit
 > while preserving existing static-menu callsites.
 
 1. Add a DOM-free controller for static/source-backed results, stable grouped

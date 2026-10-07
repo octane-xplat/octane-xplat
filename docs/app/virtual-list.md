@@ -242,8 +242,7 @@ For iOS, use `virtual-list.mobile.tsrx`, `--target ios`, and `--device` with a
 booted simulator ID. For AppKit, use `virtual-list.macos.tsrx --target macos`.
 The current focused checks cover Chromium, iOS, and AppKit; they do not establish
 Android geometry, OS input, or frame pacing. Browser resize errors remain test
-failures. See the [table follow-through](../notes/astryx-parity-table.md#virtuallist-measurement-and-reorder-follow-through-2026-10-02)
-for the results and remaining DataGrid verification blockers.
+failures.
 
 ## Run the nonvisual gates
 

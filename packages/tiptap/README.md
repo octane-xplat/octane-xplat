@@ -58,7 +58,7 @@ export function Notes() {
 
 On Android, keep HTML as the facade's canonical interchange. Tiptap JSON is a
 best-effort conversion over Aztec HTML, not a live ProseMirror document. The
-2026-10-06 [Aztec nested-tree run](../../docs/verify/nested-tree-editor.md)
+2026-10-06 [Aztec nested-tree run](../../.agents/docs/parity/nested-tree-editor.md)
 preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen. It also flattened paragraphs and accumulated `<br>`
 elements on reopen; it did not qualify Tiptap JSON, OS input, or structural

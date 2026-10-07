@@ -1,6 +1,6 @@
 # Select family implementation plan
 
-Implement the finite-list foundations identified by [the Astryx audit](astryx-parity-select.md).
+Implement the finite-list foundations identified by the internal Astryx audit.
 Keep remote search, free-text tokens, custom dialogs, and structured filters in
 Typeahead, Tokenizer, ComplexSelector, and PowerSearch respectively.
 

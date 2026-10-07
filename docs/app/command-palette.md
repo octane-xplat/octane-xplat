@@ -135,8 +135,7 @@ panel. AppKit escape bags remain unsupported by that experimental leaf.
 Try the demo's static fuzzy palette and remote palette: query `preferences`,
 query `fail` for its error/Retry path, select an enabled row, cancel, and reopen.
 Test your own remote source with out-of-order responses and close during loading.
-See the [implementation plan](../notes/command-palette-plan.md) for the audit follow-up
-and the [original source audit](../notes/astryx-parity-commandpalette.md) for baseline gaps.
+See the [implementation plan](../notes/command-palette-plan.md) for the follow-up work.
 
 On macOS, the palette opens as a sheet attached to the calling window. Cancel,
 selection, or Escape closes it and returns focus to the calling window. The

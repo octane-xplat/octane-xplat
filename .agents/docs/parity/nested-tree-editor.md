@@ -37,10 +37,10 @@ pnpm probe run research/foxtrot-native-editor/aztec.android.tsrx \
 | iOS | iPhone 17e simulator, iOS 27.0 (`CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B`) | PASS — 2/2 assertions (unsupported boundary) | `49021805-1f18-42d5-b862-459a9a7ae5f7` |
 | Web (schema bound) | Chromium host | PASS — 10/10 assertions | `9ae31b5c-ef34-448c-a2c5-53de8092a265` |
 
-Raw runner output: `docs/evidence/nested-tree-editor-android-2026-10-06.json`,
-`docs/evidence/nested-tree-editor-android-structural-2026-10-06.json`,
-`docs/evidence/nested-tree-editor-ios-2026-10-06.json`,
-`docs/evidence/nested-tree-editor-model-web-2026-10-06.json`.
+Raw runner output: `.agents/docs/parity/evidence/nested-tree-editor-android-2026-10-06.json`,
+`.agents/docs/parity/evidence/nested-tree-editor-android-structural-2026-10-06.json`,
+`.agents/docs/parity/evidence/nested-tree-editor-ios-2026-10-06.json`,
+`.agents/docs/parity/evidence/nested-tree-editor-model-web-2026-10-06.json`.
 
 ## Findings
 

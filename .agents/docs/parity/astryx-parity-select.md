@@ -1,7 +1,7 @@
 # Select audit against Astryx’s selector family
 
-Follow-up: [implementation plan](select-implementation-plan.md) and
-[finite-list usage](../app/search-selection.md#choose-from-a-finite-list) document the
+Follow-up: [implementation plan](../../../docs/notes/select-implementation-plan.md) and
+[finite-list usage](../../../docs/app/search-selection.md#choose-from-a-finite-list) document the
 subsequent foundations. Findings below describe the audited baseline.
 
 **Recommendation:** harden Select’s existing finite-list behavior first, give
@@ -23,9 +23,9 @@ an adopted design decision.
 
 ## Current Octane-xplat boundary
 
-The inspected [Select native leaf](../../packages/ui/src/Select.tsrx),
-[web leaf](../../packages/ui/src/Select.web.tsrx), and
-[macOS leaf](../../packages/ui/src/Select.macos.tsrx) already provide:
+The inspected [Select native leaf](../../../packages/ui/src/Select.tsrx),
+[web leaf](../../../packages/ui/src/Select.web.tsrx), and
+[macOS leaf](../../../packages/ui/src/Select.macos.tsrx) already provide:
 
 - Controlled or default selection and disclosure: `value`, `defaultValue`,
   `open`, `defaultOpen`, `onValueChange`, `onOpenChange`.
@@ -40,7 +40,7 @@ The inspected [Select native leaf](../../packages/ui/src/Select.tsrx),
   `aria-selected`, `aria-disabled`, and Enter/Space activation; the list has
   `role="listbox"` and optional `aria-multiselectable`.
 
-See [SelectOption/SelectProps](../../packages/ui/src/props.ts) and
+See [SelectOption/SelectProps](../../../packages/ui/src/props.ts) and
 `FieldControlProps` in the same file. The approximate 104-line description is
 not a capability metric: these leaves have since grown, and some behavior is
 owned by dependencies.
@@ -48,10 +48,10 @@ owned by dependencies.
 The public name `Selector` re-exports Select;
 `MultiSelector` re-exports `SelectMenu`, whose implementation is merely
 `<Select {...props} multiple={true} />`. `SelectorProps` and `MultiSelectorProps`
-are both aliases of `SelectProps`. See [shared exports](../../packages/ui/src/index.shared.ts),
-[web exports](../../packages/ui/src/index.shared.web.ts),
-[macOS exports](../../packages/ui/src/index.macos.ts), and
-[SelectMenu](../../packages/ui/src/aliases.web.tsrx).
+are both aliases of `SelectProps`. See [shared exports](../../../packages/ui/src/index.shared.ts),
+[web exports](../../../packages/ui/src/index.shared.web.ts),
+[macOS exports](../../../packages/ui/src/index.macos.ts), and
+[SelectMenu](../../../packages/ui/src/aliases.web.tsrx).
 
 ```tsx
 import { Selector, MultiSelector } from '@octane-xplat/ui'
@@ -70,10 +70,10 @@ export function Example() {
 **Capabilities absent from Select are not necessarily absent from the library.**
 `Typeahead`/`BaseTypeahead`, `Tokenizer`, `ComplexSelector`, and `PowerSearch`
 already have separate exports and props. For example,
-[BaseTypeahead.web.tsrx](../../packages/ui/src/BaseTypeahead.web.tsrx) and
-[BaseTypeahead.tsrx](../../packages/ui/src/BaseTypeahead.tsrx) implement debounced
+[BaseTypeahead.web.tsrx](../../../packages/ui/src/BaseTypeahead.web.tsrx) and
+[BaseTypeahead.tsrx](../../../packages/ui/src/BaseTypeahead.tsrx) implement debounced
 search/bootstrap, optional cancellation, stale-response generations, and
-`auxiliaryData.group` grouping. [Tokenizer](../../packages/ui/src/Tokenizer.tsrx)
+`auxiliaryData.group` grouping. [Tokenizer](../../../packages/ui/src/Tokenizer.tsrx)
 already supports `hasCreate`, removable tokens, and `maxEntries`.
 Those source facts do not establish full Astryx parity or runtime verification.
 
@@ -172,7 +172,7 @@ These are recommended priorities, not release commitments.
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **P0: coherent navigation and semantics** | No highlighted option, arrow/Home/End/Page navigation, printable typeahead, search-key routing, auto-focus on open, focus return, or Tab-close path. Web uses a generic Pressable button-role trigger without `aria-expanded`, `aria-haspopup`, `aria-controls`, or active-descendant linkage; every enabled option is a separate tab stop. Escape is a global listener, without nested-layer precedence or an IME guard at Select’s level. Native rows expose no explicit option role/selected accessibility state. | Essential on desktop; hardware keyboards and screen readers make it relevant on mobile too. Define shared selection/highlight rules, with web ARIA and native accessibility/focus adapters. Reuse established typeahead logic where appropriate rather than copying browser APIs into shared code.                                          |
 | **P0: state transitions**                 | `isReadOnly` blocks pick/clear/open activation, but retains the caret and does not close an already-open popup. `open=true` or `defaultOpen=true` can expose the surface while disabled/read-only. No guard reconciles later policy changes. `disabledMessage` reaches an accessibility hint through field context, but the web disabled trigger has `tabIndex=-1` and no reason tooltip.                                                                                                                            | Real on all platforms. Disabled/read-only policy must govern surface availability and every mutation path. Focusable-disabled explanation and HTML submission details need web-specific handling.                                                                                                                                           |
-| **P0: macOS hosting**                     | `Select.macos.tsrx` passes anchor, placement, and dismissal to [Popover.macos.tsrx](../../packages/ui/src/Popover.macos.tsrx), which only conditionally renders an inline flexbox and ignores those props. It does not implement the anchored/dismissible contract implied by Select’s comment.                                                                                                                                                                                                                      | AppKit-specific gap, not mobile or browser behavior. Resolve overlay hosting before promising an AppKit Select v2. macOS WebView consumers using web leaves are a separate case.                                                                                                                                                            |
+| **P0: macOS hosting**                     | `Select.macos.tsrx` passes anchor, placement, and dismissal to [Popover.macos.tsrx](../../../packages/ui/src/Popover.macos.tsrx), which only conditionally renders an inline flexbox and ignores those props. It does not implement the anchored/dismissible contract implied by Select’s comment.                                                                                                                                                                                                                      | AppKit-specific gap, not mobile or browser behavior. Resolve overlay hosting before promising an AppKit Select v2. macOS WebView consumers using web leaves are a separate case.                                                                                                                                                            |
 | **P1: search feedback**                   | Local filtering already matches Astryx’s case-insensitive substring predicate. Missing custom search placeholder, search-clear action, empty-list/no-match messages, filtered result announcements, and keyboard navigation tied to the visible filtered set. No public query callback or source lifecycle.                                                                                                                                                                                                          | Filtering and understandable empty/loading feedback are real touch needs. Async search belongs to existing Typeahead, rather than extending `searchable` into a remote data contract. Neither current Astryx Selector nor ours provides a general public custom filter predicate.                                                           |
 | **P1: usable multi-selection**            | Toggle persistence and `string[]` already exist. Missing `hasSelectAll`, filtered enabled-item scope/indeterminate state, selection announcements, `triggerDisplay`, `formatValue`, and capped badges (`maxBadges`). Uses the single check indicator on web/mobile; macOS hardcodes a check glyph. No typed multi-only contract.                                                                                                                                                                                     | Real on mobile: selecting many filters and understanding/removing selections are not desktop-only needs. Own finite-list bulk selection in MultiSelector; own editable/searchable chips in Tokenizer.                                                                                                                                       |
 | **P1: richer option data**                | `SelectOption` only has `value`, `label`, `isDisabled`; no sections/dividers, descriptions/icons, `renderOption`, or `renderValue`. Filtering, navigation, and group rendering need one normalized option order.                                                                                                                                                                                                                                                                                                     | Useful everywhere for countries, accounts, people, and settings. Keep custom rendering portable; native ReactNode/DOM content cannot be copied literally.                                                                                                                                                                                   |
@@ -183,10 +183,10 @@ These are recommended priorities, not release commitments.
 
 ### Overlay parity: existing capability versus missing policy
 
-[Popover.web.tsrx](../../packages/ui/src/Popover.web.tsrx) already portals to
+[Popover.web.tsrx](../../../packages/ui/src/Popover.web.tsrx) already portals to
 `document.body`, measures the anchor and panel, uses `positionPopover` for
 placement/collision handling, and updates on resize/scroll. Mobile
-[Popover.tsrx](../../packages/ui/src/Popover.tsrx) creates a separate root in the
+[Popover.tsrx](../../../packages/ui/src/Popover.tsrx) creates a separate root in the
 anchor page’s RootLayout and tracks layout/scroll. Both provide outside-tap
 backdrops. Therefore “Select has no portal or anchoring” would be incorrect for
 these targets.
@@ -295,9 +295,9 @@ export function Example() {
    popup filter should remain a simpler mode, not a second async search engine.
 4. **Specialized shells and filters (P2).** Keep ComplexSelector and PowerSearch
    separate. Audit their own dialog/keyboard/error contracts before claiming
-   parity. For example, current [ComplexSelector.web.tsrx](../../packages/ui/src/ComplexSelector.web.tsrx)
+   parity. For example, current [ComplexSelector.web.tsrx](../../../packages/ui/src/ComplexSelector.web.tsrx)
    restores focus but has no Escape/ArrowDown handler, and its imperative `open`
-   does not guard disabled state. Current [PowerSearch.web.tsrx](../../packages/ui/src/PowerSearch.web.tsrx)
+   does not guard disabled state. Current [PowerSearch.web.tsrx](../../../packages/ui/src/PowerSearch.web.tsrx)
    renders suggestion Pressables rather than the Astryx Tokenizer navigation
    path; its clear-all button is disabled only by `isDisabled`, so `isReadOnly`
    does not block that mutation. These warrant separate correctness work, not
@@ -310,10 +310,10 @@ contracts actually match. One large Select with booleans for multiple, remote,
 creatable, custom-dialog, and structured-filter modes would make valid values,
 callbacks, keyboard ownership, and error handling harder to express and test.
 
-[packages/picker](../../packages/picker/README.md) remains the intentional
+[packages/picker](../../../packages/picker/README.md) remains the intentional
 platform-authentic escape: SwiftUIPicker on iOS, MaterialDropdown on Android,
 and HTML Select on web, via platform subpaths with distinct contracts.
-[packages/date-picker](../../packages/date-picker/README.md) provides SwiftUI,
+[packages/date-picker](../../../packages/date-picker/README.md) provides SwiftUI,
 Material, and AppKit date/time widgets; it is not an entity-search or multi-select
 solution. Neither leaf removes the need for shared searchable/multi-selection
 UX, and plugin-backed functionality must stay outside dependency-free UI additions.
@@ -336,21 +336,21 @@ export function Region() {
 
 ## Demo, test, and verification coverage
 
-[ComponentsDemo.tsrx](../../packages/demos/src/ComponentsDemo.tsrx) exercises the
+[ComponentsDemo.tsrx](../../../packages/demos/src/ComponentsDemo.tsrx) exercises the
 `Selector` alias with three fruit options, a disabled cherry, controlled value,
 and `searchable`. It also demonstrates a separate Typeahead and creatable
-Tokenizer. [PowerSearchDemo.tsrx](../../packages/demos/src/PowerSearchDemo.tsrx)
+Tokenizer. [PowerSearchDemo.tsrx](../../../packages/demos/src/PowerSearchDemo.tsrx)
 demonstrates structured filtering. NativePickerDemo’s platform leaves exercise
 `packages/picker`, not the shared Select contract.
 
 The located direct Select tests are two cases in
-[SearchInput.web.test.tsrx](../../packages/ui/src/SearchInput.web.test.tsrx): clear
+[SearchInput.web.test.tsrx](../../../packages/ui/src/SearchInput.web.test.tsrx): clear
 without opening, and busy state while an available option can still be selected.
 No dedicated Select native/macOS or multi-select/navigation/filtering/readonly
 transition coverage was located in the searched maintained tests/probes.
-[typeahead-source.test.ts](../../packages/ui/src/typeahead-source.test.ts) tests
+[typeahead-source.test.ts](../../../packages/ui/src/typeahead-source.test.ts) tests
 static keyword matching, grapheme counts, and grouping;
-[power-search-config.test.ts](../../packages/ui/src/power-search-config.test.ts)
+[power-search-config.test.ts](../../../packages/ui/src/power-search-config.test.ts)
 tests config/filter helpers. These do not establish component interaction parity.
 Astryx has component tests plus Selector/MultiSelector listbox accessibility
 suites and Selector Chromium accessibility fixtures; source inspection of those
@@ -363,7 +363,7 @@ pnpm --filter @xplat/web exec vitest run --config vitest.config.mts packages/ui/
 ```
 
 It could not run: `Command "vitest" not found` in this workspace’s pnpm environment.
-No dependencies were installed for this audit. `pnpm exec oxfmt --check docs/notes/astryx-parity-select.md`
+No dependencies were installed for this audit. `pnpm exec oxfmt --check docs/.agents/docs/parity/astryx-parity-select.md`
 also could not run because `oxfmt` was not found. Local Markdown link/reference
 checks and Git whitespace checks passed. Runtime targets run: **none**.
 No screenshots or other visual analysis were used. Component code, dependencies,

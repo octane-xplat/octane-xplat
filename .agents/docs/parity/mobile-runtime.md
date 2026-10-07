@@ -28,8 +28,8 @@ pnpm probe run research/qual-mobile.tsrx --target android \
 | Android | `octane-prime-larkspur` AVD, API 35 google_apis arm64 (`emulator-5556`) | PASS — 41/41 assertions | `d33e7911-ca45-4479-b397-105e9684ea6d` |
 
 Raw runner output:
-`docs/evidence/qual-mobile-ios-2026-10-06.json`,
-`docs/evidence/qual-mobile-android-2026-10-06.json`.
+`.agents/docs/parity/evidence/qual-mobile-ios-2026-10-06.json`,
+`.agents/docs/parity/evidence/qual-mobile-android-2026-10-06.json`.
 Same case build (`06457573c40e7ebb`) produced both results.
 
 ## Matrix — what the case asserted per target

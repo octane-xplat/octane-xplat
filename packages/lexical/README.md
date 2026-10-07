@@ -118,7 +118,7 @@ export function NoteEditor() {
 On Android, save HTML as the canonical document. Lexical serialized state is
 a best-effort conversion through the fixed built-in node set; it is not a live
 Lexical editor state that supports commands or plugins.
-The 2026-10-06 [Aztec nested-tree run](../../docs/verify/nested-tree-editor.md)
+The 2026-10-06 [Aztec nested-tree run](../../.agents/docs/parity/nested-tree-editor.md)
 preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen, but flattened paragraphs and accumulated `<br>` elements
 on reopen. That run exercised the shared Aztec HTML leaf, not Lexical's JSON

@@ -167,8 +167,7 @@ target; it does not qualify each contract row.
 
 On Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
 Lexical plugins, transforms, and browser views do not run. The facades do not
-create live ProseMirror or Lexical editor instances there. The 2026-10-06
-[nested-tree run](../verify/nested-tree-editor.md) preserved the three-level
+create live ProseMirror or Lexical editor instances there. A 2026-10-06 internal runtime investigation preserved the three-level
 HTML hierarchy and attributes through synthetic edits and save/reopen, and a
 follow-up run exercised the leaf's `split`/`join`/`indent`/`outdent` commands:
 they perform real structural edits on Aztec's own block model (nested lists
