@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url'
 import { inspectMacOSDevConfig } from './config.mjs'
 import { buildMacOSNative, discoverMacOSNative, writeNativeBootstrap } from './native.mjs'
 import { hostBundle, inspectJscHost, validateHostBundle } from './jsc-host/runtime.mjs'
-import { macOSExecutable } from './executables.mjs'
+import { createMacOSDevBundle } from './dev-bundle.mjs'
 
 export { runMacOSWebViewDev } from './webview-dev.mjs'
 
@@ -46,7 +46,8 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		})
 
 	let artifact = await prepare()
-	const hostExecutable = await macOSExecutable(appRoot, 'macos-arm64/host')
+	const devBundle = await createMacOSDevBundle(appRoot, readManifest())
+	const hostExecutable = devBundle.executable
 	const devRoot = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
 	await mkdir(devRoot, { recursive: true })
 	const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
@@ -246,5 +247,6 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		await rebuilding
 		await watcher?.close()
 		await retire()
+		await devBundle.cleanup()
 	}
 }

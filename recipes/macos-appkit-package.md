@@ -100,3 +100,15 @@ instead checks bounded mounting for the 500-row collection and its update to
 for the all-rows criterion or proof of large-list performance. Reconcile this
 with the VirtualList workflow separately; restoring the harness does not
 change the criterion.
+
+## Development app identity
+
+- AC12: The development host launches from a real `.app` bundle with
+  `CFBundleName` and `CFBundleDisplayName` from `dev.productName`, then
+  `package.productName`, then the root package name. A configured `dev.icon`
+  (or `package.icon`) is validated and copied as `AppIcon.icns`, with a matching
+  `CFBundleIconFile`. Shutdown removes the temporary bundle.
+
+Documentation: [Development app identity](../docs/start/toolchain.md#experimental-appkit-target).
+Maintained coverage: [Development bundle tests](../packages/cli/test/macos-dev-bundle.test.mjs).
+Visual Dock/Cmd-Tab appearance requires separate runtime verification.

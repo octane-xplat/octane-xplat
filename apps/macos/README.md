@@ -382,7 +382,7 @@ and check the unsupported-import diagnostic. The script leaves its artifacts
 under gitignored `research/` for inspection.
 
 Set the optional `icon` package field to an app-root-relative `.icns` file to
-include a custom app icon. The CLI validates the path, copies it to
+include a custom app icon in packaging and development. The CLI validates the path, copies it to
 `Contents/Resources/AppIcon.icns`, and sets `CFBundleIconFile` in `Info.plist`.
 
 ```json

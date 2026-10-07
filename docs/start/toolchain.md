@@ -357,6 +357,34 @@ for signing, notarization, and icon setup.
 }
 ```
 
+During development, the CLI launches a temporary `.app` so macOS can use your
+app's name and icon in the Dock and Cmd-Tab. It reuses `package.productName`
+and `package.icon`; without a product name, it uses the root package's `name`.
+To customize development without configuring a release, add `productName` and
+an app-root-relative `.icns` path to `xplat.targets.macos.dev`. Restart the dev
+command after changing these settings. This applies to AppKit and WKWebView.
+
+```json
+{
+	"xplat": {
+		"targets": {
+			"macos": {
+				"runtime": "appkit-node-api",
+				"dev": {
+					"viteConfig": "vite.dev.config.mjs",
+					"bundleFile": "dist/dev/app.cjs",
+					"productName": "Brim",
+					"icon": "assets/AppIcon.icns"
+				}
+			}
+		}
+	}
+}
+```
+
+The development bundle is removed when the command exits and is not installed
+for Spotlight. Use the packaged `.app` for a lasting installation.
+
 For AppKit rendering, install `@octane-xplat/macos-renderer` and use
 `xplatMacOS` from `@octane-xplat/cli/macos/vite` to register the compiler,
 platform resolution, and compatibility aliases. The app owns its windows,

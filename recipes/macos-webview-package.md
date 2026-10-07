@@ -35,3 +35,15 @@ its shared DOM frontend inside the system WKWebView.
 - AC4: [Typed service and event contracts](../docs/platform/macos-webview.md#share-typed-host-services) and the [app-owned service proof](../apps/macos/webview-proof/ProofScreen.web.ts).
 - AC5: [Framework service adapters](../docs/platform/macos-webview.md#share-typed-host-services) and the [WKWebView proof](../apps/macos/webview-proof/ProofScreen.web.ts).
 - AC6: [Boundary verification](../docs/platform/macos-webview.md#verify-the-boundary) and the [proof host](../apps/macos/webview-proof-host.ts).
+
+## Development app identity
+
+- AC12: The development host launches from a real `.app` bundle with
+  `CFBundleName` and `CFBundleDisplayName` from `dev.productName`, then
+  `package.productName`, then the root package name. A configured `dev.icon`
+  (or `package.icon`) is validated and copied as `AppIcon.icns`, with a matching
+  `CFBundleIconFile`. Shutdown removes the temporary bundle.
+
+Documentation: [Development app identity](../docs/start/toolchain.md#experimental-appkit-target).
+Maintained coverage: [Development bundle tests](../packages/cli/test/macos-dev-bundle.test.mjs).
+Visual Dock/Cmd-Tab appearance requires separate runtime verification.
