@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/video",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"description": "Embedded video player for Octane xplat — web <video> + @nstudio/nativescript-exoplayer (ExoPlayer / AVPlayerViewController) with self-drawn chrome",
 	"keywords": [
 		"android",

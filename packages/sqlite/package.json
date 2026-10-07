@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/sqlite",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"description": "Cross-target SQLite persistence — sqlite-wasm worker on web, @nativescript-community/sqlite on iOS/Android",
 	"repository": {
 		"type": "git",

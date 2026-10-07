@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/biometrics",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"description": "Biometric verification (FaceID/TouchID/fingerprint) for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",

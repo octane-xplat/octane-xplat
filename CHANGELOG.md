@@ -1,5 +1,46 @@
 # Changelog
 
+## [0.11.0] - 2026-10-07
+
+### Features
+
+- *(ui)* Emit the macOS types entry with tsrx-typegen
+- *(tiptap)* Accept web-target tiptap extensions via props.web
+- *(lexical)* Complete web editor facade
+- *(files)* Add binary readBytes/writeBytes and qualified export
+- *(platform)* Add OS CSPRNG random service
+- *(recorder)* Add @octane-xplat/recorder leaf for WAV microphone capture
+- *(auth)* Add createHostedAuth — generic hosted sign-in + Bearer session transport
+- *(richtext)* Add structural split/join/indent/outdent commands to the Android surface
+- *(richtext)* Back the iOS leaf with AztecEditor-iOS
+- *(shaders)* Add @octane-xplat/shaders thin adapter
+- *(gif)* Add prefetch() and platform escape bags (expo-image L3/L6)
+- *(ui)* Add Image recyclingKey to blank recycled platform-list cells
+- *(ui)* Give Image a shared contentFit/contentPosition contract and srcset-style multi-source src
+- *(ui)* Add Image placeholder prop with blurhash/thumbhash decode
+- *(ui)* Add Image decoding prop (async default, sync opt-in)
+- *(image,gif)* Unify prefetch contract across the image-engine leaves
+- *(image)* Batch isImageCached + forward decode context on iOS
+
+### Bug Fixes
+
+- *(ui)* Repair macOS source defects hidden by the handwritten types entry
+- *(tiptap,lexical)* Apply initial json prop once bridge and host are ready
+- *(files)* Honest export/writeBytes failure and single-flight export
+- *(tiptap)* Import TiptapJSON in native editor facade
+- *(files)* Wrap Android readBytes output in ByteBuffer
+- *(smooth-corners)* Glob test files so node --test resolves them on Node 24
+- *(bamboo)* Import virtual:bamboo.css from the NativeScript entry
+- *(lottie)* Type-guard the iOS stop() call on nativeViewProtected
+- *(ui)* Decode native images to view size, not source size
+- *(probe)* Map deep core subpaths in the mobile host module table
+- *(patches)* Stop treating per-package turbo.json as the dev-server workspace root
+- *(patches)* Restore ui-image 5.x iOS prefetch cacheType and headers
+
+### Refactoring
+
+- *(macos)* Convert the AppKit harness to TypeScript
+
 ## [0.10.0] - 2026-10-04
 
 ### Breaking Changes
