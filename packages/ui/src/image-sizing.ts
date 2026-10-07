@@ -20,8 +20,13 @@
  *  no-op. Null ref calls on detach are ignored by the leaf — re-attaching
  *  the same view must not lose `applied`, or each render would re-issue
  *  setUri. The dead-view listener left behind on real unmount is a
- *  self-contained cycle the GC collects with the component record. */
-export function createSizedImageBinding() {
+ *  self-contained cycle the GC collects with the component record.
+ *
+ *  `afterIssue` runs right after every `src` write — including a same-src
+ *  resize re-issue mid-load, which fires no `isLoadingChange` (isLoading is
+ *  already true). The Image placeholder hooks this to re-apply its bitmap
+ *  after the write has nulled `imageSource` (L5, decision #103). */
+export function createSizedImageBinding(options: { afterIssue?: (view: any) => void } = {}) {
 	let view: any = null;
 	let listening = false;
 	let pendingSrc: any;
@@ -41,6 +46,7 @@ export function createSizedImageBinding() {
 		view.src = next;
 		appliedSrc = next;
 		applied = true;
+		options.afterIssue?.(view);
 	};
 
 	const evaluate = () => {

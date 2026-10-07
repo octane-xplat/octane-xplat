@@ -286,7 +286,7 @@ export function Attachments() {
 | `AvatarGroup`    | Overlapping avatar row with `+N` overflow          | `max`, `size`                                          |
 | `User`           | Avatar + name/description row                      | `name`, `description`, `src`, `onSelect`               |
 | `Icon`           | Registered icon glyph                              | `name`, `size`, `color`                                |
-| `Image`          | Image                                              | `src`, `alt`, `recyclingKey`, `contentFit`, `contentPosition` |
+| `Image`          | Image                                              | `src`, `alt`, `placeholder`, `recyclingKey`, `contentFit`, `contentPosition` |
 | `Thumbnail`      | Square image preview with optional remove action   | `src`, `alt`, `isLoading`, `onPress`, `onRemove`       |
 | `Blockquote`     | Quoted content with optional attribution           | `cite`                                                 |
 | `Code`           | Inline monospace text                              | `color`, `size`                                        |

@@ -1259,6 +1259,15 @@ export interface ImageProps extends LayoutChildProps {
 	 *  (closest pixel count wins; the `srcset` model). */
 	src: string | ImageSourceLike[]
 	alt?: string
+	/** Placeholder shown while `src` loads — painted inside the same image
+	 *  view so the swap can't blank or mismatch fit (expo-image study L5).
+	 *  Accepts `blurhash:<hash>` / `thumbhash:<base64>` (decoded to a small
+	 *  PNG in JS) plus any synchronously resolvable `src` grammar (`data:`
+	 *  base64, `res://name`, `~/`, file path). Remote URLs are ignored on
+	 *  native — a placeholder that must fetch first is pointless. On web any
+	 *  `img.src` URL works (e.g. a low-res image). No-op on macOS, where
+	 *  image loads are synchronous. Ignored for SVG srcs. */
+	placeholder?: string
 	/** Item identity for recycled platform-list cells (RecyclerView/UITableView
 	 *  rebind the same view). When the key changes between binds, the previous
 	 *  bitmap is cleared before the new `src` load starts, so the cell never

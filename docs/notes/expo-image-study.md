@@ -171,6 +171,45 @@ about). Decoders are ~100 lines of pure math and port directly; wiring them
 xplat v1 implementation just decodes a hash to an `ImageSource` in JS/native
 and crossfades it in the shared layer.
 
+**Applied (decision #103, 2026-10-06).** `Image` grew a shared `placeholder`
+prop. NS core has no placeholder slot, but its property events allow the same
+outcome expo's loaders produce: `packages/ui/src/Image.tsrx` resolves the
+placeholder to an `ImageSource` and (re)assigns `view.imageSource` whenever
+`isLoadingChange` reports a pending load and after every binding `src` write
+(`afterIssue`) — `src` application nulls `imageSource` first, so the ordering
+keeps placeholder → final in one view with identical `stretch`, no sibling
+element, no parallel loader. A failed load leaves the placeholder standing
+(Android clears `imageSource` on error → the listener re-applies it;
+failure-image semantics for free). The
+web leaf swaps `placeholder` → `src` on the same `<img>` (the element keeps
+its last decoded frame while the new src fetches), gated on the placeholder's
+own `load` so the exchange never blanks, with a hidden prefetch keeping the
+final fetch warm. `blurhash:`/`thumbhash:` URIs decode to a small PNG in pure
+JS (`packages/ui/src/hash-image.ts` — Wolt blurhash + Evan Wallace thumbhash
+ports, MIT; Wallace's uncompressed-PNG encoder minus the `btoa` tail), so a
+hash placeholder is a real image on every platform.
+
+**Correction:** `@nativescript-community/ui-image` 4.6.20 bundles **Fresco**
+(not Glide) on Android — `platforms/android/include.gradle` pulls
+`com.facebook.fresco:fresco` + `imagepipeline-okhttp3`. Its placeholder seam
+is still the right one for the future leaf: `placeholderImageUri` accepts
+`string | ImageSource` → `DraweeHierarchy.setPlaceholderImage(drawable,
+stretch)` on Android and `sd_setImageWithURL:placeholderImage:` on iOS —
+same-view, same-scaleType, engine-managed fade. `lowerResSrc` is a genuine
+progressive thumbnail request. The leaf can adopt `placeholder` verbatim and
+route hash URIs through `ImageSource.fromBase64Sync` → `placeholderImageUri`,
+promoting the same prop from bitmap-swap to real pipeline placeholder.
+
+**Remaining gap vs expo:** our placeholder doesn't share cache keys or ride
+the decode pipeline (it's a direct bitmap assignment) — that closes when the
+engine leaf owns the placeholder natively. One integration wrinkle surfaced
+landing L5 beside the L1 sized-decode binding: an imperative same-src
+re-issue while a load is still in flight (`isLoading` true→true fires no
+event — e.g. the binding's resize reload) would blank until completion, so
+`createSizedImageBinding` grew an `afterIssue` hook the placeholder uses to
+re-apply after every `src` write. Render-driven src changes are additionally
+covered by the leaf effect's deps.
+
 ## L6 — `cachePolicy` shape
 
 `'none' | 'disk' | 'memory' | 'memory-disk'` is really two booleans:
