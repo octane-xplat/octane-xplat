@@ -25,6 +25,7 @@
 		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
+		"@octane-xplat/image": "workspace:*",
 		"@octane-xplat/lexical": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",

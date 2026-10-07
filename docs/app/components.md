@@ -295,6 +295,11 @@ export function Attachments() {
 | `Skeleton`       | Loading placeholder block                          | `width`, `height`                                      |
 | `Divider`        | Hairline rule                                      | `orientation`                                          |
 
+For images on native, prefer the `Image` from `@octane-xplat/image` — same
+name, same props, and it loads through Glide/SDWebImage (sized memory + disk
+cache, decode-to-view-size) instead of the core component's 5 MB cache. Core
+`Image` remains the dep-free baseline and the path for SVG sources.
+
 Indicators draw the selection mark; the owning control keeps focus,
 interaction, and accessibility semantics. `registerIndicator` and
 `registerIndicators` replace named marks for subsequent lookups on each
@@ -562,6 +567,7 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/camera`  | `CameraView`                                                         | Live camera preview                       |
 | `@octane-xplat/video`   | `Video`                                                              | Embedded video player                     |
 | `@octane-xplat/gif`     | `AnimatedImage`                                                      | Animated images (GIF/webp)                |
+| `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetchImage`, `evictImage`, `clearImageCaches`, `isImageCached` | Recommended `Image` on native (Glide/SDWebImage via ui-image) — same contract as core `Image` |
 | `@octane-xplat/canvas`  | `Canvas`, `getGPU`                                                   | Canvas/GPU surface (2D, WebGL/WebGPU)     |
 | `@octane-xplat/audio`   | `createAudioPlayer`                                                  | Long-form audio playback                  |
 | `@octane-xplat/haptics` | `createHaptics`                                                      | Capability-aware haptics                  |

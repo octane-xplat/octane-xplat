@@ -1,4 +1,5 @@
 export { CameraDemo } from './CameraDemo.tsrx'
 export { AnimatedImageDemo } from './AnimatedImageDemo.tsrx'
+export { CachedImageDemo } from './CachedImageDemo.tsrx'
 export { CanvasDemo } from './CanvasDemo.tsrx'
 export { ShaderDemo } from './ShaderDemo.tsrx'

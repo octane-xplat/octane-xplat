@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src"
+	},
+	"include": [
+		"src/Image.tsrx",
+		"src/Image.web.tsrx",
+		"src/cache.ts",
+		"src/cache.web.ts",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/native-elements.d.ts",
+		"src/props.ts"
+	]
+}

@@ -29,6 +29,8 @@
 			"@octane-xplat/effects/*": ["../../packages/effects/src/*"],
 			"@octane-xplat/gif": ["../../packages/gif/src/index.ts"],
 			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
+			"@octane-xplat/image": ["../../packages/image/src/index.ts"],
+			"@octane-xplat/image/*": ["../../packages/image/src/*"],
 			"@octane-xplat/pager": ["../../packages/pager/src/index.ts"],
 			"@octane-xplat/pager/*": ["../../packages/pager/src/*"],
 			"@octane-xplat/video": ["../../packages/video/src/index.ts"],

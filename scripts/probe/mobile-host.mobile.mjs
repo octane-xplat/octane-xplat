@@ -4,8 +4,12 @@ import * as core from '@nativescript/core'
 import * as animationFrame from '@nativescript/core/animation-frame'
 import * as application from '@nativescript/core/application'
 import * as applicationSettings from '@nativescript/core/application-settings'
+import * as platform from '@nativescript/core/platform'
+import * as uiImage from '@nativescript/core/ui/image'
 import * as utils from '@nativescript/core/utils'
 import lazy from '@nativescript/core/utils/lazy'
+import * as layoutHelper from '@nativescript/core/utils/layout-helper'
+import * as utilsTypes from '@nativescript/core/utils/types'
 import * as native from '@nativescript-community/octane'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
@@ -21,8 +25,15 @@ const modules = {
 	// map entry the case-side require misses outside the host's own graph.
 	'@nativescript/core/application': application,
 	'@nativescript/core/application-settings': applicationSettings,
+	// Plugin code inlined into the case bundle (e.g. ui-image) requires these
+	// deep core subpaths through the load shim — a bare require would search a
+	// tns_modules dir that bundled apps don't ship.
+	'@nativescript/core/platform': platform,
+	'@nativescript/core/ui/image': uiImage,
 	'@nativescript/core/utils': utils,
 	'@nativescript/core/utils/lazy': lazy,
+	'@nativescript/core/utils/layout-helper': layoutHelper,
+	'@nativescript/core/utils/types': utilsTypes,
 	'@nativescript-community/octane': native,
 	'octane/universal/native': native,
 	'octane/signals': signals,

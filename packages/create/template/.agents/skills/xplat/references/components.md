@@ -25,11 +25,34 @@ export function Welcome() {
 | Tap                   | `Pressable`, `Button`, `Link`, `NavLink`                                      |
 | Input                 | `TextInput`, `TextArea`, `Switch`, `Slider`                                   |
 | Scrolling             | `ScrollableArea`, `VirtualList`                                               |
-| Media                 | `Image`, `Icon`                                                               |
+| Media                 | `Image` (see note), `Icon`                                                    |
 | Feedback              | `Spinner`, `Meter`, `showToast`                                               |
 | Overlays              | `BottomSheet`, `Overlay`, `Popover`, `Drawer`, `HoverCard`, `Tooltip`         |
 | Shells                | `Screen`, `Tabs`                                                              |
 | Theme and measurement | `useColorScheme`, `useSafeAreaInsets`, `useMeasure`                           |
+
+For images, prefer the `Image` from `@octane-xplat/image` — it has the exact
+same props as `@octane-xplat/ui`'s `Image` but loads through a real image
+engine on native (Glide on Android, SDWebImage on iOS) with a sized memory +
+disk cache and decode-to-view-size, instead of the 5 MB cache in the core
+component that evicts visible images mid-scroll. Apps scaffolded with iOS or
+Android targets already have the package; a web-only app renders a plain
+`<img>` either way, so `pnpm add @octane-xplat/image` is optional there. Core
+`Image` remains the baseline for SVG sources, which the engine cannot decode.
+
+```tsrx
+import { Image } from '@octane-xplat/image'
+
+export function TripPhoto() {
+  return <Image
+    src="https://picsum.photos/seed/trail/800/450"
+    alt="Trailhead"
+    contentFit="cover"
+    placeholder="blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj"
+    style={{ width: '100%', height: 180 }}
+  />
+}
+```
 
 `ScrollableArea` scrolls a bounded set of children. For a long list, use
 `VirtualList` so the app does not mount every row at once.

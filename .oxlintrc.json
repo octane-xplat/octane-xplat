@@ -52,7 +52,10 @@
 				"exclude": ["apps/mobile/", "apps/windows/", "packages/cli/test/fixtures/"]
 			}
 		],
-		"xplat/no-ns-deep-import": "error",
+		"xplat/no-ns-deep-import": [
+			"error",
+			{ "exclude": ["scripts/probe/mobile-host.mobile.mjs"] }
+		],
 		"xplat/platform-subpath-import": "error",
 		"xplat/no-native-dead-style": [
 			"error",

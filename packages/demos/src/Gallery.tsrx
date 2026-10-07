@@ -23,7 +23,7 @@ import { ActionControlsDemo } from './ActionControlsDemo.tsrx';
 import { PowerSearchDemo } from './PowerSearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { LottieDemo } from './LottieDemo.tsrx';
-import { CameraDemo, AnimatedImageDemo, CanvasDemo, ShaderDemo } from './hosted-demos';
+import { CameraDemo, AnimatedImageDemo, CachedImageDemo, CanvasDemo, ShaderDemo } from './hosted-demos';
 import { AuthDemo } from './AuthDemo.tsrx';
 import { PushDemo } from './PushDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
@@ -91,6 +91,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'lottie', title: 'Lottie', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
 	{ id: 'animated-image', title: 'Animated image', kind: 'proof' },
+	{ id: 'cached-image', title: 'Cached image', kind: 'proof' },
 	{ id: 'auth', title: 'Provider sign-in', kind: 'proof' },
 	{ id: 'push', title: 'Push notifications', kind: 'proof' },
 	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
@@ -151,6 +152,7 @@ const renderVideo = () => <VideoDemo />;
 const renderLottie = () => <LottieDemo />;
 const renderCamera = () => <CameraDemo />;
 const renderAnimatedImage = () => <AnimatedImageDemo />;
+const renderCachedImage = () => <CachedImageDemo />;
 const renderAuth = () => <AuthDemo />;
 const renderPush = () => <PushDemo />;
 const renderCanvas = () => <CanvasDemo />;
@@ -204,6 +206,7 @@ export const RENDER: Record<string, () => any> = {
 	lottie: renderLottie,
 	camera: renderCamera,
 	'animated-image': renderAnimatedImage,
+	'cached-image': renderCachedImage,
 	auth: renderAuth,
 	push: renderPush,
 	canvas: renderCanvas,

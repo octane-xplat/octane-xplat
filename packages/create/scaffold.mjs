@@ -74,6 +74,7 @@ export const targets = {
 			'@nativescript-community/ui-drawer',
 			'@nativescript/core',
 			'@octane-xplat/effects',
+			'@octane-xplat/image',
 			'@valor/nativescript-websockets',
 		],
 		devDeps: [

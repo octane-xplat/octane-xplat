@@ -34,6 +34,7 @@
 		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/geolocation": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
+		"@octane-xplat/image": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
 		"@octane-xplat/media": "workspace:*",
 		"@octane-xplat/notifications": "workspace:*",

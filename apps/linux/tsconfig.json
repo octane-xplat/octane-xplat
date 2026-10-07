@@ -14,6 +14,8 @@
 			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
 			"@octane-xplat/gif": ["../../packages/gif/src/index.web.ts"],
 			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
+			"@octane-xplat/image": ["../../packages/image/src/index.web.ts"],
+			"@octane-xplat/image/*": ["../../packages/image/src/*"],
 			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
 			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}

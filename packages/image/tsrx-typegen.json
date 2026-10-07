@@ -1,0 +1,22 @@
+{
+	"targets": {
+		"octane": {
+			"renderer": "octane",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": ["./dist/native/index.js", "./dist/web/index.js"],
+					"types": ["./types/generated/index.d.ts", "./types/generated/index.web.d.ts"]
+				}
+			}
+		}
+	},
+	"sourceExtensions": {
+		".ts": ".js",
+		".tsx": ".js",
+		".tsrx": ".js"
+	},
+	"overrides": {}
+}

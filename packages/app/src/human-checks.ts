@@ -215,6 +215,15 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		demo: 'animated-image',
 	},
 	{
+		id: 'cached-image',
+		title: 'Cached image',
+		sense: 'eyes',
+		targets: MEDIA_TARGETS,
+		steps: ['Open the Cached image demo and scroll it off and on screen.'],
+		expect: 'Images reload instantly from cache — the status line reports memory/disk, not network.',
+		demo: 'cached-image',
+	},
+	{
 		id: 'canvas-render',
 		title: 'Canvas / WebGPU output',
 		sense: 'eyes',
