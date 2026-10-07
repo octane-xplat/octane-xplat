@@ -26,6 +26,7 @@ Start here when you need to understand a framework decision or investigate its i
 - [Open questions](open-questions.md)
 - [Optional-service qualification](optional-service-qualification.md)
 - [OTA bundle-redirect gate](ota-updates.md)
+- [OTA update process](ota-process.md)
 - [Platform-service notes (packages/platform)](platform-notes.md)
 - [Primitive notes (packages/ui)](primitive-notes.md)
 - [Select family implementation plan](select-implementation-plan.md)

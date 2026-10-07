@@ -136,7 +136,7 @@ importers:
         version: 8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)
       wrangler:
         specifier: ^4.0.0
-        version: 4.136.3
+        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@16.9.1)
 
   apps/linux:
     dependencies:
@@ -390,6 +390,18 @@ importers:
       vite:
         specifier: 8.3.0
         version: 8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)
+
+  apps/ota-server:
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: 5.20260928.1
+        version: 5.20260928.1
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      wrangler:
+        specifier: 4.136.3
+        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@16.9.1)
 
   apps/web:
     dependencies:
@@ -2371,6 +2383,9 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
+
+  '@cloudflare/workers-types@5.20260928.1':
+    resolution: {integrity: sha512-B/El15v5HqZyuyfR7Z0W443iA6Ml4nZjaR8rgHyW612r8reO+1JaDKtNbP3CPdzVIM2egp98by3NlpMm5pKbcg==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -8884,6 +8899,8 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260921.1':
     optional: true
 
+  '@cloudflare/workers-types@5.20260928.1': {}
+
   '@colors/colors@1.5.0':
     optional: true
 
@@ -13108,10 +13125,10 @@ snapshots:
 
   mimic-function@5.0.1: {}
 
-  miniflare@5.20260921.0-alpha:
+  miniflare@5.20260921.0-alpha(@types/node@16.9.1):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
-      sharp: 0.35.4
+      sharp: 0.35.4(@types/node@16.9.1)
       undici: 7.29.0
       workerd: 1.20260921.1
       ws: 8.21.0
@@ -14111,7 +14128,7 @@ snapshots:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
-  sharp@0.35.4:
+  sharp@0.35.4(@types/node@16.9.1):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -14142,6 +14159,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.4
       '@img/sharp-win32-ia32': 0.35.4
       '@img/sharp-win32-x64': 0.35.4
+      '@types/node': 16.9.1
 
   shebang-command@1.2.0:
     dependencies:
@@ -14725,17 +14743,18 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260921.1
       '@cloudflare/workerd-windows-64': 1.20260921.1
 
-  wrangler@4.136.3:
+  wrangler@4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@16.9.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260921.1)
       blake3-wasm: 2.1.5
       esbuild: 0.28.1
-      miniflare: 5.20260921.0-alpha
+      miniflare: 5.20260921.0-alpha(@types/node@16.9.1)
       path-to-regexp: 6.3.0
       unenv: 2.0.0-rc.24
       workerd: 1.20260921.1
     optionalDependencies:
+      '@cloudflare/workers-types': 5.20260928.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - '@types/node'

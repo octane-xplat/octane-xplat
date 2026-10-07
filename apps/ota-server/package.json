@@ -1,0 +1,18 @@
+{
+	"name": "@xplat/ota-server",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"publish:bundle": "node scripts/publish-bundle.mjs",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"test": "node --test *.test.mjs"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "5.20260928.1",
+		"typescript": "5.9.3",
+		"wrangler": "4.136.3"
+	}
+}

@@ -1,0 +1,10 @@
+name = "octane-xplat-ota"
+main = "src/worker.ts"
+compatibility_date = "2026-09-22"
+
+# OTA payload storage. Bundles are content-addressed under `bundles/<sha256>`
+# and channel pointers live under `channels/<channel>/<platform>.json`.
+# Create once with: wrangler r2 bucket create octane-xplat-ota-bundles
+[[r2_buckets]]
+binding = "BUNDLES"
+bucket_name = "octane-xplat-ota-bundles"

@@ -32,3 +32,8 @@ apps/mobile/navigation-project/package-lock.json
 # Native Maestro smoke app build outputs.
 apps/maestro/platforms/
 .turbo/
+
+# Wrangler (Cloudflare) local state and secret files.
+.wrangler/
+.dev.vars
+.dev.vars.*
