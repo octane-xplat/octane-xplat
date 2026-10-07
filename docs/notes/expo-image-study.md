@@ -104,10 +104,15 @@ Per our rules this ships as a leaf package (`@octane-xplat/image`), not in
   reliably warms Glide's *data* disk cache; the transformed memory entry is
   keyed differently and won't be hit by the display load.
 
-Lesson for xplat: "prefetch = warm the byte cache, decode at display." NS core
-has a parallel but weaker `ImageCache` module (push/enqueue queue,
-`maxRequests = 5`, per-key completed callbacks) usable as the web-of-trust for
-a portable `Image.prefetch`.
+Lesson for xplat: "prefetch = warm the byte cache, decode at display." NS
+core's parallel `ImageCache` module looked usable as the basis for a portable
+`Image.prefetch`, but on inspection (`ui/image-cache/index.android.js` in
+`@nativescript/core@9.1.2`) it stores completions in its own `LruCache`
+instance — it does not feed `org.nativescript.widgets.image.Cache`, the 5 MB
+store `<image>` reads. Pushing URIs there warms nothing the view will hit, so
+a core `prefetch` would be dishonest; the honest core workaround is mounting
+the real `<image>`s early (see
+[image-performance](../verify/image-performance.md)).
 
 ## L4 — `recyclingKey`
 
@@ -147,6 +152,13 @@ and crossfades it in the shared layer.
 Worth adopting the four-value prop even if NS v1 only honors the memory axis.
 `configureCache` (iOS-only: `maxDiskSize`/`maxMemoryCount`/`maxMemoryCost`)
 shows the pressure-release API shape if we ever need it.
+
+## Application verdicts (L3 + L6, applied 2026-10)
+
+| Lesson | Verdict | Why |
+| ------ | ------- | --- |
+| L3 prefetch | **Applied in `@octane-xplat/gif`; rejected for core `Image`** | `getImagePipeline().prefetchToDiskCache()` gives the real "bytes on disk, decode at display" semantic on both engines (Fresco disk cache; SDWebImage disk store). Exported as `prefetch(srcs, options?) → Promise<boolean>`; web warms the HTTP cache through a throwaway `<img>`; macOS resolves `false` (no pipeline). Core `Image` was *not* given a prefetch: NS `ImageCache` keeps a private LRU the `<image>` view never reads, so exposing it would promise warmth that never arrives. |
+| L6 cachePolicy | **Adapted — no four-value prop exposed anywhere** | Neither engine surface supports the two orthogonal axes. NS core offers only Android `useCache` (already reachable via `Image`'s `android` escape bag; iOS ignores it). The ui-image `Img` offers a single "bypass" axis (`noCache`: Android evicts the URI then loads; iOS `SDWebImageOptions.FromLoaderOnly`) — still not a per-axis policy. Rather than paper over the missing axes, `AnimatedImage` gained `ios`/`android`/`web` escape bags (the `ImageProps` convention) so `noCache`, `cacheKey`, `decodeWidth`, and friends are reachable as explicitly platform props. |
 
 ## L7 — fit/position via matrix
 

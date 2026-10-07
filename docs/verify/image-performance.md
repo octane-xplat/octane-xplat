@@ -262,7 +262,8 @@ This warms the HTTP disk cache and (while entries survive) the memory cache —
 but the same 5 MB ceiling applies, and each prefetch still decodes at full
 size unless you also set decode dims. If your feed needs real prefetch —
 bytes early, decode at display — that is a property of the engine, which
-leads to the next option.
+leads to the next option. (`@octane-xplat/gif` already exports a `prefetch`
+helper that does this on the ui-image pipeline; see the engine option below.)
 
 ### Bring in a real image engine
 
@@ -281,6 +282,18 @@ import { registerElement } from '@nativescript-community/octane'
 import { Img } from '@nativescript-community/ui-image'
 
 registerElement('feedimage', Img)
+```
+
+The gif leaf also re-exports two of the plugin's tools without registering
+your own element: `prefetch(urls)` warms the engine's disk cache ahead of
+display (the "bytes early, decode later" contract), and `AnimatedImage`'s
+`ios`/`android` escape bags reach the `Img` prop surface — `noCache`,
+`decodeWidth`/`decodeHeight`, `placeholderImageUri`, and friends:
+
+```tsx
+import { prefetch } from '@octane-xplat/gif'
+
+await prefetch(nextScreen.map((photo) => photo.url))
 ```
 
 Costs to weigh: it is a different element, not a prop on `Image`, so the

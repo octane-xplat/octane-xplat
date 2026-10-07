@@ -2,6 +2,7 @@
 import { registerElement } from '@nativescript-community/octane';
 import { Img } from '@nativescript-community/ui-image';
 import type { AnimatedImageProps } from './props';
+import { applyEscapeProps } from './escape-props';
 
 // @nativescript-community/ui-image — Fresco DraweeView on Android,
 // SDAnimatedImageView on iOS when `animatedImageView` is set (plain UIImageView
@@ -14,6 +15,7 @@ registerElement('animatedimage', Img);
  *  the shared contract is always-playing. */
 export function AnimatedImage(props: AnimatedImageProps) @{
 	<animatedimage
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={props.className}
 		style={props.style}

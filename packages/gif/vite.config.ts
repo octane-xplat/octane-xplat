@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
 		build: {
 			lib: {
 				entry: {
-					index: native ? 'src/AnimatedImage.tsrx' : 'src/AnimatedImage.web.tsrx',
+					index: native ? 'src/index.ts' : 'src/index.web.ts',
 				} as Record<string, string>,
 				formats: ['es'],
 			},

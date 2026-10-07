@@ -1,2 +1,3 @@
 export { AnimatedImage } from './AnimatedImage.macos.tsrx'
-export type { AnimatedImageProps } from './props'
+export { prefetch } from './prefetch.macos'
+export type { AnimatedImageProps, PrefetchOptions } from './props'

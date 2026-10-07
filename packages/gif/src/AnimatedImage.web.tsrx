@@ -1,4 +1,5 @@
 import type { AnimatedImageProps } from './props';
+import { applyEscapeProps } from './escape-props.web';
 
 const OBJECT_FIT = {
 	none: 'none',
@@ -11,6 +12,7 @@ const OBJECT_FIT = {
  *  `stretch` maps to object-fit. */
 export function AnimatedImage(props: AnimatedImageProps) @{
 	<img
+		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		className={props.className}
 		style={{
