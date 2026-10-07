@@ -1546,6 +1546,7 @@ body {
 	margin-bottom: 12px;
 	border-radius: 26px;
 	corner-shape: squircle;
+	tab-size: 2;
 	white-space: pre-wrap;
 }
 
