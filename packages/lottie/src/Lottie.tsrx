@@ -34,10 +34,11 @@ function currentProgress(v: LottieView): number {
 
 /** Stop = pause + reset playhead. iOS `stop()` resets to the start;
  *  Android's `cancelAnimation()` ends the animator and the next
- *  `playAnimation()` restarts from 0. */
+ *  `playAnimation()` restarts from 0. `nativeViewProtected` is typed
+ *  per-platform — `stop` only exists on iOS's CompatibleAnimationView. */
 function stopView(v: LottieView) {
 	if (isAndroid) v.cancelAnimation();
-	else v.nativeViewProtected?.stop();
+	else (v.nativeViewProtected as any)?.stop();
 
 	v.progress = 0;
 }
