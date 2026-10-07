@@ -1,4 +1,4 @@
-import type { ImageCacheConfig, ImageCacheState, PrefetchOptions } from './props';
+import type { ImageCacheConfig, ImageCacheQueryOptions, ImageCacheState, PrefetchOptions } from './props';
 
 /** No-op — the AppKit host has no image engine. */
 export function initializeImageCache(_config?: ImageCacheConfig): void {}
@@ -17,6 +17,15 @@ export function clearImageCaches(): Promise<void> {
 	return Promise.resolve();
 }
 
-export function isImageCached(_src: string): Promise<ImageCacheState> {
-	return Promise.resolve('none');
+export function isImageCached(
+	srcs: string | readonly string[],
+	_options?: ImageCacheQueryOptions,
+): Promise<Record<string, ImageCacheState>> {
+	const list = typeof srcs === 'string' ? [srcs] : srcs;
+	const states: Record<string, ImageCacheState> = {};
+	for (const src of list) {
+		states[src] = 'none';
+	}
+
+	return Promise.resolve(states);
 }

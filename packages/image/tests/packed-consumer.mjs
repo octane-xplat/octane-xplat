@@ -85,6 +85,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 	prefetch,
 	type ImageCacheConfig,
 	type ImageCachePolicy,
+	type ImageCacheQueryOptions,
 	type ImageCacheState,
 	type ImageProps,
 	type PrefetchOptions,
@@ -112,7 +113,13 @@ const invalidFit = <Image src="a.png" contentFit="aspectFill" />
 // @ts-expect-error only 'memory-disk' and 'none' are honest cache policies
 const invalidPolicy = <Image src="a.png" cachePolicy="memory" />
 const policy: ImageCachePolicy = 'memory-disk'
-const state: Promise<ImageCacheState> = isImageCached('https://example.com/a.png')
+const state: Promise<Record<string, ImageCacheState>> = isImageCached('https://example.com/a.png')
+const query: ImageCacheQueryOptions = { decodeWidth: 200, decodeHeight: 100 }
+const batch: Promise<Record<string, ImageCacheState>> = isImageCached(
+	['https://example.com/a.png', 'https://example.com/b.png'],
+	query,
+)
+void batch
 const prefetchResult: Promise<boolean> = prefetch(
 	['https://example.com/a.png', 'https://example.com/b.png'],
 	{ headers: { Authorization: 'Bearer x' }, concurrency: 3 } satisfies PrefetchOptions,

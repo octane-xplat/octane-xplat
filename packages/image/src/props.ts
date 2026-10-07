@@ -59,17 +59,27 @@ export type ImageCacheState = 'memory' | 'disk' | 'none'
 /** Options for `prefetch` — the same contract `@octane-xplat/gif`'s
  *  `prefetch` carries. */
 export interface PrefetchOptions {
-	/** Request headers for the prefetch fetch. Honored on Android (Glide
-	 *  `CustomGlideUrl`). **Dropped on iOS** — the plugin's prefetch path
-	 *  builds its SDWebImage context without the download-request-modifier
-	 *  branch the `Img` display path has; an upstream patch is needed there.
-	 *  Until then an authenticated URL can be prefetched on iOS only when it
-	 *  is public or carries credentials in the URL itself. Ignored on web —
-	 *  a plain <img> cannot send custom headers. */
+	/** Request headers forwarded on Android and iOS (the framework patch
+	 *  restores iOS request modifiers). Ignored on web — a plain <img>
+	 *  cannot send custom headers. */
 	headers?: Record<string, string>
 	/** Max URLs fetched in parallel (JS-side cap). Default 5 — the same
 	 *  ceiling NS core's ImageCache used. */
 	concurrency?: number
+}
+
+/** Display-load context for `isImageCached`. On iOS the engine folds the
+ *  transform a load used into the cache key — decode bounds are the common
+ *  one, and the leaf always decodes to a size (explicit props or the view's
+ *  measured size), so a bare probe misses entries a display load wrote.
+ *  Repeat the same decode bounds here to probe the key a display load hits.
+ *  Android keys probes on the URL alone and ignores these — but the plugin
+ *  cannot see Glide's active resources there, so a bitmap still on screen
+ *  may report 'none'. Web reports 'none' regardless. */
+export interface ImageCacheQueryOptions {
+	/** Device-pixel decode bounds — same meaning as the `Image` props. */
+	decodeWidth?: number
+	decodeHeight?: number
 }
 
 /** Image — drop-in alternative to `@octane-xplat/ui`'s Image backed by a real

@@ -64,8 +64,7 @@ rest are documented no-ops, and macOS `prefetch` resolves `false` since the
 AppKit host has no image pipeline.
 
 `prefetch` options: `headers` forwards request headers to the engine —
-**honored on Android, dropped on iOS** (the plugin's prefetch path lacks the
-request-modifier branch its display path has; an upstream patch is needed) —
+honored on Android and iOS with the framework patch —
 and ignored on web, where a plain `<img>` cannot send custom headers.
 `concurrency` caps parallel fetches JS-side (default 5).
 
@@ -76,6 +75,28 @@ its cache level and forward request `headers`. The framework patch set
 writes encoded bytes to disk without decoding or warming memory (matching
 Android's Glide `downloadOnly`), a memory prefetch stays off disk, and a
 prefetch carrying `headers` sends them on iOS the same as Android.
+
+`isImageCached` takes one URL or a list and always resolves a `Record` keyed by URL — the RN `queryCache`
+shape:
+
+```ts
+const states = await isImageCached([
+	'https://example.com/a.jpg',
+	'https://example.com/b.jpg',
+])
+// states['https://example.com/a.jpg'] === 'memory' | 'disk' | 'none'
+```
+
+On iOS the cache key includes the decode bounds a display load used, so
+probe with the same `decodeWidth`/`decodeHeight` to match it:
+
+```ts
+await isImageCached(url, { decodeWidth: 600, decodeHeight: 400 })
+```
+
+Android caveat: the plugin's probe can't see Glide's active resources, so a
+bitmap still on screen may report `'none'` — treat `'none'` as "not provably
+cached", not "absent".
 
 ## Divergences from core `Image`
 

@@ -10,6 +10,7 @@ export {
 export type {
 	ImageCacheConfig,
 	ImageCachePolicy,
+	ImageCacheQueryOptions,
 	ImageCacheState,
 	ImageContentFit,
 	ImageContentPosition,
