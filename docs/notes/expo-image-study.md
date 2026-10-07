@@ -10,7 +10,9 @@
 
 Context: the feed perf work named the image pipeline as the suspect for
 Android scroll jank (decode-to-target-size and placeholder behavior). That
-suspicion is well-founded — see L1/L2.
+suspicion is well-founded — see L1/L2. For the operational version of these
+findings — symptoms, profiling steps, and fixes an app can apply today — see
+[Debug native image performance](../verify/image-performance.md).
 
 ## Ranked lessons
 
