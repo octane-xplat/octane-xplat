@@ -37,3 +37,6 @@ apps/maestro/platforms/
 .wrangler/
 .dev.vars
 .dev.vars.*
+
+# Native package build outputs
+packages/*/platforms/android/*.aar
