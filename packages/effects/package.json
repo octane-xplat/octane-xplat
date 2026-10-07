@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/effects",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"description": "Platform view-effect shaders for Octane xplat — iOS stitchable Metal via @nativescript/swift-ui, Android AGSL RuntimeShader",
 	"keywords": [
 		"agsl",

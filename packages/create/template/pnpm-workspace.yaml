@@ -124,4 +124,4 @@ patchedDependencies:
   # bytes to disk.
   "@nativescript-community/ui-image@5.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__ui-image@5.0.17.patch
 configDependencies:
-  "@octane-xplat/patches": 0.10.0
+  "@octane-xplat/patches": 0.11.0

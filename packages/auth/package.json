@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/auth",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"description": "Sign in with Apple + Google Sign-In + hosted-auth sessions for Octane xplat — native SDKs on iOS/Android, platform web SDKs in the browser",
 	"keywords": [
 		"android",
