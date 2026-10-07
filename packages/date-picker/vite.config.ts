@@ -32,6 +32,7 @@ export default defineConfig({
 	build: {
 		lib: {
 			entry: {
+				index: 'src/index.ts',
 				'ios/index': 'src/ios/index.ts',
 				'android/index': 'src/android/index.ts',
 			},

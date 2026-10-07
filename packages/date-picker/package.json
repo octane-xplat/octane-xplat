@@ -15,6 +15,12 @@
 	],
 	"type": "module",
 	"exports": {
+		".": {
+			"types": "./types/index.d.ts",
+			"web": "./src/index.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
 		"./ios": {
 			"types": "./types/ios/index.d.ts",
 			"native": "./src/ios/index.ts"
@@ -30,6 +36,12 @@
 	},
 	"publishConfig": {
 		"exports": {
+			".": {
+				"types": "./types/index.d.ts",
+				"web": "./dist/native/index.js",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			},
 			"./ios": {
 				"types": "./types/ios/index.d.ts",
 				"native": "./dist/native/ios/index.js"

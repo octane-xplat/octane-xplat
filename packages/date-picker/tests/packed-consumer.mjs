@@ -14,7 +14,7 @@ import {
 
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
@@ -177,6 +177,17 @@ try {
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
+	// The vendor pass resolves the package root even when apps use OS subpaths.
+	const rootEntry = packedManifest.exports['.']
+	assert.ok(rootEntry.types, 'root has a declaration entry')
+	for (const condition of ['web', 'native', 'default']) {
+		assert.deepEqual(
+			Object.keys(await import(pathToFileURL(join(packedRoot, rootEntry[condition])))),
+			[],
+			'root loads without either OS widget',
+		)
+	}
+
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 	const exportMaps = [

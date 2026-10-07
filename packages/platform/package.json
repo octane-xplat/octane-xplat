@@ -25,6 +25,7 @@
 		"directory": "packages/platform"
 	},
 	"files": [
+		"dist",
 		"src",
 		"platforms",
 		"types"
@@ -52,18 +53,94 @@
 		"./*": "./src/*"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"exports": {
+			".": {
+				"macos": {
+					"types": "./types/generated/macos/index.macos.d.ts",
+					"default": "./dist/native/index.macos.js"
+				},
+				"linux": {
+					"types": "./src/index.ts",
+					"default": "./dist/linux/index.js"
+				},
+				"web": {
+					"types": "./src/index.web.ts",
+					"default": "./dist/web/index.web.js"
+				},
+				"types": "./src/index.ts",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			},
+			"./host": {
+				"types": "./src/host-protocol.ts",
+				"import": "./dist/native/host-protocol.js"
+			},
+			"./host/web": {
+				"types": "./src/host-runtime.web.ts",
+				"import": "./dist/web/host-runtime.web.js"
+			},
+			"./host/services": {
+				"types": "./src/host-services.ts",
+				"default": "./dist/native/host-services.js"
+			},
+			"./*": {
+				"linux": {
+					"types": "./src/*.ts",
+					"default": "./dist/linux/*.js"
+				},
+				"web": {
+					"types": "./src/*.ts",
+					"default": "./dist/web/*.js"
+				},
+				"types": "./src/*.ts",
+				"native": "./dist/native/*.js",
+				"default": "./dist/native/*.js"
+			},
+			"./*.tsrx": {
+				"types": "./src/*.tsrx",
+				"default": "./dist/native/*.js"
+			},
+			"./*.ts": {
+				"types": "./src/*.ts",
+				"default": "./dist/native/*.js"
+			},
+			"./*.web.ts": {
+				"types": "./src/*.web.ts",
+				"default": "./dist/web/*.web.js"
+			},
+			"./*.web.tsrx": {
+				"types": "./src/*.web.tsrx",
+				"default": "./dist/web/*.web.js"
+			},
+			"./*.web": {
+				"types": "./src/*.web.ts",
+				"default": "./dist/web/*.web.js"
+			},
+			"./*.linux.ts": {
+				"types": "./src/*.linux.ts",
+				"default": "./dist/linux/*.linux.js"
+			},
+			"./*.linux": {
+				"types": "./src/*.linux.ts",
+				"default": "./dist/linux/*.linux.js"
+			}
+		}
 	},
 	"scripts": {
 		"test": "node --test tests/*.test.mjs",
 		"typegen": "node scripts/typegen-macos.mjs",
-		"prepack": "pnpm typegen"
+		"prepack": "pnpm build",
+		"build": "vite build && vite build --mode native && vite build --mode linux && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
 		"octane": "0.6.3",
-		"typescript": "5.9.3"
+		"typescript": "5.9.3",
+		"@octanejs/vite-plugin": "0.1.61",
+		"vite": "8.3.0"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

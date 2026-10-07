@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
 import {
 	cpSync,
@@ -189,6 +190,51 @@ try {
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
+	const require = createRequire(import.meta.url)
+	const { build } = createRequire(require.resolve('vite/package.json'))('esbuild')
+	const modules = join(temporary, 'node_modules/@octane-xplat')
+	mkdirSync(modules, { recursive: true })
+	symlinkSync(packedRoot, join(modules, 'files'), 'dir')
+	for (const target of ['native', 'web', 'linux']) {
+		const result = await build({
+			stdin: {
+				contents: "import * as files from '@octane-xplat/files'; console.log(files)",
+				resolveDir: temporary,
+			},
+			bundle: true,
+			write: false,
+			format: 'esm',
+			platform: 'neutral',
+			conditions: [target],
+			metafile: true,
+			external: [
+				'octane',
+				'octane/*',
+				'@nativescript/*',
+				'@nativescript-community/*',
+				'@octane-xplat/ui',
+				'@octane-xplat/platform',
+				'@octane-xplat/platform/*',
+			],
+		})
+
+		assert.ok(
+			Object.keys(result.metafile.inputs).every(
+				(file) => file === '<stdin>' || file.endsWith('.js'),
+			),
+			'vendor pass only reads compiled JavaScript',
+		)
+
+		if (target === 'web') {
+			assert.ok(
+				!result.metafile.outputs['stdin.js'].imports.some((entry) =>
+					entry.path.startsWith('@nativescript'),
+				),
+				'web entry avoids NativeScript',
+			)
+		}
+	}
+
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 	const exportMaps = [

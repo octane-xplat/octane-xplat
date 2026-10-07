@@ -18,7 +18,7 @@ import {
 
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument, isMap, Scalar } from 'yaml'
+import { parseDocument, parseAllDocuments, isMap, Scalar } from 'yaml'
 
 export const canonicalPatchesDir = join(dirname(fileURLToPath(import.meta.url)), '../patches')
 
@@ -47,6 +47,15 @@ const readYamlDoc = (file) => {
 		return parseDocument(readFileSync(file, 'utf8'))
 	} catch {
 		return null
+	}
+}
+
+// pnpm 11 may split lockfile sections across multiple YAML documents.
+const readLockfileDocs = (file) => {
+	try {
+		return parseAllDocuments(readFileSync(file, 'utf8'))
+	} catch {
+		return []
 	}
 }
 
@@ -110,8 +119,17 @@ const lockfilePatches = (appDir) => {
 		return null
 	}
 
-	const pd = readYamlDoc(lock)?.get('patchedDependencies')
-	return isMap(pd) ? new Set(pd.items.map((i) => String(i.key))) : new Set()
+	const patches = new Set()
+	for (const doc of readLockfileDocs(lock)) {
+		const pd = doc.get('patchedDependencies')
+		if (isMap(pd)) {
+			for (const item of pd.items) {
+				patches.add(String(item.key))
+			}
+		}
+	}
+
+	return patches
 }
 
 // Resolved versions per package across all lockfile importers — the truth
@@ -123,7 +141,7 @@ const lockfileResolvedVersions = (appDir) => {
 		return null
 	}
 
-	const doc = readYamlDoc(lock)
+	const docs = readLockfileDocs(lock)
 	const resolved = {}
 	const add = (name, version) => {
 		if (!name || !version) {
@@ -134,37 +152,39 @@ const lockfileResolvedVersions = (appDir) => {
 		set.add(version)
 	}
 
-	// Importers carry declared deps (incl. link:/file: specs that never
-	// appear under packages).
-	for (const importer of Object.values(doc?.get('importers')?.toJSON() ?? {})) {
-		for (const group of ['dependencies', 'devDependencies']) {
-			for (const [name, entry] of Object.entries(importer?.[group] ?? {})) {
-				const version = typeof entry === 'string' ? entry : entry?.version
+	for (const doc of docs) {
+		// Importers carry declared deps (incl. link:/file: specs that never
+		// appear under packages).
+		for (const importer of Object.values(doc?.get('importers')?.toJSON() ?? {})) {
+			for (const group of ['dependencies', 'devDependencies']) {
+				for (const [name, entry] of Object.entries(importer?.[group] ?? {})) {
+					const version = typeof entry === 'string' ? entry : entry?.version
 
-				if (!version) {
-					continue
+					if (!version) {
+						continue
+					}
+
+					add(name, version.split('(')[0])
 				}
-
-				add(name, version.split('(')[0])
 			}
 		}
-	}
 
-	// packages:/snapshots: carry the whole resolved graph — a patch may
-	// target a transitive dep (e.g. reworkcss `css` under
-	// @nativescript/vite) that no importer declares. Keys look like
-	// `css@3.0.0` or `pkg@1.2.3(patch_hash=…)(peer@…)`.
-	for (const section of ['packages', 'snapshots']) {
-		const map = doc?.get(section)
-		if (!isMap(map)) {
-			continue
-		}
+		// packages:/snapshots: carry the whole resolved graph — a patch may
+		// target a transitive dep (e.g. reworkcss `css` under
+		// @nativescript/vite) that no importer declares. Keys look like
+		// `css@3.0.0` or `pkg@1.2.3(patch_hash=…)(peer@…)`.
+		for (const section of ['packages', 'snapshots']) {
+			const map = doc?.get(section)
+			if (!isMap(map)) {
+				continue
+			}
 
-		for (const item of map.items) {
-			const key = String(item.key).split('(')[0]
-			const at = key.lastIndexOf('@')
-			if (at > 0) {
-				add(key.slice(0, at), key.slice(at + 1))
+			for (const item of map.items) {
+				const key = String(item.key).split('(')[0]
+				const at = key.lastIndexOf('@')
+				if (at > 0) {
+					add(key.slice(0, at), key.slice(at + 1))
+				}
 			}
 		}
 	}
