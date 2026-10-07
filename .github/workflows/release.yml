@@ -119,8 +119,8 @@ jobs:
         run: node scripts/check-trusted-publishers.mjs
 
       # Publication consumes CI evidence recorded for exactly TESTED_SHA —
-      # every required release check (lint, typechecks, tests, browser smoke,
-      # packed consumer verification, native iOS/Android builds) must have run
+      # every required CI release check (lint, typechecks, tests, packed
+      # consumer verification, native iOS/Android builds) must have run
       # green in the same CI run the artifacts came from.
       - name: Verify CI release evidence
         if: steps.version.outputs.should_release == 'true'

@@ -54,6 +54,7 @@
 		"smoke:web": "pnpm --filter @xplat/web smoke",
 		"smoke:docs": "pnpm --filter @xplat/docs smoke",
 		"test:packed": "pnpm -r --filter './packages/**' --if-present run test:packed",
+		"test:e2e": "node scripts/test-e2e.mjs",
 		"test:scripts": "node --test scripts/*.test.mjs",
 		"test:typegen": "pnpm --filter tsrx-typegen test",
 		"check:optional-services": "node scripts/check-optional-services.mjs",

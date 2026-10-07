@@ -11,6 +11,23 @@ For Android emulator setup, device isolation, and verified host commands, use th
 Prefer an isolated case over editing the harness or running a full sweep just
 to answer one question. Windows is excluded from this runner.
 
+## Web browser end-to-end tests
+
+CI runs web builds, typechecks, unit tests, and packed-consumer checks without
+launching desktop browsers. The longer Playwright coverage runs locally across
+Chromium, Firefox, and WebKit with:
+
+```sh
+pnpm test:e2e
+```
+
+The command installs Playwright's browser binaries when needed, then runs the
+web input/accessibility, SQLite worker, platform sheet, app smoke, optional
+service, and packed-consumer browser checks. It does not install operating
+system libraries; install Playwright's host dependencies if a local browser
+cannot launch. CI release evidence covers the `checks` job and native builds;
+it no longer implies that this local-only browser suite passed.
+
 Probes are temporary by default; keep task-specific cases in gitignored
 `research/`. The runner and `examples/probes/` are maintained tooling fixtures.
 Retain another probe only when it has an ongoing diagnostic purpose and a clear

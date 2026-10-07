@@ -12,8 +12,9 @@ concurrency:
 
 jobs:
   # Fast gates every push/PR runs: lint, repo checks, both typecheck surfaces,
-  # unit tests, web build, package builds, packed-payload checks, the harness
-  # browser smoke, and the packed-consumer/starter verification.
+  # unit tests, web build, package builds, packed-payload checks, and the
+  # packed-consumer/starter verification. Playwright browser coverage runs
+  # locally with `pnpm test:e2e` because browser downloads are too costly in CI.
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -71,73 +72,15 @@ jobs:
       - name: Check packed declarations and plain TypeScript consumers
         run: pnpm check:pack && pnpm test:packed
 
-      - name: Install Playwright browsers
-        run: pnpm --dir apps/web exec playwright install --with-deps chromium firefox webkit
-
-      - name: Web keyboard, focus, and accessibility readiness (Chromium)
-        run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
-
-      - name: Web keyboard, focus, and accessibility readiness (Firefox)
-        run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
-        env:
-          XPLAT_WEB_BROWSER: firefox
-
-      - name: Web keyboard, focus, and accessibility readiness (WebKit)
-        run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
-        env:
-          XPLAT_WEB_BROWSER: webkit
-
-      - name: SQLite Web worker runtime readiness
-        run: pnpm --filter @xplat/web sqlite:readiness
-
-      - name: SQLite Web worker runtime readiness (Firefox)
-        run: pnpm --filter @xplat/web sqlite:readiness
-        env:
-          XPLAT_WEB_BROWSER: firefox
-
-      - name: SQLite Web worker runtime readiness (WebKit)
-        run: pnpm --filter @xplat/web sqlite:readiness
-        env:
-          XPLAT_WEB_BROWSER: webkit
-
-      - name: Platform sheet smoke (Chromium)
-        run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
-
-      - name: Platform sheet smoke (Firefox)
-        run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
-        env:
-          XPLAT_WEB_BROWSER: firefox
-
-      - name: Platform sheet smoke (WebKit)
-        run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
-        env:
-          XPLAT_WEB_BROWSER: webkit
-
-      - name: Check optional service adapters and Web runtime
-        run: pnpm check:optional-services
-
-      # The same production bundle gets a smoke pass on each major desktop engine.
-      - name: Browser smoke (Chromium)
-        run: pnpm --filter @xplat/web smoke
-
-      - name: Browser smoke (Firefox)
-        run: pnpm --dir apps/web exec node scripts/smoke.mjs
-        env:
-          XPLAT_WEB_BROWSER: firefox
-
-      - name: Browser smoke (WebKit)
-        run: pnpm --dir apps/web exec node scripts/smoke.mjs
-        env:
-          XPLAT_WEB_BROWSER: webkit
+      - name: Check optional service adapters and native tests
+        run: pnpm check:optional-services --no-browser
 
       # Release-path evidence: packs every publishable package, scaffolds a
       # starter via the PACKED create bin, installs it against file: tarballs
       # (no workspace links), then lints/typechecks/builds/doctor-checks the
-      # consumer and browser-smokes its starter UI across desktop engines.
+      # consumer. Browser smoke runs locally with `pnpm test:e2e`.
       - name: Packed consumer + starter verification
-        run: pnpm check:consumer --no-build --smoke web
-        env:
-          XPLAT_WEB_BROWSERS: chromium,firefox,webkit
+        run: pnpm check:consumer --no-build
 
   # Slow target jobs — release evidence only. They run on main pushes (PRs get
   # the full `checks` matrix above) because `ns build` costs 20-40 min cold.

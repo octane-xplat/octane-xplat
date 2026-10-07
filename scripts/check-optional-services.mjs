@@ -59,16 +59,18 @@ try {
 		{ cwd: root, stdio: 'inherit' },
 	)
 
-	for (const browser of ['chromium', 'firefox', 'webkit']) {
-		execFileSync(process.execPath, ['apps/web/scripts/optional-services.mjs'], {
-			cwd: root,
-			stdio: 'inherit',
-			env: {
-				...process.env,
-				XPLAT_WEB_BROWSER: browser,
-				XPLAT_WEB_AUDIO_MODE: browser === 'firefox' ? 'metadata' : 'playback',
-			},
-		})
+	if (!process.argv.includes('--no-browser')) {
+		for (const browser of ['chromium', 'firefox', 'webkit']) {
+			execFileSync(process.execPath, ['apps/web/scripts/optional-services.mjs'], {
+				cwd: root,
+				stdio: 'inherit',
+				env: {
+					...process.env,
+					XPLAT_WEB_BROWSER: browser,
+					XPLAT_WEB_AUDIO_MODE: browser === 'firefox' ? 'metadata' : 'playback',
+				},
+			})
+		}
 	}
 } finally {
 	await rm(scratch, { recursive: true, force: true })
