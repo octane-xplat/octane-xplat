@@ -37,7 +37,10 @@ const value = (name) => {
 const REQUIRED_JOBS = ['checks', 'native-ios', 'native-android']
 
 const sha = value('sha') ?? process.env.GITHUB_SHA
-const runId = value('run-id') ?? process.env.GITHUB_RUN_ID
+// GITHUB_RUN_ID is only meaningful in record mode (the CI run recording its
+// own evidence). In verify mode this script runs in release.yml, where
+// GITHUB_RUN_ID is the release run — never the CI run being verified.
+const runId = value('run-id') ?? (mode === 'record' ? process.env.GITHUB_RUN_ID : undefined)
 const outDir = value('out') ?? '.ci-evidence'
 
 if (mode === 'record') {
