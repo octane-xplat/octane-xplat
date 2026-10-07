@@ -79,12 +79,12 @@ function TableBlock(props: { rows: string[][]; dir: string }) @{
 
 		updateEdges();
 		element.addEventListener('scroll', updateEdges, { passive: true });
-		const observer = new ResizeObserver(updateEdges);
-		observer.observe(element);
-		if (element.firstElementChild) observer.observe(element.firstElementChild);
+		const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(updateEdges) : null;
+		observer?.observe(element);
+		if (element.firstElementChild) observer?.observe(element.firstElementChild);
 		return () => {
 			element.removeEventListener('scroll', updateEdges);
-			observer.disconnect();
+			observer?.disconnect();
 		};
 	}, [props.rows]);
 
