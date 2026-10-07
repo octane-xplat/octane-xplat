@@ -6,13 +6,18 @@ import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
 import { layoutChildProps } from './layout-child';
 import { isSvgSrc, svgSource } from './svg';
+import { createSizedImageBinding } from './image-sizing';
 /** Image — NS <image>. `src` accepts the NS ImageSource grammar:
  *  res://name, ~/bundle-path, file path, remote URL, or data: URI. SVG srcs
  *  (inline markup, svg data URIs, .svg paths/URLs) route to <svgview> —
  *  remote .svg URLs fetch to markup since SVGView has no fetch of its own.
- *  `alt` maps to accessibilityLabel (RN calls it `alt` on web parity). */
+ *  `alt` maps to accessibilityLabel (RN calls it `alt` on web parity).
+ *  `src` never goes through JSX: the binding holds it until first layout,
+ *  then sets decodeWidth/decodeHeight in device px before assigning — an
+ *  eager src would decode at full source resolution on Android (study L1). */
 export function Image(props: ImageProps) @{
 	const svg = useMemo(() => (isSvgSrc(props.src) ? svgSource(props.src) : null), [props.src]);
+	const sizing = useMemo(() => createSizedImageBinding(), []);
 	const source = useMemo(() => {
 		const comma = props.src.indexOf(',');
 		if (
@@ -39,12 +44,16 @@ export function Image(props: ImageProps) @{
 		/>
 	} @else {
 		<image
-			ref={(v: any) => applyEscapeProps(v, props)}
+			ref={(v: any) => {
+				applyEscapeProps(v, props);
+				if (v) {
+					sizing.update(v, source);
+				}
+			}}
 			id={props.id}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
 			style={props.style}
-			src={source}
 			accessibilityLabel={props.alt}
 		/>
 	}
