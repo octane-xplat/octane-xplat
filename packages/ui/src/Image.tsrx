@@ -1,23 +1,62 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { ImageSource } from '@nativescript/core';
+import { isAndroid, isIOS, ImageSource, Screen } from '@nativescript/core';
 import { useMemo, useRef } from 'octane';
-import type { ImageProps } from './props';
+import type { ImageProps, ImageSourceLike } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
+import { rememberGridChildPlacement } from './grid-placement';
 import { layoutChildProps } from './layout-child';
 import { isSvgSrc, svgSource } from './svg';
 import { createSizedImageBinding } from './image-sizing';
+import { contentFitToStretch, needsContentRect, resolveContentFit, resolveContentPosition } from './image-content';
+import { createImageContentBinding } from './image-content-binding';
 /** Image — NS <image>. `src` accepts the NS ImageSource grammar:
- *  res://name, ~/bundle-path, file path, remote URL, or data: URI. SVG srcs
- *  (inline markup, svg data URIs, .svg paths/URLs) route to <svgview> —
- *  remote .svg URLs fetch to markup since SVGView has no fetch of its own.
- *  `alt` maps to accessibilityLabel (RN calls it `alt` on web parity).
- *  `src` never goes through JSX: the binding holds it until first layout,
- *  then sets decodeWidth/decodeHeight in device px before assigning — an
- *  eager src would decode at full source resolution on Android (study L1). */
+ *  res://name, ~/bundle-path, file path, remote URL, or data: URI; an
+ *  ImageSourceLike[] picks the closest pixel count to the laid-out view
+ *  (srcset for native — study L8). SVG srcs (inline markup, svg data URIs,
+ *  .svg paths/URLs) route to <svgview> — remote .svg URLs fetch to markup
+ *  since SVGView has no fetch of its own. `alt` maps to accessibilityLabel
+ *  (RN calls it `alt` on web parity).
+ *  `contentFit` maps to stretch for the centered contain/cover/fill cases.
+ *  'none'/'scale-down'/positioned content takes the computed path: the
+ *  binding measures the host box, computes the CSS content rect, and lays
+ *  out an inner fill-stretched <image> inside a clipped absolutelayout —
+ *  the view-level equivalent of expo's matrix (the stock NS widget owns
+ *  its own draw matrix; see image-content-binding.ts).
+ *  `src` never goes through JSX: the content binding resolves WHICH source
+ *  (the array pick, or the prop as-is) and hands it to the sized binding,
+ *  which holds it until first layout then sets decodeWidth/decodeHeight in
+ *  device px before assigning — an eager src would decode at full source
+ *  resolution on Android (study L1). */
+function clipImageHost(host: any): void {
+	host?.on?.('loaded', () => {
+		// iOS UIView clipsToBounds defaults false (DOM/NS overflow:visible);
+		// cover/positioned rects must clip at the component box. Android
+		// ViewGroups clip children by default — and the host never receives
+		// escape props, which would unclip it.
+		if (isIOS && host.ios) {
+			host.ios.clipsToBounds = true;
+		}
+	});
+}
+
 export function Image(props: ImageProps) @{
-	const svg = useMemo(() => (isSvgSrc(props.src) ? svgSource(props.src) : null), [props.src]);
+	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null;
+	const srcString = sources ? '' : (props.src as string);
+	const fit = resolveContentFit(props.contentFit);
+	const position = resolveContentPosition(props.contentPosition);
+	const computed = needsContentRect(fit, position);
 	const sizing = useMemo(() => createSizedImageBinding(), []);
+	const binding = useMemo(
+		() =>
+			createImageContentBinding({
+				isAndroid,
+				screenScale: () => Screen.mainScreen?.scale ?? 1,
+				issue: (view: any, src: any, gate?: string) => sizing.update(view, src, gate),
+			}),
+		[],
+	);
+
 	const imageRef = useRef<any>(null);
 	const boundRef = useRef({ key: props.recyclingKey, src: props.src });
 	const bound = boundRef.current;
@@ -36,18 +75,21 @@ export function Image(props: ImageProps) @{
 		imageRef.current.imageSource = null;
 	}
 
+	const svg = useMemo(() => (srcString && isSvgSrc(srcString) ? svgSource(srcString) : null), [srcString]);
 	const source = useMemo(() => {
-		const comma = props.src.indexOf(',');
+		const comma = srcString.indexOf(',');
 		if (
-			props.src.startsWith('data:') &&
+			srcString.startsWith('data:') &&
 			comma > 0 &&
-			props.src.slice(0, comma).endsWith(';base64')
+			srcString.slice(0, comma).endsWith(';base64')
 		) {
-			return ImageSource.fromBase64Sync(props.src.slice(comma + 1));
+			return ImageSource.fromBase64Sync(srcString.slice(comma + 1));
 		}
 
-		return props.src;
-	}, [props.src]);
+		return srcString;
+	}, [srcString]);
+
+	const update = { source: sources ? null : source, sources, fit, position, computed };
 
 	@if (svg != null) {
 		<svgview
@@ -57,22 +99,49 @@ export function Image(props: ImageProps) @{
 			className={cx(props.className)}
 			style={props.style}
 			src={svg}
-			stretch="aspectFit"
+			stretch={fit === 'none' ? 'none' : contentFitToStretch(fit === 'scale-down' ? 'contain' : fit)}
 			accessibilityLabel={props.alt}
 		/>
-	} @else {
-		<image
+	} @else if (computed) {
+		<absolutelayout
 			ref={(v: any) => {
-				imageRef.current = v;
-				applyEscapeProps(v, props);
+				clipImageHost(v);
+				rememberGridChildPlacement(v, props);
 				if (v) {
-					sizing.update(v, source);
+					binding.update(v, null, update);
 				}
 			}}
 			id={props.id}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
 			style={props.style}
+		>
+			<image
+				ref={(v: any) => {
+					imageRef.current = v;
+					applyEscapeProps(v, props);
+					if (v) {
+						binding.update(null, v, update);
+					}
+				}}
+				stretch="fill"
+				accessibilityLabel={props.alt}
+			/>
+		</absolutelayout>
+	} @else {
+		<image
+			ref={(v: any) => {
+				imageRef.current = v;
+				applyEscapeProps(v, props);
+				if (v) {
+					binding.update(v, v, update);
+				}
+			}}
+			id={props.id}
+			{...layoutChildProps(props)}
+			className={cx(props.className)}
+			style={props.style}
+			stretch={contentFitToStretch(fit)}
 			accessibilityLabel={props.alt}
 		/>
 	}

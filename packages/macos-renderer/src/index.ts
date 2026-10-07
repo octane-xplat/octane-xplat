@@ -1852,8 +1852,10 @@ function applyStyle(node: ElementNode, style: PropBag) {
 				inputTransparentViews.delete(node.view!)
 			}
 		} else if (name === 'objectFit' && node.type === 'image') {
-			// NSImageScaleProportionallyUpOrDown / NSImageScaleProportionallyDown.
-			node.view!.imageScaling = value === 'contain' ? 3 : 0
+			// NSImageScaling: 0 ProportionallyDown, 1 AxesIndependently,
+			// 2 None (centered, unscaled), 3 ProportionallyUpOrDown.
+			// AppKit has no cover mode — 'cover' degrades to scale-down.
+			node.view!.imageScaling = { contain: 3, 'scale-down': 0, fill: 1, none: 2 }[value] ?? 0
 		} else if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)

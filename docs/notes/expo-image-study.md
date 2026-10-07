@@ -24,8 +24,8 @@ findings — symptoms, profiling steps, and fixes an app can apply today — see
 | 4 | `recyclingKey` prop — blank the view when a recycled cell's identity changes | **Applied** (adapted — gated on `src` change too) | Medium; kills stale-image flashes on Android platform lists |
 | 5 | Placeholders as pipeline loaders (blurhash/thumbhash decode into the same cache/target path) | **Adapt** | Medium; fixes the "placeholder vs final" flicker class |
 | 6 | `cachePolicy` as two orthogonal axes (transformed-image cache + original-bytes cache) | **Adapt** | Medium; NS core only exposes `useCache` bool |
-| 7 | `contentFit`/`contentPosition` via matrix math, not platform scaleType | **Adapt** | Medium — needed for parity-grade positioning |
-| 8 | Multi-`source` array → closest-pixel-count selection (`srcset` for native) | **Portable** | Low-medium; future-facing |
+| 7 | `contentFit`/`contentPosition` via matrix math, not platform scaleType | **Applied (adapted)** — computed view-rect, not a drawable matrix | Medium — needed for parity-grade positioning |
+| 8 | Multi-`source` array → closest-pixel-count selection (`srcset` for native) | **Applied** — `src` accepts a `ImageSourceLike[]`; JS picks, engine loads | Low-medium; future-facing |
 | 9 | Gate per-load events on a JS listener flag (`hasImageLoadedListener`) | **Redundant** — the NS driver model is already listener-gated | None; no unconditional hops exist to remove |
 | 10 | `SharedRef`/`useImage`, SF Symbols, `sfEffect`, Live Text, HDR, `webMaxViewportWidth` | **Irrelevant** (confirmed; see verdict note) | Expo/Apple-surface chrome |
 
@@ -192,6 +192,8 @@ shows the pressure-release API shape if we ever need it.
 | L3 prefetch | **Applied in `@octane-xplat/gif`; rejected for core `Image`** | `getImagePipeline().prefetchToDiskCache()` gives the real "bytes on disk, decode at display" semantic on both engines (Fresco disk cache; SDWebImage disk store). Exported as `prefetch(srcs, options?) → Promise<boolean>`; web warms the HTTP cache through a throwaway `<img>`; macOS resolves `false` (no pipeline). Core `Image` was *not* given a prefetch: NS `ImageCache` keeps a private LRU the `<image>` view never reads, so exposing it would promise warmth that never arrives. |
 | L4 recyclingKey | **Applied — adapted to the two surfaces that actually need it** | The flash is real only where a recycled host keeps its view *and* the platform keeps its bitmap: `UITableView`/`RecyclerView` cells rebind in place (`bind()` diffs the same tree), and Android `setUri` retains the drawable for non-empty URIs while iOS nulls `imageSource` per string `src`. `ImageProps.recyclingKey` clears the bitmap on key+src change (see the L4 section for evidence and the same-src refinement). `VirtualList`/web/macOS re-key rows instead of rebinding, so they intentionally ignore the prop. |
 | L6 cachePolicy | **Adapted — no four-value prop exposed anywhere** | Neither engine surface supports the two orthogonal axes. NS core offers only Android `useCache` (already reachable via `Image`'s `android` escape bag; iOS ignores it). The ui-image `Img` offers a single "bypass" axis (`noCache`: Android evicts the URI then loads; iOS `SDWebImageOptions.FromLoaderOnly`) — still not a per-axis policy. Rather than paper over the missing axes, `AnimatedImage` gained `ios`/`android`/`web` escape bags (the `ImageProps` convention) so `noCache`, `cacheKey`, `decodeWidth`, and friends are reachable as explicitly platform props. |
+| L7 contentFit/contentPosition | **Applied — adapted to a computed view-rect** | Shared `contentFit`/`contentPosition` props with the CSS contract; the stock NS widget owns its draw matrix so a JS matrix is unreachable — the binding measures the box and lays out an inner `stretch="fill"` image to the computed rect instead. Full note in the L7 section. |
+| L8 multi-source | **Applied — `src` accepts `ImageSourceLike[]`** | Closest-pixel-count pick runs in JS after first layout and feeds the sized-decode seam; web emits real `srcset`. Gaps noted in the L8 section (no `sizes`, arrays bypass svgview, macOS takes the first entry). |
 | L9 listener gating | **Redundant — no unconditional hops exist** | `Image` emits no per-load events, and the universal driver attaches native listeners only for supplied `onX` props — prop presence *is* the listener flag. Keep any future `onLoad`/`onError` prop-gated the same way and carry `cacheType` on the payload. |
 | L10 Expo/Apple chrome | **Confirmed irrelevant** | `useImage`/`loadAsync` overlaps the shipped `prefetch` (L3) plus `ImageSource` srcs; SF Symbols already reachable via `sys://` icon names and `iosSymbolEffect`/`iosSymbolScale` through the `ios` escape bag. The rest — `sfEffect`, Live Text, HDR, `useAppleWebpCodec`, web srcset machinery, `decodeFormat` — has no octane contract to express it in. |
 
@@ -206,12 +208,57 @@ covers the fits but has no position control; a `contentPosition` prop would
 need the matrix approach on Android (`setImageMatrix`) — `scaleType` alone
 can't express it.
 
+**Applied verdict — adapted (2026-10-06, desk-source + object-driver tests).**
+The divergence was real, and worse than "no position control": the *defaults*
+disagreed (web `<img>` = `object-fit: fill`, NS `stretch` = `aspectFit`), and
+`stretch='none'` maps to `UIViewContentMode.TopLeft` on iOS vs centered —
+so even the expressible vocabulary silently diverged. `contentFit` and
+`contentPosition` are now shared `ImageProps` with the CSS/expo contract
+(five fits, edge+value position model, default `'cover'` everywhere — the
+expo/RN default; un-propped Images change appearance on both platforms, a
+deliberate parity fix). The literal drawable-matrix port is **not**
+implementable on the stock widgets `ImageView` — it computes its own
+`mMatrix` inside `onDraw`/`computeScaleFactor` for stretch + rounding +
+bitmap shaders, and `ScaleType.MATRIX` just hits a canned arm; JS can't
+inject a matrix. That's engine internals, i.e. Glide-leaf territory. What
+the component can own is the view-level equivalent — exactly the
+"measure → compute transform → apply" shape: the binding measures the box
+(`layoutChanged` → `getActualSize`, dips), `image-content.ts` computes the
+content rect with the same math as `toMatrix`/`calcTranslation`, and an
+inner `<image stretch="fill">` is laid out to that rect inside a clipped
+`absolutelayout`. One code path → identical rects on iOS and Android.
+Centered contain/cover/fill stays on the fast `stretch` path (no wrapper);
+'none', 'scale-down', and non-center positions take the computed path —
+which also fixes the iOS TopLeft-vs-centered 'none' divergence for free.
+Gaps: `contentPosition`/scale-down don't reach `<svgview>` sources (no
+intrinsic-size pipeline there — vector upscales free anyway), and macOS
+maps objectFit to `NSImageScaling` (contain/scale-down/fill/none expressible;
+'cover' degrades to scale-down — AppKit has no cover mode, `contentPosition`
+unimplemented).
+
 ## L8–L10 — smaller lessons
 
 - **Best-source selection** (`getBestSource` on both platforms): for a
   `source` array, pick the source whose `width*height*scale²` is closest to
   the view's pixel count. Pure TS, directly portable; pairs with per-source
   `width`/`height`/`scale` fields in `ImageSource`.
+  **Applied verdict — adapted (2026-10-06, desk-source + object-driver
+  tests).** `Image.src` now accepts `ImageSourceLike[]`
+  (`{uri,width?,height?,scale?}`). The engine takes a chosen URI cleanly —
+  selection is pure JS and runs before load: the content binding defers
+  selection until the first real layout, picks the closest pixel count
+  with expo's `|1 − source/target|` math, re-picks on resize, and hands
+  the winning URI to `createSizedImageBinding`'s `update` — so the same
+  first-layout gate covers source selection *and* the L1 decode dims in
+  one pipeline, and the computed path passes the semantic fit as the
+  decode gate ('none' keeps the full-resolution source; view-sample
+  everything else).
+  Web emits a real `srcset` (`w` from `width·scale`, `x` from `scale`,
+  largest-declared `src` as fallback) — the browser owns selection there,
+  same split as expo-image. Gaps: `sizes` isn't emitted (browser picks by
+  viewport, not element box — a `sizes` prop or `sizes="auto"` is a later
+  refinement); array srcs bypass the svgview route; macOS takes the first
+  entry only.
 - **Event gating**: `hasImageLoadedListener` (both modules) skips the
   per-image-load bridge hop when no one subscribes `imageLoaded`. Same win
   applies to any per-load callback we'd emit through NS marshaling.

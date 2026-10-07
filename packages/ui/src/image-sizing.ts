@@ -25,13 +25,17 @@ export function createSizedImageBinding() {
 	let view: any = null;
 	let listening = false;
 	let pendingSrc: any;
+	let pendingStretch: string | undefined;
 	let appliedSrc: any;
 	let applied = false;
 	let width = 0;
 	let height = 0;
 
 	const issue = (next: any) => {
-		const downscale = view.stretch !== 'none';
+		// `pendingStretch` overrides view.stretch for the decode gates when the
+		// content-rect path draws stretch='fill' under a different semantic fit
+		// ('none' needs the full-resolution source to find the natural size).
+		const downscale = (pendingStretch ?? view.stretch) !== 'none';
 		view.decodeWidth = { value: downscale ? width : 0, unit: 'px' };
 		view.decodeHeight = { value: downscale ? height : 0, unit: 'px' };
 		view.src = next;
@@ -43,6 +47,7 @@ export function createSizedImageBinding() {
 		if (!view) {
 			return;
 		}
+
 		const measuredWidth = view.getMeasuredWidth?.() ?? 0;
 		const measuredHeight = view.getMeasuredHeight?.() ?? 0;
 		// Hold the request until a real layout — writing src sooner decodes
@@ -50,19 +55,23 @@ export function createSizedImageBinding() {
 		if (measuredWidth <= 0 || measuredHeight <= 0) {
 			return;
 		}
+
 		if (!applied || pendingSrc !== appliedSrc) {
 			width = measuredWidth;
 			height = measuredHeight;
 			issue(pendingSrc);
 			return;
 		}
+
 		if (measuredWidth === width && measuredHeight === height) {
 			return;
 		}
-		const stretch = view.stretch;
+
+		const stretch = pendingStretch ?? view.stretch;
 		if (stretch === 'fill' || stretch === 'none') {
 			return;
 		}
+
 		width = measuredWidth;
 		height = measuredHeight;
 		issue(appliedSrc);
@@ -71,8 +80,10 @@ export function createSizedImageBinding() {
 	const onLayout = () => evaluate();
 
 	return {
-		/** (Re)bind source → view; issues once the view reports a real layout. */
-		update(next: any, source: any): void {
+		/** (Re)bind source → view; issues once the view reports a real layout.
+		 *  `stretchForDecode` overrides view.stretch for the decode/reload
+		 *  gates — see `issue`. */
+		update(next: any, source: any, stretchForDecode?: string): void {
 			if (next !== view) {
 				view?.off?.('layoutChanged', onLayout);
 				view = next;
@@ -80,11 +91,14 @@ export function createSizedImageBinding() {
 				applied = false;
 				appliedSrc = undefined;
 			}
+
 			pendingSrc = source;
+			pendingStretch = stretchForDecode;
 			if (view && !listening && typeof view.on === 'function') {
 				view.on('layoutChanged', onLayout);
 				listening = true;
 			}
+
 			evaluate();
 		},
 		dispose(): void {

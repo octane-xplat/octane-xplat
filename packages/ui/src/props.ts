@@ -1198,11 +1198,66 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
 	web?: any
 }
 
+/** A density/size-qualified entry in a multi-resolution `Image.src` array —
+ *  the native `srcset` analog. `uri` takes the same grammar as a string
+ *  `src`. `width`/`height` declare the source's display size (dips) and
+ *  `scale` its density multiplier, so file pixels are `width·scale`: the
+ *  selector compares `width·height·scale²` against the view's pixel count
+ *  and loads the closest match once a real layout exists. */
+export interface ImageSourceLike {
+	uri: string
+	width?: number
+	height?: number
+	scale?: number
+}
+
+/** How the bitmap is sized inside the element's box — the CSS `object-fit`
+ *  vocabulary (same contract as expo-image `contentFit`). Default 'cover'. */
+export type ImageContentFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'
+
+/** One edge value in a `contentPosition`: dips from the named edge, a
+ *  percentage of the free space along that axis, or 'center' (= '50%'). */
+export type ImageContentPositionValue = number | `${number}%` | 'center'
+
+export interface ImageContentPositionObject {
+	top?: ImageContentPositionValue
+	right?: ImageContentPositionValue
+	bottom?: ImageContentPositionValue
+	left?: ImageContentPositionValue
+}
+
+export type ImageContentPositionString =
+	| 'center'
+	| 'top'
+	| 'right'
+	| 'bottom'
+	| 'left'
+	| 'top center'
+	| 'top right'
+	| 'top left'
+	| 'right center'
+	| 'right top'
+	| 'right bottom'
+	| 'bottom center'
+	| 'bottom right'
+	| 'bottom left'
+	| 'left center'
+	| 'left top'
+	| 'left bottom'
+
+/** Where the drawn bitmap sits inside the element's box — CSS
+ *  `object-position`. A keyword string, or an object naming one horizontal
+ *  and one vertical edge. Default centered on every platform. */
+export type ImageContentPosition = ImageContentPositionObject | ImageContentPositionString
+
 export interface ImageProps extends LayoutChildProps {
 	className?: any
 	style?: any
 	id?: string
-	src: string
+	/** A single source — `res://name`, `~/bundle-path`, file path, remote
+	 *  URL, or data:/inline-SVG URI — or a resolution-qualified array
+	 *  (closest pixel count wins; the `srcset` model). */
+	src: string | ImageSourceLike[]
 	alt?: string
 	/** Item identity for recycled platform-list cells (RecyclerView/UITableView
 	 *  rebind the same view). When the key changes between binds, the previous
@@ -1211,6 +1266,14 @@ export interface ImageProps extends LayoutChildProps {
 	 *  macOS leaves ignore it: their lists remount keyed rows rather than
 	 *  rebinding a reused host. */
 	recyclingKey?: string
+	/** Bitmap sizing inside the box — CSS `object-fit`. Default 'cover' on
+	 *  every platform (the platform-native defaults disagree: web `img` is
+	 *  `fill`, NS stretch is `aspectFit`). */
+	contentFit?: ImageContentFit
+	/** Bitmap alignment inside the box — CSS `object-position`. Native
+	 *  honors it by laying out the image itself (measured path), so
+	 *  arbitrary positions match web pixel-for-pixel. */
+	contentPosition?: ImageContentPosition
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any

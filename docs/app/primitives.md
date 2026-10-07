@@ -818,6 +818,43 @@ This embedded component does not install a service bridge. To run an entire
 DOM app in a macOS webview window, use the separate
 [desktop-webview app-shell workflow](../platform/macos-webview.md).
 
+### Fit and position an image
+
+`Image` sizes its bitmap to its box with `contentFit` — the CSS `object-fit`
+vocabulary: `'cover'` (default — fill the box, crop the overflow),
+`'contain'` (letterbox the whole image), `'fill'` (stretch to the box),
+`'none'` (intrinsic size), or `'scale-down'` (like `contain`, but never
+larger than the source). `contentPosition` moves the bitmap inside the box:
+a keyword like `'top left'` or an object naming edges
+(`{ top: 0, right: '25%' }`). Both behave identically on web and native —
+the native leaf computes the same rect the browser would.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+;<Image
+	src="https://example.com/team-photo.jpg"
+	alt="Team at the offsite"
+	contentFit="cover"
+	contentPosition="top center"
+	style={{ width: 200, height: 120 }}
+/>
+```
+
+`src` also accepts a resolution array — the closest pixel count to the
+laid-out view wins (the `srcset` model; web emits a real `srcset`):
+
+```tsx
+<Image
+	src={[
+		{ uri: 'https://example.com/hero-400.jpg', width: 400, height: 300 },
+		{ uri: 'https://example.com/hero-1200.jpg', width: 1200, height: 900 },
+	]}
+	alt="Hero"
+	contentFit="cover"
+/>
+```
+
 ### Video playback
 
 `Video` plays a clip — `src`, `poster`, `playing`/`onPlayingChange` (or
