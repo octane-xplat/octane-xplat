@@ -18,6 +18,7 @@ export type {
 	ImageContentPositionObject,
 	ImageContentPositionString,
 	ImageContentPositionValue,
+	ImageDecoding,
 	ImageErrorEvent,
 	ImageLoadEvent,
 	ImageProps,

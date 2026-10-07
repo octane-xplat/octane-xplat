@@ -64,6 +64,12 @@ documented no-ops.
   `DiskCacheStrategy.NONE`, SDWebImage `FromLoaderOnly`), so
   `'memory'`/`'disk'` splits are not representable — only `'memory-disk'`
   (default) and `'none'`.
+- **`decoding='sync'` is not honorably supported.** Glide/SDWebImage have no
+  synchronous decode mode — the ui-image plugin's `loadMode` prop is
+  registered but never read — so 'sync' degrades to the async default with
+  a console warning. If synchronous decode is a hard requirement, use core
+  `Image` (NS `loadMode` honors it for file/resource/data srcs). On web the
+  prop maps 1:1 to the HTML `decoding` attribute, as it does on core.
 - Engine extras (`failureImage`, `headers`, `decodeWidth`, `decodeHeight`,
   `progressive`, `fadeDuration`, `cachePolicy`) are native-only and ignored on
   web.

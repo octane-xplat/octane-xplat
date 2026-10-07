@@ -9,6 +9,7 @@ export type {
 	ImageContentPositionObject,
 	ImageContentPositionString,
 	ImageContentPositionValue,
+	ImageDecoding,
 	ImageSourceLike,
 } from '@octane-xplat/ui';
 
@@ -62,7 +63,10 @@ export type ImageCacheState = 'memory' | 'disk' | 'none'
  *  plain <img>. Every `@octane-xplat/ui` Image prop is accepted with the same
  *  meaning — the members below are engine extensions with no core equivalent;
  *  they are ignored on web. SVG `src` is the one behavioral gap — keep core
- *  `Image` for those. */
+ *  `Image` for those. One asymmetry: `decoding='sync'` is not honorably
+ *  supported — Glide/SDWebImage have no synchronous decode mode (the plugin's
+ *  `loadMode` prop is registered but never read), so 'sync' degrades to
+ *  async on native with a console warning rather than a fake. */
 export interface ImageProps extends CoreImageProps {
 	/** Native only — 'none' bypasses memory and disk caches for this image.
 	 *  Default 'memory-disk' leaves both caches active. */

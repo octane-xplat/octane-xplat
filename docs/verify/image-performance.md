@@ -45,7 +45,9 @@ The shared `Image` component ([`packages/ui/src/Image.tsrx`](../../packages/ui/s
 renders a NativeScript `<image>` element; on web
 ([`Image.web.tsrx`](../../packages/ui/src/Image.web.tsrx)) it is a plain
 `<img>`. `ImageProps` in [`packages/ui/src/props.ts`](../../packages/ui/src/props.ts)
-exposes only `src` and `alt` — no decode or cache controls.
+exposes `src`, `alt`, `placeholder`, `recyclingKey`, `contentFit`,
+`contentPosition`, and `decoding`, plus the `ios`/`android`/`web` escape
+bags — decode sizing is handled internally (below), not by props.
 
 On Android, assigning `src` reaches
 `_createImageSourceFromSrc` in NS core's `packages/core/ui/image/index.android.ts`,
@@ -56,13 +58,15 @@ imageView.setUri(value, decodeWidth, decodeHeight, keepAspectRatio, this.useCach
 ```
 
 `decodeWidth` and `decodeHeight` are declared on `ImageBase`
-(`packages/core/ui/image/image-common.ts`) with a default of `0`, and nothing
-in the Xplat leaf sets them. Inside
+(`packages/core/ui/image/image-common.ts`) with a default of `0`. The Xplat
+leaf holds `src` until the view's first layout and writes both in device
+pixels before assigning (`image-sizing.ts`), so decodes target the laid-out
+view size rather than the source resolution. Inside
 `packages/ui-mobile-base/android/widgets/src/main/java/org/nativescript/widgets/image/Fetcher.java`,
 `calculateInSampleSize` maps a requested size of `0` or less back to the
-source dimensions, so `inSampleSize` stays `1` — a full-resolution decode.
-Bitmaps are 4 bytes per pixel (`ARGB_8888`), so the cost is the source pixel
-count, not the view size:
+source dimensions — the eager-`src` path this binding exists to avoid.
+Bitmaps are 4 bytes per pixel (`ARGB_8888`), so cost is source pixels if
+the deferred write never happens:
 
 | Source | View it fills | Decoded size by default | Needed for the view |
 | ------ | ------------- | ----------------------- | ------------------- |
@@ -129,9 +133,11 @@ screen — the 5 MB cache evicted them mid-scroll.
 grep -rn "decodeWidth\|decodeHeight" src/
 ```
 
-Nothing in `packages/ui` sets these props. Unless app code passes them through
-the platform escape bag (below), every native `<image>` decodes at full source
-resolution.
+`packages/ui`'s own leaf sets them — `image-sizing.ts` writes the view's
+laid-out size in device pixels at every `src` issue (except `stretch='none'`
+srcs, which keep the full-resolution source by contract). If profiling shows
+source-sized bitmaps anyway, suspect the escape bag or a non-leaf `<image>`
+elsewhere in the tree.
 
 ### Healthy vs unhealthy at a glance
 
@@ -147,88 +153,53 @@ resolution.
 Ordered roughly by effort. Each fits a different situation — pick the smallest
 change that matches your app's constraints rather than stacking them all.
 
-### Pass `decodeWidth`/`decodeHeight` (Android)
+### Decode to the view size — already on for core `Image`
 
-NS `<image>` already takes both props; the Xplat leaf just doesn't forward
-them. `ImageProps` carries an `android` escape bag that is assigned onto the
-native view after the shared props, so you can set them today. Values are
-**dip** (a plain number is dip; pass a string like `'288px'` for raw pixels):
+The leaf holds `src` until the view's first real layout, writes
+`decodeWidth`/`decodeHeight` in device pixels, then assigns — the
+expo-image pattern of decode-to-laid-out-size, built in rather than
+opt-in. An `android={{ decodeWidth: … }}` escape-bag value is overwritten
+by that binding at issue time, so it can't force a different decode size.
+Two paths still decode at full source resolution on Android:
 
-```tsx
-import { Image } from '@octane-xplat/ui'
+- `contentFit="none"` srcs — 'none' means source pixels, so the binding
+  leaves the decode dims at `0` by contract.
+- Srcs applied through the platform escape bag (`android={{ src: … }}`)
+  instead of the `src` prop, which bypass the binding entirely.
 
-;<Image
-	src={photo.url}
-	alt={photo.caption}
-	android={{ decodeWidth: 96, decodeHeight: 96 }}
-/>
-```
-
-This is the right tool when the display size is a constant you know — a fixed
-avatar or thumbnail size. Tradeoffs:
-
-- The dims are read when `src` is applied (`setUri` time). If the view's size
-  changes later, nothing re-decodes — you'd get a low-res bitmap in a bigger
-  view until `src` is re-assigned.
-- Values are capped at the screen's pixel dimensions.
-- They only apply to file/resource/URL srcs routed through `setUri`. `data:`
-  URIs and font-icon URIs take the shared path that ignores decode dims.
-- iOS ignores both props, and this does nothing for the 5 MB memory cache —
-  see the engine option below if cache misses are your main cost.
-
-### Defer `src` until the view has a size
-
-When the display size depends on layout, measure the container first and only
-attach `src` once you know it. [`useMeasure`](../../packages/ui/src/useMeasure.tsrx)
-returns bounds in dip, which is exactly the unit `decodeWidth` expects:
+If you need decode bounds that are *not* the view size — say a deliberate
+upscale limit — that's the `@octane-xplat/image` leaf's explicit
+`decodeWidth`/`decodeHeight` props (device px, engine-level):
 
 ```tsx
-import { Image, View, useMeasure } from '@octane-xplat/ui'
+import { Image } from '@octane-xplat/image'
 
-export function FeedPhoto(props: { src: string; alt?: string }) {
-	const box = useMeasure({ observe: false })
-	const size = box.bounds
-	return (
-		<View ref={box.ref} className="feed-photo">
-			{size && (
-				<Image
-					src={props.src}
-					alt={props.alt}
-					android={{
-						decodeWidth: size.width,
-						decodeHeight: size.height,
-						loadMode: 'async',
-					}}
-				/>
-			)}
-		</View>
-	)
-}
+;<Image src={photo.url} alt={photo.caption} decodeWidth={288} decodeHeight={288} />
 ```
 
-This is the pattern expo-image uses internally — wait for layout, then decode
-to the laid-out size. Tradeoffs: images render one layout pass late, so pair
-it with a `Skeleton` or background color; `{observe: false}` avoids re-decoding
-on every layout shift but means a genuinely resized image keeps its original
-decode size until `src` changes.
+### Move decode off the UI thread — the `decoding` prop
 
-### Move decode off the UI thread
-
-NS `loadMode` defaults to `'sync'` for file/resource/data srcs — decode runs
-on the UI thread. Setting it to `'async'` moves the work to a worker:
+`Image` takes `decoding?: 'async' | 'sync'`, defaulting to `'async'` — it
+maps to NS `loadMode`, which decides whether file/resource/data srcs decode
+on the UI thread or a worker:
 
 ```tsx
-<Image
-	src="~/images/hero.jpg"
-	alt="Header"
-	ios={{ loadMode: 'async' }}
-	android={{ loadMode: 'async' }}
-/>
+<Image src="~/images/hero.jpg" alt="Header" decoding="async" />
 ```
 
-Remote URL srcs are always loaded async regardless of this prop. Async
-loading doesn't shrink the decode — it just stops the decode from blocking a
-frame. Expect images to appear slightly later; combine with a placeholder.
+`'async'` is the default, so you only reach for this prop to opt into
+`'sync'` — decode during the `src` assignment, blocking the UI thread —
+for small bitmaps that must appear without a late frame (tiny inline
+icons). Three NS-level exceptions apply regardless of the value: remote
+URLs always decode async, `data:`/font-icon srcs always decode sync, and
+the hint is read when `src` is issued — changing it later doesn't
+re-decode. On web it writes the HTML `decoding` attribute 1:1.
+
+The `@octane-xplat/image` leaf accepts the prop for drop-in parity but
+cannot honor `'sync'` — Glide and SDWebImage have no synchronous decode
+mode (the ui-image plugin's `loadMode` prop is registered but never
+read). `decoding="sync"` there degrades to async and logs a warning;
+if synchronous decode is a hard requirement, use core `Image`.
 
 ### Warm the image before it scrolls on screen
 
@@ -296,12 +267,13 @@ import { prefetch } from '@octane-xplat/gif'
 await prefetch(nextScreen.map((photo) => photo.url))
 ```
 
-Costs to weigh: it is a different element, not a prop on `Image`, so the
-shared parity contract has to be re-established in a leaf package
-(`packages/ui` takes no new dependencies — the framework's plan, per the
-expo-image study, is an eventual `@octane-xplat/image` leaf that does not
-exist yet). The study also flagged that the plugin's npm-facing TypeScript
-surface needs an audit before committing to it for static images.
+That leaf now exists — [`@octane-xplat/image`](../../packages/image) is the
+drop-in `Image` on this engine (same props as core, plus `cachePolicy`,
+`failureImage`, `headers`, `decodeWidth`/`decodeHeight`, `progressive`,
+`fadeDuration`, `onLoad`/`onError`, and the `prefetchImage`/cache helpers),
+keeping `packages/ui` dependency-free. Costs to weigh: no SVG sources, and
+`decoding='sync'` degrades to async there — the engines have no synchronous
+decode mode (see the `decoding` section above).
 
 ### iOS specifics
 

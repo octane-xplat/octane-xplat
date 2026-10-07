@@ -9,6 +9,7 @@ export function Image(props: ImageProps) @{
 	// contentFit → style.objectFit (the renderer maps contain/scale-down/
 	// fill/none; 'cover' degrades to scale-down — AppKit has no cover
 	// scaling mode). contentPosition is unimplemented on this leaf.
+	// `decoding` is ignored — AppKit image loads are synchronous.
 	const style = {
 		objectFit: props.contentFit ?? 'cover',
 		...props.style,

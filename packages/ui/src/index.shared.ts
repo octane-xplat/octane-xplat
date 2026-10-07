@@ -842,6 +842,7 @@ export type {
 	ImageContentPositionObject,
 	ImageContentPositionString,
 	ImageContentPositionValue,
+	ImageDecoding,
 	ImageSourceLike,
 	KeyboardAvoidingProps,
 	LayoutChildProps,

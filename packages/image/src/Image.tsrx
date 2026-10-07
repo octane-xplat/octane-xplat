@@ -19,6 +19,8 @@ import { createImageBinding } from './image-binding';
 // skipMemoryCache + DiskCacheStrategy.NONE / SDWebImage FromLoaderOnly.
 registerElement('cachedimage', Img);
 
+let syncDecodeWarned = false;
+
 let engineStarted = false;
 function ensureEngine(): void {
 	if (!engineStarted) {
@@ -104,9 +106,22 @@ function placeholderValue(placeholder: string): string | ImageSource | null {
  *  `src` never goes through JSX: the binding holds it until first layout,
  *  writes decodeWidth/decodeHeight in device px, then assigns — an eager src
  *  decodes at full source resolution. SVG is unsupported — keep core `Image`
- *  for those. `alt` maps to accessibilityLabel. */
+ *  for those. `alt` maps to accessibilityLabel. `decoding` accepts the shared
+ *  vocabulary but 'sync' degrades to async with a warning — the engines have
+ *  no synchronous decode mode (see props.ts). */
 export function Image(props: ImageProps) @{
 	ensureEngine();
+
+	// `decoding='sync'` has no honest path: Glide `.into()` and SDWebImage
+	// `sd_setImageWithURL` always decode off-thread, and the plugin's
+	// `loadMode` prop is registered but never read. Degrade to the async
+	// default with a note rather than setting dead surface.
+	if (props.decoding === 'sync' && !syncDecodeWarned) {
+		syncDecodeWarned = true;
+		console.warn(
+			"[octane-xplat] Image: decoding='sync' is not supported by the Glide/SDWebImage engine — decode stays async.",
+		);
+	}
 
 	const latest = useRef(props);
 	latest.current = props;

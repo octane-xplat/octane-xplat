@@ -88,7 +88,12 @@ function applyPlaceholder(view: any, placeholder: string | undefined): void {
  *  event). Placeholder → final inside one view; on the computed-rect path
  *  the inner stretch='fill' image scales it with the same content math, so
  *  fit/position match the final (expo-image study L5). A failed load leaves
- *  the placeholder standing — failure-image semantics for free. */
+ *  the placeholder standing — failure-image semantics for free.
+ *  `decoding` maps to NS `loadMode` (default 'async' — the binding defers
+ *  src to first layout, so loadMode is always on the view before src is
+ *  issued); 'sync' blocks the UI thread at decode for must-paint-now
+ *  bitmaps. Remote URLs decode async and font-icon srcs sync regardless —
+ *  NS honors loadMode only on the file/resource/data paths. */
 function clipImageHost(host: any): void {
 	host?.on?.('loaded', () => {
 		// iOS UIView clipsToBounds defaults false (DOM/NS overflow:visible);
@@ -207,6 +212,7 @@ export function Image(props: ImageProps) @{
 					}
 				}}
 				stretch="fill"
+				loadMode={props.decoding ?? 'async'}
 				accessibilityLabel={props.alt}
 			/>
 		</absolutelayout>
@@ -224,6 +230,7 @@ export function Image(props: ImageProps) @{
 			className={cx(props.className)}
 			style={props.style}
 			stretch={contentFitToStretch(fit)}
+			loadMode={props.decoding ?? 'async'}
 			accessibilityLabel={props.alt}
 		/>
 	}

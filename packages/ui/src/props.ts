@@ -1250,6 +1250,11 @@ export type ImageContentPositionString =
  *  and one vertical edge. Default centered on every platform. */
 export type ImageContentPosition = ImageContentPositionObject | ImageContentPositionString
 
+/** When the bitmap is decoded — the HTML `decoding` attribute's vocabulary.
+ *  'async' decodes off the UI thread, 'sync' decodes during the `src`
+ *  assignment. */
+export type ImageDecoding = 'async' | 'sync'
+
 export interface ImageProps extends LayoutChildProps {
 	className?: any
 	style?: any
@@ -1283,6 +1288,15 @@ export interface ImageProps extends LayoutChildProps {
 	 *  honors it by laying out the image itself (measured path), so
 	 *  arbitrary positions match web pixel-for-pixel. */
 	contentPosition?: ImageContentPosition
+	/** Decode scheduling hint — the HTML `decoding` attribute. 'async'
+	 *  (default): the bitmap decodes off the UI thread and may paint a frame
+	 *  late. 'sync': decoded during the `src` assignment, blocking the UI
+	 *  thread — for small bitmaps that must appear without a flicker.
+	 *  Native maps to NS `loadMode` for file/resource/data srcs; remote URLs
+	 *  always decode async and font-icon srcs are always sync regardless.
+	 *  Web writes the `decoding` attribute. macOS ignores it — AppKit image
+	 *  loads are synchronous. */
+	decoding?: ImageDecoding
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any

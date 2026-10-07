@@ -63,4 +63,19 @@ describe('native Image sized decode', () => {
 		expect(host.decodeWidth).toEqual({ value: 900, unit: 'px' })
 		root.unmount()
 	})
+
+	it('maps decoding to NS loadMode — async by default, sync when requested', () => {
+		const container = createObjectContainer('nativescript')
+		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
+		root.render(Image as any, { src: 'res://feed/photo.jpg' })
+		expect((container.children[0] as any).props.loadMode).toBe('async')
+
+		root.render(Image as any, { src: 'res://feed/photo.jpg', decoding: 'sync' })
+		expect((container.children[0] as any).props.loadMode).toBe('sync')
+
+		root.render(Image as any, { src: 'res://feed/photo.jpg', decoding: 'async' })
+		expect((container.children[0] as any).props.loadMode).toBe('async')
+		root.unmount()
+	})
 })

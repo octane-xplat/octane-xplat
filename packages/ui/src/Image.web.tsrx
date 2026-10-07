@@ -23,7 +23,8 @@ function placeholderUrl(placeholder: string): string {
  *  assigning placeholder → src swaps placeholder → final in one view —
  *  never a blank frame and no parallel loader (expo-image study L5). A
  *  hidden prefetch keeps the final fetch running while the placeholder
- *  paints. */
+ *  paints. `decoding` writes the HTML `decoding` attribute 1:1 (default
+ *  'async' — the shared contract's default, not the browser's 'auto'). */
 export function Image(props: ImageProps) @{
 	const imgRef = useRef<HTMLImageElement | null>(null)
 	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null;
@@ -92,6 +93,7 @@ export function Image(props: ImageProps) @{
 		{...layoutChildProps(props)}
 		src={selected.src}
 		srcSet={selected.srcSet}
+		decoding={props.decoding ?? 'async'}
 		alt={props.alt}
 		style={style}
 	/>

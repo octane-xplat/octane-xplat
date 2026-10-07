@@ -160,6 +160,7 @@ export function Image(props: ImageProps) @{
 		className={props.className}
 		src={selected.src}
 		srcSet={selected.srcSet}
+		decoding={props.decoding ?? 'async'}
 		alt={props.alt}
 		style={style}
 		onLoad={(e: any) =>
