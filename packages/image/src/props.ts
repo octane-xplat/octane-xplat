@@ -56,6 +56,22 @@ export interface ImageCacheConfig {
  *  browser cache is not queryable, so web always reports 'none'. */
 export type ImageCacheState = 'memory' | 'disk' | 'none'
 
+/** Options for `prefetch` — the same contract `@octane-xplat/gif`'s
+ *  `prefetch` carries. */
+export interface PrefetchOptions {
+	/** Request headers for the prefetch fetch. Honored on Android (Glide
+	 *  `CustomGlideUrl`). **Dropped on iOS** — the plugin's prefetch path
+	 *  builds its SDWebImage context without the download-request-modifier
+	 *  branch the `Img` display path has; an upstream patch is needed there.
+	 *  Until then an authenticated URL can be prefetched on iOS only when it
+	 *  is public or carries credentials in the URL itself. Ignored on web —
+	 *  a plain <img> cannot send custom headers. */
+	headers?: Record<string, string>
+	/** Max URLs fetched in parallel (JS-side cap). Default 5 — the same
+	 *  ceiling NS core's ImageCache used. */
+	concurrency?: number
+}
+
 /** Image — drop-in alternative to `@octane-xplat/ui`'s Image backed by a real
  *  image engine (Glide on Android, SDWebImage on iOS via
  *  `@nativescript-community/ui-image`): sized in-memory bitmap cache, disk

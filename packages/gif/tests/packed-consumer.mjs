@@ -51,17 +51,22 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 	symlinkSync(join(packageRoot, 'node_modules/octane'), join(modules, 'octane'), 'dir')
 	writeFileSync(
 		join(consumerRoot, 'consumer.tsx'),
-		`import { AnimatedImage, type AnimatedImageProps } from '@octane-xplat/gif'
+		`import { AnimatedImage, prefetch, type AnimatedImageProps, type PrefetchOptions } from '@octane-xplat/gif'
 const props: AnimatedImageProps = { src: 'image.gif', stretch: 'aspectFit' }
 const image = <AnimatedImage {...props} />
 // @ts-expect-error src is required
 const missingSource = <AnimatedImage />
 // @ts-expect-error stretch follows the published four-value contract
 const invalidStretch = <AnimatedImage src="image.gif" stretch="cover" />
+const prefetchResult: Promise<boolean> = prefetch(
+	['https://example.com/a.gif', 'https://example.com/b.gif'],
+	{ headers: { Authorization: 'Bearer x' }, concurrency: 3 } satisfies PrefetchOptions,
+)
 ${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = AnimatedImage(props)' : ''}
 void image
 void missingSource
 void invalidStretch
+void prefetchResult
 `,
 	)
 

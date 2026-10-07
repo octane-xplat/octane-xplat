@@ -1,4 +1,4 @@
-import { Image, isImageCached, prefetchImage } from '@octane-xplat/image';
+import { Image, isImageCached, prefetch } from '@octane-xplat/image';
 import { Button, Heading, Text, View } from '@octane-xplat/ui';
 import { useState } from 'octane';
 
@@ -36,7 +36,7 @@ export function CachedImageDemo() @{
 		<Button
 			label="Prefetch first image, then report its cache level"
 			onPress={() => {
-				void prefetchImage(PHOTOS[0]).then(() =>
+				void prefetch(PHOTOS[0]).then(() =>
 					isImageCached(PHOTOS[0]).then((state) => setCached(`cache state: ${state}`)),
 				);
 			}}

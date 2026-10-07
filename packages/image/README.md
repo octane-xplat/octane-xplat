@@ -24,7 +24,7 @@ import { Image } from '@octane-xplat/image' // was '@octane-xplat/ui'
 plus the engine's own knobs on top:
 
 ```tsx
-import { Image, initializeImageCache, prefetchImage } from '@octane-xplat/image'
+import { Image, initializeImageCache, prefetch } from '@octane-xplat/image'
 
 // Optional, app entry: size the memory cache before the first render.
 initializeImageCache({ memoryCacheScreens: 2 })
@@ -42,18 +42,32 @@ initializeImageCache({ memoryCacheScreens: 2 })
 	onError={(e) => console.warn(e.error)}
 />
 
-// Warm the disk cache ahead of a feed scroll (bytes only — decode at display).
-await prefetchImage('https://example.com/next.jpg')
+// Warm the disk cache ahead of a feed scroll (bytes only — decode at
+// display). One URL or a batch; resolves false if any URL fails.
+await prefetch('https://example.com/next.jpg')
+await prefetch(feed.map((post) => post.imageUrl), {
+	headers: { Authorization: 'Bearer …' }, // Android only — see below
+	concurrency: 5, // max parallel fetches (default)
+})
 ```
 
 `onLoad`'s `source` field reports which cache level served the image
 (`'memory'` / `'disk'` / `'network'` / `'local'`) — the cheapest way to prove
 the cache is doing its job.
 
-Cache functions: `prefetchImage`, `evictImage`, `clearImageCaches`,
-`isImageCached`, `initializeImageCache`. On web they degrade honestly:
-`prefetchImage` warms the browser HTTP cache via `new Image()`, the rest are
-documented no-ops.
+Cache functions: `prefetch`, `evictImage`, `clearImageCaches`,
+`isImageCached`, `initializeImageCache` — the same contract
+`@octane-xplat/gif`'s `prefetch` carries. On web they degrade honestly:
+`prefetch` warms the browser HTTP cache through a throwaway `<img>` per URL,
+awaited until the response lands (resolves `false` if any URL fails); the
+rest are documented no-ops, and macOS `prefetch` resolves `false` since the
+AppKit host has no image pipeline.
+
+`prefetch` options: `headers` forwards request headers to the engine —
+**honored on Android, dropped on iOS** (the plugin's prefetch path lacks the
+request-modifier branch its display path has; an upstream patch is needed) —
+and ignored on web, where a plain `<img>` cannot send custom headers.
+`concurrency` caps parallel fetches JS-side (default 5).
 
 ## Divergences from core `Image`
 

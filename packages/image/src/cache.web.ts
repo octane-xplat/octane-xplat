@@ -1,14 +1,26 @@
-import type { ImageCacheConfig, ImageCacheState } from './props';
+import { prefetchBatch } from './prefetch-batch';
+import type { ImageCacheConfig, ImageCacheState, PrefetchOptions } from './props';
 
 /** No-op — the browser owns its HTTP cache; there is no sizing API. */
 export function initializeImageCache(_config?: ImageCacheConfig): void {}
 
-/** Warm the browser HTTP cache for `src`. Decode still happens at display —
- *  matching the native disk-prefetch contract. */
-export function prefetchImage(src: string): Promise<void> {
-	const image = new globalThis.Image();
-	image.src = src;
-	return Promise.resolve();
+/** Warm the browser HTTP cache by loading each `src` through a throwaway
+ *  <img> — the response must land (`load`/`error` awaited) before the promise
+ *  resolves. Decode still happens at display, matching the native
+ *  disk-prefetch contract. `options.headers` is ignored — an <img> request
+ *  cannot carry custom headers. Resolves `false` when any URL fails. */
+export function prefetch(srcs: string | string[], options?: PrefetchOptions): Promise<boolean> {
+	return prefetchBatch(
+		srcs,
+		options?.concurrency,
+		(url) =>
+			new Promise<boolean>((resolve) => {
+				const image = new globalThis.Image();
+				image.onload = () => resolve(true);
+				image.onerror = () => resolve(false);
+				image.src = url;
+			}),
+	);
 }
 
 /** No-op — browsers expose no per-URL cache eviction for <img>. */

@@ -19,10 +19,16 @@ export interface AnimatedImageProps {
 	web?: any
 }
 
-/** Options for `prefetch`. Mirrors the slice of ui-image's PrefetchOptions
- *  that is meaningful without a display view. */
+/** Options for `prefetch`. The same contract `@octane-xplat/image`'s
+ *  `prefetch` carries. */
 export interface PrefetchOptions {
-	/** Request headers for the prefetch fetch. Native only — a web prefetch
-	 *  goes through a plain <img>, which cannot send custom headers. */
+	/** Request headers for the prefetch fetch. Honored on Android (Fresco);
+	 *  **dropped on iOS** — the plugin's prefetch path builds its SDWebImage
+	 *  context without the download-request-modifier branch its `Img`
+	 *  display path has; an upstream patch is needed there. Ignored on web —
+	 *  a plain <img> cannot send custom headers. */
 	headers?: Record<string, string>
+	/** Max URLs fetched in parallel (JS-side cap). Default 5 — the same
+	 *  ceiling NS core's ImageCache used. */
+	concurrency?: number
 }

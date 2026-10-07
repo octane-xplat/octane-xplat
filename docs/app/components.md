@@ -567,7 +567,7 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/camera`  | `CameraView`                                                         | Live camera preview                       |
 | `@octane-xplat/video`   | `Video`                                                              | Embedded video player                     |
 | `@octane-xplat/gif`     | `AnimatedImage`                                                      | Animated images (GIF/webp)                |
-| `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetchImage`, `evictImage`, `clearImageCaches`, `isImageCached` | Recommended `Image` on native (Glide/SDWebImage via ui-image) — same contract as core `Image` |
+| `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetch`, `evictImage`, `clearImageCaches`, `isImageCached` | Recommended `Image` on native (Glide/SDWebImage via ui-image) — same contract as core `Image` |
 | `@octane-xplat/canvas`  | `Canvas`, `getGPU`                                                   | Canvas/GPU surface (2D, WebGL/WebGPU)     |
 | `@octane-xplat/audio`   | `createAudioPlayer`                                                  | Long-form audio playback                  |
 | `@octane-xplat/haptics` | `createHaptics`                                                      | Capability-aware haptics                  |

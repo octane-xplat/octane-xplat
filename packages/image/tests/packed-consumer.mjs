@@ -82,11 +82,12 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 	evictImage,
 	initializeImageCache,
 	isImageCached,
-	prefetchImage,
+	prefetch,
 	type ImageCacheConfig,
 	type ImageCachePolicy,
 	type ImageCacheState,
 	type ImageProps,
+	type PrefetchOptions,
 } from '@octane-xplat/image'
 const config: ImageCacheConfig = { memoryCacheScreens: 2 }
 initializeImageCache(config)
@@ -112,7 +113,11 @@ const invalidFit = <Image src="a.png" contentFit="aspectFill" />
 const invalidPolicy = <Image src="a.png" cachePolicy="memory" />
 const policy: ImageCachePolicy = 'memory-disk'
 const state: Promise<ImageCacheState> = isImageCached('https://example.com/a.png')
-void prefetchImage('https://example.com/a.png')
+const prefetchResult: Promise<boolean> = prefetch(
+	['https://example.com/a.png', 'https://example.com/b.png'],
+	{ headers: { Authorization: 'Bearer x' }, concurrency: 3 } satisfies PrefetchOptions,
+)
+void prefetchResult
 void evictImage('https://example.com/a.png')
 void clearImageCaches()
 ${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = Image(props)' : ''}

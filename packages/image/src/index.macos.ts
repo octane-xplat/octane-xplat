@@ -4,7 +4,7 @@ export {
 	evictImage,
 	initializeImageCache,
 	isImageCached,
-	prefetchImage,
+	prefetch,
 } from './cache.macos'
 
 export type {
@@ -20,5 +20,6 @@ export type {
 	ImageErrorEvent,
 	ImageLoadEvent,
 	ImageProps,
+	PrefetchOptions,
 	ImageSourceLike,
 } from './props'

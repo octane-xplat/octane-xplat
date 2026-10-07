@@ -1,5 +1,6 @@
 import { ImagePipeline, getImagePipeline, initialize } from '@nativescript-community/ui-image';
-import type { ImageCacheConfig, ImageCacheState } from './props';
+import { prefetchBatch } from './prefetch-batch';
+import type { ImageCacheConfig, ImageCacheState, PrefetchOptions } from './props';
 
 /** Apply engine-level cache configuration. Call from the app entry before the
  *  first <Image> renders — the plugin initializes Glide lazily, so sizing must
@@ -19,10 +20,27 @@ export function initializeImageCache(config?: ImageCacheConfig): void {
 }
 
 /** Warm the disk cache without decoding — bytes are fetched and stored, decode
- *  cost stays at display time. Resolves when the prefetch finishes. */
-export function prefetchImage(src: string): Promise<void> {
-	initialize();
-	return getImagePipeline().prefetchToDiskCache(src);
+ *  cost stays at display time. One URL or an array; resolves `true` when all
+ *  warmed, `false` if any URL fails or the pipeline is not up yet (e.g. called
+ *  before app launch). Same contract as `@octane-xplat/gif`'s `prefetch`.
+ *
+ *  `options.headers` is forwarded to the engine — honored on Android, dropped
+ *  on iOS until the plugin's prefetch path learns the request-modifier branch
+ *  (see PrefetchOptions). `options.concurrency` caps parallel fetches. */
+export function prefetch(srcs: string | string[], options?: PrefetchOptions): Promise<boolean> {
+	try {
+		initialize();
+		const pipeline = getImagePipeline();
+		const { concurrency, ...engineOptions } = options ?? {};
+		return prefetchBatch(srcs, concurrency, (url) =>
+			pipeline.prefetchToDiskCache(url, engineOptions).then(
+				() => true,
+				() => false,
+			),
+		);
+	} catch {
+		return Promise.resolve(false);
+	}
 }
 
 /** Remove `src` from memory and disk caches. */

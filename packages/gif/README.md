@@ -33,13 +33,23 @@ soon — bytes on disk now, decode still at display time:
 import { prefetch } from '@octane-xplat/gif'
 
 await prefetch(feed.map((post) => post.imageUrl)) // false if any URL fails
+
+await prefetch(urls, {
+	headers: { Authorization: 'Bearer …' }, // Android only — see below
+	concurrency: 5, // max parallel fetches (default)
+})
 ```
 
 On Android that is Fresco's `prefetchToDiskCache`; on iOS, SDWebImage's
 prefetcher storing to disk. On web it loads each URL through a throwaway
 `<img>` so the browser HTTP cache is warm. It resolves `false` when any URL
 fails — and always `false` on macOS, where the AppKit host has no image
-pipeline yet.
+pipeline yet. Same contract as `@octane-xplat/image`'s `prefetch`.
+
+Options: `headers` is forwarded to the engine — **honored on Android,
+dropped on iOS** (the plugin's prefetch path lacks the request-modifier
+branch its display path has; an upstream patch is needed) — and ignored on
+web. `concurrency` caps parallel fetches JS-side (default 5).
 
 ## Platform props
 

@@ -1,9 +1,12 @@
-import type { ImageCacheConfig, ImageCacheState } from './props';
+import type { ImageCacheConfig, ImageCacheState, PrefetchOptions } from './props';
 
 /** No-op — the AppKit host has no image engine. */
 export function initializeImageCache(_config?: ImageCacheConfig): void {}
-export function prefetchImage(_src: string): Promise<void> {
-	return Promise.resolve();
+
+/** No-op — the AppKit host has no image pipeline to warm, so nothing is
+ *  prefetched; resolves `false` to report that honestly. */
+export function prefetch(_srcs: string | string[], _options?: PrefetchOptions): Promise<boolean> {
+	return Promise.resolve(false);
 }
 
 export function evictImage(_src: string): Promise<boolean> {

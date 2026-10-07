@@ -270,7 +270,7 @@ await prefetch(nextScreen.map((photo) => photo.url))
 That leaf now exists — [`@octane-xplat/image`](../../packages/image) is the
 drop-in `Image` on this engine (same props as core, plus `cachePolicy`,
 `failureImage`, `headers`, `decodeWidth`/`decodeHeight`, `progressive`,
-`fadeDuration`, `onLoad`/`onError`, and the `prefetchImage`/cache helpers),
+`fadeDuration`, `onLoad`/`onError`, and the `prefetch`/cache helpers),
 keeping `packages/ui` dependency-free. Costs to weigh: no SVG sources, and
 `decoding='sync'` degrades to async there — the engines have no synchronous
 decode mode (see the `decoding` section above).
