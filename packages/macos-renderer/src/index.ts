@@ -687,7 +687,7 @@ function makeFlexbox(props: PropBag) {
 		actionIdsByView.set(stack, actionId)
 		actionHandlers.set(actionId, null)
 		stack.addGestureRecognizer(
-			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed'),
+			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
 		)
 	}
 
@@ -717,7 +717,7 @@ function makeButton(props: PropBag) {
 	const button = NSButton.buttonWithTitleTargetAction(
 		String(props.title ?? 'Button'),
 		buttonActionTarget,
-		'buttonPressed',
+		'buttonPressed:',
 	)
 
 	button.bezelStyle = NSBezelStyle.Rounded
@@ -911,7 +911,7 @@ function makeTextField(props: PropBag, multiline = false) {
 }
 
 function makeSwitch(props: PropBag) {
-	const button = NSButton.buttonWithTitleTargetAction('', buttonActionTarget, 'controlChanged')
+	const button = NSButton.buttonWithTitleTargetAction('', buttonActionTarget, 'controlChanged:')
 	button.setButtonType(NSButtonType.Switch)
 	button.state = props.checked ? 1 : 0
 	button.translatesAutoresizingMaskIntoConstraints = false
@@ -931,7 +931,7 @@ function makeSlider(props: PropBag) {
 	slider.maxValue = Number(props.maxValue ?? 1)
 	slider.doubleValue = Number(props.value ?? 0)
 	slider.target = buttonActionTarget
-	slider.action = 'controlChanged'
+	slider.action = 'controlChanged:'
 	slider.translatesAutoresizingMaskIntoConstraints = false
 	const actionId = nextActionId++
 	slider.tag = actionId
@@ -1557,7 +1557,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		if (type === 'textfield') {
 			view.tag = actionId
 			view.target = buttonActionTarget
-			view.action = 'controlChanged'
+			view.action = 'controlChanged:'
 		} else {
 			view.delegate = buttonActionTarget
 		}
@@ -2278,7 +2278,7 @@ function setAction(node: ElementNode, value: any) {
 		actionIdsByView.set(node.view!, node.actionId)
 		actionHandlers.set(node.actionId, null)
 		node.view!.addGestureRecognizer(
-			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed'),
+			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
 		)
 	}
 
@@ -2300,7 +2300,7 @@ function setPanAction(node: ElementNode, value: any) {
 	if (typeof value === 'function' && !node.panGestureRecognizer) {
 		node.panGestureRecognizer = NSPanGestureRecognizer.alloc().initWithTargetAction(
 			buttonActionTarget,
-			'viewPanned',
+			'viewPanned:',
 		)
 
 		node.view!.addGestureRecognizer(node.panGestureRecognizer)
@@ -3794,7 +3794,7 @@ function attachContextMenu(
 
 		const menuItem = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(
 			String(item?.title ?? ''),
-			'menuItemSelected',
+			'menuItemSelected:',
 			'',
 		)
 
@@ -3927,7 +3927,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 	const actionId = nextActionId++
 	picker.tag = actionId
 	picker.target = buttonActionTarget
-	picker.action = 'controlChanged'
+	picker.action = 'controlChanged:'
 	actionHandlers.set(actionId, () => {
 		const date = picker.dateValue
 		const millis =

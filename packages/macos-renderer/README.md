@@ -10,10 +10,11 @@ assets. The renderer owns views, layout, events, accessibility, and its hosted
 popups and sheets. It does not load web stylesheets or implement every
 NativeScript widget. See the [macOS harness](../../apps/macos/README.md) for
 the current component and service limits. The image-crop integration test compiles and mounts the public UI barrel.
-The full application harness has not been reverified by that test. A raw AppKit button
-`performClick` check also exposes an existing action-selector mismatch. Native
-click delivery needs separate repair and verification; the maintained consumer
-checks direct handler dispatch.
+The full application harness has not been reverified by that test. Registered
+action selectors match the assigned target/action strings, and the maintained
+consumer checks direct handler dispatch — but OS-level input delivery (a live
+AppKit `performClick`, control edits, gestures) has not been verified end to
+end.
 
 ## Configure an app
 
