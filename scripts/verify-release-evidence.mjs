@@ -34,7 +34,7 @@ const value = (name) => {
 // Required CI jobs — keep in sync with the `evidence` job's `needs:` list in
 // .github/workflows/ci.yml. Adding a release check means adding a job AND an
 // entry here so both sides of the contract move together.
-const REQUIRED_JOBS = ['checks', 'native-ios', 'native-android']
+const REQUIRED_JOBS = ['checks', 'native-ios', 'native-ios-tests', 'native-android']
 
 const sha = value('sha') ?? process.env.GITHUB_SHA
 // GITHUB_RUN_ID is only meaningful in record mode (the CI run recording its

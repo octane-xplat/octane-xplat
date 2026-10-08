@@ -8,18 +8,20 @@ import {
 	type QueryPersistence,
 } from './query-cache'
 
-// Each scope stands in for one mounted screen: it owns the query cells of the
-// declarations made inside it, while the module-level cache is shared across
-// all of them. Reads run inside a scope the same way a render or event
-// handler resolves its owner. Scopes live until afterEach so declared queries
-// stay bound to a live owner for the whole test.
+// Each renderer instance stands in for one mounted screen and owns its query
+// cells; the module-level cache is shared across screens. Reads enter a new
+// instance to check that a declared query still resolves its original owner.
+// Document scopes live until afterEach so those owners stay live for the test.
 const liveScopes: Scope[] = []
 let scopeSeq = 0
 
 function screen<T>(body: (scope: Scope) => T): T {
 	const scope = createScope({ scopeKey: `test-screen:${scopeSeq++}` })
 	liveScopes.push(scope)
-	return runWithSignalOwner(scope, () => body(scope))
+	return runWithSignalOwner(
+		{ documentOwner: scope, instanceOwner: {}, instanceKey: scope.scopeKey },
+		() => body(scope),
+	)
 }
 
 afterEach(() => {
