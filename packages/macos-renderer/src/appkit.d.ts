@@ -115,6 +115,9 @@ declare const NSStackView: NSClass<NSStackView>
 interface NSTextField extends NSView {}
 declare const NSTextField: NSClass<NSTextField>
 
+interface NSSecureTextField extends NSTextField {}
+declare const NSSecureTextField: NSClass<NSSecureTextField>
+
 interface NSTextView extends NSView {}
 declare const NSTextView: NSClass<NSTextView>
 

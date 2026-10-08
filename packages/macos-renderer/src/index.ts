@@ -122,6 +122,8 @@ class ButtonActionTarget extends NSObject {
 		viewPressed: { params: [NSObject], returns: interop.types.void },
 		viewPanned: { params: [NSPanGestureRecognizer], returns: interop.types.void },
 		controlChanged: { params: [NSObject], returns: interop.types.void },
+		controlTextDidChange: { params: [NSNotification], returns: interop.types.void },
+		textFieldSubmitted: { params: [NSObject], returns: interop.types.void },
 		textDidChange: { params: [NSNotification], returns: interop.types.void },
 	}
 
@@ -139,6 +141,20 @@ class ButtonActionTarget extends NSObject {
 
 	controlChanged(sender: NSObject) {
 		invokeAction(sender.tag ?? actionIdsByView.get(sender))
+	}
+
+	// NSControlTextEditingDelegate: fires on every edit while a single-line
+	// field is being edited — the per-edit source for onTextChange.
+	controlTextDidChange(notification: NSNotification) {
+		const node = textNodesByView.get(notification.object)
+		invokeAction(node?.actionId ?? actionIdsByView.get(notification.object))
+	}
+
+	// Single-line fields keep target/action for submission (Return). The
+	// change handler lives on controlTextDidChange, so the action never
+	// masquerades as a value-change event.
+	textFieldSubmitted(sender: NSObject) {
+		textNodesByView.get(sender)?.submitHandler?.()
 	}
 
 	viewPanned(sender: NSPanGestureRecognizer) {
@@ -185,6 +201,16 @@ class ContentAlignedTextField extends NSTextField {
 
 	// These controls have no bezel or background, so the text area and layout
 	// frame should share the same edges.
+	alignmentRectInsets() {
+		return { top: 0, left: 0, bottom: 0, right: 0 }
+	}
+}
+
+class ContentAlignedSecureTextField extends NSSecureTextField {
+	static {
+		NativeClass(this)
+	}
+
 	alignmentRectInsets() {
 		return { top: 0, left: 0, bottom: 0, right: 0 }
 	}
@@ -878,10 +904,12 @@ function setTextFieldPlaceholder(field: NSTextField, props: PropBag, scheme = 'l
 function makeTextField(props: PropBag, multiline = false) {
 	const field = multiline
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
-		: ContentAlignedTextField.alloc().initWithFrame({
-				origin: { x: 0, y: 0 },
-				size: { width: 320, height: 28 },
-			})
+		: (props.secure ? ContentAlignedSecureTextField : ContentAlignedTextField)
+				.alloc()
+				.initWithFrame({
+					origin: { x: 0, y: 0 },
+					size: { width: 320, height: 28 },
+				})
 
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
@@ -1555,9 +1583,11 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		actionIdsByView.set(view, actionId)
 		actionHandlers.set(actionId, null)
 		if (type === 'textfield') {
-			view.tag = actionId
+			// Per-edit events arrive through controlTextDidChange (delegate);
+			// the target/action is reserved for submission on Return.
+			view.delegate = buttonActionTarget
 			view.target = buttonActionTarget
-			view.action = 'controlChanged:'
+			view.action = 'textFieldSubmitted:'
 		} else {
 			view.delegate = buttonActionTarget
 		}
@@ -1576,6 +1606,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		actionId,
 		scrollObserverInstalled: false,
 		text: '',
+		// The native class is fixed at creation; post-mount `secure` updates
+		// are rejected against this in applyProps.
+		secure: type === 'textfield' && !!props.secure,
 	}
 
 	if (['label', 'textfield', 'textview'].includes(type) && view.font) {
@@ -1588,6 +1621,10 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 
 	if (type === 'absolutelayout') {
 		absoluteLayoutNodesByView.set(view, node)
+	}
+
+	if (type === 'textfield') {
+		textNodesByView.set(view, node)
 	}
 
 	if (type === 'textview') {
@@ -2339,6 +2376,35 @@ function setControlAction(node: ElementNode, value: any, readValue: () => any) {
 	)
 }
 
+/** Return-key submission for single-line fields, invoked by the field's
+ *  target/action — kept distinct from per-edit `onTextChange`. */
+function setTextSubmitAction(node: ElementNode, value: any) {
+	node.submitHandler =
+		typeof value === 'function'
+			? () => {
+					try {
+						node.container.root!.eventScope('discrete', value)
+					} catch (error) {
+						console.error('[macos-event] text submit handler failed', error)
+					}
+				}
+			: null
+}
+
+/** `isEnabled`/`editable` → AppKit state. Disabled fields reject edits and
+ *  selection; read-only fields stay selectable so text can be copied. */
+function syncTextControlState(node: ElementNode) {
+	const enabled = node.props.isEnabled !== false && node.props.enabled !== false
+	const editable = enabled && node.props.editable !== false
+	const view = node.view!
+	if (node.type === 'textfield') {
+		view.enabled = enabled
+	}
+
+	view.editable = editable
+	view.selectable = editable || enabled
+}
+
 function applyAccessibility(node: ElementNode, name: string, value: any) {
 	if (node.type === 'flexboxlayout' && node.actionId !== undefined) {
 		const props = stackAccessibilityPropsByView.get(node.view!) ?? {}
@@ -2354,6 +2420,20 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 
 	if (node.type === 'label' && name === 'accessibilityLabel') {
 		node.view!.setAccessibilityLabel?.(String(value ?? ''))
+	}
+
+	if (node.type === 'textfield' || node.type === 'textview') {
+		if (name === 'accessibilityLabel') {
+			node.view!.setAccessibilityLabel?.(String(value ?? ''))
+		} else if (name === 'accessibilityHint') {
+			node.view!.setAccessibilityHint?.(String(value ?? ''))
+		} else if (name === 'accessible') {
+			node.view!.setAccessibilityElement?.(value !== false)
+		} else if (name === 'accessibilityState' && node.type === 'textview') {
+			// NSTextField reports AX enabled through its `enabled` flag;
+			// NSTextView has no enabled state, so it is mirrored here.
+			node.view!.setAccessibilityEnabled?.(value?.disabled !== true)
+		}
 	}
 }
 
@@ -2606,6 +2686,30 @@ function applyProps(node: ElementNode, props: PropBag) {
 					setControlAction(node, value, () =>
 						String(node.type === 'textview' ? node.view!.string : (node.view!.stringValue ?? '')),
 					)
+				} else if (name === 'onSubmit') {
+					if (node.type === 'textfield') {
+						setTextSubmitAction(node, value)
+					} else if (typeof value === 'function') {
+						console.warn('[macos-host] onSubmit is unsupported on multiline textview')
+					}
+				} else if (name === 'editable' || name === 'isEnabled' || name === 'enabled') {
+					syncTextControlState(node)
+				} else if (name === 'secure') {
+					// The native class is chosen in makeTextField; a secure change
+					// would require a new view, so it is rejected rather than
+					// silently downgraded to plain text.
+					if (node.type !== 'textfield') {
+						if (value) {
+							console.warn(
+								'[macos-host] secure is unsupported on <' + node.type + '>; rendering plain text',
+							)
+						}
+					} else if (!!value !== node.secure) {
+						console.warn(
+							'[macos-host] changing "secure" after mount is unsupported; the field keeps its initial secure=' +
+								node.secure,
+						)
+					}
 				} else if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
@@ -2614,20 +2718,12 @@ function applyProps(node: ElementNode, props: PropBag) {
 					continue
 				} else if (name === 'rows' && node.type === 'textview') {
 					continue
-				} else if (name.startsWith('accessibility')) {
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
 				} else if (
-					[
-						'editable',
-						'enabled',
-						'secure',
-						'keyboardType',
-						'returnKeyType',
-						'autoGrow',
-						'maxRows',
-					].includes(name)
+					['keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)
 				) {
 					continue
 				} else {
@@ -4637,7 +4733,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					buttonActionTarget.textDidChange({ object: node.view } as NSNotification)
 				} else {
 					node.view!.stringValue = String(value)
-					buttonActionTarget.controlChanged(node.view!)
+					buttonActionTarget.controlTextDidChange({ object: node.view } as NSNotification)
 				}
 			},
 			pressAccessibilityLabel(label: string) {

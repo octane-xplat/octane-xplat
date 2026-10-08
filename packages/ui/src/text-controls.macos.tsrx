@@ -18,7 +18,9 @@ export function TextInput(inputProps: TextInputProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
+			secure={props.secure}
 			onTextChange={props.onChange}
+			onSubmit={props.onSubmit}
 			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
@@ -33,5 +35,5 @@ export function TextArea(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
 
-	<textview id={props.id} value={props.value} placeholder={props.placeholder} rows={props.autoGrow ? undefined : props.rows ?? 3} className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)} style={props.style} isEnabled={!props.isDisabled} editable={!isBlocked} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} />
+	<textview id={props.id} value={props.value} placeholder={props.placeholder} rows={props.autoGrow ? undefined : props.rows ?? 3} className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)} style={props.style} isEnabled={!props.isDisabled} editable={!isBlocked} secure={props.secure} onTextChange={props.onChange} onSubmit={props.onSubmit} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} />
 }
