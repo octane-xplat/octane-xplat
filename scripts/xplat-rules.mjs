@@ -241,14 +241,137 @@ const isReference = (node, parent) => {
 	}
 }
 
+// Resolve lexical bindings before classifying a DOM-looking identifier. The
+// same AST is used by Oxlint and the TSRX pass, so keep this parser-agnostic.
+function locallyBoundIdentifiers(program) {
+	const root = { parent: null, bindings: new Set(), functionScope: true }
+	const scopes = new WeakMap()
+	const patternNames = (pattern, out = []) => {
+		if (!pattern) {
+			return out
+		}
+
+		if (pattern.type === 'Identifier') {
+			out.push(pattern)
+		} else if (pattern.type === 'RestElement') {
+			patternNames(pattern.argument, out)
+		} else if (pattern.type === 'AssignmentPattern') {
+			patternNames(pattern.left, out)
+		} else if (pattern.type === 'ArrayPattern') {
+			pattern.elements.forEach((item) => patternNames(item, out))
+		} else if (pattern.type === 'ObjectPattern') {
+			pattern.properties.forEach((item) =>
+				patternNames(item.type === 'RestElement' ? item.argument : item.value, out),
+			)
+		}
+
+		return out
+	}
+
+	const bind = (scope, pattern) => {
+		for (const name of patternNames(pattern)) {
+			scope.bindings.add(name.name)
+		}
+	}
+
+	const visit = (node, parent, scope) => {
+		if (!node || typeof node !== 'object' || typeof node.type !== 'string') {
+			return
+		}
+
+		let current = scope
+		if (
+			node !== program &&
+			(node.type === 'BlockStatement' ||
+				node.type === 'CatchClause' ||
+				node.type === 'ClassBody' ||
+				/^(ArrowFunctionExpression|FunctionDeclaration|FunctionExpression)$/.test(node.type))
+		) {
+			current = {
+				parent: scope,
+				bindings: new Set(),
+				functionScope: /^(ArrowFunctionExpression|FunctionDeclaration|FunctionExpression)$/.test(
+					node.type,
+				),
+			}
+		}
+
+		scopes.set(node, current)
+
+		if (node.type === 'ImportDeclaration') {
+			for (const spec of node.specifiers ?? []) {
+				bind(current, spec.local)
+			}
+		}
+
+		if (node.type === 'CatchClause') {
+			bind(current, node.param)
+		}
+
+		if (node.type === 'FunctionDeclaration' || node.type === 'ClassDeclaration') {
+			bind(scope, node.id)
+		}
+
+		if (/^(ArrowFunctionExpression|FunctionDeclaration|FunctionExpression)$/.test(node.type)) {
+			if (node.type === 'FunctionExpression') {
+				bind(current, node.id)
+			}
+
+			for (const param of node.params ?? []) {
+				bind(current, param)
+			}
+		}
+
+		if (node.type === 'VariableDeclarator') {
+			let target = current
+			if (parent?.kind === 'var') {
+				while (target.parent && !target.functionScope) {
+					target = target.parent
+				}
+			}
+
+			bind(target, node.id)
+		}
+
+		for (const [key, value] of Object.entries(node)) {
+			if (['parent', 'loc', 'range', 'start', 'end'].includes(key)) {
+				continue
+			}
+
+			if (Array.isArray(value)) {
+				value.forEach((child) => visit(child, node, current))
+			} else {
+				visit(value, node, current)
+			}
+		}
+	}
+
+	visit(program, null, root)
+	return (identifier) => {
+		for (let scope = scopes.get(identifier); scope; scope = scope.parent) {
+			if (scope.bindings.has(identifier.name)) {
+				return true
+			}
+		}
+
+		return false
+	}
+}
+
 export function checkNoDomGlobals(program, _src, filename, options) {
 	if (isWebFile(filename) || fileExcluded(filename, options)) {
 		return []
 	}
 
 	const out = []
+	const isLocallyBound = locallyBoundIdentifiers(program)
 	for (const [node, parent] of walk(program)) {
-		if (node.type === 'Identifier' && isDomGlobalName(node.name) && isReference(node, parent)) {
+		if (
+			node.type === 'Identifier' &&
+			isDomGlobalName(node.name) &&
+			isReference(node, parent) &&
+			!isLocallyBound(node)
+		) {
 			out.push({
 				node,
 				message: `'${node.name}' is a DOM global — it does not exist on native. Move platform code behind a .web.* leaf or packages/platform.`,
