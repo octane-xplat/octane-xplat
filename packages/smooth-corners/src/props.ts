@@ -49,7 +49,45 @@ export interface SmoothShadowConfig {
 	spread?: number
 }
 
-export interface SmoothCornersProps {
+/** Metadata read by parent layouts — the shared LayoutChildProps contract,
+ *  plus the edges and grid-cell alignments the AppKit absolute/grid parents
+ *  consume (`right`/`bottom`, `horizontalAlignment`/`verticalAlignment`).
+ *  On SmoothCorners these land on the outer wrapper — the node the parent
+ *  layout sees as its child. Native forwards the attached attributes;
+ *  `right`/`bottom` are honored by the AppKit absolute layout and web CSS
+ *  only (NativeScript AbsoluteLayout reads left/top). */
+export interface LayoutChildProps {
+	row?: number
+	col?: number
+	rowSpan?: number
+	colSpan?: number
+	dock?: 'left' | 'top' | 'right' | 'bottom'
+	left?: number
+	top?: number
+	right?: number
+	bottom?: number
+	horizontalAlignment?: 'left' | 'center' | 'middle' | 'right' | 'stretch'
+	verticalAlignment?: 'top' | 'center' | 'middle' | 'bottom' | 'stretch'
+	flexGrow?: number
+	flexShrink?: number
+	alignSelf?: string
+	order?: number
+}
+
+/** Flex-container props for the element's own children — RN vocabulary,
+ *  applied to the inner flex host on web and the AppKit macOS leaf.
+ *  The native leaf's inner container is a gridlayout, so these are
+ *  web/macOS-only there. `gap` is a dip number (px on web). */
+export interface FlexContainerProps {
+	justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
+	alignItems?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
+	flexWrap?: boolean | 'wrap' | 'nowrap' | 'wrap-reverse'
+	gap?: number | string
+	rowGap?: number | string
+	columnGap?: number | string
+}
+
+export interface SmoothCornersProps extends LayoutChildProps, FlexContainerProps {
 	/** Radius/curve configuration — the single source of truth. `border-radius`
 	 *  in `style`/`className` is ignored on this element on every target. */
 	corners: CornerOptions
@@ -59,6 +97,9 @@ export interface SmoothCornersProps {
 	 *  offsets/spread); iOS/macOS use `shadowPath`; web uses
 	 *  `filter: drop-shadow` (no spread). */
 	shadow?: SmoothShadowConfig
+	/** Main-axis direction of the inner flex host — the renderer default is
+	 *  column. Web/macOS-only like the rest of FlexContainerProps. */
+	flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
 	className?: any
 	style?: any
 	id?: string

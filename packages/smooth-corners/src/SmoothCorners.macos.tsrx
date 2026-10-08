@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useRef } from 'octane';
+import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child';
 import { flipCommandsY, generateCommands } from './path';
 import type { PathCommand } from './path';
 import type { SmoothCornersProps } from './props';
@@ -145,7 +146,10 @@ function applyOuter(view: any, w: number, h: number, props: SmoothCornersProps):
 }
 
 /** SmoothCorners on the AppKit renderer — NSBezierPath → CAShapeLayer mask
- *  on the inner box; the outer view carries the drop shadow. */
+ *  on the inner box; the outer view carries the drop shadow. Parent layouts
+ *  read positioning metadata (left/top/row/col/…) off the outer wrapper's
+ *  props; flex-container props (flexDirection/gap/…) land on the inner
+ *  stack that owns the children. */
 export function SmoothCorners(props: SmoothCornersProps) @{
 	const state = useRef<{ props: SmoothCornersProps }>({ props });
 	state.current.props = props;
@@ -163,12 +167,13 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 	);
 
 	return (
-		<flexboxlayout onLayoutChanged={outerLayout}>
+		<flexboxlayout {...outerLayoutProps(props)} onLayoutChanged={outerLayout}>
 			<flexboxlayout
+				{...innerLayoutProps(props)}
 				onLayoutChanged={innerLayout}
 				id={props.id}
 				className={props.className}
-				style={props.style}
+				style={paintedStyle(props.style)}
 			>
 				{props.children}
 			</flexboxlayout>

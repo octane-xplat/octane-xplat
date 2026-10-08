@@ -59,6 +59,8 @@ src/
                               be selected by suffix there — runtime dispatch keeps both OSes right)
   apply.ios.ts                CGMutablePath → CAShapeLayer mask + border stroke + shadowPath
   apply.android.ts            android.graphics.Path → Drawable + ViewOutlineProvider + elevation
+  layout-child.ts             layout-prop split: parent metadata → outer, flex props → inner
+  layout-child.web.ts         same split folded into element style objects
   SmoothCorners.web.tsrx      clip-path: path(d) + SVG stroke overlay + drop-shadow wrapper
   SmoothCorners.macos.tsrx    NSBezierPath → CAShapeLayer mask (y-flip for AppKit)
 ```
@@ -93,6 +95,38 @@ export function FigmaCard() {
 	return (
 		<SmoothCorners corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}>
 			<Text>Trip details</Text>
+		</SmoothCorners>
+	)
+}
+```
+
+Layout props follow the shared leaf contract. `SmoothCornersProps` extends
+`LayoutChildProps` (row/col/rowSpan/colSpan/dock, left/top/right/bottom,
+horizontalAlignment/verticalAlignment, flexGrow/flexShrink/alignSelf/order)
+and `FlexContainerProps` (flexDirection, justifyContent, alignItems,
+flexWrap, gap/rowGap/columnGap). Parent-layout metadata lands on the outer
+wrapper — the node the parent reads as its child — while flex-container
+props style the inner host that owns the children. On web both fold into
+CSS; the flex props also imply `display: flex` on the inner box. On the
+native leaf the inner host is a gridlayout, so the flex-container props are
+web/macOS-only there (documented API subset, not silent divergence).
+
+```tsx
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
+import { Text } from '@octane-xplat/ui'
+
+export function BadgedRow() {
+	return (
+		<SmoothCorners
+			corners={16}
+			left={12}
+			top={8}
+			flexDirection="row"
+			alignItems="center"
+			gap={8}
+		>
+			<Text>Badge</Text>
+			<Text>Details</Text>
 		</SmoothCorners>
 	)
 }

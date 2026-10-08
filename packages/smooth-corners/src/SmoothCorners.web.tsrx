@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'octane';
+import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child.web';
 import { smoothPathD } from './path';
 import type { SmoothCornersProps } from './props';
 
@@ -26,6 +27,12 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 	}, []);
 
 	const d = smoothPathD(size.w, size.h, props.corners);
+	const shadow = props.shadow;
+	// Flex props style the clipped box; parent-layout metadata styles the
+	// outermost element — the shadow wrapper when present, the box itself
+	// otherwise.
+	const inner = innerLayoutProps(props).style;
+	const outer = outerLayoutProps(props).style;
 
 	const box = (
 		<div
@@ -34,7 +41,9 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 			className={props.className}
 			style={{
 				position: 'relative',
-				...props.style,
+				...paintedStyle(props.style),
+				...inner,
+				...(shadow ? {} : outer),
 				clipPath: size.w > 0 ? `path("${d}")` : undefined,
 			}}
 		>
@@ -64,8 +73,7 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 		</div>
 	);
 
-	const shadow = props.shadow;
 	if (!shadow) return box;
 	const filter = `drop-shadow(${shadow.offsetX ?? 0}px ${shadow.offsetY ?? 0}px ${shadow.blur ?? 0}px ${shadow.color ?? 'rgba(0,0,0,0.35)'})`;
-	return <div style={{ display: 'grid', filter }}>{box}</div>;
+	return <div style={{ display: 'grid', ...outer, filter }}>{box}</div>;
 }

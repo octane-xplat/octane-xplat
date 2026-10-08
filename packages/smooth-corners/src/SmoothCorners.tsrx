@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'octane';
 import { isIOS } from '@nativescript/core';
 import { applySmoothClip as applyIosClip, applySmoothShadow as applyIosShadow } from './apply.ios';
 import { applySmoothClip as applyAndroidClip, applySmoothShadow as applyAndroidShadow } from './apply.android';
+import { outerLayoutProps, paintedStyle } from './layout-child';
 import type { SmoothCornersProps } from './props';
 
 const applyClip = isIOS ? applyIosClip : applyAndroidClip;
@@ -12,7 +13,10 @@ const applyShadow = isIOS ? applyIosShadow : applyAndroidShadow;
  *  Two nested gridlayouts: the inner carries the clip (layer mask on iOS,
  *  drawable+outline on Android); the outer carries the iOS drop shadow
  *  (a masked layer can't show its own). Radius comes from `corners`, not
- *  `border-radius`. */
+ *  `border-radius`. Parent-layout metadata lands on the outer grid — the
+ *  node the parent reads as its child. The flex-container props are
+ *  web/macOS-only here: the inner host is a gridlayout, which has no flex
+ *  vocabulary. */
 export function SmoothCorners(props: SmoothCornersProps) @{
 	const state = useRef<{ inner: any; outer: any; props: SmoothCornersProps }>({
 		inner: null,
@@ -53,12 +57,12 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 	useEffect(() => apply());
 
 	return (
-		<gridlayout ref={bindOuter.current}>
+		<gridlayout ref={bindOuter.current} {...outerLayoutProps(props)}>
 			<gridlayout
 				ref={bindInner.current}
 				id={props.id}
 				className={props.className}
-				style={props.style}
+				style={paintedStyle(props.style)}
 			>
 				{props.children}
 			</gridlayout>
