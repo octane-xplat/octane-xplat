@@ -13,6 +13,8 @@
 		"ios:app": "pnpm --filter @xplat/app gen && ns run ios",
 		"android:app": "pnpm --filter @xplat/app gen && ns run android",
 		"debug:ios:app": "pnpm --filter @xplat/app gen && ns debug ios",
+		"test:ios": "ns test ios",
+		"test:android": "ns test android",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
@@ -54,6 +56,7 @@
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",
+		"@nativescript/unit-test-runner": "5.0.0",
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "9.1.4",
@@ -63,6 +66,7 @@
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"typescript": "5.9.3",
-		"vite": "8.3.0"
+		"vite": "8.3.0",
+		"vitest": "4.1.11"
 	}
 }

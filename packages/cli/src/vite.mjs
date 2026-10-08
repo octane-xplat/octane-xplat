@@ -616,6 +616,91 @@ export const linkedDepFsRoots = (projectRoot, searchForWorkspaceRoot) => {
 	return [...roots]
 }
 
+/** Flags the NativeScript CLI hands the bundler through
+ *  NATIVESCRIPT_BUNDLER_ENV (`--env.<name>` on `ns run`/`ns test`). */
+function bundlerEnvFlags() {
+	try {
+		return JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
+	} catch {
+		return {}
+	}
+}
+
+/** `--env.unitTesting` overlay — the vite counterpart of the upstream
+ *  runner's webpack helper (@nativescript/unit-test-runner's
+ *  nativescript.webpack.js, which only webpack auto-discovers). It does
+ *  three things:
+ *
+ *  - Swaps the bundle entry: virtual:entry-with-polyfills' import of the
+ *    package `main` is redirected to the sibling `test.ts`/`test.js`, so the
+ *    device boots the coordinator + host page instead of the app.
+ *  - Aliases bare `vitest` spec imports to the runner's device-safe shim
+ *    (@vitest/runner + @vitest/expect) — the full vitest package is
+ *    Node-only and cannot load in the app runtime.
+ *  - Defines `__NS_TEST_CONFIG__` so the coordinator can read the runner
+ *    port (`--env.testRunnerPort`) without a network handshake.
+ */
+function unitTestingOverlay(projectRoot, appRequire, env) {
+	const pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
+	const mainEntry = resolve(projectRoot, pkg.main ?? 'src/index.ts')
+	const entryDir = dirname(mainEntry)
+	const testEntry = ['test.ts', 'test.js']
+		.map((name) => join(entryDir, name))
+		.find((path) => existsSync(path))
+
+	if (!testEntry) {
+		throw new Error(
+			`--env.unitTesting requires a test entry (${join(entryDir, 'test.ts')}) — ` +
+				`create one with \`ns test init --framework vitest\`.`,
+		)
+	}
+
+	let shimPath
+	try {
+		shimPath = realpathSync(
+			appRequire.resolve('@nativescript/unit-test-runner/runtime/shim'),
+		)
+	} catch {
+		throw new Error(
+			'--env.unitTesting requires @nativescript/unit-test-runner as a devDependency ' +
+				'of the app (the vitest specifier in specs resolves to its device shim).',
+		)
+	}
+
+	// The same specifier @nativescript/vite's virtual entry emits for the
+	// package main (toStaticImportSpecifier): root-relative, posix.
+	const mainSpecifier = '/' + relative(projectRoot, mainEntry).replaceAll('\\', '/')
+
+	const port = Number(env.testRunnerPort)
+
+	return {
+		define: {
+			__NS_TEST_CONFIG__: JSON.stringify({
+				port: Number.isInteger(port) ? port : undefined,
+			}),
+		},
+		resolve: {
+			alias: [{ find: /^vitest$/, replacement: shimPath }],
+		},
+		plugins: [
+			{
+				name: 'xplat-ns-unit-test-entry',
+				enforce: 'pre',
+				resolveId(source, importer) {
+					if (
+						importer?.includes('virtual:entry-with-polyfills') &&
+						source === mainSpecifier
+					) {
+						return testEntry
+					}
+
+					return null
+				},
+			},
+		],
+	}
+}
+
 /** `define` for the `process.env.NODE_ENV` npm convention — upstream octane
  *  packages (and much of the ecosystem) read it bare and assume the consumer
  *  bundler statically rewrites the member expression. The NativeScript
@@ -765,6 +850,16 @@ export async function xplatNative(env, opts = {}) {
 			},
 		},
 	)
+
+	// `ns test`/the runner plugin launches `ns run … --env.unitTesting`;
+	// swap in the test entry + device shim for that build only.
+	const envFlags = bundlerEnvFlags()
+	if (envFlags.unitTesting) {
+		return mergeConfig(
+			mergeConfig(config, unitTestingOverlay(process.cwd(), appRequire, envFlags)),
+			opts.extra ?? {},
+		)
+	}
 
 	return mergeConfig(config, opts.extra ?? {})
 }

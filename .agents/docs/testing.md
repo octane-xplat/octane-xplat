@@ -80,3 +80,44 @@ Use [the pinned nonvisual Argent recipe](../../docs/verify/argent.md) for
 optional AI-agent browser/device control through MCP and local CLI replay.
 Preserve spoken labels and roles; use shared `testID` only on documented hosts.
 Discovery is not replay readiness, and Chromium DOM IDs take precedence.
+
+## On-device unit tests (`ns test`, Vitest)
+
+`apps/mobile` runs `@nativescript/unit-test-runner` — Vitest orchestrates on
+the host and a WebSocket bridge executes specs inside the real app runtime
+(V8/JSC + native bridge + UI layer). `ns test <platform>` runs
+`vitest run` with `NS_PLATFORM`/`NS_DEVICE`; the plugin launches
+`ns run <platform> --no-hmr --env.unitTesting`.
+
+```sh
+pnpm --filter @xplat/mobile test:ios -- --device DEVICE_UDID
+pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
+# or directly: cd apps/mobile && NS_PLATFORM=ios npx vitest run
+```
+
+- Specs live in `apps/mobile/src/**/*.spec.{ts,tsx,tsrx}`; the test entry
+  `src/test.ts` bundles them via `import.meta.glob` into the device registry.
+  Keep the glob and `vitest.config.mts` `include` in sync — a spec the glob
+  misses cannot load on device (the host reports "was not bundled").
+  Rolldown's glob has no extglob `@(a|b)` support — use brace `{a,b}`.
+- The `xplatNative` preset handles `--env.unitTesting`: it swaps the bundle
+  entry to `src/test.ts` (the vite counterpart of the upstream webpack
+  helper), aliases `vitest` imports to the device-safe shim, and injects
+  `__NS_TEST_CONFIG__` (runner port). No per-app wiring is needed.
+- Mount Xplat components with `renderNativeScriptApp(host, Component)` into a
+  `ContentView` handed to `mount()`; `tap()`/`enterText()` dispatch through
+  gesture observers — that proves the observer path, NOT OS hit-testing
+  (that remains Maestro's lane).
+- `connectTimeout` in `vitest.config.mts` covers `ns run`'s native build on
+  first run — cold builds exceed the 120s default.
+- Xcode 27 caveat (this repo's CI lane): Simulator.app is gone, so
+  `ns run ios` can only target an already-booted simulator — `xcrun simctl
+  boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
+  (bundled in global CLI 9.1.1) cannot boot devices itself here.
+- iOS needs `NSAllowsLocalNetworking` (set in the harness Info.plist) for the
+  loopback `ws://127.0.0.1` bridge; Android needs the scoped cleartext
+  exception `ns test init` installs.
+- Qualified on: unit-test-runner 5.0.0 + vitest 4.1.11 + @nativescript/core
+  9.1.3 + @nativescript/vite 8.0.17 + CLI 9.1.1, iOS 27.0 simulator. The
+  committed `it.fails` spec pins that failed assertions on device report as
+  Vitest failures, not passes.
