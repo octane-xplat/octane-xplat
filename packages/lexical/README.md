@@ -2,8 +2,8 @@
 
 The unified rich-text facade, lexical flavor: one `LexicalEditor` component
 across web and native. Web renders a fixed-plugin `LexicalComposer` through
-`@octanejs/lexical`; Android renders the `@octane-xplat/richtext` leaf
-(WordPress Aztec on Android, iOS stub) and layers lexical serialized editor
+`@octanejs/lexical`; iOS and Android render the `@octane-xplat/richtext` leaf
+(WordPress Aztec on Android, AztecEditor-iOS on iOS) and layers lexical serialized editor
 state on top through the DOM-free slices (`lexical`, `@lexical/html`, the
 Aztec-shaped node packages) with a `zeed-dom` parse shim. DOM-bound lexical code stays out of Android execution — divergence lives at the
 file-suffix boundary.
@@ -25,7 +25,7 @@ export function Notes() {
 
 `value`/`onChange` exchange document HTML. `getJSON`/`setJSON` exchange
 lexical serialized editor state (`EditorState.toJSON()`): synchronous on
-web, bridged on Android after `onJSONReady(true)` — the lazy bridge reports
+web, bridged on iOS/Android after `onJSONReady(true)` — the lazy bridge reports
 `false` (and `getJSON()` returns `null`) on runtimes that cannot host the
 document-model modules. On Android, HTML is the canonical interchange
 format; serialized state is a best-effort mapping.
@@ -87,7 +87,7 @@ export function NoteEditor() {
 }
 ```
 
-The `web` options are ignored on native. Native still edits with Aztec on
+The `web` options are ignored on native. Native edits with Aztec on iOS and
 Android and uses the fixed headless conversion node set for JSON. Caller
 plugins, custom nodes, browser views, and arbitrary JavaScript transforms do
 not run there. Apps replacing the web defaults can set both replacement
@@ -112,7 +112,7 @@ export function NoteEditor() {
 | --- | --- | --- | --- |
 | Web | Lexical `LexicalComposer` with the facade's default nodes and plugins | `nodes`, `plugins`, and replacement flags apply | Supported by the web Lexical engine |
 | Android | WordPress Aztec `AztecText`; a headless Lexical editor converts serialized state to and from HTML | Ignored | Unsupported; no live Lexical editor, plugin, transform, custom node, or browser view runs |
-| iOS | Unsupported placeholder from `@octane-xplat/richtext` | Ignored | Unsupported; `supported` is `false` |
+| iOS | AztecEditor-iOS through the native Swift facade; HTML-backed JSON conversion | Ignored | Unsupported; no caller JavaScript engine plugins run |
 | macOS AppKit | Bundled Lexical editor in WKWebView | Ignored by the AppKit host | Unsupported through this facade |
 
 On Android, save HTML as the canonical document. Lexical serialized state is
@@ -170,3 +170,38 @@ RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
 host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).
+
+
+## Native content and format limits
+
+On iOS and Android, `json` takes precedence over `value`, including later
+HTML prop updates. Removing `json` returns control to `value`. An imperative
+`setHTML` cancels a pending JSON replacement; host recreation preserves the
+latest requested or edited content. These lifecycle rules have object-driver
+regression coverage, separate from native keyboard-input qualification.
+
+```tsx
+import { LexicalEditor, type LexicalJSON, type LexicalEditorHandle } from '@octane-xplat/lexical'
+
+export function Notes({ json }: { json?: LexicalJSON }) {
+	return <LexicalEditor json={json} value="<p>HTML when JSON is absent</p>" />
+}
+
+export function replaceHTML(editor: LexicalEditorHandle) {
+	editor.setHTML('<p>Replacement, including before JSON readiness</p>')
+}
+```
+
+Use the [platform format subset](../../docs/app/rich-text.md#format-subset)
+when building a toolbar. On iOS/Android, unsupported `apply` requests throw
+`RangeError` before changing content. Links require `linkTo`; iOS lacks
+`taskList` and alignment. Native JSON is a fixed-schema conversion through
+HTML and cannot preserve arbitrary caller nodes or run engine plugins.
+
+```ts
+import type { LexicalEditorHandle } from '@octane-xplat/lexical'
+
+export function insertLink(editor: LexicalEditorHandle) {
+	editor.linkTo('https://example.com', 'Example')
+}
+```

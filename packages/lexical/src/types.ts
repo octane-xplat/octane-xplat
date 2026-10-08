@@ -2,11 +2,10 @@ import type { Octane } from 'octane/jsx-runtime'
 import type { OctaneNode } from 'octane'
 import type { Klass, LexicalNode, LexicalNodeReplacement } from 'lexical'
 
-/** Format vocabulary shared by the web (lexical core + registered nodes)
- *  and native (Aztec) backends. On web, `taskList`/`highlight`/`subscript`/
- *  `superscript` are only active when their nodes are registered — the
- *  default node set doesn't include them, so they no-op there and map to
- *  Aztec formats on Android. */
+/** Format vocabulary shared by web Lexical and native Aztec. Web defaults
+ * include checklist and horizontal-rule plugins; highlight/sub/superscript
+ * are core text formats. iOS lacks task lists and alignment. apply('link')
+ * requires linkTo instead; unsupported native requests throw RangeError. */
 export type LexicalFormat =
 	| 'bold'
 	| 'italic'
@@ -50,7 +49,7 @@ export interface LexicalWebOptions {
 	/** Replace the facade's built-in custom node registry with `nodes`. Core
 	 *  Lexical nodes remain managed by Lexical. Defaults to `false`. */
 	replaceNodes?: boolean
-	/** Replace the default history, list, link, and autofocus plugins with the
+	/** Replace the default history, list, checklist, horizontal-rule, link, and autofocus plugins with the
 	 *  plugin components supplied in `plugins`. Defaults to `false`. The rich
 	 *  text surface and facade change/ref bindings remain installed. */
 	replacePlugins?: boolean
@@ -72,6 +71,10 @@ export interface LexicalEditorHandle {
 	/** AppKit: latest live engine JSON snapshot; null before onReady. */
 	getJSON(): LexicalJSON | null
 	setJSON(doc: LexicalJSON): void
+	/** Toggle a format supported by the mounted backend. Unsupported formats
+	 * throw RangeError on web/iOS/Android; use linkTo for links. AppKit
+	 * commands are asynchronous and report engine errors through its transport.
+	 * See the platform subset in docs/app/rich-text.md. */
 	apply(format: LexicalFormat): void
 	linkTo(url: string, anchor?: string): void
 	removeLink(): void

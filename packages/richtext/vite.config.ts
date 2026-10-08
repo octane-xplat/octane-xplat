@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => {
 				index: 'src/index.ts',
 				'RichTextEditor.ios': 'src/RichTextEditor.ios.tsrx',
 				'RichTextEditor.android': 'src/RichTextEditor.android.tsrx',
+				'RichTextEditor.windows': 'src/RichTextEditor.windows.tsrx',
 			}
 		: { index: 'src/index.web.ts' }
 

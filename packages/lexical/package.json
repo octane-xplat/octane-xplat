@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lexical",
 	"version": "0.11.1",
-	"description": "Unified rich-text editor facade for Octane xplat \u2014 live lexical on web/AppKit, Aztec + lexical document model on Android",
+	"description": "Unified rich-text editor facade for Octane xplat \u2014 live lexical on web/AppKit, Aztec + lexical document model on iOS/Android",
 	"keywords": [
 		"cross-platform",
 		"editor",

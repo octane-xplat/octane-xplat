@@ -49,7 +49,6 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const applyingValue = useRef(false)
 	const emitTimer = useRef<any>(null)
-	const warned = useRef<Set<string>>(new Set())
 
 	// Stable identity — an inline closure re-fires ref(null)/ref(v) per
 	// render, which would bounce host.current around the effects below.
@@ -74,13 +73,6 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		}, 150)
 	}
 
-	const reportUnsupported = (format: RichTextFormat) => {
-		if (warned.current.has(format)) return
-		warned.current.add(format)
-		console.warn(
-			`[richtext] apply('${format}') is not supported by the iOS Aztec surface`,
-		)
-	}
 
 	const handle = (e: any): RichTextEditorHandle => ({
 		getHTML: () => e.getHTML(),
@@ -94,10 +86,9 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			}
 		},
 		apply: (format: RichTextFormat) => {
-			if (format === 'link') return
+			if (format === 'link') throw new RangeError('Use linkTo(url, anchor) to apply a link')
 			if (UNSUPPORTED.has(format) || !e.applyFormat(format)) {
-				reportUnsupported(format)
-				return
+				throw new RangeError(`[richtext] apply('${format}') is not supported by the iOS Aztec surface`)
 			}
 
 			emitChange()
@@ -178,6 +169,7 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		props.onReady?.()
 
 		return () => {
+			clearTimeout(emitTimer.current)
 			e.onTextChange = null
 			e.onSelectionChange = null
 			e.onFocus = null

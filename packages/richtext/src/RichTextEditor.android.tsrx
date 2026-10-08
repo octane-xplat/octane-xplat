@@ -154,7 +154,8 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			}
 		},
 		apply: (format: RichTextFormat) => {
-			if (format === 'link') return
+			if (format === 'link') throw new RangeError('Use linkTo(url, anchor) to apply a link')
+			if (!FORMATS[format]) throw new RangeError(`[richtext] Unsupported format: ${format}`)
 			e.toggleFormatting(formatOf(format))
 			emitChange()
 		},
@@ -241,13 +242,13 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			}),
 		)
 
-		e.addTextChangedListener(
-			new androidText.TextWatcher({
-				beforeTextChanged: () => {},
-				onTextChanged: () => {},
-				afterTextChanged: () => emitChange(),
-			}),
-		)
+		const watcher = new androidText.TextWatcher({
+			beforeTextChanged: () => {},
+			onTextChanged: () => {},
+			afterTextChanged: () => emitChange(),
+		})
+
+		e.addTextChangedListener(watcher)
 
 		e.setOnFocusChangeListener(
 			new androidView.View.OnFocusChangeListener({
@@ -275,6 +276,12 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 		if (props.android) Object.assign(e, props.android)
 		props.onReady?.()
+
+		return () => {
+			clearTimeout(emitTimer.current)
+			e.removeTextChangedListener(watcher)
+			e.setOnFocusChangeListener(null)
+		}
 	}, [])
 
 	// `value` lands like a controlled prop, minus the loop: text the editor

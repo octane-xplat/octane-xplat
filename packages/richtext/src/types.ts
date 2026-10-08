@@ -41,8 +41,8 @@ export interface RichTextEditorHandle {
 	setHTML(html: string): void
 	/** Toggle a format at the current selection. `link` needs
 	 *  `linkTo(url, anchor)` instead. iOS has no taskList or text-alignment
-	 *  engine support — those calls report a console warning and do not
-	 *  change the document. */
+	 *  engine support — those calls throw RangeError before changing
+	 *  the document. apply('link') also throws; use linkTo instead. */
 	apply(format: RichTextFormat): void
 	/** Insert or re-target a link over the current selection. */
 	linkTo(url: string, anchor?: string): void

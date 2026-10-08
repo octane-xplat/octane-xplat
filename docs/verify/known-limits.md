@@ -465,9 +465,8 @@ blockers.
 
 `@octane-xplat/richtext` (the `RichTextEditor` component) edits real rich text
 through WordPress Aztec's `AztecText` on Android — a `Spannable`-backed
-`EditText` — and a bundled local WKWebView on macOS. The iOS leaf is a stub
-rendering an unsupported placeholder; web and Windows return `supported:
-false` and render nothing (the tiptap facade below covers web). Android
+`EditText` — and a bundled local WKWebView on macOS. iOS uses AztecEditor-iOS through the native Swift facade; web returns `supported: false` and renders nothing; Windows returns
+`false` and renders an unsupported placeholder (the tiptap facade below covers web). Android
 content in/out is HTML via Aztec `fromHtml`/`toPlainHtml`; Kotlin default
 parameters are not bridged, so the leaf passes explicit arguments. AppKit
 uses StarterKit and asynchronous snapshots. Real OS keyboard input, selection,
@@ -485,7 +484,7 @@ export function Notes() {
 
 `@octane-xplat/tiptap` (the `TiptapEditor` component) is the unified facade:
 web renders `@octanejs/tiptap`'s `EditorContent` over a real tiptap `Editor`,
-macOS runs the bundled live Tiptap engine in WKWebView, and Android renders
+macOS runs the bundled live Tiptap engine in WKWebView, and iOS/Android render
 `RichTextEditor` and adds tiptap document JSON interchange
 through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
 `@tiptap/static-renderer`) with a `zeed-dom` `DOMParser` shim for
@@ -494,9 +493,10 @@ through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
 Aztec's flat span list is not ProseMirror's tree, so `getJSON` output is a
 best-effort mapping and HTML is the reliable interchange. Formatting parity
 is bounded to the shared `TiptapFormat` vocabulary; `taskList`, `highlight`,
-`subscript`/`superscript`, and `align*` no-op on web and AppKit (StarterKit
-lacks them).
-iOS facade renders the same unsupported stub.
+`subscript`/`superscript`, and `align*` are unavailable in StarterKit. Web rejects those calls;
+AppKit reports errors asynchronously. iOS has no task-list or alignment
+formatting and rejects those calls before mutation. Both mobile facades
+require `linkTo` for links. See the [format subset](../app/rich-text.md#format-subset).
 
 ```tsx
 import { TiptapEditor } from '@octane-xplat/tiptap'
@@ -511,12 +511,12 @@ export function Notes() {
 `@octane-xplat/lexical` (the `LexicalEditor` component) is the same facade
 over lexical: web and macOS run a `LexicalComposer` with built-in defaults via
 `@octanejs/lexical@0.2.0`; only the web DOM component accepts custom node and
-plugin options. Android delegates editing to `RichTextEditor` and
+plugin options. iOS/Android delegate editing to `RichTextEditor` and
 round-trips serialized editor state through a headless `createEditor` +
 `@lexical/html` over `zeed-dom`. Web callers can add node classes and plugin
 components through `LexicalEditor`'s `web` prop; native renderers ignore that
 web-only option bag and keep their existing engine boundaries. No live
-`LexicalEditor` exists on Android — `dispatchCommand` and node transforms
+`LexicalEditor` exists on iOS/Android — `dispatchCommand` and node transforms
 are unavailable there. `@lexical/link`
 carries an ICU patch (its URL-matcher literal is a parse error without
 ICU); `lexical` core's `new RegExp('\p{Emoji}')` already degrades safely.

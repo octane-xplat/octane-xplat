@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
+import { $getRoot } from 'lexical'
 import { useLexicalComposerContext } from '@octanejs/lexical/LexicalComposerContext'
 import { LexicalEditor } from './LexicalEditor.web.tsrx'
 import type { LexicalEditorHandle } from './types'
@@ -29,6 +30,7 @@ function mount(props: any = {}) {
 				/>,
 			),
 		)
+
 	render(props)
 	return { el, root, render, get handle() { return handle } }
 }
@@ -105,7 +107,34 @@ it('can replace the default custom-node registry', () => {
 			plugins: <UpdatePlugin />,
 		},
 	})
+
 	expect(handle).not.toBeNull()
 	expect((handle!.native as any).getRegisteredNode(BadgeNode)).toBeTruthy()
 	expect(handle!.getJSON()!.root).toBeTruthy()
+})
+
+
+it('rejects apply(link) without changing content or focus', () => {
+	const { handle } = mount({ value: '<p>Unchanged</p>' })
+	const before = handle!.getHTML()
+	expect(() => handle!.apply('link')).toThrow(RangeError)
+	expect(handle!.getHTML()).toBe(before)
+	expect(handle!.isFocused()).toBe(false)
+})
+
+it('inserts horizontal rules with the default plugin composition', async () => {
+	const { handle } = mount({ value: '<p>Before rule</p>' })
+	handle!.native.update(() => $getRoot().selectEnd(), { discrete: true })
+	act(() => handle!.apply('horizontalRule'))
+	await Promise.resolve()
+	expect(handle!.getHTML()).toContain('<hr')
+	expect(JSON.stringify(handle!.getJSON())).toContain('horizontalrule')
+})
+
+it('creates check lists with the default plugin composition', async () => {
+	const { handle } = mount({ value: '<p>Task</p>' })
+	handle!.native.update(() => $getRoot().selectEnd(), { discrete: true })
+	act(() => handle!.apply('taskList'))
+	await Promise.resolve()
+	expect(JSON.stringify(handle!.getJSON())).toContain('"listType":"check"')
 })

@@ -21,6 +21,8 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	// Latest doc requested for the host — by `json` prop or `setJSON`. Kept
 	// after a successful push so a rebound (recreated) host still gets it.
 	const desiredDoc = useRef<LexicalJSON | undefined>(undefined)
+	const desiredHTML = useRef<string | undefined>(undefined)
+	const lastHTMLInput = useRef(props.value)
 
 	// Push the requested doc once both halves are up — the JSON bridge
 	// (async module load) and the bound host (ref/onReady timing). Skips the
@@ -29,7 +31,17 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	const applyDoc = () => {
 		const host = inner.current
 		const doc = desiredDoc.current
-		if (!host || doc === undefined || !jsonBridgeReady()) return
+		if (!host) return
+		if (doc === undefined) {
+			if (desiredHTML.current !== undefined && appliedHost.current !== host) {
+				host.setHTML(desiredHTML.current)
+				appliedHost.current = host
+			}
+
+			return
+		}
+
+		if (!jsonBridgeReady()) return
 		const stamp = JSON.stringify(doc)
 		if (stamp === lastJSON.current && appliedHost.current === host) return
 		const html = jsonToHTML(doc)
@@ -41,6 +53,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	}
 
 	const bindHost = useCallback((h: RichTextEditorHandle | null) => {
+		const previousHost = inner.current
 		inner.current = h
 		if (h) {
 			// The ref binds inside the leaf's commit, before its own `value`
@@ -48,12 +61,19 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			queueMicrotask(applyDoc)
 		}
 
-		setHandle((previous) => previous?.native === h?.native ? previous : h ? ({
+		setHandle((previous) => previousHost === h ? previous : h ? ({
 			getHTML: () => h.getHTML(),
-			setHTML: (html: string) => h.setHTML(html),
+			setHTML: (html: string) => {
+				desiredDoc.current = undefined
+				desiredHTML.current = html
+				lastJSON.current = undefined
+				appliedHost.current = h
+				h.setHTML(html)
+			},
 			getJSON: () => (jsonBridgeReady() ? htmlToJSON(h.getHTML()) : null),
 			setJSON: (doc) => {
 				desiredDoc.current = doc
+				desiredHTML.current = undefined
 				applyDoc()
 			},
 			apply: (format) => h.apply(format),
@@ -73,6 +93,11 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	// lexical slices, plus the zeed-dom parse shim. A doc that arrived before
 	// it settles is applied here, not dropped.
 	useEffect(() => {
+		if (!leafSupported) {
+			props.onJSONReady?.(false)
+			return
+		}
+
 		let alive = true
 		ensureJSONBridge().then((ok) => {
 			if (!alive) return
@@ -89,15 +114,28 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	// before the host binds — park it in desiredDoc and let the readiness
 	// flushes apply it.
 	useEffect(() => {
-		if (!props.json) return
 		desiredDoc.current = props.json
+		desiredHTML.current = undefined
+		if (props.json === undefined) return
 		applyDoc()
 	}, [props.json])
+
+	// External HTML changes replace the rebind snapshot too. Unchanged
+	// props must not replay over imperative replacements or user edits.
+	useEffect(() => {
+		if (props.value === lastHTMLInput.current) return
+		lastHTMLInput.current = props.value
+		if (props.json !== undefined || props.value === undefined) return
+		desiredDoc.current = undefined
+		desiredHTML.current = props.value
+		appliedHost.current = inner.current
+	}, [props.value])
 
 	const emitJSON = () => {
 		if (!inner.current || !jsonBridgeReady()) return
 		const doc = htmlToJSON(inner.current.getHTML())
 		if (doc) {
+			desiredDoc.current = doc
 			lastJSON.current = JSON.stringify(doc)
 			appliedHost.current = inner.current
 			props.onJSONChange?.(doc)
@@ -108,7 +146,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 		id={props.id}
 		className={props.className}
 		style={props.style}
-		value={props.value}
+		value={props.json === undefined ? props.value : undefined}
 		placeholder={props.placeholder}
 		editable={props.editable}
 		autofocus={props.autofocus}
@@ -119,6 +157,9 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			props.onReady?.()
 		}}
 		onChange={(html) => {
+			desiredHTML.current = html
+			desiredDoc.current = undefined
+			appliedHost.current = inner.current
 			props.onChange?.(html)
 			emitJSON()
 		}}

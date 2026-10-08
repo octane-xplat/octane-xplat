@@ -217,10 +217,14 @@ function installLexicalDomShim(zeed: any): void {
 		}
 
 		g.window = { DOMParser: ZeedDOMParser }
-		g.document = zeed.createHTMLDocument()
 	}
 
-	g.Node = g.Node ?? {
+	// Tiptap may already have installed a parser from another zeed-dom
+	// version. Lexical exportDOM must create nodes with the prototypes we
+	// patched above, rather than that other bridge's unpatched document.
+	if (!g.window?.document) {g.document = bootDoc}
+
+	g.Node = g.Node ?? Object.assign(zeed.VNode, {
 		ELEMENT_NODE: 1,
 		ATTRIBUTE_NODE: 2,
 		TEXT_NODE: 3,
@@ -230,7 +234,7 @@ function installLexicalDomShim(zeed: any): void {
 		DOCUMENT_NODE: 9,
 		DOCUMENT_TYPE_NODE: 10,
 		DOCUMENT_FRAGMENT_NODE: 11,
-	}
+	})
 }
 
 export async function ensureJSONBridge(): Promise<boolean> {
@@ -253,8 +257,8 @@ export async function ensureJSONBridge(): Promise<boolean> {
 		installLexicalDomShim(zeed)
 
 		// The leaf's native node set — Aztec's capability surface in lexical
-		// form. taskList/highlight/sub/sup formats have no lexical node here
-		// and stay no-ops on the facade.
+		// form. Checklist uses ListNode/ListItemNode; highlight/sub/superscript
+		// are core text formats, not separate node classes.
 		const editor = lexical.createEditor({
 			namespace: 'octane-xplat/lexical',
 			nodes: [
@@ -266,7 +270,7 @@ export async function ensureJSONBridge(): Promise<boolean> {
 				code.CodeNode,
 				ext.HorizontalRuleNode,
 			],
-			onError: () => undefined,
+			onError: (error: Error) => { throw error },
 		})
 
 		bridge = { editor, lexical, html, zeed }
@@ -300,16 +304,17 @@ export function htmlToJSON(htmlText: string): LexicalJSON | null {
 		bridge.editor.update(
 			() => {
 				const nodes = bridge!.html.$generateNodesFromDOM(bridge!.editor, parseHTML(htmlText))
-				bridge!.lexical
-					.$getRoot()
-					.clear()
-					.append(...nodes)
+				// Aztec Android can emit inline HTML at the root. Lexical
+				// insertion normalizes those nodes into a paragraph.
+				bridge!.lexical.$getRoot().clear().select()
+				bridge!.lexical.$insertNodes(nodes)
 			},
 			{ discrete: true },
 		)
 
 		return bridge.editor.getEditorState().toJSON() as LexicalJSON
-	} catch {
+	} catch (error) {
+		console.warn('[lexical] HTML to JSON conversion failed: ' + String(error))
 		return null
 	}
 }
@@ -329,7 +334,8 @@ export function jsonToHTML(doc: LexicalJSON): string | null {
 		})
 
 		return out
-	} catch {
+	} catch (error) {
+		console.warn('[lexical] JSON to HTML conversion failed: ' + String(error))
 		return null
 	}
 }

@@ -23,10 +23,10 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 const INITIAL_HTML =
 	'<h2>Unified facade</h2>' +
 	'<p>One <strong>tiptap-shaped API</strong> — @octanejs/tiptap on web, ' +
-	'Aztec on Android, live tiptap in AppKit WebKit.</p>';
+	'Aztec on iOS/Android, live tiptap in AppKit WebKit.</p>';
 
 /** Facade demo — the same <TiptapEditor> runs tiptap on web and Aztec +
- *  tiptap-JSON interchange on Android. */
+ *  tiptap-JSON interchange on iOS/Android. */
 export function TiptapEditorDemo() @{
 	const editor = useRef<TiptapEditorHandle | null>(null);
 	const [status, setStatus] = useState(supported ? 'idle' : 'unsupported');

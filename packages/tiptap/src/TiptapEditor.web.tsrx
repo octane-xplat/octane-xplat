@@ -8,24 +8,24 @@ export const supported = true
 
 type WebFormat = Exclude<TiptapFormat, 'link' | 'taskList' | 'highlight' | 'subscript' | 'superscript' | 'alignLeft' | 'alignCenter' | 'alignRight'>
 
-const COMMAND: Record<WebFormat, (chain: any) => any> = {
-	bold: (c) => c.toggleBold(),
-	italic: (c) => c.toggleItalic(),
-	underline: (c) => c.toggleUnderline(),
-	strikethrough: (c) => c.toggleStrike(),
-	code: (c) => c.toggleCode(),
-	blockquote: (c) => c.toggleBlockquote(),
-	bulletList: (c) => c.toggleBulletList(),
-	orderedList: (c) => c.toggleOrderedList(),
-	codeBlock: (c) => c.toggleCodeBlock(),
-	horizontalRule: (c) => c.setHorizontalRule(),
-	paragraph: (c) => c.setParagraph(),
-	heading1: (c) => c.toggleHeading({ level: 1 }),
-	heading2: (c) => c.toggleHeading({ level: 2 }),
-	heading3: (c) => c.toggleHeading({ level: 3 }),
-	heading4: (c) => c.toggleHeading({ level: 4 }),
-	heading5: (c) => c.toggleHeading({ level: 5 }),
-	heading6: (c) => c.toggleHeading({ level: 6 }),
+const COMMAND: Record<WebFormat, [string, object?]> = {
+	bold: ['toggleBold'],
+	italic: ['toggleItalic'],
+	underline: ['toggleUnderline'],
+	strikethrough: ['toggleStrike'],
+	code: ['toggleCode'],
+	blockquote: ['toggleBlockquote'],
+	bulletList: ['toggleBulletList'],
+	orderedList: ['toggleOrderedList'],
+	codeBlock: ['toggleCodeBlock'],
+	horizontalRule: ['setHorizontalRule'],
+	paragraph: ['setParagraph'],
+	heading1: ['toggleHeading', { level: 1 }],
+	heading2: ['toggleHeading', { level: 2 }],
+	heading3: ['toggleHeading', { level: 3 }],
+	heading4: ['toggleHeading', { level: 4 }],
+	heading5: ['toggleHeading', { level: 5 }],
+	heading6: ['toggleHeading', { level: 6 }],
 }
 
 const ACTIVE_OF: [TiptapFormat, string, any?][] = [
@@ -148,8 +148,12 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 			getJSON: () => e.getJSON(),
 			setJSON: (doc) => e.commands.setContent(doc),
 			apply: (format) => {
-				const run = COMMAND[format as WebFormat]
-				if (run) run(e.chain().focus()).run()
+				const command = COMMAND[format as WebFormat]
+				if (!command || typeof e.commands[command[0]] !== 'function') {
+					throw new RangeError(`[tiptap] Unsupported apply format: ${format}; use linkTo for links`)
+				}
+
+				e.chain().focus()[command[0]](command[1]).run()
 			},
 			linkTo: (url, anchor) => {
 				if (anchor != null && anchor !== '') {

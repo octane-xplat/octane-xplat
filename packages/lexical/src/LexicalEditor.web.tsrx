@@ -2,6 +2,9 @@ import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import {
 	AutoFocusPlugin,
 	ContentEditable,
+	CheckListPlugin,
+	HorizontalRulePlugin,
+	HorizontalRuleNode,
 	EditorRefPlugin,
 	HistoryPlugin,
 	LexicalComposer,
@@ -39,7 +42,7 @@ import {
 
 import { $createLinkNode, $isLinkNode, AutoLinkNode, LinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import { $createCodeNode, $isCodeNode, CodeNode } from '@lexical/code'
-import { HorizontalRuleNode, INSERT_HORIZONTAL_RULE_COMMAND, $isHorizontalRuleNode } from '@lexical/extension'
+import { INSERT_HORIZONTAL_RULE_COMMAND, $isHorizontalRuleNode } from '@lexical/extension'
 import { $setBlocksType } from '@lexical/selection'
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
 import type { LexicalEditorHandle, LexicalEditorProps, LexicalFormat } from './types'
@@ -136,8 +139,13 @@ function applyFormat(editor: any, format: LexicalFormat): void {
 			editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)
 			break
 		case 'horizontalRule':
-			editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined)
+			if (!editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined)) {
+				throw new RangeError('[lexical] horizontalRule requires a command handler plugin')
+			}
+
 			break
+		default:
+			throw new RangeError(`[lexical] Unsupported apply format: ${format}; use linkTo for links`)
 	}
 }
 
@@ -287,6 +295,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			setJSON: (doc) =>
 				editor.setEditorState(editor.parseEditorState(JSON.stringify(doc))),
 			apply: (format) => {
+				if (format === 'link') throw new RangeError('Use linkTo(url, anchor) to apply a link')
 				editor.focus()
 				applyFormat(editor, format)
 			},
@@ -401,6 +410,8 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 				<>
 					<HistoryPlugin />
 					<ListPlugin />
+					<CheckListPlugin />
+					<HorizontalRulePlugin />
 					<LinkPlugin />
 					{props.autofocus ? <AutoFocusPlugin /> : null}
 				</>

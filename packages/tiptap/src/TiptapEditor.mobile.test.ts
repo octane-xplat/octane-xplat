@@ -33,7 +33,7 @@ vi.mock('@octane-xplat/richtext', async () => {
 })
 
 import { TiptapEditor } from './TiptapEditor.tsrx'
-import { hosts, resetFakeRichtext, setDefer } from '../tests/fake-richtext.fixture.mobile.tsrx'
+import { hosts, resetFakeRichtext, setDefer, setSupported } from '../tests/fake-richtext.fixture.mobile.tsrx'
 
 const docA = { type: 'doc', html: '<p>alpha</p>' } as unknown as TiptapJSON
 const docB = { type: 'doc', html: '<p>bravo</p>' } as unknown as TiptapJSON
@@ -226,4 +226,98 @@ describe('TiptapEditor native JSON readiness', () => {
 		await settle()
 		expect(hosts[0].setCalls).toEqual([])
 	})
+
+	it('keeps JSON precedence when only the HTML prop changes', async () => {
+		const view = mount({ value: '<p>value</p>', json: docA })
+		settleBridge(true)
+		await settle()
+		view.root.render(TiptapEditor, { value: '<p>changed</p>', json: docA } as any)
+		await settle()
+		expect(hosts[0].html).toBe('<p>alpha</p>')
+		expect(hosts[0].setCalls).toEqual(['<p>alpha</p>'])
+	})
+
+	it('cancels pending JSON when setHTML replaces it before bridge readiness', async () => {
+		const view = mount({ json: docA })
+		await settle()
+		view.handle.setHTML('<p>replacement</p>')
+		settleBridge(true)
+		await settle()
+		expect(hosts[0].html).toBe('<p>replacement</p>')
+	})
+
+	it('cancels pending JSON when the prop is removed in favor of HTML', async () => {
+		const view = mount({ json: docA })
+		await settle()
+		view.root.render(TiptapEditor, { value: '<p>replacement</p>' } as any)
+		await settle()
+		settleBridge(true)
+		await settle()
+		expect(hosts[0].html).toBe('<p>replacement</p>')
+	})
+
+	it('preserves edited JSON when the host is recreated', async () => {
+		mount({ json: docA })
+		settleBridge(true)
+		await settle()
+		const rig = hosts[0]
+		rig.html = '<p>edited</p>'
+		rig.props.onChange(rig.html)
+		rig.rebind()
+		await settle()
+		expect(rig.html).toBe('<p>edited</p>')
+	})
+
+	it('rebinds the facade even when the replacement handle shares the native view', async () => {
+		const view = mount({})
+		await settle()
+		const oldHandle = view.handle
+		hosts[0].rebind()
+		await settle()
+		expect(view.handle).not.toBe(oldHandle)
+	})
+
+	it('preserves imperative HTML when the host is recreated', async () => {
+		const view = mount({ json: docA })
+		settleBridge(true)
+		await settle()
+		view.handle.setHTML('<p>replacement</p>')
+		hosts[0].rebind()
+		await settle()
+		expect(hosts[0].html).toBe('<p>replacement</p>')
+	})
+
+	it('does not overwrite edits made before the bridge becomes ready', async () => {
+		mount({ json: docA })
+		await settle()
+		hosts[0].html = '<p>early edit</p>'
+		hosts[0].props.onChange(hosts[0].html)
+		settleBridge(true)
+		await settle()
+		expect(hosts[0].html).toBe('<p>early edit</p>')
+	})
+
+	it('preserves a newer controlled HTML replacement after earlier edits and host recreation', async () => {
+		const view = mount({ value: '<p>initial</p>' })
+		settleBridge(true)
+		await settle()
+		hosts[0].html = '<p>typed</p>'
+		hosts[0].props.onChange(hosts[0].html)
+		view.root.render(TiptapEditor, { value: '<p>external</p>' } as any)
+		await settle()
+		hosts[0].rebind()
+		await settle()
+		expect(hosts[0].html).toBe('<p>external</p>')
+	})
+
+	it('reports JSON unavailable without loading a bridge on an unsupported editing surface', async () => {
+		setSupported(false)
+		const onJSONReady = vi.fn()
+		const view = mount({ onJSONReady })
+		await settle()
+		expect(onJSONReady).toHaveBeenCalledExactlyOnceWith(false)
+		expect(bridge.waiters).toEqual([])
+		expect(view.handle).toBeNull()
+	})
+
 })

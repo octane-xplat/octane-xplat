@@ -127,3 +127,22 @@ it('never registers StarterKit twice', () => {
 		expect.stringContaining('Duplicate extension names'),
 	)
 })
+
+
+it('rejects unsupported formatting before changing content or focus', () => {
+	const { handle } = mount({ value: '<p>Unchanged</p>' })
+	const before = handle!.getHTML()
+	for (const format of ['taskList', 'highlight', 'subscript', 'superscript', 'alignLeft', 'alignCenter', 'alignRight', 'link'] as const) {
+		expect(() => handle!.apply(format)).toThrow(RangeError)
+	}
+
+	expect(handle!.getHTML()).toBe(before)
+	expect(handle!.isFocused()).toBe(false)
+})
+
+
+it('rejects a format removed from the configured StarterKit', () => {
+	const { handle } = mount({ value: '<p>Unchanged</p>', web: { starterKit: { bold: false } } })
+	expect(() => handle!.apply('bold')).toThrow(RangeError)
+	expect(handle!.getHTML()).toBe('<p>Unchanged</p>')
+})

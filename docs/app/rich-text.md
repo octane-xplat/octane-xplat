@@ -5,8 +5,8 @@
 For plain text, start with `TextArea` in the [text-entry guide](text-entry.md).
 **Rich text** stores formatting along with the words. Xplat offers optional
 editor packages: `@octane-xplat/tiptap` and `@octane-xplat/lexical` provide
-shared interfaces, while `@octane-xplat/richtext` supplies the Android and AppKit editing surfaces.
-iOS editing is not implemented yet.
+shared interfaces, while `@octane-xplat/richtext` supplies the iOS, Android,
+and AppKit editing surfaces.
 
 ```tsx
 import { TextArea } from '@octane-xplat/ui'
@@ -30,8 +30,9 @@ ProseMirror's DOM-bound `EditorView`, so Android renders WordPress Aztec's
 `AztecText` — a `Spannable`-backed `EditText` — and the facade layers tiptap
 document JSON on top through the DOM-free slices
 (`prosemirror-model`/`prosemirror-state` via `@tiptap/pm`,
-`@tiptap/static-renderer`, and `zeed-dom` as the parse shim). iOS is a stub
-until the Aztec-iOS Swift facade lands.
+`@tiptap/static-renderer`, and `zeed-dom` as the parse shim). iOS uses
+AztecEditor-iOS through a Swift facade, with the same HTML-backed JSON
+conversion boundary.
 
 ## Install and import
 
@@ -56,7 +57,7 @@ export function Notes() {
 adapted over `@octanejs/tiptap`, the unsuffixed native default over
 `RichTextEditor`. App code does not branch on platform.
 
-For the native editor directly (Android and macOS AppKit), add
+For the native editor directly (iOS, Android, and macOS AppKit), add
 `@octane-xplat/richtext`:
 
 ```tsx
@@ -76,8 +77,10 @@ export function Notes() {
 
 The leaf's `platforms/android/include.gradle` declares
 `org.wordpress:aztec:v2.1.7` from the Automattic Maven repository — no app
-gradle setup beyond a normal `ns build`. `supported` is `false` on iOS, web, and Windows; the iOS component mounts a placeholder label instead of
-an editor.
+gradle setup beyond a normal `ns build`. iOS discovers the pinned Aztec
+Swift Package and facade through the leaf package. The leaf reports
+`supported = true` on iOS, Android, and AppKit; web and Windows remain
+unsupported. The two facade packages supply the web editors.
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
@@ -150,7 +153,63 @@ export function Notes() {
 
 The shared `TiptapFormat` vocabulary is the union the facades expose. StarterKit
 lacks `taskList`, `highlight`, `subscript`/`superscript`, and the `align*`
-formats — they work on Android and no-op on web and AppKit.
+formats. Tiptap rejects those `apply` calls on web; Android supports them,
+and iOS supports only the subset below.
+
+## Format subset
+
+`apply(format)` toggles formatting at the current selection. The table lists
+engine mechanisms, not complete input or history qualification. Unsupported
+formats throw `RangeError` on web, iOS, and Android. `apply('link')` always
+throws there: use `linkTo(url, anchor)` instead. AppKit commands are
+asynchronous; its transport logs rejected engine requests.
+
+```ts
+import type { TiptapEditorHandle } from '@octane-xplat/tiptap'
+
+export function addLink(editor: TiptapEditorHandle) {
+	editor.linkTo('https://example.com', 'Example')
+}
+```
+
+| Format group | Tiptap web / AppKit | Lexical web / AppKit defaults | Both iOS facades | Both Android facades |
+| --- | --- | --- | --- | --- |
+| Bold, italic, underline, strike, code | Available | Available | Available | Available |
+| Paragraph, heading1–6, quote, bullet/ordered list, code block, horizontal rule | Available | Available | Available | Available |
+| Highlight, subscript, superscript | Unsupported | Available as core text formats | Available | Available |
+| Task list | Unsupported | Available with default list/checklist plugins | Unsupported | Available |
+| alignLeft, alignCenter, alignRight | Unsupported | Available | Unsupported | Available |
+| Link | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` |
+
+Custom web schemas or replacement plugins can remove the commands needed by
+these defaults. Native ignores `web` options and retains its fixed conversion
+schema. Native history belongs to Aztec: Android tracks keyboard edits;
+iOS uses its undo manager for keyboard and format edits. Replacing native
+HTML/JSON resets history rather than reproducing web transaction history.
+
+```tsx
+import { LexicalEditor } from '@octane-xplat/lexical'
+
+export function Notes() {
+	return <LexicalEditor value="<p>Travel notes</p>" editable />
+}
+```
+
+On iOS/Android, supplying `json` suppresses `value` updates. Removing `json`
+returns control to HTML. Calling `setHTML` cancels any parked JSON request,
+including one waiting for the conversion modules; an editor host recreated
+inside the mounted facade receives the latest requested or edited content.
+
+```tsx
+import { TiptapEditor } from '@octane-xplat/tiptap'
+
+export function Notes() {
+	return <TiptapEditor
+		value="<p>Ignored while JSON is supplied</p>"
+		json={{ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'JSON wins' }] }] }}
+	/>
+}
+```
 
 ## Ordinary editing subset by platform
 
@@ -161,11 +220,13 @@ target; it does not qualify each contract row.
 
 | Target | Editing engine | Current boundary |
 | --- | --- | --- |
-| Web | Tiptap mounts Tiptap; Lexical mounts Lexical | Package source exposes web editing APIs. The provided browser runtime evidence tests ProseMirror's document model, not either mounted editor's browser interaction or full lifecycle. |
+| Web | Tiptap mounts Tiptap; Lexical mounts Lexical | Chromium facade smoke covers mount, HTML/JSON, controlled JSON precedence, rejected link apply, focus/blur, and remount. Keyboard, IME, paste, and full history/selection qualification remain separate. |
 | Android | Both facades edit through Aztec; Tiptap and Lexical JSON are conversion layers | ADB input, focus, selection, and keyboard undo have bounded runtime evidence. A separate Aztec run preserves nested HTML wrappers but exposes paragraph flattening and repeated-reopen drift. |
-| iOS | Neither package mounts an editing engine | The package reports `supported = false` and renders a placeholder; a simulator run verifies this boundary only. |
+| iOS | Both facades edit through AztecEditor-iOS and convert JSON through HTML | The editing surface exists. The leaf has bounded simulator handle-call evidence; OS input, IME, paste, and accessibility remain unqualified. |
+| Linux | Web Tiptap/Lexical inside WebKitGTK | Selects the web entry through Linux’s `web` fallback. No Linux runtime was run for this change. |
+| Windows | Unsupported placeholder | Both source facades inherit `supported = false`; packed native output includes the Windows placeholder. No Windows runtime was run. |
 
-On Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
+On iOS and Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
 Lexical plugins, transforms, and browser views do not run. The facades do not
 create live ProseMirror or Lexical editor instances there. A 2026-10-06 internal runtime investigation preserved the three-level
 HTML hierarchy and attributes through synthetic edits and save/reopen, and a
@@ -214,9 +275,12 @@ save/reopen and disposal remain unverified. A later fresh-cache run again
 passed mount, readiness, controlled replacement, and read-only checks, then
 timed out before keyboard text reached Aztec; it adds no user-edit evidence.
 
-The iOS package entry remains an unsupported placeholder. Native package
-builds and object-driver suites do not establish iOS editing behavior; the
-separate simulator run verifies only the unsupported flag and visible label.
+The iOS leaf now mounts AztecEditor-iOS through its Swift facade. Its earlier
+14-assertion simulator probe covers leaf mount, readiness, HTML, focus, blur,
+and unsupported-format queries. It does not establish keyboard input, IME,
+paste, selection-restoring history, or accessibility. Native builds and
+object-driver suites remain separate evidence; see the
+[iOS capability declarations](../notes/editor-capabilities.md#ios).
 
 ## Web engine extensions
 
@@ -344,7 +408,7 @@ unverified.
 
 ## JSON interchange on native
 
-On Android, the facade lazily imports the DOM-free tiptap slices and `zeed-dom` the
+On iOS and Android, the facade lazily imports the DOM-free tiptap slices and `zeed-dom` the
 first time a `TiptapEditor` mounts (or call `ensureJSONBridge()` yourself).
 `onJSONReady(ok)` reports whether the runtime hosted them — NativeScript's
 embedded V8 lacks ICU, which `linkifyjs` originally broke on; the workspace
@@ -485,17 +549,17 @@ the maintained example.
 
 ## What is not there yet
 
-- iOS editing — the Swift facade over Aztec-iOS is deferred; the stub keeps
-  shared screens mounting.
+- iOS task-list and alignment formatting — AztecEditor-iOS has no matching
+  engine API. The native facade rejects those requests before changing content.
 - Formatting parity is the shared vocabulary only — Aztec extras (`code`
   inline vs `codeBlock`, task lists) and StarterKit extras (hard breaks,
   trailing nodes) do not fully interconvert.
 - Android has no WebView bridge: the editor never instantiates
   `prosemirror-view`/`EditorView`, so browser-only tiptap extensions (drag
   handles, bubble menus) do not apply on native. Caller-supplied `web`
-  extensions likewise configure only the browser engine — the Android facade
+  extensions likewise configure only the browser engine — the iOS/Android facades
   and bundled AppKit engine ignore the prop.
-- Lexical: no live `LexicalEditor` on Android — the facade's serialized
+- Lexical: no live `LexicalEditor` on iOS/Android — the facade's serialized
   state is a conversion format, and custom plugins/nodes are web-only via
   direct `@octanejs/lexical` import. Selection positions reported through
   `onSelectionChange` are best-effort flat text offsets on web; JSON→HTML

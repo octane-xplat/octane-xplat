@@ -4,7 +4,7 @@ import type { StarterKitOptions } from '@tiptap/starter-kit'
 
 /** Format vocabulary shared by the web (tiptap StarterKit) and native
  *  (Aztec) backends. On web, starter-kit covers everything except
- *  taskList/highlight/subscript/superscript/align* — those no-op there and
+ *  taskList/highlight/subscript/superscript/align* — those throw RangeError there and
  *  map to Aztec formats on Android. */
 export type TiptapFormat =
 	| 'bold'
@@ -67,6 +67,10 @@ export interface TiptapEditorHandle {
 	/** AppKit: latest live engine JSON snapshot; null before onReady. */
 	getJSON(): TiptapJSON | null
 	setJSON(doc: TiptapJSON): void
+	/** Toggle a format supported by the mounted backend. Unsupported formats
+	 * throw RangeError on web/iOS/Android; use linkTo for links. AppKit
+	 * commands are asynchronous and report engine errors through its transport.
+	 * See the platform subset in docs/app/rich-text.md. */
 	apply(format: TiptapFormat): void
 	linkTo(url: string, anchor?: string): void
 	removeLink(): void

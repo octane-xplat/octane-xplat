@@ -6,15 +6,15 @@ Related APIs: @octane-xplat/tiptap, @octane-xplat/lexical, @octane-xplat/richtex
 
 ## Starting point
 
-A scaffolded Octane xplat app with web, Android, or experimental AppKit targets (iOS stubbed until
-the Aztec-iOS Swift facade lands). The reader can add a leaf package and use
+A scaffolded Octane xplat app with web, iOS, Android, or experimental AppKit targets. The reader can add a leaf package and use
 the platform file-suffix boundary for divergent imports.
 
 ## Requirements
 
 - Render an editable rich-text surface on web (tiptap `Editor`) and Android
-  (WordPress Aztec `AztecText`) through one shared component.
-- Exchange content as HTML on both platforms and as tiptap document JSON on
+  (WordPress Aztec `AztecText`), plus iOS (AztecEditor-iOS Swift facade),
+  through one shared component.
+- Exchange content as HTML on the supported platforms and as tiptap document JSON on
   platforms whose runtime can host the DOM-free ProseMirror slices.
 - Keep DOM-bound tiptap code (`EditorView`) out of Android native execution;
   AppKit hosts its engine inside a local WKWebView document. Platform
@@ -25,19 +25,21 @@ the platform file-suffix boundary for divergent imports.
 ## Acceptance criteria
 
 - AC1: An app installs `@octane-xplat/tiptap` and renders `TiptapEditor` with
-  `value`/`onChange`/`ref` on web, Android, and AppKit without platform branching.
+  `value`/`onChange`/`ref` on web, iOS, Android, and AppKit without platform branching.
 - AC2: Toolbar-style integrations drive formatting through
   `handle.apply(format)`/`linkTo`/`undo`/`redo` and read active state through
   `isActive`/`onSelectionChange` on the supported backends, with their documented engine limits.
-- AC3: Docs state which tiptap formats are shared, which no-op on web, and
+- AC3: Docs state which tiptap formats are shared, which are unavailable on each platform and how rejected calls are reported, and
   that HTML is the canonical Android interchange format and AppKit keeps
   each engine’s live JSON model.
 - AC4: `getJSON`/`setJSON` work on Android once `onJSONReady(true)` fires and
   degrade to `null` cleanly where the JSON bridge cannot load.
-- AC5: iOS renders the unsupported stub and returns `supported === false`
-  instead of crashing.
-- AC6: The harness covers all demos: the iOS catalog sweep asserts the stub
-  state and the Android sweep probes Aztec mount, initial-HTML rendering,
+- AC5: iOS mounts AztecEditor-iOS and reports `supported === true`. Both
+  facades expose HTML and fixed-schema JSON interchange; unsupported task-list
+  and alignment requests fail explicitly before mutating the document.
+- AC6: Maintained examples render the iOS editing surface rather than claiming
+  a stub; targeted native tests/probes cover both facade readiness and content
+  precedence. The Android sweep probes Aztec mount, initial-HTML rendering,
   `toggleFormatting`, `undo`, and both facades' JSON bridges.
 - AC7: The lexical variant (`LexicalEditor`, `@octane-xplat/lexical`)
   exchanges lexical serialized editor state — the two facades' JSON shapes
@@ -56,11 +58,15 @@ the platform file-suffix boundary for divergent imports.
   `web` prop — extra `Extension`/`Node`/`Mark` entries append after
   StarterKit, `starterKit` options configure or remove the kit, and a
   caller `starterKit` entry never double-registers. Docs state the
-  boundary: Android (Aztec) and AppKit ignore `web` options.
+  boundary: iOS/Android (Aztec) and AppKit ignore `web` options.
 - AC10: On web, the lexical facade reports `onJSONReady(true)` once its live
   handle exists, forwards focus and blur events, and covers mount, editable
   mode, controlled HTML updates, history, disposal/remount, plus a custom node
   JSON/HTML round-trip in component and real-browser smoke tests.
+
+- AC11: Native JSON takes precedence over later HTML prop updates. Removing
+  JSON or calling `setHTML` cancels parked JSON; latest edited/replaced content
+  survives host recreation, and the facade ref follows the replacement handle.
 
 ## Documentation
 
@@ -94,3 +100,7 @@ the platform file-suffix boundary for divergent imports.
   `pnpm --filter @xplat/web smoke:lexical-editor` to exercise real Chromium
   keyboard input, history, controlled updates, focus, custom nodes, read-only
   mode, and remount lifecycle without inspecting screenshots.
+
+- AC11: [Format subset and controlled content](../docs/app/rich-text.md#format-subset)
+  and both packages' `*.mobile.test.ts` regression suites. These object-driver
+  tests simulate readiness and replacement hosts; they do not prove OS input.

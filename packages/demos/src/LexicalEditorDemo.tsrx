@@ -23,10 +23,10 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 const INITIAL_HTML =
 	'<h2>Unified facade</h2>' +
 	'<p>One <strong>lexical-shaped API</strong> — @octanejs/lexical on web, ' +
-	'Aztec on Android, live Lexical in AppKit WebKit.</p>';
+	'Aztec on iOS/Android, live Lexical in AppKit WebKit.</p>';
 
 /** Facade demo — the same <LexicalEditor> runs a LexicalComposer on web and
- *  Aztec + lexical serialized-state interchange on Android. */
+ *  Aztec + lexical serialized-state interchange on iOS/Android. */
 export function LexicalEditorDemo() @{
 	const editor = useRef<LexicalEditorHandle | null>(null);
 	const [status, setStatus] = useState(supported ? 'idle' : 'unsupported');

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/tiptap",
 	"version": "0.11.1",
-	"description": "Unified rich-text editor facade for Octane xplat — live tiptap on web/AppKit, Aztec + tiptap document model on Android",
+	"description": "Unified rich-text editor facade for Octane xplat — live tiptap on web/AppKit, Aztec + tiptap document model on iOS/Android",
 	"keywords": [
 		"cross-platform",
 		"editor",

@@ -10,7 +10,10 @@ import { useEffect, useLayoutEffect, useRef } from 'octane'
  *  onReady) back until the test calls `rig.ready()`, modelling a native view
  *  that only becomes editable after mount. `rig.attach()` binds just the
  *  ref, `rig.rebind()` simulates the platform view being recreated. */
-export const supported = true
+export let supported = true
+export function setSupported(next: boolean) {
+	supported = next
+}
 
 export interface FakeHost {
 	html: string
@@ -31,11 +34,14 @@ export function setDefer(next: boolean) {
 
 export function resetFakeRichtext() {
 	hosts.length = 0
+	supported = true
 	defer = false
 }
 
 export function RichTextEditor(props: any) @{
+	if (!supported) return null
 	const rig = useRef<FakeHost | null>(null)
+	const previousValue = useRef(props.value)
 	if (!rig.current) {
 		const makeHandle = () => ({
 			getHTML: () => state.html,
@@ -108,6 +114,13 @@ export function RichTextEditor(props: any) @{
 
 		props.onReady?.()
 	}, [])
+
+	useEffect(() => {
+		if (props.value === previousValue.current) return
+		previousValue.current = props.value
+		if (!rig.current!.handle || props.value === undefined) return
+		rig.current!.handle.setHTML(props.value)
+	}, [props.value])
 
 	<fake-richtext-leaf />;
 }
