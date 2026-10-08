@@ -1,0 +1,29 @@
+steps:
+  - launch: {ios: org.nativescript.xplat.laurencetestid}
+  - assert: {visible: {id: counter.value}}
+  - assert: {visible: {id: screen.controls}}
+  - assert: {visible: {id: counter.group}}
+  - assert: {visible: {id: message.notes}}
+  - assert: {visible: {id: message.search}}
+  - tap: {id: counter.increment}
+  - await: {visible: {text: "Count: 1"}, timeout: 5000}
+  - type: {into: {id: message.entry}, text: "42"}
+  - await: {visible: {text: "Message: 42"}, timeout: 5000}
+  - tap: {id: settings.enabled}
+  - await: {visible: {text: "Enabled: true"}, timeout: 5000}
+  - tap: {id: items.rebind}
+  - assert: {hidden: {id: item.a.open}}
+  - assert: {visible: {id: item.b.open}}
+  - tap: {id: item.b.open}
+  - await: {visible: {text: "Count: 2"}, timeout: 5000}
+  - tap: {id: items.rebind}
+  - assert: {hidden: {id: item.b.open}}
+  - tap: {id: overlay.open}
+  - await: {visible: {id: overlay.content}, timeout: 5000}
+  - assert: {visible: {id: overlay.status}}
+  - tap: {id: overlay.close}
+  - await: {hidden: {id: overlay.content}, timeout: 5000}
+  - tap: {id: overlay.open}
+  - await: {visible: {id: overlay.close}, timeout: 5000}
+  - tap: {id: overlay.close}
+  - await: {hidden: {id: overlay.close}, timeout: 5000}

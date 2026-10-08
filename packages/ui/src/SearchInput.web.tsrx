@@ -37,6 +37,7 @@ export function SearchInput(props: SearchInputProps) @{
 	>
 		{props.icon !== false ? <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" /> : null}
 		<input
+			data-testid={props.testID}
 			ref={(el: any) => {
 				hostRef.current = el;
 			}}

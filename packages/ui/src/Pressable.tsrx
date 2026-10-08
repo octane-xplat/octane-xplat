@@ -16,6 +16,7 @@ export function Pressable(props: PressableProps) @{
 	<flexboxlayout
 		ref={forwardedRef}
 		id={props.id}
+		testID={props.testID ?? ''}
 		{...layoutChildProps(props)}
 		className={cx('vx-pressable', props.className)}
 		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}

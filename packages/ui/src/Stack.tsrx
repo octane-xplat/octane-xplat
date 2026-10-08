@@ -32,6 +32,7 @@ export function Stack(props: StackProps) @{
 	@if (layout.scrollable) {
 		<scrollview
 			id={props.id}
+			testID={props.testID ?? ''}
 			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
 			style={{ ...sizingStyle, ...props.style }}
@@ -59,6 +60,7 @@ export function Stack(props: StackProps) @{
 	} @else {
 		<flexboxlayout
 			id={props.id}
+			testID={props.testID ?? ''}
 			ref={forwardedRef}
 			flexDirection={layout.flexDirection}
 			justifyContent={layout.justifyContent as any}

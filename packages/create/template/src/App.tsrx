@@ -28,16 +28,16 @@ export function App() @{
 		<Text className="muted">one codebase — web · iOS · android</Text>
 
 		<HStack className="counter">
-			<Pressable className="btn" onPress={() => setCount(count - 1)}><Text>−</Text></Pressable>
-			<Text className="count">{count}</Text>
-			<Pressable className="btn" onPress={() => setCount(count + 1)}><Text>+</Text></Pressable>
+			<Pressable testID="counter.decrement" accessibilityLabel="Decrease count" className="btn" onPress={() => setCount(count - 1)}><Text>−</Text></Pressable>
+			<Text testID="counter.value" className="count">{count}</Text>
+			<Pressable testID="counter.increment" accessibilityLabel="Increase count" className="btn" onPress={() => setCount(count + 1)}><Text>+</Text></Pressable>
 		</HStack>
 
 		<ScrollableArea>
 			{FEATURES.map((f) => <Text className="chip">{f}</Text>)}
 		</ScrollableArea>
 
-		<Pressable className="link" onPress={() => {
+		<Pressable testID="settings.toggle-theme" className="link" onPress={() => {
 			const next = !dark;
 			storage.setString('theme-preference', next ? 'dark' : 'light');
 			setOverride(next);

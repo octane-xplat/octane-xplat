@@ -860,6 +860,7 @@ export type {
 	TextAreaProps,
 	TextInputProps,
 	TextProps,
+	TestIDProps,
 	ViewProps,
 } from './props'
 

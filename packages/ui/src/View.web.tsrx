@@ -18,6 +18,7 @@ export function View(props: ViewProps) @{
 
 	<div
 		id={props.id}
+		data-testid={props.testID}
 		ref={forwardedRef}
 		className={['vx-view', props.className]}
 		{...layoutChildProps(props, props.style)}

@@ -44,6 +44,7 @@ export function SearchInput(props: SearchInputProps) @{
 	>
 		{props.icon !== false ? <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" /> : null}
 		<textfield
+			testID={props.testID ?? ''}
 			ref={(v: any) => {
 				el.current = v;
 				if (!v) return;

@@ -75,6 +75,7 @@ export function Text(props: TextProps) @{
 	} @else {
 		<label
 			id={props.id}
+			testID={props.testID ?? ''}
 			ref={(v: any) => applyEscapeProps(v, props)}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}

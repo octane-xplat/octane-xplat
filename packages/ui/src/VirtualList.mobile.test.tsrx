@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 import { VirtualList } from './VirtualList'
+import { Pressable } from './Pressable'
 import { VirtualListSizeIndex } from './virtual-list-layout'
 
 vi.mock('@nativescript/core', () => ({ isAndroid: true, isIOS: false }))
@@ -15,6 +16,8 @@ function StatefulRow(props: { id: string }) @{
 
 	<label id={'row-' + props.id} text={props.id + ':' + taps} onTap={() => setTaps(taps + 1)} />
 }
+
+const renderAutomationItem = (item: { id: string }) => <Pressable id={'row-' + item.id} testID={'item.' + item.id + '.open'} />
 
 const renderStatefulItem = (item: { id: string }) => <StatefulRow id={item.id} />
 
@@ -283,6 +286,22 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		move(528)
 		await vi.advanceTimersByTimeAsync(32)
 		expect(findRow().props.text).toBe('r10:0')
+	})
+
+	it('keeps automation IDs unique and tied to item keys after cell recycling', async () => {
+		const { container, move } = await mount(100, renderAutomationItem)
+		const identified = () => collect(container.children).filter(node => node.props.testID)
+		const originalIDs = identified().map(node => node.props.testID)
+		expect(originalIDs.length).toBeGreaterThan(0)
+		move(4000)
+		await vi.advanceTimersByTimeAsync(32)
+		const rows = identified()
+		expect(rows.length).toBeGreaterThan(0)
+		expect(new Set(rows.map(node => node.props.testID)).size).toBe(rows.length)
+		for (const row of rows) {
+			expect(row.props.testID).toBe('item.' + row.props.id.slice(4) + '.open')
+			expect(originalIDs).not.toContain(row.props.testID)
+		}
 	})
 
 	it('cancels queued work when the list is disposed', async () => {

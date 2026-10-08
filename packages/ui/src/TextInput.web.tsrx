@@ -28,6 +28,7 @@ export function TextInput(props: TextInputProps) @{
 				applyEscapeProps(el, fieldProps);
 			}}
 			id={fieldProps.id}
+			data-testid={fieldProps.testID}
 			className={['vx-input', fieldProps.isDisabled ? 'vx-input--disabled' : undefined, fieldProps.isReadOnly ? 'vx-input--readonly' : undefined, fieldProps.isLoading ? 'vx-input--loading' : undefined, fieldProps.status ? `vx-input--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-input--size-${fieldProps.size}` : undefined, fieldProps.inInputGroup ? 'vx-input--ingroup' : undefined, fieldProps.className]}
 			style={{ ...normStyle(fieldProps.style), ...(fieldProps.placeholderTextColor ? { '--placeholder-color': fieldProps.placeholderTextColor } : {}) }}
 			value={fieldProps.value}

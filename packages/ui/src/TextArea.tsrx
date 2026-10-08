@@ -47,6 +47,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 
 	<textview
 		id={props.id}
+		testID={props.testID ?? ''}
 		ref={(v: any) => {
 				el.current = v;
 			if (!v) return;

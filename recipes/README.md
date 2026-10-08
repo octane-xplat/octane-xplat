@@ -21,6 +21,8 @@ Workflows:
 
 - [Test mobile journeys with Maestro](mobile-e2e.md)
 
+- [Check stable controls with an optional coding-agent tool](agent-ui-checks.md)
+
 - [Probe one platform case](probe-platform-case.md)
 
 - [Animate shared components](component-motion.md)

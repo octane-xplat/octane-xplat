@@ -166,7 +166,7 @@ export interface StackSizeProps {
  *  `as` picks the web element tag; native always renders the platform
  *  container (no semantic HTML exists there). `isScrollable` wraps content
  *  in a ScrollView on native and overflow:auto on web. */
-export interface StackProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
+export interface StackProps extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
 	className?: any
 	style?: any
 	children?: any
@@ -282,6 +282,17 @@ export interface SpacerProps {
 	id?: string
 }
 
+/** Optional automation identity on supported host components. */
+export interface TestIDProps {
+	/** Stable semantic automation name, independent of `id` and spoken labels.
+	 * Supported hosts map to data-testid on web and NativeScript testID on
+	 * iOS/Android. Inputs target the editable host; Overlay targets its content.
+	 * Other components/platforms are not automatically supported by inheritance.
+	 * Keep IDs unique among mounted targets and stable across localization.
+	 * @see docs/verify/test-identifiers.md for qualified hosts and precedence. */
+	testID?: string
+}
+
 /** The shared accessibility prop set — `Role` and friends are declared
  *  below; containers and leaf components carry the same names so ARIA on
  *  web and NativeScript's accessibility properties stay aligned. */
@@ -302,7 +313,7 @@ export interface AccessibilityProps {
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 }
 
-export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
+export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
 	className?: any
 	style?: any
 	children?: any
@@ -317,7 +328,7 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps, Accessi
 	web?: any
 }
 
-export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
+export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
 	className?: any
 	style?: any
 	children?: any
@@ -356,7 +367,7 @@ export type Role =
 	| 'menuitemcheckbox'
 	| 'menuitemradio'
 
-export interface TextProps extends LayoutChildProps {
+export interface TextProps extends LayoutChildProps, TestIDProps {
 	className?: any
 	style?: any
 	children?: any
@@ -412,7 +423,7 @@ export interface RichTextSpanProps {
 	web?: any
 }
 
-export interface PressableProps extends LayoutChildProps, FlexContainerProps {
+export interface PressableProps extends LayoutChildProps, FlexContainerProps, TestIDProps {
 	className?: any
 	style?: any
 	children?: any
@@ -501,7 +512,7 @@ export interface FieldControlProps {
 	width?: number | string
 }
 
-export interface TextInputProps extends FieldControlProps {
+export interface TextInputProps extends FieldControlProps, TestIDProps {
 	className?: any
 	style?: any
 	id?: string
@@ -552,7 +563,7 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
  *  engine's own clear button hidden (the leaf draws the same one native
  *  gets), the native leaf is a styled TextField with `returnKeyType`
  *  `'search'`. Not UISearchBar — OS search chrome is deliberately absent. */
-export interface SearchInputProps extends FieldControlProps {
+export interface SearchInputProps extends FieldControlProps, TestIDProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1058,7 +1069,7 @@ export interface UseScrollableAreaResult {
  *  inside a content box. Pull-to-refresh props (`refreshing`, `onRefresh`,
  *  `refreshThreshold`) are an xplat extension with no upstream equivalent —
  *  they only apply on the block axis. */
-export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps {
+export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1353,7 +1364,7 @@ export interface DrawerProps {
 	web?: Record<string, any>
 }
 
-export interface SwitchProps extends FieldControlProps {
+export interface SwitchProps extends FieldControlProps, TestIDProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1446,7 +1457,7 @@ export interface HeadingProps {
 
 // ---------- overlays ----------
 
-export interface OverlayProps {
+export interface OverlayProps extends TestIDProps {
 	/** Accessible name for the modal content surface. */
 	accessibilityLabel?: string
 	open?: boolean

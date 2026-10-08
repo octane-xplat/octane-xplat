@@ -15,6 +15,7 @@ export function Switch(inputProps: SwitchProps) @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
+		data-testid={props.testID}
 		role="switch"
 		aria-checked={props.checked ?? false}
 		aria-disabled={props.isDisabled || undefined}

@@ -85,6 +85,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		<scrollview
 			ref={forwardedRef}
 			id={props.id}
+			testID={props.testID ?? ''}
 			className="vx-scrollable"
 			orientation="vertical"
 			{...a11y(props)}
@@ -128,6 +129,7 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 		<scrollview
 			ref={forwardedRef}
 			id={props.id}
+			testID={props.testID ?? ''}
 			{...layoutChildProps(props)}
 			className={cx('vx-scrollable', props.className)}
 			style={{

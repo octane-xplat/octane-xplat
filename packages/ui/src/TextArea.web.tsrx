@@ -50,6 +50,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 			applyEscapeProps(node, props);
 		}}
 		id={props.id}
+		data-testid={props.testID}
 		className={['vx-textarea', props.isDisabled ? 'vx-textarea--disabled' : undefined, props.isReadOnly ? 'vx-textarea--readonly' : undefined, props.isLoading ? 'vx-textarea--loading' : undefined, props.status ? `vx-textarea--status-${props.status.type}` : undefined, props.size ? `vx-textarea--size-${props.size}` : undefined, props.className]}
 		style={{ ...normStyle(props.style), ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
 		value={props.value}

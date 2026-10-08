@@ -24,6 +24,6 @@ maintained example with repeatable execution and honest verification limits.
 ## Documentation
 
 - AC1: [First flow](../docs/verify/maestro.md#run-your-first-flow)
-- AC2: [Reliable checks](../docs/verify/maestro.md#choose-reliable-checks)
+- AC2: [Reliable checks](../docs/verify/maestro.md#choose-reliable-checks), [optional shared test names](../docs/verify/test-identifiers.md)
 - AC3: [Framework runner](../docs/verify/maestro.md#framework-smoke-runner), [maintained flow](../.maestro/counter.yaml), [fixture](../apps/maestro/src/Counter.tsrx)
 - AC4: [Framework qualification](../docs/verify/maestro.md#framework-smoke-runner), [agent guidance](../.agents/docs/testing.md#mobile-end-to-end-tests-with-maestro)

@@ -58,7 +58,8 @@ pnpm test:maestro --target android --device DEVICE_ID
   already-running devices only when you own or are authorized to use them.
   The runner's repository target lock complements the host reservation.
 - Use unique visible text first. Do not assume `ViewProps.id` maps to Maestro
-  IDs on either OS, or introduce a `testID` API without qualifying both.
+  IDs on either OS. Shared `testID` is qualified separately from Maestro in
+  [stable test names](../../docs/verify/test-identifiers.md).
   Preserve useful spoken accessibility labels.
 - Arrange deterministic data; assert state before and after each action.
   Use condition waits, not fixed sleeps or optional assertions that hide
@@ -72,3 +73,10 @@ pnpm test:maestro --target android --device DEVICE_ID
   remains unqualified until Maestro passes on Android and iOS.
 - CI can use the same runner with `--output`; collect JUnit/debug artifacts
   only under the project's data-sharing policy. No Cloud upload is needed.
+
+## Optional Argent checks
+
+Use [the pinned nonvisual Argent recipe](../../docs/verify/argent.md) for
+optional AI-agent browser/device control through MCP and local CLI replay.
+Preserve spoken labels and roles; use shared `testID` only on documented hosts.
+Discovery is not replay readiness, and Chromium DOM IDs take precedence.

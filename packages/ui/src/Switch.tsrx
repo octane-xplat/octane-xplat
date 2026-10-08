@@ -15,6 +15,7 @@ export function Switch(inputProps: SwitchProps) @{
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
+		testID={props.testID ?? ''}
 		className={cx('vx-switch', props.checked ? 'vx-switch--on' : undefined, props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)}
 		style={props.style}
 		accessibilityRole={nativeAccessibilityRole('switch') as any}

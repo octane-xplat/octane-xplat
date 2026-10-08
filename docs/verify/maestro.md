@@ -90,6 +90,8 @@ Do not assume a web ID or NativeScript view ID is a Maestro identifier.
 Before using IDs for icon controls or translated screens, verify the actual
 native accessibility identifier on each target. Keep spoken accessibility
 labels meaningful to people; do not replace them with testing strings.
+Shared `testID` has [separate Argent qualification](test-identifiers.md);
+that evidence does not establish a Maestro pass.
 See [Maestro selectors](https://docs.maestro.dev/maestro-flows/flow-control-and-logic/how-to-use-selectors).
 
 ```yaml

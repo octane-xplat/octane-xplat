@@ -35,6 +35,7 @@ export function Overlay(props: OverlayProps) @{
 			current.root.render(OverlayBody as unknown as UniversalComponent, { children: props.children });
 			current.unbindTheme?.();
 			current.unbindTheme = applyThemeClasses(current.host, cx('vx-overlay-host', props.className));
+			current.host.testID = props.testID ?? '';
 			current.host.accessibilityLabel = props.accessibilityLabel ?? '';
 			if (props.style) Object.assign(current.host.style, props.style);
 			current.host.accessibilityLabel = props.accessibilityLabel ?? '';
@@ -46,6 +47,7 @@ export function Overlay(props: OverlayProps) @{
 		if (!rl) return;
 		const host = new GridLayout();
 		const unbindTheme = applyThemeClasses(host, cx('vx-overlay-host', props.className));
+		host.testID = props.testID ?? '';
 		host.accessibilityLabel = props.accessibilityLabel ?? '';
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
@@ -65,7 +67,7 @@ export function Overlay(props: OverlayProps) @{
 		lifetime.open(props.shadeCover ? {
 			shadeCover: { opacity: 0.45, color: '#000000', tapToClose: true },
 		} : {});
-	}, [props.open, props.children, props.shadeCover, props.className, props.style, props.accessibilityLabel, props.ios, props.android]);
+	}, [props.open, props.children, props.shadeCover, props.className, props.style, props.accessibilityLabel, props.testID, props.ios, props.android]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

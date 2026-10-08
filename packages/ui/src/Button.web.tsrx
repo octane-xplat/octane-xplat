@@ -58,6 +58,7 @@ export function Button(props: ButtonProps) @{
 	@if (props.href != null) {
 		<a
 			id={props.id}
+			data-testid={props.testID}
 			className={cls}
 			style={props.style}
 			href={sanitizeUrl(props.href) ?? undefined}

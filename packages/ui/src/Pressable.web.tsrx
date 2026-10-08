@@ -35,6 +35,7 @@ export function Pressable(props: PressableProps) @{
 	<div
 		ref={forwardedRef}
 		id={props.id}
+		data-testid={props.testID}
 		className={['vx-pressable', props.className]}
 		{...layoutChildProps(props, { ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
 		role={props.accessibilityRole ?? 'button'}

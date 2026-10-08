@@ -110,6 +110,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 			{...viewport}
 			ref={forwardedRef}
 			id={props.id}
+			data-testid={props.testID}
 			className={['vx-scrollable', viewport.className]}
 			style={{
 				...viewport.style,
@@ -160,6 +161,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 		{...viewport}
 		ref={forwardedRef}
 		id={props.id}
+		data-testid={props.testID}
 		className={['vx-scrollable', props.className]}
 		style={{
 			...viewport.style,

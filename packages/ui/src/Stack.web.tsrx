@@ -19,6 +19,7 @@ export function Stack(props: StackProps) @{
 
 	<Tag
 		id={props.id}
+		data-testid={props.testID}
 		ref={forwardedRef}
 		className={['vx-stack', props.isScrollable ? 'vx-stack--scroll' : undefined, props.className]}
 		style={{

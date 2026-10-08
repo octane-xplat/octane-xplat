@@ -16,6 +16,7 @@ export function View(props: ViewProps) @{
 
 	<flexboxlayout
 		id={props.id}
+		testID={props.testID ?? ''}
 		{...layoutChildProps(props)}
 		ref={forwardedRef}
 		flexDirection="column"

@@ -12,6 +12,7 @@ export function Row(props: RowProps) @{
 
 	<div
 		id={props.id}
+		data-testid={props.testID}
 		ref={forwardedRef}
 		className={['vx-row', props.className]}
 		{...layoutChildProps(props, props.style)}

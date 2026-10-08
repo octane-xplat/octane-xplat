@@ -37,6 +37,7 @@ export function TextInput(inputProps: TextInputProps) @{
 				applyEscapeProps(v, props);
 			}}
 			id={props.id}
+			testID={props.testID ?? ''}
 			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.inInputGroup && 'vx-input--ingroup', props.className)}
 			style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 			hint={props.placeholder}

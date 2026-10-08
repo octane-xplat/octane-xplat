@@ -11,6 +11,7 @@ export function Row(props: RowProps) @{
 
 	<flexboxlayout
 		id={props.id}
+		testID={props.testID ?? ''}
 		ref={forwardedRef}
 		flexDirection="row"
 		className={cx(props.className)}

@@ -93,3 +93,11 @@ checks for focus, gestures, element size, and permission dialogs.
 If you are working on the framework itself, [single-case probing](probing.md)
 explains how to run one small investigation. The [testing notes](../notes/testing-notes.md)
 cover the framework's test tools and automation.
+
+## Stable targets and optional agent control
+
+Give meaningful controls [stable test names](test-identifiers.md) when tests
+need targets independent of translated labels. For optional AI-agent device
+and Chromium control through MCP, follow the [qualified Argent recipe](argent.md).
+It keeps the pinned tooling, platform scope, and discovery/replay prerequisites
+separate from your app runtime.
