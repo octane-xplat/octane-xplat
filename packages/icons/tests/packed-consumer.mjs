@@ -53,26 +53,18 @@ try {
 	const macosComponent = readFileSync(join(packed, 'dist/macos/Icon.macos.js'), 'utf8')
 	assert.match(macosComponent, /defineUniversalComponent\("macos"/)
 	assert.doesNotMatch(macosComponent, /from ["'](?:octane|@xplat\/macos\/renderer)["']/)
-	for (const variant of ['Icon.web', 'Icon.macos']) {
-		assert.equal(
-			readFileSync(join(packed, `types/generated/${variant}.d.ts`), 'utf8').replace(
-				/\/\*\*[\s\S]*?\*\/\n/g,
-				'',
-			),
-			readFileSync(join(packed, 'types/generated/Icon.d.ts'), 'utf8').replace(
-				/\/\*\*[\s\S]*?\*\/\n/g,
-				'',
-			),
-		)
-	}
-
 	for (const target of ['web', 'native', 'macos']) {
 		for (const mode of ['bundler', 'nodenext']) {
 			const consumer = join(temporary, `${target}-${mode}`)
 			const modules = join(consumer, 'node_modules')
 			mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
 			cpSync(packed, join(modules, '@octane-xplat/icons'), { recursive: true })
-			for (const dependency of ['octane', '@iconify/types']) {
+			for (const dependency of [
+				'octane',
+				'@iconify/types',
+				...(target === 'native' ? ['@nativescript-community/octane'] : []),
+				...(target === 'macos' ? ['@octane-xplat/macos-renderer'] : []),
+			]) {
 				const destination = join(modules, dependency)
 				mkdirSync(dirname(destination), { recursive: true })
 				symlinkSync(join(packageRoot, 'node_modules', dependency), destination, 'dir')
@@ -109,7 +101,12 @@ void element; void missing; void invalid
 						module: mode === 'bundler' ? 'esnext' : 'nodenext',
 						moduleResolution: mode,
 						jsx: 'react-jsx',
-						jsxImportSource: 'octane',
+						jsxImportSource:
+							target === 'native'
+								? '@nativescript-community/octane'
+								: target === 'macos'
+									? '@octane-xplat/macos-renderer'
+									: 'octane',
 						customConditions: [target],
 						moduleSuffixes:
 							target === 'web'

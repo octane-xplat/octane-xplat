@@ -6,7 +6,7 @@ import { registry, resolveIcon } from './registry';
 import { iconToSvg } from './svg';
 
 /** AppKit's renderer aliases the universal renderer entry and decodes SVG with NSImage. */
-export function Icon(props: IconProps): unknown @{
+export function Icon(props: IconProps) @{
 	useStore(registry);
 	const icon = resolveIcon(props.name);
 

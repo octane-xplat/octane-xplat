@@ -5,7 +5,7 @@ import { registry, resolveIcon } from './registry';
 import { iconToSvg } from './svg';
 
 /** Render a bundled icon as inline SVG; missing names render nothing. */
-export function Icon(props: IconProps): unknown @{
+export function Icon(props: IconProps) @{
 	useStore(registry);
 	const icon = resolveIcon(props.name);
 
