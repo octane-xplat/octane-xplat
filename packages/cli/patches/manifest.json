@@ -11,6 +11,7 @@
 		{
 			"specifier": "@nativescript/core@9.1.2",
 			"file": "@nativescript__core@9.1.2.patch",
+			"upstreamPR": "https://github.com/NativeScript/NativeScript/pull/11514",
 			"scope": "runtime",
 			"why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins — a column-stretched row re-measurement clamps padded children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last — sans !important). Ports the runtime half of NativeScript PR #11446 (fixes #11444): TabView onItemsChanged keeps retained items attached instead of unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false on iOS and detached from their tab fragment on Android), iOS items writes load the selected item's view once controllers exist, and Frame._pushInFrameStack only promotes frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab frames). Also maps CSS font-weight to the OpenType wght axis for custom Android fonts on API 26+, preserves explicit variation settings, and falls back to the prior file load when the axis is unsupported. Carries NativeScript PR #11481: preserves percentage translate values through parsing and resolves each axis against the view's own dimensions, including native views and animations.",
 			"dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, cascade layers (source lives on research/nativescript feat/css-cascade-layers), and the #11446 nested-tab-frame fix, custom Android variable-font weight mapping, and percentage-translate support from NativeScript/NativeScript#11481"
@@ -39,6 +40,7 @@
 		{
 			"specifier": "@nativescript-community/octane@0.2.4",
 			"file": "@nativescript-community__octane@0.2.4.patch",
+			"upstreamPR": "https://github.com/nativescript-community/octane/pull/14",
 			"scope": "runtime",
 			"why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners. Aligns intrinsic ref types with Octane callback cleanup and nested arrays with optional entries. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending.",
 			"dropWhen": "@nativescript-community/octane ships the undefined-skip, visibility capability, and Octane-compatible intrinsic ref types"
@@ -46,6 +48,7 @@
 		{
 			"specifier": "@nativescript-community/vite-octane@0.2.1",
 			"file": "@nativescript-community__vite-octane@0.2.1.patch",
+			"upstreamPR": "https://github.com/nativescript-community/octane/pull/15",
 			"scope": "dev",
 			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
 			"dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
@@ -76,6 +79,7 @@
 		{
 			"specifier": "linkifyjs@4.3.3",
 			"file": "linkifyjs@4.3.3.patch",
+			"upstreamPR": "https://github.com/nfrasser/linkifyjs/pull/572",
 			"scope": "runtime",
 			"why": "linkifyjs declares /\\p{L}/u and /\\p{Emoji}/u as regex literals at module scope; NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks \u2014 same behavior where ICU exists, graceful degradation where it doesn't.",
 			"dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
@@ -90,6 +94,7 @@
 		{
 			"specifier": "@lexical/link@0.51.0",
 			"file": "@lexical__link@0.51.0.patch",
+			"upstreamPR": "https://github.com/facebook/lexical/pull/9334",
 			"scope": "runtime",
 			"why": "@lexical/link declares a /\\p{L}\\p{N}/u URL matcher as a regex literal at module scope; NativeScript's embedded V8 builds without ICU, so the literal throws SyntaxError at parse time and poisons the whole bundle (any bundled app importing @lexical/link dies on boot). Same fix as linkifyjs: try/catch new RegExp with an ASCII-range fallback \u2014 the matcher only feeds autolink, which native doesn't use.",
 			"dropWhen": "upstream builds the URL matcher via new RegExp, or NS runtimes ship ICU"
@@ -97,6 +102,7 @@
 		{
 			"specifier": "@nativescript-community/ui-image@5.0.17",
 			"file": "@nativescript-community__ui-image@5.0.17.patch",
+			"upstreamPR": "https://github.com/nativescript-community/ui-image/pull/69",
 			"scope": "runtime",
 			"why": "ui-image 5.x regressed two iOS prefetch behaviors the 4.x line shipped (still present in 4.6.20): prefetchToCacheType ignores its cacheType argument — SDWebImagePrefetcher's default context stores to disk+memory either way, so a 'disk' prefetch also decodes and warms memory, diverging from Android's bytes-only Glide downloadOnly — and getContextFromOptions drops PrefetchOptions.headers because it never sets SDWebImageContextDownloadRequestModifier, so prefetch({headers}) silently sends no headers on iOS while Android's CustomGlideUrl forwards them. Ports upstream's own 4.x implementation — SDWebImageContextStoreCacheType on the prefetch context plus the request-modifier branch in getContextFromOptions — and additionally sets SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original bytes to disk.",
 			"dropWhen": "a ui-image 5.x release restores the 4.x storeCacheType + prefetch-headers behavior on iOS and the workspace upgrades to it"
