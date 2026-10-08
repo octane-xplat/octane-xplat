@@ -55,6 +55,32 @@ function Content({ phase = 0 }: { phase?: number }) {
 	)
 }
 
+function AbsoluteChannels() {
+	return (
+		<absolutelayout>
+			<flexboxlayout
+				id="abs-row"
+				left={0}
+				top={0}
+				style={{ width: '100%', height: 100, flexDirection: 'row', gap: 12 }}
+			>
+				<flexboxlayout id="abs-nested" style={{ width: '50%' }}>
+					<label text="Nested" />
+				</flexboxlayout>
+				<label id="abs-text" text="Intrinsic" />
+			</flexboxlayout>
+			<flexboxlayout
+				id="abs-tail"
+				right={16}
+				bottom={12}
+				style={{ width: 120, height: 40, flexDirection: 'row' }}
+			>
+				<label id="abs-tail-text" text="Tail" />
+			</flexboxlayout>
+		</absolutelayout>
+	)
+}
+
 export async function runLayoutChannelsFixture() {
 	const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 		{ origin: { x: 0, y: 0 }, size: { width: 600, height: 480 } },
@@ -178,6 +204,30 @@ export async function runLayoutChannelsFixture() {
 		root.render(Content as unknown as UniversalComponent, { phase: 4 })
 		await settle()
 		compare(4)
+
+		// Absolute root: children pin through constraints the parent's layout()
+		// pass recomputes, so they must still follow a real-window resize.
+		root.render(AbsoluteChannels as unknown as UniversalComponent)
+		await settle()
+		for (const width of [360, 820]) {
+			window.setContentSize({ width, height: 480 })
+			await settle()
+			near(Number(window.contentView.bounds.size.width), width, 'absolute root resize')
+			near(Number(view('abs-row').frame.size.width), width, 'absolute percent row')
+			near(
+				Number(view('abs-nested').frame.size.width),
+				width / 2,
+				'absolute nested percent',
+			)
+			const tail = view('abs-tail').frame
+			near(
+				Number(tail.origin.x) + Number(tail.size.width),
+				width - 16,
+				'absolute right pin',
+			)
+			near(Number(tail.origin.y), 12, 'absolute bottom pin')
+		}
+
 		console.log('LAYOUT_CHANNELS_OK')
 	} catch (error) {
 		console.error('LAYOUT_CHANNELS_FAIL: ' + (error as Error).message)

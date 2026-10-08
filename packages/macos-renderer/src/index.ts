@@ -1402,10 +1402,34 @@ function pinLayoutChild(
 		}
 	}
 
+	const same = (a: number, b: number) => a === b || (Number.isNaN(a) && Number.isNaN(b))
+	if (
+		same(Number(pins.leading.constant), x) &&
+		same(Number(pins.top.constant), top) &&
+		same(Number(pins.width.constant), width) &&
+		same(Number(pins.height.constant), height)
+	) {
+		return
+	}
+
 	pins.leading.constant = x
 	pins.top.constant = top
 	pins.width.constant = width
 	pins.height.constant = height
+	// Constant writes inside a layout() pass apply only on the next solve, and
+	// a needsLayout mark made now is cleared when that pass ends. Defer the
+	// mark so the next layoutSubtreeIfNeeded/display cycle applies the pins —
+	// without it, real-window resizes leave children at stale frames. The bare
+	// vm slices in tests have no microtask queue, so fall back to a direct
+	// mark there.
+	const mark = () => {
+		parentView.needsLayout = true
+	}
+	if (typeof queueMicrotask === 'function') {
+		queueMicrotask(mark)
+	} else {
+		mark()
+	}
 }
 
 /** Drop the pins a grid/absolute parent installed — a constraint that keeps
