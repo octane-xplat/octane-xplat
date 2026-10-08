@@ -14,7 +14,7 @@ import type {
 	RouteName as FileRouteName,
 	RouteParams as FileRouteParams,
 	RoutePresentations as FileRoutePresentations,
-} from './routes.gen'
+} from './routes.gen.types'
 
 import { wireRouteLinks } from './route-links'
 // Programmatic routes — layered over the file manifest via addRoutes at
