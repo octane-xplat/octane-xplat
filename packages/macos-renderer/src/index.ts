@@ -135,11 +135,11 @@ class ButtonActionTarget extends NSObject {
 		invokeAction(sender.tag)
 	}
 
-	viewPressed(sender: NSObject) {
+	viewPressed(sender: NSClickGestureRecognizer) {
 		invokeAction(actionIdsByView.get(sender.view))
 	}
 
-	controlChanged(sender: NSObject) {
+	controlChanged(sender: NSControl) {
 		invokeAction(sender.tag ?? actionIdsByView.get(sender))
 	}
 
@@ -515,7 +515,7 @@ function makeMarginHost(node: ElementNode) {
 	})
 
 	host.translatesAutoresizingMaskIntoConstraints = false
-	host.addSubview(node.view)
+	host.addSubview(node.view!)
 	const insets = marginInsetsOf(node)
 	const constraints = [
 		node.view!.leadingAnchor.constraintEqualToAnchorConstant(host.leadingAnchor, insets.left),
@@ -920,7 +920,7 @@ function makeTextField(props: PropBag, multiline = false) {
 		field.editable = true
 		field.selectable = true
 		field.sendsActionOnEndEditing = false
-		setTextFieldPlaceholder(field, props)
+		setTextFieldPlaceholder(field as NSTextField, props)
 	} else {
 		field.editable = true
 		field.selectable = true
@@ -1580,16 +1580,16 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 
 	if (type === 'textfield' || type === 'textview') {
 		actionId = nextActionId++
-		actionIdsByView.set(view, actionId)
+		actionIdsByView.set(view!, actionId)
 		actionHandlers.set(actionId, null)
 		if (type === 'textfield') {
 			// Per-edit events arrive through controlTextDidChange (delegate);
 			// the target/action is reserved for submission on Return.
-			view.delegate = buttonActionTarget
-			view.target = buttonActionTarget
-			view.action = 'textFieldSubmitted:'
+			view!.delegate = buttonActionTarget
+			view!.target = buttonActionTarget
+			view!.action = 'textFieldSubmitted:'
 		} else {
-			view.delegate = buttonActionTarget
+			view!.delegate = buttonActionTarget
 		}
 	}
 
@@ -1611,20 +1611,20 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		secure: type === 'textfield' && !!props.secure,
 	}
 
-	if (['label', 'textfield', 'textview'].includes(type) && view.font) {
-		view.font = fontForFamilyStyle(view.font.pointSize, 400, container.fontFamily)
+	if (['label', 'textfield', 'textview'].includes(type) && view!.font) {
+		view!.font = fontForFamilyStyle(view!.font.pointSize, 400, container.fontFamily)
 	}
 
 	if (type === 'gridlayout') {
-		gridLayoutNodesByView.set(view, node)
+		gridLayoutNodesByView.set(view!, node)
 	}
 
 	if (type === 'absolutelayout') {
-		absoluteLayoutNodesByView.set(view, node)
+		absoluteLayoutNodesByView.set(view!, node)
 	}
 
 	if (type === 'textfield') {
-		textNodesByView.set(view, node)
+		textNodesByView.set(view!, node)
 	}
 
 	if (type === 'textview') {
@@ -1638,11 +1638,11 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		).active = true
 
 		placeholder.hidden = String(props.value ?? '').length > 0
-		view.addSubview(placeholder)
-		placeholder.leadingAnchor.constraintEqualToAnchorConstant(view.leadingAnchor, 0).active = true
-		placeholder.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
+		view!.addSubview(placeholder)
+		placeholder.leadingAnchor.constraintEqualToAnchorConstant(view!.leadingAnchor, 0).active = true
+		placeholder.topAnchor.constraintEqualToAnchor(view!.topAnchor).active = true
 		node.placeholderView = placeholder
-		textNodesByView.set(view, node)
+		textNodesByView.set(view!, node)
 	}
 
 	applyProps(node, props)
@@ -1774,7 +1774,7 @@ function applyThemeColors(node: ElementNode) {
 	}
 
 	if (node.type === 'textfield') {
-		setTextFieldPlaceholder(view, node.props, node.scheme)
+		setTextFieldPlaceholder(view as NSTextField, node.props, node.scheme)
 	}
 
 	if (node.type === 'textview' && node.placeholderView) {
@@ -1935,7 +1935,14 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			// NSImageScaling: 0 ProportionallyDown, 1 AxesIndependently,
 			// 2 None (centered, unscaled), 3 ProportionallyUpOrDown.
 			// AppKit has no cover mode — 'cover' degrades to scale-down.
-			node.view!.imageScaling = { contain: 3, 'scale-down': 0, fill: 1, none: 2 }[value] ?? 0
+			const imageScaling: Record<string, number> = {
+				contain: 3,
+				'scale-down': 0,
+				fill: 1,
+				none: 2,
+			}
+
+			node.view!.imageScaling = imageScaling[String(value)] ?? 0
 		} else if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)
@@ -2722,9 +2729,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
-				} else if (
-					['keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)
-				) {
+				} else if (['keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)) {
 					continue
 				} else {
 					console.warn('[macos-host] ignored text control prop ' + name)
@@ -3017,7 +3022,7 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 
 function destroy(node: ElementNode) {
 	if (node.type === 'webview') {
-		disposeWebView(node.view!)
+		disposeWebView(node.view as WKWebView)
 	}
 
 	if (node.type === 'image') {
@@ -4250,7 +4255,7 @@ installPresentationBridge(appKitBridge, createMacOSRoot, fontFamilyForView)
 const rootFontFamilies = new WeakMap<object, string | undefined>()
 
 function fontFamilyForView(view: NSView | undefined): string | undefined {
-	for (let current = view; current; current = current.superview) {
+	for (let current: NSView | null | undefined = view; current; current = current.superview) {
 		if (rootFontFamilies.has(current)) {
 			return rootFontFamilies.get(current)
 		}
@@ -4448,7 +4453,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					try {
 						// Row box relative to the clip's top edge, computed in doc
 						// coordinates so it stays docH-independent like `offset`.
-						const inDoc = child.view.superview.convertRectToView(child.view.frame, doc)
+						const inDoc = child.view.superview!.convertRectToView(child.view.frame, doc)
 						const h = Number(inDoc.size.height)
 						const y = Number(inDoc.origin.y)
 						const top = flipped ? y - originY : originY + clipH - y - h
