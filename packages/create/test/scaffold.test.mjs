@@ -50,13 +50,13 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 	assert.match(yaml, /octane@0\.6\.3:/)
 	assert.match(yaml, /@tsrx\/typescript-plugin@0\.4\.11/)
 	assert.match(yaml, /configDependencies:[\s\S]*@octane-xplat\/patches/)
-	assert.doesNotMatch(yaml, /@nativescript\/core@9\.1\.2/)
+	assert.doesNotMatch(yaml, /@nativescript\/core@9\.1\.3/)
 	assert.doesNotMatch(yaml, /@nativescript\/vite@8\.0\.17/)
 
 	const native = project(t)
 	composeTargets(['ios'], native)
 	const nativeYaml = readFileSync(join(native, 'pnpm-workspace.yaml'), 'utf8')
-	assert.match(nativeYaml, /@nativescript\/core@9\.1\.2/)
+	assert.match(nativeYaml, /@nativescript\/core@9\.1\.3/)
 })
 
 test('every target-owned file exists in the template', async () => {
@@ -159,7 +159,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	// The web-only scaffold's yaml lacked native patch entries — add restores
 	// them so the next `pnpm install` doesn't miss the framework patches.
 	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
-	assert.match(yaml, /@nativescript\/core@9\.1\.2/)
+	assert.match(yaml, /@nativescript\/core@9\.1\.3/)
 	assert.match(yaml, /@nativescript-community\/octane@0\.2\.4/)
 	assert.ok(report.patchesAdded)
 })
