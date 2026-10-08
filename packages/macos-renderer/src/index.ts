@@ -381,7 +381,7 @@ class GridLayoutView extends NSView {
 }
 
 // Absolute's host — children position via their own left/top/right/bottom
-// layout-child props; the layout() pass sets frames directly.
+// layout-child props; the layout() pass updates parent-anchored constraints.
 class AbsoluteLayoutView extends NSView {
 	static {
 		NativeClass(this)

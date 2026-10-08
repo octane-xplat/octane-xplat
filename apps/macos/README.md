@@ -166,11 +166,20 @@ pnpm smoke:macos
 ```
 
 `smoke:macos` requires all 30 assertions in the existing shared harness sweep,
-then runs the isolated AppKit UI ref-animation fixture and the maintained
-signals, counter, and unsupported-Lottie probes. A missing assertion, failure,
+then runs the isolated AppKit UI ref-animation and layout-placement fixtures
+and the maintained signals, counter, and Lottie probes. A missing assertion, failure,
 host exit, or timeout fails the command. These checks inspect native view state
 and dispatch AppKit actions; they do not prove OS mouse input, hit-testing,
 visual parity, or animation playback in Lottie.
+
+The layout-placement regression checks nested absolute and grid panels in a real
+AppKit window: declared child frames, full-width interior rows, growing scroll
+height, repeated solver passes, and window resize without host shrinkage or
+repositioning. Run it independently with:
+
+```sh
+pnpm --filter @xplat/macos test:layout-placement
+```
 
 Lottie has an explicit macOS leaf: it displays an unsupported label, calls
 `onError` on mount, and supplies no playback handle or loaded/ended events.

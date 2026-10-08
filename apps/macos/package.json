@@ -20,7 +20,8 @@
 		"test:announce": "node test/verify-announce.mjs",
 		"smoke": "node scripts/smoke.mjs",
 		"test:animation": "node test/verify-animation.mjs",
-		"test:layout-channels": "node test/verify-layout-channels.mjs"
+		"test:layout-channels": "node test/verify-layout-channels.mjs",
+		"test:layout-placement": "node test/verify-layout-placement.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",

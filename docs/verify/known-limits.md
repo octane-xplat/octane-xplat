@@ -34,6 +34,17 @@ AppKit; Home uses only its existing AppKit styles. See the
 [non-visual macOS checks](../apps/macos/README.md#non-visual-smoke-checks) for
 the runtime evidence and its boundaries.
 
+Absolute and grid panel placement has a maintained nonvisual AppKit regression.
+It checks a 268×773pt panel with full-width rows and a 693pt growing scroll view,
+then repeats solver passes and resizes without shrinking or repositioning the
+host window. This qualifies the fixture's geometry on Apple Silicon macOS;
+it does not establish OS input, visual parity, or every grid configuration.
+Run the focused check from the repository root:
+
+```sh
+pnpm --filter @xplat/macos test:layout-placement
+```
+
 A **seam** is a part where shared code meets platform behavior, such as
 opening a keyboard or camera. Each row describes one feature or seam.
 **Kind** labels the limit:

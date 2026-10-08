@@ -141,3 +141,6 @@ changes and app-theme preference transitions.
 Documentation: [Container layout channels](../packages/macos-renderer/README.md#container-layout-channels).
 Maintained coverage: [Native geometry fixture](../apps/macos/test/layout-channels-fixture.macos.tsx)
 and [renderer reconciliation tests](../packages/macos-renderer/test/style-reconcile.test.ts).
+The [panel placement fixture](../apps/macos/test/layout-placement-fixture.macos.tsx)
+also checks nested absolute/grid geometry, growing scroll height, repeated
+solver passes, and host size/position after resizing; `pnpm smoke:macos` includes it.
