@@ -50,7 +50,7 @@ const page = await browser.newPage()
 try {
 	page.on('pageerror', (error) => errors.push(error.stack ?? error.message))
 	await page.goto(base)
-	await page.getByRole('button', { name: 'Apps', exact: true }).click()
+	await page.getByRole('tab', { name: 'Apps', exact: true }).click()
 	await page.locator('[role="button"]:has-text("Counter")').click()
 	await page.getByText('Demo count: 0', { exact: true }).waitFor()
 	check('named push with real path', new URL(page.url()).pathname === '/demos/demo/counter')
@@ -58,7 +58,7 @@ try {
 	await page.getByText('← Back', { exact: true }).click()
 	await page.getByText('Last opened: counter', { exact: true }).waitFor()
 	check('pop retains cross-route state', true)
-	await page.getByRole('button', { name: 'Home', exact: true }).click()
+	await page.getByRole('tab', { name: 'Home', exact: true }).click()
 	await page.getByRole('link', { name: 'Detail →' }).click()
 	await page.getByText('guard: home', { exact: true }).waitFor()
 	check('guard context renders', true)
@@ -72,7 +72,7 @@ try {
 	)
 
 	await page.goBack()
-	await page.getByRole('button', { name: 'Test', exact: true }).click()
+	await page.getByRole('tab', { name: 'Test', exact: true }).click()
 	await page.locator('#guarded-btn').click()
 	await page.getByText('guard: private', { exact: true }).waitFor()
 	check('guard redirect commits destination', true)
@@ -114,7 +114,7 @@ try {
 	await page.locator('#app-tabs').waitFor()
 	check(
 		'malformed cold link falls back to shell',
-		(await page.getByRole('button', { name: 'Home', exact: true }).count()) === 1,
+		(await page.getByRole('tab', { name: 'Home', exact: true }).count()) === 1,
 		(await page.locator('body').innerText()).slice(0, 300),
 	)
 

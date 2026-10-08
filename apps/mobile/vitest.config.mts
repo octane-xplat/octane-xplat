@@ -19,8 +19,9 @@ export default defineConfig({
 			include: ['src/**/*.spec.{ts,tsx,tsrx}'],
 			// The connect clock starts when the host session opens and covers
 			// `ns run`'s native build + install + boot — a cold build easily
-			// exceeds the 120s default.
-			connectTimeout: 600_000,
+			// exceeds the 120s default, and hosted CI runners need ~12+ min for
+			// the vite bundle, pod install, and xcodebuild of the pod graph.
+			connectTimeout: 1_800_000,
 		}),
 	],
 	test: {
