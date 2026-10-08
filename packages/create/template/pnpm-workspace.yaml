@@ -21,18 +21,15 @@ allowUnusedPatches: true
 # applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat
 # patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.
 patchedDependencies:
-  # Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal
-  # ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep
-  # already ship upstream. Routes uncaught universal event-handler errors to onUncaughtError
-  # when configured. Pins instance signal/query declarations to their declaring owner so
-  # child reads and event handlers share one request. Makes universal useImperativeHandle
-  # honor optional refs, ref replacement, nested ref arrays, and callback cleanup. Also
-  # allows async and generator helpers that are not components in universal compiler
-  # modules, while preserving errors when those functions are used as components
-  # (octanejs/octane#1469). Adds renderer-owned Children.toArray/map for transparent
-  # deferred JSX groups, plan ranges/slots and arrays, preserving keyed wrapper identity
-  # while leaving scoped owners intact.
-  octane@0.6.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.6.3.patch
+  # Published 0.10.2 ships async/generator non-component helper compilation and Descriptor
+  # lexical/ancestor ownership, so the helper hunks are removed and the old four-hunk
+  # instance ownership fix becomes one declaring-owner reader fallback per distribution.
+  # Retains renderer-owned Children.toArray/map, universal signal-read tracking and local
+  # hooks, root event-error forwarding, and the complete universal imperative-ref lifecycle.
+  # Connects universal signal-owner identities to the upstream enclosingOwner chain so child
+  # reads reuse instance declarations. Verified against the registry 0.10.2 tarball and the
+  # patched 0.6.3 output.
+  octane@0.10.2: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.10.2.patch
   # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
   # flex alignment, so those hunks are removed. Retains the unshipped parent-padding
   # measure-spec fix and Android explicit-size flex alignment, iOS continuous corner

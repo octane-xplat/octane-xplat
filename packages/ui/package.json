@@ -125,7 +125,7 @@
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"jsdom": "30.1.1",
-		"octane": "0.6.3",
+		"octane": "0.10.2",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "5.9.3",
 		"vite": "8.3.0",

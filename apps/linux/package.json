@@ -14,7 +14,7 @@
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
-		"octane": "0.6.3"
+		"octane": "0.10.2"
 	},
 	"devDependencies": {
 		"@octane-xplat/bamboo": "workspace:*",

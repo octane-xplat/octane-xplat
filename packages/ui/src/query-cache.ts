@@ -584,11 +584,11 @@ export function cachedQuery$<A, T>(
  * One registration per (node key, declaring owner): a component re-declaring
  * the same cached query on every render reuses its registration, while two
  * mounted instances or two roots register side by side. The declaring
- * owner is read off the compiled descriptor's `instanceOwner` — a patched-
- * octane internal — with the scope key as discriminator.
+ * owner is read off the compiled descriptor's `owner` — an Octane internal —
+ * with the scope key as discriminator.
  */
 function registrationKey(inner$: QuerySignal<unknown>): string {
-	const owner = (inner$ as { instanceOwner?: unknown }).instanceOwner
+	const owner = (inner$ as { owner?: unknown }).owner
 	const discriminator =
 		owner !== null && typeof owner === 'object'
 			? (((owner as { instanceKey?: unknown }).instanceKey ??

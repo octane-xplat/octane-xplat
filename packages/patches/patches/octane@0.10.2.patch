@@ -1,8 +1,8 @@
 diff --git a/dist/cjs/runtime.cjs b/dist/cjs/runtime.cjs
-index 6f4f11cafea50ca0de062aace3426df371a44867..dc96ffaa91081ca81f904de35ed5db9a024daa96 100644
+index ea7eb4c079294af879830a9490a29d6e9544426c..585ec412ec6c0cca419e031411df605721e4b155 100644
 --- a/dist/cjs/runtime.cjs
 +++ b/dist/cjs/runtime.cjs
-@@ -354,6 +354,7 @@ var import_stream_protocol = require("./stream-protocol.cjs");
+@@ -364,6 +364,7 @@ var import_stream_protocol = require("./stream-protocol.cjs");
  var import_renderer_bridge = require("./renderer-bridge.cjs");
  var import_context_identity = require("./context-identity.cjs");
  var import_native_read_client = require("./signals/native-read-client.cjs");
@@ -10,7 +10,7 @@ index 6f4f11cafea50ca0de062aace3426df371a44867..dc96ffaa91081ca81f904de35ed5db9a
  var import_native_read_collector = require("./signals/native-read-collector.cjs");
  var import_native_read_retry = require("./signals/native-read-retry.cjs");
  var import_transition_state = require("./signals/transition-state.cjs");
-@@ -7604,6 +7605,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
+@@ -8099,6 +8100,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
    }
    return cell.nativeValue;
  }
@@ -39,7 +39,7 @@ index 28e28444192dee7af64351cfe02d5dde96658832..af40518defca21eb88707eb76bb6fe10
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/cjs/signals/document-owner.cjs b/dist/cjs/signals/document-owner.cjs
-index ea6b3040bcc3d1fe0c600894af33fece59711d4b..56a74394b0e40f0ca1dc9b1afb1b44e5a695994f 100644
+index b133523be49ca945a3f6e0f776fc0e08c4a3442f..035e04dd8e0125589143f46adcf41f0646103739 100644
 --- a/dist/cjs/signals/document-owner.cjs
 +++ b/dist/cjs/signals/document-owner.cjs
 @@ -54,7 +54,9 @@ function enableSignalDocument(abi = 1) {
@@ -54,58 +54,31 @@ index ea6b3040bcc3d1fe0c600894af33fece59711d4b..56a74394b0e40f0ca1dc9b1afb1b44e5
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/cjs/signals/facade.cjs b/dist/cjs/signals/facade.cjs
-index 9da71c1a774d4764d6e34df12211a08ae2817d5c..02db86c39e23717e0fedb83eb7faf62e4cca7780 100644
+index 1c2d920240cb347656680620727c163c0140f3fd..aa9d0a319b3e5947a26fc6c0559ca41821eb7ebf 100644
 --- a/dist/cjs/signals/facade.cjs
 +++ b/dist/cjs/signals/facade.cjs
-@@ -283,6 +283,8 @@ class Descriptor {
-     this.kind = kind;
-     this.create = create;
-     this.site = site;
-+    // Instance declarations stay with their component across child templates and events.
-+    this.instanceOwner = site?.startsWith("i:") ? (0, import_owner_context.currentSignalOwner)() : null;
+@@ -370,7 +370,7 @@ class Descriptor {
    }
-   key;
-   kind;
-@@ -292,7 +294,7 @@ class Descriptor {
-   cells = /* @__PURE__ */ new WeakMap();
+   /** The owner a use resolves for: its reader, or for a lexical handle its declaring owner. */
+   reader() {
+-    return this.lexical === this ? this.owner : requireOwner();
++    return this.owner ?? requireOwner();
+   }
    [import_types.SIGNAL_OWNER_RESOLVE](owner) {
      requireSite(this.site);
--    return this.resolvedCell(resolveDescriptorOwner(this.site, owner));
-+    return this.resolvedCell(resolveDescriptorOwner(this.site, this.instanceOwner ?? owner));
-   }
-   resolvedCell(target) {
-     let cell = this.cells.get(target);
-@@ -303,7 +305,7 @@ class Descriptor {
-     return cell;
-   }
-   resolve() {
--    const token = requireOwner();
-+    const token = this.instanceOwner ?? requireOwner();
-     const owner = resolveDescriptorOwner(this.site, token);
-     requireSite(this.site);
-     return this.resolvedCell(owner);
-@@ -334,7 +336,7 @@ class Descriptor {
-     return this.resolve().snapshot();
-   }
-   subscribe(notify) {
--    const token = requireOwner();
-+    const token = this.instanceOwner ?? requireOwner();
-     const scope = resolveDescriptorOwner(this.site, token);
-     const run = (0, import_owner_context.captureSignalOwner)(token);
-     return this[import_types.SIGNAL_OWNER_RESOLVE](scope).subscribe((0, import_read_protocol.forwardNativeTransitionConsumer)(notify, () => run(notify)));
 diff --git a/dist/cjs/signals/index.cjs b/dist/cjs/signals/index.cjs
-index 865afcf87d84f0cc319d65145b246c9c033927aa..08dd675a49a50c1621e5d3c5a26ca22f8cdbb31d 100644
+index d8ae26b6cba9b90c2e9d28894776264b248c2646..25c4cbba1cc5138d98bf35de72847e53d7c30087 100644
 --- a/dist/cjs/signals/index.cjs
 +++ b/dist/cjs/signals/index.cjs
-@@ -34,6 +34,7 @@ __export(signals_exports, {
+@@ -35,6 +35,7 @@ __export(signals_exports, {
    __derivedAt: () => import_derived_facade.__derivedAt,
    __derivedScalarAt: () => import_facade.__derivedScalarAt,
    __enableSignalDocument: () => import_document_owner.enableSignalDocument,
 +  __enableUniversalSignalDocument: () => import_universal_owner.enableUniversalSignalDocument,
+   __methodDep: () => import_method_dep.__methodDep,
    __queryAt: () => import_query_facade.__queryAt,
    __signalAt: () => import_facade.__signalAt,
-   __startSignalReads: () => import_facade.__startSignalReads,
-@@ -65,6 +66,7 @@ module.exports = __toCommonJS(signals_exports);
+@@ -67,6 +68,7 @@ module.exports = __toCommonJS(signals_exports);
  var import_engine = require("./engine.cjs");
  var import_control_binding = require("./control-binding.cjs");
  var import_document_owner = require("./document-owner.cjs");
@@ -113,14 +86,14 @@ index 865afcf87d84f0cc319d65145b246c9c033927aa..08dd675a49a50c1621e5d3c5a26ca22f
  var import_requests = require("./requests.cjs");
  var import_actions = require("./actions.cjs");
  var import_derived_facade = require("./derived-facade.cjs");
-@@ -92,6 +94,7 @@ var import_types = require("./types.cjs");
+@@ -96,6 +98,7 @@ var import_types = require("./types.cjs");
    __derivedAt,
    __derivedScalarAt,
    __enableSignalDocument,
 +  __enableUniversalSignalDocument,
+   __methodDep,
    __queryAt,
    __signalAt,
-   __startSignalReads,
 diff --git a/dist/cjs/signals/local-hook.cjs b/dist/cjs/signals/local-hook.cjs
 new file mode 100644
 index 0000000000000000000000000000000000000000..4858595ce50e97284f18daa94c3b5ce6ab041dd4
@@ -223,144 +196,49 @@ index 0000000000000000000000000000000000000000..00c323a8bd4453d566dbd002ab1222f0
 +  installUniversalSignalDocumentProvider,
 +  universalSignalDocument
 +});
-diff --git a/dist/compiler/compile-universal.js b/dist/compiler/compile-universal.js
-index fb05864726848fec0e680cc06de3cfe88f9930de..e1ae8e2314f2cc61a7a6cbd38ae0fadea8aa08bf 100644
---- a/dist/compiler/compile-universal.js
-+++ b/dist/compiler/compile-universal.js
-@@ -2658,6 +2658,15 @@ function hasOwnTemplateReturn(fn) {
- }
- 
- function componentRender(fn, state, force = false) {
-+	// Functions that are never invoked as components stay ordinary functions,
-+	// so an async/generator helper only fails once it is actually compiled as
-+	// one (the `@{ … }` form, a JSX-shaped return, or component usage).
-+	const component =
-+		fn.body?.type === 'JSXCodeBlock' ||
-+		(fn.body?.type !== 'BlockStatement'
-+			? force || isTemplateNode(fn.body)
-+			: force || hasOwnTemplateReturn(fn) || state.componentNames.has(functionName(fn)));
-+	if (!component) return null;
- 	if (fn.async || fn.generator) {
- 		throw universalError(
- 			state.filename,
-@@ -2672,11 +2681,8 @@ function componentRender(fn, state, force = false) {
- 		};
- 	}
- 	if (fn.body?.type !== 'BlockStatement') {
--		if (!force && !isTemplateNode(fn.body)) return null;
- 		return { setup: [], render: isTemplateNode(fn.body) ? fn.body : null, expression: fn.body };
- 	}
--	if (!force && !hasOwnTemplateReturn(fn) && !state.componentNames.has(functionName(fn)))
--		return null;
- 	return { setup: fn.body.body ?? [], render: null };
- }
- 
 diff --git a/dist/compiler/compile.js b/dist/compiler/compile.js
-index cdf5a08e96946bf06dd417dcfb87373e4be5f305..64a357159586e45774ff864f4478b204bb0dd7ab 100644
+index 536ce597..0d60ff8e 100644
 --- a/dist/compiler/compile.js
 +++ b/dist/compiler/compile.js
-@@ -2275,7 +2275,7 @@ function classifyViewTransitionOwnership(astBody, production, ownComponents) {
- 
- function hookRuntimeModulesForCompile(options, universalUnits = []) {
- 	const modules = new Set(options?.__hookRuntimeModules || []);
+@@ -2497 +2497 @@ function hookRuntimeModulesForCompile(options, universalUnits = []) {
 -	if (options?.nativeReads === true) {
 +	if (options?.nativeReads === true || options?.__universalSignalReads === true) {
- 		modules.add('octane/signals/client');
- 		modules.add('octane/signals/server');
- 	}
-@@ -10112,6 +10112,11 @@ function compileInternal(
- 						universalRuntime: undefined,
- 						rendererBoundaries: undefined,
- 						rendererRegistry: undefined,
+@@ -11053,0 +11054,5 @@ function compileInternal(
 +						// Universal owners observe reads at render time; the inner
 +						// compile must not emit the DOM native-read runtime helpers,
 +						// but signal hook classification still applies.
 +						nativeReads: false,
 +						__universalSignalReads: options.nativeReads === true,
- 						__hookRuntimeModules: [...(options?.__hookRuntimeModules || []), renderer.module],
- 						__runtimeImportRoutes: [
- 							...(options?.__runtimeImportRoutes ?? []),
-@@ -10360,6 +10365,10 @@ function compileInternal(
- 		autoMemo: autoMemoEnabled,
- 		strongMemo: strongMemoEnabled,
- 		nativeReads: options?.nativeReads === true,
-+		// Universal renders observe signal reads at runtime through the owner
-+		// environment; hook classification still needs to know the module imports
-+		// the signals runtime even though no DOM native-read helpers are emitted.
+@@ -11312,0 +11318 @@ function compileInternal(
 +		signalReads: options?.nativeReads === true || options?.__universalSignalReads === true,
- 		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
- 		// A split Hydrate query module is invoked as the existing server-rendered
- 		// boundary body. Its sole component child must therefore keep the server's
-@@ -11805,6 +11814,10 @@ function compileServer(
- 		compilerNameSuffixes: null,
- 		mode: 'server',
- 		nativeReads: options?.nativeReads === true,
-+		// Universal renders observe signal reads at runtime through the owner
-+		// environment; hook classification still needs to know the module imports
-+		// the signals runtime even though no DOM native-read helpers are emitted.
+@@ -12780,0 +12787 @@ function compileServer(
 +		signalReads: options?.nativeReads === true || options?.__universalSignalReads === true,
- 		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
- 		hmr: false, // SSR never hot-swaps in place; client/server production slot shapes stay aligned
- 		dev: !!(options && options.dev),
-@@ -18960,7 +18973,7 @@ function slotKeyedHookName(n, ctx) {
- 			ctx.foreignImportLocals?.has(local) === true;
- 		if (
- 			imported !== undefined &&
+@@ -20076 +20083 @@ function slotKeyedHookName(n, ctx) {
 -			(HOOK_NAMES.has(imported) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
 +			(HOOK_NAMES.has(imported) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
- 		)
- 			return imported;
- 		if (!shadowsImport && HOOK_NAMES.has(local)) return local;
-@@ -18970,7 +18983,7 @@ function slotKeyedHookName(n, ctx) {
- 	const imported = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
- 	if (
- 		imported !== undefined &&
+@@ -20086 +20093 @@ function slotKeyedHookName(n, ctx) {
 -		(HOOK_NAMES.has(imported) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
 +		(HOOK_NAMES.has(imported) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
- 	) {
- 		return imported;
- 	}
-@@ -19817,7 +19830,7 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
- 			// enforced by rejectHookInJsLoop.
- 			const isBuiltin =
- 				(HOOK_NAMES.has(name) ||
+@@ -20942 +20949 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
 -					(ctx.nativeReads &&
 +					(ctx.signalReads &&
- 						hookRuntimeImportedName !== undefined &&
- 						NATIVE_SIGNAL_HOOK_NAMES.has(name))) &&
- 				(generated ||
-@@ -19946,7 +19959,7 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
- 		) {
- 			const name = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
- 			const isBuiltin =
+@@ -21073 +21080 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
 -				HOOK_NAMES.has(name) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(name));
 +				HOOK_NAMES.has(name) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(name));
- 			const isServerUse = name === 'use' && ctx.mode === 'server';
- 			if (isBuiltin || isServerUse) {
- 				if (isBuiltin) {
 diff --git a/dist/compiler/native-read-diagnostics.js b/dist/compiler/native-read-diagnostics.js
-index 3ec74f384e5b34a8032c96646e9ba3faeee50e75..0816e98d66d5082d8d3bb337073c2123e6032c4c 100644
+index f783b405..60c88e48 100644
 --- a/dist/compiler/native-read-diagnostics.js
 +++ b/dist/compiler/native-read-diagnostics.js
-@@ -87,9 +87,12 @@ export function assertNativeReadOptions(options) {
- 	if (
- 		options?.nativeReads === true &&
- 		options.renderer?.target != null &&
+@@ -103 +103,2 @@ export function assertNativeReadOptions(options) {
 -		options.renderer.target !== 'dom'
 +		options.renderer.target !== 'dom' &&
 +		options.renderer.target !== 'universal'
- 	) {
+@@ -105 +106,3 @@ export function assertNativeReadOptions(options) {
 -		throw new Error('Octane native signal reads support only the DOM client and server.');
 +		throw new Error(
 +			'Octane native signal reads support only the DOM client, DOM server, and universal renderers.',
 +		);
- 	}
- }
- 
-@@ -108,11 +111,11 @@ export function analyzeNativeReadDiagnostics(ast, source, filename, options = {}
- 			filename,
- 			rendererBoundaries: options.rendererBoundaries,
- 		});
+@@ -124,5 +127,5 @@ export function analyzeNativeReadDiagnostics(ast, source, filename, options = {}
 -		const unsupported = boundaries.find(
 -			(boundary) =>
 -				boundary.childRenderer !== 'dom' &&
@@ -371,67 +249,35 @@ index 3ec74f384e5b34a8032c96646e9ba3faeee50e75..0816e98d66d5082d8d3bb337073c2123
 +			const target = options.rendererRegistry?.[boundary.childRenderer]?.target;
 +			return target !== 'dom' && target !== 'universal';
 +		});
- 		if (unsupported)
- 			return [
- 				nativeReadDiagnostic(
 diff --git a/dist/compiler/slot-hooks.js b/dist/compiler/slot-hooks.js
-index 7b2f867538a166ebaf3d1a8aa6e7d910e3b0da12..2c1d36c9edb32c483a5e7ed736e51b0ca12cde30 100644
+index 90848a65..474c2bb5 100644
 --- a/dist/compiler/slot-hooks.js
 +++ b/dist/compiler/slot-hooks.js
-@@ -1182,12 +1182,12 @@ function walk(node, owner, st) {
- 		}
- 		const imported =
- 			node._octaneImportedHook ??
+@@ -1037 +1037 @@ function walk(node, owner, st) {
 -			(st.nativeReads ? node._octaneHookRuntimeImportedHook : undefined);
 +			(st.signalReads ? node._octaneHookRuntimeImportedHook : undefined);
- 		collectStateGetterEdit(node, imported, st);
- 		if (
- 			!st.manualSlots &&
- 			imported &&
+@@ -1042 +1042 @@ function walk(node, owner, st) {
 -			(HOOK_NAMES.has(imported) || (st.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
 +			(HOOK_NAMES.has(imported) || (st.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
- 		) {
- 			const local =
- 				node.callee?.type === 'Identifier'
-@@ -1398,7 +1398,11 @@ export function slotHooks(source, id, options) {
- 			HOOK_NAMES.has(name),
- 		);
- 	const manualProviders = options?.manualSlots ? findManualHookProviders(ast) : new Map();
+@@ -1258 +1258,3 @@ export function slotHooks(source, id, options) {
 -	const nativeReadActivation = options?.nativeReads === true && importsNativeRenderer(ast);
-+	// Universal renderers observe reads at render time; the DOM collection
-+	// driver and its activation helper only apply to dom targets.
 +	const universalTarget = options?.renderer?.target === 'universal';
 +	const nativeReadActivation =
 +		options?.nativeReads === true && !universalTarget && importsNativeRenderer(ast);
- 	const signalLowering = signalDeclarationSourceEdits(ast, id, source);
- 	const pureCalls = collectPureFactoryCalls(
- 		ast,
-@@ -1487,7 +1491,8 @@ export function slotHooks(source, id, options) {
- 			]),
- 		),
- 		manualSlots: options?.manualSlots === true,
+@@ -1353 +1355,2 @@ export function slotHooks(source, id, options) {
 -		nativeReads: options?.nativeReads === true,
 +		nativeReads: options?.nativeReads === true && !universalTarget,
 +		signalReads: options?.nativeReads === true,
- 		locals: importInfo.locals,
- 		source,
- 		inferred,
-@@ -1590,7 +1595,9 @@ export function slotHooks(source, id, options) {
- 				? 'enableServerSignalBindings'
- 				: nativeReadActivation
- 					? 'enableSignalBindings'
+@@ -1462 +1465,3 @@ export function slotHooks(source, id, options) {
 -					: '__enableSignalDocument';
 +					: universalTarget
 +						? '__enableUniversalSignalDocument'
 +						: '__enableSignalDocument';
- 		const local = allocSlotName(st, `_$${imported}`);
- 		let specifiers = signalHelperImports.get(request);
- 		if (specifiers === undefined) signalHelperImports.set(request, (specifiers = []));
 diff --git a/dist/node/runtime.js b/dist/node/runtime.js
-index 21d10d95b6094ee07693a8b0757ca381d706b86e..2a0b4204dbcc6a0a749fcdbecfe93241d73dd768 100644
+index 65a87a5f6f63e8fde886c3ed12d3057668b3a2f3..2fd59e94545f2b566234f3957e3bb89bbe7abf78 100644
 --- a/dist/node/runtime.js
 +++ b/dist/node/runtime.js
-@@ -162,6 +162,7 @@ import {
+@@ -171,6 +171,7 @@ import {
  import { isRendererContext, registerClientRendererBridge } from "./renderer-bridge.js";
  import { defineRemovedContextMembers, registerContext } from "./context-identity.js";
  import { createNativeReadDriver } from "./signals/native-read-client.js";
@@ -439,7 +285,7 @@ index 21d10d95b6094ee07693a8b0757ca381d706b86e..2a0b4204dbcc6a0a749fcdbecfe93241
  import {
    validateNativeReadWitness
  } from "./signals/native-read-collector.js";
-@@ -7456,6 +7457,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
+@@ -7956,6 +7957,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
    }
    return cell.nativeValue;
  }
@@ -466,7 +312,7 @@ index 21a39c3ce9a28d2095e276fd647fd795e939a0bf..3f85700b57cbc3084c2df776ab3e6b53
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/node/signals/document-owner.js b/dist/node/signals/document-owner.js
-index 0decc9286f8d06e78dd15eaa16d0cc53cac44220..59a94863274839675c48880bf37018fddd00ec11 100644
+index 6fae4a2b7042161c0d21452004cea4b0ee87d138..9df7c9c5e8539b797b95d562cf7bca5104b857d3 100644
 --- a/dist/node/signals/document-owner.js
 +++ b/dist/node/signals/document-owner.js
 @@ -27,7 +27,9 @@ function enableSignalDocument(abi = 1) {
@@ -481,47 +327,20 @@ index 0decc9286f8d06e78dd15eaa16d0cc53cac44220..59a94863274839675c48880bf37018fd
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/node/signals/facade.js b/dist/node/signals/facade.js
-index 86c0233dad7013c6516912656e0e1b304351c1cb..594e697b59f19e95821ed09313835842a7afe33e 100644
+index d9786d6899e819ea40589116d9ef946a4c4df4a0..efb80b9186d590dc4ca29bd9f8a77eeb2508e2e6 100644
 --- a/dist/node/signals/facade.js
 +++ b/dist/node/signals/facade.js
-@@ -241,6 +241,8 @@ class Descriptor {
-     this.kind = kind;
-     this.create = create;
-     this.site = site;
-+    // Instance declarations stay with their component across child templates and events.
-+    this.instanceOwner = site?.startsWith("i:") ? currentSignalOwner() : null;
+@@ -325,7 +325,7 @@ class Descriptor {
    }
-   key;
-   kind;
-@@ -250,7 +252,7 @@ class Descriptor {
-   cells = /* @__PURE__ */ new WeakMap();
+   /** The owner a use resolves for: its reader, or for a lexical handle its declaring owner. */
+   reader() {
+-    return this.lexical === this ? this.owner : requireOwner();
++    return this.owner ?? requireOwner();
+   }
    [SIGNAL_OWNER_RESOLVE](owner) {
      requireSite(this.site);
--    return this.resolvedCell(resolveDescriptorOwner(this.site, owner));
-+    return this.resolvedCell(resolveDescriptorOwner(this.site, this.instanceOwner ?? owner));
-   }
-   resolvedCell(target) {
-     let cell = this.cells.get(target);
-@@ -261,7 +263,7 @@ class Descriptor {
-     return cell;
-   }
-   resolve() {
--    const token = requireOwner();
-+    const token = this.instanceOwner ?? requireOwner();
-     const owner = resolveDescriptorOwner(this.site, token);
-     requireSite(this.site);
-     return this.resolvedCell(owner);
-@@ -292,7 +294,7 @@ class Descriptor {
-     return this.resolve().snapshot();
-   }
-   subscribe(notify) {
--    const token = requireOwner();
-+    const token = this.instanceOwner ?? requireOwner();
-     const scope = resolveDescriptorOwner(this.site, token);
-     const run = captureSignalOwner(token);
-     return this[SIGNAL_OWNER_RESOLVE](scope).subscribe(forwardNativeTransitionConsumer(notify, () => run(notify)));
 diff --git a/dist/node/signals/index.js b/dist/node/signals/index.js
-index 8ae19e510a09e8144ae2ab66c0daf293a4a3f8f6..0bf09f5276e9e1a38ef67923b9cc2a441be2ce7f 100644
+index 33efa85de5a5784b920e648e222e0831e3cfae90..fab07861bbacadbc429883ff8d48baa13aec082c 100644
 --- a/dist/node/signals/index.js
 +++ b/dist/node/signals/index.js
 @@ -1,6 +1,7 @@
@@ -532,14 +351,14 @@ index 8ae19e510a09e8144ae2ab66c0daf293a4a3f8f6..0bf09f5276e9e1a38ef67923b9cc2a44
  import { createResource, query } from "./requests.js";
  import { ActionUncertainError, action$, isActionUncertain, optimistic$ } from "./actions.js";
  import { __derivedAt, derived$ } from "./derived-facade.js";
-@@ -58,6 +59,7 @@ export {
+@@ -61,6 +62,7 @@ export {
    __derivedAt,
    __derivedScalarAt,
    enableSignalDocument as __enableSignalDocument,
 +  enableUniversalSignalDocument as __enableUniversalSignalDocument,
+   __methodDep,
    __queryAt,
    __signalAt,
-   __startSignalReads,
 diff --git a/dist/node/signals/local-hook.js b/dist/node/signals/local-hook.js
 new file mode 100644
 index 0000000000000000000000000000000000000000..77c63f5e2d931eb8dbd384ae027ee0f09935f9ce
@@ -592,25 +411,21 @@ index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b3
 +  universalSignalDocument
 +};
 diff --git a/dist/node/universal-core.js b/dist/node/universal-core.js
-index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0bde99062 100644
+index 4bc0ddf5022daa883d35536af2db8d9b3d59b166..f7cc3726cf895383ded13e4bb41857682f90fb66 100644
 --- a/dist/node/universal-core.js
 +++ b/dist/node/universal-core.js
-@@ -17,6 +17,14 @@ import {
+@@ -16,6 +16,10 @@ import {
+   __profileTrackComponent
  } from "./profiling.js";
  import { getRendererHostFlusher } from "./renderer-bridge.js";
- import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
 +import { universalSignalDocument } from "./signals/universal-owner.js";
 +import { registerLocalSignalHook } from "./signals/local-hook.js";
 +import { retireSignalOwnerIdentity, runWithSignalOwner } from "./signals/owner-context.js";
-+import {
-+  beginNativeWriteGuard,
-+  endNativeWriteGuard,
-+  setNativeReadObserver
-+} from "./signals/read-protocol.js";
- import { __methodDep } from "./method-dep.js";
- const UNIVERSAL_PLAN = /* @__PURE__ */ Symbol.for("octane.universal.plan");
- const UNIVERSAL_VALUE = /* @__PURE__ */ Symbol.for("octane.universal.value");
-@@ -474,6 +482,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
++import { beginNativeWriteGuard, endNativeWriteGuard, setNativeReadObserver } from "./signals/read-protocol.js";
+ import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
+ import {
+   deactivateEffectEventCells,
+@@ -488,6 +492,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
      hasKey: key !== NO_KEY || normalized.hasKey
    };
  }
@@ -744,7 +559,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
  function universalChildren(renderer, render) {
    assertRendererId(renderer, "universalChildren renderer");
    if (typeof render !== "function") throw new TypeError("universalChildren expected a function.");
-@@ -842,6 +977,7 @@ function draftOwner(record, parent, replayPath) {
+@@ -856,6 +987,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
      canHandleSuspense: record.canHandleSuspense,
@@ -752,7 +567,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1012,6 +1148,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1026,6 +1158,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
@@ -760,7 +575,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
      CURRENT_OWNER = owner;
-@@ -1023,13 +1160,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1037,13 +1170,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
      let didThrow = false;
      let thrown;
@@ -782,7 +597,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
        if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
          __profileEndRender(profileFrame, didThrow, thrown);
        }
-@@ -1196,6 +1338,8 @@ function disposeUncommittedDraft(owner) {
+@@ -1210,6 +1348,8 @@ function disposeUncommittedDraft(owner) {
      owner.record.componentProps = null;
      owner.record.range = null;
      owner.record.updates.clear();
@@ -791,7 +606,15 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      for (const hook of owner.hooks.values()) {
        if (hook.kind === "effect-event") hook.cell.active = false;
      }
-@@ -3142,6 +3286,85 @@ function scheduleOwner(owner, slot) {
+@@ -3044,6 +3184,7 @@ function tryCreateCompactTemplateUpdateTransaction(root, blueprint, attempt, com
+       owner.componentProps = draftOwner2.componentProps;
+       owner.componentRevision = draftOwner2.componentRevision;
+       owner.hooks = draftOwner2.hooks;
++      commitUniversalSignalReads(owner, draftOwner2.signalReads);
+       for (const [slot, applied] of draftOwner2.appliedUpdates) {
+         const queue = owner.updates.get(slot);
+         if (queue !== applied.queue || applied.lane) continue;
+@@ -3510,6 +3651,86 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
  }
@@ -806,7 +629,8 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
 +      // The identity object itself is the opaque per-instance token — the
 +      // same shape DOM scopes use, so identity maps never retain the record.
 +      instanceOwner: null,
-+      instanceKey: `u:${record.id}`
++      instanceKey: `u:${record.id}`,
++      enclosingOwner: record.parent === null ? void 0 : universalSignalOwner(record.parent)
 +    };
 +    identity.instanceOwner = identity;
 +    owner = Object.freeze(identity);
@@ -877,7 +701,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -4142,15 +4365,35 @@ function use(usable) {
+@@ -4624,15 +4845,35 @@ function use(usable) {
  function useImperativeHandle(ref, create, deps, slot) {
    useLayoutEffect(
      () => {
@@ -920,7 +744,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      slot
    );
  }
-@@ -5520,9 +5763,9 @@ class UniversalRootImpl {
+@@ -5627,9 +5868,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
@@ -932,7 +756,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      }
      return result;
    }
-@@ -6096,6 +6339,8 @@ class UniversalRootImpl {
+@@ -6200,6 +6441,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
        draft.record.updates.clear();
@@ -941,15 +765,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
        for (const hook of draft.hooks.values()) {
          if (hook.kind === "effect-event") hook.cell.active = false;
        }
-@@ -6776,6 +7021,7 @@ class UniversalRootImpl {
-         owner.componentProps = draftOwner2.componentProps;
-         owner.componentRevision = draftOwner2.componentRevision;
-         owner.hooks = draftOwner2.hooks;
-+        commitUniversalSignalReads(owner, draftOwner2.signalReads);
-         for (const [slot, applied] of draftOwner2.appliedUpdates) {
-           const queue = owner.updates.get(slot);
-           if (queue !== applied.queue || applied.lane) continue;
-@@ -6809,6 +7055,7 @@ class UniversalRootImpl {
+@@ -6717,6 +6960,7 @@ class UniversalRootImpl {
        record.componentRevision = draft.componentRevision;
        record.parent = draft.parent?.record ?? null;
        record.hooks = draft.hooks;
@@ -957,7 +773,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
        record.effectOrder = [...draft.seenEffects];
        for (let index = 0; index < draft.seenEffects.length; index++) {
          draft.seenEffects[index].previous = null;
-@@ -8455,6 +8702,8 @@ class UniversalRootImpl {
+@@ -8365,6 +8609,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -966,7 +782,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
          }
          for (const draft of draftOwnersParentFirst) {
            const record = draft.record;
-@@ -8464,6 +8713,7 @@ class UniversalRootImpl {
+@@ -8374,6 +8620,7 @@ class UniversalRootImpl {
              record.parent = draft.parent?.record ?? null;
            }
            record.hooks = draft.hooks;
@@ -974,7 +790,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
            record.effectOrder = [...draft.seenEffects];
            for (let index = 0; index < draft.seenEffects.length; index++) {
              draft.seenEffects[index].previous = null;
-@@ -8985,6 +9235,8 @@ class UniversalRootImpl {
+@@ -8885,6 +9132,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -983,7 +799,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
          }
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
-@@ -9937,6 +10189,7 @@ function createObjectDriver(renderer = "object") {
+@@ -10101,6 +10350,7 @@ function createObjectDriver(renderer = "object") {
    };
  }
  export {
@@ -1022,10 +838,10 @@ index 6427a0190c072e7e4629c379e42bedc03669dc6e..8049b7880824de607157091004a46c9d
    createContext,
    createSubSlot,
 diff --git a/dist/runtime.js b/dist/runtime.js
-index ee2a2bdd0e0909921fc43ed073be0fbc7f6ec585..4f9f1b5b7782bc0e42799ddb847d22f617a4885f 100644
+index 614f28d71730aa84dc8dd2ae1d712f1b45e8a6f9..f9988db75999f905a389a3a8eea73573bcc15c84 100644
 --- a/dist/runtime.js
 +++ b/dist/runtime.js
-@@ -161,6 +161,7 @@ import {
+@@ -170,6 +170,7 @@ import {
  import { isRendererContext, registerClientRendererBridge } from "./renderer-bridge.js";
  import { defineRemovedContextMembers, registerContext } from "./context-identity.js";
  import { createNativeReadDriver } from "./signals/native-read-client.js";
@@ -1033,7 +849,7 @@ index ee2a2bdd0e0909921fc43ed073be0fbc7f6ec585..4f9f1b5b7782bc0e42799ddb847d22f6
  import {
    validateNativeReadWitness
  } from "./signals/native-read-collector.js";
-@@ -7455,6 +7456,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
+@@ -7955,6 +7956,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
    }
    return cell.nativeValue;
  }
@@ -1070,7 +886,7 @@ index 21a39c3ce9a28d2095e276fd647fd795e939a0bf..3f85700b57cbc3084c2df776ab3e6b53
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/signals/document-owner.js b/dist/signals/document-owner.js
-index cd4e628f79d9fed839c089a89e711d446d2e18a4..078dcd31218022b69086238180e6b236e7d8224f 100644
+index 56a7ac2713e73cc136b846ce26849d27dca65485..0422e096c511a49f7fb3ffc73ed5a02218f45465 100644
 --- a/dist/signals/document-owner.js
 +++ b/dist/signals/document-owner.js
 @@ -26,7 +26,9 @@ function enableSignalDocument(abi = 1) {
@@ -1085,47 +901,20 @@ index cd4e628f79d9fed839c089a89e711d446d2e18a4..078dcd31218022b69086238180e6b236
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/signals/facade.js b/dist/signals/facade.js
-index 5ab4b73f2e8276b3ade5f04e8fa647efd76cb830..7b23010b7440b698ac4775b44cf16dc55625654d 100644
+index 56b8f6f00dc8c313ced91a6cc5abc6a01bbd0b66..6aace062ae8ad61fa4090fdedced994c44e814eb 100644
 --- a/dist/signals/facade.js
 +++ b/dist/signals/facade.js
-@@ -240,6 +240,8 @@ class Descriptor {
-     this.kind = kind;
-     this.create = create;
-     this.site = site;
-+    // Instance declarations stay with their component across child templates and events.
-+    this.instanceOwner = site?.startsWith("i:") ? currentSignalOwner() : null;
+@@ -324,7 +324,7 @@ class Descriptor {
    }
-   key;
-   kind;
-@@ -249,7 +251,7 @@ class Descriptor {
-   cells = /* @__PURE__ */ new WeakMap();
+   /** The owner a use resolves for: its reader, or for a lexical handle its declaring owner. */
+   reader() {
+-    return this.lexical === this ? this.owner : requireOwner();
++    return this.owner ?? requireOwner();
+   }
    [SIGNAL_OWNER_RESOLVE](owner) {
      requireSite(this.site);
--    return this.resolvedCell(resolveDescriptorOwner(this.site, owner));
-+    return this.resolvedCell(resolveDescriptorOwner(this.site, this.instanceOwner ?? owner));
-   }
-   resolvedCell(target) {
-     let cell = this.cells.get(target);
-@@ -260,7 +262,7 @@ class Descriptor {
-     return cell;
-   }
-   resolve() {
--    const token = requireOwner();
-+    const token = this.instanceOwner ?? requireOwner();
-     const owner = resolveDescriptorOwner(this.site, token);
-     requireSite(this.site);
-     return this.resolvedCell(owner);
-@@ -291,7 +293,7 @@ class Descriptor {
-     return this.resolve().snapshot();
-   }
-   subscribe(notify) {
--    const token = requireOwner();
-+    const token = this.instanceOwner ?? requireOwner();
-     const scope = resolveDescriptorOwner(this.site, token);
-     const run = captureSignalOwner(token);
-     return this[SIGNAL_OWNER_RESOLVE](scope).subscribe(forwardNativeTransitionConsumer(notify, () => run(notify)));
 diff --git a/dist/signals/index.d.ts b/dist/signals/index.d.ts
-index 95f32a27af860c358714eeadfbdcbc18bc323d9d..98559855b07e84b61915dba198f357505d584175 100644
+index 69733ffb205a61929a2a004296192ab411722385..ce5647edd39f281161aa0f338ce82b86e139a126 100644
 --- a/dist/signals/index.d.ts
 +++ b/dist/signals/index.d.ts
 @@ -3,6 +3,7 @@ export { createScope } from './engine.js';
@@ -1137,7 +926,7 @@ index 95f32a27af860c358714eeadfbdcbc18bc323d9d..98559855b07e84b61915dba198f35750
  export { ActionUncertainError, action$, isActionUncertain, optimistic$ } from './actions.js';
  export { __derivedAt, derived$ } from './derived-facade.js';
 diff --git a/dist/signals/index.js b/dist/signals/index.js
-index 8ae19e510a09e8144ae2ab66c0daf293a4a3f8f6..0bf09f5276e9e1a38ef67923b9cc2a441be2ce7f 100644
+index 33efa85de5a5784b920e648e222e0831e3cfae90..fab07861bbacadbc429883ff8d48baa13aec082c 100644
 --- a/dist/signals/index.js
 +++ b/dist/signals/index.js
 @@ -1,6 +1,7 @@
@@ -1148,14 +937,14 @@ index 8ae19e510a09e8144ae2ab66c0daf293a4a3f8f6..0bf09f5276e9e1a38ef67923b9cc2a44
  import { createResource, query } from "./requests.js";
  import { ActionUncertainError, action$, isActionUncertain, optimistic$ } from "./actions.js";
  import { __derivedAt, derived$ } from "./derived-facade.js";
-@@ -58,6 +59,7 @@ export {
+@@ -61,6 +62,7 @@ export {
    __derivedAt,
    __derivedScalarAt,
    enableSignalDocument as __enableSignalDocument,
 +  enableUniversalSignalDocument as __enableUniversalSignalDocument,
+   __methodDep,
    __queryAt,
    __signalAt,
-   __startSignalReads,
 diff --git a/dist/signals/local-hook.d.ts b/dist/signals/local-hook.d.ts
 new file mode 100644
 index 0000000000000000000000000000000000000000..d6c1770fc22b738e0e107b6616f60eaf676d853e
@@ -1246,10 +1035,10 @@ index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b3
 +  universalSignalDocument
 +};
 diff --git a/dist/universal-core.d.ts b/dist/universal-core.d.ts
-index 7e60feece0d3ded5f088bf4e4044516bef588663..3e4cfc19341496009be773b80562476ffd04f2d2 100644
+index ddf95b3ee39836940dab20bc2ac2ae2761e4dd82..3a6b744f17a726062562db075b165b1089d23678 100644
 --- a/dist/universal-core.d.ts
 +++ b/dist/universal-core.d.ts
-@@ -764,9 +764,8 @@ export declare function lazy<C extends UniversalComponent<any>>(load: () => Prom
+@@ -791,9 +791,8 @@ export declare function lazy<C extends UniversalComponent<any>>(load: () => Prom
      default: C;
  } | C>): C;
  export declare function use<T>(usable: UniversalContext<T> | PromiseLike<T>): T;
@@ -1261,32 +1050,28 @@ index 7e60feece0d3ded5f088bf4e4044516bef588663..3e4cfc19341496009be773b80562476f
  export declare function useEffectEvent<T extends (...args: any[]) => any>(fn: T, slot?: unknown): T;
  export declare function useDebugValue(): void;
  export declare function startTransition(fn: () => void | Promise<unknown>): void;
-@@ -817,3 +816,5 @@ export interface ObjectHostContainer {
+@@ -844,3 +843,5 @@ export interface ObjectHostContainer {
  }
  export declare function createObjectContainer(renderer?: string): ObjectHostContainer;
  export declare function createObjectDriver(renderer?: string): UniversalHostDriver<ObjectHostContainer, ObjectHostInstance>;
 +
 +export declare const Children: { toArray(children: UniversalRenderable): UniversalRenderable[]; map(children: UniversalRenderable, fn: (child: UniversalRenderable, index: number) => UniversalRenderable): UniversalRenderable[]; };
 diff --git a/dist/universal-core.js b/dist/universal-core.js
-index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0bde99062 100644
+index 4bc0ddf5022daa883d35536af2db8d9b3d59b166..f7cc3726cf895383ded13e4bb41857682f90fb66 100644
 --- a/dist/universal-core.js
 +++ b/dist/universal-core.js
-@@ -17,6 +17,14 @@ import {
+@@ -16,6 +16,10 @@ import {
+   __profileTrackComponent
  } from "./profiling.js";
  import { getRendererHostFlusher } from "./renderer-bridge.js";
- import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
 +import { universalSignalDocument } from "./signals/universal-owner.js";
 +import { registerLocalSignalHook } from "./signals/local-hook.js";
 +import { retireSignalOwnerIdentity, runWithSignalOwner } from "./signals/owner-context.js";
-+import {
-+  beginNativeWriteGuard,
-+  endNativeWriteGuard,
-+  setNativeReadObserver
-+} from "./signals/read-protocol.js";
- import { __methodDep } from "./method-dep.js";
- const UNIVERSAL_PLAN = /* @__PURE__ */ Symbol.for("octane.universal.plan");
- const UNIVERSAL_VALUE = /* @__PURE__ */ Symbol.for("octane.universal.value");
-@@ -474,6 +482,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
++import { beginNativeWriteGuard, endNativeWriteGuard, setNativeReadObserver } from "./signals/read-protocol.js";
+ import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
+ import {
+   deactivateEffectEventCells,
+@@ -488,6 +492,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
      hasKey: key !== NO_KEY || normalized.hasKey
    };
  }
@@ -1420,7 +1205,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
  function universalChildren(renderer, render) {
    assertRendererId(renderer, "universalChildren renderer");
    if (typeof render !== "function") throw new TypeError("universalChildren expected a function.");
-@@ -842,6 +977,7 @@ function draftOwner(record, parent, replayPath) {
+@@ -856,6 +987,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
      canHandleSuspense: record.canHandleSuspense,
@@ -1428,7 +1213,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1012,6 +1148,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1026,6 +1158,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
@@ -1436,7 +1221,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
      CURRENT_OWNER = owner;
-@@ -1023,13 +1160,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1037,13 +1170,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
      let didThrow = false;
      let thrown;
@@ -1458,7 +1243,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
        if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
          __profileEndRender(profileFrame, didThrow, thrown);
        }
-@@ -1196,6 +1338,8 @@ function disposeUncommittedDraft(owner) {
+@@ -1210,6 +1348,8 @@ function disposeUncommittedDraft(owner) {
      owner.record.componentProps = null;
      owner.record.range = null;
      owner.record.updates.clear();
@@ -1467,7 +1252,15 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      for (const hook of owner.hooks.values()) {
        if (hook.kind === "effect-event") hook.cell.active = false;
      }
-@@ -3142,6 +3286,85 @@ function scheduleOwner(owner, slot) {
+@@ -3044,6 +3184,7 @@ function tryCreateCompactTemplateUpdateTransaction(root, blueprint, attempt, com
+       owner.componentProps = draftOwner2.componentProps;
+       owner.componentRevision = draftOwner2.componentRevision;
+       owner.hooks = draftOwner2.hooks;
++      commitUniversalSignalReads(owner, draftOwner2.signalReads);
+       for (const [slot, applied] of draftOwner2.appliedUpdates) {
+         const queue = owner.updates.get(slot);
+         if (queue !== applied.queue || applied.lane) continue;
+@@ -3510,6 +3651,86 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
  }
@@ -1482,7 +1275,8 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
 +      // The identity object itself is the opaque per-instance token — the
 +      // same shape DOM scopes use, so identity maps never retain the record.
 +      instanceOwner: null,
-+      instanceKey: `u:${record.id}`
++      instanceKey: `u:${record.id}`,
++      enclosingOwner: record.parent === null ? void 0 : universalSignalOwner(record.parent)
 +    };
 +    identity.instanceOwner = identity;
 +    owner = Object.freeze(identity);
@@ -1553,7 +1347,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -4142,15 +4365,35 @@ function use(usable) {
+@@ -4624,15 +4845,35 @@ function use(usable) {
  function useImperativeHandle(ref, create, deps, slot) {
    useLayoutEffect(
      () => {
@@ -1596,7 +1390,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      slot
    );
  }
-@@ -5520,9 +5763,9 @@ class UniversalRootImpl {
+@@ -5627,9 +5868,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
@@ -1608,7 +1402,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
      }
      return result;
    }
-@@ -6096,6 +6339,8 @@ class UniversalRootImpl {
+@@ -6200,6 +6441,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
        draft.record.updates.clear();
@@ -1617,15 +1411,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
        for (const hook of draft.hooks.values()) {
          if (hook.kind === "effect-event") hook.cell.active = false;
        }
-@@ -6776,6 +7021,7 @@ class UniversalRootImpl {
-         owner.componentProps = draftOwner2.componentProps;
-         owner.componentRevision = draftOwner2.componentRevision;
-         owner.hooks = draftOwner2.hooks;
-+        commitUniversalSignalReads(owner, draftOwner2.signalReads);
-         for (const [slot, applied] of draftOwner2.appliedUpdates) {
-           const queue = owner.updates.get(slot);
-           if (queue !== applied.queue || applied.lane) continue;
-@@ -6809,6 +7055,7 @@ class UniversalRootImpl {
+@@ -6717,6 +6960,7 @@ class UniversalRootImpl {
        record.componentRevision = draft.componentRevision;
        record.parent = draft.parent?.record ?? null;
        record.hooks = draft.hooks;
@@ -1633,7 +1419,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
        record.effectOrder = [...draft.seenEffects];
        for (let index = 0; index < draft.seenEffects.length; index++) {
          draft.seenEffects[index].previous = null;
-@@ -8455,6 +8702,8 @@ class UniversalRootImpl {
+@@ -8365,6 +8609,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -1642,7 +1428,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
          }
          for (const draft of draftOwnersParentFirst) {
            const record = draft.record;
-@@ -8464,6 +8713,7 @@ class UniversalRootImpl {
+@@ -8374,6 +8620,7 @@ class UniversalRootImpl {
              record.parent = draft.parent?.record ?? null;
            }
            record.hooks = draft.hooks;
@@ -1650,7 +1436,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
            record.effectOrder = [...draft.seenEffects];
            for (let index = 0; index < draft.seenEffects.length; index++) {
              draft.seenEffects[index].previous = null;
-@@ -8985,6 +9235,8 @@ class UniversalRootImpl {
+@@ -8885,6 +9132,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -1659,7 +1445,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0
          }
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
-@@ -9937,6 +10189,7 @@ function createObjectDriver(renderer = "object") {
+@@ -10101,6 +10350,7 @@ function createObjectDriver(renderer = "object") {
    };
  }
  export {

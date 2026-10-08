@@ -7,7 +7,7 @@
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
 		"@octane-xplat/ui": "workspace:*",
-		"octane": "0.6.3"
+		"octane": "0.10.2"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",

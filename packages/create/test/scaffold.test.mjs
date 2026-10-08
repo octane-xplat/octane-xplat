@@ -47,7 +47,7 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 	composeTargets(['web'], dir)
 
 	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
-	assert.match(yaml, /octane@0\.6\.3:/)
+	assert.match(yaml, /octane@0\.10\.2:/)
 	assert.match(yaml, /@tsrx\/typescript-plugin@0\.4\.11/)
 	assert.match(yaml, /configDependencies:[\s\S]*@octane-xplat\/patches/)
 	assert.doesNotMatch(yaml, /@nativescript\/core@9\.1\.3/)

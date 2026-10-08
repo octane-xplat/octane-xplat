@@ -25,7 +25,7 @@
 		"@octane-xplat/platform": "^0.11.1",
 		"@octane-xplat/ui": "^0.11.1",
 		"@valor/nativescript-websockets": "2.0.3",
-		"octane": "0.6.3"
+		"octane": "0.10.2"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",
