@@ -32,7 +32,10 @@
 		"./scaffold": "./scaffold.mjs"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"exports": {
+			"./scaffold": "./scaffold.mjs"
+		}
 	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1"
