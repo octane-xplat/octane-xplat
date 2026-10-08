@@ -2,7 +2,9 @@
 
 > Choose a native editor for the Tiptap and Lexical leaves without mistaking ordinary rich text for Foxtrot document compatibility.
 
-Decision #101: **provisional**, 2026-10-05. Evidence: upstream source and documentation; compile/link diagnostic ran 2026-10-06 and passed, while the NS metadata check reproduced the declared Foundation/UIKit loss blocker under iPhoneSimulator27.0.sdk with the @nativescript/ios 9.1.0 clang-17 generator ([results](evidence/ios-editor-backing/results.md)). No iOS app, keyboard, selection, accessibility, or pixel-parity qualification is claimed.
+Decision #101: **superseded by #104** (2026-10-08). The iOS ordinary rich-text leaf shipped as AztecEditor-iOS (`XplatAztecEditor.swift`), and the hosted-engine path — the app's own JS engine inside the shared `WebView` leaf — won device evidence for Foxtrot-grade recursive editing on both phones ([evidence](../../.agents/docs/parity/hosted-engine-editor.md)). This note remains the record of the native-engine candidate survey; a future native-backed iOS surface would be a new decision, not a resumption of #101.
+
+Original status: **provisional**, 2026-10-05. Evidence: upstream source and documentation; compile/link diagnostic ran 2026-10-06 and passed, while the NS metadata check reproduced the declared Foundation/UIKit loss blocker under iPhoneSimulator27.0.sdk with the @nativescript/ios 9.1.0 clang-17 generator ([results](evidence/ios-editor-backing/results.md)). No iOS app, keyboard, selection, accessibility, or pixel-parity qualification is claimed.
 
 ## Recommendation
 

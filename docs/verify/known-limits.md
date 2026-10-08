@@ -483,12 +483,21 @@ blockers.
 
 `@octane-xplat/richtext` (the `RichTextEditor` component) edits real rich text
 through WordPress Aztec's `AztecText` on Android — a `Spannable`-backed
-`EditText` — and a bundled local WKWebView on macOS. iOS uses AztecEditor-iOS through the native Swift facade; web returns `supported: false` and renders nothing; Windows returns
-`false` and renders an unsupported placeholder (the tiptap facade below covers web). Android
-content in/out is HTML via Aztec `fromHtml`/`toPlainHtml`; Kotlin default
-parameters are not bridged, so the leaf passes explicit arguments. AppKit
-uses StarterKit and asynchronous snapshots. Real OS keyboard input, selection,
-and hit-testing remain unverified; see [AppKit editing](../app/rich-text.md#macos-appkit-editing).
+`EditText` — AztecEditor-iOS through the `XplatAztecEditor` Swift facade
+on iOS — and a bundled local WKWebView on macOS. Web returns `supported: false`
+and renders nothing; Windows returns `false` and renders an unsupported
+placeholder (the tiptap facade below covers web). Content in/out is HTML via
+Aztec `fromHtml`/`toPlainHtml`; Kotlin default parameters are not bridged, so
+the leaf passes explicit arguments. On both phones, Aztec carries ordinary rich
+text only — the editor is a linear/flat block model: `<p>` boundaries flatten
+to `<br>`, stray breaks accumulate across reopen round-trips, and hidden-block
+markup (e.g. `data-type="toggle-item"` divs) cannot be split, indented, or
+outdented as nodes ([nested-tree device
+evidence](../../.agents/docs/parity/nested-tree-editor.md)). Recursive or
+custom-schema editing belongs to the hosted-engine path
+([decision #104](../notes/decisions.md)). AppKit uses StarterKit and
+asynchronous snapshots. Real OS keyboard input, selection, and hit-testing
+remain unverified; see [AppKit editing](../app/rich-text.md#macos-appkit-editing).
 
 ```tsx
 import { RichTextEditor } from '@octane-xplat/richtext'
@@ -503,8 +512,8 @@ export function Notes() {
 `@octane-xplat/tiptap` (the `TiptapEditor` component) is the unified facade:
 web renders `@octanejs/tiptap`'s `EditorContent` over a real tiptap `Editor`,
 macOS runs the bundled live Tiptap engine in WKWebView, and iOS/Android render
-`RichTextEditor` and adds tiptap document JSON interchange
-through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
+`RichTextEditor` (AztecEditor-iOS / Aztec `AztecText`) and add tiptap document
+JSON interchange through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
 `@tiptap/static-renderer`) with a `zeed-dom` `DOMParser` shim for
 `generateJSON`. The bridge loads lazily; `onJSONReady(false)` or a null
 `getJSON()` means the runtime can't host it. Document models diverge:
@@ -515,6 +524,15 @@ is bounded to the shared `TiptapFormat` vocabulary; `taskList`, `highlight`,
 AppKit reports errors asynchronously. iOS has no task-list or alignment
 formatting and rejects those calls before mutation. Both mobile facades
 require `linkTo` for links. See the [format subset](../app/rich-text.md#format-subset).
+
+For a real Tiptap/ProseMirror editor inside a mobile app (recursive schemas,
+custom node views, live collaboration), the architecture is the hosted engine:
+mount the shared `WebView` leaf and run the app's bundled editor document —
+device-verified on iOS and Android simulators/emulators with a Foxtrot-shaped
+recursive schema ([decision #104](../notes/decisions.md),
+[evidence](../../.agents/docs/parity/hosted-engine-editor.md)). That run was
+handler-level — `evaluateJavaScript` calls and in-page transactions — not OS
+keyboard input, IME, selection handles, or VoiceOver.
 
 ```tsx
 import { TiptapEditor } from '@octane-xplat/tiptap'

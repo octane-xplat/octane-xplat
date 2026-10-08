@@ -110,7 +110,7 @@ Both facades route through this leaf ([Tiptap facade](../../packages/tiptap/src/
 [Lexical facade](../../packages/lexical/src/LexicalEditor.tsrx)). Their
 headless JSON conversion modules plus the leaf's HTML interchange carry the
 same caveats as on Android. Ordinary native coverage here uses Aztec;
-decision #101's structured storage and engine-specific hosted work remain
+decision #104's hosted-engine work for tiptap and lexical remains
 unqualified.
 
 | Contract row | Tiptap | Lexical |
