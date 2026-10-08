@@ -23,6 +23,8 @@ const { applyProps } = runInNewContext(applyPropsSrc + '\n({ applyProps })', {
 	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
 	queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
 	setSizeConstraint: () => {},
+	syncLabelOverflow: () => {},
+	syncText: () => {},
 	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 1.3,
 })
 

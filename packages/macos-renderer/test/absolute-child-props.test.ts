@@ -29,6 +29,8 @@ const sandbox = {
 	setLayoutAction: () => {},
 	applyAccessibility: () => {},
 	setSizeConstraint: () => {},
+	syncLabelOverflow: () => {},
+	syncText: () => {},
 	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 1.3,
 }
 

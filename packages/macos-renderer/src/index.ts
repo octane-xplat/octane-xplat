@@ -737,6 +737,7 @@ function makeFlexbox(props: PropBag) {
 		stack.addGestureRecognizer(
 			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
 		)
+
 		actionIdsByView.set(stack, actionId)
 		actionHandlers.set(actionId, null)
 	}
@@ -1767,6 +1768,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.view!.leadingAnchor,
 				0,
 			).active = true
+
 			placeholder.topAnchor.constraintEqualToAnchor(node.view!.topAnchor).active = true
 			node.placeholderView = placeholder
 			textNodesByView.set(node.view!, node)
@@ -2583,6 +2585,38 @@ function textContent(node: ElementNode): string {
 	return node.children.map(textContent).join('')
 }
 
+// Keep the native value intact: AppKit truncates only when drawing in the frame.
+function syncLabelOverflow(node: ElementNode) {
+	const { maxLines, whiteSpace, textOverflow } = node.props
+	if (whiteSpace != null && !['normal', 'nowrap'].includes(whiteSpace)) {
+		throw new Error('[macos-host] label whiteSpace supports only normal and nowrap')
+	}
+
+	if (textOverflow != null && !['clip', 'ellipsis'].includes(textOverflow)) {
+		throw new Error('[macos-host] label textOverflow supports only clip and ellipsis')
+	}
+
+	if (maxLines != null && (!Number.isInteger(maxLines) || maxLines < 0)) {
+		throw new Error('[macos-host] label maxLines must be a non-negative integer')
+	}
+
+	const singleLine = whiteSpace === 'nowrap' || maxLines === 1
+	const view = node.view as NSTextField
+
+	view.maximumNumberOfLines = singleLine ? 1 : (maxLines ?? 0)
+	view.cell.wraps = !singleLine
+	view.cell.scrollable = false
+	view.cell.usesSingleLineMode = singleLine
+	view.cell.lineBreakMode = singleLine
+		? textOverflow === 'ellipsis'
+			? NSLineBreakMode.TruncatingTail
+			: NSLineBreakMode.Clipping
+		: NSLineBreakMode.WordWrapping
+
+	view.cell.truncatesLastVisibleLine = !singleLine && textOverflow === 'ellipsis'
+	view.invalidateIntrinsicContentSize()
+}
+
 function setLabelText(node: ElementNode, text: any) {
 	const lineHeight = Number(node.props?.style?.lineHeight)
 	if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
@@ -2591,6 +2625,7 @@ function setLabelText(node: ElementNode, text: any) {
 	}
 
 	const paragraphStyle = NSMutableParagraphStyle.alloc().init()
+	paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
 	paragraphStyle.minimumLineHeight = lineHeight
 	paragraphStyle.maximumLineHeight = lineHeight
 	node.view!.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(text, {
@@ -2916,9 +2951,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyClassName(node, value)
 				} else if (name === 'id') {
 					continue
-				} else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) {
+				} else if (['maxLines', 'whiteSpace', 'textOverflow'].includes(name)) {
 					continue
-				} else if (name.startsWith('accessibility')) {
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
@@ -3123,8 +3158,17 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	if (node.type === 'label') {
+		syncLabelOverflow(node)
+		syncText(node)
 		const style = node.props.style ?? {}
-		if (style.lineHeight == null && style.height == null) {
+		if (
+			style.height == null &&
+			node.props.maxLines != null &&
+			node.props.maxLines !== 1 &&
+			node.props.whiteSpace !== 'nowrap'
+		) {
+			setSizeConstraint(node, 'height', undefined)
+		} else if (style.lineHeight == null && style.height == null) {
 			const size = Number(node.view!.font?.pointSize ?? 16)
 			const height =
 				style.fontSize == null && node.headingDefaultHeight != null
@@ -3480,7 +3524,14 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// mid-update so the bookkeeping doesn't claim unapplied props.
 			const previousProps = node.props
 			try {
-				applyProps(node, command.props)
+				// Host updates carry the complete current prop bag. Clear omitted
+				// label modes before merging so spread removals restore defaults.
+				applyProps(
+					node,
+					node.type === 'label'
+						? { maxLines: undefined, whiteSpace: undefined, textOverflow: undefined, ...command.props }
+						: command.props,
+				)
 			} catch (error) {
 				node.props = previousProps
 				throw error

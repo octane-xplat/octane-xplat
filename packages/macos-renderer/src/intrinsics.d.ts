@@ -31,9 +31,9 @@ export namespace JSX {
 		label: HostProps & {
 			text?: string | number
 			fontSize?: number
-			whiteSpace?: string
+			whiteSpace?: 'normal' | 'nowrap'
 			maxLines?: number
-			textOverflow?: string
+			textOverflow?: 'clip' | 'ellipsis'
 		}
 		button: HostProps & {
 			title?: string

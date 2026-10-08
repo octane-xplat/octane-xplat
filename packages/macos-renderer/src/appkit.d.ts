@@ -414,6 +414,7 @@ declare const NSPopoverBehavior: { [key: string]: number }
 declare const NSRectEdge: { [key: string]: number }
 declare const NSStackViewDistribution: { [key: string]: number }
 declare const NSStackViewGravity: { [key: string]: number }
+declare const NSLineBreakMode: { [key: string]: number }
 declare const NSTextAlignment: { [key: string]: number }
 declare const NSTrackingAreaOptions: { [key: string]: number }
 declare const NSUserInterfaceLayoutOrientation: { [key: string]: number }

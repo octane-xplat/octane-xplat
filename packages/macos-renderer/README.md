@@ -175,6 +175,69 @@ demonstrates app-owned descriptors and packaged font bytes.
 registerFontFamily('Acme Sans', [{ weight: 400, descriptor: regularFace }])
 ```
 
+## Keep labels inside their rows
+
+Use a single-line label with tail ellipsis for a long tab title or suggestion.
+The application assigns the frame; AppKit redraws truncation as its width changes.
+The full string remains in the native value for copying through application code
+and accessibility; the renderer never replaces it with shortened text.
+
+```tsx
+export function TabTitle(props: { title: string; width: number }) {
+	return (
+		<label
+			text={props.title}
+			maxLines={1}
+			whiteSpace="nowrap"
+			textOverflow="ellipsis"
+			style={{ width: props.width, height: 28 }}
+		/>
+	)
+}
+```
+
+The supported subset is `whiteSpace="normal"` (word wrapping) or `"nowrap"`,
+`textOverflow="clip"` or `"ellipsis"`, and non-negative integer `maxLines`.
+`nowrap` takes precedence over a multiline limit; `maxLines={1}` also forces
+one line. For wrapping labels, ellipsis appears on the last visible line when
+the line limit or frame height is reached. `maxLines={0}` means unlimited
+lines. Other values fail with an explicit renderer error; CSS whitespace
+collapse/preservation modes are not implemented.
+
+```tsx
+export function Suggestion(props: { title: string }) {
+	return (
+		<label
+			text={props.title}
+			whiteSpace="normal"
+			maxLines={2}
+			textOverflow="ellipsis"
+			style={{ width: 240 }}
+		/>
+	)
+}
+```
+
+Updating or removing these props reapplies the native settings. Removed props
+restore normal wrapping, unlimited lines, and clipping. An explicit multiline
+limit (including zero) releases the renderer's implicit one-line height so
+AppKit can measure the text; an assigned `style.height` still controls the
+frame. With no line-limit prop, the existing default label height remains one
+font-based line unless the application supplies its own height or line height.
+
+```tsx
+export function UpdatingTitle(props: { title: string; compact: boolean }) {
+	return (
+		<label
+			text={props.title}
+			maxLines={props.compact ? 1 : 2}
+			textOverflow={props.compact ? 'ellipsis' : undefined}
+			style={{ width: 240 }}
+		/>
+	)
+}
+```
+
 ## Development bundles
 
 Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
@@ -224,9 +287,14 @@ From this repository:
 
 ```sh
 pnpm --filter @octane-xplat/macos-renderer test
+pnpm --filter @octane-xplat/macos-renderer test:overflow
 pnpm --filter @octane-xplat/macos-renderer test:packed
 pnpm --filter @xplat/macos test:fonts
 ```
+
+The overflow check runs an AppKit fixture with long and short strings, assigned
+frame resizing, multiline limits, attributed line height, and prop removals. It
+asserts native values and measurements; it does not inspect rendered pixels.
 
 The packed check uses the renderer and CLI tarballs in a temporary app outside
 the checkout. It checks declarations and production compilation on every
