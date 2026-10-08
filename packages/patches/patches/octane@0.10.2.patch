@@ -200,79 +200,251 @@ diff --git a/dist/compiler/compile.js b/dist/compiler/compile.js
 index 536ce597..0d60ff8e 100644
 --- a/dist/compiler/compile.js
 +++ b/dist/compiler/compile.js
-@@ -2497 +2497 @@ function hookRuntimeModulesForCompile(options, universalUnits = []) {
+@@ -2494,7 +2494,7 @@ function classifyViewTransitionOwnership(astBody, production, ownComponents) {
+
+ function hookRuntimeModulesForCompile(options, universalUnits = []) {
+-	const modules = new Set(options?.__hookRuntimeModules || []);
 -	if (options?.nativeReads === true) {
+-		modules.add('octane/signals/client');
+-		modules.add('octane/signals/server');
+-	}
++	const modules = new Set(options?.__hookRuntimeModules || []);
 +	if (options?.nativeReads === true || options?.__universalSignalReads === true) {
-@@ -11053,0 +11054,5 @@ function compileInternal(
++		modules.add('octane/signals/client');
++		modules.add('octane/signals/server');
++	}
+@@ -11051,6 +11051,11 @@ function compileInternal(
+-						universalRuntime: undefined,
+-						rendererBoundaries: undefined,
+-						rendererRegistry: undefined,
+-						__hookRuntimeModules: [...(options?.__hookRuntimeModules || []), renderer.module],
+-						__runtimeImportRoutes: [
+-							...(options?.__runtimeImportRoutes ?? []),
++						universalRuntime: undefined,
++						rendererBoundaries: undefined,
++						rendererRegistry: undefined,
 +						// Universal owners observe reads at render time; the inner
 +						// compile must not emit the DOM native-read runtime helpers,
 +						// but signal hook classification still applies.
 +						nativeReads: false,
 +						__universalSignalReads: options.nativeReads === true,
-@@ -11312,0 +11318 @@ function compileInternal(
++						__hookRuntimeModules: [...(options?.__hookRuntimeModules || []), renderer.module],
++						__runtimeImportRoutes: [
++							...(options?.__runtimeImportRoutes ?? []),
+@@ -11310,6 +11315,7 @@ function compileInternal(
+-		nativeReads: options?.nativeReads === true,
+-		opaqueSignalHandles:
+-			options?.opaqueSignalHandles === true || options?.__signalModuleImport === true,
+-		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
+-		signalHookSites: domSignalTarget(options),
+-		// A split Hydrate query module is invoked as the existing server-rendered
++		nativeReads: options?.nativeReads === true,
++		opaqueSignalHandles:
++			options?.opaqueSignalHandles === true || options?.__signalModuleImport === true,
 +		signalReads: options?.nativeReads === true || options?.__universalSignalReads === true,
-@@ -12780,0 +12787 @@ function compileServer(
++		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
++		signalHookSites: domSignalTarget(options),
++		// A split Hydrate query module is invoked as the existing server-rendered
+@@ -12778,6 +12784,7 @@ function compileServer(
+-		nativeReads: options?.nativeReads === true,
+-		opaqueSignalHandles:
+-			options?.opaqueSignalHandles === true || options?.__signalModuleImport === true,
+-		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
+-		signalHookSites: domSignalTarget(options),
+-		hmr: false, // SSR never hot-swaps in place; client/server production slot shapes stay aligned
++		nativeReads: options?.nativeReads === true,
++		opaqueSignalHandles:
++			options?.opaqueSignalHandles === true || options?.__signalModuleImport === true,
 +		signalReads: options?.nativeReads === true || options?.__universalSignalReads === true,
-@@ -20076 +20083 @@ function slotKeyedHookName(n, ctx) {
++		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
++		signalHookSites: domSignalTarget(options),
++		hmr: false, // SSR never hot-swaps in place; client/server production slot shapes stay aligned
+@@ -20073,7 +20080,7 @@ function slotKeyedHookName(n, ctx) {
+-			ctx.foreignImportLocals?.has(local) === true;
+-		if (
+-			imported !== undefined &&
 -			(HOOK_NAMES.has(imported) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
+-		)
+-			return imported;
+-		if (!shadowsImport && HOOK_NAMES.has(local)) return local;
++			ctx.foreignImportLocals?.has(local) === true;
++		if (
++			imported !== undefined &&
 +			(HOOK_NAMES.has(imported) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
-@@ -20086 +20093 @@ function slotKeyedHookName(n, ctx) {
++		)
++			return imported;
++		if (!shadowsImport && HOOK_NAMES.has(local)) return local;
+@@ -20083,7 +20090,7 @@ function slotKeyedHookName(n, ctx) {
+-	const imported = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
+-	if (
+-		imported !== undefined &&
 -		(HOOK_NAMES.has(imported) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
+-	) {
+-		return imported;
+-	}
++	const imported = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
++	if (
++		imported !== undefined &&
 +		(HOOK_NAMES.has(imported) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
-@@ -20942 +20949 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
++	) {
++		return imported;
++	}
+@@ -20939,7 +20946,7 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
+-			// enforced by rejectHookInJsLoop.
+-			const isBuiltin =
+-				(HOOK_NAMES.has(name) ||
 -					(ctx.nativeReads &&
+-						hookRuntimeImportedName !== undefined &&
+-						NATIVE_SIGNAL_HOOK_NAMES.has(name))) &&
+-				(generated ||
++			// enforced by rejectHookInJsLoop.
++			const isBuiltin =
++				(HOOK_NAMES.has(name) ||
 +					(ctx.signalReads &&
-@@ -21073 +21080 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
++						hookRuntimeImportedName !== undefined &&
++						NATIVE_SIGNAL_HOOK_NAMES.has(name))) &&
++				(generated ||
+@@ -21070,7 +21077,7 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
+-		) {
+-			const name = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
+-			const isBuiltin =
 -				HOOK_NAMES.has(name) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(name));
+-			const isServerUse = name === 'use' && ctx.mode === 'server';
+-			if (isBuiltin || isServerUse) {
+-				if (isBuiltin) {
++		) {
++			const name = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
++			const isBuiltin =
 +				HOOK_NAMES.has(name) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(name));
++			const isServerUse = name === 'use' && ctx.mode === 'server';
++			if (isBuiltin || isServerUse) {
++				if (isBuiltin) {
 diff --git a/dist/compiler/native-read-diagnostics.js b/dist/compiler/native-read-diagnostics.js
 index f783b405..60c88e48 100644
 --- a/dist/compiler/native-read-diagnostics.js
 +++ b/dist/compiler/native-read-diagnostics.js
-@@ -103 +103,2 @@ export function assertNativeReadOptions(options) {
+@@ -100,9 +100,12 @@ export function assertNativeReadOptions(options) {
+-	if (
+-		options?.nativeReads === true &&
+-		options.renderer?.target != null &&
 -		options.renderer.target !== 'dom'
+-	) {
+-		throw new Error('Octane native signal reads support only the DOM client and server.');
+-	}
++	if (
++		options?.nativeReads === true &&
++		options.renderer?.target != null &&
 +		options.renderer.target !== 'dom' &&
 +		options.renderer.target !== 'universal'
-@@ -105 +106,3 @@ export function assertNativeReadOptions(options) {
--		throw new Error('Octane native signal reads support only the DOM client and server.');
++	) {
 +		throw new Error(
 +			'Octane native signal reads support only the DOM client, DOM server, and universal renderers.',
 +		);
-@@ -124,5 +127,5 @@ export function analyzeNativeReadDiagnostics(ast, source, filename, options = {}
++	}
+ }
+
+@@ -121,11 +124,11 @@ export function analyzeNativeReadDiagnostics(ast, source, filename, options = {}
+-			filename,
+-			rendererBoundaries: options.rendererBoundaries,
+-		});
 -		const unsupported = boundaries.find(
 -			(boundary) =>
 -				boundary.childRenderer !== 'dom' &&
 -				options.rendererRegistry?.[boundary.childRenderer]?.target !== 'dom',
 -		);
+-		if (unsupported)
+-			return [
+-				nativeReadDiagnostic(
++			filename,
++			rendererBoundaries: options.rendererBoundaries,
++		});
 +		const unsupported = boundaries.find((boundary) => {
 +			if (boundary.childRenderer === 'dom') return false;
 +			const target = options.rendererRegistry?.[boundary.childRenderer]?.target;
 +			return target !== 'dom' && target !== 'universal';
 +		});
++		if (unsupported)
++			return [
++				nativeReadDiagnostic(
 diff --git a/dist/compiler/slot-hooks.js b/dist/compiler/slot-hooks.js
 index 90848a65..474c2bb5 100644
 --- a/dist/compiler/slot-hooks.js
 +++ b/dist/compiler/slot-hooks.js
-@@ -1037 +1037 @@ function walk(node, owner, st) {
+@@ -1034,12 +1034,12 @@ function walk(node, owner, st) {
+-		}
+-		const imported =
+-			node._octaneImportedHook ??
 -			(st.nativeReads ? node._octaneHookRuntimeImportedHook : undefined);
-+			(st.signalReads ? node._octaneHookRuntimeImportedHook : undefined);
-@@ -1042 +1042 @@ function walk(node, owner, st) {
+-		collectStateGetterEdit(node, imported, st);
+-		if (
+-			!st.manualSlots &&
+-			imported &&
 -			(HOOK_NAMES.has(imported) || (st.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
+-		) {
+-			const local =
+-				node.callee?.type === 'Identifier'
++		}
++		const imported =
++			node._octaneImportedHook ??
++			(st.signalReads ? node._octaneHookRuntimeImportedHook : undefined);
++		collectStateGetterEdit(node, imported, st);
++		if (
++			!st.manualSlots &&
++			imported &&
 +			(HOOK_NAMES.has(imported) || (st.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
-@@ -1258 +1258,3 @@ export function slotHooks(source, id, options) {
++		) {
++			const local =
++				node.callee?.type === 'Identifier'
+@@ -1255,7 +1255,9 @@ export function slotHooks(source, id, options) {
+-			HOOK_NAMES.has(name),
+-		);
+-	const manualProviders = options?.manualSlots ? findManualHookProviders(ast) : new Map();
 -	const nativeReadActivation = options?.nativeReads === true && importsNativeRenderer(ast);
+-	// Native signal reads exist only for the DOM client and server renderers.
+-	const signalHookSites =
+-		(options?.renderer?.target ?? 'dom') === 'dom' && options?.universalRuntime == null;
++			HOOK_NAMES.has(name),
++		);
++	const manualProviders = options?.manualSlots ? findManualHookProviders(ast) : new Map();
 +	const universalTarget = options?.renderer?.target === 'universal';
 +	const nativeReadActivation =
 +		options?.nativeReads === true && !universalTarget && importsNativeRenderer(ast);
-@@ -1353 +1355,2 @@ export function slotHooks(source, id, options) {
++	// Native signal reads exist only for the DOM client and server renderers.
++	const signalHookSites =
++		(options?.renderer?.target ?? 'dom') === 'dom' && options?.universalRuntime == null;
+@@ -1350,7 +1352,8 @@ export function slotHooks(source, id, options) {
+-			]),
+-		),
+-		manualSlots: options?.manualSlots === true,
 -		nativeReads: options?.nativeReads === true,
+-		signalHookSites,
+-		locals: importInfo.locals,
+-		source,
++			]),
++		),
++		manualSlots: options?.manualSlots === true,
 +		nativeReads: options?.nativeReads === true && !universalTarget,
 +		signalReads: options?.nativeReads === true,
-@@ -1462 +1465,3 @@ export function slotHooks(source, id, options) {
++		signalHookSites,
++		locals: importInfo.locals,
++		source,
+@@ -1459,7 +1462,9 @@ export function slotHooks(source, id, options) {
+-				? 'enableServerSignalBindings'
+-				: nativeReadActivation
+-					? 'enableSignalBindings'
 -					: '__enableSignalDocument';
+-		const local = allocSlotName(st, `_$${imported}`);
+-		let specifiers = signalHelperImports.get(request);
+-		if (specifiers === undefined) signalHelperImports.set(request, (specifiers = []));
++				? 'enableServerSignalBindings'
++				: nativeReadActivation
++					? 'enableSignalBindings'
 +					: universalTarget
 +						? '__enableUniversalSignalDocument'
 +						: '__enableSignalDocument';
++		const local = allocSlotName(st, `_$${imported}`);
++		let specifiers = signalHelperImports.get(request);
++		if (specifiers === undefined) signalHelperImports.set(request, (specifiers = []));
 diff --git a/dist/node/runtime.js b/dist/node/runtime.js
 index 65a87a5f6f63e8fde886c3ed12d3057668b3a2f3..2fd59e94545f2b566234f3957e3bb89bbe7abf78 100644
 --- a/dist/node/runtime.js
