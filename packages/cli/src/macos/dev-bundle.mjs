@@ -62,6 +62,12 @@ async function signDevBundle(appPath) {
 		return
 	}
 
+	// security/codesign exist only on macOS; other hosts (CI exercising bundle
+	// materialization) skip unless an identity was explicitly requested.
+	if (process.platform !== 'darwin' && !process.env.XPLAT_MACOS_DEV_SIGNING_IDENTITY) {
+		return
+	}
+
 	const { identity, explicit } = await resolveDevSigningIdentity()
 	try {
 		await execFileAsync('codesign', ['--force', '--sign', identity, appPath])
