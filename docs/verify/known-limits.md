@@ -80,7 +80,7 @@ system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
 
 Shared AppKit dialogs, alert dialogs, bottom sheets, lightboxes, and toast
-stacks have dedicated presentation and cleanup. The renderer's 29 native-state
+stacks have dedicated presentation and cleanup. The renderer's 88 native-state
 tests pass, and the bounded packed overlay consumer typechecks JSX and
 imperative declarations in Bundler and NodeNext modes. Those checks cover
 source, handler dispatch, and declarations; they do not establish physical OS
@@ -88,19 +88,16 @@ input or VoiceOver behavior. Lightbox video playback, double-click zoom, and
 touch swipe navigation remain unavailable on macOS; see
 [shared presentations](../app/primitives.md#macos-shared-presentations).
 
-The normal UI AppKit packed check is currently blocked while bundling
-`query-storage.ts`: `ApplicationSettings` is imported from the macOS native
-core shim but is not exported there. The isolated AppKit overlay fixture also
-stops before overlay assertions because `NSApplication` does not report its
-window as key or main after activation and `makeKeyAndOrderFront`. This is a
-native runtime limitation of the current probe environment, not a successful
-overlay runtime check. See the
+The normal UI AppKit packed check builds the full macOS barrel and a packed
+consumer in Bundler and NodeNext modes (`pnpm --filter @octane-xplat/ui
+test:macos`), and the isolated AppKit overlay fixture passes its overlay
+assertions (`pnpm --filter @xplat/macos test:overlays`). Both cover bundling,
+declarations, and handler dispatch; neither establishes physical OS input. See the
 [renderer setup and verification boundary](../../packages/macos-renderer/README.md).
 
-The broader `@octane-xplat/ui` native suite runs unrelated mobile tests and
-currently has ten failures where `Children.toArray` is undefined in the
-children, list, and text-slot paths. Focused imperative-sheet service tests
-pass independently. These failures do not exercise AppKit presentations.
+The broader `@octane-xplat/ui` native suite is green: the universal entries
+export `Children` again, and the focused imperative-sheet service tests pass
+alongside the rest of the mobile and macOS cases.
 
 ## Where the real OS widgets live
 
@@ -239,7 +236,7 @@ for the embedded component and its separate app-shell boundary.
 
 ## Navigation
 
-Fresh Web release navigation checks on 2026-09-30 pass 14/14, including
+Fresh Web release navigation checks on 2026-10-08 pass 14/14, including
 retained guard/loader results during history traversal and cold baked-route
 loads. The route error-boundary and scroll-restoration contracts added
 post-0.9.0 carry vitest coverage (jsdom on web, the object driver on the
