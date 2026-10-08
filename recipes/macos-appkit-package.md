@@ -128,3 +128,16 @@ The native case exercises real AppKit effective-appearance KVO and disposal by
 changing only its own app override. OS Settings changes and visible window
 chrome require separate runtime verification; the unit tests simulate system
 changes and app-theme preference transitions.
+
+## Container layout channels
+
+- AC13: AppKit containers honor row/column direction, numeric gap (including
+  axis gaps), alignment, and supported justification through props and style,
+  with `style > class > prop` precedence. Updates and removals restore the next
+  source or defaults. Nested intrinsic text and percentage-sized children
+  remain laid out in assigned frames after real-window resizing. Unsupported
+  child-flex semantics and attached-placement boundaries are explicit.
+
+Documentation: [Container layout channels](../packages/macos-renderer/README.md#container-layout-channels).
+Maintained coverage: [Native geometry fixture](../apps/macos/test/layout-channels-fixture.macos.tsx)
+and [renderer reconciliation tests](../packages/macos-renderer/test/style-reconcile.test.ts).

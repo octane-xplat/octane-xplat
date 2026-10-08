@@ -20,6 +20,9 @@ const warnings: string[] = []
 const reconciles: any[] = []
 
 const { applyProps } = runInNewContext(applyPropsSrc + '\n({ applyProps })', {
+	isStackLayoutInput: (name) =>
+		['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(name),
+	syncStackLayout: () => {},
 	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
 	queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
 	setSizeConstraint: () => {},

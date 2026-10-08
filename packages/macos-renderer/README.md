@@ -238,6 +238,78 @@ export function UpdatingTitle(props: { title: string; compact: boolean }) {
 }
 ```
 
+## Container layout channels
+
+A container can arrange its content through direct props or an inline style
+object. Both declarations below make the same row with a 12-point gap and
+vertically centered content. The renderer recognizes these inputs on
+`flexboxlayout` and `stack`; other elements retain unsupported-style diagnostics.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+export function Rows() {
+	return <stack>
+		<flexboxlayout flexDirection="row" gap={12} alignItems="center" justifyContent="start">
+			<label text="Name" /><label text="Value" />
+		</flexboxlayout>
+		<flexboxlayout style={{ flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'start' }}>
+			<label text="Name" /><label text="Value" />
+		</flexboxlayout>
+	</stack>
+}
+```
+
+Inline style wins over recognized classes, which win over direct props,
+regardless of prop order. Removing or setting an input to `null` or `undefined`
+restores the next source. With no source, defaults are column direction, zero
+gap, stretch alignment, and start justification. Here, removing `style.gap`
+restores `gap-2` (8 points); removing the class then restores `gap={4}`.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+export function ConflictingRow({ inlineGap }: { inlineGap?: number }) {
+	return <flexboxlayout gap={4} className="flex-row gap-2 items-center justify-end"
+		style={{ gap: inlineGap }}>
+		<label text="Name" /><label text="Value" />
+	</flexboxlayout>
+}
+```
+
+The supported subset is direction `row`/`column`; nonnegative numeric gaps
+in points; alignment `start`, `end`, `center`, `stretch`, and horizontal
+`baseline`; justification `start`, `end`, `center`, and `space-between`.
+`flex-start`/`flex-end` are accepted aliases. `rowGap` applies to columns and
+`columnGap` to rows; within each channel, the matching axis gap wins over `gap`.
+The class forms are `flex-row`/`flex-col`, `gap-1/2/3/4/6`,
+`items-start/end/center/stretch/baseline`, and `justify-start/end/center/between`.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+export function AxisGap() {
+	return <flexboxlayout style={{ flexDirection: 'row', gap: 4, columnGap: 12 }}>
+		<label text="Name" /><label text="Value" />
+	</flexboxlayout>
+}
+```
+
+This subset does not implement child `flexGrow`, `flexShrink`, `alignSelf`,
+`order`, wrapping, reverse directions, or `space-around`/`space-evenly`.
+Existing `flex-1`/`shrink-0` class approximations are not full child-flex
+semantics. Attached parent-placement metadata remains a direct prop contract:
+container channel normalization does not move `row`, `col`, spans, or absolute
+placement into styles. Keep those values on the child host.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+export function PositionedRow() {
+	return <absolutelayout>
+		<flexboxlayout left={20} top={12} style={{ width: 240, height: 40, flexDirection: 'row', gap: 12 }}>
+			<label text="Name" /><label text="Value" />
+		</flexboxlayout>
+	</absolutelayout>
+}
+```
+
 ## Development bundles
 
 Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
@@ -290,6 +362,7 @@ pnpm --filter @octane-xplat/macos-renderer test
 pnpm --filter @octane-xplat/macos-renderer test:overflow
 pnpm --filter @octane-xplat/macos-renderer test:packed
 pnpm --filter @xplat/macos test:fonts
+pnpm --filter @xplat/macos test:layout-channels
 ```
 
 The overflow check runs an AppKit fixture with long and short strings, assigned

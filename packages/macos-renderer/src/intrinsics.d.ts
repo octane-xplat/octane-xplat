@@ -27,6 +27,12 @@ export namespace JSX {
 		stack: HostProps & {
 			children?: unknown
 			spacing?: number
+			flexDirection?: 'row' | 'column'
+			gap?: number
+			rowGap?: number
+			columnGap?: number
+			alignItems?: 'start' | 'flex-start' | 'end' | 'flex-end' | 'center' | 'stretch' | 'baseline'
+			justifyContent?: 'start' | 'flex-start' | 'end' | 'flex-end' | 'center' | 'space-between'
 		}
 		label: HostProps & {
 			text?: string | number

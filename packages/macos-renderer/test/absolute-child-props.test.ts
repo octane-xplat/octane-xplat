@@ -24,6 +24,9 @@ const warnings: string[] = []
 const reconciles: any[] = []
 
 const sandbox = {
+	isStackLayoutInput: (name) =>
+		['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(name),
+	syncStackLayout: () => {},
 	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
 	queueLayoutReconcile: (_container: any, parent: any) => reconciles.push(parent),
 	setLayoutAction: () => {},
@@ -42,7 +45,8 @@ function node(type: string, parent?: any) {
 	return item
 }
 
-const ignoredFor = (item: any) => warnings.filter((w) => w.includes('ignored ' + item.type + ' prop'))
+const ignoredFor = (item: any) =>
+	warnings.filter((w) => w.includes('ignored ' + item.type + ' prop'))
 
 test('absolutelayout children consume all four position props without warnings', () => {
 	const parent = node('absolutelayout')

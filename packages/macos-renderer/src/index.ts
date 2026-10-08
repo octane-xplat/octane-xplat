@@ -432,10 +432,72 @@ function stackAlignmentAttribute(view: any, value: string) {
 	return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 }
 
+// Container layout follows the same source order as fonts and padding. Resolve
+// whole channels so an axis-specific gap never overrides a higher-source gap.
+function syncStackLayout(node: ElementNode) {
+	if (node.type !== 'flexboxlayout' && node.type !== 'stack') {
+		return
+	}
+
+	const stack = node.view!
+	const style = node.styleLayout ?? {}
+	const previousOrientation = stack.orientation
+	stack.orientation =
+		style.flexDirection != null
+			? style.flexDirection === 'row'
+				? NSUserInterfaceLayoutOrientation.Horizontal
+				: NSUserInterfaceLayoutOrientation.Vertical
+			: (node.classOrientation ??
+				(node.props.flexDirection === 'row'
+					? NSUserInterfaceLayoutOrientation.Horizontal
+					: NSUserInterfaceLayoutOrientation.Vertical))
+
+	const gapKey =
+		stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal ? 'columnGap' : 'rowGap'
+
+	stack.spacing = Number(
+		style[gapKey] ??
+			style.gap ??
+			node.classSpacing ??
+			node.props[gapKey] ??
+			node.props.gap ??
+			node.props.spacing ??
+			0,
+	)
+
+	stack.alignment = stackAlignmentAttribute(stack, stackAlignItems(node))
+	const justifyContent = stackJustifyContent(node)
+	if (stack.orientation !== previousOrientation || justifyContent !== node.appliedStackJustify) {
+		moveStackChildren(node)
+	}
+
+	node.appliedStackJustify = justifyContent
+	updateStackDistribution(node)
+	updateCrossAxisConstraints(node)
+}
+
+function isStackLayoutInput(name: string) {
+	return ['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(
+		name,
+	)
+}
+
 function stackAlignItems(node: ElementNode) {
+	if (node.styleLayout?.alignItems != null) {
+		return node.styleLayout.alignItems
+	}
+
 	const classes = nodeClasses(node)
 	if (classes.includes('vx-button') || classes.includes('items-center')) {
 		return 'center'
+	}
+
+	if (classes.includes('items-stretch')) {
+		return 'stretch'
+	}
+
+	if (classes.includes('items-baseline')) {
+		return 'baseline'
 	}
 
 	if (classes.includes('items-start')) {
@@ -450,6 +512,23 @@ function stackAlignItems(node: ElementNode) {
 }
 
 function stackJustifyContent(node: ElementNode) {
+	if (node.styleLayout?.justifyContent != null) {
+		return node.styleLayout.justifyContent
+	}
+
+	const classes = nodeClasses(node)
+	if (classes.includes('justify-center')) {
+		return 'center'
+	}
+
+	if (classes.includes('justify-end')) {
+		return 'end'
+	}
+
+	if (classes.includes('justify-start')) {
+		return 'start'
+	}
+
 	if (nodeClasses(node).includes('vx-button')) {
 		return 'center'
 	}
@@ -680,6 +759,9 @@ function moveStackChildren(parent: ElementNode) {
 		stack.removeArrangedSubview(arranged)
 		arranged.removeFromSuperview()
 		stack.addViewInGravity(arranged, stackGravity(parent, child))
+		// Removing a view drops constraints to its old superview, including
+		// percentage dimensions. Reinstall them after reattaching.
+		applySizeConstraints(child)
 		setStackChildPriorities(parent, child)
 	}
 
@@ -1733,11 +1815,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		}
 
 		if (['label', 'textfield', 'textview'].includes(type) && node.view!.font) {
-			node.view!.font = fontForFamilyStyle(
-				node.view!.font.pointSize,
-				400,
-				container.fontFamily,
-			)
+			node.view!.font = fontForFamilyStyle(node.view!.font.pointSize, 400, container.fontFamily)
 		}
 
 		if (type === 'gridlayout') {
@@ -2220,6 +2298,12 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	// last apply must reset the native state they installed before the current
 	// values go on — otherwise removed styles linger on the view.
 	const next: PropBag = style ?? {}
+	if (node.type === 'flexboxlayout' || node.type === 'stack') {
+		node.styleLayout = Object.fromEntries(
+			Object.entries(next).filter(([name]) => isStackLayoutInput(name)),
+		)
+	}
+
 	const prev: PropBag = node.appliedStyle ?? {}
 	for (const name of Object.keys(prev)) {
 		if (prev[name] != null && next[name] == null) {
@@ -2232,7 +2316,10 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		}
 
-		if (name === 'pointerEvents') {
+		if ((node.type === 'flexboxlayout' || node.type === 'stack') && isStackLayoutInput(name)) {
+			// Applied together below, after all style inputs have reconciled.
+			continue
+		} else if (name === 'pointerEvents') {
 			if (value === 'none') {
 				inputTransparentViews.add(node.view!)
 			} else {
@@ -2324,6 +2411,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	}
 
 	node.appliedStyle = next
+	syncStackLayout(node)
 }
 
 function applyClassName(node: ElementNode, value: any) {
@@ -2523,16 +2611,7 @@ function applyClassName(node: ElementNode, value: any) {
 			}
 		}
 
-		if (node.view!.orientation != null) {
-			node.view!.spacing = node.classSpacing ?? Number(node.props.gap ?? node.props.spacing ?? 0)
-			node.view!.orientation =
-				node.classOrientation ??
-				(node.props.flexDirection === 'row'
-					? NSUserInterfaceLayoutOrientation.Horizontal
-					: NSUserInterfaceLayoutOrientation.Vertical)
-
-			node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
-		}
+		syncStackLayout(node)
 
 		syncEdgeInsets(node)
 		syncCornerRadius(node)
@@ -2798,18 +2877,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		absolutelayout: ['left', 'top', 'right', 'bottom'],
-		gridlayout: [
-			'row',
-			'col',
-			'rowSpan',
-			'colSpan',
-			'horizontalAlignment',
-			'verticalAlignment',
-		],
+		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
 	}
 
 	for (const [name, value] of Object.entries(props)) {
 		if (node.parent && layoutChildProps[node.parent.type]?.includes(name)) {
+			continue
+		}
+
+		if ((node.type === 'flexboxlayout' || node.type === 'stack') && isStackLayoutInput(name)) {
 			continue
 		}
 
@@ -2821,7 +2897,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		switch (node.type) {
 			case 'stack':
 				if (name === 'spacing') {
-					node.view!.spacing = Number(value ?? 0)
+					syncStackLayout(node)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
@@ -2834,33 +2910,12 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				break
 			case 'flexboxlayout':
-				if (name === 'gap') {
-					node.view!.spacing = Number(value ?? 0)
-				} else if (name === 'spacing') {
-					node.view!.spacing = Number(value ?? 0)
-				} else if (name === 'flexDirection') {
-					node.view!.orientation =
-						value === 'row'
-							? NSUserInterfaceLayoutOrientation.Horizontal
-							: NSUserInterfaceLayoutOrientation.Vertical
-
-					node.view!.distribution = NSStackViewDistribution.GravityAreas
-					node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
-					moveStackChildren(node)
-					updateCrossAxisConstraints(node)
-				} else if (name === 'alignItems') {
-					node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
-					updateCrossAxisConstraints(node)
-				} else if (name === 'justifyContent') {
-					node.view!.distribution = NSStackViewDistribution.GravityAreas
-					moveStackChildren(node)
+				if (name === 'spacing') {
+					syncStackLayout(node)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
-					moveStackChildren(node)
-					node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
-					updateCrossAxisConstraints(node)
 				} else if (name === 'id') {
 					continue
 				} else if (name === 'onTap') {
@@ -3144,6 +3199,13 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				break
 		}
+	}
+
+	if (
+		(node.type === 'flexboxlayout' || node.type === 'stack') &&
+		Object.keys(props).some(isStackLayoutInput)
+	) {
+		syncStackLayout(node)
 	}
 
 	if (node.type === 'webview') {

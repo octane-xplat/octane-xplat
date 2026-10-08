@@ -24,6 +24,7 @@ class FakeTextField {
 		return this
 	}
 }
+
 class FakeSecureTextField extends FakeTextField {}
 class FakeTextView extends FakeTextField {
 	constructor() {
@@ -99,6 +100,11 @@ function propsHarness() {
 		accessibilityLabels: new Map(),
 		accessibilityRoles: new Map(),
 		panHandlersByView: new WeakMap(),
+		isStackLayoutInput: (name) =>
+			['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(
+				name,
+			),
+		syncStackLayout: () => {},
 		console: {
 			warn: (message) => warnings.push(message),
 			error: (message) => warnings.push(message),
@@ -115,6 +121,7 @@ function propsHarness() {
 		layoutGridChildren: () => {},
 		layoutAbsoluteChildren: () => {},
 	})
+
 	return { applyProps, warnings, actionHandlers }
 }
 

@@ -64,6 +64,10 @@ function view({ orientation } = {}) {
 		addSubview(v) {
 			this.addedSubviews.push(v)
 		},
+		addViewInGravity(v, gravity) {
+			v.gravity = gravity
+		},
+		removeArrangedSubview() {},
 		removed: false,
 		removeFromSuperview() {
 			this.removed = true
@@ -82,7 +86,15 @@ const sandbox = {
 	NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 	NSStackViewGravity: { Top: 1, Leading: 2, Center: 3, Bottom: 4, Trailing: 5 },
 	NSStackViewDistribution: { GravityAreas: -1, Fill: 0, EqualSpacing: 3 },
-	NSLayoutAttribute: { Top: 3, Left: 1, CenterX: 9, CenterY: 10, FirstBaseline: 11 },
+	NSLayoutAttribute: {
+		Bottom: 4,
+		Right: 2,
+		Top: 3,
+		Left: 1,
+		CenterX: 9,
+		CenterY: 10,
+		FirstBaseline: 11,
+	},
 	NSColor: {
 		colorWithRedGreenBlueAlpha: (r, g, b, a) => ({ CGColor: { r, g, b, a } }),
 		colorWithCGColor: (cg) => ({ CGColor: cg }),
@@ -102,8 +114,10 @@ const sandbox = {
 	setLayoutAction: () => {},
 }
 
-const { applyStyle, applyClassName } = runInNewContext(
-	slices.join('\n') + '\n({ applyStyle, applyClassName })',
+const { applyStyle, applyClassName, applyProps } = runInNewContext(
+	slices.join('\n') +
+		source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
+		'\n({ applyStyle, applyClassName, applyProps })',
 	sandbox,
 )
 
@@ -273,4 +287,98 @@ test('grabber class removal returns label alignment to textAlign or left', () =>
 	setClass(item, 'vx-sheet-grabber')
 	setClass(item, '')
 	assert.equal(item.view.alignment, 2)
+})
+
+// Test the real prop dispatch alongside style/class reconciliation. These
+// values drive orientation, gravity groups and active stretch constraints.
+for (const type of ['flexboxlayout', 'stack']) {
+	test(`${type} resolves layout style > class > props independent of property order`, () => {
+		for (const reversed of [false, true]) {
+			const item = node(type, { orientation: 1 })
+			const child = node('label', { parent: item })
+			const entries = Object.entries({
+				style: { flexDirection: 'row', gap: 12, alignItems: 'end', justifyContent: 'end' },
+				className: 'flex-col gap-2 items-center justify-center',
+				flexDirection: 'column',
+				gap: 4,
+				alignItems: 'stretch',
+				justifyContent: 'start',
+			})
+
+			applyProps(item, Object.fromEntries(reversed ? entries.reverse() : entries))
+			assert.equal(item.view.orientation, 0)
+			assert.equal(item.view.spacing, 12)
+			assert.equal(item.view.alignment, 4)
+			assert.equal(child.view.gravity, 5)
+			assert.equal(child.crossAxisConstraint, null)
+
+			applyProps(item, { gap: 30, alignItems: 'start' })
+			assert.equal(item.view.spacing, 12, 'prop updates cannot displace inline style')
+			applyProps(item, { className: 'flex-col gap-3 items-center justify-center' })
+			assert.equal(item.view.orientation, 0, 'class updates cannot displace inline style')
+
+			applyProps(item, { style: {} })
+			assert.equal(item.view.orientation, 1)
+			assert.equal(item.view.spacing, 12)
+			assert.equal(item.view.alignment, 9)
+			assert.equal(child.view.gravity, 3)
+			applyProps(item, { className: '' })
+			assert.equal(item.view.spacing, 30)
+			assert.equal(child.view.gravity, 1)
+			applyProps(item, {
+				gap: undefined,
+				flexDirection: undefined,
+				alignItems: undefined,
+				justifyContent: undefined,
+			})
+
+			assert.equal(item.view.spacing, 0)
+			assert.equal(item.view.orientation, 1)
+			assert.equal(item.view.alignment, 1)
+			assert.equal(child.crossAxisConstraint.active, true)
+		}
+	})
+}
+
+test('direction changes replace cross-axis pins and select the corresponding gap', () => {
+	const item = node('flexboxlayout', { orientation: 1 })
+	const child = node('label', { parent: item })
+	applyProps(item, { rowGap: 5, columnGap: 9, alignItems: 'stretch' })
+	const old = child.crossAxisConstraint
+	applyProps(item, { style: { flexDirection: 'row', gap: 12, columnGap: 20 } })
+	assert.equal(old.active, false)
+	assert.equal(item.view.spacing, 20)
+	const horizontalPin = child.crossAxisConstraint
+	applyProps(item, { style: { flexDirection: 'column', gap: 12, columnGap: 20 } })
+	assert.equal(horizontalPin.active, false)
+	assert.equal(item.view.spacing, 12, 'style gap beats prop rowGap')
+	applyProps(item, { style: null })
+	assert.equal(item.view.spacing, 5)
+	applyProps(item, { rowGap: undefined, columnGap: undefined })
+	assert.equal(item.view.spacing, 0)
+
+	setStyle(child, { width: '50%' })
+	applyProps(item, { flexDirection: 'column' })
+	assert.equal(child.crossAxisConstraint, null, 'explicit percentage width is not stretched')
+	const percentagePin = child.sizeConstraints.width
+	applyProps(item, { flexDirection: 'row' })
+	assert.equal(percentagePin.active, false, 'old parent-relative dimension is replaced')
+	assert.equal(child.sizeConstraints.width.active, true)
+	assert.equal(child.sizeConstraints.width.multiplier, 0.5)
+})
+
+test('unsupported layout styles on a leaf keep useful diagnostics', () => {
+	const warnings = []
+	const original = console.warn
+	console.warn = (message) => warnings.push(message)
+	try {
+		setStyle(node('label'), { flexDirection: 'row', gap: 12, flexGrow: 1 })
+		setStyle(node('flexboxlayout', { orientation: 1 }), { flexWrap: 'wrap', alignSelf: 'center' })
+	} finally {
+		console.warn = original
+	}
+
+	assert.equal(warnings.length, 5)
+	assert.ok(warnings.some((message) => message.includes('style.gap on <label>')))
+	assert.ok(warnings.some((message) => message.includes('style.flexWrap')))
 })
