@@ -13,7 +13,7 @@ const app = join(directory, 'consumer')
 await mkdir(packs)
 await mkdir(join(app, 'src'), { recursive: true })
 
-function run(command, args, cwd = app) {
+function run(command: string, args: string[], cwd = app) {
 	return execFileSync(command, args, {
 		cwd,
 		encoding: 'utf8',
@@ -23,7 +23,7 @@ function run(command, args, cwd = app) {
 	})
 }
 
-async function pack(root) {
+async function pack(root: string) {
 	const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
 	run('pnpm', ['pack', '--pack-destination', packs], root)
 	return `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
@@ -33,11 +33,11 @@ const renderer = await pack(packageRoot)
 const cli = await pack(join(repo, 'packages/cli'))
 const create = await pack(join(repo, 'packages/create'))
 const fixture = join(packageRoot, 'test/fixtures')
-for (const file of ['App.macos.tsx', 'main.mjs', 'dev-shell.mjs', 'types.ts']) {
+for (const file of ['App.macos.tsx', 'main.ts', 'dev-shell.ts', 'types.ts', 'globals.d.ts']) {
 	await cp(join(fixture, file), join(app, 'src', file))
 }
 
-for (const file of ['vite.config.mjs', 'vite.dev.config.mjs', 'vite.shell.config.mjs']) {
+for (const file of ['vite.config.ts', 'vite.dev.config.ts', 'vite.shell.config.ts']) {
 	await cp(join(fixture, file), join(app, file))
 }
 
@@ -64,9 +64,9 @@ await writeFile(
 					macos: {
 						runtime: 'appkit-node-api',
 						dev: {
-							viteConfig: 'vite.dev.config.mjs',
+							viteConfig: 'vite.dev.config.ts',
 							bundleFile: 'dist/dev/app.cjs',
-							shellViteConfig: 'vite.shell.config.mjs',
+							shellViteConfig: 'vite.shell.config.ts',
 							shellBundleFile: 'dist/dev/main.cjs',
 						},
 						package: {
@@ -75,7 +75,7 @@ await writeFile(
 							executableName: 'RendererConsumer',
 							version: '0.1.0',
 							minimumSystemVersion: '13.5',
-							viteConfig: 'vite.config.mjs',
+							viteConfig: 'vite.config.ts',
 							bundleFile: 'dist/package-build/main.cjs',
 						},
 					},
@@ -160,11 +160,11 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	})
 
 	let devOutput = ''
-	let editing
+	let editing: Promise<void> | undefined
 	let verified = false
-	let failure
+	let failure: unknown
 	const deadline = setTimeout(() => dev.kill('SIGTERM'), 60_000)
-	for (const stream of [dev.stdout, dev.stderr]) {
+	for (const stream of [dev.stdout!, dev.stderr!]) {
 		stream.on('data', (chunk) => {
 			devOutput += chunk.toString()
 			if (!editing && devOutput.includes('HMR_CONSUMER_READY')) {

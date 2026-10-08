@@ -20,12 +20,12 @@ const slice = source.slice(
 	source.indexOf('function detach('),
 )
 
-const warnings = []
-const reconciles = []
+const warnings: string[] = []
+const reconciles: any[] = []
 
 const sandbox = {
-	console: { warn: (msg) => warnings.push(String(msg)) },
-	queueLayoutReconcile: (_container, parent) => reconciles.push(parent),
+	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
+	queueLayoutReconcile: (_container: any, parent: any) => reconciles.push(parent),
 	setLayoutAction: () => {},
 	applyAccessibility: () => {},
 	setSizeConstraint: () => {},
@@ -34,13 +34,13 @@ const sandbox = {
 
 const { applyProps } = runInNewContext(slice + '\n({ applyProps })', sandbox)
 
-function node(type, parent) {
+function node(type: string, parent?: any) {
 	const item = { id: Math.random(), type, view: {}, props: {}, parent, children: [] }
 	parent?.children.push(item)
 	return item
 }
 
-const ignoredFor = (item) => warnings.filter((w) => w.includes('ignored ' + item.type + ' prop'))
+const ignoredFor = (item: any) => warnings.filter((w) => w.includes('ignored ' + item.type + ' prop'))
 
 test('absolutelayout children consume all four position props without warnings', () => {
 	const parent = node('absolutelayout')

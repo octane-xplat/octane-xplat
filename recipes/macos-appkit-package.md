@@ -90,7 +90,7 @@ production Vite config that emits one CommonJS host bundle.
   [maintained harness font setup](../apps/macos/src/fonts.ts).
 
 - AC11: [Renderer setup](../packages/macos-renderer/README.md) and the
-  [packed renderer consumer](../packages/macos-renderer/test/packed-consumer.mjs).
+  [packed renderer consumer](../packages/macos-renderer/test/packed-consumer.ts).
 
 ## Verification gaps
 

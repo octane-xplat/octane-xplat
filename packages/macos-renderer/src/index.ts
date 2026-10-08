@@ -1,7 +1,7 @@
-import { showWindowLayer } from './layer.mjs'
+import { showWindowLayer, type WindowLayerOptions } from './layer'
 import '@nativescript/macos-node-api'
 import { disposeImage, updateImage } from './image'
-import { installPresentationBridge } from './presentation.mjs'
+import { installPresentationBridge } from './presentation'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -4686,7 +4686,7 @@ const appKitBridge = (globalThis.__xplatAppKit ??= {})
 appKitBridge.observeHover = observeHover
 appKitBridge.showAnchoredPopup = showAnchoredPopup
 appKitBridge.showLayer = (options: PropBag) =>
-	showWindowLayer(options, {
+	showWindowLayer(options as WindowLayerOptions, {
 		createRoot: (view: NSView, anchor: NSView) =>
 			createMacOSRoot(view, { fontFamily: fontFamilyForView(anchor) }),
 		fittingSize: popupFittingSize,

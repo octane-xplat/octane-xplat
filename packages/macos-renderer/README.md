@@ -39,7 +39,7 @@ import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 export default defineConfig(({ mode }) => xplatMacOS(mode))
 ```
 
-The async preset bundles `src/main.mjs` into `dist/package-build/main.cjs`,
+The async preset bundles the packaged entry (`src/main.mjs` by default) into `dist/package-build/main.cjs`,
 selects macOS platform files, registers the universal renderer, aliases
 NativeScript compatibility imports, and externalizes only the native runtime
 and `node:` host imports. Unsupported host imports still fail CLI packaging.
@@ -48,7 +48,7 @@ No repository paths or harness fonts are needed.
 ```js
 import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 
-export default await xplatMacOS('production', { entry: 'src/main.mjs' })
+export default await xplatMacOS('production', { entry: 'src/main.ts' })
 ```
 
 Set these TypeScript options:
@@ -106,7 +106,7 @@ re-exports Octane's universal native runtime for compiler and hook imports.
 
 Use [the packaging guide](../../docs/start/toolchain.md#experimental-appkit-target)
 for `xplat.targets.macos` metadata, signing, and CLI commands. The
-[independent fixture](test/fixtures/main.mjs) demonstrates a complete host
+[independent fixture](test/fixtures/main.ts) demonstrates a complete host
 entry, including startup and shutdown, without importing the harness.
 
 ## Render local images and overlays
@@ -181,7 +181,7 @@ Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' 
 for the component bundle. It retains renderer and Octane imports so the
 CLI-managed shell can share their live instances across edits. Build the
 shell with `packaged: true`, and populate `__xplatDevModules` with the renderer
-and Octane modules. The [independent development shell](test/fixtures/dev-shell.mjs)
+and Octane modules. The [independent development shell](test/fixtures/dev-shell.ts)
 shows the module mapping and retained-root HMR lifecycle.
 
 ```js

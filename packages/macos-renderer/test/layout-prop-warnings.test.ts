@@ -16,17 +16,17 @@ const applyPropsSrc = source.slice(
 	source.indexOf('function detach'),
 )
 
-const warnings = []
-const reconciles = []
+const warnings: string[] = []
+const reconciles: any[] = []
 
 const { applyProps } = runInNewContext(applyPropsSrc + '\n({ applyProps })', {
-	console: { warn: (msg) => warnings.push(String(msg)) },
-	queueLayoutReconcile: (container, parent) => reconciles.push(parent),
+	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
+	queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
 	setSizeConstraint: () => {},
 	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 1.3,
 })
 
-function node(type, parentType) {
+function node(type: string, parentType?: string) {
 	const parent = parentType ? { type: parentType, children: [] } : null
 	const child = { type, props: {}, view: {}, container: { layoutDirty: null }, parent }
 	parent?.children.push(child)

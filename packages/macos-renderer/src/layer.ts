@@ -1,6 +1,58 @@
-const notificationOwners = new WeakMap()
+/** Top-left viewport-relative rectangle, in window content points. */
+export interface WindowLayerBounds {
+	left: number
+	top: number
+	width: number
+	height: number
+}
 
-function ownNotifications(view) {
+/** Top-left point resolved from a bounds rect, layer size, and viewport. */
+export interface WindowLayerPoint {
+	left: number
+	top: number
+}
+
+export interface WindowLayerOptions {
+	anchor: NSView
+	component?: any
+	props?: Record<string, any>
+	position(
+		anchor: WindowLayerBounds,
+		size: NSSize,
+		viewport: WindowLayerBounds,
+	): WindowLayerPoint
+	lightDismiss?: boolean
+	onClose?: () => void
+	[key: string]: any
+}
+
+export interface WindowLayer {
+	readonly contentView: NSView
+	closed: boolean
+	update(props: Record<string, any>, nextPositioning?: Partial<WindowLayerOptions>): void
+	close(): void
+}
+
+export interface WindowLayerDeps {
+	createRoot(contentView: NSView, anchor: NSView): {
+		render(component: any, props: Record<string, any>): unknown
+		unmount(): void
+	}
+	fittingSize(view: NSView): NSSize | null | undefined
+	View?: NSClass<NSView>
+	Event?: NSEventClass
+	Center?: NSNotificationCenterClass
+}
+
+interface NotificationRecord {
+	count: number
+	frame: boolean
+	bounds: boolean
+}
+
+const notificationOwners = new WeakMap<NSView, NotificationRecord>()
+
+function ownNotifications(view: NSView) {
 	let record = notificationOwners.get(view)
 	if (!record) {
 		record = {
@@ -16,17 +68,17 @@ function ownNotifications(view) {
 
 	record.count++
 	return () => {
-		if (--record.count) {
+		if (--record!.count) {
 			return
 		}
 
 		notificationOwners.delete(view)
 		if (view.postsFrameChangedNotifications === true) {
-			view.postsFrameChangedNotifications = record.frame
+			view.postsFrameChangedNotifications = record!.frame
 		}
 
 		if (view.postsBoundsChangedNotifications === true) {
-			view.postsBoundsChangedNotifications = record.bounds
+			view.postsBoundsChangedNotifications = record!.bounds
 		}
 	}
 }
@@ -34,15 +86,15 @@ function ownNotifications(view) {
 /** A self-drawn in-window layer. Position callback uses top-left window points.
  * AppKit popovers remain available for platform-authentic consumers. */
 export function showWindowLayer(
-	options,
+	options: WindowLayerOptions,
 	{
 		createRoot,
 		fittingSize,
-		View = globalThis.NSView,
-		Event = globalThis.NSEvent,
-		Center = globalThis.NSNotificationCenter,
-	},
-) {
+		View = (globalThis as any).NSView,
+		Event = (globalThis as any).NSEvent,
+		Center = (globalThis as any).NSNotificationCenter,
+	}: WindowLayerDeps,
+): WindowLayer | null {
 	const anchor = options.anchor
 	const container = anchor?.window?.contentView
 	if (
@@ -62,10 +114,10 @@ export function showWindowLayer(
 
 	const root = createRoot(contentView, anchor)
 	let surface = options.props ?? {}
-	let positioning = options
-	let monitor = null
-	const observers = []
-	const releases = []
+	let positioning: WindowLayerOptions = options
+	let monitor: any = null
+	const observers: any[] = []
+	const releases: Array<() => void> = []
 	const updatePosition = () => {
 		if (layer.closed) {
 			return
@@ -101,7 +153,7 @@ export function showWindowLayer(
 		}
 	}
 
-	const layer = {
+	const layer: WindowLayer = {
 		contentView,
 		closed: false,
 		update(props, nextPositioning) {
@@ -131,11 +183,11 @@ export function showWindowLayer(
 
 			layer.closed = true
 			if (monitor) {
-				Event.removeMonitor(monitor)
+				Event!.removeMonitor(monitor)
 			}
 
 			for (const observer of observers) {
-				Center.defaultCenter.removeObserver(observer)
+				Center!.defaultCenter.removeObserver(observer)
 			}
 
 			for (const release of releases) {
@@ -154,14 +206,14 @@ export function showWindowLayer(
 		container.addSubview(contentView)
 		layer.update(surface)
 		// Reposition for window resize, anchor movement and enclosing scroll views.
-		for (let view = anchor; view; view = view.superview) {
+		for (let view: NSView | null = anchor; view; view = view.superview) {
 			releases.push(ownNotifications(view))
 			for (const name of [
 				'NSViewFrameDidChangeNotification',
 				'NSViewBoundsDidChangeNotification',
 			]) {
 				observers.push(
-					Center.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+					Center!.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 						name,
 						view,
 						null,
@@ -172,7 +224,7 @@ export function showWindowLayer(
 		}
 
 		observers.push(
-			Center.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			Center!.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 				'NSWindowWillCloseNotification',
 				anchor.window,
 				null,
@@ -181,7 +233,7 @@ export function showWindowLayer(
 		)
 
 		observers.push(
-			Center.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			Center!.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 				'NSWindowDidResizeNotification',
 				anchor.window,
 				null,

@@ -199,6 +199,23 @@ interface NSMenuItemClass extends NSClass<NSMenuItem> {
 
 declare const NSMenuItem: NSMenuItemClass
 
+interface NSApplication extends NSObject {
+	readonly keyWindow: NSWindow | null
+}
+
+interface NSApplicationClass extends NSClass<NSApplication> {
+	readonly sharedApplication: NSApplication
+}
+
+declare const NSApplication: NSApplicationClass
+
+interface NSAppearance extends NSObject {}
+interface NSAppearanceClass extends NSClass<NSAppearance> {
+	appearanceNamed(name: string): NSAppearance
+}
+
+declare const NSAppearance: NSAppearanceClass
+
 interface NSMutableParagraphStyle extends NSObject {}
 declare const NSMutableParagraphStyle: NSClass<NSMutableParagraphStyle>
 
@@ -370,6 +387,20 @@ interface NSWindow extends NSObject {
 }
 
 declare const NSWindow: NSClass<NSWindow>
+
+// QuartzCore, referenced lazily by the presentation bridge for sheet
+// transition fades.
+interface CABasicAnimation extends NSObject {
+	fromValue: any
+	toValue: any
+	duration: number
+}
+
+interface CABasicAnimationClass extends NSClass<CABasicAnimation> {
+	animationWithKeyPath(keyPath: string): CABasicAnimation
+}
+
+declare const CABasicAnimation: CABasicAnimationClass
 
 // Enum containers. Members resolve to `number`, so bitwise masks compose.
 declare const NSBackingStoreType: { [key: string]: number }

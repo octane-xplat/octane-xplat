@@ -1,24 +1,24 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { showWindowLayer } from '../src/layer.mjs'
+import { showWindowLayer } from '../src/layer.ts'
 
 function fixture(flipped = false) {
-	const callbacks = [],
-		removed = []
+	const callbacks: Array<() => void> = [],
+		removed: unknown[] = []
 
-	let monitor,
+	let monitor: any,
 		unmounted = 0,
 		detached = 0,
 		size = { width: 100, height: 80 }
 
-	const container = {
+	const container: any = {
 		bounds: { origin: { x: 0, y: 0 }, size: { width: 800, height: 600 } },
 		isFlipped: flipped,
 		addSubview() {},
-		convertPointFromView: (point) => point,
+		convertPointFromView: (point: { x: number; y: number }) => point,
 	}
 
-	const anchor = {
+	const anchor: any = {
 		window: { contentView: container },
 		bounds: {},
 		convertRectToView: () => ({
@@ -27,7 +27,7 @@ function fixture(flipped = false) {
 		}),
 	}
 
-	const view = {
+	const view: any = {
 		removeFromSuperview() {
 			detached++
 		},
@@ -40,24 +40,29 @@ function fixture(flipped = false) {
 		},
 	}
 
-	const deps = {
+	const deps: any = {
 		View: { alloc: () => ({ initWithFrame: () => view }) },
 		createRoot: () => root,
 		fittingSize: () => size,
 		Event: {
-			addLocalMonitorForEventsMatchingMaskHandler: (_mask, callback) => {
+			addLocalMonitorForEventsMatchingMaskHandler: (_mask: number, callback: any) => {
 				monitor = callback
 				return 'mouse'
 			},
-			removeMonitor: (token) => removed.push(token),
+			removeMonitor: (token: unknown) => removed.push(token),
 		},
 		Center: {
 			defaultCenter: {
-				addObserverForNameObjectQueueUsingBlock: (_name, _view, _queue, callback) => {
+				addObserverForNameObjectQueueUsingBlock: (
+					_name: string,
+					_view: unknown,
+					_queue: unknown,
+					callback: () => void,
+				) => {
 					callbacks.push(callback)
 					return callbacks.length
 				},
-				removeObserver: (token) => removed.push(token),
+				removeObserver: (token: unknown) => removed.push(token),
 			},
 		},
 	}
@@ -69,10 +74,10 @@ function fixture(flipped = false) {
 		callbacks,
 		removed,
 		counts: () => ({ unmounted, detached }),
-		resize: (next) => {
+		resize: (next: typeof size) => {
 			size = next
 		},
-		mouse: (point, eventWindow = anchor.window) =>
+		mouse: (point: { x: number; y: number }, eventWindow = anchor.window) =>
 			monitor({ window: eventWindow, locationInWindow: point }),
 	}
 }
@@ -80,10 +85,10 @@ function fixture(flipped = false) {
 for (const flipped of [false, true]) {
 	test(`window layer converts top-left geometry (flipped=${flipped}), updates and cleans up once`, () => {
 		const f = fixture(flipped)
-		let geometry,
+		let geometry: any,
 			dismissals = 0
 
-		const position = (anchor, panel, viewport) => {
+		const position = (anchor: any, panel: any, viewport: any) => {
 			geometry = { anchor, panel, viewport }
 			return { left: 150, top: 148 }
 		}
@@ -91,7 +96,7 @@ for (const flipped of [false, true]) {
 		const layer = showWindowLayer(
 			{ anchor: f.anchor, position, lightDismiss: true, onClose: () => dismissals++ },
 			f.deps,
-		)
+		)!
 
 		assert.deepEqual(geometry.anchor, { left: 100, top: 100, width: 200, height: 40 })
 		assert.deepEqual(f.view.frame, {
@@ -120,7 +125,7 @@ for (const flipped of [false, true]) {
 }
 
 test('missing window support returns an explicit absence', () => {
-	assert.equal(showWindowLayer({ anchor: {} }, {}), null)
+	assert.equal(showWindowLayer({ anchor: {} } as any, {} as any), null)
 })
 
 test('overlapping layers restore consumer notification flags after the last owner closes', () => {
@@ -128,8 +133,8 @@ test('overlapping layers restore consumer notification flags after the last owne
 	f.anchor.postsFrameChangedNotifications = false
 	f.anchor.postsBoundsChangedNotifications = true
 	const position = () => ({ left: 0, top: 0 })
-	const first = showWindowLayer({ anchor: f.anchor, position }, f.deps)
-	const second = showWindowLayer({ anchor: f.anchor, position }, f.deps)
+	const first = showWindowLayer({ anchor: f.anchor, position }, f.deps)!
+	const second = showWindowLayer({ anchor: f.anchor, position }, f.deps)!
 	assert.equal(f.anchor.postsFrameChangedNotifications, true)
 	first.close()
 	assert.equal(f.anchor.postsFrameChangedNotifications, true)

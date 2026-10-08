@@ -20,24 +20,25 @@ const hostView = NSView.alloc().initWithFrame({
 })
 
 const root = renderer.createMacOSRoot(hostView)
-let liveComponent
-let retainedLabel
+const debug = (root as any).__macosDebug
+let liveComponent: any
+let retainedLabel: any
 let reloaded = false
 function reload() {
-	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
+	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
 	if (!liveComponent) {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
-			retainedLabel = root.__macosDebug.findId('count')
-			root.__macosDebug.pressId('increment')
+			retainedLabel = debug.findId('count')
+			debug.pressId('increment')
 			console.log('HMR_CONSUMER_READY')
 		}, 60)
 	} else {
 		liveComponent[native.UNIVERSAL_HMR].update(loaded.default ?? loaded)
 		setTimeout(() => {
-			const label = root.__macosDebug.findId('count')
-			const revision = root.__macosDebug.findId('revision')
+			const label = debug.findId('count')
+			const revision = debug.findId('revision')
 			if (
 				label === retainedLabel &&
 				String(label.stringValue) === '1' &&
@@ -52,7 +53,7 @@ function reload() {
 }
 
 globalThis.__xplatDev = { reload }
-globalThis.__xplatOnInput = (line) => {
+globalThis.__xplatOnInput = (line: string) => {
 	if (line === 'reload' && !reloaded) {
 		reloaded = true
 		reload()

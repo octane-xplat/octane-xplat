@@ -151,11 +151,11 @@ export function TripPreview() {
 
   [Nested dismissal](../docs/app/primitives.md#close-nested-layers-one-at-a-time), the nested dialog/menu/card in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), and maintained [web regressions](../packages/ui/src/layer-dismissal.web.test.tsrx) and [cross-root object-driver tests](../packages/ui/src/layer-dismissal.mobile.test.tsrx). Object-driver evidence does not establish OS keyboard input or native focus traversal.
 
-- AC8: [macOS shared presentations](../docs/app/primitives.md#macos-shared-presentations), [maintained example](../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../apps/macos/test/verify-overlays.mjs), and [bridge lifecycle tests](../packages/macos-renderer/test/presentation.test.mjs).
+- AC8: [macOS shared presentations](../docs/app/primitives.md#macos-shared-presentations), [maintained example](../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../apps/macos/test/verify-overlays.mjs), and [bridge lifecycle tests](../packages/macos-renderer/test/presentation.test.ts).
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See
 the [Windows support boundary](../docs/notes/windows-notes.md#current-support-boundary);
 Windows is not added to this recipe’s supported targets.
 
-- AC7: [Anchored layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), maintained [layer example](../examples/probes/layer.tsrx), [web ownership regressions](../packages/ui/src/use-layer.web.test.tsrx), [geometry tests](../packages/ui/src/popover-position.test.ts), [Chromium CSS-length regression](../packages/ui/tests/layer-position.web.mjs), and [AppKit layer bridge tests](../packages/macos-renderer/test/layer.test.mjs). These tests distinguish numeric geometry and lifecycle evidence from physical OS input.
+- AC7: [Anchored layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), maintained [layer example](../examples/probes/layer.tsrx), [web ownership regressions](../packages/ui/src/use-layer.web.test.tsrx), [geometry tests](../packages/ui/src/popover-position.test.ts), [Chromium CSS-length regression](../packages/ui/tests/layer-position.web.mjs), and [AppKit layer bridge tests](../packages/macos-renderer/test/layer.test.ts). These tests distinguish numeric geometry and lifecycle evidence from physical OS input.

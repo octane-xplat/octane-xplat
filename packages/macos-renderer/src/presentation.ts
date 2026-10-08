@@ -1,8 +1,89 @@
+import type { UniversalRoot } from 'octane/universal/native'
+
 // Shared surfaces live in the declaring window, independently of its layout.
 // Kept separate from NSPopover and platform-authentic window sheets.
-export function installPresentationBridge(bridge, createRoot, fontFamilyForView) {
-	const entries = []
-	const layers = new WeakMap()
+
+/** Edge offsets accepted by surface positioning, in points or percent/vh/dip
+ *  strings resolved against the host dimension. */
+export interface SurfaceEdgeOffsets {
+	start?: number | string
+	end?: number | string
+	top?: number | string
+	bottom?: number | string
+}
+
+export interface SurfaceOptions {
+	kind?: 'dialog' | 'sheet' | 'toast' | 'lightbox' | string
+	modal?: boolean
+	fullscreen?: boolean
+	component?: any
+	props?: Record<string, any>
+	owner?: any
+	width?: number | string
+	height?: number | 'tall' | 'hug' | string
+	maxHeight?: number | string
+	snapPoints?: readonly (number | string)[]
+	position?: string | SurfaceEdgeOffsets
+	inset?: { top?: number; bottom?: number; start?: number; end?: number }
+	dark?: boolean | null
+	label?: string
+	purpose?: 'info' | 'form' | 'required' | string
+	transitionKey?: unknown
+	zoom?: boolean
+	canDismiss?: (path: string) => boolean | void
+	onDismiss?: () => void
+	onKey?: (code: number) => boolean | void
+	finalFocusRef?: { current: any }
+	[key: string]: any
+}
+
+export interface SurfaceHandle {
+	update(options: Partial<SurfaceOptions>): void
+	close(reason?: string): void
+	readonly closed: boolean
+	readonly closedPromise: Promise<unknown>
+	readonly panel: NSView
+	readonly layer: NSView
+}
+
+export interface PresentationBridge {
+	setSurfaceAppearance?: (view: NSView, dark: boolean) => void
+	presentSurface?: (options: SurfaceOptions) => SurfaceHandle
+	[key: string]: any
+}
+
+export type SurfaceRootFactory = (
+	host: NSView,
+	options?: { fontFamily?: string },
+) => UniversalRoot
+
+interface SurfaceEntry {
+	options: SurfaceOptions
+	parent: SurfaceEntry | undefined
+	panel: NSView
+	layer: NSView
+	window: NSWindow
+	closed: boolean
+	observers: any[]
+	monitor: any
+	closedPromise: Promise<unknown>
+	stops?: number[]
+	stop?: number
+	didRender?: boolean
+	drag?: { y: number; height: number } | null
+	layout(): void
+	update(options: Partial<SurfaceOptions>): void
+	close(reason?: string): void
+	requestDismiss(path: string): void
+}
+
+export function installPresentationBridge(
+	bridge: PresentationBridge,
+	createRoot: SurfaceRootFactory,
+	fontFamilyForView: (view: NSView | undefined) => string | undefined,
+) {
+	const entries: SurfaceEntry[] = []
+	const layers = new WeakMap<NSView, SurfaceEntry>()
 	class PresentationLayer extends NSView {
 		static {
 			NativeClass(this)
@@ -10,7 +91,7 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 		acceptsFirstResponder() {
 			return true
 		}
-		hitTest(point) {
+		hitTest(point: NSPoint): NSView | null {
 			const hit = super.hitTest(point)
 			const entry = layers.get(this)
 			return (hit === this || hit?.isEqual?.(this)) && !entry?.options.modal ? null : hit
@@ -21,8 +102,8 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 		}
 	}
 
-	const children = (view) => {
-		const result = []
+	const children = (view: any): NSView[] => {
+		const result: NSView[] = []
 		const list = view?.subviews
 		for (let i = 0; i < Number(list?.count ?? 0); i++) {
 			result.push(list.objectAtIndex(i))
@@ -31,8 +112,10 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 		return result
 	}
 
-	const truth = (view, key) => (typeof view?.[key] === 'function' ? view[key]() : view?.[key])
-	const focusables = (view) => {
+	const truth = (view: any, key: string) =>
+		typeof view?.[key] === 'function' ? view[key]() : view?.[key]
+
+	const focusables = (view: any): NSView[] => {
 		if (!view || truth(view, 'hidden')) {
 			return []
 		}
@@ -41,7 +124,7 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 		return [...own, ...children(view).flatMap(focusables)]
 	}
 
-	const inside = (view, panel) => {
+	const inside = (view: any, panel: NSView): boolean => {
 		for (let current = view; current; current = current.superview) {
 			if (current === panel || current.isEqual?.(panel)) {
 				return true
@@ -51,7 +134,7 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 		return false
 	}
 
-	const length = (value, budget, fallback) => {
+	const length = (value: unknown, budget: number, fallback: number): number => {
 		if (typeof value === 'number') {
 			return Math.max(0, value)
 		}
@@ -91,10 +174,10 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 		panel.wantsLayer = true
 		layer.addSubview(panel)
 		const root = createRoot(panel, { fontFamily: fontFamilyForView(owner ?? host) })
-		let resolveClosed
+		let resolveClosed: (reason?: unknown) => void = () => {}
 		const responder = nativeWindow.firstResponder
 		const previousFocus = truth(responder, 'isFieldEditor') ? responder.delegate : responder
-		const entry = {
+		const entry: SurfaceEntry = {
 			options: initial,
 			parent: [...entries]
 				.reverse()
@@ -165,7 +248,7 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 				}
 
 				if (options.kind === 'toast') {
-					const edge = options.position ?? 'bottomEnd',
+					const edge = (options.position as string | undefined) ?? 'bottomEnd',
 						inset = options.inset ?? {}
 
 					x = edge.endsWith('Start') ? 16 + (inset.start ?? 0) : w - width - 16 - (inset.end ?? 0)
@@ -173,7 +256,9 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 				}
 
 				const pos =
-					!full && options.position && typeof options.position === 'object' ? options.position : {}
+					!full && options.position && typeof options.position === 'object'
+						? options.position
+						: {}
 
 				if (pos.start != null) {
 					x = length(pos.start, w, 0)
@@ -259,7 +344,7 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 				}
 
 				if (entry.options.kind === 'lightbox') {
-					const visit = (view) => {
+					const visit = (view: any) => {
 						if ('allowsMagnification' in view) {
 							view.allowsMagnification = entry.options.zoom !== false
 							view.minMagnification = 1
@@ -280,8 +365,8 @@ export function installPresentationBridge(bridge, createRoot, fontFamilyForView)
 				}
 
 				entry.closed = true
-				const owns = (candidate) => {
-					for (let current = candidate; current; current = current.parent) {
+				const owns = (candidate: SurfaceEntry) => {
+					for (let current = candidate; current; current = current.parent!) {
 						if (current === entry) {
 							return true
 						}

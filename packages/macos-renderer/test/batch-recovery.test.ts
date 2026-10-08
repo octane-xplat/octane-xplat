@@ -11,9 +11,9 @@ const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
 
-const at = (marker, from = 0) => source.indexOf(marker, from)
-const fn = (name) => source.slice(at(`function ${name}(`), at('\nfunction ', at(`function ${name}(`) + 1))
-const constSet = (name) =>
+const at = (marker: string, from = 0) => source.indexOf(marker, from)
+const fn = (name: string) => source.slice(at(`function ${name}(`), at('\nfunction ', at(`function ${name}(`) + 1))
+const constSet = (name: string) =>
 	source.slice(at(`const ${name} = new Set(`), at('\n])', at(`const ${name} = new Set(`)) + 3)
 
 const slices = [
@@ -33,7 +33,7 @@ const slices = [
 
 const prefix = 'let nextActionId = 1000\nconst DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16\n'
 
-function fixture({ applyProps } = {}) {
+function fixture({ applyProps }: { applyProps?: any } = {}) {
 	const actionHandlers = new Map()
 	const accessibilityLabels = new Map()
 	const accessibilityRoles = new Map()
@@ -41,7 +41,7 @@ function fixture({ applyProps } = {}) {
 	const disposedWebViews = []
 	const factoryCalls = []
 
-	const fakeView = (name) => ({
+	const fakeView = (name: string): any => ({
 		name,
 		font: null,
 		contentView: 'clip-' + name,
@@ -51,7 +51,7 @@ function fixture({ applyProps } = {}) {
 		heightAnchor: { constraintEqualToConstant: () => ({ active: false }) },
 	})
 
-	const allocAction = (view) => {
+	const allocAction = (view: any) => {
 		const actionId = sandbox.nextMockActionId++
 		actionHandlers.set(actionId, null)
 		return { view, actionId }
@@ -70,16 +70,16 @@ function fixture({ applyProps } = {}) {
 		layoutHandlers: new WeakMap(),
 		NSColor: { colorWithRedGreenBlueAlpha: () => ({}) },
 		NSNotificationCenter: {
-			defaultCenter: { removeObserver: (observer) => removedObservers.push(observer) },
+			defaultCenter: { removeObserver: (observer: any) => removedObservers.push(observer) },
 		},
 		buttonActionTarget: {},
 		fontForFamilyStyle: () => ({ pointSize: 14 }),
-		disposeWebView: (view) => disposedWebViews.push(view),
+		disposeWebView: (view: any) => disposedWebViews.push(view),
 		disposeImage: () => {},
 		applyProps: applyProps ?? (() => {}),
 		insert: () => {},
 		remove: () => {},
-		detach: (container, node) => {
+		detach: (container: any, node: any) => {
 			const siblings = node.parent ? node.parent.children : container.children
 			const index = siblings.indexOf(node)
 			if (index >= 0) {
@@ -131,7 +131,7 @@ test('a rejected prop fails creation before factories allocate', () => {
 
 test('a throwing prop unwinds the action registration', () => {
 	const fx = fixture({
-		applyProps: (node) => {
+		applyProps: (node: any) => {
 			assert.equal(fx.actionHandlers.has(node.actionId), true)
 			throw new Error('prop failed')
 		},
@@ -166,7 +166,7 @@ test('a throwing prop disposes a partially built webview', () => {
 
 test('a throwing prop removes an installed scroll observer', () => {
 	const fx = fixture({
-		applyProps: (node) => {
+		applyProps: (node: any) => {
 			node.scrollObserverInstalled = true
 			node.scrollObserver = { token: 'scroll-observer' }
 			throw new Error('prop failed')
@@ -227,7 +227,7 @@ test('batch validation accepts references to ids created earlier in the batch', 
 
 test('prepareBatch rejects an invalid batch before apply runs', () => {
 	const fx = fixture()
-	const applyCalls = []
+	const applyCalls: any[] = []
 	// prepareBatch must throw; applyCommand must never run for this batch.
 	assert.throws(
 		() =>
@@ -267,7 +267,7 @@ test('create on an existing id releases the previous node', () => {
 
 test('a failed update restores the recorded props', () => {
 	const fx = fixture({
-		applyProps: (node, props) => {
+		applyProps: (node: any, props: any) => {
 			node.props = { ...node.props, ...props }
 			throw new Error('prop failed')
 		},

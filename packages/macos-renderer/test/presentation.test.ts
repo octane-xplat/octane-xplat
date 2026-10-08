@@ -1,13 +1,19 @@
 import assert from 'node:assert/strict'
 import { beforeEach, test } from 'node:test'
-import { installPresentationBridge } from '../src/presentation.mjs'
+import { installPresentationBridge, type SurfaceOptions } from '../src/presentation.ts'
 
-let bridge, nativeWindow, monitors, observers, roots
+let bridge: any, nativeWindow: any, monitors: Set<any>, observers: Set<any>, roots: any[]
 class View {
 	static alloc() {
 		return new this()
 	}
-	initWithFrame(frame) {
+	_frame: any
+	bounds: any
+	layer: any
+	items: any[]
+	superview: any
+	window: any
+	initWithFrame(frame: any) {
 		this._frame = frame
 		this.bounds = { origin: { x: 0, y: 0 }, size: frame.size }
 		this.layer = {}
@@ -15,9 +21,9 @@ class View {
 		return this
 	}
 	get subviews() {
-		return { count: this.items.length, objectAtIndex: (i) => this.items[i] }
+		return { count: this.items.length, objectAtIndex: (i: number) => this.items[i] }
 	}
-	addSubview(child) {
+	addSubview(child: any) {
 		this.items.push(child)
 		child.superview = this
 		child.window = this.window
@@ -29,11 +35,11 @@ class View {
 	get frame() {
 		return this._frame
 	}
-	set frame(frame) {
+	set frame(frame: any) {
 		this._frame = frame
 		this.bounds.size = frame.size
 	}
-	convertPointFromView(point) {
+	convertPointFromView(point: { x: number; y: number }) {
 		return { x: point.x - this.frame.origin.x, y: point.y - this.frame.origin.y }
 	}
 	hitTest() {
@@ -55,26 +61,31 @@ beforeEach(() => {
 	}
 
 	globalThis.NSEvent = {
-		addLocalMonitorForEventsMatchingMaskHandler: (_mask, fn) => {
+		addLocalMonitorForEventsMatchingMaskHandler: (_mask: number, fn: any) => {
 			monitors.add(fn)
 			return fn
 		},
-		removeMonitor: (fn) => monitors.delete(fn),
+		removeMonitor: (fn: any) => monitors.delete(fn),
 	}
 
 	globalThis.NSNotificationCenter = {
 		defaultCenter: {
-			addObserverForNameObjectQueueUsingBlock: (_name, _window, _queue, fn) => {
+			addObserverForNameObjectQueueUsingBlock: (
+				_name: string,
+				_window: unknown,
+				_queue: unknown,
+				fn: () => void,
+			) => {
 				observers.add(fn)
 				return fn
 			},
-			removeObserver: (fn) => observers.delete(fn),
+			removeObserver: (fn: () => void) => observers.delete(fn),
 		},
 	}
 
 	nativeWindow = {
 		firstResponder: { name: 'opener' },
-		makeFirstResponder(view) {
+		makeFirstResponder(view: any) {
 			this.firstResponder = view
 		},
 	}
@@ -89,11 +100,11 @@ beforeEach(() => {
 	bridge = {}
 	installPresentationBridge(
 		bridge,
-		(panel) => {
+		(panel: any) => {
 			const root = {
-				renders: [],
+				renders: [] as any[],
 				disposed: 0,
-				render(Component, props) {
+				render(Component: any, props: any) {
 					this.renders.push(props)
 					Component?.(panel, props)
 				},
@@ -103,13 +114,13 @@ beforeEach(() => {
 			}
 
 			roots.push(root)
-			return root
+			return root as any
 		},
 		() => 'system-ui',
 	)
 })
 
-const component = (panel) => {
+const component = (panel: any) => {
 	if (!panel.items.length) {
 		panel.addSubview({
 			fittingSize: { width: 200, height: 140 },
@@ -119,11 +130,11 @@ const component = (panel) => {
 	}
 }
 
-const present = (options) =>
+const present = (options: SurfaceOptions) =>
 	bridge.presentSurface({ component, kind: 'dialog', modal: true, ...options })
 
-const dispatch = (event) => {
-	let value = { window: nativeWindow, ...event }
+const dispatch = (event: any) => {
+	let value: any = { window: nativeWindow, ...event }
 	for (const fn of [...monitors]) {
 		if (!value) {
 			break
@@ -307,7 +318,7 @@ test('closing a presenter closes its nested surfaces and restores the original o
 })
 
 test('Tab wraps through enabled controls and lightbox arrows dispatch only to the top modal', () => {
-	const surface = present({ kind: 'lightbox', onKey: (code) => code === 123 })
+	const surface = present({ kind: 'lightbox', onKey: (code: number) => code === 123 })
 	const first = surface.panel.items[0]
 	const second = { acceptsFirstResponder: true, enabled: true }
 	const disabled = { acceptsFirstResponder: true, enabled: false }

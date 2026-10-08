@@ -66,7 +66,7 @@ excluded by upstream conditional compilation; AppKit never imports
 `packages/lottie/src/vendor/ui-lottie`. The source pin and dependency licenses
 are documented next to the copied files.
 
-`packages/macos-renderer/src/index.mjs:makeNode` has a fixed host vocabulary;
+`packages/macos-renderer/src/index.ts:makeNode` has a fixed host vocabulary;
 mobile `xplatlottie` registration cannot work there. The leaf uses the
 supported `flexboxlayout` host, and the adapter adds its `LottieAnimationView`
 as a direct AppKit child pinned to all four host edges with Auto Layout. The

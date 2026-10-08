@@ -1,6 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
-import App from './App.macos.tsx'
+import App from './App'
 
 const app = NSApplication.sharedApplication
 app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
@@ -15,14 +15,15 @@ const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 nativeWindow.title = 'Renderer consumer'
 nativeWindow.releasedWhenClosed = false
 const root = createMacOSRoot(nativeWindow.contentView)
-root.render(App, {})
+root.render(App as any, {})
 nativeWindow.makeKeyAndOrderFront(app)
 app.finishLaunching()
 
 if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
+	const debug = (root as any).__macosDebug
 	setTimeout(() => {
 		try {
-			const font = root.__macosDebug.findId('count').font
+			const font = debug.findId('count').font
 			if (
 				Number(font.pointSize) !== 22 ||
 				String(font.fontName) !== String(NSFont.systemFontOfSizeWeight(22, 0.4).fontName)
@@ -30,19 +31,19 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 				throw new Error('Packed consumer lost the weighted system font')
 			}
 
-			root.__macosDebug.pressId('increment')
+			debug.pressId('increment')
 			setTimeout(() => {
 				try {
-					if (String(root.__macosDebug.findId('count').stringValue) !== '1') {
+					if (String(debug.findId('count').stringValue) !== '1') {
 						throw new Error(
 							'Packed consumer signal update failed: ' +
-								String(root.__macosDebug.findId('count').stringValue),
+								String(debug.findId('count').stringValue),
 						)
 					}
 
 					console.log('PACKED_RENDERER_OK')
 				} catch (error) {
-					console.error('PACKED_RENDERER_FAIL: ' + error.message)
+					console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)
 				} finally {
 					root.unmount()
 					nativeWindow.close()
@@ -50,7 +51,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 				}
 			}, 30)
 		} catch (error) {
-			console.error('PACKED_RENDERER_FAIL: ' + error.message)
+			console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)
 			globalThis.__xplatStopHost()
 		}
 	}, 80)
