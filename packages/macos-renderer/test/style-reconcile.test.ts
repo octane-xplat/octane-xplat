@@ -64,10 +64,27 @@ function view({ orientation } = {}) {
 		addSubview(v) {
 			this.addedSubviews.push(v)
 		},
+		arranged: [],
 		addViewInGravity(v, gravity) {
 			v.gravity = gravity
+			this.arranged.push(v)
 		},
-		removeArrangedSubview() {},
+		removeArrangedSubview(v) {
+			const index = this.arranged.indexOf(v)
+			if (index >= 0) {
+				this.arranged.splice(index, 1)
+			}
+		},
+		insertViewAtIndexInGravity(v, index, gravity) {
+			v.gravity = gravity
+			const group = this.arranged.filter((entry) => entry.gravity === gravity)
+			const before = group[index]
+			this.arranged.splice(before ? this.arranged.indexOf(before) : this.arranged.length, 0, v)
+		},
+		viewsInGravity(gravity) {
+			const group = this.arranged.filter((entry) => entry.gravity === gravity)
+			return { count: group.length, objectAtIndex: (index) => group[index] }
+		},
 		removed: false,
 		removeFromSuperview() {
 			this.removed = true
@@ -84,7 +101,7 @@ const sandbox = {
 	inputTransparentViews,
 	NSTextAlignment: { Left: 0, Center: 1, Right: 2 },
 	NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
-	NSStackViewGravity: { Top: 1, Leading: 2, Center: 3, Bottom: 4, Trailing: 5 },
+	NSStackViewGravity: { Top: 1, Leading: 1, Center: 2, Bottom: 3, Trailing: 3 },
 	NSStackViewDistribution: { GravityAreas: -1, Fill: 0, EqualSpacing: 3 },
 	NSLayoutAttribute: {
 		Bottom: 4,
@@ -189,25 +206,32 @@ test('removed backgroundColor clears the layer when no class slot applies', () =
 	assert.equal(item.view.layer.backgroundColor, null)
 })
 
-test('removed margin zeroes its side and releases the margin host', () => {
+test('removed margin zeroes its side and keeps the margin host arranged', () => {
 	const stackView = view({ orientation: 1 })
-	stackView.gravityInserts = []
-	stackView.insertViewAtIndexInGravity = (v, index) => stackView.gravityInserts.push({ v, index })
-	stackView.addViewInGravity = () => {}
-	stackView.removeArrangedSubview = () => {}
 	const parent = node('flexboxlayout', { props: {} })
 	parent.view = stackView
 	const item = node('label', { parent })
+	stackView.arranged.push(item.view)
 
 	setStyle(item, { marginTop: 8 })
 	assert.equal(item.marginInsets.top, 8)
 	assert.ok(item.marginHost, 'margin host wraps the view')
+	assert.equal(item.view.removed, true, 'the one-time wrap detaches the child')
+	assert.deepEqual(stackView.arranged, [item.marginHost])
+	const wraps = stackView.arranged.length
 
+	item.view.removed = false
 	setStyle(item, {})
 
 	assert.equal(item.marginInsets.top, 0)
-	assert.equal(item.marginHost, null)
-	assert.equal(stackView.gravityInserts.at(-1).v, item.view, 'unwrapped view reinserted')
+	// The wrapper stays — unwrapping would detach a first-responder ancestor.
+	assert.equal(item.marginHost.addedSubviews[0], item.view)
+	assert.equal(item.view.removed, false)
+	assert.equal(stackView.arranged.length, wraps)
+	assert.deepEqual(
+		[...item.marginConstraints].map((constraint) => constraint.constant),
+		[0, 0, 0, 0],
+	)
 })
 
 test('removed classes restore spacing, alignment, background, and insets', () => {
@@ -309,7 +333,7 @@ for (const type of ['flexboxlayout', 'stack']) {
 			assert.equal(item.view.orientation, 0)
 			assert.equal(item.view.spacing, 12)
 			assert.equal(item.view.alignment, 4)
-			assert.equal(child.view.gravity, 5)
+			assert.equal(child.view.gravity, 3)
 			assert.equal(child.crossAxisConstraint, null)
 
 			applyProps(item, { gap: 30, alignItems: 'start' })
@@ -321,7 +345,7 @@ for (const type of ['flexboxlayout', 'stack']) {
 			assert.equal(item.view.orientation, 1)
 			assert.equal(item.view.spacing, 12)
 			assert.equal(item.view.alignment, 9)
-			assert.equal(child.view.gravity, 3)
+			assert.equal(child.view.gravity, 2)
 			applyProps(item, { className: '' })
 			assert.equal(item.view.spacing, 30)
 			assert.equal(child.view.gravity, 1)
@@ -362,7 +386,11 @@ test('direction changes replace cross-axis pins and select the corresponding gap
 	assert.equal(child.crossAxisConstraint, null, 'explicit percentage width is not stretched')
 	const percentagePin = child.sizeConstraints.width
 	applyProps(item, { flexDirection: 'row' })
-	assert.equal(percentagePin.active, false, 'old parent-relative dimension is replaced')
+	assert.equal(
+		percentagePin.active,
+		true,
+		'child kept its arranged slot, so the parent-relative dimension stays live',
+	)
 	assert.equal(child.sizeConstraints.width.active, true)
 	assert.equal(child.sizeConstraints.width.multiplier, 0.5)
 })

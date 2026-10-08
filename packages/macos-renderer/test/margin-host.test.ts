@@ -144,11 +144,19 @@ test('margin host wraps at the gravity-local index, not the child index', () => 
 	assert.equal(c.marginConstraints.length, 4)
 })
 
-test('unwrapping a margin host reinserts the view at its gravity-local index', () => {
+test('removing margins keeps the host arranged and collapses its constants', () => {
 	const { syncMarginHost, stack, row, adopt } = fixture()
 	const text = { id: 'text', type: '#text', view: null, props: {}, children: [] }
 	const x = row('x', 2)
-	const d = row('d', 2, { marginHost: view({ gravity: 2 }) })
+	const d = row('d', 2, {
+		marginHost: view({ gravity: 2 }),
+		marginConstraints: [
+			{ constant: 4 },
+			{ constant: -4 },
+			{ constant: 4 },
+			{ constant: -4 },
+		],
+	})
 	const y = row('y', 2)
 	adopt(text, x, d, y)
 	stack.arranged.push(x.view, d.marginHost, y.view)
@@ -156,16 +164,17 @@ test('unwrapping a margin host reinserts the view at its gravity-local index', (
 	d.marginInsets = { top: 0, right: 0, bottom: 0, left: 0 }
 	syncMarginHost(d)
 
-	assert.equal(stack.insertCalls.length, 1)
-	const call = stack.insertCalls[0]
-	assert.equal(call.view, d.view)
-	// x precedes d inside gravity 2; the logical child index is 2.
-	assert.equal(call.index, 1)
-	assert.equal(d.marginHost, null)
-	assert.equal(d.marginConstraints, null)
+	// No stack churn — the wrapper stays so a descendant first responder is
+	// never detached by margin removal.
+	assert.equal(stack.insertCalls.length, 0)
+	assert.deepEqual(stack.arranged, [x.view, d.marginHost, y.view])
+	assert.equal(d.marginConstraints[0].constant, 0)
+	assert.equal(d.marginConstraints[1].constant, 0)
+	assert.equal(d.marginConstraints[2].constant, 0)
+	assert.equal(d.marginConstraints[3].constant, 0)
 })
 
-test('layout observer migrates to the margin host and back', () => {
+test('layout observer migrates to the margin host and stays', () => {
 	const { setLayoutAction, syncMarginHost, observers, row, adopt } = fixture()
 	const e = row('e', 1)
 	e.container = { root: { eventScope: (_scope, run) => run() } }
@@ -200,15 +209,14 @@ test('layout observer migrates to the margin host and back', () => {
 	e.marginInsets = null
 	syncMarginHost(e)
 
-	assert.equal(e.marginHost, null)
-	assert.equal(e.layoutObservedView, e.view)
-	assert.ok(hostObserver.removed)
-	const backObserver = observers.at(-1)
-	assert.equal(backObserver.object, e.view)
+	// The host stays arranged after margins clear, so the observer stays put.
+	assert.ok(e.marginHost)
+	assert.equal(e.layoutObservedView, e.marginHost)
+	assert.ok(!hostObserver.removed)
 
-	e.view.bounds.size.width = 30
-	backObserver.block()
-	assert.equal(events.at(-1).object, e.view)
+	e.marginHost.bounds.size.width = 30
+	hostObserver.block()
+	assert.equal(events.at(-1).object, e.marginHost)
 	assert.equal(events.at(-1).width, 30)
 })
 

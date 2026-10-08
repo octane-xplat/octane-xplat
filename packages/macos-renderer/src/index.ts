@@ -637,30 +637,24 @@ function syncMarginHost(node: ElementNode) {
 	}
 
 	const insets = marginInsetsOf(node)
-	const gravity = stackGravity(parent, node)
-	const index = gravityInsertIndex(parent, node, gravity)
 	if (insets && !node.marginHost) {
+		const gravity = stackGravity(parent, node)
+		const index = gravityInsertIndex(parent, node, gravity)
 		stack.removeArrangedSubview(node.view)
 		node.view.removeFromSuperview()
 		const host = makeMarginHost(node)
 		stack.insertViewAtIndexInGravity(host, index, gravity)
 		queueLayoutReconcile(node.container, parent)
 		setLayoutAction(node, node.props?.onLayoutChanged)
-	} else if (!insets && node.marginHost) {
-		stack.removeArrangedSubview(node.marginHost)
-		node.view.removeFromSuperview()
-		node.marginHost.removeFromSuperview()
-		node.marginHost = null
-		node.marginConstraints = null
-		stack.insertViewAtIndexInGravity(node.view, index, gravity)
-		queueLayoutReconcile(node.container, parent)
-		setLayoutAction(node, node.props?.onLayoutChanged)
-	} else if (insets && node.marginHost) {
+	} else if (node.marginHost) {
+		// Once wrapped, the host stays arranged for the node's lifetime —
+		// unwrapping would detach a first-responder ancestor and end live
+		// editing. Zeroed constants collapse it to the child's frame.
 		const [leading, trailing, top, bottom] = node.marginConstraints
-		leading.constant = insets.left
-		trailing.constant = -insets.right
-		top.constant = insets.top
-		bottom.constant = -insets.bottom
+		leading.constant = insets?.left ?? 0
+		trailing.constant = 0 - (insets?.right ?? 0)
+		top.constant = insets?.top ?? 0
+		bottom.constant = 0 - (insets?.bottom ?? 0)
 	}
 }
 
@@ -744,21 +738,86 @@ function gravityInsertIndex(parent: ElementNode, node: ElementNode, gravity: num
 	return index
 }
 
+/** Snapshot one gravity area's arranged views. The bridge returns an
+ *  NSArray; `count` may be a method or a property depending on interop. */
+function stackViewsInGravity(stack: any, gravity: number) {
+	const views = typeof stack?.viewsInGravity === 'function' ? stack.viewsInGravity(gravity) : null
+	const count = typeof views?.count === 'function' ? views.count() : (views?.count ?? 0)
+	const arrangedViews: any[] = []
+	for (let index = 0; index < count; index++) {
+		arrangedViews.push(views.objectAtIndex(index))
+	}
+
+	return arrangedViews
+}
+
+/** Reconcile one gravity area with the children's desired views. Only
+ *  re-parented children land in `moved` — detaching a view that is (or
+ *  contains) the first responder ends the active editing session. */
+function syncStackGravityArea(
+	parent: ElementNode,
+	stack: any,
+	gravity: number,
+	moved: Set<ElementNode>,
+) {
+	const desired: ElementNode[] = []
+	for (const child of parent.children) {
+		if (child.view && stackGravity(parent, child) === gravity) {
+			desired.push(child)
+		}
+	}
+
+	const keep = new Set(desired.map((child) => arrangedView(child)))
+	const arrangedViews = stackViewsInGravity(stack, gravity)
+	for (let index = arrangedViews.length - 1; index >= 0; index--) {
+		if (!keep.has(arrangedViews[index])) {
+			stack.removeArrangedSubview(arrangedViews[index])
+			arrangedViews[index].removeFromSuperview()
+			arrangedViews.splice(index, 1)
+		}
+	}
+
+	for (let index = 0; index < desired.length; index++) {
+		const child = desired[index]
+		const view = arrangedView(child)
+		if (arrangedViews[index] === view) {
+			continue
+		}
+
+		const from = arrangedViews.indexOf(view)
+		if (from >= 0) {
+			stack.removeArrangedSubview(view)
+			view.removeFromSuperview()
+			arrangedViews.splice(from, 1)
+		}
+
+		stack.insertViewAtIndexInGravity(view, index, gravity)
+		arrangedViews.splice(index, 0, view)
+		moved.add(child)
+	}
+}
+
 function moveStackChildren(parent: ElementNode) {
 	const stack = parent.childHost ?? parent.view
 	if (typeof stack?.addViewInGravity !== 'function') {
 		return
 	}
 
-	for (const child of parent.children) {
-		if (!child.view) {
-			continue
-		}
+	// Diff each gravity area against the live arrangement so unchanged
+	// children are never re-parented — AppKit's endEditingFor: fires when a
+	// first-responder ancestor leaves its superview. Orientation flips keep
+	// identical gravity values (Leading == Top, Trailing == Bottom), so a
+	// pure orientation change is a no-op here.
+	const moved = new Set<ElementNode>()
+	for (const gravity of [
+		NSStackViewGravity.Leading,
+		NSStackViewGravity.Center,
+		NSStackViewGravity.Trailing,
+	]) {
+		syncStackGravityArea(parent, stack, gravity, moved)
+	}
 
-		const arranged = arrangedView(child)
-		stack.removeArrangedSubview(arranged)
-		arranged.removeFromSuperview()
-		stack.addViewInGravity(arranged, stackGravity(parent, child))
+	for (const child of moved) {
 		// Removing a view drops constraints to its old superview, including
 		// percentage dimensions. Reinstall them after reattaching.
 		applySizeConstraints(child)
@@ -3402,7 +3461,7 @@ function insert(
 				deactivateSizeConstraints(node)
 				queueLayoutReconcile(container, parent)
 			} else {
-				if (marginInsetsOf(node)) {
+				if (marginInsetsOf(node) && !node.marginHost) {
 					makeMarginHost(node)
 					setLayoutAction(node, node.props?.onLayoutChanged)
 				}
