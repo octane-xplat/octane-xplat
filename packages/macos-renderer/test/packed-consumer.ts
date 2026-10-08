@@ -32,6 +32,14 @@ async function pack(root: string) {
 const renderer = await pack(packageRoot)
 const cli = await pack(join(repo, 'packages/cli'))
 const create = await pack(join(repo, 'packages/create'))
+// Signal-reading fixtures need the patched compiler and oxc parser; mirror the
+// starter template's pins (octane must match the cli patch manifest's
+// `octane@*` specifier or the patch is skipped as unused).
+const template = JSON.parse(
+	await readFile(join(repo, 'packages/create/template/package.json'), 'utf8'),
+)
+const octaneVersion = template.dependencies.octane
+const oxcVersion = template.devDependencies['@tsrx/oxc']
 const fixture = join(packageRoot, 'test/fixtures')
 for (const file of ['App.macos.tsx', 'main.ts', 'dev-shell.ts', 'types.ts', 'globals.d.ts']) {
 	await cp(join(fixture, file), join(app, 'src', file))
@@ -51,11 +59,12 @@ await writeFile(
 			dependencies: {
 				'@octane-xplat/macos-renderer': renderer,
 				'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
-				octane: '0.6.3',
+				octane: octaneVersion,
 			},
 			devDependencies: {
 				'@octane-xplat/cli': cli,
 				'@octanejs/vite-plugin': '0.1.61',
+				'@tsrx/oxc': oxcVersion,
 				vite: '8.3.0',
 				typescript: '5.9.3',
 			},
