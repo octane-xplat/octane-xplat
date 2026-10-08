@@ -92,6 +92,9 @@ interface RootContainer {
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: UniversalRoot | null
+	/** Parents needing a sibling-wide layout pass; non-null only while a
+	 *  command batch is applying. */
+	layoutDirty: Set<ElementNode> | null
 }
 
 const actionHandlers = new Map<number, (() => void) | null>()
@@ -552,23 +555,24 @@ function syncMarginHost(node: ElementNode) {
 	}
 
 	const insets = marginInsetsOf(node)
-	const index = Math.max(parent.children.indexOf(node), 0)
+	const gravity = stackGravity(parent, node)
+	const index = gravityInsertIndex(parent, node, gravity)
 	if (insets && !node.marginHost) {
-		const gravity = stackGravity(parent, node)
 		stack.removeArrangedSubview(node.view)
 		node.view.removeFromSuperview()
 		const host = makeMarginHost(node)
 		stack.insertViewAtIndexInGravity(host, index, gravity)
-		updateCrossAxisConstraints(parent)
+		queueLayoutReconcile(node.container, parent)
+		setLayoutAction(node, node.props?.onLayoutChanged)
 	} else if (!insets && node.marginHost) {
-		const gravity = stackGravity(parent, node)
 		stack.removeArrangedSubview(node.marginHost)
 		node.view.removeFromSuperview()
 		node.marginHost.removeFromSuperview()
 		node.marginHost = null
 		node.marginConstraints = null
 		stack.insertViewAtIndexInGravity(node.view, index, gravity)
-		updateCrossAxisConstraints(parent)
+		queueLayoutReconcile(node.container, parent)
+		setLayoutAction(node, node.props?.onLayoutChanged)
 	} else if (insets && node.marginHost) {
 		const [leading, trailing, top, bottom] = node.marginConstraints
 		leading.constant = insets.left
@@ -603,7 +607,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 
 	if (node.parent?.type === 'gridlayout') {
 		// Grids lay out children manually from props.style — no wrapper needed.
-		layoutGridChildren(node.parent)
+		queueLayoutReconcile(node.container, node.parent)
 		return
 	}
 
@@ -640,6 +644,24 @@ function stackGravity(parent: ElementNode, child: ElementNode) {
 	return leading
 }
 
+/** AppKit insertion indices are local to a gravity area — count the
+ *  same-gravity siblings ahead of `node`, not its logical child index.
+ *  Shared by stack insertion and margin-host reinsertion. */
+function gravityInsertIndex(parent: ElementNode, node: ElementNode, gravity: number) {
+	let index = 0
+	for (const sibling of parent.children) {
+		if (sibling === node) {
+			break
+		}
+
+		if (sibling.view && stackGravity(parent, sibling) === gravity) {
+			index++
+		}
+	}
+
+	return index
+}
+
 function moveStackChildren(parent: ElementNode) {
 	const stack = parent.childHost ?? parent.view
 	if (typeof stack?.addViewInGravity !== 'function') {
@@ -658,6 +680,7 @@ function moveStackChildren(parent: ElementNode) {
 		setStackChildPriorities(parent, child)
 	}
 
+	updateStackDistribution(parent)
 	updateCrossAxisConstraints(parent)
 }
 
@@ -698,8 +721,6 @@ function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 		target.setContentHuggingPriorityForOrientation(priority, orientation)
 		target.setContentCompressionResistancePriorityForOrientation(750, orientation)
 	}
-
-	updateStackDistribution(parent)
 }
 
 function makeFlexbox(props: PropBag) {
@@ -836,6 +857,22 @@ function setScrollAction(node: ElementNode, handler: ((event: any) => void) | un
 
 const layoutHandlers = new WeakMap<object, () => void>()
 
+/** Margin changes swap a node's arranged view without touching the node.
+ *  Drop the observer and handler bound to the stale target — the caller
+ *  re-runs `setLayoutAction`, which rebuilds both against the current
+ *  arranged view so events keep reporting that view's bounds. */
+function syncLayoutObserver(node: ElementNode) {
+	const observed = node.layoutObservedView
+	if (!observed || observed === arrangedView(node)) {
+		return
+	}
+
+	layoutHandlers.delete(observed)
+	NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
+	node.layoutObserver = null
+	node.layoutObservedView = null
+}
+
 /** `onLayoutChanged` prop: NSViewFrameDidChangeNotification on the arranged
  *  view (margin host when present) — the windowed VirtualList leaf measures
  *  rows through it. */
@@ -845,6 +882,7 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 		return
 	}
 
+	syncLayoutObserver(node)
 	if (typeof handler !== 'function') {
 		layoutHandlers.delete(target)
 		return
@@ -861,6 +899,8 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 				null,
 				() => layoutHandlers.get(target)?.(),
 			)
+
+		node.layoutObservedView = target
 	}
 
 	layoutHandlers.set(target, () => {
@@ -1816,21 +1856,15 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 		specs[name] = spec
 	}
 
-	if (node.parent?.type === 'gridlayout') {
+	if (node.parent?.type === 'gridlayout' || node.parent?.type === 'absolutelayout') {
 		deactivateSizeConstraints(node)
-		layoutGridChildren(node.parent)
-		return
-	}
-
-	if (node.parent?.type === 'absolutelayout') {
-		deactivateSizeConstraints(node)
-		layoutAbsoluteChildren(node.parent)
+		queueLayoutReconcile(node.container, node.parent)
 		return
 	}
 
 	applySizeConstraint(node, name)
 	if (node.parent) {
-		updateCrossAxisConstraints(node.parent)
+		queueLayoutReconcile(node.container, node.parent)
 	}
 }
 
@@ -1982,12 +2016,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
-			if (node.parent?.type === 'gridlayout') {
-				layoutGridChildren(node.parent)
-			}
-
-			if (node.parent?.type === 'absolutelayout') {
-				layoutAbsoluteChildren(node.parent)
+			if (node.parent?.type === 'gridlayout' || node.parent?.type === 'absolutelayout') {
+				queueLayoutReconcile(node.container, node.parent)
 			}
 		} else if ((name === 'translateX' || name === 'translateY' || name === 'zIndex') && node.view) {
 			node.view.wantsLayer = true
@@ -2263,7 +2293,7 @@ function applyClassName(node: ElementNode, value: any) {
 	}
 
 	if (node.parent) {
-		setStackChildPriorities(node.parent, node)
+		queueLayoutReconcile(node.container, node.parent)
 	}
 
 	updateStackDistribution(node)
@@ -2571,7 +2601,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (['rows', 'columns'].includes(name)) {
-					layoutGridChildren(node)
+					queueLayoutReconcile(node.container, node)
 				} else {
 					console.warn('[macos-host] ignored gridlayout prop ' + name)
 				}
@@ -2844,14 +2874,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
-	if (node.type === 'gridlayout') {
-		layoutGridChildren(node)
-	} else if (node.type === 'absolutelayout') {
-		layoutAbsoluteChildren(node)
-	} else if (node.parent?.type === 'gridlayout') {
-		layoutGridChildren(node.parent)
-	} else if (node.parent?.type === 'absolutelayout') {
-		layoutAbsoluteChildren(node.parent)
+	if (node.type === 'gridlayout' || node.type === 'absolutelayout') {
+		queueLayoutReconcile(node.container, node)
+	} else if (node.parent?.type === 'gridlayout' || node.parent?.type === 'absolutelayout') {
+		queueLayoutReconcile(node.container, node.parent)
 	}
 }
 
@@ -2879,20 +2905,53 @@ function detach(container: RootContainer, node: ElementNode) {
 		arrangedView(node).removeFromSuperview()
 	}
 
-	if (previousParent?.type === 'gridlayout') {
-		layoutGridChildren(previousParent)
-	}
-
-	if (previousParent?.type === 'absolutelayout') {
-		layoutAbsoluteChildren(previousParent)
-	}
-
-	if (previousParent) {
-		updateStackDistribution(previousParent)
-	}
-
+	queueLayoutReconcile(container, previousParent)
 	syncText(previousParent)
 	node.parent = null
+}
+
+/** Mark a parent for one sibling-wide reconcile after the batch's commands.
+ *  Insert/remove/update each used to rescan siblings, rebuild distribution,
+ *  and recreate every child's cross-axis constraint on the spot — n inserts
+ *  into one stack made that quadratic. Structural commands queue their dirty
+ *  parents here; `prepareBatch.apply` drains the set once at the end. Outside
+ *  a batch (no `layoutDirty` set) the reconcile runs immediately. */
+function queueLayoutReconcile(container: RootContainer, parent: ElementNode | null | undefined) {
+	if (!parent) {
+		return
+	}
+
+	const pending = container?.layoutDirty
+	if (pending) {
+		pending.add(parent)
+		return
+	}
+
+	reconcileLayoutParent(parent)
+}
+
+function reconcileLayoutParent(parent: ElementNode) {
+	if (parent.type === 'gridlayout') {
+		layoutGridChildren(parent)
+		return
+	}
+
+	if (parent.type === 'absolutelayout') {
+		layoutAbsoluteChildren(parent)
+		return
+	}
+
+	const stack = parent.childHost ?? parent.view
+	if (typeof stack?.addViewInGravity !== 'function') {
+		return
+	}
+
+	for (const child of parent.children) {
+		setStackChildPriorities(parent, child)
+	}
+
+	updateStackDistribution(parent)
+	updateCrossAxisConstraints(parent)
 }
 
 function insert(
@@ -2935,28 +2994,26 @@ function insert(
 				parentView.addSubview(node.view)
 				node.view.translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
-				layoutGridChildren(parent)
+				queueLayoutReconcile(container, parent)
 			} else if (parent.type === 'absolutelayout') {
 				parentView.addSubview(node.view)
 				node.view.translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
-				layoutAbsoluteChildren(parent)
+				queueLayoutReconcile(container, parent)
 			} else {
 				if (marginInsetsOf(node)) {
 					makeMarginHost(node)
+					setLayoutAction(node, node.props?.onLayoutChanged)
 				}
 
 				// AppKit insertion indices are local to a gravity area. Honor the
 				// renderer's before edge instead of appending moved keyed rows.
 				const gravity = stackGravity(parent, node)
-				const arrangedIndex = siblings
-					.slice(0, index)
-					.filter((child) => child.view && stackGravity(parent, child) === gravity).length
+				const arrangedIndex = gravityInsertIndex(parent, node, gravity)
 
 				parentView.insertViewAtIndexInGravity(arrangedView(node), arrangedIndex, gravity)
 				applySizeConstraints(node)
-				setStackChildPriorities(parent, node)
-				updateCrossAxisConstraints(parent)
+				queueLayoutReconcile(container, parent)
 			}
 		} else {
 			parentView.addSubview(node.view)
@@ -3002,20 +3059,10 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 		node.marginHost?.removeFromSuperview()
 		node.marginHost = null
 		node.marginConstraints = null
+		setLayoutAction(node, node.props?.onLayoutChanged)
 	}
 
-	if (expectedParent?.type === 'gridlayout') {
-		layoutGridChildren(expectedParent)
-	}
-
-	if (expectedParent?.type === 'absolutelayout') {
-		layoutAbsoluteChildren(expectedParent)
-	}
-
-	if (expectedParent) {
-		updateStackDistribution(expectedParent)
-	}
-
+	queueLayoutReconcile(container, expectedParent)
 	node.parent = null
 	syncText(expectedParent)
 }
@@ -3041,6 +3088,9 @@ function destroy(node: ElementNode) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
 		node.layoutObserver = null
 	}
+
+	layoutHandlers.delete(node.layoutObservedView)
+	node.layoutObservedView = null
 
 	if (node.actionId !== undefined) {
 		actionHandlers.delete(node.actionId)
@@ -3128,24 +3178,35 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	prepareBatch(container, batch) {
 		return {
 			apply() {
-				for (const command of batch.commands) {
-					try {
-						applyCommand(container, command)
-					} catch (error) {
-						// The universal root can swallow a mid-batch failure when it
-						// retries or aborts the attempt — log it here so an
-						// unsupported element cannot silently stall the mount.
-						console.error(
-							'[macos-host] command ' +
-								command.op +
-								' failed for <' +
-								((command as { type?: string }).type ?? '?') +
-								'> id=' +
-								('id' in command ? command.id : '?'),
-							error,
-						)
+				container.layoutDirty = new Set()
+				try {
+					for (const command of batch.commands) {
+						try {
+							applyCommand(container, command)
+						} catch (error) {
+							// The universal root can swallow a mid-batch failure when it
+							// retries or aborts the attempt — log it here so an
+							// unsupported element cannot silently stall the mount.
+							console.error(
+								'[macos-host] command ' +
+									command.op +
+									' failed for <' +
+									((command as { type?: string }).type ?? '?') +
+									'> id=' +
+									('id' in command ? command.id : '?'),
+								error,
+							)
 
-						throw error
+							throw error
+						}
+					}
+				} finally {
+					const dirty = container.layoutDirty
+					container.layoutDirty = null
+					if (dirty) {
+						for (const parent of dirty) {
+							reconcileLayoutParent(parent)
+						}
 					}
 				}
 			},
@@ -4277,6 +4338,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		nodes: new Map(),
 		children: [],
 		root: null,
+		layoutDirty: null,
 	}
 
 	const root = createUniversalRoot(container, macOSDriver, {

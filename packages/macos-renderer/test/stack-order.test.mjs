@@ -19,6 +19,11 @@ const insertion = source.slice(
 	source.indexOf('\nfunction ', source.indexOf('function insert(') + 1),
 )
 
+const gravityIndex = source.slice(
+	source.indexOf('function gravityInsertIndex('),
+	source.indexOf('\nfunction ', source.indexOf('function gravityInsertIndex(') + 1),
+)
+
 function fixture() {
 	const arranged = []
 	const stack = {
@@ -41,7 +46,7 @@ function fixture() {
 	const parent = { id: 1, type: 'flexboxlayout', children: [], view: stack }
 	const container = { nodes: new Map([[1, parent]]), children: [] }
 	const noop = () => {}
-	const insert = runInNewContext(detachment + '\n(' + insertion + ')', {
+	const insert = runInNewContext(gravityIndex + '\n' + detachment + '\n(' + insertion + ')', {
 		arrangedView: (node) => node.marginHost ?? node.view,
 		stackGravity: (_parent, node) => node.view.gravity,
 		marginInsetsOf: (node) => (node.marginHost ? {} : null),
@@ -53,6 +58,7 @@ function fixture() {
 		updateStackDistribution: noop,
 		deactivateSizeConstraints: noop,
 		releasePlacementPins: noop,
+		setLayoutAction: noop,
 		syncText: noop,
 	})
 
