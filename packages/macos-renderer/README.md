@@ -114,6 +114,8 @@ entry, including startup and shutdown, without importing the harness.
 Image sources can be base64 data URIs, local file paths, or `file://` URLs.
 An empty or unsupported source clears the old image. Remote URLs require a
 separate download; image loading does not perform synchronous network work.
+Uncached decodes resolve on a later run-loop turn, so a source change keeps
+the previous image until its replacement is ready.
 For centered contain-fit, pass `style={{ objectFit: 'contain' }}` to `Image`.
 This scales smaller images up while preserving their aspect ratio.
 

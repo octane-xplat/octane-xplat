@@ -1,6 +1,6 @@
 import { showWindowLayer } from './layer.mjs'
 import '@nativescript/macos-node-api'
-import { loadImage } from './image'
+import { disposeImage, updateImage } from './image'
 import { installPresentationBridge } from './presentation.mjs'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
@@ -1476,7 +1476,7 @@ function makeImageView(props: PropBag) {
 	})
 
 	image.translatesAutoresizingMaskIntoConstraints = false
-	image.image = loadImage(props.src)
+	updateImage(image, props.src)
 
 	return image
 }
@@ -2687,7 +2687,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'image':
 				if (name === 'src') {
-					node.view!.image = loadImage(value)
+					updateImage(node.view as NSImageView, value)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id' || name === 'alt') {
@@ -2922,6 +2922,10 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 function destroy(node: ElementNode) {
 	if (node.type === 'webview') {
 		disposeWebView(node.view!)
+	}
+
+	if (node.type === 'image') {
+		disposeImage(node.view as NSImageView)
 	}
 
 	if (node.type === 'scrollview' && node.scrollObserverInstalled) {
