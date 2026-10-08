@@ -733,11 +733,11 @@ function makeFlexbox(props: PropBag) {
 			: undefined
 
 	if (actionId !== undefined) {
-		actionIdsByView.set(stack, actionId)
-		actionHandlers.set(actionId, null)
 		stack.addGestureRecognizer(
 			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
 		)
+		actionIdsByView.set(stack, actionId)
+		actionHandlers.set(actionId, null)
 	}
 
 	return { view: stack, actionId }
@@ -1551,101 +1551,99 @@ function makeImageView(props: PropBag) {
 	return image
 }
 
-function makeNode(container: RootContainer, id: number, type: string, props: PropBag) {
-	let view
-	let actionId
-	let childHost
-	switch (type) {
-		case 'stack':
-			view = makeStack(props)
-			break
-		case 'flexboxlayout': {
-			const flexbox = makeFlexbox(props)
-			view = flexbox.view
-			actionId = flexbox.actionId
-			break
-		}
-		case 'gridlayout':
-			view = makeGridLayout()
-			break
-		case 'absolutelayout':
-			view = makeAbsoluteLayout()
-			break
-		case 'label':
-			view = makeLabel()
-			break
-		case '#text':
-			view = null
-			break
-		case 'button': {
-			const button = makeButton(props)
-			view = button.view
-			actionId = button.actionId
-			break
-		}
-		case 'scrollview': {
-			const scroll = makeScrollView()
-			view = scroll.view
-			childHost = scroll.childHost
-			break
-		}
-		case 'textfield':
-			view = makeTextField(props)
-			break
-		case 'textview':
-			view = makeTextField(props, true)
-			break
-		case 'switch': {
-			const control = makeSwitch(props)
-			view = control.view
-			actionId = control.actionId
-			break
-		}
-		case 'slider': {
-			const control = makeSlider(props)
-			view = control.view
-			actionId = control.actionId
-			break
-		}
-		case 'webview':
-			view = makeWebView()
-			break
-		case 'image':
-			view = makeImageView(props)
-			break
-		case 'span':
-			view = null
-			break
-		default:
-			throw new Error('AppKit spike does not support <' + type + '>')
+/** Types whose views arrange child views; mirrors the check in insert(). */
+const VIEW_PARENT_TYPES = new Set([
+	'stack',
+	'flexboxlayout',
+	'scrollview',
+	'gridlayout',
+	'absolutelayout',
+])
+
+/** Every type the factory switch below can build. */
+const SUPPORTED_TYPES = new Set([
+	...VIEW_PARENT_TYPES,
+	'label',
+	'#text',
+	'button',
+	'textfield',
+	'textview',
+	'switch',
+	'slider',
+	'webview',
+	'image',
+	'span',
+])
+
+function typeHasView(type: string) {
+	return type !== '#text' && type !== 'span'
+}
+
+function assertSupportedType(type: string) {
+	if (!SUPPORTED_TYPES.has(type)) {
+		throw new Error('AppKit spike does not support <' + type + '>')
+	}
+}
+
+/** Deterministic prop failures that would otherwise throw after views and
+ *  registrations exist. `baseProps` supplies already-applied props for
+ *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
+function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === '#text' || type === 'span') {
+		return
 	}
 
-	if (type === 'textfield' || type === 'textview') {
-		actionId = nextActionId++
-		actionIdsByView.set(view!, actionId)
-		actionHandlers.set(actionId, null)
-		if (type === 'textfield') {
-			// Per-edit events arrive through controlTextDidChange (delegate);
-			// the target/action is reserved for submission on Return.
-			view!.delegate = buttonActionTarget
-			view!.target = buttonActionTarget
-			view!.action = 'textFieldSubmitted:'
-		} else {
-			view!.delegate = buttonActionTarget
+	const style = props?.style
+	if (style != null) {
+		if (typeof style !== 'object') {
+			throw new Error('AppKit spike expects style to be an object')
+		}
+
+		// applyStyle feeds these straight into nativeColor.
+		if (style.backgroundColor != null) {
+			nativeColor(style.backgroundColor)
+		}
+
+		if (style.borderColor != null) {
+			nativeColor(style.borderColor)
+		}
+
+		if (['label', 'textfield', 'textview'].includes(type) && style.color != null) {
+			nativeColor(style.color)
 		}
 	}
+
+	if (type === 'gridlayout') {
+		// layoutGridChildren parses the track lists on every apply.
+		parseGridTracks(props?.rows)
+		parseGridTracks(props?.columns)
+	}
+
+	if (type === 'textfield' && props?.placeholderTextColor != null) {
+		// setTextFieldPlaceholder only reaches the color when text exists.
+		const placeholder = props.placeholder ?? baseProps?.placeholder
+		if (String(placeholder ?? '') !== '') {
+			nativeColor(props.placeholderTextColor)
+		}
+	}
+}
+
+function makeNode(container: RootContainer, id: number, type: string, props: PropBag) {
+	// Reject malformed props before factories allocate views or register
+	// actions — the node only reaches container.nodes after this returns, so
+	// a throwing prop below must unwind whatever was already acquired.
+	assertSupportedType(type)
+	validateNodeProps(type, props)
 
 	const node: ElementNode = {
 		id,
 		type,
-		view,
-		childHost,
+		view: null,
 		props: {},
 		parent: null,
 		children: [],
 		container,
 		appliedFontFamily: container.fontFamily,
-		actionId,
 		scrollObserverInstalled: false,
 		text: '',
 		// The native class is fixed at creation; post-mount `secure` updates
@@ -1653,42 +1651,134 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		secure: type === 'textfield' && !!props.secure,
 	}
 
-	if (['label', 'textfield', 'textview'].includes(type) && view!.font) {
-		view!.font = fontForFamilyStyle(view!.font.pointSize, 400, container.fontFamily)
+	try {
+		switch (type) {
+			case 'stack':
+				node.view = makeStack(props)
+				break
+			case 'flexboxlayout': {
+				const flexbox = makeFlexbox(props)
+				node.view = flexbox.view
+				node.actionId = flexbox.actionId
+				break
+			}
+			case 'gridlayout':
+				node.view = makeGridLayout()
+				break
+			case 'absolutelayout':
+				node.view = makeAbsoluteLayout()
+				break
+			case 'label':
+				node.view = makeLabel()
+				break
+			case '#text':
+				break
+			case 'button': {
+				const button = makeButton(props)
+				node.view = button.view
+				node.actionId = button.actionId
+				break
+			}
+			case 'scrollview': {
+				const scroll = makeScrollView()
+				node.view = scroll.view
+				node.childHost = scroll.childHost
+				break
+			}
+			case 'textfield':
+				node.view = makeTextField(props)
+				break
+			case 'textview':
+				node.view = makeTextField(props, true)
+				break
+			case 'switch': {
+				const control = makeSwitch(props)
+				node.view = control.view
+				node.actionId = control.actionId
+				break
+			}
+			case 'slider': {
+				const control = makeSlider(props)
+				node.view = control.view
+				node.actionId = control.actionId
+				break
+			}
+			case 'webview':
+				node.view = makeWebView()
+				break
+			case 'image':
+				node.view = makeImageView(props)
+				break
+			case 'span':
+				break
+			default:
+				throw new Error('AppKit spike does not support <' + type + '>')
+		}
+
+		if (type === 'textfield' || type === 'textview') {
+			node.actionId = nextActionId++
+			actionIdsByView.set(node.view!, node.actionId)
+			actionHandlers.set(node.actionId, null)
+			if (type === 'textfield') {
+				// Per-edit events arrive through controlTextDidChange (delegate);
+				// the target/action is reserved for submission on Return.
+				node.view!.delegate = buttonActionTarget
+				node.view!.target = buttonActionTarget
+				node.view!.action = 'textFieldSubmitted:'
+			} else {
+				node.view!.delegate = buttonActionTarget
+			}
+		}
+
+		if (['label', 'textfield', 'textview'].includes(type) && node.view!.font) {
+			node.view!.font = fontForFamilyStyle(
+				node.view!.font.pointSize,
+				400,
+				container.fontFamily,
+			)
+		}
+
+		if (type === 'gridlayout') {
+			gridLayoutNodesByView.set(node.view!, node)
+		}
+
+		if (type === 'absolutelayout') {
+			absoluteLayoutNodesByView.set(node.view!, node)
+		}
+
+		if (type === 'textfield') {
+			textNodesByView.set(node.view!, node)
+		}
+
+		if (type === 'textview') {
+			const placeholder = makeLabel()
+			placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
+			placeholder.textColor = nativeColor('#666666')
+			placeholder.stringValue = String(props.placeholder ?? '')
+			placeholder.translatesAutoresizingMaskIntoConstraints = false
+			placeholder.heightAnchor.constraintEqualToConstant(
+				Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO),
+			).active = true
+
+			placeholder.hidden = String(props.value ?? '').length > 0
+			node.view!.addSubview(placeholder)
+			placeholder.leadingAnchor.constraintEqualToAnchorConstant(
+				node.view!.leadingAnchor,
+				0,
+			).active = true
+			placeholder.topAnchor.constraintEqualToAnchor(node.view!.topAnchor).active = true
+			node.placeholderView = placeholder
+			textNodesByView.set(node.view!, node)
+		}
+
+		applyProps(node, props)
+		return node
+	} catch (error) {
+		// Release whatever the failed creation registered — action slots,
+		// observers, WebView delegates — since no caller can destroy it.
+		destroy(node)
+		throw error
 	}
-
-	if (type === 'gridlayout') {
-		gridLayoutNodesByView.set(view!, node)
-	}
-
-	if (type === 'absolutelayout') {
-		absoluteLayoutNodesByView.set(view!, node)
-	}
-
-	if (type === 'textfield') {
-		textNodesByView.set(view!, node)
-	}
-
-	if (type === 'textview') {
-		const placeholder = makeLabel()
-		placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
-		placeholder.textColor = nativeColor('#666666')
-		placeholder.stringValue = String(props.placeholder ?? '')
-		placeholder.translatesAutoresizingMaskIntoConstraints = false
-		placeholder.heightAnchor.constraintEqualToConstant(
-			Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO),
-		).active = true
-
-		placeholder.hidden = String(props.value ?? '').length > 0
-		view!.addSubview(placeholder)
-		placeholder.leadingAnchor.constraintEqualToAnchorConstant(view!.leadingAnchor, 0).active = true
-		placeholder.topAnchor.constraintEqualToAnchor(view!.topAnchor).active = true
-		node.placeholderView = placeholder
-		textNodesByView.set(view!, node)
-	}
-
-	applyProps(node, props)
-	return node
 }
 
 const EDGE_INSET_PROPS = new Map([
@@ -3138,35 +3228,29 @@ function insert(
 	node: ElementNode,
 	beforeId: number | null,
 ) {
-	detach(container, node)
+	// Validate before detaching — a rejected insert must not leave the node
+	// orphaned from its current parent.
 	const parent = (parentId === null ? null : container.nodes.get(parentId)) ?? null
 	if (parentId !== null && !parent) {
 		throw new Error('Unknown AppKit parent ' + parentId)
 	}
 
-	if (
-		parent &&
-		node.view &&
-		parent.type !== 'stack' &&
-		parent.type !== 'flexboxlayout' &&
-		parent.type !== 'scrollview' &&
-		parent.type !== 'gridlayout' &&
-		parent.type !== 'absolutelayout'
-	) {
+	if (parent && node.view && !VIEW_PARENT_TYPES.has(parent.type)) {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
 
+	const parentView = parent?.childHost ?? parent?.view ?? container.hostView
+	if (node.view && !parentView) {
+		throw new Error('AppKit host has no parent view for node ' + node.id)
+	}
+
+	detach(container, node)
 	const siblings = parent ? parent.children : container.children
 	const beforeIndex = beforeId === null ? -1 : siblings.findIndex((child) => child.id === beforeId)
 	const index = beforeIndex < 0 ? siblings.length : beforeIndex
 	siblings.splice(index, 0, node)
 	node.parent = parent
 	if (node.view) {
-		const parentView = parent?.childHost ?? parent?.view ?? container.hostView
-		if (!parentView) {
-			throw new Error('AppKit host has no parent view for node ' + node.id)
-		}
-
 		if (parent) {
 			if (parent.type === 'gridlayout') {
 				parentView.addSubview(node.view)
@@ -3246,16 +3330,18 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
-	if (node.type === 'webview') {
+	// Nodes destroyed by a failed makeNode may have a null view — every
+	// branch below must tolerate partial construction.
+	if (node.type === 'webview' && node.view) {
 		disposeWebView(node.view as WKWebView)
 	}
 
-	if (node.type === 'image') {
+	if (node.type === 'image' && node.view) {
 		disposeImage(node.view as NSImageView)
 	}
 
-	if (node.type === 'scrollview' && node.scrollObserverInstalled) {
-		const clipView = node.view!.contentView
+	if (node.type === 'scrollview' && node.scrollObserverInstalled && node.view) {
+		const clipView = node.view.contentView
 		scrollHandlers.delete(clipView)
 		NSNotificationCenter.defaultCenter.removeObserver(node.scrollObserver)
 		node.scrollObserver = null
@@ -3277,18 +3363,120 @@ function destroy(node: ElementNode) {
 	}
 }
 
+/** Pre-flight a whole batch without mutating, so a deterministic failure —
+ *  bad props, unknown nodes, illegal parents, unsupported ops — rejects the
+ *  batch before any command applies. Residual mid-apply failures are then
+ *  limited to unexpected native errors, and each command unwinds itself. */
+function validateBatch(container: RootContainer, commands: readonly UniversalHostCommand[]) {
+	// Ids created by this batch are not in container.nodes yet — track them so
+	// later commands validate against the intended tree.
+	const pending = new Map<number, { type: string; props: PropBag }>()
+	const destroyed = new Set<number>()
+	const known = (id: number): { type: string; props: PropBag } | undefined =>
+		pending.get(id) ?? (destroyed.has(id) ? undefined : container.nodes.get(id))
+
+	for (const command of commands) {
+		switch (command.op) {
+			case 'create':
+				assertSupportedType(command.type)
+				validateNodeProps(command.type, command.props)
+				pending.set(command.id, { type: command.type, props: command.props })
+				destroyed.delete(command.id)
+				continue
+			case 'recreate': {
+				const entry = known(command.id)
+				if (!entry) {
+					throw new Error('Unknown AppKit node ' + command.id)
+				}
+
+				assertSupportedType(command.type)
+				validateNodeProps(command.type, command.props)
+				const existing = container.nodes.get(command.id)
+				if (
+					existing?.parent &&
+					typeHasView(command.type) &&
+					!VIEW_PARENT_TYPES.has(existing.parent.type)
+				) {
+					throw new Error('AppKit <' + existing.parent.type + '> cannot contain child views')
+				}
+
+				pending.set(command.id, { type: command.type, props: command.props })
+				continue
+			}
+			case 'update': {
+				const entry = known(command.id)
+				if (!entry) {
+					throw new Error('Unknown AppKit node ' + command.id)
+				}
+
+				validateNodeProps(entry.type, command.props, entry.props)
+				continue
+			}
+			case 'insert':
+			case 'move': {
+				const entry = known(command.id)
+				if (!entry) {
+					throw new Error('Unknown AppKit node ' + command.id)
+				}
+
+				const parentId = command.parent as number | null
+				if (parentId !== null) {
+					const parent = known(parentId)
+					if (!parent) {
+						throw new Error('Unknown AppKit parent ' + parentId)
+					}
+
+					if (typeHasView(entry.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
+						throw new Error('AppKit <' + parent.type + '> cannot contain child views')
+					}
+				}
+
+				continue
+			}
+			case 'destroy':
+				pending.delete(command.id)
+				destroyed.add(command.id)
+				continue
+			case 'remove':
+			case 'visibility':
+			case 'ensure-public-instance':
+				continue
+			default:
+				throw new Error('AppKit spike does not support host command ' + command.op)
+		}
+	}
+}
+
 function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 	switch (command.op) {
-		case 'create':
+		case 'create': {
+			// A retried batch can re-create an id the earlier attempt already
+			// registered — release the previous node instead of orphaning it.
+			const existing = container.nodes.get(command.id)
+			if (existing) {
+				detach(container, existing)
+				destroy(existing)
+			}
+
 			container.nodes.set(command.id, makeNode(container, command.id, command.type, command.props))
 			return
+		}
 		case 'update': {
 			const node = container.nodes.get(command.id)
 			if (!node) {
 				throw new Error('Unknown AppKit node ' + command.id)
 			}
 
-			applyProps(node, command.props)
+			// node.props records what applied — restore it when a prop throws
+			// mid-update so the bookkeeping doesn't claim unapplied props.
+			const previousProps = node.props
+			try {
+				applyProps(node, command.props)
+			} catch (error) {
+				node.props = previousProps
+				throw error
+			}
+
 			return
 		}
 		case 'insert':
@@ -3334,8 +3522,14 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				throw new Error('Unknown AppKit node ' + command.id)
 			}
 
-			const replacement = makeNode(container, command.id, command.type, command.props)
 			const parent = node.parent
+			if (parent && typeHasView(command.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
+				// insert would reject the replacement after the original was
+				// already removed and destroyed — fail while it is intact.
+				throw new Error('AppKit <' + parent.type + '> cannot contain child views')
+			}
+
+			const replacement = makeNode(container, command.id, command.type, command.props)
 			const siblings = parent ? parent.children : container.children
 			const index = siblings.indexOf(node)
 			const beforeId = index < 0 ? null : (siblings[index + 1]?.id ?? null)
@@ -3354,6 +3548,10 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	id: 'macos',
 	capabilities: { text: 'host' },
 	prepareBatch(container, batch) {
+		// Reject deterministic failures before any command mutates — a
+		// partially applied batch cannot be rolled back once commit() marks
+		// it accepted. Prepare acquires nothing, so abort() has no cleanup.
+		validateBatch(container, batch.commands)
 		return {
 			apply() {
 				container.layoutDirty = new Set()

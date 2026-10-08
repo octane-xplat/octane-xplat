@@ -47,6 +47,13 @@ function fixture() {
 	const container = { nodes: new Map([[1, parent]]), children: [] }
 	const noop = () => {}
 	const insert = runInNewContext(gravityIndex + '\n' + detachment + '\n(' + insertion + ')', {
+		VIEW_PARENT_TYPES: new Set([
+			'stack',
+			'flexboxlayout',
+			'scrollview',
+			'gridlayout',
+			'absolutelayout',
+		]),
 		arrangedView: (node) => node.marginHost ?? node.view,
 		stackGravity: (_parent, node) => node.view.gravity,
 		marginInsetsOf: (node) => (node.marginHost ? {} : null),

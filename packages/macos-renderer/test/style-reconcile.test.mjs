@@ -95,6 +95,11 @@ const sandbox = {
 	}),
 	setLabelText: () => {},
 	setTextFieldPlaceholder: () => {},
+	// Style application can queue a parent layout reconcile; the fixture has
+	// no container.layoutDirty set, so the reconciler just runs inline.
+	queueLayoutReconcile: () => {},
+	// Margin hosts install/remove a click-through recognizer; irrelevant here.
+	setLayoutAction: () => {},
 }
 
 const { applyStyle, applyClassName } = runInNewContext(
