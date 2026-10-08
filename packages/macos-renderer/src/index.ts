@@ -2,6 +2,7 @@ import { showWindowLayer, type WindowLayerOptions } from './layer'
 import '@nativescript/macos-node-api'
 import { disposeImage, updateImage } from './image'
 import { installPresentationBridge } from './presentation'
+import { installAppearanceBridge } from './appearance'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -4683,6 +4684,7 @@ function presentSheet(view: NSView, options: PropBag) {
 }
 
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
+installAppearanceBridge(appKitBridge)
 appKitBridge.observeHover = observeHover
 appKitBridge.showAnchoredPopup = showAnchoredPopup
 appKitBridge.showLayer = (options: PropBag) =>

@@ -44,8 +44,6 @@ interface PlatformServices {
 	deepLinkListeners: Set<(url: string) => void>
 	pendingUrls: string[]
 	primaryWindow: NSWindow | null
-	appearanceListeners: Set<() => void>
-	appearanceObserved: boolean
 }
 
 interface MacosWindowingShared {
@@ -110,8 +108,6 @@ shared.platformServices ??= {
 	deepLinkListeners: new Set(),
 	pendingUrls: [],
 	primaryWindow: null,
-	appearanceListeners: new Set(),
-	appearanceObserved: false,
 }
 
 const applicationClosed = shared.applicationClosed
@@ -231,14 +227,6 @@ class AppDelegate extends NSObject {
 					listener(string)
 				}
 			}
-		}
-	}
-
-	// KVO — `observeValueForKeyPath:ofObject:change:context:` on the shared
-	// delegate, registered for NSApplication.effectiveAppearance below.
-	observeValueForKeyPathOfObjectChangeContext(keyPath: string) {
-		if (keyPath === 'effectiveAppearance') {
-			shared.platformServices.appearanceListeners?.forEach((listener) => listener())
 		}
 	}
 
@@ -414,20 +402,6 @@ function installPlatformServices() {
 		},
 		openPath(path: string) {
 			return Boolean(NSWorkspace.sharedWorkspace.openURL(NSURL.fileURLWithPath(String(path))))
-		},
-		getColorScheme() {
-			const appearance = app.effectiveAppearance
-			const match = appearance?.bestMatchFromAppearancesWithNames?.(['NSAppearanceNameDarkAqua'])
-			return match === 'NSAppearanceNameDarkAqua' ? 'dark' : 'light'
-		},
-		onAppearanceChange(listener: () => void) {
-			services.appearanceListeners.add(listener)
-			if (!services.appearanceObserved) {
-				services.appearanceObserved = true
-				app.addObserverForKeyPathOptionsContext(appDelegate(), 'effectiveAppearance', 0, null)
-			}
-
-			return () => services.appearanceListeners.delete(listener)
 		},
 		storageGet(key: string) {
 			const value = NSUserDefaults.standardUserDefaults.stringForKey(String(key))

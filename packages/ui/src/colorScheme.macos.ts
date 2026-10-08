@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'octane'
 import type { ColorScheme } from './props'
 
-let appearanceListener: (() => void) | undefined
+let unsubscribeAppearance: (() => void) | undefined
 const listeners = new Set<() => void>()
 const host = () => (globalThis as any).__xplatAppKit
 
@@ -15,12 +15,25 @@ export function getColorScheme(): ColorScheme {
 
 export function subscribeSystemScheme(callback: () => void): () => void {
 	listeners.add(callback)
-	if (!appearanceListener) {
-		appearanceListener = () => listeners.forEach((listener) => listener())
-		host()?.onAppearanceChange?.(appearanceListener)
+	if (!unsubscribeAppearance) {
+		unsubscribeAppearance = host()?.onAppearanceChange?.(() => {
+			listeners.forEach((listener) => listener())
+		})
 	}
 
-	return () => listeners.delete(callback)
+	let active = true
+	return () => {
+		if (!active) {
+			return
+		}
+
+		active = false
+		listeners.delete(callback)
+		if (listeners.size === 0) {
+			unsubscribeAppearance?.()
+			unsubscribeAppearance = undefined
+		}
+	}
 }
 
 export function useColorScheme(): ColorScheme {

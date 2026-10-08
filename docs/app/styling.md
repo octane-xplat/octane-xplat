@@ -440,3 +440,41 @@ the shared CSS subset.
 For theme propagation, supported CSS differences, and the cases where a
 platform leaf is necessary, see the [styling notes](../notes/styling-notes.md) and the
 [CSS support notes](../notes/css-support-notes.md).
+
+## App-wide macOS appearance
+
+Standalone AppKit apps receive the app's effective light or dark appearance
+through the existing hook. The renderer supplies the initial value and observes
+changes while consumers are mounted. Newly opened surfaces read the current
+value. Choose your colors in the app; a fixed palette stays fixed. This hook is
+app-wide and does not report a separate override on an individual window.
+
+```tsx
+import { Text, useColorScheme } from '@octane-xplat/ui'
+
+export function AppearanceStatus() {
+	const scheme = useColorScheme()
+	return <Text>{scheme === 'dark' ? 'Dark appearance' : 'Light appearance'}</Text>
+}
+```
+
+For an app preference, use the theme hook and preference setter. An explicit
+choice holds through system changes; returning to system mode immediately uses
+the current appearance. Hook subscriptions are released when consumers unmount.
+
+```tsx
+import { Text, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
+
+export function ThemeStatus() {
+	const scheme = useThemeScheme()
+	return <Text>{scheme}</Text>
+}
+
+export function followSystem() {
+	setThemePreference('system')
+}
+
+export function chooseDark() {
+	setThemePreference('dark')
+}
+```

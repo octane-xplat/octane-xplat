@@ -65,9 +65,13 @@ production Vite config that emits one CommonJS host bundle.
 
 - AC11: An independent app consumes the packed AppKit renderer, compiler
   preset, and JSX declarations through package exports, with no harness
-  source paths. App startup, windows, and host services remain app-owned.
+  source paths. App startup, windows, and most host services remain app-owned; the renderer supplies app-wide effective appearance and its subscription lifecycle.
+
+- AC12: Standalone appearance reads the initial effective light/dark state, notifies open consumers on changes, supplies current state to new/reopened consumers, respects an app override until system mode returns, and detaches observation after the last unsubscribe. Colors remain app-owned.
 
 ## Documentation
+
+- AC12: [App-wide macOS appearance](../docs/app/styling.md#app-wide-macos-appearance).
 
 - AC1: [Experimental AppKit target](../docs/start/toolchain.md#experimental-appkit-target)
   and [macOS experiment notes](../apps/macos/README.md).
@@ -112,3 +116,15 @@ change the criterion.
 Documentation: [Development app identity](../docs/start/toolchain.md#experimental-appkit-target).
 Maintained coverage: [Development bundle tests](../packages/cli/test/macos-dev-bundle.test.mjs).
 Visual Dock/Cmd-Tab appearance requires separate runtime verification.
+
+AC12 regression checks: renderer `test/appearance.test.ts`, UI
+`tests/color-scheme.macos.test.mjs`, and the maintained native case:
+
+```sh
+pnpm probe run examples/probes/appearance.macos.ts --target macos
+```
+
+The native case exercises real AppKit effective-appearance KVO and disposal by
+changing only its own app override. OS Settings changes and visible window
+chrome require separate runtime verification; the unit tests simulate system
+changes and app-theme preference transitions.
