@@ -34,21 +34,23 @@ test('outer bag carries only parent-layout metadata', () => {
 		flexDirection: 'row',
 	})
 
-	assert.deepEqual(bag, {
-		row: 1,
-		col: 2,
-		rowSpan: 2,
-		dock: 'left',
-		left: 40,
-		top: 15,
-		right: 5,
-		bottom: 6,
-		horizontalAlignment: 'center',
-		verticalAlignment: 'top',
-		flexGrow: 1,
-		alignSelf: 'stretch',
-		order: 3,
-	})
+	assert.equal(bag.row, 1)
+	assert.equal(bag.col, 2)
+	assert.equal(bag.rowSpan, 2)
+	assert.equal(bag.colSpan, undefined)
+	assert.equal(bag.dock, 'left')
+	assert.equal(bag.left, 40)
+	assert.equal(bag.top, 15)
+	assert.equal(bag.right, 5)
+	assert.equal(bag.bottom, 6)
+	assert.equal(bag.horizontalAlignment, 'center')
+	assert.equal(bag.verticalAlignment, 'top')
+	assert.equal(bag.flexGrow, 1)
+	assert.equal(bag.flexShrink, undefined)
+	assert.equal(bag.alignSelf, 'stretch')
+	assert.equal(bag.order, 3)
+	assert.equal(bag.justifyContent, undefined)
+	assert.equal(bag.flexDirection, undefined)
 })
 
 test('inner bag carries only flex-container props, mapped to host names', () => {
@@ -77,9 +79,21 @@ test('inner bag carries only flex-container props, mapped to host names', () => 
 	assert.equal(innerLayoutProps({ flexWrap: 'wrap-reverse' }).flexWrap, 'wrap-reverse')
 })
 
-test('unset props are omitted from both bags', () => {
-	assert.deepEqual(outerLayoutProps({}), {})
-	assert.deepEqual(innerLayoutProps({}), {})
+test('unset whitelisted props emit explicit undefined so removals clear', () => {
+	// The macOS host merges update bags over node.props — a key that simply
+	// vanishes keeps its stale value. Unwhitelisted keys (dock/right/bottom,
+	// rowGap/columnGap) stay omission-only so a bare mount does not warn.
+	const outer = outerLayoutProps({})
+	assert.ok('left' in outer && outer.left === undefined)
+	assert.ok('order' in outer && outer.order === undefined)
+	assert.ok(!('right' in outer), 'right should be omission-only')
+	assert.ok(!('dock' in outer), 'dock should be omission-only')
+	assert.equal(outer.style, undefined)
+
+	const inner = innerLayoutProps({})
+	assert.ok('flexDirection' in inner && inner.flexDirection === undefined)
+	assert.ok('gap' in inner && inner.gap === undefined)
+	assert.ok(!('rowGap' in inner), 'rowGap should be omission-only')
 })
 
 test('outer bag mirrors the element box geometry from style', () => {
@@ -91,9 +105,7 @@ test('outer bag mirrors the element box geometry from style', () => {
 	})
 
 	assert.deepEqual(bag.style, { width: 50, height: 30, marginTop: 4 })
-
 	assert.equal(outerLayoutProps({ style: { backgroundColor: '#fff' } }).style, undefined)
-	assert.equal(outerLayoutProps({}).style, undefined)
 })
 
 test('paintedStyle drops margins and keeps the rest', () => {

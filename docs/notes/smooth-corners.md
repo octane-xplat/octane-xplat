@@ -111,6 +111,13 @@ CSS; the flex props also imply `display: flex` on the inner box. On the
 native leaf the inner host is a gridlayout, so the flex-container props are
 web/macOS-only there (documented API subset, not silent divergence).
 
+The split helpers emit `undefined` (not key omission) for whitelisted props
+that are unset. The hosts merge update bags over a node's recorded props,
+so a key that vanishes would keep its stale value and parent layouts would
+never see the removal; explicit `undefined` clears it. Keys the AppKit host
+does not whitelist (`dock`, `right`, `bottom`, `rowGap`, `columnGap`) stay
+omission-only so a bare mount does not warn.
+
 ```tsx
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'

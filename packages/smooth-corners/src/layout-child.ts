@@ -43,46 +43,54 @@ export function paintedStyle(style: any) {
 	return next
 }
 
+// Whitelisted by the AppKit flexboxlayout prop handler — safe to emit even
+// as `undefined`, which is how removals propagate: the hosts merge update
+// bags over the node's recorded props, so a vanished key would keep its
+// stale value and parent layouts would never see the removal.
+const CHILD_PROPS_ALWAYS = [
+	'row',
+	'col',
+	'rowSpan',
+	'colSpan',
+	'left',
+	'top',
+	'horizontalAlignment',
+	'verticalAlignment',
+	'flexGrow',
+	'flexShrink',
+	'alignSelf',
+	'order',
+] as const
+
+// Not whitelisted on the AppKit host (the prop-warning gap, GH#9/#10) —
+// emitted only when set so a bare SmoothCorners does not warn every mount.
+const CHILD_PROPS_IF_SET = ['dock', 'right', 'bottom'] as const
+
 /** Parent-layout metadata — must land on the OUTER wrapper, the node the
  *  parent layout reads as its child. Values forward under the host's own
  *  attribute names. */
 export function outerLayoutProps(props: LayoutChildProps & { style?: any }) {
 	const result: Record<string, any> = {}
-	for (const key of [
-		'row',
-		'col',
-		'rowSpan',
-		'colSpan',
-		'dock',
-		'left',
-		'top',
-		'right',
-		'bottom',
-		'horizontalAlignment',
-		'verticalAlignment',
-		'flexGrow',
-		'flexShrink',
-		'alignSelf',
-		'order',
-	] as const) {
+	for (const key of CHILD_PROPS_ALWAYS) {
+		result[key] = props[key]
+	}
+
+	for (const key of CHILD_PROPS_IF_SET) {
 		if (props[key] !== undefined) {
 			result[key] = props[key]
 		}
 	}
 
-	if (props.style && typeof props.style === 'object') {
-		const style: Record<string, any> = {}
-		for (const key of OUTER_STYLE_KEYS) {
-			if (props.style[key] !== undefined) {
-				style[key] = props.style[key]
-			}
-		}
-
-		if (Object.keys(style).length > 0) {
-			result.style = style
+	const source = props.style && typeof props.style === 'object' ? props.style : {}
+	const style: Record<string, any> = {}
+	for (const key of OUTER_STYLE_KEYS) {
+		if (source[key] !== undefined) {
+			style[key] = source[key]
 		}
 	}
 
+	// Explicit undefined clears a previously mirrored geometry bag on update.
+	result.style = Object.keys(style).length > 0 ? style : undefined
 	return result
 }
 
@@ -93,27 +101,30 @@ export function innerLayoutProps(
 	props: FlexContainerProps & Pick<SmoothCornersProps, 'flexDirection'>,
 ) {
 	const result: Record<string, any> = {}
-	if (props.flexDirection !== undefined) {
-		result.flexDirection = props.flexDirection
-	}
+	// Explicit undefined so removals propagate through the merge-style update.
+	result.flexDirection = props.flexDirection
+	result.justifyContent =
+		props.justifyContent === undefined
+			? undefined
+			: (FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent)
 
-	if (props.justifyContent !== undefined) {
-		result.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
-	}
+	result.alignItems =
+		props.alignItems === undefined
+			? undefined
+			: (FLEX_ALIGN[props.alignItems] ?? props.alignItems)
 
-	if (props.alignItems !== undefined) {
-		result.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
-	}
+	result.flexWrap =
+		props.flexWrap === undefined
+			? undefined
+			: props.flexWrap === true
+				? 'wrap'
+				: props.flexWrap === false
+					? 'nowrap'
+					: props.flexWrap
 
-	if (props.flexWrap !== undefined) {
-		result.flexWrap =
-			props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
-	}
-
-	if (props.gap !== undefined) {
-		result.gap = props.gap
-	}
-
+	result.gap = props.gap
+	// rowGap/columnGap have no AppKit stack equivalent and are not whitelisted
+	// — emit only when set, matching the child-prop treatment above.
 	if (props.rowGap !== undefined) {
 		result.rowGap = props.rowGap
 	}
