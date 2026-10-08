@@ -9,6 +9,8 @@
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <napi.h>
+#include <objc/runtime.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -18,6 +20,40 @@
 #include <uv.h>
 
 typedef napi_value (*register_module_fn)(napi_env, napi_value);
+
+// CEF's CefScopedSendingEvent calls isHandlingSendEvent/setHandlingSendEvent:
+// on NSApp unguarded (cef_application_mac.h requires the host application to
+// implement CefAppProtocol), so a stock NSApplication raises
+// NSInvalidArgumentException on the first sendEvent wrap, e.g. a right-click
+// context menu. Provide the protocol on a category and wrap sendEvent: in the
+// flag like CrApplication does; +load installs it before cef_initialize can
+// run.
+static _Atomic BOOL handling_send_event = NO;
+static IMP original_send_event = NULL;
+
+static void xplat_send_event(NSApplication *app, SEL selector, NSEvent *event) {
+  BOOL previous = atomic_exchange(&handling_send_event, YES);
+  @try {
+    if (original_send_event)
+      ((void (*)(NSApplication *, SEL, NSEvent *))original_send_event)(app, selector, event);
+  } @finally {
+    atomic_store(&handling_send_event, previous);
+  }
+}
+
+@implementation NSApplication (XplatCefAppProtocol)
++ (void)load {
+  Method send_event = class_getInstanceMethod([NSApplication class], @selector(sendEvent:));
+  if (send_event)
+    original_send_event = method_setImplementation(send_event, (IMP)xplat_send_event);
+}
+- (BOOL)isHandlingSendEvent {
+  return atomic_load(&handling_send_event);
+}
+- (void)setHandlingSendEvent:(BOOL)handling {
+  atomic_store(&handling_send_event, handling);
+}
+@end
 
 typedef struct host_timer {
   int32_t id;
