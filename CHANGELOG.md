@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.12.0] - 2026-10-08
+
+### Features
+
+- *(ui)* Add qualified optional testID hosts
+- *(mobile)* Qualify on-device Vitest lane via @nativescript/unit-test-runner
+- *(testing)* Ship on-device Vitest lane and first mobile contract suite
+
+### Bug Fixes
+
+- *(macos-renderer)* Reschedule layout after pin writes inside layout()
+- *(patches)* Preserve compiler anchors during whitespace cleanup
+- *(icons)* Encode macOS SVG sources as base64 data URIs
+- *(macos)* Sign dev host bundle with a stable certificate identity
+- *(macos-renderer)* Make stack layout sync first-responder safe
+- *(patches)* Sync package files before packing
+- *(runtime)* Export Children from universal native entries
+- *(editors)* Align native content lifecycle and explicit format subsets
+- *(macos)* Skip dev bundle signing on hosts without codesign
+
 ## [0.11.1] - 2026-10-08
 
 ### Bug Fixes
