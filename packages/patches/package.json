@@ -16,6 +16,9 @@
 		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/patches"
 	},
+	"scripts": {
+		"prepack": "node ../../scripts/sync-patches.mjs"
+	},
 	"files": [
 		"patches"
 	],
