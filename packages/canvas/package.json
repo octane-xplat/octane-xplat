@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/canvas",
-	"version": "0.11.0",
+	"version": "0.11.1",
 	"description": "Canvas/GPU surface for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
 	"keywords": [
 		"canvas",

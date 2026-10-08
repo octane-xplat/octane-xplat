@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.11.1] - 2026-10-08
+
+### Bug Fixes
+
+- *(macos-renderer)* Pin grid/absolute children with constraints, not frame writes
+- *(packages)* Ship entries consumable by NativeScript vendors
+- *(platform)* Use ArrayBuffer-backed web random chunks
+- *(cli)* Launch macOS dev hosts with app name and icon
+- *(macos-renderer)* Match action selector strings to registered ObjC methods
+- *(macos-renderer)* Decode images outside batch apply
+- *(macos-renderer)* Honor secure/enabled state and per-edit events on text controls
+- *(macos-renderer)* Resolve package typecheck failures
+- *(macos-renderer)* Batch sibling layout work, fix margin indices and layout observers
+- *(macos-renderer)* Reset native state when styles and classes are removed
+- *(macos-renderer)* Unwind failed creates and preflight batch commands
+- *(macos-renderer)* Suppress warnings for layout child props
+- *(macos)* Implement CefAppProtocol on the JSC host application
+- *(smooth-corners)* Forward layout props through the platform wrappers
+- *(create)* Publish scaffold subpath export
+- *(lint)* Resolve local DOM-like bindings
+- *(packages)* Bind node's URL class in vite configs
+- *(macos)* Supply standalone effective appearance lifecycle
+- *(macos-renderer)* Honor label wrapping and overflow props
+- *(icons)* Generate renderer-aware JSX types
+- *(macos)* Normalize container layout across input channels
+- *(smooth-corners)* Emit undefined for unset layout props so removals reconcile
+
+### Refactoring
+
+- *(macos-renderer)* Port .mjs sources to TypeScript
+
 ## [0.11.0] - 2026-10-07
 
 ### Features

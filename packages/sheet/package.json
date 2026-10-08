@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/sheet",
-	"version": "0.11.0",
+	"version": "0.11.1",
 	"description": "Platform-specific modal bottom sheet controls for Octane xplat",
 	"repository": {
 		"type": "git",

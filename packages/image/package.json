@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/image",
-	"version": "0.11.0",
+	"version": "0.11.1",
 	"description": "Cached image loading for Octane xplat — Glide/SDWebImage engine (ui-image) on native, <img> on web",
 	"keywords": [
 		"android",
