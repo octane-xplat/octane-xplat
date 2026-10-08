@@ -1,5 +1,5 @@
 import { readdirSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'

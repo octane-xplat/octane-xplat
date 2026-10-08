@@ -67,7 +67,8 @@ minimumReleaseAgeExclude:
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
   - '@nativescript/windows@0.1.0-alpha.144'
   - nativescript@9.1.2-dev.2026-09-24-36031892256
-  - '@octanejs/tiptap@0.0.51'
+  - '@octanejs/tiptap@0.0.52'
+  - '@nativescript/types@9.1.4'
   - shaders@4.0.0
 allowBuilds:
   '@nativescript/core': true
@@ -115,11 +116,6 @@ patchedDependencies:
   # translate values through parsing and resolves each axis against the view's own
   # dimensions, including native views and animations.
   "@nativescript/core@9.1.2": packages/cli/patches/@nativescript__core@9.1.2.patch
-  # @nativescript/types@9.0.0 omits ambient declarations for the native URL and
-  # URLSearchParams globals, so projects without DOM libraries cannot typecheck valid native
-  # URL code. Adds runtime-aligned declarations that merge with DOM declarations when both
-  # libraries are present.
-  "@nativescript/types@9.0.0": packages/cli/patches/@nativescript__types@9.0.0.patch
   # @nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0,
   # which mis-parses @layer into garbage selectors — rules die before reaching
   # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
@@ -181,12 +177,11 @@ patchedDependencies:
   # dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks —
   # same behavior where ICU exists, graceful degradation where it doesn't.
   linkifyjs@4.3.3: packages/cli/patches/linkifyjs@4.3.3.patch
-  # Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global
-  # in the harness typecheck program) and './Context' resolves to Context.tsrx — a
-  # self-import — under suffix-first resolution, so EditorContext/useCurrentEditor were
-  # unreachable. Adds a module-local process declaration for typecheck and merges the
-  # Context.ts definitions into Context.tsrx.
-  "@octanejs/tiptap@0.0.51": packages/cli/patches/@octanejs__tiptap@0.0.51.patch
+  # useEditor.ts reads bare process.env.NODE_ENV — no node global exists in the harness
+  # typecheck program. Adds a module-local process declaration for typecheck. (The
+  # './Context' self-import half of the 0.0.51 patch shipped upstream in 0.0.52 via
+  # octanejs/octane#1502.)
+  "@octanejs/tiptap@0.0.52": packages/cli/patches/@octanejs__tiptap@0.0.52.patch
   # @lexical/link declares a /\p{L}\p{N}/u URL matcher as a regex literal at module scope;
   # NativeScript's embedded V8 builds without ICU, so the literal throws SyntaxError at
   # parse time and poisons the whole bundle (any bundled app importing @lexical/link dies on

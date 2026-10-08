@@ -212,9 +212,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 		null,
 		NSOperationQueue.mainQueue,
 		(notification) => {
-			const type = notification.userInfo.objectForKey(
+			const type = notification.userInfo?.objectForKey(
 				AVAudioSessionInterruptionTypeKey,
-			).unsignedIntegerValue
+			)?.unsignedIntegerValue
 
 			if (type === interruptionBegan) {
 				wasPlayingBeforeInterruption = state === 'playing'
@@ -223,7 +223,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 				emit()
 			} else if (wasPlayingBeforeInterruption) {
 				const options =
-					notification.userInfo.objectForKey(AVAudioSessionInterruptionOptionKey)
+					notification.userInfo?.objectForKey(AVAudioSessionInterruptionOptionKey)
 						?.unsignedIntegerValue ?? 0
 
 				wasPlayingBeforeInterruption = false

@@ -17,13 +17,6 @@
 			"dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, cascade layers (source lives on research/nativescript feat/css-cascade-layers), and the #11446 nested-tab-frame fix, custom Android variable-font weight mapping, and percentage-translate support from NativeScript/NativeScript#11481"
 		},
 		{
-			"specifier": "@nativescript/types@9.0.0",
-			"file": "@nativescript__types@9.0.0.patch",
-			"scope": "toolchain",
-			"why": "@nativescript/types@9.0.0 omits ambient declarations for the native URL and URLSearchParams globals, so projects without DOM libraries cannot typecheck valid native URL code. Adds runtime-aligned declarations that merge with DOM declarations when both libraries are present.",
-			"dropWhen": "@nativescript/types ships URL and URLSearchParams declarations matching the iOS and Android runtimes, and the workspace upgrades to that release"
-		},
-		{
 			"specifier": "css@3.0.0",
 			"file": "css@3.0.0.patch",
 			"scope": "build",
@@ -85,11 +78,11 @@
 			"dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
 		},
 		{
-			"specifier": "@octanejs/tiptap@0.0.51",
-			"file": "@octanejs__tiptap@0.0.51.patch",
+			"specifier": "@octanejs/tiptap@0.0.52",
+			"file": "@octanejs__tiptap@0.0.52.patch",
 			"scope": "toolchain",
-			"why": "Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global in the harness typecheck program) and './Context' resolves to Context.tsrx \u2014 a self-import \u2014 under suffix-first resolution, so EditorContext/useCurrentEditor were unreachable. Adds a module-local process declaration for typecheck and merges the Context.ts definitions into Context.tsrx.",
-			"dropWhen": "@octanejs/tiptap disambiguates the './Context' specifier upstream (PR octanejs/octane#1502)"
+			"why": "useEditor.ts reads bare process.env.NODE_ENV \u2014 no node global exists in the harness typecheck program. Adds a module-local process declaration for typecheck. (The './Context' self-import half of the 0.0.51 patch shipped upstream in 0.0.52 via octanejs/octane#1502.)",
+			"dropWhen": "@octanejs/tiptap declares process ambiently in useEditor.ts (closed unmerged upstream) or the leaf stops typechecking its raw sources"
 		},
 		{
 			"specifier": "@lexical/link@0.51.0",

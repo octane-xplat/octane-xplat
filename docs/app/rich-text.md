@@ -373,7 +373,7 @@ export function Notes() {
 JSON is interchange, not truth: Aztec's document is a flat span list, so a
 native `getJSON()` is a best-effort mapping and HTML stays the canonical
 round-trip format. Tiptap packages pin to `3.28.0` through the workspace's
-pnpm overrides to match `@octanejs/tiptap@0.0.51` — extension ranges float
+pnpm overrides to match `@octanejs/tiptap@0.0.52` — extension ranges float
 (`^3.28.0` resolved `extension-list@3.31.x`, which needs a `core` export
 that version lacks), so do not widen the pin.
 

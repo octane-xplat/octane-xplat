@@ -89,7 +89,7 @@ function presentationAnchorClass(): any {
 						}
 					}
 
-					return UIApplication.sharedApplication.keyWindow
+					return UIApplication.sharedApplication.keyWindow as UIWindow
 				},
 			},
 			{

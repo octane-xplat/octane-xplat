@@ -82,7 +82,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript/core": "9.1.2",
-		"@nativescript/types": "9.0.0",
+		"@nativescript/types": "9.1.4",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"octane": "0.6.3",
