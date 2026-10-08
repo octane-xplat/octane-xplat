@@ -2760,7 +2760,23 @@ function applyProps(node: ElementNode, props: PropBag) {
 		return
 	}
 
+	const layoutChildProps: Record<string, readonly string[]> = {
+		absolutelayout: ['left', 'top', 'right', 'bottom'],
+		gridlayout: [
+			'row',
+			'col',
+			'rowSpan',
+			'colSpan',
+			'horizontalAlignment',
+			'verticalAlignment',
+		],
+	}
+
 	for (const [name, value] of Object.entries(props)) {
+		if (node.parent && layoutChildProps[node.parent.type]?.includes(name)) {
+			continue
+		}
+
 		if (name === 'onLayoutChanged') {
 			setLayoutAction(node, value)
 			continue
@@ -2830,18 +2846,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 						'alignItems',
 						'justifyContent',
 						'flexWrap',
-						'row',
-						'col',
-						'rowSpan',
-						'colSpan',
-						'left',
-						'top',
 						'flexGrow',
 						'flexShrink',
 						'alignSelf',
 						'order',
-						'horizontalAlignment',
-						'verticalAlignment',
 					].includes(name)
 				) {
 					continue
