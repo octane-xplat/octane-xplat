@@ -4,6 +4,7 @@ import { Image, useStore } from '@octane-xplat/ui';
 import type { IconProps } from './props';
 import { registry, resolveIcon } from './registry';
 import { iconToSvg } from './svg';
+import { svgDataUri } from './svg-image.macos';
 
 /** AppKit's renderer aliases the universal renderer entry and decodes SVG with NSImage. */
 export function Icon(props: IconProps) @{
@@ -18,7 +19,7 @@ export function Icon(props: IconProps) @{
 			rotate: props.rotate, hFlip: props.hFlip, vFlip: props.vFlip,
 		});
 
-		return { src: svg.markup, width: svg.width, height: svg.height };
+		return { src: svgDataUri(svg.markup), width: svg.width, height: svg.height };
 	}, [icon, props.size, props.color, props.rotate, props.hFlip, props.vFlip]);
 
 	if (!image) return null;
