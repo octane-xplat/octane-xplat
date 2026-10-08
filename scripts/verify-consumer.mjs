@@ -20,14 +20,19 @@
 //   sim      --smoke-ios: install + launch the built .app on an iOS sim,
 //            fail on crash or JS error output (debug-simulator artifact —
 //            NOT evidence of signed store distribution)
+//   tests    --test-ios: run the scaffolded on-device suite (`ns test ios`)
+//            on a booted iPhone simulator — exercises the packed cli vite
+//            overlay, the packed platform /testing export, scaffolded
+//            specs, and the app's App_Resources ATS exception end to end
 //
 // Env:
 //   VERIFY_CONSUMER_DIR — reuse a work dir instead of a mkdtemp (kept afterwards)
+//   VERIFY_IOS_DEVICE — UDID for --test-ios/--smoke-ios device selection
 //   XPLAT_WEB_BROWSERS — comma-separated Playwright engines for --smoke web
 //   PLAYWRIGHT_REQUIRED=0 — downgrade a missing playwright install to a skip
 //
 // Usage: node scripts/verify-consumer.mjs [--no-build] [--smoke web]
-//        [--native ios,android] [--smoke-ios] [--keep]
+//        [--native ios,android] [--smoke-ios] [--test-ios] [--keep]
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
@@ -58,6 +63,7 @@ const doBuild = !flag('no-build')
 const smokeTargets = (flagValue('smoke') ?? '').split(',').filter(Boolean)
 const nativeTargets = (flagValue('native') ?? '').split(',').filter(Boolean)
 const smokeIos = flag('smoke-ios')
+const testIos = flag('test-ios')
 const keep = flag('keep') || Boolean(process.env.VERIFY_CONSUMER_DIR)
 
 const work = process.env.VERIFY_CONSUMER_DIR
@@ -512,6 +518,48 @@ try {
 
 				run('xcrun', ['simctl', 'terminate', sim.udid, bundleId], work)
 				return `booted ${sim.name}, pid ${pid}`
+			},
+		)
+	}
+
+	// ---- optional on-device spec suite --------------------------------------
+	if (testIos) {
+		await gate(
+			'ns test ios — scaffolded on-device specs run in the packed app runtime',
+			30 * 60 * 1000,
+			() => {
+				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+				assert.equal(list.status, 0, 'simctl list failed')
+				const sims = Object.values(JSON.parse(list.stdout).devices)
+					.flat()
+					.filter((d) => d.isAvailable && /iPhone/.test(d.name))
+
+				const sim = process.env.VERIFY_IOS_DEVICE
+					? (sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE) ?? {
+							udid: process.env.VERIFY_IOS_DEVICE,
+							name: process.env.VERIFY_IOS_DEVICE,
+						})
+					: sims.find((d) => d.state === 'Booted') ?? sims[0]
+
+				assert.ok(sim, 'no available iPhone simulator')
+
+				// Xcode 27 hosts have no Simulator.app — `ns run` can only target
+				// an already-booted device, so boot here and wait (both are
+				// no-ops when the simulator is already up).
+				run('xcrun', ['simctl', 'boot', sim.udid], work)
+				const boot = run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work)
+				assert.equal(boot.status, 0, `simctl bootstatus failed: ${boot.stderr}`)
+
+				const r = run('pnpm', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
+				assert.equal(r.status, 0, `ns test ios exited ${r.status}`)
+
+				const summary = r.stdout
+					.split('\n')
+					.filter((line) => /Test Files|Tests\s+\d+/.test(line))
+					.join(' ')
+					.trim()
+
+				return `booted ${sim.name}${summary ? ` — ${summary}` : ''}`
 			},
 		)
 	}

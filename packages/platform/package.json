@@ -50,6 +50,10 @@
 			"import": "./src/host-runtime.web.ts"
 		},
 		"./host/services": "./src/host-services.ts",
+		"./testing": {
+			"types": "./src/testing.mobile.ts",
+			"native": "./src/testing.mobile.ts"
+		},
 		"./*": "./src/*"
 	},
 	"publishConfig": {
@@ -83,6 +87,10 @@
 			"./host/services": {
 				"types": "./src/host-services.ts",
 				"default": "./dist/native/host-services.js"
+			},
+			"./testing": {
+				"types": "./src/testing.mobile.ts",
+				"native": "./dist/native/testing.mobile.js"
 			},
 			"./*": {
 				"linux": {
@@ -137,21 +145,31 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
+		"@nativescript/unit-test-runner": "5.0.0",
 		"octane": "0.10.2",
 		"typescript": "5.9.3",
 		"@octanejs/vite-plugin": "0.1.61",
-		"vite": "8.3.0"
+		"vite": "8.3.0",
+		"vitest": "4.1.11"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"octane": ">=0.6.3 <1"
+		"@nativescript/unit-test-runner": ">=5.0.0 <6",
+		"octane": ">=0.6.3 <1",
+		"vitest": ">=4.1.0 <5"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript-community/octane": {
 			"optional": true
 		},
 		"@nativescript/core": {
+			"optional": true
+		},
+		"@nativescript/unit-test-runner": {
+			"optional": true
+		},
+		"vitest": {
 			"optional": true
 		}
 	},

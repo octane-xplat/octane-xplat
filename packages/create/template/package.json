@@ -8,6 +8,8 @@
 		"dev": "vite",
 		"dev:ios": "ns run ios",
 		"dev:android": "ns run android",
+		"test:ios": "ns test ios",
+		"test:android": "ns test android",
 		"build": "vite build",
 		"build:ios": "ns build ios",
 		"build:android": "ns build android",
@@ -32,15 +34,18 @@
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "9.1.4",
+		"@nativescript/unit-test-runner": "5.0.0",
 		"@nativescript/vite": "8.0.17",
 		"@octane-xplat/cli": "^0.11.1",
 		"@octane-xplat/lint": "^0.11.1",
 		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/oxc": "0.16.0",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"nativescript": "9.1.1",
 		"oxlint": "^1.74.0",
 		"typescript": "5.9.3",
-		"vite": "8.3.0"
+		"vite": "8.3.0",
+		"vitest": "4.1.11"
 	},
 	"packageManager": "pnpm@11.24.0"
 }

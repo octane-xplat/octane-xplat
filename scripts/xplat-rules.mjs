@@ -43,7 +43,9 @@ export const isNativeFile = (f) =>
 		isNativeDefaultFile(f))
 
 export const isSharedFile = (f) => !isWebFile(f) && !isNativeFile(f)
-const isTestFile = (f) => /\.(test|spec)\.[^.]+$/.test(norm(f))
+// Device-lane code: *.test.*/*.spec.* spec files plus the upstream test
+// bundle entry (test.ts/test.js) — these run inside the native runtime.
+const isTestFile = (f) => /(^|[./])(test|spec)\.[cm]?[jt]sr?x?$/.test(norm(f))
 export const fileExcluded = (f, options) =>
 	(options?.exclude ?? []).some((s) => norm(f).includes(s))
 
@@ -624,7 +626,12 @@ const isConfigFile = (f) =>
 	/(^|\/)[\w.-]*config\.(m|c)?(ts|js)$/.test(norm(f)) || norm(f).endsWith('.d.ts')
 
 export function checkNoNativescriptImport(program, _src, filename, options) {
-	if (isNativeFile(filename) || isConfigFile(filename) || fileExcluded(filename, options)) {
+	if (
+		isNativeFile(filename) ||
+		isConfigFile(filename) ||
+		isTestFile(filename) ||
+		fileExcluded(filename, options)
+	) {
 		return []
 	}
 

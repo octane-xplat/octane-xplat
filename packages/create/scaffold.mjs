@@ -34,7 +34,7 @@ export const targets = {
 		label: 'iOS (NativeScript)',
 		requires: ['native-shared'],
 		files: ['App_Resources/iOS'],
-		scripts: ['dev:ios', 'build:ios'],
+		scripts: ['dev:ios', 'test:ios', 'build:ios'],
 		devDeps: ['@nativescript/ios'],
 		note: 'needs macOS + Xcode — `pnpm xplat doctor` checks the toolchain',
 	},
@@ -42,7 +42,7 @@ export const targets = {
 		label: 'Android (NativeScript)',
 		requires: ['native-shared'],
 		files: ['App_Resources/Android'],
-		scripts: ['dev:android', 'build:android'],
+		scripts: ['dev:android', 'test:android', 'build:android'],
 		devDeps: ['@nativescript/android'],
 		note: 'needs Android SDK + a compatible JDK — `pnpm xplat doctor` checks the toolchain',
 	},
@@ -67,6 +67,12 @@ export const targets = {
 			'tsconfig.native.json',
 			'references.d.ts',
 			'src/main.ts',
+			// On-device Vitest lane — `ns test` builds src/test.ts under
+			// --env.unitTesting and runs every src/**/*.spec file on a
+			// simulator/emulator through the upstream runner.
+			'src/test.ts',
+			'src/app.spec.tsrx',
+			'vitest.config.mts',
 		],
 		deps: [
 			'@nativescript-community/gesturehandler',
@@ -80,8 +86,10 @@ export const targets = {
 		devDeps: [
 			'@nativescript-community/vite-octane',
 			'@nativescript/types',
+			'@nativescript/unit-test-runner',
 			'@nativescript/vite',
 			'nativescript',
+			'vitest',
 		],
 		typecheck: 'tsrx-tsc --noEmit -p tsconfig.native.json',
 	},

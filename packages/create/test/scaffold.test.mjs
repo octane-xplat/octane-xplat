@@ -90,6 +90,13 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 		TPL.devDependencies['@octanejs/vite-plugin'],
 	)
 
+	// The on-device test lane is native-only — no runner, specs, or scripts.
+	assert.ok(!existsSync(join(dir, 'vitest.config.mts')))
+	assert.ok(!existsSync(join(dir, 'src', 'test.ts')))
+	assert.equal(manifest.scripts['test:ios'], undefined)
+	assert.equal(manifest.devDependencies.vitest, undefined)
+	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], undefined)
+
 	assert.equal(manifest.dependencies['@octane-xplat/ui'], TPL.dependencies['@octane-xplat/ui'])
 })
 
@@ -115,6 +122,20 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 	)
 
 	assert.equal(manifest.devDependencies['@nativescript/android'], undefined)
+
+	// The on-device test lane ships with the native scaffold: test entry,
+	// vitest config, starter spec, runner deps — but only the ios script.
+	assert.ok(existsSync(join(dir, 'src', 'test.ts')))
+	assert.ok(existsSync(join(dir, 'src', 'app.spec.tsrx')))
+	assert.ok(existsSync(join(dir, 'vitest.config.mts')))
+	assert.equal(manifest.scripts['test:ios'], 'ns test ios')
+	assert.equal(manifest.scripts['test:android'], undefined)
+	assert.equal(
+		manifest.devDependencies['@nativescript/unit-test-runner'],
+		TPL.devDependencies['@nativescript/unit-test-runner'],
+	)
+
+	assert.equal(manifest.devDependencies.vitest, TPL.devDependencies.vitest)
 })
 
 test('resolveTargets expands requires and rejects unknown targets', () => {

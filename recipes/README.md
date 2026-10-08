@@ -20,6 +20,7 @@ Workflows:
 - [Access and compose component refs](component-refs.md)
 
 - [Test mobile journeys with Maestro](mobile-e2e.md)
+- [Test components on a device with Vitest](on-device-unit-tests.md)
 
 - [Check stable controls with an optional coding-agent tool](agent-ui-checks.md)
 

@@ -22,6 +22,10 @@ try {
 	renameSync(join(modules, 'package'), join(modules, 'platform'))
 	for (const target of ['native', 'web', 'linux', 'macos']) {
 		const subpaths = ['', '/host', '/host/web', '/host/services']
+		if (target === 'native') {
+			subpaths.push('/testing')
+		}
+
 		if (target !== 'macos') {
 			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
 				subpaths.push(`/${service}`, `/${service}.ts`, `/${service}.tsrx`)
@@ -46,7 +50,7 @@ try {
 			format: 'esm',
 			platform: 'neutral',
 			conditions: [target, 'import', 'default'],
-			external: ['octane', 'octane/*', '@nativescript/*', '@nativescript-community/*'],
+			external: ['octane', 'octane/*', '@nativescript/*', '@nativescript-community/*', 'vitest'],
 			metafile: true,
 		})
 

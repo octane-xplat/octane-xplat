@@ -37,8 +37,95 @@ in the running app too.
 
 As your app grows, add **automated tests**: code that performs checks for
 you, such as verifying that packing one of two items leaves one remaining.
-The starter does not include a test runner or `test` command. Ask your agent
-to help configure one when you need to repeat those checks automatically.
+Phone scaffolds already include an on-device test lane — keep reading for
+how to use it. There is no browser test runner yet; ask your agent to help
+configure one when you need to repeat those checks automatically.
+
+## Test components on a device
+
+Every scaffolded iOS/Android app carries an on-device test lane: Vitest runs
+on your computer and sends each spec to your app on a simulator, where it
+runs inside the real native runtime — the same renderer, native views, and
+services your app uses. A component that misbehaves only on a phone gets
+caught here, not after release.
+
+```sh
+xcrun simctl boot DEVICE_UDID    # start a simulator once
+pnpm test:ios -- --device DEVICE_UDID
+```
+
+A spec mounts a component, acts through the same gesture handlers as real
+touches, and reads what rendered:
+
+```tsrx
+import { expect, it } from 'vitest'
+import {
+	findByTestId,
+	mountXplat,
+	tap,
+	viewText,
+	waitUntil,
+} from '@octane-xplat/platform/testing'
+import { App } from './App.tsrx'
+
+it('increments the counter', async () => {
+	const { view } = await mountXplat(App)
+
+	await tap(findByTestId(view, 'counter.increment')!)
+	await waitUntil(() => viewText(view).includes('1'))
+})
+```
+
+`mountXplat` accepts the component and its props; `App` here is the starter
+component in `src/App.tsrx`, but any exported component mounts the same way.
+
+`mountXplat` unmounts the component when the test finishes, so one spec
+cannot leak subscriptions or timers into the next. The starter spec
+`src/app.spec.tsrx` exercises a counter, a controlled text input, a
+conditional subtree, and async loading/error states — copy its shape for
+your own components. New specs go anywhere under `src/` named
+`*.spec.tsrx` (or `.spec.ts`); `src/test.ts` bundles each one and
+`vitest.config.mts` lists the same pattern.
+
+Assert on what a person could see or do — rendered text, `testID` targets,
+mounted and unmounted content — not on internal view classes.
+
+**Know the limits.** `tap()` and friends dispatch through gesture
+observers: they prove your handlers are wired, not that the OS would
+deliver the touch — that stays in [Maestro's lane](#automate-phone-journeys).
+The lane is qualified on iOS simulators; Android uses the same setup but is
+not verified yet. Apps scaffolded before this lane existed can
+[add it by hand](#add-the-test-lane-to-an-older-app).
+
+### Add the test lane to an older app
+
+Current scaffolds set all of this up; an app created earlier adds the same
+pieces once:
+
+1. Install the runner and its bridge:
+
+   ```sh
+   pnpm add -D @nativescript/unit-test-runner vitest
+   pnpm add @valor/nativescript-websockets
+   ```
+
+2. Create `src/test.ts` — the entry `ns test` boots instead of your app —
+   and `vitest.config.mts` beside your Vite config. Copy both from the
+   current scaffold template or ask your agent to add them; the scaffold's
+   `src/app.spec.tsrx` is a good first spec.
+3. iOS only: allow the test WebSocket on the loopback address in
+   `App_Resources/iOS/Info.plist`:
+
+   ```xml
+   <key>NSAppTransportSecurity</key>
+   <dict>
+     <key>NSAllowsLocalNetworking</key>
+     <true/>
+   </dict>
+   ```
+
+4. Add the scripts: `"test:ios": "ns test ios"` and
+   `"test:android": "ns test android"`.
 
 ## Automate phone journeys
 

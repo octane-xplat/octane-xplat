@@ -81,7 +81,7 @@ export default defineConfig(({ mode }) => {
 					entryFileNames: '[name].js',
 					paths: native ? (id) => (id === 'octane' ? 'octane/universal/native' : id) : undefined,
 				},
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
+				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^vitest$/],
 			},
 		},
 		resolve: {

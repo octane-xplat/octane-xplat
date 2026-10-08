@@ -48,5 +48,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Loopback WebSocket for `ns test` (@nativescript/unit-test-runner):
+		     the on-device coordinator reaches the host Vitest session at
+		     ws://127.0.0.1:<port>. Scoped to local networking only. -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

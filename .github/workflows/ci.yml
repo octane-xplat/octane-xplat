@@ -113,6 +113,46 @@ jobs:
       - name: Packed consumer iOS build + simulator smoke
         run: node scripts/with-target-lock.mjs ios -- node scripts/verify-consumer.mjs --no-build --native ios --smoke-ios
 
+  # Framework regression lane: the apps/mobile on-device Vitest suite runs in
+  # the real NS runtime on a simulator. `ns test` builds the unitTesting
+  # bundle and drives `ns run` inside the per-target advisory lock.
+  native-ios-tests:
+    runs-on: macos-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Hosted runners still ship Simulator.app, but pinning an explicit
+      # booted device keeps the lane identical to Xcode 27 dev hosts (which
+      # can only target already-booted simulators).
+      - name: Boot an iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; devs=json.load(sys.stdin)["devices"]; print(next(d["udid"] for rt in devs.values() for d in rt if d["isAvailable"] and "iPhone" in d["name"]))')
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+
+      - name: Generate app routes for the bundle
+        run: pnpm --filter @xplat/app gen
+
+      - name: On-device Vitest suite (apps/mobile)
+        run: node scripts/with-target-lock.mjs ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
+
   native-android:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -156,7 +196,7 @@ jobs:
   # and no evidence is needed, so the job skips itself.
   evidence:
     runs-on: ubuntu-latest
-    needs: [checks, native-ios, native-android]
+    needs: [checks, native-ios, native-ios-tests, native-android]
     if: always() && github.event_name == 'push'
     steps:
       - name: Checkout

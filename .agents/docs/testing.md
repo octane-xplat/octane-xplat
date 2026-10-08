@@ -104,10 +104,26 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   entry to `src/test.ts` (the vite counterpart of the upstream webpack
   helper), aliases `vitest` imports to the device-safe shim, and injects
   `__NS_TEST_CONFIG__` (runner port). No per-app wiring is needed.
-- Mount Xplat components with `renderNativeScriptApp(host, Component)` into a
-  `ContentView` handed to `mount()`; `tap()`/`enterText()` dispatch through
-  gesture observers — that proves the observer path, NOT OS hit-testing
-  (that remains Maestro's lane).
+- Mount Xplat components with `mountXplat(Component, props?)` from
+  `@octane-xplat/platform/testing` — it wraps `renderNativeScriptApp` +
+  upstream `mount()`, auto-unmounts at test finish, and unmounts the
+  previous root on re-mount (no leaked subscriptions/delayed work). The same
+  module re-exports upstream `tap()`/`enterText()`/`waitUntil()` and adds
+  `viewText`/`findByTestId` tree queries; dispatch through gesture observers
+  proves the observer path, NOT OS hit-testing (that remains Maestro's lane).
+- The scaffold ships the same lane: `src/test.ts`, `vitest.config.mts`, a
+  starter `src/app.spec.tsrx`, `test:ios`/`test:android` scripts, the runner
+  devDeps, and the scoped `NSAllowsLocalNetworking` ATS exception in the iOS
+  template. `xplat add ios`/`android` materializes it for existing
+  web-only scaffolds; `ns test android` shares the setup but is unverified
+  (lane qualified on iOS only).
+- `node scripts/verify-consumer.mjs --test-ios` runs the scaffolded suite in
+  a packed consumer (boots/selects an iPhone sim, `VERIFY_IOS_DEVICE` pins a
+  UDID) — exercises the packed cli overlay, packed platform `/testing`, and
+  the consumer's App_Resources.
+- CI: the `native-ios-tests` job (main pushes, macos-latest) boots an iPhone
+  sim and runs the apps/mobile suite inside `with-target-lock ios`; the
+  `evidence` job requires it.
 - `connectTimeout` in `vitest.config.mts` covers `ns run`'s native build on
   first run — cold builds exceed the 120s default.
 - Xcode 27 caveat (this repo's CI lane): Simulator.app is gone, so

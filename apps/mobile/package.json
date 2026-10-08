@@ -42,6 +42,7 @@
 		"@octane-xplat/notifications": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
+		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/push": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
 		"@octane-xplat/secure-storage": "workspace:*",
