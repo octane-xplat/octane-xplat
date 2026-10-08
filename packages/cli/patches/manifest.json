@@ -1,5 +1,5 @@
 {
-	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` generates the config package's patch files and the template config; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` — the root workspace yaml points here so commit writes land in this dir. Entries with `template: false` target repo-internal environments (e.g. the windows preview matrix) and are omitted from the starter's patchedDependencies — pnpm fails install on declared-but-unused patches.",
+	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` generates the config package's patch files and the template config; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` \u2014 the root workspace yaml points here so commit writes land in this dir. Entries with `template: false` target repo-internal environments (e.g. the windows preview matrix) and are omitted from the starter's patchedDependencies \u2014 pnpm fails install on declared-but-unused patches.",
 	"patches": [
 		{
 			"specifier": "octane@0.6.3",
@@ -9,25 +9,25 @@
 			"dropWhen": "An octane release ships universal signal reads and the workspace upgrades to that release and forwards uncaught event-handler errors to the root callback and preserves instance declaration ownership across child readers and universal useImperativeHandle has the DOM ref lifecycle and the compiler allows async/generator non-component helpers while continuing to reject async/generator components (octanejs/octane#1350) and universal renderers export key-preserving child collection normalization"
 		},
 		{
-			"specifier": "@nativescript/core@9.1.2",
-			"file": "@nativescript__core@9.1.2.patch",
+			"specifier": "@nativescript/core@9.1.3",
+			"file": "@nativescript__core@9.1.3.patch",
 			"upstreamPR": "https://github.com/NativeScript/NativeScript/pull/11514",
 			"scope": "runtime",
-			"why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins — a column-stretched row re-measurement clamps padded children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last — sans !important). Ports the runtime half of NativeScript PR #11446 (fixes #11444): TabView onItemsChanged keeps retained items attached instead of unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false on iOS and detached from their tab fragment on Android), iOS items writes load the selected item's view once controllers exist, and Frame._pushInFrameStack only promotes frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab frames). Also maps CSS font-weight to the OpenType wght axis for custom Android fonts on API 26+, preserves explicit variation settings, and falls back to the prior file load when the axis is unsupported. Carries NativeScript PR #11481: preserves percentage translate values through parsing and resolves each axis against the view's own dimensions, including native views and animations.",
-			"dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, cascade layers (source lives on research/nativescript feat/css-cascade-layers), and the #11446 nested-tab-frame fix, custom Android variable-font weight mapping, and percentage-translate support from NativeScript/NativeScript#11481"
+			"why": "Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size flex alignment, so those hunks are removed. Retains the unshipped parent-padding measure-spec fix and Android explicit-size flex alignment, iOS continuous corner clipping, CSS @layer cascade support, custom Android variable-font weight mapping, and percentage translate parsing, native view, and animation support. Verified against the registry 9.1.3 tarball; it has no Windows implementation, so the separate Windows preview patch remains.",
+			"dropWhen": "A published @nativescript/core release contains the remaining flexbox measure/alignment, continuous corners, cascade layers, custom Android variable-font weight mapping, and percentage-translate fixes (NativeScript/NativeScript#11481)."
 		},
 		{
 			"specifier": "css@3.0.0",
 			"file": "css@3.0.0.patch",
 			"scope": "build",
-			"why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors — rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep — no app declares it directly.",
-			"dropWhen": "npm `css` is unmaintained — drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
+			"why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors \u2014 rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep \u2014 no app declares it directly.",
+			"dropWhen": "npm `css` is unmaintained \u2014 drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
 		},
 		{
 			"specifier": "@nativescript/vite@8.0.17",
 			"file": "@nativescript__vite@8.0.17.patch",
 			"scope": "dev",
-			"why": "Dev-server fixes still missing after @nativescript/vite 8.0.17 added percent decoding for path-style /ns/m and Vue /ns/sfc requests (NativeScript#11483): collect re-export specifiers in the .vite/deps rewrite, route /@fs paths outside both roots through /ns/m (linked checkouts bypass the device transform upstream), and probe the non-active platform + `native` suffix tags in module candidates. The deps-bundle esbuild passes ignore vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` → `octane/universal/native`. tsconfig-paths and the generated build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS so `.mobile` leaves resolve under mapped imports and `ns build`. Served `/node_modules/` tails now also scan pnpm's `.pnpm` store and `link:`/`file:`/`portal:` dep roots — a linked package's transitive deps (e.g. @iconify/utils under @octane-xplat/icons) resolve nowhere else and 404 the dev session. findMonorepoWorkspaceRoot no longer treats a lone turbo.json as a workspace root — Turborepo's per-package task configs marked apps/* as roots, masking the real pnpm root so served `/node_modules/` tails never reached the `.pnpm` store scan and non-hoisted transitive deps like source-map-js 404'd dev boot.",
+			"why": "Dev-server fixes still missing after @nativescript/vite 8.0.17 added percent decoding for path-style /ns/m and Vue /ns/sfc requests (NativeScript#11483): collect re-export specifiers in the .vite/deps rewrite, route /@fs paths outside both roots through /ns/m (linked checkouts bypass the device transform upstream), and probe the non-active platform + `native` suffix tags in module candidates. The deps-bundle esbuild passes ignore vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) \u2014 an onResolve plugin redirects `octane` \u2192 `octane/universal/native`. tsconfig-paths and the generated build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS so `.mobile` leaves resolve under mapped imports and `ns build`. Served `/node_modules/` tails now also scan pnpm's `.pnpm` store and `link:`/`file:`/`portal:` dep roots \u2014 a linked package's transitive deps (e.g. @iconify/utils under @octane-xplat/icons) resolve nowhere else and 404 the dev session. findMonorepoWorkspaceRoot no longer treats a lone turbo.json as a workspace root \u2014 Turborepo's per-package task configs marked apps/* as roots, masking the real pnpm root so served `/node_modules/` tails never reached the `.pnpm` store scan and non-hoisted transitive deps like source-map-js 404'd dev boot.",
 			"dropWhen": "@nativescript/vite handles re-export records in the .vite/deps rewrite, routes outside-roots /@fs paths through /ns/m, probes non-active platform and `native` suffixes, honors resolve.alias in deps-bundle esbuild passes, adds the .mobile tier to both tsconfig-paths and generated checker moduleSuffixes (the checker tier is tracked as NativeScript#11480), and resolves node_modules module URLs against the pnpm store and link:/file:/portal: dep roots, and stops treating per-package turbo.json files as monorepo roots"
 		},
 		{
@@ -43,7 +43,7 @@
 			"file": "@nativescript-community__vite-octane@0.2.1.patch",
 			"upstreamPR": "https://github.com/nativescript-community/octane/pull/15",
 			"scope": "dev",
-			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
+			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? \u2014 .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
 			"dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
 		},
 		{
@@ -51,14 +51,14 @@
 			"file": "@nativescript__vite@8.0.13.patch",
 			"scope": "dev",
 			"why": "apps/windows pins the @7d0adce pkg.pr.new preview based on @nativescript/vite 8.0.13, so its separate patch carries /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and .mobile-aware tsconfig-paths probing.",
-			"dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
+			"dropWhen": "windows moves off the preview pin \u2014 the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
 			"template": false
 		},
 		{
 			"specifier": "@nativescript/core@9.1.3-next.2",
 			"file": "@nativescript__core@9.1.3-next.2.patch",
 			"scope": "runtime",
-			"why": "Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec — applied to the @7d0adce preview. iOS/Android impl-file hunks are dead code on windows and were dropped. Repairs Windows replacement-only pointer event registration with independently owned subscribers, ref-counted hover, unload/reload cleanup, cancellation/capture-loss handling, disabled guards, and separated tap/double/long-press delivery. Repairs parent-driven percentage sizing initialization, resize/reparent/load/unload ownership, and padded content-box updates. Restores Windows input focus/blur events and lifecycle ownership, IsEnabled forwarding, explicit accessible names, fail-closed secure readonly, and literal non-CSS property values.",
+			"why": "Windows spike: the shared-file subset of the 9.1.2 patch \u2014 @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec \u2014 applied to the @7d0adce preview. iOS/Android impl-file hunks are dead code on windows and were dropped. Repairs Windows replacement-only pointer event registration with independently owned subscribers, ref-counted hover, unload/reload cleanup, cancellation/capture-loss handling, disabled guards, and separated tap/double/long-press delivery. Repairs parent-driven percentage sizing initialization, resize/reparent/load/unload ownership, and padded content-box updates. Restores Windows input focus/blur events and lifecycle ownership, IsEnabled forwarding, explicit accessible names, fail-closed secure readonly, and literal non-CSS property values.",
 			"dropWhen": "upstream ships the fixes and windows moves off the preview pin (NativeScript#11462, #11446, core windows merge); pointer observer source fix is retained in .agents/patches/windows-pointer-core.patch until an upstream release contains it. Percentage sizing source fix is retained in .agents/patches/windows-layout/core-percent-source.patch until upstream includes it. Input source repair is retained in .agents/patches/windows-input-core.patch until upstream includes it.",
 			"template": false
 		},
@@ -66,7 +66,7 @@
 			"specifier": "@tsrx/typescript-plugin@0.4.11",
 			"file": "@tsrx__typescript-plugin@0.4.11.patch",
 			"scope": "toolchain",
-			"why": "Enables `resolveHiddenExtensions` on the language plugin's typescript facet so extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc and the IDE plugin.",
+			"why": "Enables `resolveHiddenExtensions` on the language plugin's typescript facet so extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes \u2014 required for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc and the IDE plugin.",
 			"dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
 		},
 		{
@@ -97,7 +97,7 @@
 			"file": "@nativescript-community__ui-image@5.0.17.patch",
 			"upstreamPR": "https://github.com/nativescript-community/ui-image/pull/69",
 			"scope": "runtime",
-			"why": "ui-image 5.x regressed two iOS prefetch behaviors the 4.x line shipped (still present in 4.6.20): prefetchToCacheType ignores its cacheType argument — SDWebImagePrefetcher's default context stores to disk+memory either way, so a 'disk' prefetch also decodes and warms memory, diverging from Android's bytes-only Glide downloadOnly — and getContextFromOptions drops PrefetchOptions.headers because it never sets SDWebImageContextDownloadRequestModifier, so prefetch({headers}) silently sends no headers on iOS while Android's CustomGlideUrl forwards them. Ports upstream's own 4.x implementation — SDWebImageContextStoreCacheType on the prefetch context plus the request-modifier branch in getContextFromOptions — and additionally sets SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original bytes to disk.",
+			"why": "ui-image 5.x regressed two iOS prefetch behaviors the 4.x line shipped (still present in 4.6.20): prefetchToCacheType ignores its cacheType argument \u2014 SDWebImagePrefetcher's default context stores to disk+memory either way, so a 'disk' prefetch also decodes and warms memory, diverging from Android's bytes-only Glide downloadOnly \u2014 and getContextFromOptions drops PrefetchOptions.headers because it never sets SDWebImageContextDownloadRequestModifier, so prefetch({headers}) silently sends no headers on iOS while Android's CustomGlideUrl forwards them. Ports upstream's own 4.x implementation \u2014 SDWebImageContextStoreCacheType on the prefetch context plus the request-modifier branch in getContextFromOptions \u2014 and additionally sets SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original bytes to disk.",
 			"dropWhen": "a ui-image 5.x release restores the 4.x storeCacheType + prefetch-headers behavior on iOS and the workspace upgrades to it"
 		}
 	]

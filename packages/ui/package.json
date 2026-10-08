@@ -119,7 +119,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript-community/ui-drawer": "0.1.32",
-		"@nativescript/core": "9.1.2",
+		"@nativescript/core": "9.1.3",
 		"@nativescript/types": "9.1.4",
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",

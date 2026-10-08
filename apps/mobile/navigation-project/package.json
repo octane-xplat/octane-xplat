@@ -4,7 +4,7 @@
 	"main": "src/index.ts",
 	"dependencies": {
 		"@nativescript-community/octane": "0.2.4",
-		"@nativescript/core": "9.1.2",
+		"@nativescript/core": "9.1.3",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"octane": "0.6.3"

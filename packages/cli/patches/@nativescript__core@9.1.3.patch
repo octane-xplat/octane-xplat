@@ -1,8 +1,8 @@
 diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
-index 0c13e7e67a8eb306248d738bb73189b772b4a409..7ce38a9ba8f1f9aef709136b46f8e5b2435ba714 100644
+index ee888000bf860ec2a376926f05b64cb5999c3b4f..6098f60b5281ca64c9255b16642046f25266af0d 100644
 --- a/css/css-tree-parser.js
 +++ b/css/css-tree-parser.js
-@@ -66,6 +66,10 @@ function transformAst(node, css, type = null) {
+@@ -70,6 +70,10 @@ function transformAst(node, css, type = null) {
              atrule.keyframes = transformAst(node.block, css, 'keyframe');
              atrule.vendor = undefined;
          }
@@ -156,7 +156,7 @@ index 24292e7aa38a0e915e19843551121d336d39d477..47307b90625d2dc09b3ca00b91882d7d
 +﻿export type { Pair, TranslatePair, Transformation, TransformationType, TransformationValue, TransformFunctionsInfo, Point3D, AnimationPromise, Cancelable } from './animation-types';
  export { KeyframeAnimation, KeyframeAnimationInfo, KeyframeDeclaration, KeyframeInfo } from './keyframe-animation';
  import type { AnimationDefinition, AnimationPromise } from './animation-types';
- 
+
 diff --git a/ui/animation/index.ios.js b/ui/animation/index.ios.js
 index 25f3c19349a389341676963351b6315f9181c1fc..f2d0eeb42ac12daa0fa4dd5ce1c704103501a736 100644
 --- a/ui/animation/index.ios.js
@@ -217,7 +217,7 @@ index 3be12d5c382176ca302bc318f8d24e0434e00f51..7e34c4329780fb0cc623dbf28934b176
      rotate?: {
          x: number;
 diff --git a/ui/core/view/index.android.d.ts b/ui/core/view/index.android.d.ts
-index d540ec1993b7745ac600bc1bb542779024d1bcfa..867345daa6f5a8ded5f3a0ae0655562a3581870e 100644
+index d5780663fe6823ad2be0bb44e682358e86c272eb..a82a8e052a0588e449728733b4e943268009ac47 100644
 --- a/ui/core/view/index.android.d.ts
 +++ b/ui/core/view/index.android.d.ts
 @@ -58,8 +58,8 @@ export declare class View extends ViewCommon {
@@ -232,10 +232,10 @@ index d540ec1993b7745ac600bc1bb542779024d1bcfa..867345daa6f5a8ded5f3a0ae0655562a
      [zIndexProperty.setNative]: (value: number) => void;
      [backgroundInternalProperty.getDefault]: () => android.graphics.drawable.Drawable;
 diff --git a/ui/core/view/index.android.js b/ui/core/view/index.android.js
-index b17d5f174ff636be2ac5a18ad06e7986a177f3bc..50bd1c764244d3cb8d7fd5ad8ae7bbcd234c152e 100644
+index 7fd9d50a663a053535c29c071a0308c7d78c3303..adb2295f7fb0606335debb41a1eb5d136f51c1c7 100644
 --- a/ui/core/view/index.android.js
 +++ b/ui/core/view/index.android.js
-@@ -6,6 +6,8 @@ import { Trace } from '../../../trace';
+@@ -7,6 +7,8 @@ import { Trace } from '../../../trace';
  import { hiddenProperty } from '../view-base';
  import { isCssWideKeyword } from '../properties/property-shared';
  import { perspectiveProperty, visibilityProperty, opacityProperty, horizontalAlignmentProperty, verticalAlignmentProperty, minWidthProperty, minHeightProperty, maxWidthProperty, maxHeightProperty, widthProperty, heightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty, rotateProperty, rotateXProperty, rotateYProperty, scaleXProperty, scaleYProperty, translateXProperty, translateYProperty, zIndexProperty, backgroundInternalProperty, androidElevationProperty, androidDynamicElevationOffsetProperty } from '../../styling/style-properties';
@@ -244,7 +244,7 @@ index b17d5f174ff636be2ac5a18ad06e7986a177f3bc..50bd1c764244d3cb8d7fd5ad8ae7bbcd
  import { CoreTypes } from '../../../core-types';
  import { Background, refreshBorderDrawable } from '../../styling/background';
  import { profile } from '../../../profiling';
-@@ -694,8 +696,16 @@ export class View extends ViewCommon {
+@@ -718,8 +720,16 @@ export class View extends ViewCommon {
          return false;
      }
      layoutNativeView(left, top, right, bottom) {
@@ -263,7 +263,7 @@ index b17d5f174ff636be2ac5a18ad06e7986a177f3bc..50bd1c764244d3cb8d7fd5ad8ae7bbcd
          }
      }
      requestLayout() {
-@@ -1272,10 +1282,10 @@ export class View extends ViewCommon {
+@@ -1296,10 +1306,10 @@ export class View extends ViewCommon {
          org.nativescript.widgets.ViewHelper.setScaleY(this.nativeViewProtected, float(value));
      }
      [translateXProperty.setNative](value) {
@@ -282,7 +282,7 @@ index f5cc0e283779eb9049932b99fd9c8285526c05f9..af4b295ebed3886b31c0678b2d6e5103
 +++ b/ui/core/view/index.d.ts
 @@ -549,18 +549,20 @@ export abstract class View extends ViewCommon {
  	perspective: number;
- 
+
  	/**
 -	 * Gets or sets the translateX affine transform of the view in device independent pixels.
 +	 * Gets or sets the translateX affine transform of the view.
@@ -292,7 +292,7 @@ index f5cc0e283779eb9049932b99fd9c8285526c05f9..af4b295ebed3886b31c0678b2d6e5103
  	 */
 -	translateX: CoreTypes.dip;
 +	translateX: CoreTypes.PercentLengthType;
- 
+
  	/**
 -	 * Gets or sets the translateY affine transform of the view in device independent pixels.
 +	 * Gets or sets the translateY affine transform of the view.
@@ -302,11 +302,11 @@ index f5cc0e283779eb9049932b99fd9c8285526c05f9..af4b295ebed3886b31c0678b2d6e5103
  	 */
 -	translateY: CoreTypes.dip;
 +	translateY: CoreTypes.PercentLengthType;
- 
+
  	/**
  	 * Gets or sets the scaleX affine transform of the view.
 diff --git a/ui/core/view/index.ios.d.ts b/ui/core/view/index.ios.d.ts
-index a63b36db5e1be012ba5595fa54e624a9bc13d196..9b19fbc49efbb93e6e185e0f1abab36992029377 100644
+index ce122eb22174264e5840dccbaa053ae96a3cf16d..fc203e7744833f9e311510926c58c83d4a787745 100644
 --- a/ui/core/view/index.ios.d.ts
 +++ b/ui/core/view/index.ios.d.ts
 @@ -51,9 +51,9 @@ export declare class View extends ViewCommon {
@@ -322,7 +322,7 @@ index a63b36db5e1be012ba5595fa54e624a9bc13d196..9b19fbc49efbb93e6e185e0f1abab369
      [zIndexProperty.setNative]: (value: number) => void;
      [backgroundInternalProperty.getDefault]: () => UIColor;
 diff --git a/ui/core/view/index.ios.js b/ui/core/view/index.ios.js
-index 9a2ed977caa7e80dd03ae2738620bbeb7972d236..c55989f928aaf9582f82d9a8f5f5a6d8c9679ac1 100644
+index 63f0ed7f7bbb587e5f081f7fc6c9cb80df81127d..8e9d901af0801df8b1a174691b2882c01164ebe4 100644
 --- a/ui/core/view/index.ios.js
 +++ b/ui/core/view/index.ios.js
 @@ -8,6 +8,7 @@ import { SDK_VERSION, supportsGlass } from '../../../utils/constants';
@@ -333,7 +333,7 @@ index 9a2ed977caa7e80dd03ae2738620bbeb7972d236..c55989f928aaf9582f82d9a8f5f5a6d8
  import { profile } from '../../../profiling';
  import { accessibilityEnabledProperty, accessibilityHiddenProperty, accessibilityHintProperty, accessibilityIdentifierProperty, accessibilityLabelProperty, accessibilityLanguageProperty, accessibilityLiveRegionProperty, accessibilityMediaSessionProperty, accessibilityRoleProperty, accessibilityStateProperty, accessibilityValueProperty, accessibilityIgnoresInvertColorsProperty } from '../../../accessibility/accessibility-properties';
  import { IOSPostAccessibilityNotificationType } from '../../../accessibility';
-@@ -332,6 +333,10 @@ export class View extends ViewCommon {
+@@ -352,6 +353,10 @@ export class View extends ViewCommon {
          if (this._nativeBackgroundState === 'invalid' || (this._nativeBackgroundState === 'drawn' && backgroundDependsOnSize)) {
              this._redrawNativeBackground(background);
          }
@@ -344,7 +344,7 @@ index 9a2ed977caa7e80dd03ae2738620bbeb7972d236..c55989f928aaf9582f82d9a8f5f5a6d8
      }
      updateNativeTransform() {
          const scaleX = this.scaleX || 1e-6;
-@@ -343,7 +348,8 @@ export class View extends ViewCommon {
+@@ -363,7 +368,8 @@ export class View extends ViewCommon {
          if (this.rotateX || this.rotateY) {
              transform.m34 = -1 / perspective;
          }
@@ -373,122 +373,6 @@ index e08bd0515f328334feb43be5c0a608099cc7efd3..5ab1064575441d664a6854f15d92b79d
      get scaleX(): number;
      set scaleX(value: number);
      get scaleY(): number;
-diff --git a/ui/core/view-base/index.d.ts b/ui/core/view-base/index.d.ts
-index e60308ab6e5bdfd05f9ed4173933496b96e23e33..1aee75a717bc61eed76ed2882517ed33fef5c570 100644
---- a/ui/core/view-base/index.d.ts
-+++ b/ui/core/view-base/index.d.ts
-@@ -497,6 +497,12 @@ export declare abstract class ViewBase extends Observable {
-      * @param view to unload.
-      */
-     unloadView(view: ViewBase): void;
-+    /**
-+     * Whether a child is the one currently shown. Containers that keep several children
-+     * alive but show one at a time (a TabView's items) override it for the hidden ones.
-+     * @param child A direct child of this view.
-+     */
-+    _isChildPresented(child: ViewBase): boolean;
-     /**
-      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
-      */
-diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
-index 0c25671db43f74551878c67a38a0b276e10880d4..524dfd7892bae5d8484dd86ae7153a95b8d1a6e3 100644
---- a/ui/core/view-base/index.js
-+++ b/ui/core/view-base/index.js
-@@ -633,6 +633,14 @@ export class ViewBase extends Observable {
-             view.callUnloaded();
-         }
-     }
-+    /**
-+     * Whether a child is the one currently shown. Containers that keep several children
-+     * alive but show one at a time (a TabView's items) override it for the hidden ones.
-+     * @param child A direct child of this view.
-+     */
-+    _isChildPresented(child) {
-+        return true;
-+    }
-     /**
-      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
-      */
-diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
-index f678538745fbc3b3fd78edf46ea702d8cc4e641b..28b261eafd9560a656a5549e4f718b77016af437 100644
---- a/ui/frame/frame-common.js
-+++ b/ui/frame/frame-common.js
-@@ -3,7 +3,7 @@ import { NavigationType } from './frame-interfaces';
- import { CustomLayoutView, CSSType } from '../core/view';
- import { Property } from '../core/properties';
- import { Trace } from '../../trace';
--import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
-+import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _insertAtFrameStackBottom, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
- import { viewMatchesModuleContext } from '../core/view/view-common';
- import { getAncestor } from '../core/view-base';
- import { Builder } from '../builder';
-@@ -12,6 +12,19 @@ import { profile } from '../../profiling';
- import { FRAME_SYMBOL } from './frame-helpers';
- import { SharedTransition } from '../transition/shared-transition';
- export { NavigationType } from './frame-interfaces';
-+/**
-+ * A view is presented while every ancestor shows the child leading to it; a frame in an
-+ * unselected tab is loaded on Android but must never outrank the tab that is shown.
-+ */
-+function isPresented(view) {
-+    while (view.parent) {
-+        if (!view.parent._isChildPresented(view)) {
-+            return false;
-+        }
-+        view = view.parent;
-+    }
-+    return true;
-+}
- function buildEntryFromArgs(arg) {
-     let entry;
-     if (typeof arg === 'string') {
-@@ -466,7 +479,12 @@ let FrameBase = FrameBase_1 = class FrameBase extends CustomLayoutView {
-         return _isFrameStackEmpty();
-     }
-     _pushInFrameStack() {
--        _pushInFrameStack(this);
-+        if (isPresented(this)) {
-+            _pushInFrameStack(this);
-+        }
-+        else {
-+            _insertAtFrameStackBottom(this);
-+        }
-     }
-     _popFromFrameStack() {
-         _popFromFrameStack(this);
-diff --git a/ui/frame/frame-stack.d.ts b/ui/frame/frame-stack.d.ts
-index 8387e6202380ec502adbc577c8de73e354ced9a9..0c874161af12d69ea4ced8f43d3e8a4d92032dcd 100644
---- a/ui/frame/frame-stack.d.ts
-+++ b/ui/frame/frame-stack.d.ts
-@@ -19,5 +19,6 @@ export declare function topmostForWindow(window: WindowBase): FrameBase | undefi
- export declare function topmost(window?: WindowBase): FrameBase;
- export declare function _isFrameStackEmpty(): boolean;
- export declare function _pushInFrameStack(frame: FrameBase): void;
-+export declare function _insertAtFrameStackBottom(frame: FrameBase): void;
- export declare function _popFromFrameStack(frame: FrameBase): void;
- export declare function _removeFromFrameStack(frame: FrameBase): void;
-diff --git a/ui/frame/frame-stack.js b/ui/frame/frame-stack.js
-index 9ded225f53e4c4af92166a3e019671a1a65a2db2..9a9f5d5f9f891c9bcf6035b0345f4bb21c72831c 100644
---- a/ui/frame/frame-stack.js
-+++ b/ui/frame/frame-stack.js
-@@ -46,6 +46,17 @@ export function _pushInFrameStack(frame) {
-     frameStack.push(frame);
-     frame._isInFrameStack = true;
- }
-+/**
-+ * Keeps a frame in the stack without making it topmost: the frame stays findable by id,
-+ * while every frame that is actually shown outranks it.
-+ */
-+export function _insertAtFrameStackBottom(frame) {
-+    if (frame._isInFrameStack) {
-+        return;
-+    }
-+    frameStack.unshift(frame);
-+    frame._isInFrameStack = true;
-+}
- export function _popFromFrameStack(frame) {
-     if (!frame._isInFrameStack) {
-         return;
 diff --git a/ui/index.d.ts b/ui/index.d.ts
 index ef5209d97b83fadf0da672fc2677faa1d56199b6..b2eac9a30234e05ca859c0f664b77ca40f06793c 100644
 --- a/ui/index.d.ts
@@ -593,51 +477,18 @@ index ed354fddfe1caf982e73b603798cb8f5bf0d3501..7191092e40ba07c3dc3e6555059dbda0
          child.nativeViewProtected.setLayoutParams(lp);
      }
      _setChildMinWidthNative(child, value) {
-diff --git a/ui/layouts/flexbox-layout/index.ios.js b/ui/layouts/flexbox-layout/index.ios.js
-index d391d4213240cab9a5088f9d7937fab17e7c7e54..112a3dc9ca31471c7cbceb94f6ee22bc86181955 100644
---- a/ui/layouts/flexbox-layout/index.ios.js
-+++ b/ui/layouts/flexbox-layout/index.ios.js
-@@ -222,8 +222,8 @@ export class FlexboxLayout extends FlexboxLayoutBase {
-             if (FlexBasisPercent.DEFAULT /*lp.flexBasisPercent*/ !== FlexBasisPercent.DEFAULT && widthMode === EXACTLY) {
-                 childWidth = Math.round(widthSize * FlexBasisPercent.DEFAULT /*lp.flexBasisPercent*/);
-             }
--            const childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(widthMeasureSpec, lp.effectivePaddingLeft + lp.effectivePaddingRight + lp.effectiveMarginLeft + lp.effectiveMarginRight, childWidth < 0 ? WRAP_CONTENT : childWidth);
--            const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(heightMeasureSpec, lp.effectivePaddingTop + lp.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-+            const childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(widthMeasureSpec, this.effectivePaddingLeft + this.effectivePaddingRight + lp.effectiveMarginLeft + lp.effectiveMarginRight, childWidth < 0 ? WRAP_CONTENT : childWidth);
-+            const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(heightMeasureSpec, this.effectivePaddingTop + this.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-             child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-             this._checkSizeConstraints(child);
-             childState = View.combineMeasuredStates(childState, child.getMeasuredState());
-@@ -547,7 +547,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
-                     // might result in increased height e.g. text that could be shown on one line for larger
-                     // width needs to be wrapped in two when width is reduced.
-                     // As a result we cannot unconditionally measure with EXACTLY the current measured height
--                    const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentHeightMeasureSpec, lp.effectivePaddingTop + lp.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-+                    const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentHeightMeasureSpec, this.effectivePaddingTop + this.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-                     child.effectiveMinWidth = minWidth;
-                     // make sure crossSize is up-to-date as child calculated height might have increased
-@@ -758,7 +758,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
-         let newHeight = crossSize - view.effectiveMarginTop - view.effectiveMarginBottom;
-         newHeight = Math.max(newHeight, 0);
-         const originalMeasuredWidth = view.getMeasuredWidth();
--        let childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentWidthMeasureSpec, view.effectivePaddingLeft + view.effectivePaddingRight + view.effectiveMarginLeft + view.effectiveMarginRight, view.effectiveWidth < 0 ? WRAP_CONTENT : Math.min(view.effectiveWidth, originalMeasuredWidth));
-+        let childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentWidthMeasureSpec, this.effectivePaddingLeft + this.effectivePaddingRight + view.effectiveMarginLeft + view.effectiveMarginRight, view.effectiveWidth < 0 ? WRAP_CONTENT : Math.min(view.effectiveWidth, originalMeasuredWidth));
-         view.measure(childWidthMeasureSpec, makeMeasureSpec(newHeight, EXACTLY));
-         if (originalMeasuredWidth > view.getMeasuredWidth()) {
-             childWidthMeasureSpec = makeMeasureSpec(originalMeasuredWidth, EXACTLY);
 diff --git a/ui/layouts/liquid-glass-container/index.ios.js b/ui/layouts/liquid-glass-container/index.ios.js
-index f72d4a1f66520c71f4830abcb6f908ef04d00ad6..78e97694657babd46fd4900db2dda0b7906ab25c 100644
+index 6b3a474048271321d450e6c12a4c23215ac6efc2..5001783b44ab83f68829265b4e61d6a6f2f12081 100644
 --- a/ui/layouts/liquid-glass-container/index.ios.js
 +++ b/ui/layouts/liquid-glass-container/index.ios.js
 @@ -1,5 +1,6 @@
  import { supportsGlass } from '../../../utils/constants';
- import { iosGlassEffectProperty } from '../../core/view';
+ import { iosGlassEffectProperty, IOSHelper } from '../../core/view';
 +import { resolveTranslate } from '../../styling/css-transform';
  import { LiquidGlassContainerCommon } from './liquid-glass-container-common';
  import { toUIGlassStyle } from '../liquid-glass';
  export class LiquidGlassContainer extends LiquidGlassContainerCommon {
-@@ -123,13 +124,14 @@ export class LiquidGlassContainer extends LiquidGlassContainerCommon {
+@@ -118,13 +119,14 @@ export class LiquidGlassContainer extends LiquidGlassContainerCommon {
              const child = this.getChildAt(i);
              if (!child)
                  continue;
@@ -657,7 +508,7 @@ index f72d4a1f66520c71f4830abcb6f908ef04d00ad6..78e97694657babd46fd4900db2dda0b7
              if (!force) {
                  const keys = native.layer.animationKeys ? native.layer.animationKeys() : null;
 diff --git a/ui/styling/background.ios.js b/ui/styling/background.ios.js
-index ed4b6883680229ffd1aa92a7bbcba2d36f1efebc..3882cad9a8d17fb5b8a80a4795b0161bc2f82e28 100644
+index 810720f038afa5a76efd00b04af80b13afeac50e..1c7fb37ee0376ac55501e7b3e5f11c7350c6a703 100644
 --- a/ui/styling/background.ios.js
 +++ b/ui/styling/background.ios.js
 @@ -197,8 +197,8 @@ export var ios;
@@ -1329,87 +1180,3 @@ index e75c7c8010e23917a7138c7351243aab0bad1f49..7cf9244c0290a76b186c15f13cc94ca7
  function isRule(node) {
      return node.type === 'rule';
  }
-diff --git a/ui/tab-view/index.android.js b/ui/tab-view/index.android.js
-index e195b7564af964c333870fbb027c9aaac3335751..7df6fcb99fc0341afb137be4a297337f4fa7bf3e 100644
---- a/ui/tab-view/index.android.js
-+++ b/ui/tab-view/index.android.js
-@@ -368,7 +368,10 @@ export class TabView extends TabViewBase {
-     onItemsChanged(oldItems, newItems) {
-         super.onItemsChanged(oldItems, newItems);
-         if (oldItems) {
--            oldItems.forEach((item, i, arr) => {
-+            oldItems.forEach((item) => {
-+                if (newItems && newItems.indexOf(item) >= 0) {
-+                    return;
-+                }
-                 item.index = 0;
-                 item.tabItemSpec = null;
-                 item.setNativeView(null);
-diff --git a/ui/tab-view/index.ios.js b/ui/tab-view/index.ios.js
-index c25ff0c66166b9dedd8b284981fc566ad5aa0230..e162b5d59e358965ae88e9b31ad1d1378a595995 100644
---- a/ui/tab-view/index.ios.js
-+++ b/ui/tab-view/index.ios.js
-@@ -622,6 +622,11 @@ export class TabView extends TabViewBase {
-     [itemsProperty.setNative](value) {
-         this.setViewControllers(value);
-         selectedIndexProperty.coerce(this);
-+        // Items added to a loaded TabView were loaded before their controllers existed.
-+        const selectedItem = value === null || value === void 0 ? void 0 : value[this.selectedIndex];
-+        if (selectedItem) {
-+            selectedItem.loadView(selectedItem.view);
-+        }
-     }
-     [tabTextFontSizeProperty.getDefault]() {
-         return null;
-diff --git a/ui/tab-view/tab-view-common.d.ts b/ui/tab-view/tab-view-common.d.ts
-index 35d1ba1f2479bbbf64cd4b1acb9563e0f823fd4e..e96b3085d75549d06d2c2e9cae183887e8e1adcc 100644
---- a/ui/tab-view/tab-view-common.d.ts
-+++ b/ui/tab-view/tab-view-common.d.ts
-@@ -66,6 +66,7 @@ export declare class TabViewBase extends View implements TabViewDefinition, AddC
-     eachChild(callback: (child: ViewBase) => boolean): void;
-     eachChildView(callback: (child: View) => boolean): void;
-     onItemsChanged(oldItems: TabViewItemDefinition[], newItems: TabViewItemDefinition[]): void;
-+    _isChildPresented(child: ViewBase): boolean;
-     onSelectedIndexChanged(oldIndex: number, newIndex: number): void;
- }
- export interface TabViewBase {
-diff --git a/ui/tab-view/tab-view-common.js b/ui/tab-view/tab-view-common.js
-index 66672f1fa5ccb31f06a83a2a21bfe1e5c668712f..1eb3676f0346d7ee21ab7ff1c1b78292da641463 100644
---- a/ui/tab-view/tab-view-common.js
-+++ b/ui/tab-view/tab-view-common.js
-@@ -144,21 +144,33 @@ let TabViewBase = TabViewBase_1 = class TabViewBase extends View {
-     }
-     onItemsChanged(oldItems, newItems) {
-         if (oldItems) {
--            oldItems.forEach((item) => this._removeView(item));
-+            oldItems.forEach((item) => {
-+                if (!newItems || newItems.indexOf(item) < 0) {
-+                    this._removeView(item);
-+                }
-+            });
-         }
-         if (newItems) {
-             newItems.forEach((item) => {
-                 if (!item.view) {
-                     throw new Error(`TabViewItem must have a view.`);
-                 }
-+                // An item kept across the change stays loaded; tearing it down would unload its view.
-+                if (item.parent === this) {
-+                    return;
-+                }
-                 // A view can only have one parent, and _addView throws if it already has one.
--                if (item.parent && item.parent !== this) {
-+                if (item.parent) {
-                     item.parent._removeView(item);
-                 }
-                 this._addView(item);
-             });
-         }
-     }
-+    _isChildPresented(child) {
-+        const items = this.items;
-+        return !items || items[this.selectedIndex] === child;
-+    }
-     onSelectedIndexChanged(oldIndex, newIndex) {
-         // to be overridden in platform specific files
-         this.notify({
