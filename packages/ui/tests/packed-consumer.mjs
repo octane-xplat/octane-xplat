@@ -16,7 +16,7 @@ import {
 
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const macosOnly = process.argv.includes('--macos-only')
 const overlaysOnly = process.argv.includes('--macos-overlays')
@@ -83,6 +83,24 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 		const targetPath = join(modules, dependency)
 		mkdirSync(dirname(targetPath), { recursive: true })
 		symlinkSync(source, targetPath, 'dir')
+	}
+
+	if (target === 'native') {
+		// Load the packed helper: declaration checks alone cannot catch missing
+		// runtime exports from an external Octane entry point.
+		// Older runtimes enumerate exports rather than forwarding all of core.
+		for (const entry of ['dist/universal-native.js', 'dist/node/universal-native.js']) {
+			assert.match(
+				readFileSync(join(modules, 'octane', entry), 'utf8'),
+				/export \{ Children \} from ["']\.\/universal-core\.js["']/,
+			)
+		}
+
+		const helper = join(packageLink, 'dist/native/child-array.js')
+		assert.match(readFileSync(helper, 'utf8'), /from ['"]octane\/universal\/native['"]/)
+		const { toChildArray, mapChildren } = await import(pathToFileURL(helper).href)
+		assert.deepEqual(toChildArray([null, 'first', [false, 'second']]), ['first', 'second'])
+		assert.equal(mapChildren(['first', 'second'], (child) => child).length, 2)
 	}
 
 	if (target === 'macos') {

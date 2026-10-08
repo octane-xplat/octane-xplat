@@ -91,11 +91,12 @@ patchedDependencies:
   # Published 0.10.2 ships async/generator non-component helper compilation and Descriptor
   # lexical/ancestor ownership, so the helper hunks are removed and the old four-hunk
   # instance ownership fix becomes one declaring-owner reader fallback per distribution.
-  # Retains renderer-owned Children.toArray/map, universal signal-read tracking and local
-  # hooks, root event-error forwarding, and the complete universal imperative-ref lifecycle.
-  # Connects universal signal-owner identities to the upstream enclosingOwner chain so child
-  # reads reuse instance declarations. Verified against the registry 0.10.2 tarball and the
-  # patched 0.6.3 output.
+  # Retains renderer-owned Children.toArray/map with explicit universal-native re-exports
+  # for older runtimes, universal signal-read tracking and local hooks, root event-error
+  # forwarding, and the complete universal imperative-ref lifecycle. Connects universal
+  # signal-owner identities to the upstream enclosingOwner chain so child reads reuse
+  # instance declarations. Verified against the registry 0.10.2 tarball and the patched
+  # 0.6.3 output.
   octane@0.10.2: packages/cli/patches/octane@0.10.2.patch
   # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
   # flex alignment, so those hunks are removed. Retains the unshipped parent-padding

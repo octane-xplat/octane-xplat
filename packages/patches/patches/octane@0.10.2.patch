@@ -983,10 +983,11 @@ diff --git a/dist/node/universal-native.js b/dist/node/universal-native.js
 index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..3ff9a5750fb59cd91b63299aec3a3e0c030b4579 100644
 --- a/dist/node/universal-native.js
 +++ b/dist/node/universal-native.js
-@@ -6,9 +6,11 @@ import {
+@@ -6,9 +6,12 @@ import {
  import {
    universalContext
  } from "./universal-core.js";
++export { Children } from "./universal-core.js";
 +import { enableUniversalSignalDocument } from "./signals/universal-owner.js";
  import { registerRendererContext, renderRendererContextProvider } from "./renderer-bridge.js";
  import { CONTEXT_TAG } from "./runtime-tags.js";
@@ -1629,10 +1630,11 @@ diff --git a/dist/universal-native.js b/dist/universal-native.js
 index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..3ff9a5750fb59cd91b63299aec3a3e0c030b4579 100644
 --- a/dist/universal-native.js
 +++ b/dist/universal-native.js
-@@ -6,9 +6,11 @@ import {
+@@ -6,9 +6,12 @@ import {
  import {
    universalContext
  } from "./universal-core.js";
++export { Children } from "./universal-core.js";
 +import { enableUniversalSignalDocument } from "./signals/universal-owner.js";
  import { registerRendererContext, renderRendererContextProvider } from "./renderer-bridge.js";
  import { CONTEXT_TAG } from "./runtime-tags.js";

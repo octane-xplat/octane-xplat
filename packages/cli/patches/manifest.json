@@ -5,7 +5,7 @@
 			"specifier": "octane@0.10.2",
 			"file": "octane@0.10.2.patch",
 			"scope": "runtime",
-			"why": "Published 0.10.2 ships async/generator non-component helper compilation and Descriptor lexical/ancestor ownership, so the helper hunks are removed and the old four-hunk instance ownership fix becomes one declaring-owner reader fallback per distribution. Retains renderer-owned Children.toArray/map, universal signal-read tracking and local hooks, root event-error forwarding, and the complete universal imperative-ref lifecycle. Connects universal signal-owner identities to the upstream enclosingOwner chain so child reads reuse instance declarations. Verified against the registry 0.10.2 tarball and the patched 0.6.3 output.",
+			"why": "Published 0.10.2 ships async/generator non-component helper compilation and Descriptor lexical/ancestor ownership, so the helper hunks are removed and the old four-hunk instance ownership fix becomes one declaring-owner reader fallback per distribution. Retains renderer-owned Children.toArray/map with explicit universal-native re-exports for older runtimes, universal signal-read tracking and local hooks, root event-error forwarding, and the complete universal imperative-ref lifecycle. Connects universal signal-owner identities to the upstream enclosingOwner chain so child reads reuse instance declarations. Verified against the registry 0.10.2 tarball and the patched 0.6.3 output.",
 			"dropWhen": "An octane release exports universal Children normalization, integrates universal signal reads/local hooks and owner ancestry, forwards uncaught event-handler errors, and supports optional/replaced/nested imperative refs with callback cleanup."
 		},
 		{
