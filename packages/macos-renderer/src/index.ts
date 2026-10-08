@@ -44,7 +44,9 @@ export interface ElementNode {
 	text: string
 	// Per-kind extras: placeholderView, marginHost, marginConstraints,
 	// crossAxisConstraint, sizeConstraints, placementPins, styleBg, bgSlot,
-	// layoutObserver, scrollObserver, scheme, textRuns, appliedClassName, ...
+	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
+	// styleFont*/classFont*/propFontSize, stylePaddingBox/Edges, classInsets,
+	// styleRadius, classRadius, classSpacing, classOrientation, ...
 	[key: string]: any
 }
 
@@ -1821,9 +1823,13 @@ function applyThemeColors(node: ElementNode) {
 		node.placeholderView.textColor = nativeColor(colors.placeholder)
 	}
 
-	if (node.bgSlot) {
+	if (node.bgSlot || node.styleBg != null) {
+		node.bgApplied = true
 		view.wantsLayer = true
 		view.layer.backgroundColor = nativeColor(node.styleBg ?? colors[node.bgSlot]).CGColor
+	} else if (node.bgApplied) {
+		node.bgApplied = false
+		view.layer.backgroundColor = null
 	}
 }
 
@@ -1849,9 +1855,12 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 	const specs = (node.sizeConstraintSpecs ??= {})
 	if (!spec) {
 		delete specs[name]
-		console.warn(
-			'[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value),
-		)
+		// null/undefined is an intentional clear — only malformed values warn.
+		if (value != null) {
+			console.warn(
+				'[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value),
+			)
+		}
 	} else {
 		specs[name] = spec
 	}
@@ -1945,16 +1954,187 @@ function deactivateSizeConstraints(node: ElementNode) {
 	}
 }
 
-function applyStyle(node: ElementNode, style: PropBag) {
-	if (style == null) {
+// Style, class, and (for labels) prop sources all write one native font.
+// Each source is tracked on the node so removing one re-resolves the rest —
+// explicit style wins over classes, which win over the element defaults.
+function syncNodeFont(node: ElementNode) {
+	const size =
+		node.styleFontSize ??
+		node.propFontSize ??
+		node.classFontSize ??
+		(node.type === 'label' ? 16 : 14)
+
+	const weight = node.styleFontWeight ?? node.classFontWeight ?? 400
+	node.appliedFontWeight = String(weight)
+	node.appliedFontFamily = node.styleFontFamily ?? node.container.fontFamily
+	node.view!.font = fontForFamilyStyle(size, weight, node.appliedFontFamily)
+}
+
+// NSStackView edgeInsets blend padding styles over class padding over zero.
+// Edges a style never set fall through to the class contribution.
+function syncEdgeInsets(node: ElementNode) {
+	const view = node.view
+	if (!view) {
 		return
 	}
 
-	if (typeof style !== 'object') {
+	const edges = node.stylePaddingEdges
+	const box = node.stylePaddingBox
+	const klass = node.classInsets
+	if (!edges && !box && !klass && !node.insetsApplied) {
+		return
+	}
+
+	node.insetsApplied = true
+	view.edgeInsets = {
+		top: edges?.top ?? box?.top ?? klass?.top ?? 0,
+		right: edges?.right ?? box?.right ?? klass?.right ?? 0,
+		bottom: edges?.bottom ?? box?.bottom ?? klass?.bottom ?? 0,
+		left: edges?.left ?? box?.left ?? klass?.left ?? 0,
+	}
+}
+
+// borderRadius (style) and rounded-* (class) share cornerRadius; either source
+// keeps masksToBounds on only while a positive radius is in effect.
+function syncCornerRadius(node: ElementNode) {
+	const view = node.view
+	if (!view) {
+		return
+	}
+
+	const radius = Number(node.styleRadius ?? node.classRadius ?? 0) || 0
+	if (radius <= 0 && !node.radiusApplied) {
+		return
+	}
+
+	node.radiusApplied = radius > 0
+	view.wantsLayer = true
+	view.layer.cornerRadius = Math.max(0, radius)
+	view.layer.masksToBounds = radius > 0
+}
+
+// Zero the margin sides a removed style owned, then let the stack unwrap or
+// the grid relayout — marginInsetsOf() returns null once every side is zero.
+function clearMarginStyle(node: ElementNode, name: string) {
+	const insets = node.marginInsets
+	if (!insets) {
+		return
+	}
+
+	if (name === 'margin') {
+		insets.top = insets.right = insets.bottom = insets.left = 0
+	} else {
+		insets[MARGIN_SIDES[name]] = 0
+	}
+
+	if (node.parent?.type === 'gridlayout') {
+		layoutGridChildren(node.parent)
+		return
+	}
+
+	syncMarginHost(node)
+}
+
+// A style key present in the last bag but absent or nulled in the new one must
+// put back the native state it installed: constraints deactivate, hit-testing
+// reverts, and shared properties resolve their class/default source again.
+function resetStyle(node: ElementNode, name: string) {
+	const view = node.view
+	if (!view) {
+		return
+	}
+
+	const textControl = ['label', 'textfield', 'textview'].includes(node.type)
+	if (name === 'pointerEvents') {
+		inputTransparentViews.delete(view)
+	} else if (name === 'objectFit' && node.type === 'image') {
+		// NSImageScaleProportionallyDown — the makeImageView/AppKit default.
+		view.imageScaling = 0
+	} else if (name === 'fontSize' && textControl) {
+		node.styleFontSize = undefined
+		syncNodeFont(node)
+	} else if (name === 'fontFamily' && textControl) {
+		node.styleFontFamily = undefined
+		syncNodeFont(node)
+	} else if (name === 'fontWeight' && textControl) {
+		node.styleFontWeight = undefined
+		syncNodeFont(node)
+	} else if (name === 'color' && textControl) {
+		node.styleColor = undefined
+		applyThemeColors(node)
+	} else if (name === 'padding' && node.type === 'flexboxlayout') {
+		node.stylePaddingBox = undefined
+		syncEdgeInsets(node)
+	} else if (EDGE_INSET_PROPS.has(name) && node.type === 'flexboxlayout') {
+		for (const edge of EDGE_INSET_PROPS.get(name)!) {
+			delete node.stylePaddingEdges?.[edge]
+		}
+
+		syncEdgeInsets(node)
+	} else if (name === 'backgroundColor') {
+		node.styleBg = undefined
+		applyThemeColors(node)
+	} else if (name === 'borderRadius') {
+		node.styleRadius = undefined
+		syncCornerRadius(node)
+	} else if (name === 'width' || name === 'height') {
+		setSizeConstraint(node, name, undefined)
+	} else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
+		if (node.parent?.type === 'gridlayout') {
+			layoutGridChildren(node.parent)
+		}
+
+		if (node.parent?.type === 'absolutelayout') {
+			layoutAbsoluteChildren(node.parent)
+		}
+	} else if (name === 'translateX' || name === 'translateY') {
+		if (typeof view.layer?.setValueForKeyPath === 'function') {
+			view.layer.setValueForKeyPath(
+				0,
+				name === 'translateY' ? 'transform.translation.y' : 'transform.translation.x',
+			)
+		}
+	} else if (name === 'zIndex') {
+		if (view.layer) {
+			view.layer.zPosition = 0
+		}
+	} else if (name === 'opacity') {
+		view.alphaValue = 1
+	} else if (name === 'textAlign' && node.type === 'label') {
+		view.alignment = nodeClasses(node).includes('vx-sheet-grabber')
+			? NSTextAlignment.Center
+			: NSTextAlignment.Left
+	} else if (name === 'borderWidth') {
+		if (view.layer) {
+			view.layer.borderWidth = 0
+		}
+	} else if (name === 'borderColor') {
+		if (view.layer) {
+			view.layer.borderColor = null
+		}
+	} else if (MARGIN_SIDES[name] || name === 'margin') {
+		clearMarginStyle(node, name)
+	}
+	// lineHeight folds into setLabelText from props.style — no native reset.
+}
+
+function applyStyle(node: ElementNode, style: PropBag) {
+	if (style != null && typeof style !== 'object') {
 		throw new Error('AppKit spike expects style to be an object')
 	}
 
-	for (const [name, value] of Object.entries(style)) {
+	// The style prop replaces wholesale, so keys dropped or nulled since the
+	// last apply must reset the native state they installed before the current
+	// values go on — otherwise removed styles linger on the view.
+	const next: PropBag = style ?? {}
+	const prev: PropBag = node.appliedStyle ?? {}
+	for (const name of Object.keys(prev)) {
+		if (prev[name] != null && next[name] == null) {
+			resetStyle(node, name)
+		}
+	}
+
+	for (const [name, value] of Object.entries(next)) {
 		if (value == null) {
 			continue
 		}
@@ -1978,18 +2158,11 @@ function applyStyle(node: ElementNode, style: PropBag) {
 
 			node.view!.imageScaling = imageScaling[String(value)] ?? 0
 		} else if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
-			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
-			node.appliedFontWeight = String(weight)
-			node.view!.font = fontForFamilyStyle(
-				value,
-				weight,
-				style.fontFamily ?? node.appliedFontFamily,
-			)
+			node.styleFontSize = value
+			syncNodeFont(node)
 		} else if (name === 'fontFamily' && ['label', 'textfield', 'textview'].includes(node.type)) {
-			node.appliedFontFamily = String(value)
-			const size = style.fontSize ?? node.view!.font.pointSize
-			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
-			node.view!.font = fontForFamilyStyle(size, weight, value)
+			node.styleFontFamily = String(value)
+			syncNodeFont(node)
 		} else if (name === 'color' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.styleColor = String(value)
 			node.view!.textColor = nativeColor(value)
@@ -1997,22 +2170,23 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
 			continue
 		} else if (name === 'padding' && node.type === 'flexboxlayout') {
-			node.view!.edgeInsets = parseEdgeInsets(value)
+			node.stylePaddingBox = parseEdgeInsets(value)
+			syncEdgeInsets(node)
 		} else if (EDGE_INSET_PROPS.has(name) && node.type === 'flexboxlayout') {
-			const insets = { ...node.view!.edgeInsets }
+			const edges = (node.stylePaddingEdges ??= {})
 			for (const edge of EDGE_INSET_PROPS.get(name)!) {
-				insets[edge] = Number(value) || 0
+				edges[edge] = Number(value) || 0
 			}
 
-			node.view!.edgeInsets = insets
+			syncEdgeInsets(node)
 		} else if (name === 'backgroundColor' && node.view) {
 			node.styleBg = String(value)
+			node.bgApplied = true
 			node.view.wantsLayer = true
 			node.view.layer.backgroundColor = nativeColor(value).CGColor
 		} else if (name === 'borderRadius' && node.view) {
-			node.view.wantsLayer = true
-			node.view.layer.cornerRadius = Number(value)
-			node.view.layer.masksToBounds = true
+			node.styleRadius = value
+			syncCornerRadius(node)
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
@@ -2034,12 +2208,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
 		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
-			node.appliedFontWeight = String(value)
-			node.view!.font = fontForFamilyStyle(
-				node.view!.font.pointSize,
-				value,
-				style.fontFamily ?? node.appliedFontFamily,
-			)
+			node.styleFontWeight = String(value)
+			syncNodeFont(node)
 		} else if (name === 'textAlign' && node.type === 'label') {
 			node.view!.alignment =
 				value === 'left'
@@ -2059,6 +2229,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
 		}
 	}
+
+	node.appliedStyle = next
 }
 
 function applyClassName(node: ElementNode, value: any) {
@@ -2066,11 +2238,23 @@ function applyClassName(node: ElementNode, value: any) {
 		.split(/\s+/)
 		.filter(Boolean)
 
+	// Class effects re-derive from scratch on every apply: the class-owned
+	// fields reset here and re-populate below, so removing a class drops the
+	// native state it installed instead of leaving stale values behind.
+	node.classFontSize = undefined
+	node.classFontWeight = undefined
+	node.classInsets = undefined
+	node.classRadius = undefined
+	node.classSpacing = undefined
+	node.classOrientation = undefined
+	node.colorSlot = undefined
+	node.bgSlot = undefined
+
 	if (node.type === 'label') {
-		if (classes.includes('vx-sheet-grabber')) {
+		const grabber = classes.includes('vx-sheet-grabber')
+		if (grabber) {
 			node.classLineHeight = 24
 			setSizeConstraint(node, 'height', 24)
-			node.view!.alignment = NSTextAlignment.Center
 		}
 
 		const sizes: Record<string, number> = {
@@ -2103,18 +2287,14 @@ function applyClassName(node: ElementNode, value: any) {
 		for (const name of classes) {
 			const heading = headingMetrics[name]
 			if (heading) {
-				node.appliedFontWeight = '700'
+				node.classFontWeight = '700'
+				node.classFontSize = heading.size
 				node.headingDefaultHeight = heading.height
-				node.view!.font = fontForFamilyStyle(heading.size, 700, node.appliedFontFamily)
 			}
 
 			if (sizes[name]) {
+				node.classFontSize = sizes[name]
 				node.headingDefaultHeight = undefined
-				node.view!.font = fontForFamilyStyle(
-					sizes[name],
-					node.appliedFontWeight ?? 400,
-					node.appliedFontFamily,
-				)
 			}
 
 			if (lineHeights[name] != null) {
@@ -2122,13 +2302,11 @@ function applyClassName(node: ElementNode, value: any) {
 			}
 
 			if (name === 'font-semibold') {
-				node.appliedFontWeight = '600'
-				node.view!.font = fontForFamilyStyle(node.view!.font.pointSize, 600, node.appliedFontFamily)
+				node.classFontWeight = '600'
 			}
 
 			if (name === 'font-bold') {
-				node.appliedFontWeight = '700'
-				node.view!.font = fontForFamilyStyle(node.view!.font.pointSize, 700, node.appliedFontFamily)
+				node.classFontWeight = '700'
 			}
 
 			if (name === 'text-muted') {
@@ -2138,6 +2316,28 @@ function applyClassName(node: ElementNode, value: any) {
 			if (name === 'text-onprimary') {
 				node.colorSlot = 'onprimary'
 			}
+		}
+
+		syncNodeFont(node)
+
+		if (!grabber && node.props?.style?.height != null) {
+			// The grabber's 24pt pin shares the height spec with style.height —
+			// re-assert the style value once the class is gone.
+			setSizeConstraint(node, 'height', node.props.style.height)
+		}
+
+		if (grabber) {
+			node.view!.alignment = NSTextAlignment.Center
+		} else {
+			// Without the grabber the label returns to its textAlign — or the
+			// Left default when no alignment style is in effect.
+			const textAlign = node.props?.style?.textAlign
+			node.view!.alignment =
+				textAlign == null || textAlign === 'left'
+					? NSTextAlignment.Left
+					: textAlign === 'right'
+						? NSTextAlignment.Right
+						: NSTextAlignment.Center
 		}
 	}
 
@@ -2157,37 +2357,27 @@ function applyClassName(node: ElementNode, value: any) {
 
 		for (const name of classes) {
 			if (gaps[name] !== undefined) {
-				node.view!.spacing = gaps[name]
+				node.classSpacing = gaps[name]
 			}
 
 			if (name === 'flex-row') {
-				node.view!.orientation = NSUserInterfaceLayoutOrientation.Horizontal
+				node.classOrientation = NSUserInterfaceLayoutOrientation.Horizontal
 			}
 
 			if (name === 'flex-col') {
-				node.view!.orientation = NSUserInterfaceLayoutOrientation.Vertical
-			}
-
-			if (name === 'items-center' || name === 'items-start' || name === 'items-end') {
-				node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+				node.classOrientation = NSUserInterfaceLayoutOrientation.Vertical
 			}
 
 			if (name === 'vx-toast' && node.type === 'flexboxlayout') {
-				;(node.view as NSStackView).edgeInsets = { top: 12, left: 12, bottom: 12, right: 12 }
+				node.classInsets = { top: 12, right: 12, bottom: 12, left: 12 }
 			}
 
 			if (name === 'vx-toast-viewport') {
-				;(node.view as NSStackView).spacing = 8
+				node.classSpacing = 8
 			}
 
 			if (name === 'vx-button') {
-				node.view!.orientation = NSUserInterfaceLayoutOrientation.Horizontal
-				node.view!.alignment = NSLayoutAttribute.CenterY
-				node.view!.distribution = NSStackViewDistribution.GravityAreas
-			}
-
-			if (name === 'justify-between') {
-				node.view!.distribution = NSStackViewDistribution.EqualSpacing
+				node.classOrientation = NSUserInterfaceLayoutOrientation.Horizontal
 			}
 
 			if (name === 'flex-1') {
@@ -2210,37 +2400,21 @@ function applyClassName(node: ElementNode, value: any) {
 			}
 
 			if (name === 'rounded-full' || name.startsWith('rounded-')) {
-				node.view!.wantsLayer = true
-				node.view!.layer.cornerRadius = name === 'rounded-full' ? 12 : 8
-				node.view!.layer.masksToBounds = true
+				node.classRadius = name === 'rounded-full' ? 12 : 8
 			}
 
 			if (name === 'bg-primary' || name === 'btn') {
 				node.bgSlot = 'primary'
-				node.view!.wantsLayer = true
-				node.view!.layer.backgroundColor = nativeColor(
-					SCHEME_COLORS[nodeScheme(node)].primary,
-				).CGColor
-
-				node.view!.edgeInsets = { top: 6, left: 10, bottom: 6, right: 10 }
+				node.classInsets = { top: 6, right: 10, bottom: 6, left: 10 }
 			}
 
 			if (name === 'bg-danger') {
 				node.bgSlot = 'danger'
-				node.view!.wantsLayer = true
-				node.view!.layer.backgroundColor = nativeColor(
-					SCHEME_COLORS[nodeScheme(node)].danger,
-				).CGColor
 			}
 
 			if (name === 'btn-secondary' || name === 'chip' || name === 'chip-off') {
 				node.bgSlot = 'secondary'
-				node.view!.wantsLayer = true
-				node.view!.layer.backgroundColor = nativeColor(
-					SCHEME_COLORS[nodeScheme(node)].secondary,
-				).CGColor
-
-				node.view!.edgeInsets = { top: 4, left: 8, bottom: 4, right: 8 }
+				node.classInsets = { top: 4, right: 8, bottom: 4, left: 8 }
 			}
 
 			// Panels that paint the web body's --color-surface. On this host the
@@ -2253,22 +2427,27 @@ function applyClassName(node: ElementNode, value: any) {
 				name === 'modal-panel'
 			) {
 				node.bgSlot = 'surface'
-				node.view!.wantsLayer = true
-				node.view!.layer.backgroundColor = nativeColor(
-					SCHEME_COLORS[nodeScheme(node)].surface,
-				).CGColor
 			}
 		}
+
+		if (node.view!.orientation != null) {
+			node.view!.spacing = node.classSpacing ?? Number(node.props.gap ?? node.props.spacing ?? 0)
+			node.view!.orientation =
+				node.classOrientation ??
+				(node.props.flexDirection === 'row'
+					? NSUserInterfaceLayoutOrientation.Horizontal
+					: NSUserInterfaceLayoutOrientation.Vertical)
+
+			node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+		}
+
+		syncEdgeInsets(node)
+		syncCornerRadius(node)
 	}
 
 	if (node.type === 'textfield' || node.type === 'textview') {
 		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
-			node.view!.font = fontForFamilyStyle(
-				14,
-				node.appliedFontWeight ?? 400,
-				node.appliedFontFamily,
-			)
-
+			node.classFontSize = 14
 			node.colorSlot = 'text'
 			node.view!.drawsBackground = false
 			if (node.type === 'textfield') {
@@ -2279,6 +2458,8 @@ function applyClassName(node: ElementNode, value: any) {
 				node.view!.textContainerInset = { width: 0, height: 0 }
 			}
 		}
+
+		syncNodeFont(node)
 	}
 
 	applyThemeColors(node)
@@ -2627,11 +2808,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (name === 'text') {
 					setLabelText(node, String(value ?? ''))
 				} else if (name === 'fontSize') {
-					node.view!.font = fontForFamilyStyle(
-						Number(value ?? 16),
-						node.appliedFontWeight ?? 400,
-						node.appliedFontFamily,
-					)
+					node.propFontSize = Number(value ?? 16)
+					syncNodeFont(node)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 					syncText(node)
@@ -4579,7 +4757,18 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit node with id ' + id)
 				}
 
-				applyStyle(node, { [name]: value })
+				// Single-key writes merge into the node's style bag — applyStyle
+				// diffs against the last applied bag, so a partial object here
+				// would reset every other style.
+				const style = { ...node.props?.style }
+				if (value == null) {
+					delete style[name]
+				} else {
+					style[name] = value
+				}
+
+				node.props = { ...node.props, style }
+				applyStyle(node, style)
 				container.hostView.layoutSubtreeIfNeeded?.()
 				return this.frameInWindow(id)
 			},
