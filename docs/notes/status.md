@@ -24,7 +24,8 @@ the shape) → `building` → `built`.
 ## Web support readiness
 
 The current Web build, typecheck, and packed starter pass the repository's
-browser checks. CI exercises Playwright-managed Chromium, Firefox, and WebKit;
+checks. The browser suite (`pnpm test:e2e`) exercises Playwright-managed
+Chromium, Firefox, and WebKit locally rather than in CI;
 this does not establish a minimum browser-version floor, actual iOS Safari
 support, or screen-reader behavior. Those qualification limits and the
 app-defined browser-target policy are described in the [spec](../start/spec.md).

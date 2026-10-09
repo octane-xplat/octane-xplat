@@ -56,8 +56,9 @@ Chromium and WebKit also check playback state. Node tests inject OS/backend APIs
 and do not count as native runtime evidence. The probes use synthetic PCM to
 measure playback state, not audible output. They neither capture screenshots
 nor render selected images. They do not mock a successful provider sign-in or
-push delivery. CI installs all three engines before running this pull-request
-gate.
+push delivery. CI runs this gate with `--no-browser` (adapter typechecks and
+Node tests only); the three-engine browser probes run locally through
+`pnpm test:e2e` or `pnpm check:optional-services` without the flag.
 
 The broad mobile typecheck (`pnpm typecheck:mobile`) passes after correcting
 audio bridge typings and the handwritten JSX component declarations. Focused

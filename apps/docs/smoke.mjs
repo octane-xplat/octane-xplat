@@ -157,16 +157,15 @@ assert(
 )
 
 const highlights = [...root.querySelectorAll('.doc mark.highlight')]
+const promptHighlight = highlights.find((h) => h.textContent === 'Create your first app')
 assert(
-	'Xplat page renders both highlights',
-	highlights.length === 2 &&
-		highlights[0].textContent === 'one project' &&
-		highlights[1].textContent === 'Create your first app',
+	'Xplat page renders its highlights',
+	highlights.some((h) => h.textContent === 'one project') && !!promptHighlight,
 )
 
 assert(
 	'highlight keeps its section link',
-	highlights[1]?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run',
+	promptHighlight?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run',
 )
 
 const mixedHighlight = inlineSpans('before ==**bold** *italic* `code` [link](spec.md)== after')

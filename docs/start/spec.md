@@ -49,15 +49,17 @@ Xplat is at version `0.x`, so names and options can change between releases.
 have been checked in running apps.
 
 Web CI typechecks and tests the DOM renderer, builds the production bundle,
-then smoke-tests that bundle and a packed starter with Playwright-managed
-Chromium, Firefox, and WebKit. This does not set a minimum browser-version
+and verifies a packed starter's checks. Browser coverage runs locally instead:
+`pnpm test:e2e` installs Playwright-managed Chromium, Firefox, and WebKit,
+then smoke-tests the built bundle and a packed starter in all three engines.
+This does not set a minimum browser-version
 floor or qualify iOS Safari and screen readers; apps must define those targets
 for their own releases. Browser APIs and device services remain feature-specific
-boundaries in [known limits](known-limits.md) and
-[optional-service qualification](optional-service-qualification.md).
-CI runs the keyboard/focus fixture in Chromium, Firefox, and WebKit; Chromium
-also inspects the accessibility tree through CDP. A separate
-`@octane-xplat/sheet/web` runtime check runs in all three engines.
+boundaries in [known limits](../verify/known-limits.md) and
+[optional-service qualification](../notes/optional-service-qualification.md).
+The same local run executes the keyboard/focus fixture in Chromium, Firefox,
+and WebKit; Chromium also inspects the accessibility tree through CDP. A
+separate `@octane-xplat/sheet/web` runtime check runs in all three engines.
 
 ## Get a result, then improve it
 

@@ -211,8 +211,9 @@ versions; examples for another framework may need changes.
 The starter's `package.json` lists its packages and commands. Its lockfile
 records the versions installed. Keep both, along with the supplied patches.
 The [checked-in package list](../../packages/create/template/package.json) uses
-NativeScript core 9.1.2, CLI 9.1.1, Vite integration 8.0.17, Octane 0.6.3,
-and the Octane NativeScript integrations at 0.2.4. The published creator and
+NativeScript core 9.1.3, CLI 9.1.1, Vite integration 8.0.17, Octane 0.11.0,
+`@nativescript-community/octane` 0.2.4, and
+`@nativescript-community/vite-octane` 0.2.1. The published creator and
 framework workspace can use different versions. Follow your created app's
 files and [patch management instructions](../../packages/cli/README.md) when upgrading.
 
@@ -265,7 +266,8 @@ rewrites, caching and deployment updates. Local browser and packed-starter
 checks do not verify those settings on your published site.
 
 Choose the browser versions and devices your app supports, then test them.
-Framework CI covers managed Chromium, Firefox and WebKit engines; it does not
+The framework's browser checks run locally (`pnpm test:e2e` in the
+repository) across managed Chromium, Firefox and WebKit engines; they do not
 qualify actual iOS Safari or screen-reader interaction. See the
 [Web support boundary](spec.md#choose-your-targets) and the
 [optional service qualification](../notes/optional-service-qualification.md)
@@ -468,7 +470,7 @@ bundle build does not establish that its controls work.
 It requires Windows 10 1809+, .NET 10 SDK, Developer Mode, Node.js, and pnpm.
 The scaffold pins `@nativescript/windows` to `0.1.0-alpha.144`, NativeScript
 CLI to `9.1.2-dev.2026-09-24-36031892256`, and core/Vite to PR #11468 preview
-builds. The standard core 9.1.2/Vite 8.0.17 patches do not apply to those
+builds. The standard core 9.1.3/Vite 8.0.17 patches do not apply to those
 previews. Keep this setup separate from the starter's mobile version matrix.
 
 Follow the [Windows harness instructions](../../apps/windows/README.md) for

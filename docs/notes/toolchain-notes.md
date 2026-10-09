@@ -446,16 +446,19 @@ pnpm exec xplat patches check
 ## CI shape
 
 `.github/workflows/ci.yml` gates on push and PR. The `checks` job runs, in
-order: `pnpm lint` (oxlint + tsrx pass + recipes + css), `check:patches` /
-`check:css` / `check:recipes` / `check:decisions` /
-`check:suffix-resolution`, `pnpm typecheck:web`, `pnpm typecheck:mobile`,
-`pnpm test`, `pnpm build:web`, the publishable-package builds,
-`tsrx-typegen --pack-check` + the GIF packed consumer, the optional-service
-gate (`pnpm check:optional-services`), the harness browser smoke
-(`pnpm --filter @xplat/web smoke`, 66 assertions on the production
-bundle in Chromium, Firefox, and WebKit), and
-`pnpm check:consumer --no-build --smoke web` (packed starter smoke on all
-three engines). `check:no-dom`
+order: `pnpm typegen`, `pnpm lint` (oxlint + tsrx pass + recipes + css —
+advisory, `continue-on-error`), repo checks (`check:patches` /
+`check:ui-barrels` / `check:css` / `check:recipes` /
+`check:suffix-resolution`; `check:decisions` is absent because it mirrors the
+git-scoped Silo DB that lives on dev machines), `pnpm typecheck:web`,
+`pnpm typecheck:mobile`, `pnpm test`, `pnpm build:web`, the
+publishable-package builds, `pnpm check:pack` + `pnpm test:packed`, the
+optional-service gate without browser probes
+(`pnpm check:optional-services --no-browser`), and
+`pnpm check:consumer --no-build` (packed-starter lint/typecheck/build/doctor).
+Browser coverage — the harness smoke and packed-starter smoke in Chromium,
+Firefox, and WebKit — runs locally via `pnpm test:e2e`; browser downloads
+are too costly in CI. `check:no-dom`
 is the older static sweep; `xplat/no-dom-globals` covers it at lint time.
 
 `scripts/verify-consumer.mjs` (`check:consumer`) is the release-path

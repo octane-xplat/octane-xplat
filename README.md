@@ -11,8 +11,9 @@ ask for the next change.
 
 **Start on web, iOS, and Android with the starter today.** macOS has an
 experimental AppKit host; Windows has an experimental WinUI 3 scaffold
-whose bundle builds, but has not yet been run on Windows; Linux has an
-experimental WebKitGTK webview host exercised on Ubuntu 24.04. The framework is
+whose app has launched as a registered package, though UI support remains
+incomplete; Linux has an experimental WebKitGTK webview host exercised on
+Ubuntu 24.04. The framework is
 `0.x`, so plan for API changes as well as platform limits.
 See the [target guide](docs/start/spec.md#choose-your-targets) before planning a release.
 
@@ -98,7 +99,7 @@ the evidence each needs:
 
 | Claim                                                       | Evidence available now                                                                                                                                                      |
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| One coherent app on all five targets                        | A planned showcase, not a shipped demo. See [target support](docs/start/spec.md#choose-your-targets).                                                                       |
+| One coherent app on all six targets                         | A planned showcase, not a shipped demo. See [target support](docs/start/spec.md#choose-your-targets).                                                                       |
 | A shared edit appears in running targets                    | [Recorded web/iOS live-update check](docs/notes/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/start/toolchain.md#see-a-shared-edit-in-running-targets). |
 | A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                                |
 | A focused implementation fits one platform                  | [File variants and import rules](docs/platform/module-resolution.md) explain how to isolate an OS control.                                                                  |
