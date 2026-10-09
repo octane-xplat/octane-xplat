@@ -55,7 +55,7 @@ export function Lottie(props: LottieProps) @{
 
 	useImperativeHandle(props.ref, () => handle(host.current!), []);
 
-	const bindHost = useCallback((v: LottieView) => {
+	const bindHost = useCallback((v: LottieView | null) => {
 		host.current = v;
 	}, []);
 
