@@ -136,12 +136,14 @@ export function Inbox() {
 
 The default detector prefers pointer intersection then shape overlap. Supply
 `collisionDetection={closestCenter}` to choose another exported algorithm.
-The pan facade uses the dragged View's center as its detection position; it
-does not preserve the finger's grab offset. A draggable's own ID is excluded
+The shared pan event reports deltas, not absolute coordinates, so the facade
+uses the dragged View's center as its detection position; it does not preserve
+the finger's grab offset. A draggable's own ID is excluded
 from drop targets. `SortableContext` declares
 item membership for `useSortable`, which combines both hooks; use `arrayMove`
 in `onDragEnd` to save an order. Items do not shift to preview their destination
-before release; the dragged View translates over the stationary rows.
+before release; the dragged View stays raised and translates over the
+stationary rows.
 
 ```tsx
 import { useState } from 'octane'
@@ -250,8 +252,9 @@ function recordScroll(offsetRef: { current: number }, offset: number) {
 ```
 
 The adapter must clamp and update the ref synchronously to the applied offset.
-The drag loop scrolls every 16ms while the drag center remains inside the viewport
-and near an edge. `threshold` is the edge distance; `speed` is the maximum units
+The drag loop starts with the gesture and scrolls every 16ms while the drag
+center stays inside the viewport and near an edge, including a hold without
+movement. `threshold` is the edge distance; `speed` is the maximum units
 per tick. It remeasures drop targets and compensates the dragged View's visual
 translation for scrolling. Scrolling stops on drop, cancel, and disposal.
 Only one explicit scroll viewport is supported; do not attach another gesture
@@ -278,10 +281,11 @@ export function ScrollingTasks({ autoScroll }: { autoScroll: AutoScroll }) {
 ## Limits and verification
 
 V1 uses pan input immediately on native gesture begin or web pointer-down.
-There is no activation distance, separate handle, keyboard sensor, screen-reader
-announcement layer, drag overlay, nested-scroll arbitration, or virtualized
-offscreen target discovery. Native pans may compete with ScrollView gestures.
-Only mounted, measurable targets participate. Use a separate DndContext in each
+Deliberate scope cuts: no activation distance, separate handle, keyboard sensor,
+screen-reader announcement layer, or drag overlay. Platform constraints: no
+nested-scroll arbitration (native pans may compete with ScrollView gestures)
+and no virtualized offscreen target discovery — only mounted, measurable
+targets participate. Use a separate DndContext in each
 native renderer root (pages and sheets do not share context).
 
 Package checks: `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`,

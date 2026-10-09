@@ -47,6 +47,7 @@ class PanSensor extends Sensor {
 				manager.actions.start({ source, coordinates: origin.center })
 				manager.dragOperation.shape = origin
 				manager.refresh()
+				manager.startAutoScroll()
 				await manager.renderer.rendering
 				return
 			}

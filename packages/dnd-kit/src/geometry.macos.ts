@@ -27,6 +27,6 @@ export function measure(view: any): Rectangle | null {
 		: null
 }
 
-export function dragStyle(x: number, y: number): Record<string, number | string> {
-	return { translateX: x, translateY: y, zIndex: x || y ? 1 : 0 }
+export function dragStyle(x: number, y: number, dragging = false): Record<string, number | string> {
+	return { translateX: x, translateY: y, zIndex: dragging || x || y ? 1 : 0 }
 }

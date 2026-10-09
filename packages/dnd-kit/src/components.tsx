@@ -117,7 +117,13 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 
 	const isDragging = snapshot.isDragging && snapshot.active?.id === options.id
 	const transform = isDragging ? snapshot.transform : { x: 0, y: 0 }
-	return { ref, onPan, isDragging, transform, style: dragStyle(transform.x, transform.y) }
+	return {
+		ref,
+		onPan,
+		isDragging,
+		transform,
+		style: dragStyle(transform.x, transform.y, isDragging),
+	}
 }
 
 export function useDroppable(options: DroppableOptions): DroppableResult {
