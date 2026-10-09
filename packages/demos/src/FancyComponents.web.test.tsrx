@@ -96,15 +96,44 @@ const trackX = (container: HTMLElement) => {
 	return match ? Number(match[1]) : null
 }
 
+/** Motion hosts write translateX/translateY as the first transform pair. */
+const translate = (el: HTMLElement | null | undefined) => {
+	const transform = el?.style.transform ?? ''
+	const x = /translateX\((-?[\d.]+)px\)/.exec(transform)
+	const y = /translateY\((-?[\d.]+)px\)/.exec(transform)
+	return x && y ? { x: Number(x[1]), y: Number(y[1]) } : null
+}
+
+const at = (container: HTMLElement, selector: string, index: number) =>
+	translate([...container.querySelectorAll<HTMLElement>(selector)][index])
+
+const pointer = (node: HTMLElement, type: string, x: number, y = 0) => {
+	const event = new MouseEvent(type, { clientX: x, clientY: y, button: 0, bubbles: true })
+	Object.defineProperty(event, 'pointerId', { value: 1 })
+	act(() => node.dispatchEvent(event))
+}
+
 describe('FancyComponents showcase', () => {
-	it('renders all four effects readable before effects finish', async () => {
+	it('renders all seven effects readable before effects finish', async () => {
 		const { container, close } = mount()
 		expect(container.textContent).toContain('Fancy components')
 		expect(container.querySelectorAll('.fc-marquee-segment').length).toBe(4)
 		expect(container.querySelector('#fc-marquee-state')?.textContent).toBe('Playing')
 		expect(container.querySelector('#fc-typewriter')).not.toBeNull()
 		expect(container.querySelector('#fc-ticker')?.textContent).toBe('0')
-		for (const id of ['fc-marquee-toggle', 'fc-type-replay', 'fc-scramble-replay', 'fc-ticker-replay']) {
+		expect(container.querySelectorAll('.fc-float').length).toBe(3)
+		expect(container.querySelectorAll('.fc-orbit-item').length).toBe(4)
+		expect(container.querySelectorAll('.fc-drag-item').length).toBe(4)
+		for (const id of [
+			'fc-marquee-toggle',
+			'fc-type-replay',
+			'fc-scramble-replay',
+			'fc-ticker-replay',
+			'fc-float-toggle',
+			'fc-orbit-toggle',
+			'fc-orbit-dir',
+			'fc-drag-reset',
+		]) {
 			expect(container.querySelector('#' + id)).not.toBeNull()
 		}
 
@@ -232,6 +261,98 @@ describe('FancyComponents showcase', () => {
 		close()
 	})
 
+	it('drifts the float chips on offset phases and pauses without jumping', async () => {
+		const { container, close } = mount()
+		await advance(600)
+		const a = at(container, '.fc-float', 0)!
+		const b = at(container, '.fc-float', 1)!
+		expect(a).not.toBeNull()
+		// Siblings ride offset phases — poses differ at the same instant.
+		expect(Math.abs(a.x - b.x) + Math.abs(a.y - b.y)).toBeGreaterThan(1)
+
+		await advance(600)
+		const moved = at(container, '.fc-float', 0)!
+		expect(Math.abs(moved.x - a.x) + Math.abs(moved.y - a.y)).toBeGreaterThan(0.5)
+
+		click(container, 'fc-float-toggle')
+		expect(text(container, 'fc-float-state')).toBe('Paused')
+		const held = at(container, '.fc-float', 0)!
+		await advance(1200)
+		expect(at(container, '.fc-float', 0)).toEqual(held)
+		close()
+	})
+
+	it('orbits the ring, flips direction in place, and pauses mid-turn', async () => {
+		const { container, close } = mount()
+		const items = () =>
+			[...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map(
+				(el) => translate(el)!,
+			)
+
+		await advance(500)
+		const spaced = items()
+		// Four chips parked at quarter-ring offsets, not a stack.
+		expect(
+			new Set(spaced.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size,
+		).toBe(4)
+
+		const before = spaced[0]
+		await advance(500)
+		const normal = items()[0]
+		const dy = normal.y - before.y
+		expect(Math.abs(normal.x - before.x) + Math.abs(normal.y - before.y)).toBeGreaterThan(1)
+
+		// Reverse walks the shared phase back — the velocity flips sign.
+		segment(container, 'fc-orbit-dir', 'Reverse')
+		await advance(500)
+		const reversed = items()[0]
+		expect(Math.sign(reversed.y - normal.y)).toBe(-Math.sign(dy))
+
+		click(container, 'fc-orbit-toggle')
+		expect(text(container, 'fc-orbit-state')).toBe('Paused')
+		const held = items()[0]
+		await advance(1000)
+		expect(items()[0]).toEqual(held)
+		close()
+	})
+
+	it('drags chips inside the board, raises the grabbed chip, and resets', async () => {
+		const { container, close } = mount()
+		await advance(100)
+		const items = () => [...container.querySelectorAll<HTMLElement>('.fc-drag-item')]
+		const seedPos = at(container, '.fc-drag-item', 0)!
+		// Seeded scatter, not a stack at the origin.
+		expect(Math.abs(seedPos.x) + Math.abs(seedPos.y)).toBeGreaterThan(0)
+
+		const node = items()[0]
+		pointer(node, 'pointerdown', 0, 0)
+		pointer(node, 'pointermove', 4, 0) // under the 8px activation threshold
+		pointer(node, 'pointermove', 40, 30)
+		expect(text(container, 'fc-drag-state')).toBe('Dragging')
+		const held = translate(node)!
+		expect(held.x).toBeGreaterThan(seedPos.x + 20)
+		// The grabbed chip re-renders last so it rides on top.
+		expect(items().at(-1)).toBe(node)
+		pointer(node, 'pointerup', 40, 30)
+		expect(text(container, 'fc-drag-state')).toBe('Settled')
+
+		// A fling past the edge projects, then clamps to the board
+		// (maxX = 280 - 84, maxY = 180 - 40).
+		pointer(node, 'pointerdown', 40, 30)
+		pointer(node, 'pointermove', 900, 700)
+		pointer(node, 'pointerup', 900, 700)
+		await advance(2000)
+		const settled = translate(node)!
+		expect(settled.x).toBeGreaterThanOrEqual(0)
+		expect(settled.x).toBeLessThanOrEqual(197)
+		expect(settled.y).toBeGreaterThanOrEqual(0)
+		expect(settled.y).toBeLessThanOrEqual(141)
+
+		click(container, 'fc-drag-reset')
+		expect(translate(node)).toEqual(seedPos)
+		close()
+	})
+
 	it('settles everything directly under the reduced-motion preview', async () => {
 		const { container, close } = mount()
 		await advance(400)
@@ -248,6 +369,32 @@ describe('FancyComponents showcase', () => {
 		expect(text(container, 'fc-scramble-state')).toBe('Settled')
 		expect(text(container, 'fc-ticker')).toBe('12,847')
 		expect(text(container, 'fc-ticker-state')).toBe('Done')
+
+		// The loop-driven effects park on deterministic poses: each float chip
+		// holds its phase-offset drift and the ring freezes evenly spaced.
+		expect(text(container, 'fc-float-state')).toBe('Static (reduced motion)')
+		expect(text(container, 'fc-orbit-state')).toBe('Static (reduced motion)')
+		const floats = [...container.querySelectorAll<HTMLElement>('.fc-float')].map(
+			(el) => translate(el)!,
+		)
+
+		const orbit = [...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map(
+			(el) => translate(el)!,
+		)
+
+		expect(
+			new Set(orbit.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size,
+		).toBe(4)
+
+		await advance(1500)
+		expect(
+			[...container.querySelectorAll<HTMLElement>('.fc-float')].map((el) => translate(el)),
+		).toEqual(floats)
+
+		expect(
+			[...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map((el) => translate(el)),
+		).toEqual(orbit)
+
 		close()
 	})
 

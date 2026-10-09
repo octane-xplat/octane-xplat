@@ -684,10 +684,11 @@ values a person must act on should never rotate away.
 ## Recreate fancy components
 
 Popular "fancy component" effects — an endless marquee, a typewriter, a
-scramble-in reveal, a number ticker — are also compositions, this time of a
-measured view, a repeating translate, and a few timers. The harness app ships
-a working showcase: open **Apps → Fancy components**; the maintained source
-is [`FancyComponents.tsrx`](../../packages/demos/src/FancyComponents.tsrx).
+scramble-in reveal, a number ticker, drifting badges, orbiting chips, and a
+free-drag board — are also compositions, this time of a measured view, a
+repeating translate, a few timers, and a shared loop phase. The harness app
+ships a working showcase: open **Apps → Fancy components**; the maintained
+source is [`FancyComponents.tsrx`](../../packages/demos/src/FancyComponents.tsrx).
 Each effect there honors reduced motion by settling directly instead of
 playing.
 
@@ -783,6 +784,111 @@ useEffect(() => {
 	value.jump(from)
 	void value.animate(to, { duration: 1.6, ease: 'easeInOut' })
 }, [to, reduced, runId])
+```
+
+### Drive continuous motion from a shared loop
+
+Effects that never settle — a drifting badge, an orbiting ring — share one
+driver: a `MotionValue` cycling `0` to `1` on `repeat: Infinity`, with each
+visual channel derived through `useTransform`. Pause stops the value
+mid-phase; resume finishes the in-flight leg at its remaining fraction and
+then re-arms the loop, so motion continues without a visible jump. Reduced
+motion parks the phase at `0`, which gives every consumer a deterministic
+static pose. The showcase calls this helper `useLoopProgress`.
+
+```tsx
+const progress = useMotionValue(0)
+useEffect(() => {
+	if (reduced) { progress.jump(0); return }
+	if (!playing) return
+	const loop = () => {
+		progress.jump(0)
+		progress.animate(1, { duration: period, ease: 'linear', repeat: Infinity })
+	}
+	const held = progress.get() % 1
+	const remaining = 1 - held
+	if (remaining < 0.001) loop()
+	else void progress
+		.animate(1, { duration: period * remaining, ease: 'linear' })
+		.finished.then((result) => { if (result === 'finished') loop() })
+	return () => progress.stop()
+}, [playing, period, reduced])
+```
+
+### Drift a badge
+
+A float effect rides three sine waves on the shared phase: `x`, `y`, and
+`rotate` each use a different whole number of cycles per loop, so the drift
+feels organic yet wraps seamlessly. A phase `offset` per sibling keeps them
+out of sync. The shared vocabulary has translate plus z-rotation — upstream's
+z-depth and X/Y-axis rotation stay web-only.
+
+```tsx
+const phase = offset * Math.PI * 2
+const x = useTransform(progress, (p) => Math.sin(p * Math.PI * 2 + phase) * amplitudeX)
+const y = useTransform(progress, (p) => Math.sin(p * Math.PI * 4 + phase * 1.7) * amplitudeY)
+const rotate = useTransform(progress, (p) => Math.sin(p * Math.PI * 6 + phase * 0.6) * rotation)
+
+<motion.View style={{ x, y, rotate }}>{props.children}</motion.View>
+```
+
+### Orbit a ring
+
+Circling elements are absolute children parked at a board's origin and
+carried around a circle by translating from the center minus half a slot.
+Each child computes its angle from the shared phase plus `index / count`, so
+the ring stays evenly spaced. An `Absolute` container gives children that
+overlap; a square board keeps the center math identical on both axes.
+
+```tsx
+const theta = (p: number) => (index / count + p * sign) * Math.PI * 2
+const x = useTransform(progress, (p) => center - slot / 2 + Math.cos(theta(p)) * radius)
+const y = useTransform(progress, (p) => center - slot / 2 + Math.sin(theta(p)) * radius)
+
+<Absolute style={{ width: size, height: size }}>
+	{/* one motion.View per child, style={{ x, y, width: slot, height: slot }} */}
+</Absolute>
+```
+
+A component that positions each child needs to *enumerate* children. On the
+web renderer `props.children` arrives as an opaque slot, so mark the
+component with `descriptorChildren` — the same marker ui's `List` and
+`Carousel` use — then read the array with `Children.toArray`.
+
+```tsx
+import { Children, descriptorChildren } from 'octane'
+
+function RingImpl(props: { children?: any }) @{
+	const items = Children.toArray(props.children)
+	// …render one orbiting motion.View per item
+}
+const Ring = descriptorChildren(RingImpl)
+```
+
+### Scatter draggable chips
+
+A drag board is an `Absolute` container whose children own their `x`/`y`
+MotionValues as position. `drag` plus numeric `dragConstraints` bounds the
+translate to the board, `dragElastic` resists past the edge, and release
+velocity projects into a bounded spring — under reduced motion the motion
+leaf jumps the release to its target instead. Because a bound `style.x`/`y`
+MotionValue *is* the drag channel, a seed effect can re-scatter chips between
+gestures, and rendering the grabbed chip last raises it — render order is
+the portable z-index.
+
+```tsx
+const x = useMotionValue(seedX * maxX)
+const y = useMotionValue(seedY * maxY)
+
+<motion.View
+	drag={true}
+	dragConstraints={{ left: 0, top: 0, right: maxX, bottom: maxY }}
+	dragElastic={0.2}
+	whileTap={{ scale: 1.06 }}
+	style={{ x, y }}
+>
+	{props.children}
+</motion.View>
 ```
 
 ## Existing imperative animation

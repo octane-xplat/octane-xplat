@@ -737,6 +737,60 @@
 	min-width: 120px;
 }
 
+/* Second-slice effects — Float chips, the orbit ring, and the drag board.
+   Positions come from transforms/absolute layout, not CSS. */
+.fc-chip {
+	padding-top: 6px;
+	padding-bottom: 6px;
+	padding-left: 12px;
+	padding-right: 12px;
+	border-radius: 999px;
+	background-color: var(--color-surface-secondary);
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+.fc-chip-text {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.fc-float-row {
+	align-items: center;
+	justify-content: center;
+	gap: 24px;
+	min-height: 120px;
+}
+
+.fc-orbit-wrap,
+.fc-drag-wrap {
+	align-items: center;
+}
+
+.fc-orbit {
+	border-radius: 999px;
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+.fc-orbit-item {
+	align-items: center;
+	justify-content: center;
+}
+
+.fc-drag {
+	border-radius: 8px;
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+.fc-drag-item {
+	align-items: center;
+	justify-content: center;
+}
+
 /* xplat-web-only:start — clip the marquee track to the viewport and keep
    each segment on one line. Native clips through the fancy-clip leaf
    (clipsToBounds / setClipChildren) and NS text does not wrap mid-row. */
