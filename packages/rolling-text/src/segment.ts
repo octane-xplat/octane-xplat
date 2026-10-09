@@ -9,7 +9,7 @@ interface Segmenter {
 	segment(value: string): Iterable<Segmentation>
 }
 
-const ASCII_ONLY = /^\p{ASCII}+$/u
+const ASCII_ONLY = /^[\x00-\x7F]+$/
 
 // Lazy so runtimes without Intl.Segmenter (older JSC) never touch the
 // constructor — module-level construction is what breaks Scritto there.
