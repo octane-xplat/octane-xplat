@@ -1782,6 +1782,42 @@ importers:
         specifier: 8.3.0
         version: 8.3.0(@types/node@16.9.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
+  packages/rolling-text:
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.4
+        version: 0.2.4(patch_hash=3315d07db6dfd3d9c5ed4c0c6f36952745ddcfd9db76a4c7ac6fb0d16b9d4d5e)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.11.0(patch_hash=dc0b2a2b4d9acb84e82789c7e8a53a7da11299736b3a99f196e7f08276cd146d)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.3
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@octanejs/vite-plugin':
+        specifier: 0.1.61
+        version: 0.1.61(octane@0.11.0(patch_hash=dc0b2a2b4d9acb84e82789c7e8a53a7da11299736b3a99f196e7f08276cd146d)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 0.4.11
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.11.0(patch_hash=dc0b2a2b4d9acb84e82789c7e8a53a7da11299736b3a99f196e7f08276cd146d)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      jsdom:
+        specifier: 30.1.1
+        version: 30.1.1(@noble/hashes@2.4.0)
+      octane:
+        specifier: 0.11.0
+        version: 0.11.0(patch_hash=dc0b2a2b4d9acb84e82789c7e8a53a7da11299736b3a99f196e7f08276cd146d)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(@types/node@16.9.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+
   packages/secure-storage:
     dependencies:
       '@nativescript/secure-storage':
