@@ -79,3 +79,5 @@ export type * from './types.js'
 
 /** Retain live children through exit; removing the boundary disposes immediately. */
 export declare const Presence: UniversalComponent<import('./types.js').PresenceProps>
+
+export type { TextMorphProps, TextMorphRun, TextMorphCancel } from './text-morph/props.js'

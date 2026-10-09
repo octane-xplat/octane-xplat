@@ -21,3 +21,5 @@ export type { MotionValue, MotionValueEvents } from './value'
 export type { AnimationControls, AnimationResult } from './engine'
 export type * from './types'
 export { Presence } from './presence.tsrx'
+
+export type { TextMorphProps, TextMorphRun, TextMorphCancel } from './text-morph/props'

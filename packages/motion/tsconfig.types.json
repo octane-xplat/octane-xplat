@@ -14,5 +14,12 @@
 			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
 		}
 	},
-	"include": ["src/types.ts", "src/value.ts", "src/engine.ts", "src/clock-types.ts"]
+	"include": [
+		"src/types.ts",
+		"src/value.ts",
+		"src/engine.ts",
+		"src/clock-types.ts",
+		"src/text-morph/props.ts",
+		"src/text-morph/semantics.ts"
+	]
 }

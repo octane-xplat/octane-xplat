@@ -25,6 +25,7 @@ packages/*/types/table.d.ts
 packages/motion/types/clock-types.d.ts
 packages/motion/types/engine.d.ts
 packages/motion/types/value.d.ts
+packages/motion/types/text-morph/
 
 # Generated release navigation reports and build logs.
 apps/mobile/navigation-results/
