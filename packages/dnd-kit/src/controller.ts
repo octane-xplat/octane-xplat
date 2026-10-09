@@ -16,18 +16,38 @@ import { measure } from './geometry'
 
 class PanDraggable extends Draggable {
 	onPan?: (event: PanEvent) => void
+	activationDistance = 0
+	setActivationDistance(value?: number) {
+		const distance = value ?? 0
+		if (!Number.isFinite(distance) || distance < 0) {
+			throw new RangeError('activationDistance must be a finite non-negative number')
+		}
+
+		this.activationDistance = distance
+	}
 }
 
 /** Xplat View supplies normalized pan input; the abstract core owns the drag lifecycle. */
-class PanSensor extends Sensor {
+class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
 	bind(input: Draggable) {
 		const source = input as PanDraggable
 		let origin: Rectangle | null = null
+		let pendingOrigin: Rectangle | null = null
 		let bound = true
 		let base = { x: 0, y: 0 }
+		let activationDistance = 0
 		let queue = Promise.resolve()
+		const manager = this.manager as unknown as DndController
+		const start = async (shape: Rectangle) => {
+			origin = shape
+			manager.scrollShift$.value = { x: 0, y: 0 }
+			manager.actions.start({ source, coordinates: shape.center })
+			manager.dragOperation.shape = shape
+			manager.refresh()
+			manager.startAutoScroll()
+			await manager.renderer.rendering
+		}
 		const handle = async (event: PanEvent) => {
-			const manager = this.manager as DndController
 			if (!bound) {
 				return
 			}
@@ -37,19 +57,47 @@ class PanSensor extends Sensor {
 					return
 				}
 
-				origin = measure(manager.draggableNodes.get(source.id))
-				if (!origin) {
+				const measured = measure(manager.draggableNodes.get(source.id))
+				if (!measured) {
 					return
 				}
 
+				origin = null
+				pendingOrigin = measured
 				base = { x: event.dx, y: event.dy }
-				manager.scrollShift$.value = { x: 0, y: 0 }
-				manager.actions.start({ source, coordinates: origin.center })
-				manager.dragOperation.shape = origin
-				manager.refresh()
-				manager.startAutoScroll()
-				await manager.renderer.rendering
+				activationDistance = source.activationDistance
+				if (activationDistance === 0) {
+					pendingOrigin = null
+					await start(measured)
+				}
+
 				return
+			}
+
+			if (pendingOrigin) {
+				if (event.state === 'cancelled' || (event.state !== 'ended' && source.disabled)) {
+					pendingOrigin = null
+					return
+				}
+
+				const x = event.dx - base.x
+				const y = event.dy - base.y
+				if (Math.hypot(x, y) >= activationDistance) {
+					if (source.disabled || !manager.dragOperation.status.idle) {
+						pendingOrigin = null
+						return
+					}
+
+					const measured = pendingOrigin
+					pendingOrigin = null
+					await start(measured)
+				} else {
+					if (event.state === 'ended') {
+						pendingOrigin = null
+					}
+
+					return
+				}
 			}
 
 			if (
@@ -81,7 +129,7 @@ class PanSensor extends Sensor {
 				.catch((error) => {
 					origin = null
 
-					;(this.manager as DndController).cancel()
+					manager.cancel()
 					console.error('[dnd-kit] pan failed', error)
 				})
 		}
@@ -90,6 +138,7 @@ class PanSensor extends Sensor {
 			bound = false
 			source.onPan = undefined
 			origin = null
+			pendingOrigin = null
 		}
 	}
 }
@@ -189,6 +238,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 			this,
 		)
 
+		source.setActivationDistance(options.activationDistance)
 		source.register()
 		return source
 	}

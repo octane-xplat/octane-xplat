@@ -92,10 +92,11 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 
 		entity.current.data = options.data ?? {}
 		entity.current.disabled = options.disabled ?? false
+		entity.current.setActivationDistance(options.activationDistance)
 		if (options.disabled && controller.getSnapshot().active?.id === options.id) {
 			controller.cancel()
 		}
-	}, [controller, options.id, options.data, options.disabled])
+	}, [controller, options.id, options.data, options.disabled, options.activationDistance])
 
 	const ref = useCallback(
 		(element: any) => {
@@ -222,10 +223,19 @@ function SortableRow<T extends DndId>(props: {
 	index: number
 	list: SortableListProps<T>
 }) {
-	const sortable = useSortable({ id: props.id, disabled: props.list.disabled })
+	const sortable = useSortable({
+		id: props.id,
+		disabled: props.list.disabled,
+		activationDistance: props.list.activationDistance,
+	})
 	return (
-		<View ref={sortable.ref} onPan={sortable.onPan} style={sortable.style}>
+		<View
+			ref={sortable.ref}
+			onPan={props.list.renderHandle ? undefined : sortable.onPan}
+			style={sortable.style}
+		>
 			{props.list.renderItem(props.id, props.index)}
+			{props.list.renderHandle?.(props.id, props.index, sortable.onPan)}
 		</View>
 	)
 }
@@ -235,6 +245,8 @@ export function SortableList<T extends DndId>(props: SortableListProps<T>) {
 	const {
 		items,
 		renderItem: _renderItem,
+		activationDistance: _activationDistance,
+		renderHandle: _renderHandle,
 		onReorder,
 		disabled: _disabled,
 		dnd,

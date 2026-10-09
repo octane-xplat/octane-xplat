@@ -44,6 +44,8 @@ export interface DraggableOptions {
 	id: DndId
 	data?: Data
 	disabled?: boolean
+	/** Minimum pointer movement before a drag starts, in platform logical units. Defaults to 0. */
+	activationDistance?: number
 }
 
 export interface DroppableOptions extends DraggableOptions {
@@ -52,6 +54,7 @@ export interface DroppableOptions extends DraggableOptions {
 
 export interface DraggableResult {
 	ref(element: any): void
+	/** Attach to the drag surface; it may be a descendant of the measured `ref` node. */
 	onPan(event: PanEvent): void
 	isDragging: boolean
 	transform: { x: number; y: number }
@@ -76,6 +79,10 @@ export interface SortableContextProps {
 export interface SortableListProps<T extends DndId = DndId> extends Omit<ViewProps, 'children'> {
 	items: readonly T[]
 	renderItem(id: T, index: number): ViewProps['children']
+	/** Minimum movement before any row starts dragging, in platform logical units. Defaults to 0. */
+	activationDistance?: number
+	/** Render a separate drag surface; when supplied, row pan input is attached only to this handle. */
+	renderHandle?(id: T, index: number, onPan: DraggableResult['onPan']): ViewProps['children']
 	/** Called after a successful drop within this list; caller owns the item order. */
 	onReorder(items: T[], event: DragEvent): void
 	disabled?: boolean

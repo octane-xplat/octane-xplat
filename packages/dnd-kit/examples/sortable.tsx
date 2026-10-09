@@ -10,10 +10,16 @@ export default function SortableExample() {
 			<Text id="dnd-order">{items.join(',')}</Text>
 			<SortableList
 				items={items}
+				activationDistance={8}
 				onReorder={setItems}
 				renderItem={(id) => (
 					<View id={`dnd-${id}`} style={{ height: 64, padding: 12 }}>
 						<Text>{String(id)}</Text>
+					</View>
+				)}
+				renderHandle={(id, _index, onPan) => (
+					<View id={`dnd-handle-${id}`} onPan={onPan} style={{ padding: 12 }}>
+						<Text>⠿</Text>
 					</View>
 				)}
 			/>

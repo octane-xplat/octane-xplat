@@ -48,7 +48,8 @@ stable and unique within a context. `SortableList` creates its own DndContext
 and commits a new array only on a successful drop over a different list item.
 The caller saves that array. Cancellation, release outside a target, and drops
 onto a disabled target leave the order unchanged. The maintained
-[example](examples/sortable.tsx) displays the committed order above the rows.
+[example](examples/sortable.tsx) displays the committed order above the rows
+and uses a separate drag handle.
 
 ```tsx
 // Tasks above owns items; successful drops publish a replacement array.
@@ -60,20 +61,26 @@ export function EmptyTasks() {
 
 ## Compose drag and drop
 
-Use `DndContext` around cooperating children. A draggable spreads `ref`,
-`onPan`, and `style` onto **one View**; a droppable supplies its `ref`. `ref`
-is the Xplat View binding callback, not a DOM ref prop. `useMeasure` observes
-layout; live geometry is read again during drag and auto-scroll.
+Use `DndContext` around cooperating children. A draggable attaches `ref` and
+`style` to the measured, translated View; attach `onPan` to that View or to a
+separate descendant handle. `ref` is the Xplat View binding callback, not a DOM
+ref prop. `useMeasure` observes layout; live geometry is read again during drag
+and auto-scroll. Set `activationDistance` to delay drag start until the pan has
+moved that far in platform logical units (web CSS pixels, native DIPs, or
+AppKit points). It defaults to `0`, preserving immediate activation.
 
 ```tsx
 import { View, Text } from '@octane-xplat/ui'
 import { DndContext, useDraggable, useDroppable } from '@octane-xplat/dnd-kit'
 
 function Card() {
-	const drag = useDraggable({ id: 'card', data: { container: 'inbox' } })
+	const drag = useDraggable({ id: 'card', data: { container: 'inbox' }, activationDistance: 8 })
 	return (
-		<View ref={drag.ref} onPan={drag.onPan} style={drag.style}>
+		<View ref={drag.ref} style={drag.style}>
 			<Text>Move me</Text>
+			<View onPan={drag.onPan}>
+				<Text>⠿</Text>
+			</View>
 		</View>
 	)
 }
@@ -132,6 +139,24 @@ export function Inbox() {
 		</View>
 	)
 }
+```
+
+For `SortableList`, pass `activationDistance` to configure every row and use
+`renderHandle` to place pan input on a dedicated handle. When `renderHandle` is
+set, the row itself does not start a drag.
+
+```tsx
+<SortableList
+	items={items}
+	activationDistance={8}
+	onReorder={setItems}
+	renderItem={(id) => <Text>{String(id)}</Text>}
+	renderHandle={(id, _index, onPan) => (
+		<View onPan={onPan}>
+			<Text>⠿ {String(id)}</Text>
+		</View>
+	)}
+/>
 ```
 
 The default detector prefers pointer intersection then shape overlap. Supply
@@ -280,9 +305,11 @@ export function ScrollingTasks({ autoScroll }: { autoScroll: AutoScroll }) {
 
 ## Limits and verification
 
-V1 uses pan input immediately on native gesture begin or web pointer-down.
-Deliberate scope cuts: no activation distance, separate handle, keyboard sensor,
-screen-reader announcement layer, or drag overlay. Platform constraints: no
+Pan input activates immediately by default; `activationDistance` opts into a
+movement threshold, and `onPan` can be attached to a separate handle while
+`ref` and `style` stay on the draggable View. `SortableList` exposes matching
+`activationDistance` and `renderHandle` props. Keyboard sensors, a screen-reader
+announcement layer, and drag overlays remain out of scope. Platform constraints: no
 nested-scroll arbitration (native pans may compete with ScrollView gestures)
 and no virtualized offscreen target discovery — only mounted, measurable
 targets participate. Use a separate DndContext in each
