@@ -157,6 +157,7 @@ test('removing margins keeps the host arranged and collapses its constants', () 
 			{ constant: -4 },
 		],
 	})
+
 	const y = row('y', 2)
 	adopt(text, x, d, y)
 	stack.arranged.push(x.view, d.marginHost, y.view)

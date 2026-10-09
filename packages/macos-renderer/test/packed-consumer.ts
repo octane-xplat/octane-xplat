@@ -38,6 +38,7 @@ const create = await pack(join(repo, 'packages/create'))
 const template = JSON.parse(
 	await readFile(join(repo, 'packages/create/template/package.json'), 'utf8'),
 )
+
 const octaneVersion = template.dependencies.octane
 const oxcVersion = template.devDependencies['@tsrx/oxc']
 const fixture = join(packageRoot, 'test/fixtures')

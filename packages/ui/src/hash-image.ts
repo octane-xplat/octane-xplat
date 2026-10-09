@@ -154,7 +154,7 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 		for (let cy = 0; cy < ny; cy++)
 			{for (let cx = cy ? 0 : 1; cx * ny < nx * (ny - cy); cx++) {
 				const byte = hash[ac_start + (ac_index >> 1)]
-				if (byte === undefined) return null
+				if (byte === undefined) {return null}
 				ac.push((((byte >> ((ac_index++ & 1) << 2)) & 15) / 7.5 - 1) * scale)
 			}}
 
@@ -187,7 +187,7 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 
 			for (let cy = 0, j = 0; cy < ly; cy++)
 				{for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx * ly < lx * (ly - cy); cx++, j++)
-					l += l_ac[j] * fx[cx] * fy2}
+					{l += l_ac[j] * fx[cx] * fy2}}
 
 			for (let cy = 0, j = 0; cy < 3; cy++) {
 				for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 3 - cy; cx++, j++) {
@@ -199,8 +199,8 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 
 			if (hasAlpha && a_ac)
 				{for (let cy = 0, j = 0; cy < 5; cy++)
-					for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 5 - cy; cx++, j++)
-						a += a_ac[j] * fx[cx] * fy2}
+					{for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 5 - cy; cx++, j++)
+						a += a_ac[j] * fx[cx] * fy2}}
 
 			const b = l - (2 / 3) * p
 			const r = (3 * l - b + q) / 2

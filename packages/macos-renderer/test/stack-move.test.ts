@@ -124,6 +124,7 @@ test('gravity remap re-parents only the children that change areas', () => {
 			['b', 3],
 		],
 	)
+
 	assert.deepEqual(calls.size, ['b'])
 	assert.deepEqual(calls.priorities, ['b'])
 })

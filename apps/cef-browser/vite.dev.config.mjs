@@ -13,6 +13,7 @@ export default defineConfig(async (env) => {
 		packaged: true,
 		entry: 'src/main.mjs',
 	})
+
 	return {
 		...config,
 		build: {

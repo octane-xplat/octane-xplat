@@ -411,6 +411,7 @@ export async function runTarget(target, args, onResult, signal) {
 					// getUserMedia cases exercise the real capture path headlessly.
 					args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
 				})
+
 				page = await browser.newPage()
 				page.on('pageerror', fail)
 				page.on('response', async (response) => {

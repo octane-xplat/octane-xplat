@@ -219,12 +219,14 @@ export async function runLayoutChannelsFixture() {
 				width / 2,
 				'absolute nested percent',
 			)
+
 			const tail = view('abs-tail').frame
 			near(
 				Number(tail.origin.x) + Number(tail.size.width),
 				width - 16,
 				'absolute right pin',
 			)
+
 			near(Number(tail.origin.y), 12, 'absolute bottom pin')
 		}
 

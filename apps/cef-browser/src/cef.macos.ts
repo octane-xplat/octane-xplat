@@ -38,6 +38,7 @@ export function wireControl(view: any, handler: (sender: any) => void) {
 	if (!view) {
 		return null
 	}
+
 	// NSControl.target is weak — keep the target alive for the app lifetime.
 	const target = XplatCefActionTarget.wireControlHandler(view, handler)
 	keepAlive.push(target)
@@ -80,6 +81,7 @@ export function ensureCef(): number {
 		resources: `${frameworks}/Chromium Embedded Framework.framework/Resources`,
 		log: `${runtime}/cef.log`,
 	})
+
 	return initResult
 }
 

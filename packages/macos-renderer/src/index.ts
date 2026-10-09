@@ -1484,6 +1484,7 @@ function pinLayoutChild(
 	const mark = () => {
 		parentView.needsLayout = true
 	}
+
 	if (typeof queueMicrotask === 'function') {
 		queueMicrotask(mark)
 	} else {

@@ -396,6 +396,7 @@ test('direction changes replace cross-axis pins and select the corresponding gap
 		true,
 		'child kept its arranged slot, so the parent-relative dimension stays live',
 	)
+
 	assert.equal(child.sizeConstraints.width.active, true)
 	assert.equal(child.sizeConstraints.width.multiplier, 0.5)
 })

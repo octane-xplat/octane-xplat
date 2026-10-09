@@ -125,6 +125,7 @@ test('a rejected prop fails creation before factories allocate', () => {
 		() => fx.makeNode(fx.container, 1, 'button', { style: 'solid' }),
 		/style to be an object/,
 	)
+
 	assert.deepEqual(fx.factoryCalls, [])
 	assert.equal(fx.actionHandlers.size, 0)
 })
@@ -136,6 +137,7 @@ test('a throwing prop unwinds the action registration', () => {
 			throw new Error('prop failed')
 		},
 	})
+
 	assert.throws(() => fx.makeNode(fx.container, 2, 'button', {}), /prop failed/)
 	assert.equal(fx.actionHandlers.size, 0)
 	assert.equal(fx.container.nodes.size, 0)
@@ -147,6 +149,7 @@ test('repeated failed creations leak no action slots', () => {
 			throw new Error('prop failed')
 		},
 	})
+
 	for (const id of [3, 4]) {
 		assert.throws(() => fx.makeNode(fx.container, id, 'switch', {}), /prop failed/)
 	}
@@ -160,6 +163,7 @@ test('a throwing prop disposes a partially built webview', () => {
 			throw new Error('prop failed')
 		},
 	})
+
 	assert.throws(() => fx.makeNode(fx.container, 5, 'webview', {}), /prop failed/)
 	assert.equal(fx.disposedWebViews.length, 1)
 })
@@ -172,6 +176,7 @@ test('a throwing prop removes an installed scroll observer', () => {
 			throw new Error('prop failed')
 		},
 	})
+
 	assert.throws(() => fx.makeNode(fx.container, 6, 'scrollview', {}), /prop failed/)
 	assert.deepEqual(fx.removedObservers, [{ token: 'scroll-observer' }])
 })
@@ -189,10 +194,12 @@ test('batch validation rejects commands before any apply work', () => {
 			]),
 		/cannot contain child views/,
 	)
+
 	assert.throws(
 		() => fx.validateBatch(fx.container, [{ op: 'insert', id: 9, parent: null, before: null }]),
 		/Unknown AppKit node 9/,
 	)
+
 	assert.throws(
 		() =>
 			fx.validateBatch(fx.container, [
@@ -200,10 +207,12 @@ test('batch validation rejects commands before any apply work', () => {
 			]),
 		/unsupported grid track/,
 	)
+
 	assert.throws(
 		() => fx.validateBatch(fx.container, [{ op: 'update', id: 99, props: {} }]),
 		/Unknown AppKit node 99/,
 	)
+
 	assert.throws(
 		() =>
 			fx.validateBatch(fx.container, [
@@ -236,6 +245,7 @@ test('prepareBatch rejects an invalid batch before apply runs', () => {
 			}),
 		/does not support <bogus>/,
 	)
+
 	assert.deepEqual(applyCalls, [])
 })
 
@@ -251,6 +261,7 @@ test('create on an existing id releases the previous node', () => {
 		actionId: 42,
 		scrollObserverInstalled: false,
 	}
+
 	fx.actionHandlers.set(42, () => {})
 	fx.container.nodes.set(7, old)
 	fx.container.children.push(old)
@@ -272,6 +283,7 @@ test('a failed update restores the recorded props', () => {
 			throw new Error('prop failed')
 		},
 	})
+
 	const node = {
 		id: 8,
 		type: 'label',
@@ -280,12 +292,14 @@ test('a failed update restores the recorded props', () => {
 		parent: null,
 		children: [],
 	}
+
 	fx.container.nodes.set(8, node)
 
 	assert.throws(
 		() => fx.applyCommand(fx.container, { op: 'update', id: 8, props: { text: 'new' } }),
 		/prop failed/,
 	)
+
 	assert.deepEqual(node.props, { text: 'old' })
 })
 
@@ -300,6 +314,7 @@ test('recreate rejects a view replacement under a non-container parent', () => {
 		parent,
 		children: [],
 	}
+
 	parent.children.push(child)
 	fx.container.nodes.set(10, parent)
 	fx.container.nodes.set(9, child)
@@ -308,6 +323,7 @@ test('recreate rejects a view replacement under a non-container parent', () => {
 		() => fx.applyCommand(fx.container, { op: 'recreate', id: 9, type: 'button', props: {} }),
 		/cannot contain child views/,
 	)
+
 	// The original node stays intact — nothing was removed or destroyed.
 	assert.equal(fx.container.nodes.get(9), child)
 	assert.deepEqual(parent.children, [child])
