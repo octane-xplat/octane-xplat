@@ -39,6 +39,17 @@ experience of agents writing Octane-xplat code effectively.
   (decision #51).
   `minimumReleaseAgeExclude` covers the octane packages — they're newer than
   the supply-chain cutoff.
+- pnpm 11 resolves `link:` dep manifests before the app's `preinstall` hooks
+  run: a spec pointing through a path created mid-install (e.g. a consumer's
+  sibling-checkout symlink) yields the `node_modules` symlink but no
+  `node_modules/.bin` shims — `xplat`/`xplat-lint` come back `command not
+  found` — and reinstalls stay "Already up to date" (GH#16). Heal by
+  reinstalling once the path exists (`rm -rf node_modules && pnpm install`)
+  or by running `node node_modules/@octane-xplat/cli/src/link-bins.mjs` from
+  the app root; wiring that into the consumer's `postinstall` covers fresh
+  installs. pnpm 12 re-resolves and is unaffected. `xplat-lint` resolves
+  `oxlint` from the app's dep tree, so invoking `bin/lint.mjs` with `node`
+  directly no longer needs `.bin` on PATH.
 - The framework patch set lives canonically in `packages/cli/patches/`
   (`manifest.json` carries specifier/scope/why/dropWhen per patch) and ships
   inside `@octane-xplat/cli`. Existing apps materialize it with

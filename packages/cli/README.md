@@ -46,6 +46,22 @@ pnpm xplat patches apply
 pnpm xplat patches check
 ```
 
+Developing an app against a local checkout
+(`"@octane-xplat/cli": "link:../octane-xplat/packages/cli"`)? pnpm 11 reads a
+`link:` dep's manifest while resolving — before `preinstall` hooks run — so a
+linked path that only appears mid-install (for example a symlink a hook
+creates) installs without its `node_modules/.bin` shims: `xplat` and
+`xplat-lint` come back `command not found`, and later installs report
+"Already up to date" without re-linking. Restore the shims with:
+
+```sh
+node node_modules/@octane-xplat/cli/src/link-bins.mjs
+```
+
+Run it from the app's `postinstall` (after the hook that creates the link
+path) so the first install lands them, or reinstall with the path already
+present. pnpm 12 links these bins normally.
+
 The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
 the supported targets directly; `xplat` is the multi-target front end. The
 experimental macOS target is configured by the app and packaged by `xplat`.
