@@ -681,6 +681,110 @@ useEffect(() => {
 Keep rotating copy out of the critical path: instructions, navigation, and
 values a person must act on should never rotate away.
 
+## Recreate fancy components
+
+Popular "fancy component" effects — an endless marquee, a typewriter, a
+scramble-in reveal, a number ticker — are also compositions, this time of a
+measured view, a repeating translate, and a few timers. The harness app ships
+a working showcase: open **Apps → Fancy components**; the maintained source
+is [`FancyComponents.tsrx`](../../packages/demos/src/FancyComponents.tsrx).
+Each effect there honors reduced motion by settling directly instead of
+playing.
+
+### Loop a marquee
+
+A marquee is one segment of content repeated side by side inside a clipped
+viewport, while a `MotionValue` walks the track left one segment-width and
+wraps. Measure the first copy with `useMeasure` — that width is the wrap
+period — then run a linear animation from `0` to `−span` on
+`repeat: Infinity`. When the value completes a leg, the next copy sits
+exactly where the first one did, so the jump back is invisible.
+
+```tsx
+const x = useMotionValue(0)
+const measure = useMeasure()
+const span = measure.bounds?.width ?? 0
+
+useEffect(() => {
+	if (!span || reduced) return
+	x.jump(0)
+	x.animate(-span, { duration: span / speed, ease: 'linear', repeat: Infinity })
+	return () => x.stop()
+}, [span, speed, reduced])
+```
+
+Render `repeat` copies of the same children inside a `motion.Row` bound to
+`x`, and mark every copy after the first `accessible={false}` so assistive
+technology announces the strip once. Clipping needs `overflow: hidden` on web
+plus the platform clip on native — iOS `clipsToBounds` and Android
+`setClipChildren`, which the showcase's `fancy-clip` leaf applies. Keep
+spacing inside the measured segment rather than on the track, so the wrap
+period stays exact. Pause by stopping the value and resume by finishing the
+current leg at its remaining fraction before restarting the loop — the
+showcase's `Marquee` does both without a visible jump.
+
+### Type phrases with a caret
+
+A typewriter is a timer-driven state machine, not an animation: hold the
+current phrase index, visible length, and deleting flag, and step it on a
+`setTimeout` chain — typing speed per character while growing, a dwell when
+the phrase completes, delete speed while shrinking, then the next phrase.
+
+```tsx
+useEffect(() => {
+	if (reduced || phrases.length === 0) return
+	const full = phrases[index % phrases.length]
+	const delay = !deleting
+		? len < full.length ? typeMs : waitMs
+		: len > 0 ? deleteMs : waitMs
+	const timer = setTimeout(step, delay)
+	return () => clearTimeout(timer)
+}, [len, deleting, index, reduced])
+```
+
+Blink the caret on a slower interval and hold it steady under reduced
+motion, which prints the first phrase whole. Typed effects belong on
+supporting copy — the message must still make sense while it is half-typed.
+
+### Reveal text through a scramble
+
+A scramble-in reveal is the same interval pattern: a counter walks the
+string's length, showing real characters up to the counter and a bounded
+window of random glyphs after it. The reveal finishes when the counter
+passes the string length plus the window size.
+
+```tsx
+useEffect(() => {
+	if (reduced || step >= text.length + trailing) return
+	const timer = setInterval(() => setStep((s) => s + 1), speedMs)
+	return () => clearInterval(timer)
+}, [step, reduced])
+```
+
+Put the real string on `accessibilityLabel` so screen readers hear it once
+instead of the noise, and fire `onDone` when the counter finishes so callers
+can chain a next step. Under reduced motion, resolve to the full text
+immediately.
+
+### Count up a value
+
+A number ticker animates a `MotionValue` from the start to the target and
+copies each change into rendered text — the same pattern as
+[update a total](#update-a-total) run once instead of per update. Jump back
+to `from` first so a Replay press restarts cleanly, and set the exact
+formatted target when the run finishes so rounding never leaves a near-miss
+on screen.
+
+```tsx
+const value = useMotionValue(from)
+useMotionValueEvent(value, 'change', (next) => setText(format(next)))
+useEffect(() => {
+	if (reduced) { value.jump(to); setText(format(to)); return }
+	value.jump(from)
+	void value.animate(to, { duration: 1.6, ease: 'easeInOut' })
+}, [to, reduced, runId])
+```
+
 ## Existing imperative animation
 
 Use UI's `useAnimation` for a single value attached to a component ref. This

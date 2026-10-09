@@ -45,5 +45,6 @@ export { LottieDemo } from './LottieDemo.tsrx'
 export { CameraDemo } from './CameraDemo.tsrx'
 // Extensionless: .windows/.macos resolve the stub leaf, mobile/web the showcase.
 export { MotionPatterns } from './MotionPatterns'
+export { FancyComponents } from './FancyComponents'
 export { DEMOS, RENDER, Gallery } from './Gallery.tsrx'
 export { setLastDemo, useLastDemo } from './store.tsrx'

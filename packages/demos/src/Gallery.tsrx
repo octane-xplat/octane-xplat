@@ -41,6 +41,7 @@ import { ComponentsDemo } from './ComponentsDemo.tsrx';
 // Extensionless on purpose — .macos/.windows twins substitute a stub leaf
 // (the motion leaf's hosts are mobile + web only).
 import { MotionPatterns } from './MotionPatterns';
+import { FancyComponents } from './FancyComponents';
 import { useLastDemo } from './store.tsrx';
 
 // kind: 'app' = a self-contained mini-app a human pokes to build trust;
@@ -58,6 +59,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'weather', title: 'Weather', kind: 'app' },
 	{ id: 'list-demo', title: 'Feed', kind: 'app' },
 	{ id: 'motion-patterns', title: 'Motion patterns', kind: 'app' },
+	{ id: 'fancy-components', title: 'Fancy components', kind: 'app' },
 	{ id: 'anim', title: 'Keyframes', kind: 'proof' },
 	{ id: 'probe', title: 'Reactivity', kind: 'proof' },
 	{ id: 'scrollbox', title: 'ScrollableArea + List', kind: 'proof' },
@@ -163,6 +165,7 @@ const renderCanvas = () => <CanvasDemo />;
 const renderEffects = () => <EffectsDemo />;
 const renderShaders = () => <ShaderDemo />;
 const renderMotionPatterns = () => <MotionPatterns />;
+const renderFancyComponents = () => <FancyComponents />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -218,6 +221,7 @@ export const RENDER: Record<string, () => any> = {
 	shaders: renderShaders,
 	effects: renderEffects,
 	'motion-patterns': renderMotionPatterns,
+	'fancy-components': renderFancyComponents,
 };
 
 /** Demo launcher — chip menu. Two modes:

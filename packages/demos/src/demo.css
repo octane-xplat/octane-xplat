@@ -658,3 +658,94 @@
 	border-width: 1px;
 	border-color: var(--color-border);
 }
+
+/* Fancy components showcase — marquee track, typewriter caret, scramble and
+   ticker text. Properties stay inside the NS∩web matrix; clip/whitespace
+   live in the web-only block (native clipping is the fancy-clip leaf). */
+.fc-card {
+	padding: 16px;
+	border-radius: 12px;
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+.fc-marquee {
+	border-radius: 8px;
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+/* No gap on the track — spacing lives inside the measured segment so the
+   wrap period equals the segment width exactly. */
+.fc-marquee-track {
+	flex-direction: row;
+	align-items: center;
+}
+
+.fc-marquee-segment {
+	flex-direction: row;
+	align-items: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.fc-marquee-content {
+	flex-direction: row;
+	align-items: center;
+	gap: 16px;
+	padding-right: 16px;
+}
+
+.fc-marquee-item {
+	font-size: 14px;
+}
+
+.fc-marquee-dot {
+	color: var(--color-text-secondary);
+}
+
+.fc-typewriter {
+	align-items: baseline;
+	min-height: 28px;
+}
+
+.fc-caret {
+	color: var(--color-text-secondary);
+}
+
+.fc-caret-off {
+	opacity: 0;
+}
+
+.fc-scramble {
+	font-size: 18px;
+	font-weight: 600;
+	min-height: 28px;
+}
+
+.fc-ticker-block {
+	align-items: flex-start;
+}
+
+.fc-ticker {
+	font-size: 34px;
+	font-weight: bold;
+	min-width: 120px;
+}
+
+/* xplat-web-only:start — clip the marquee track to the viewport and keep
+   each segment on one line. Native clips through the fancy-clip leaf
+   (clipsToBounds / setClipChildren) and NS text does not wrap mid-row. */
+.fc-marquee {
+	overflow: hidden;
+}
+
+.fc-marquee-content,
+.fc-marquee-item {
+	white-space: nowrap;
+}
+/* xplat-web-only:end */
