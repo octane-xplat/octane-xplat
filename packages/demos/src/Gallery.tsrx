@@ -38,6 +38,9 @@ import { ContentDisplayDemo } from './ContentDisplayDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { Reorder } from './Reorder.tsrx';
 import { ComponentsDemo } from './ComponentsDemo.tsrx';
+// Extensionless on purpose — .macos/.windows twins substitute a stub leaf
+// (the motion leaf's hosts are mobile + web only).
+import { MotionPatterns } from './MotionPatterns';
 import { useLastDemo } from './store.tsrx';
 
 // kind: 'app' = a self-contained mini-app a human pokes to build trust;
@@ -54,6 +57,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'vlist-perf', title: 'List perf ×5000', kind: 'app' },
 	{ id: 'weather', title: 'Weather', kind: 'app' },
 	{ id: 'list-demo', title: 'Feed', kind: 'app' },
+	{ id: 'motion-patterns', title: 'Motion patterns', kind: 'app' },
 	{ id: 'anim', title: 'Keyframes', kind: 'proof' },
 	{ id: 'probe', title: 'Reactivity', kind: 'proof' },
 	{ id: 'scrollbox', title: 'ScrollableArea + List', kind: 'proof' },
@@ -158,6 +162,7 @@ const renderPush = () => <PushDemo />;
 const renderCanvas = () => <CanvasDemo />;
 const renderEffects = () => <EffectsDemo />;
 const renderShaders = () => <ShaderDemo />;
+const renderMotionPatterns = () => <MotionPatterns />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -212,6 +217,7 @@ export const RENDER: Record<string, () => any> = {
 	canvas: renderCanvas,
 	shaders: renderShaders,
 	effects: renderEffects,
+	'motion-patterns': renderMotionPatterns,
 };
 
 /** Demo launcher — chip menu. Two modes:

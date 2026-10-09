@@ -999,6 +999,9 @@ importers:
       '@octane-xplat/lottie':
         specifier: workspace:*
         version: link:../lottie
+      '@octane-xplat/motion':
+        specifier: workspace:*
+        version: link:../motion
       '@octane-xplat/pager':
         specifier: workspace:*
         version: link:../pager

@@ -575,3 +575,86 @@
 	overflow: hidden;
 }
 /* xplat-web-only:end */
+
+/* Motion patterns showcase — dashboard card, bounded group items, total, and
+   the pattern index. Properties stay inside the NS∩web matrix. */
+.mp-card {
+	padding: 16px;
+	border-radius: 12px;
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+.mp-activity-list {
+	gap: 8px;
+}
+
+.mp-activity-item {
+	padding-top: 10px;
+	padding-right: 12px;
+	padding-bottom: 10px;
+	padding-left: 12px;
+	border-radius: 8px;
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	border-width: 1px;
+	border-color: var(--color-border);
+	gap: 2px;
+}
+
+/* The total occupies its own block with a fixed minimum width, so digit-width
+   changes never push sibling controls around. */
+.mp-total-block {
+	align-items: flex-start;
+}
+
+.mp-total {
+	font-size: 34px;
+	font-weight: bold;
+	min-width: 120px;
+}
+
+/* Stable phrase slot: a minimum height keeps the row from collapsing between
+   swaps, while wrapping stays free at narrow widths or larger text. */
+.mp-loop-slot {
+	min-height: 24px;
+	min-width: 140px;
+}
+
+.mp-phrase {
+	color: var(--color-text-secondary);
+}
+
+.mp-index {
+	gap: 4px;
+}
+
+.mp-index-row {
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-right: 12px;
+	padding-left: 12px;
+	border-radius: 8px;
+	corner-shape: squircle;
+	border-width: 1px;
+	border-color: var(--color-border);
+}
+
+.mp-index-row--on {
+	border-color: var(--color-primary);
+}
+
+.mp-focus {
+	gap: 12px;
+	padding: 16px;
+	border-radius: 12px;
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+}

@@ -586,6 +586,101 @@ This is deliberately different from upstream Octane motion, which unmounts the
 original component and animates a DOM clone. Xplat retains the live subtree on
 both web and native; it does not export `AnimatePresence` as a compatibility alias.
 
+## Compose motion patterns
+
+Common product interactions — switching views, revealing a list, settling a
+total, rotating supporting copy — are compositions of the pieces above, not new
+primitives. The harness app ships a working showcase: run `pnpm dev:web` (or
+`pnpm dev:ios` / `pnpm dev:android` with the native toolchain set up) and open
+**Apps → Motion patterns**. Each pattern has a focused view there with its own
+reduced-motion preview, and the maintained source is
+[`MotionPatterns.tsrx`](../../packages/demos/src/MotionPatterns.tsrx).
+
+### Switch views with a wait-style swap
+
+Keep the outgoing view mounted until its exit finishes, then mount the new
+selection. `Presence` does the wait: present it while the shown value still
+matches the selection, and mount the next view from `onExitComplete`. The
+boundary blocks input and hides the leaving view from accessibility, so only
+one panel is ever active. Rapid selections converge on the latest choice —
+re-selecting the shown view mid-exit reverses it in place.
+
+```tsx
+const [shown, setShown] = useState(selected)
+
+// Keep Presence mounted around the outgoing view until its exit completes;
+// onExitComplete sees the latest selection, so rapid presses converge on it.
+<Presence present={shown === selected} onExitComplete={() => setShown(selected)}>
+	<motion.View exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }}>
+		{renderPanel(shown)}
+	</motion.View>
+</Presence>
+```
+
+Under reduced motion, skip the boundary and render the selected view directly
+so it changes in place.
+
+### Reveal a bounded group
+
+Give each item a mount animation and a small per-index delay. The set stays
+small — a handful of rows, not a feed — so the stagger never delays the last
+actionable item. To replay, remount the same items through a changing key
+rather than restarting timers. Mount animations do not restart on unrelated
+renders, and an empty set should render a readable empty state.
+
+```tsx
+items.map((item, i) => (
+	<motion.View
+		key={replayId + ':' + item.id}
+		initial={reduced ? false : { opacity: 0, y: 8 }}
+		animate={{ opacity: 1, y: 0 }}
+		transition={{ duration: 0.24, delay: i * 0.06, ease: 'easeOut' }}
+	>
+		<Text>{item.title}</Text>
+	</motion.View>
+))
+```
+
+### Update a total
+
+Animate a `MotionValue` toward the target and copy each change into rendered
+text. Set the exact target when the run finishes, and put the settled value on
+a label or live region so screen readers hear the result once instead of every
+interpolated frame. Under reduced motion, `jump` to the target and render it
+directly.
+
+```tsx
+const value = useMotionValue(total)
+useMotionValueEvent(value, 'change', (next) => setText(format(next)))
+useEffect(() => {
+	if (reduced) value.jump(total)
+	else void value.animate(total, { duration: 0.45, ease: 'easeOut' })
+}, [total, reduced])
+```
+
+A new target replaces the running animation toward the latest value, so quick
+taps never replay stale destinations.
+
+### Rotate supporting copy
+
+For opt-in phrase rotation, run a timer that advances an index, and reuse the
+wait-style swap to retire one whole phrase and bring in the next. Keep enough
+dwell time to read each phrase (about three seconds or more), pause when the
+app is backgrounded or the view unmounts, and require an explicit Play — never
+autoplay on arrival. Under reduced motion the phrases still change, but only
+through the visitor's Next action.
+
+```tsx
+useEffect(() => {
+	if (!playing || reduced || phrases.length < 2) return
+	const timer = setInterval(() => setIndex((i) => (i + 1) % phrases.length), 3200)
+	return () => clearInterval(timer)
+}, [playing, reduced, phrases.length])
+```
+
+Keep rotating copy out of the critical path: instructions, navigation, and
+values a person must act on should never rotate away.
+
 ## Existing imperative animation
 
 Use UI's `useAnimation` for a single value attached to a component ref. This

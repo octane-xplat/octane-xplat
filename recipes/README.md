@@ -29,6 +29,7 @@ Workflows:
 - [Animate shared components](component-motion.md)
 - [Animate a view through a ref](imperative-animation.md)
 - [Settle a dragged value with a spring](gesture-motion.md)
+- [Compose motion patterns](motion-patterns.md)
 - [Fetch remote data in a screen](fetch-remote-data.md)
 - [Add advanced haptics](advanced-haptics.md)
 - [Add UI sound effects](ui-sounds.md)

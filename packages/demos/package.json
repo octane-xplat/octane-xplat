@@ -28,6 +28,7 @@
 		"@octane-xplat/image": "workspace:*",
 		"@octane-xplat/lexical": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
+		"@octane-xplat/motion": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
 		"@octane-xplat/push": "workspace:*",
