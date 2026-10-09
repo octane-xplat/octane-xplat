@@ -2497,10 +2497,47 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	syncStackLayout(node)
 }
 
+// `className` composes clsx-style on the DOM renderer and the NativeScript
+// driver; this mirrors octane's `normalizeClass` (native dist must not import
+// bare `octane`, and peers older than 0.11 predate the export) so a
+// declarative array or object reaches the tokenizer instead of String(value)'s
+// comma-join.
+function normalizeClass(value: any): string {
+	if (typeof value === 'string') {
+		return value
+	}
+
+	if (typeof value !== 'object') {
+		return typeof value === 'number' && value ? '' + value : ''
+	}
+
+	if (value === null) {
+		return ''
+	}
+
+	let str = ''
+	if (Array.isArray(value)) {
+		for (const item of value) {
+			if (item) {
+				const inner = normalizeClass(item)
+				if (inner) {
+					str = str ? str + ' ' + inner : inner
+				}
+			}
+		}
+	} else {
+		for (const key in value) {
+			if (value[key]) {
+				str = str ? str + ' ' + key : key
+			}
+		}
+	}
+
+	return str
+}
+
 function applyClassName(node: ElementNode, value: any) {
-	const classes = String(value ?? '')
-		.split(/\s+/)
-		.filter(Boolean)
+	const classes = normalizeClass(value).split(/\s+/).filter(Boolean)
 
 	// Class effects re-derive from scratch on every apply: the class-owned
 	// fields reset here and re-populate below, so removing a class drops the
@@ -3802,9 +3839,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 const round = (value: number) => Math.round(value * 100) / 100
 
 function nodeClasses(node: ElementNode) {
-	return String(node.props?.className ?? '')
-		.split(/\s+/)
-		.filter(Boolean)
+	return normalizeClass(node.props?.className).split(/\s+/).filter(Boolean)
 }
 
 function descendants(node: ElementNode, out: ElementNode[] = []) {

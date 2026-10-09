@@ -131,10 +131,10 @@ const sandbox = {
 	setLayoutAction: () => {},
 }
 
-const { applyStyle, applyClassName, applyProps } = runInNewContext(
+const { applyStyle, applyClassName, applyProps, nodeClasses } = runInNewContext(
 	slices.join('\n') +
 		source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
-		'\n({ applyStyle, applyClassName, applyProps })',
+		'\n({ applyStyle, applyClassName, applyProps, nodeClasses })',
 	sandbox,
 )
 
@@ -167,9 +167,14 @@ function setStyle(item, style) {
 	applyStyle(item, style)
 }
 
-// edgeInsets literals are built inside the vm realm — re-home for deepEqual.
+// edgeInsets literals and nodeClasses results are built inside the vm realm —
+// re-home for deepEqual.
 function insets(value) {
 	return { ...value }
+}
+
+function classes(item) {
+	return [...nodeClasses(item)]
 }
 
 test('removed style keys reset alpha, input transparency, and size constraints', () => {
@@ -393,6 +398,46 @@ test('direction changes replace cross-axis pins and select the corresponding gap
 	)
 	assert.equal(child.sizeConstraints.width.active, true)
 	assert.equal(child.sizeConstraints.width.multiplier, 0.5)
+})
+
+// Declarative className composes clsx-style on the DOM renderer and the
+// NativeScript driver. Without normalization String(value) comma-joins an
+// array into one token that matches nothing.
+test('array className values tokenize like strings', () => {
+	const item = node('flexboxlayout', { orientation: 1 })
+	setClass(item, ['gap-2', 'bg-primary', 'items-center'])
+
+	assert.deepEqual(classes(item), ['gap-2', 'bg-primary', 'items-center'])
+	assert.equal(item.view.spacing, 8)
+	assert.ok(item.view.layer.backgroundColor != null)
+	assert.notEqual(item.view.alignment, null)
+})
+
+test('nested arrays flatten and falsy entries drop out', () => {
+	const item = node('flexboxlayout', { orientation: 1 })
+	setClass(item, ['gap-2', ['items-center', null, false], undefined, ''])
+
+	assert.deepEqual(classes(item), ['gap-2', 'items-center'])
+	assert.equal(item.view.spacing, 8)
+})
+
+test('object className values keep only truthy keys', () => {
+	const item = node('flexboxlayout', { orientation: 1 })
+	setClass(item, { 'gap-2': true, 'items-center': 1, 'bg-primary': false, hidden: 0 })
+
+	assert.deepEqual(classes(item), ['gap-2', 'items-center'])
+	assert.equal(item.view.spacing, 8)
+	assert.ok(item.view.layer.backgroundColor == null, 'falsy object keys never apply')
+})
+
+test('class effects still reset when an array input goes empty', () => {
+	const item = node('flexboxlayout', { orientation: 1 })
+	setClass(item, ['gap-2', 'bg-primary'])
+	setClass(item, [])
+
+	assert.deepEqual(classes(item), [])
+	assert.equal(item.view.spacing, 0)
+	assert.ok(item.view.layer.backgroundColor == null)
 })
 
 test('unsupported layout styles on a leaf keep useful diagnostics', () => {
