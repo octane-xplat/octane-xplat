@@ -1,11 +1,13 @@
 # @octane-xplat/dnd-kit
 
-Use draggable and droppable Xplat Views on web, iOS, Android, and native macOS (AppKit). The leaf shares
-`@dnd-kit/abstract`'s manager, sensor interface, and drag state machine plus
-`@dnd-kit/collision` algorithms and `@dnd-kit/state` reactivity. It implements
-input and geometry through Xplat primitives; it does not load `@dnd-kit/dom`
-on native or use a collection widget's reorder mechanism. This is an Xplat
-facade, not a drop-in replacement for the upstream hook signatures.
+Drag and drop for Octane xplat apps — sortable lists and custom
+drag/drop interactions on web, iOS, Android, and native macOS (AppKit).
+The package shares `@dnd-kit/abstract`'s manager, sensor interface, and
+drag state machine plus `@dnd-kit/collision` algorithms and
+`@dnd-kit/state` reactivity, and implements input and geometry through
+Xplat primitives. It does not load `@dnd-kit/dom` on native or use a
+collection widget's reorder mechanism. This is an Xplat facade, not a
+drop-in replacement for the upstream hook signatures.
 
 ## Install and reorder
 
@@ -15,14 +17,14 @@ In an Octane Xplat app with `@octane-xplat/ui` and its renderer configured:
 pnpm add @octane-xplat/dnd-kit
 ```
 
-Import from the root package; web/native/macos export conditions select the platform
-implementation. The app keeps one Octane runtime. Native apps also need the
-existing `@nativescript-community/octane` and `@nativescript/core` setup.
-The AppKit entry ships source, like other macOS leaves; include its `src/**/*.tsx`
-and `src/**/*.tsrx` in the macOS renderer transform. The workspace config already
-includes these paths. Its entry supplies AbortController/AbortSignal when absent
-in JavaScriptCore. macOS WebView apps select the web entry instead.
-No leaf CSS build is required; drag feedback uses style objects.
+Import from the root package; web/native/macos export conditions select the
+platform implementation. Native apps also need the existing
+`@nativescript-community/octane` and `@nativescript/core` setup. The AppKit
+entry ships source, like other macOS leaves — include its `src/**/*.tsx` and
+`src/**/*.tsrx` in the macOS renderer transform (the workspace config already
+does) — and it supplies AbortController/AbortSignal where JavaScriptCore lacks
+them. macOS WebView apps select the web entry instead. No leaf CSS build is
+required; drag feedback uses style objects.
 
 ```tsx
 import { useState } from 'octane'
@@ -278,31 +280,24 @@ export function ScrollingTasks({ autoScroll }: { autoScroll: AutoScroll }) {
 V1 uses pan input immediately on native gesture begin or web pointer-down.
 There is no activation distance, separate handle, keyboard sensor, screen-reader
 announcement layer, drag overlay, nested-scroll arbitration, or virtualized
-offscreen target discovery. Native pans may compete with ScrollView gestures;
-OS gesture arbitration and hit-testing require device verification. Only mounted,
-measurable targets participate. Use a separate DndContext in each native renderer
-root (pages and sheets do not share context).
+offscreen target discovery. Native pans may compete with ScrollView gestures.
+Only mounted, measurable targets participate. Use a separate DndContext in each
+native renderer root (pages and sheets do not share context).
 
-Run `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`, `build`, and
-`pack:check`. Core tests use native-shaped geometry and the real abstract core;
-they do not establish OS input delivery. The repository probe doctor reports
-available runtime targets. Do not infer Android runtime support from a native
-library build.
-The Web regression runs with `pnpm --filter @xplat/web test`; it drives pointer
-events through bound Views and checks both successful drop and cancellation.
-The maintained AppKit regression runs with
-`pnpm probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`; it uses
-action dispatch and checks layer feedback, layout, auto-scroll, and cleanup.
+Package checks: `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`,
+`build`, and `pack:check`. Core tests use native-shaped geometry and the real
+abstract core — they do not establish OS input delivery or hit-testing. The web
+regression runs with `pnpm --filter @xplat/web test` (pointer events through
+bound Views, drop and cancellation). The AppKit regression runs with
+`pnpm probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`
+(action dispatch, layer feedback, layout, auto-scroll, cleanup). `pnpm probe
+doctor` reports available runtime targets. Do not infer Android runtime support
+from a native library build.
 
-Before the first automated release, the package still needs the one-time npm
-stub and trusted publisher setup described in [releases](../../.agents/docs/releases.md).
-This change does not publish or configure npm.
-
-Verification: web/native/macOS source typechecks, web/native library builds,
-ten core/geometry tests, and packed consumers in Bundler/NodeNext passed.
-Chromium pointer-event dispatch and iOS pan-observer dispatch probes passed
-for reorder and cancellation. AppKit/JavaScriptCore pan-handler dispatch passed
-reorder/cancel plus NSScrollView auto-scroll, translation through layout, and
-cancellation cleanup. These establish renderer runtime behavior, not OS gesture
-delivery, hit-testing, or scroll gesture arbitration. Android runtime and macOS
-WebView drag behavior were not run.
+Verified so far: web/native/macOS source typechecks and library builds, ten
+core/geometry tests, packed consumers in Bundler/NodeNext, Chromium
+pointer-event and iOS pan-observer dispatch probes (reorder and cancellation),
+and AppKit/JavaScriptCore pan-handler dispatch including NSScrollView
+auto-scroll and cancellation cleanup. These establish renderer runtime
+behavior, not OS gesture delivery, hit-testing, or scroll gesture arbitration.
+Android runtime and macOS WebView drag behavior were not run.

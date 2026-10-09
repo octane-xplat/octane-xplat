@@ -1,11 +1,10 @@
 # `@octane-xplat/bamboo`
 
-Bamboo CSS integration defaults for Octane xplat apps — the glue between
-[`@bamboocss`](https://github.com/aleclarson/bamboo) portable utilities
-and the framework stylesheet. It exports a preset scoped to the CSS subset
-both NativeScript and browsers support (`xplatPortablePreset`, the `vx-*`
-utility classes on framework token vars), plus layer ordering that keeps
-utilities under the app's own CSS.
+Shared [Bamboo](https://github.com/aleclarson/bamboo) CSS defaults for
+Octane xplat apps. `xplatBambooConfig` scopes generation to the CSS subset
+both NativeScript and browsers support (`xplatPortablePreset` and the
+`vx-*` utility classes on framework token variables) and orders layers so
+utilities sit under the app's own CSS. A Vite plugin emits the stylesheet.
 
 ```sh
 pnpm add -D @octane-xplat/bamboo

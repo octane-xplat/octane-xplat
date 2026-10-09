@@ -31,6 +31,25 @@ pnpm xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + f
 pnpm xplat fonts add @fontsource-variable/inter --install  # Fontsource package
 ```
 
+The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
+the supported targets directly; `xplat` is the multi-target front end. The
+experimental macOS target is configured by the app and packaged by `xplat`.
+
+```sh
+pnpm dev
+pnpm build
+pnpm dev:ios
+```
+
+Linux packaging and its required manifest settings are documented in
+[Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
+GJS host; Linux users supply the GTK/WebKit system runtime.
+
+Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
+— agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)
+
+## Framework patches
+
 The framework carries a small set of upstream fixes as pnpm
 `patchedDependencies` (`packages/cli/patches/` + manifest in the published
 package). pnpm only honors them at an app's workspace root. For existing apps,
@@ -41,10 +60,7 @@ dependency-free `@octane-xplat/patches` package through pnpm
 `configDependencies`; their patch paths point into
 `node_modules/.pnpm-config/`.
 
-```sh
-pnpm xplat patches apply
-pnpm xplat patches check
-```
+## Working against a local checkout
 
 Developing an app against a local checkout
 (`"@octane-xplat/cli": "link:../octane-xplat/packages/cli"`)? pnpm 11 reads a
@@ -62,19 +78,7 @@ Run it from the app's `postinstall` (after the hook that creates the link
 path) so the first install lands them, or reinstall with the path already
 present. pnpm 12 links these bins normally.
 
-The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
-the supported targets directly; `xplat` is the multi-target front end. The
-experimental macOS target is configured by the app and packaged by `xplat`.
-
-```sh
-pnpm dev
-pnpm build
-pnpm dev:ios
-```
-
-Linux packaging and its required manifest settings are documented in
-[Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the GJS host;
-Linux users supply the GTK/WebKit system runtime.
+## Native Vite preset
 
 Also exports the native vite preset — it absorbs the app-owned native config
 (renderer rules, octane→universal alias, `.ios`/`.android` extension chain,
@@ -88,8 +92,7 @@ import { xplatNative } from '@octane-xplat/cli/vite'
 export default defineConfig(({ mode }) => xplatNative(mode))
 ```
 
-Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
-— agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)
+## macOS AppKit preset
 
 The experimental AppKit preset is exported separately from
 `@octane-xplat/cli/macos/vite`:

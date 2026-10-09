@@ -1,10 +1,10 @@
 # `@octane-xplat/date-picker`
 
-An install boundary for platform-specific date and time selection controls:
-a SwiftUI `DatePicker` on iOS, Material 3 `DatePicker`/`TimePicker` built with
-Jetpack Compose on Android, and a real `NSDatePicker` on macOS. For portable
-form controls, use `Calendar`, `DateInput`, `TimeInput`, `DateTimeInput`, and
-`DateRangeInput` from `@octane-xplat/ui` on every target.
+Platform-specific date and time pickers for Octane xplat apps: a SwiftUI
+`DatePicker` on iOS, Material 3 `DatePicker`/`TimePicker` built with Jetpack
+Compose on Android, and a real `NSDatePicker` on macOS. For portable form
+controls that work on every target, use `Calendar`, `DateInput`,
+`TimeInput`, `DateTimeInput`, and `DateRangeInput` from `@octane-xplat/ui`.
 
 ```tsx
 import { useState } from 'octane'
@@ -16,11 +16,12 @@ export function DepartureDate() {
 }
 ```
 
-Install the package in the app that renders a control. Import
-`SwiftUIDatePicker` from `@octane-xplat/date-picker/ios`,
-`MaterialDatePicker` from `@octane-xplat/date-picker/android`, or
-`AppKitDatePicker` from `@octane-xplat/date-picker/macos` in the matching
-platform-suffixed file. These native entries have platform-specific contracts.
+There is no shared picker component. Install the package in the app that
+renders a control, then import `SwiftUIDatePicker` from
+`@octane-xplat/date-picker/ios`, `MaterialDatePicker` from
+`@octane-xplat/date-picker/android`, or `AppKitDatePicker` from
+`@octane-xplat/date-picker/macos` in the matching platform-suffixed file.
+These native entries have platform-specific contracts.
 The old `@octane-xplat/date-picker/web` `DateInput` subpath was removed because
 its browser-only string contract conflicted with the shared `DateInput` API.
 

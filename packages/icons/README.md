@@ -24,10 +24,10 @@ export function NextAction() {
 }
 ```
 
-Heroicons is the Astryx-parity choice: Astryx's Icon is heroicons-based.
-It is an example, not a default. Register any number of `@iconify-json/*`
-collections the same way. A collection's `prefix` determines its namespace;
-there is no automatic package discovery, fetching, or fallback set.
+Heroicons is an example, not a default. Register any number of
+`@iconify-json/*` collections the same way. A collection's `prefix`
+determines its namespace; there is no automatic package discovery,
+fetching, or fallback set.
 
 ```ts
 // heroicons and addCollection are imported above.
@@ -167,5 +167,5 @@ pnpm probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID -
 
 For package checks, run `pnpm --filter @octane-xplat/icons build`, `typecheck`,
 `test`, and `pack:check`. Runtime evidence is recorded separately from builds;
-The probe proves host/source updates, not pixel parity or OS accessibility
-traversal. Run it on each target you ship. This package owns the maintained probe.
+the probe proves host/source updates, not pixel parity or OS accessibility
+traversal. Run it on each target you ship.

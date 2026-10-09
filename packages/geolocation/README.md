@@ -23,15 +23,6 @@ implementation exists on this target, `ensure()` resolves
 defers the prompt), and `impl` is the service once usable. Nullable
 `altitude`/`heading`/`speed` mean the platform did not report them.
 
-```ts
-import { geolocation } from '@octane-xplat/geolocation'
-
-if ((await geolocation.ensure()) === 'granted') {
-	const pos = await geolocation.impl!.getCurrentPosition()
-	// { latitude, longitude, accuracy, altitude, heading, speed, timestamp }
-}
-```
-
 Guide: [Using device features](../../docs/platform/platform-services.md);
 per-target availability: [platform notes](../../docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen

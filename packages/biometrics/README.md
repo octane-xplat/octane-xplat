@@ -24,14 +24,6 @@ implementation exists on this target — branch on it rather than catching —
 the service once usable. `verify(reason)` resolves `false` for a declined
 or failed prompt rather than throwing.
 
-```ts
-import { biometrics } from '@octane-xplat/biometrics'
-
-if ((await biometrics.ensure()) === 'granted') {
-	const ok = await biometrics.impl!.verify('Unlock your saved trips')
-}
-```
-
 Guide: [Using device features](../../docs/platform/platform-services.md);
 per-target availability: [platform notes](../../docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen

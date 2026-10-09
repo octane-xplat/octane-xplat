@@ -1,6 +1,7 @@
 # `@octane-xplat/files`
 
-Cross-platform file selection and file entry for Octane apps.
+File picking, reading, writing, and export for Octane apps — one `files`
+service plus a `FileInput` component on web, iOS, Android, and macOS.
 
 Install `@octane-xplat/files` and `@octane-xplat/ui`. `FileInput` uses the
 platform picker by default: the browser file input on web, the NativeScript

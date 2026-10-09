@@ -4,11 +4,11 @@
 pnpm add @octane-xplat/desktop-webview
 ```
 
-System-WebView host adapters for desktop Octane apps. Currently one entry:
-`./macos` attaches a real `WKWebView` to an app-owned AppKit content view
-through `@nativescript/macos-node-api`, so a macOS app can render its DOM
-frontend in system WebKit while the existing JavaScriptCore + NativeScript
-host keeps serving native APIs — no bundled Chromium.
+System-WebView host adapters for desktop Octane apps. The `./macos` entry
+attaches a real `WKWebView` to an app-owned AppKit content view through
+`@nativescript/macos-node-api`, so a macOS app can render its DOM frontend
+in system WebKit while the existing JavaScriptCore + NativeScript host
+keeps serving native APIs — no bundled Chromium.
 
 ```ts
 import { createMacOSWebView } from '@octane-xplat/desktop-webview/macos'

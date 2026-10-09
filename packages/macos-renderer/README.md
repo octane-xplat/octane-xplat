@@ -9,12 +9,13 @@ Your application owns startup, windows, menus, host services, and custom font
 assets. The renderer owns views, layout, events, accessibility, and its hosted
 popups and sheets. It does not load web stylesheets or implement every
 NativeScript widget. See the [macOS harness](../../apps/macos/README.md) for
-the current component and service limits. The image-crop integration test compiles and mounts the public UI barrel.
-The full application harness has not been reverified by that test. Registered
-action selectors match the assigned target/action strings, and the maintained
-consumer checks direct handler dispatch — but OS-level input delivery (a live
+the current component and service limits.
+
+Verification status: the image-crop integration test compiles and mounts the
+public UI barrel, and registered action selectors match their target/action
+strings through direct handler dispatch. OS-level input delivery (a live
 AppKit `performClick`, control edits, gestures) has not been verified end to
-end.
+end, and the full application harness has not been reverified by that test.
 
 ## Configure an app
 
@@ -373,5 +374,4 @@ The packed check uses the renderer and CLI tarballs in a temporary app outside
 the checkout. It checks declarations and production compilation on every
 host; on Apple Silicon macOS it also packages and launches the app and verifies
 retained-root HMR. Programmatic action dispatch establishes handler behavior,
-not OS input or hit-testing. Publication requires the repository's normal
-[npm bootstrap and trusted-publisher setup](../../.agents/docs/releases.md).
+not OS input or hit-testing.

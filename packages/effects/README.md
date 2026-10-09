@@ -18,9 +18,11 @@ platform-suffixed file:
 import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
 
-;<ShaderEffect effect="heatHaze" args={{ strength: 1 }}>
-	<Text>Distorted content</Text>
-</ShaderEffect>
+export function DistortedTitle() @{
+	<ShaderEffect effect="heatHaze" args={{ strength: 1 }}>
+		<Text>Distorted content</Text>
+	</ShaderEffect>
+}
 ```
 
 `effect` names a bundled shader (`heatHaze`, `sheen`, `shatter`) or a

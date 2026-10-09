@@ -1,12 +1,13 @@
 # `@octane-xplat/lexical`
 
-The unified rich-text facade, lexical flavor: one `LexicalEditor` component
-across web and native. Web renders a fixed-plugin `LexicalComposer` through
-`@octanejs/lexical`; iOS and Android render the `@octane-xplat/richtext` leaf
-(WordPress Aztec on Android, AztecEditor-iOS on iOS) and layers lexical serialized editor
-state on top through the DOM-free slices (`lexical`, `@lexical/html`, the
-Aztec-shaped node packages) with a `zeed-dom` parse shim. DOM-bound lexical code stays out of Android execution — divergence lives at the
-file-suffix boundary.
+Rich-text editing for Octane xplat apps through the Lexical document model —
+one `LexicalEditor` component on web and native. Web renders a fixed-plugin
+`LexicalComposer` through `@octanejs/lexical`. iOS and Android render the
+`@octane-xplat/richtext` leaf (AztecEditor-iOS / WordPress Aztec) and convert
+Lexical serialized state to and from HTML through the DOM-free packages
+(`lexical`, `@lexical/html`, the Aztec-shaped node packages) with a `zeed-dom`
+parse shim — no live Lexical editor runs there. macOS AppKit mounts a bundled
+Lexical editor in a WKWebView.
 
 ```tsx
 import { useState } from 'octane'
@@ -28,7 +29,17 @@ lexical serialized editor state (`EditorState.toJSON()`): synchronous on
 web, bridged on iOS/Android after `onJSONReady(true)` — the lazy bridge reports
 `false` (and `getJSON()` returns `null`) on runtimes that cannot host the
 document-model modules. On Android, HTML is the canonical interchange
-format; serialized state is a best-effort mapping.
+format; serialized state is a best-effort mapping. `editable={false}` renders
+a read-only document, `placeholder` shows hint text on an empty document, and
+`autofocus` focuses the field on mount.
+
+```tsx
+import { LexicalEditor } from '@octane-xplat/lexical'
+
+export function ReadOnlyNote({ html }: { html: string }) {
+	return <LexicalEditor value={html} editable={false} />
+}
+```
 
 ```tsx
 import { useRef, useState } from 'octane'
@@ -64,6 +75,8 @@ export function DocumentCopy() {
 }
 ```
 
+## Web customization
+
 On web, `web.nodes` adds custom Lexical node classes to the facade's built-in
 nodes, and `web.plugins` renders additional Octane plugin components inside
 the Lexical composer. Set `replaceNodes` to `true` when `web.nodes` should be
@@ -87,17 +100,12 @@ export function NoteEditor() {
 }
 ```
 
-The `web` options are ignored on native. Native edits with Aztec on iOS and
-Android and uses the fixed headless conversion node set for JSON. Caller
-plugins, custom nodes, browser views, and arbitrary JavaScript transforms do
-not run there. Apps replacing the web defaults can set both replacement
-options and register the node classes Lexical requires for their documents.
-
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'
 import { BadgeNode, BadgePlugin } from './lexical-extensions'
 
-export function NoteEditor() {
+// Full replacement: register every node class Lexical needs for your documents.
+export function CustomEditor() {
 	return (
 		<LexicalEditor
 			web={{ replaceNodes: true, nodes: [BadgeNode], replacePlugins: true, plugins: <BadgePlugin /> }}
@@ -105,6 +113,10 @@ export function NoteEditor() {
 	)
 }
 ```
+
+The `web` options are ignored on native, where Aztec does the editing and the
+fixed headless node set handles JSON conversion: no caller plugins, custom
+nodes, browser views, or arbitrary JavaScript transforms run there.
 
 ## Engine and feature boundary
 
@@ -117,28 +129,16 @@ export function NoteEditor() {
 
 On Android, save HTML as the canonical document. Lexical serialized state is
 a best-effort conversion through the fixed built-in node set; it is not a live
-Lexical editor state that supports commands or plugins.
-The 2026-10-06 [Aztec nested-tree run](../../.agents/docs/parity/nested-tree-editor.md)
+Lexical editor state that supports commands or plugins. There is no live
+`LexicalEditor` on Android: no `dispatchCommand`, no node transforms;
+`native` returns the `AztecText` and the headless editor used for
+conversions is an internal detail. The 2026-10-06
+[Aztec nested-tree run](../../.agents/docs/parity/nested-tree-editor.md)
 preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen, but flattened paragraphs and accumulated `<br>` elements
 on reopen. That run exercised the shared Aztec HTML leaf, not Lexical's JSON
 conversion or structural commands. See the
 [per-row capability record](../../docs/notes/editor-capabilities.md).
-
-```tsx
-import { useState } from 'octane'
-import { LexicalEditor, supported } from '@octane-xplat/lexical'
-import { Text } from '@octane-xplat/ui'
-
-export function Notes() {
-	const [html, setHTML] = useState('<p>Travel notes</p>')
-	return supported ? (
-		<LexicalEditor value={html} editable onChange={setHTML} />
-	) : (
-		<Text>Editing is unavailable on this target</Text>
-	)
-}
-```
 
 Focus callbacks report focus entering or leaving the editable surface.
 `onJSONReady(true)` fires once the web editor handle exists, so `getJSON()` is
@@ -153,10 +153,6 @@ reports when the lazy conversion bridge settles.
 />
 ```
 
-There is no live `LexicalEditor` on Android: no `dispatchCommand`, no node
-transforms; `native` returns the `AztecText` and the headless editor used for
-conversions is an internal detail.
-
 The lexical family pins to `0.51.0` and `@octanejs/lexical` to `0.2.0`
 (peers `octane ^0.6.0`). `@lexical/link` carries a workspace patch for its
 ICU-dependent URL-matcher literal. See
@@ -170,7 +166,6 @@ RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
 host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).
-
 
 ## Native content and format limits
 
