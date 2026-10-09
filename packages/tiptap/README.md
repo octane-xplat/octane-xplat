@@ -64,22 +64,8 @@ edits and save/reopen. It also flattened paragraphs and accumulated `<br>`
 elements on reopen; it did not qualify Tiptap JSON, OS input, or structural
 tree commands. See the [per-row capability record](../../docs/notes/editor-capabilities.md).
 
-```tsx
-import { useState } from 'octane'
-import { TiptapEditor, supported } from '@octane-xplat/tiptap'
-import { Text } from '@octane-xplat/ui'
-
-export function Notes() {
-	const [html, setHTML] = useState('<p>Travel notes</p>')
-	return supported ? (
-		<TiptapEditor value={html} editable onChange={setHTML} />
-	) : (
-		<Text>Editing is unavailable on this target</Text>
-	)
-}
-```
-
-`value`/`onChange` exchange document HTML. `getJSON`/`setJSON` exchange
+`value`/`onChange` exchange document HTML; `editable` controls whether the
+user can edit. `getJSON`/`setJSON` exchange
 tiptap document JSON: synchronous on web, bridged on native after
 `onJSONReady(true)` — the lazy bridge reports `false` (and `getJSON()`
 returns `null`) on runtimes that cannot host the schema modules. On native,

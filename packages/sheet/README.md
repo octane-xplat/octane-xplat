@@ -1,22 +1,34 @@
 # `@octane-xplat/sheet`
 
-An install boundary for platform-specific modal bottom sheets: a SwiftUI
-`.sheet` presentation on iOS, a Material 3 `ModalBottomSheet` on Android,
-a native modal `<dialog>` on web, and a real `NSWindow` sheet
-(`beginSheet`) on macOS.
-Install the package in the app that renders a control. Import
-`SwiftUIBottomSheet` from `@octane-xplat/sheet/ios`,
-`MaterialBottomSheet` from `@octane-xplat/sheet/android`, `BottomSheet`
-from `@octane-xplat/sheet/web`, or `AppKitSheet` from
-`@octane-xplat/sheet/macos` in the matching platform-suffixed file.
-There is no shared sheet API at the package root.
+Platform-native modal bottom sheets: a SwiftUI `.sheet` presentation on iOS, a
+Material 3 `ModalBottomSheet` on Android, a native modal `<dialog>` on web, and
+a real `NSWindow` sheet (`beginSheet`) on macOS. Use it when you want the
+OS-authentic sheet rather than a shared look.
+
+```sh
+pnpm add @octane-xplat/sheet
+```
+
+There is no shared sheet API at the package root. Each platform entry exports
+its own component and types; import it from the platform subpath in a matching
+platform-suffixed file:
+
+| File suffix | Import | Component |
+| --- | --- | --- |
+| `*.ios.tsx` | `@octane-xplat/sheet/ios` | `SwiftUIBottomSheet` |
+| `*.android.tsx` | `@octane-xplat/sheet/android` | `MaterialBottomSheet` |
+| `*.web.tsx` | `@octane-xplat/sheet/web` | `BottomSheet` |
+| `*.macos.tsx` | `@octane-xplat/sheet/macos` | `AppKitSheet` |
+
+All four share the same core shape — `open` to control visibility,
+`onDismissed`, and a `content` render function:
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
-// SwiftUIBottomSheetExample.ios.tsx
-import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
+// Details.ios.tsx
 import { useState } from 'octane'
 import { Button, Text } from '@octane-xplat/ui'
+import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 
 export function Details() {
 	const [open, setOpen] = useState(false)
@@ -35,71 +47,10 @@ export function Details() {
 }
 ```
 
-```tsx
-/** @jsxImportSource @nativescript-community/octane */
-// MaterialBottomSheetExample.android.tsx
-import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
-import { useState } from 'octane'
-import { Button, Text } from '@octane-xplat/ui'
-
-export function Details() {
-	const [open, setOpen] = useState(false)
-	return (
-		<>
-			<Button onPress={() => setOpen(true)}>Trip details</Button>
-			<MaterialBottomSheet
-				open={open}
-				skipPartiallyExpanded
-				showDragHandle
-				onDismissed={() => setOpen(false)}
-				content={() => <Text>Two bags packed</Text>}
-			/>
-		</>
-	)
-}
-```
-
-```tsx
-// BottomSheetExample.web.tsx
-import { BottomSheet } from '@octane-xplat/sheet/web'
-import { useState } from 'octane'
-import { Button, Text } from '@octane-xplat/ui'
-
-export function Details() {
-	const [open, setOpen] = useState(false)
-	return (
-		<>
-			<Button onPress={() => setOpen(true)}>Trip details</Button>
-			<BottomSheet
-				open={open}
-				onDismissed={() => setOpen(false)}
-				content={() => <Text>Two bags packed</Text>}
-			/>
-		</>
-	)
-}
-```
-
-```tsx
-// AppKitSheetExample.macos.tsx
-import { AppKitSheet } from '@octane-xplat/sheet/macos'
-import { useState } from 'octane'
-import { Button, Text } from '@octane-xplat/ui'
-
-export function Details() {
-	const [open, setOpen] = useState(false)
-	return (
-		<>
-			<Button onPress={() => setOpen(true)}>Trip details</Button>
-			<AppKitSheet
-				open={open}
-				onDismissed={() => setOpen(false)}
-				content={() => <Text>Two bags packed</Text>}
-			/>
-		</>
-	)
-}
-```
+Sheet content mounts into a detached root — the same embedding mechanism as
+`@octane-xplat/context-menu`'s trigger. On iOS the registered view resolves
+through `NativeScriptViewFactory`; on Android through the leaf's
+`XplatViewRegistry` + `AndroidView` inside the sheet's dialog window.
 
 Web apps must also import the sheet stylesheet from their app entry:
 
@@ -107,22 +58,7 @@ Web apps must also import the sheet stylesheet from their app entry:
 import '@octane-xplat/sheet/web/styles.css'
 ```
 
-Sheet content is a render fn whose octane output mounts into a detached
-root — the same embedding mechanism as `@octane-xplat/context-menu`'s
-trigger. On iOS the registered view resolves through
-`NativeScriptViewFactory`; on Android through the leaf's
-`XplatViewRegistry` + `AndroidView` inside the sheet's dialog window.
-
-```tsx
-/** @jsxImportSource @nativescript-community/octane */
-// HostedContent.android.tsx
-import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
-import { Text } from '@octane-xplat/ui'
-
-export function HostedContent({ open }: { open: boolean }) {
-	return <MaterialBottomSheet open={open} content={() => <Text>Trip details</Text>} />
-}
-```
+## Per-platform props
 
 - iOS: `open` (controlled `isPresented`), `onDismissed`,
   `onPresentedChange`, `fitToContents` (ported size-reader →

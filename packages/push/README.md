@@ -1,12 +1,16 @@
 # `@octane-xplat/push`
 
-Push notifications for Octane Xplat apps over Firebase Cloud Messaging:
+Push notifications for Octane Xplat apps over Firebase Cloud Messaging — one
+API on every target. For app-fired local notifications, use
+[`@octane-xplat/notifications`](../notifications/README.md).
+
+```sh
+pnpm add @octane-xplat/push
+```
 
 - **iOS/Android** — `@nativescript/firebase-core` + `@nativescript/firebase-messaging`
 - **Web** — Firebase JS SDK (`firebase/app` + `firebase/messaging`) plus a
   service worker for background delivery
-
-One API on every target:
 
 ```ts
 import { push } from '@octane-xplat/push'

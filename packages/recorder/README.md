@@ -46,8 +46,8 @@ Notes and limits:
 
 - `restart(options)` discards the open take and starts a new one.
 - `options.sampleRate` (default 44100) and `options.channels` (1 or 2, default
-  1. are requests — the result's `sampleRate`/`channels` report what was
-     actually written.
+  1) are requests — the result's `sampleRate`/`channels` report what was
+  actually written.
 - Native takes also return `path` (a temp file your app owns and deletes);
   `bytes` always carries the full WAV file.
 - Android: background capture requires an app-owned foreground service — the

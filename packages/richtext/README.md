@@ -1,10 +1,10 @@
 # `@octane-xplat/richtext`
 
-The native rich-text editing leaf: WordPress Aztec's `AztecText` on Android —
-a `Spannable`-backed `EditText`, not a WebView. iOS mounts AztecEditor-iOS
-(`Aztec.TextView`) through the `XplatAztecEditorView` Swift facade in
-`platforms/ios`; web and Windows return `supported: false` (the
-`@octane-xplat/tiptap` facade covers web).
+Native rich-text editing for Octane Xplat apps: WordPress Aztec's `AztecText`
+on Android — a `Spannable`-backed `EditText`, not a WebView — and
+AztecEditor-iOS (`Aztec.TextView`) on iOS through the `XplatAztecEditorView`
+Swift facade in `platforms/ios`. Web and Windows return `supported: false`;
+the [`@octane-xplat/tiptap`](../tiptap/README.md) facade covers web.
 
 ```tsx
 import { useState } from 'octane'
@@ -74,42 +74,7 @@ export function Formatting() {
 }
 ```
 
-```tsx
-import { useRef } from 'octane'
-import { RichTextEditor, type RichTextEditorHandle } from '@octane-xplat/richtext'
-import { Button } from '@octane-xplat/ui'
-
-export function Formatting() {
-	const editor = useRef<RichTextEditorHandle | null>(null)
-	return (
-		<>
-			<RichTextEditor
-				ref={(handle) => {
-					editor.current = handle
-				}}
-				onSelectionChange={({ active }) => console.log(active)}
-			/>
-			<Button onPress={() => editor.current?.apply('bold')}>Bold</Button>
-			<Button
-				onPress={() => {
-					const handle = editor.current
-					if (!handle) return
-					handle.setHTML('<p>New note</p>')
-					console.log(handle.getHTML(), handle.isActive('bold'))
-					handle.linkTo('https://example.com')
-					handle.removeLink()
-					handle.undo()
-					handle.redo()
-					handle.focus()
-					handle.blur()
-				}}
-			>
-				Try editor commands
-			</Button>
-		</>
-	)
-}
-```
+## Native dependencies
 
 The Android Aztec dependency (`org.wordpress:aztec:v2.1.7`) arrives through
 the leaf's `platforms/android/include.gradle` — no app-level gradle work.
@@ -130,4 +95,4 @@ The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](../../docs/rich-text.md#macos-appkit-editing).
+host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).

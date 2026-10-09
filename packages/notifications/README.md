@@ -1,17 +1,12 @@
 # `@octane-xplat/notifications`
 
+Local notifications for Octane Xplat apps — immediate, OS-delivered messages
+your app fires itself. For server-delivered (APNs/FCM) push, use
+[`@octane-xplat/push`](../push/README.md).
+
 ```sh
 pnpm add @octane-xplat/notifications
 ```
-
-Local notifications for Octane xplat apps. iOS and Android run
-`@nativescript/local-notifications`; web uses the Notification API; Linux
-delivers through the desktop host bridge (org.freedesktop.Notifications on
-the session bus) and reports unsupported without a host. Native macOS AppKit
-uses Apple UserNotifications through the leaf's compiled Objective-C source.
-Install it as a runtime dependency and use `xplat dev` or `xplat build` to load
-its metadata. Notifications require a packaged app bundle identity; without it
-or the metadata, the leaf reports `supported: false`.
 
 ```ts
 import { notifications } from '@octane-xplat/notifications'
@@ -23,17 +18,22 @@ if ((await notifications.ensure()) === 'granted') {
 
 The shared capability contract: `supported`, `ensure()` →
 `'granted' | 'denied' | 'unsupported'`, then `impl`. `notify(title, body?)`
-fires immediately — delayed scheduling, cancellation, and push delivery (APNs/FCM) are
-deliberately out of scope; remote push lives in
-[`@octane-xplat/push`](../push/README.md).
+fires immediately — delayed scheduling and cancellation are deliberately out
+of scope.
 
-```ts
-import { notifications } from '@octane-xplat/notifications'
+## Platform support
 
-if ((await notifications.ensure()) === 'granted') {
-	notifications.impl!.notify('Trip saved', 'Your packing list is up to date')
-}
-```
+- **iOS/Android** — `@nativescript/local-notifications`
+- **Web** — the Notification API
+- **macOS (AppKit)** — Apple UserNotifications through the leaf's compiled
+  Objective-C source
+- **Linux** — the desktop host bridge (org.freedesktop.Notifications on the
+  session bus); reports unsupported without a host
+
+Notifications require a packaged app bundle identity. Install the package as a
+runtime dependency and use `xplat dev` or `xplat build` so the CLI loads its
+metadata; without the identity or the metadata, the leaf reports
+`supported: false`.
 
 Guide: [Send a local notification](../../docs/platform/local-notifications.md);
 [Using device features](../../docs/platform/platform-services.md);

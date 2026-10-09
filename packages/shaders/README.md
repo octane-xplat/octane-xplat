@@ -1,13 +1,18 @@
-# @octane-xplat/shaders
+# `@octane-xplat/shaders`
 
-Thin adapter that runs the published [`shaders`](https://www.npmjs.com/package/shaders)
-WebGPU engine (pinned `4.0.0`, used unchanged — no vendoring, no shader port) on an
-Octane Xplat `Canvas` surface from `@octane-xplat/canvas`.
+Runs the published [`shaders`](https://www.npmjs.com/package/shaders) WebGPU
+engine (pinned `4.0.0`, used unchanged — no vendoring, no shader port) on an
+Octane Xplat `Canvas` surface from `@octane-xplat/canvas`. Use it for the
+upstream engine's procedural presets — noise, gradients, and other generated
+effects. The adapter deliberately does not create a new shader API; it only
+adds the surface/lifecycle glue Xplat needs. Preset shapes, effect names,
+parameters, options, and the returned instance's methods — `update(id, props)`,
+`resize()`, `pause()`, `resume()`, `destroy()`, `getFailureReason()` — are
+upstream's.
 
-The package deliberately does not create a new shader API. Preset shapes, effect
-names, parameters, options, and the returned instance's methods are upstream's:
-`update(id, props)`, `resize()`, `pause()`, `resume()`, `destroy()`,
-`getFailureReason()`. The adapter only adds the surface/lifecycle glue Xplat needs.
+```sh
+pnpm add @octane-xplat/shaders
+```
 
 ## Usage
 

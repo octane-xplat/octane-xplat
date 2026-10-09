@@ -1,8 +1,9 @@
 # @octane-xplat/patches
 
-This package carries the pnpm patch files used by freshly scaffolded
-Octane-xplat apps. It is installed as a pnpm `configDependencies` package so
-the patches are available before regular app dependencies are installed.
+The pnpm patch files used by freshly scaffolded Octane-xplat apps. Apps do not
+install this package directly — create templates declare it as a pnpm
+`configDependencies` package so the patches are in place before regular app
+dependencies install.
 
 The canonical patch files and their rationale live in
 `packages/cli/patches/manifest.json`. `pnpm sync:patches` generates this

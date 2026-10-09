@@ -288,7 +288,7 @@ export function ControlledRows() {
 }
 ```
 
-For example, a caller-owned sorting slice uses core updater callbacks:
+DataGrid routes the same slice and callback through `options`:
 
 ```tsx
 import { useState } from 'octane'
@@ -307,18 +307,8 @@ export function SortedOrders() {
 }
 ```
 
-Import `useState` from `octane`; the explicit state type keeps an empty initial
-array from becoming `never[]`.
-
-```tsx
-import { useState } from 'octane'
-import type { DataGridFeatures, TableState } from '@octane-xplat/table'
-
-export function SortCount() {
-	const [sorting] = useState<TableState<DataGridFeatures>['sorting']>([])
-	return <Text>{sorting.length}</Text>
-}
-```
+Import `useState` from `octane`; the explicit `TableState` slice type keeps an
+empty initial array from becoming `never[]`.
 
 Selection uses the same ownership pattern. The callback receives either a new
 value or a function that updates the previous value; `useState` accepts both:
@@ -331,11 +321,10 @@ const [rowSelection, setRowSelection] =
     state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
 ```
 
-Click a checkbox and the selected count should update. Filtering, changing pages,
-and replacing data keep selection by ID. Clear selection also removes IDs for
-records that are currently unloaded. The [interactive example](examples/interactive.tsrx)
-uses this caller-owned selection. A snapshot without an update callback remains
-read-only; DataGrid does not silently take ownership.
+Click a checkbox and the selected count should update. A `state` snapshot
+without its update callback remains read-only — DataGrid does not silently
+take ownership. The [interactive example](examples/interactive.tsrx) uses
+this caller-owned selection.
 
 For server pages, supply already paged `data`, `state.pagination`, and
 `options={{ manualPagination: true, rowCount, onPaginationChange }}`. The callback

@@ -1,30 +1,45 @@
 # `@octane-xplat/picker`
 
-An install boundary for platform-specific selection controls: a SwiftUI `Picker`
-on iOS, a Material 3 dropdown built with Jetpack Compose on Android, and an
-HTML `<select>` on web.
-Install the package in the app that renders a control. Import `SwiftUIPicker`
-from `@octane-xplat/picker/ios`, `MaterialDropdown` from
-`@octane-xplat/picker/android`, or `Select` from `@octane-xplat/picker/web` in
-the matching platform-suffixed file. Each entry exports its own component and
-types; there is no shared picker API at the package root.
+Platform-native selection controls: a SwiftUI `Picker` on iOS, a Material 3
+dropdown built with Jetpack Compose on Android, and an HTML `<select>` on web.
+Use it when you want the OS-authentic control rather than a shared look.
+
+```sh
+pnpm add @octane-xplat/picker
+```
+
+There is no shared picker API at the package root. Each platform entry exports
+its own component and types; import it from the platform subpath in a matching
+platform-suffixed file:
+
+| File suffix | Import | Component |
+| --- | --- | --- |
+| `*.ios.tsx` | `@octane-xplat/picker/ios` | `SwiftUIPicker` |
+| `*.android.tsx` | `@octane-xplat/picker/android` | `MaterialDropdown` |
+| `*.web.tsx` | `@octane-xplat/picker/web` | `Select` |
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
-// SwiftUIPickerExample.ios.tsx
+// BagPicker.ios.tsx
+import { useState } from 'octane'
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
-export function Picker() {
+export function BagPicker() {
+	const [selection, setSelection] = useState('carry')
 	return (
 		<SwiftUIPicker
 			label="Bag"
+			selection={selection}
+			onSelectionChange={setSelection}
 			options={[{ id: 'carry', title: 'Carry-on' }]}
-			defaultSelection="carry"
-			onSelectionChange={console.log}
 		/>
 	)
 }
 ```
+
+Each entry's props follow its own platform's selection vocabulary and option
+shapes: iOS uses SwiftUI selection IDs, Android uses Material dropdown keys and
+enabled states, and web follows browser select values.
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
@@ -59,27 +74,5 @@ export function Picker() {
 }
 ```
 
-The platform APIs use their own selection vocabulary and option shapes. The iOS
-entry uses SwiftUI selection IDs, the Android entry uses Material dropdown keys
-and enabled states, and the web entry follows browser select values. See the
-framework guide for details and maintained examples:
+See the framework guide for details and maintained examples:
 [`docs/platform/native-picker.md`](../../docs/platform/native-picker.md).
-
-```tsx
-/** @jsxImportSource @nativescript-community/octane */
-// BagPicker.ios.tsx
-import { useState } from 'octane'
-import { SwiftUIPicker } from '@octane-xplat/picker/ios'
-
-export function BagPicker() {
-	const [selection, setSelection] = useState('carry')
-	return (
-		<SwiftUIPicker
-			label="Bag"
-			selection={selection}
-			onSelectionChange={setSelection}
-			options={[{ id: 'carry', title: 'Carry-on' }]}
-		/>
-	)
-}
-```
