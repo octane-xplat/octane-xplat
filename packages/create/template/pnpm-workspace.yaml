@@ -21,16 +21,16 @@ allowUnusedPatches: true
 # applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat
 # patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.
 patchedDependencies:
-  # Published 0.10.2 ships async/generator non-component helper compilation and Descriptor
-  # lexical/ancestor ownership, so the helper hunks are removed and the old four-hunk
-  # instance ownership fix becomes one declaring-owner reader fallback per distribution.
-  # Retains renderer-owned Children.toArray/map with explicit universal-native re-exports
-  # for older runtimes, universal signal-read tracking and local hooks, root event-error
-  # forwarding, and the complete universal imperative-ref lifecycle. Connects universal
-  # signal-owner identities to the upstream enclosingOwner chain so child reads reuse
-  # instance declarations. Verified against the registry 0.10.2 tarball and the patched
-  # 0.6.3 output.
-  octane@0.10.2: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.10.2.patch
+  # Published 0.11.0 still ships none of the retained fixes: it adds the document guard
+  # context around installDefaultSignalOwner and reflows the compile.js hook-classification
+  # sites, but every patched feature remains absent upstream. Retains renderer-owned
+  # Children.toArray/map with explicit universal-native re-exports for older runtimes,
+  # universal signal-read tracking and local hooks, root event-error forwarding, the
+  # complete universal imperative-ref lifecycle, the Descriptor declaring-owner reader
+  # fallback, and the signal-owner/enclosingOwner chain so child reads reuse instance
+  # declarations. Verified against the registry 0.11.0 tarball; all hunks re-anchored to the
+  # rewritten compile.js and document-owner call sites.
+  octane@0.11.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.11.0.patch
   # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
   # flex alignment, so those hunks are removed. Retains the unshipped parent-padding
   # measure-spec fix and Android explicit-size flex alignment, iOS continuous corner

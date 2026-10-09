@@ -27,7 +27,7 @@
 		"@octane-xplat/platform": "^0.12.0",
 		"@octane-xplat/ui": "^0.12.0",
 		"@valor/nativescript-websockets": "2.0.3",
-		"octane": "0.10.2"
+		"octane": "0.11.0"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",
@@ -39,7 +39,7 @@
 		"@octane-xplat/cli": "^0.12.0",
 		"@octane-xplat/lint": "^0.12.0",
 		"@octanejs/vite-plugin": "0.1.61",
-		"@tsrx/oxc": "0.16.0",
+		"@tsrx/oxc": "0.20.0",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"nativescript": "9.1.1",
 		"oxlint": "^1.74.0",

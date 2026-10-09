@@ -53,7 +53,7 @@
 		"@valor/nativescript-websockets": "2.0.3",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
-		"octane": "0.10.2"
+		"octane": "0.11.0"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",

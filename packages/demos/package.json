@@ -47,7 +47,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
-		"octane": "0.10.2"
+		"octane": "0.11.0"
 	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"

@@ -85,7 +85,7 @@
 		"@nativescript/types": "9.1.4",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
-		"octane": "0.10.2",
+		"octane": "0.11.0",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
