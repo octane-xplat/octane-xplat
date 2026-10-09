@@ -60,6 +60,11 @@ patchedDependencies:
   # turbo.json as a workspace root — Turborepo's per-package task configs marked apps/* as
   # roots, masking the real pnpm root so served `/node_modules/` tails never reached the
   # `.pnpm` store scan and non-hoisted transitive deps like source-map-js 404'd dev boot.
+  # The /ns/m import rewriter now resolves `#`-prefixed package `imports` specifiers through
+  # the importer's own package.json — raw-read node_modules files (e.g. octane's
+  # dist/signals/graph.js importing `#octane/dist/signal-actions/graph`) otherwise reach the
+  # device verbatim and the HTTP loader throws `Cannot find module`, deadlocking dev boot
+  # before any boot recording can bundle the dep.
   "@nativescript/vite@8.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.17.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS

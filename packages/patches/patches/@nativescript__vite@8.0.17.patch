@@ -167,10 +167,124 @@ index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d
          return code;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fabfd8db00 100644
+index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..ea97dfe6c895bb6b80b0c0403c86663046c65496 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
-@@ -253,11 +253,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -12,7 +12,93 @@ import { resolveAngularCoreHmrImportSource, rewriteAngularEntryRegisterOnly } fr
+ import { isNativeScriptCoreModule, isNativeScriptPluginModule, normalizeNativeScriptCoreSpecifier, normalizeNodeModulesSpecifier, resolveNodeModulesPackageBoundary, resolveVendorRouting, rewriteFsAbsoluteToNsM, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
+ import { ensureDynamicHmrImportHelper } from './websocket-served-module-helpers.js';
+ import { collectMixedRuntimePluginHttpRootPackages, findDependencyFileName, getProjectRelativeImportPath, isApplicationImport, normalizeImportPath, stripToProjectRelative, toAppModuleBaseId, toNodeModulesHttpModuleId } from './device-transform-helpers.js';
++import { resolvePlatform } from '../../helpers/cli-flags.js';
+ const APP_ROOT_DIR = getProjectAppPath();
++// ── Package `imports` field (`#specifier`) resolution ─────────────────────
++// A `#`-prefixed specifier resolves through the `imports` field of the
++// importer's own package.json (Node "package imports" — e.g. octane's
++// `#octane/dist/signal-actions/graph`). Served node_modules files are raw-read
++// by the /ns/m route without Vite import analysis, and the bare-npm fallback
++// below rejects `#` outright (bareNpmRe requires an alphanumeric first char),
++// so the literal specifier reached the device loader as "Cannot find module".
++// Device-visible conditions: `import` (ESM), `native`, the active platform —
++// `node`, `require`, and build-time conditions like `octane-islands` are
++// intentionally absent.
++function resolveImportsConditionalTarget(value, conditions) {
++    while (value !== null && typeof value === 'object' && !Array.isArray(value)) {
++        let next;
++        for (const condition of Object.keys(value)) {
++            if (condition === 'default' || conditions.has(condition)) {
++                next = value[condition];
++                break;
++            }
++        }
++        value = next;
++    }
++    return typeof value === 'string' ? value : null;
++}
++function resolvePackageImportsSpecifier(spec, importerPath, projectRoot, verbose) {
++    let importerAbs;
++    if (importerPath.startsWith('/@fs/')) {
++        importerAbs = importerPath.slice('/@fs'.length);
++    }
++    else if (importerPath.startsWith('/')) {
++        importerAbs = path.join(projectRoot, `.${importerPath}`);
++    }
++    else {
++        return null;
++    }
++    try {
++        importerAbs = importerAbs.replace(PAT.QUERY_PATTERN, '');
++        let dir = path.dirname(importerAbs);
++        // The `imports` field is scoped to the importer's nearest enclosing
++        // package.json — the same lookup Node performs.
++        for (;;) {
++            const packageJsonPath = path.join(dir, 'package.json');
++            if (existsSync(packageJsonPath)) {
++                const pkgJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
++                const importsField = pkgJson.imports;
++                if (!importsField || typeof importsField !== 'object' || Array.isArray(importsField) || !pkgJson.name)
++                    return null;
++                const conditions = new Set(['default', 'import', 'native', resolvePlatform()].filter(Boolean));
++                const exactMatch = Object.hasOwn(importsField, spec);
++                let target = exactMatch
++                    ? resolveImportsConditionalTarget(importsField[spec], conditions)
++                    : null;
++                if (!exactMatch && target === null) {
++                    for (const key of Object.keys(importsField)) {
++                        const star = key.indexOf('*');
++                        if (star === -1)
++                            continue;
++                        const pre = key.slice(0, star);
++                        const post = key.slice(star + 1);
++                        if (spec.length < pre.length + post.length || !spec.startsWith(pre) || !spec.endsWith(post))
++                            continue;
++                        const matched = spec.slice(pre.length, spec.length - post.length);
++                        const patternTarget = resolveImportsConditionalTarget(importsField[key], conditions);
++                        target = typeof patternTarget === 'string' ? patternTarget.replaceAll('*', matched) : null;
++                        break;
++                    }
++                }
++                // Only `./`-relative targets can be expressed as a device URL
++                // (bare-specifier targets are rare and keep falling through).
++                if (typeof target !== 'string' || !target.startsWith('./'))
++                    return null;
++                const out = `/ns/m/node_modules/${pkgJson.name}/${target.slice(2)}`;
++                if (verbose)
++                    console.log(`[rewrite] imports-field specifier: ${spec} → ${out}`);
++                return out;
++            }
++            const parent = path.dirname(dir);
++            if (parent === dir)
++                return null;
++            dir = parent;
++        }
++    }
++    catch {
++        return null;
++    }
++}
+ export function prepareAngularEntryForDevice(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose = false, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp = false) {
+     const rewrittenCode = rewriteImports(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp);
+     return rewriteAngularEntryRegisterOnly(rewrittenCode, resolveAngularCoreHmrImportSource(rewrittenCode, httpOrigin));
+@@ -236,6 +322,19 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+             }
+             return `${prefix}${stub}${suffix}`;
+         }
++        // `#`-prefixed package-imports specifier (Node `imports` field, e.g.
++        // octane's `#octane/dist/signal-actions/graph`). Resolved through the
++        // importer's own package.json — the bare-npm branches below reject it.
++        if (spec.startsWith('#')) {
++            const importsOut = resolvePackageImportsSpecifier(spec, importerPath, projectRoot, verbose);
++            if (importsOut) {
++                if (httpOriginSafe) {
++                    return `${prefix}${httpOriginSafe}${importsOut}${suffix}`;
++                }
++                return `${prefix}${importsOut}${suffix}`;
++            }
++            return `${prefix}${spec}${suffix}`;
++        }
+         spec = normalizeNativeScriptCoreSpecifier(spec);
+         // Pull `/@fs/<abs-path>` URLs back into the `/ns/m/` pipeline so they
+         // hit our CJS/UMD-wrapping handler. Vite emits `/@fs/...` for any
+@@ -253,11 +352,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
                  }
                  return `${prefix}${rewritten}${suffix}`;
              }
