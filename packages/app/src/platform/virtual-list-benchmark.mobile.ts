@@ -4,6 +4,7 @@ import {
 	VIRTUAL_LIST_BENCH_INTERVAL_MS,
 	runVirtualListInputTrace,
 	runVirtualListBenchTrace,
+	virtualListBenchHandles,
 	type VirtualListBenchAdapter,
 	type VirtualListBenchSnapshot,
 } from '../virtual-list-benchmark'
@@ -114,19 +115,7 @@ export async function runVirtualListBenchmark(listId: string, root?: any) {
 	const adapter: VirtualListBenchAdapter = {
 		target: Application.android != null ? 'android' : 'ios',
 		read: () => readSnapshot(list),
-		writeOffset: (offset) => {
-			const nativeView = list?.nativeViewProtected
-			const makePoint = (globalThis as any).CGPointMake
-			if (
-				typeof nativeView?.setContentOffsetAnimated === 'function' &&
-				typeof makePoint === 'function'
-			) {
-				const current = nativeView.contentOffset
-				nativeView.setContentOffsetAnimated(makePoint(current.x, offset), false)
-			} else {
-				list?.scrollToVerticalOffset?.(offset, false)
-			}
-		},
+		writeOffset: (offset) => virtualListBenchHandles.get(listId)?.scrollToOffset(offset),
 		wait: () => new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
 	}
 

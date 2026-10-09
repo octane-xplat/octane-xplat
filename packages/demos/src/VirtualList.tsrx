@@ -1,5 +1,9 @@
 import { useState } from 'octane'
-import { View, HStack, Text, Pressable, VirtualList as VirtualListView } from '@octane-xplat/ui'
+import { View, HStack, Text, Pressable, VirtualList as VirtualListView, type VirtualListHandle } from '@octane-xplat/ui'
+
+/** Harness seam: sweep probes drive `scrollToOffset` through the public
+ *  handle instead of reaching into the platform scroll view. */
+export const virtualListHandle: { current: VirtualListHandle | null } = { current: null }
 
 type Row_ = { id: string; label: string; height: number; type: 'row' }
 
@@ -68,6 +72,7 @@ export function VirtualList() @{
 		<Text className="text-sm text-muted">{items.length + ' rows · tap a row to test keyed state'}</Text>
 		<VirtualListView
 			id="vlist"
+			ref={virtualListHandle}
 			className="list flex-1"
 			items={items}
 			keyExtractor={keyFor}

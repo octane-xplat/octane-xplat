@@ -1,3 +1,5 @@
+import type { VirtualListHandle } from '@octane-xplat/ui'
+
 export const VIRTUAL_LIST_BENCH_ROW_COUNT = 5_000
 export const VIRTUAL_LIST_BENCH_INTERVAL_MS = 16
 export const VIRTUAL_LIST_BENCH_STEPS_PER_DIRECTION = 250
@@ -33,6 +35,11 @@ export type VirtualListBenchAdapter = {
 	writeOffset(offset: number): void
 	wait(): Promise<void>
 }
+
+/** Benchmark seam: VirtualList surfaces publish their imperative handle here
+ *  (keyed by the list's `id`) so platform adapters drive the public
+ *  `scrollToOffset` API instead of the platform scroll view. */
+export const virtualListBenchHandles = new Map<string, VirtualListHandle>()
 
 export function virtualListBenchRowHeight(index: number) {
 	return 32 + (index % 5) * 8

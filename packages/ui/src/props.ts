@@ -1108,6 +1108,16 @@ export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProp
 	web?: any
 }
 
+/** Imperative operations exposed by `VirtualList` via `ref`. Calls before
+ *  the list mounts are no-ops; the handle is cleared on unmount. */
+export interface VirtualListHandle {
+	/** Scrolls the viewport so its content sits `offset` units from the top —
+	 *  px on web, dips on iOS/Android, points on macOS. Values clamp to the
+	 *  scrollable range; `animated` (default false) uses the platform's
+	 *  scroll animation where the leaf provides one. */
+	scrollToOffset(offset: number, options?: { animated?: boolean }): void
+}
+
 /** Shared virtualized vertical list. Item keys must be unique and stable
  *  across inserts and reorders. Rows outside the rendered window unmount;
  *  keep durable row state keyed by item identity outside the row component. */
@@ -1115,6 +1125,8 @@ export interface VirtualListProps<T = any> extends LayoutChildProps, Accessibili
 	className?: any
 	style?: any
 	id?: string
+	/** Ref to a platform-neutral scroll handle. It is cleared on unmount. */
+	ref?: Octane.Ref<VirtualListHandle>
 	items: readonly T[]
 	keyExtractor: (item: T, index: number) => string | number
 	getItemType?: (item: T, index: number) => string | number

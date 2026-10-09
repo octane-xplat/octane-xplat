@@ -3,6 +3,7 @@ import { act, createRoot } from 'octane'
 import { afterEach, expect, it, vi } from 'vitest'
 import { VirtualList } from './VirtualList.web.tsrx'
 import { VirtualListSizeIndex } from './virtual-list-layout'
+import type { VirtualListHandle } from './props'
 
 const roots: ReturnType<typeof createRoot>[] = []
 afterEach(() => {
@@ -110,4 +111,50 @@ it('repositions measured cells even when every row remains visible', () => {
 	const body = host.querySelector('.vx-virtual-list-body') as HTMLElement
 	expect(body.style.height).toBe('96px')
 	expect([...host.querySelectorAll<HTMLElement>('.vx-virtual-list-row')].map(node => node.style.top)).toEqual(['0px', '32px', '64px'])
+})
+
+it('scrolls to a pixel offset through the imperative handle and clears it on unmount', async () => {
+	let deliver: ResizeObserverCallback
+	vi.stubGlobal('ResizeObserver', class {
+		constructor(callback: ResizeObserverCallback) { deliver = callback }
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	})
+
+	const frames: FrameRequestCallback[] = []
+	vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+		frames.push(callback)
+		return frames.length
+	})
+
+	vi.stubGlobal('cancelAnimationFrame', () => {})
+	vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+		x: 0, y: 0, width: 100, height: 48, top: 0, bottom: 48, left: 0, right: 100, toJSON() {},
+	}))
+
+	const handle: { current: VirtualListHandle | null } = { current: null }
+	const host = document.createElement('div')
+	document.body.append(host)
+	const root = createRoot(host)
+	roots.push(root)
+	act(() => root.render(<VirtualList ref={handle} items={Array.from({ length: 100 }, (_, i) => i)}
+		keyExtractor={(i) => i} renderItem={(i) => <div>{i}</div>} />))
+
+	const viewport = host.firstElementChild as HTMLElement
+	Object.defineProperties(viewport, { clientWidth: { value: 100 }, clientHeight: { value: 200 } })
+	act(() => deliver!([{ target: viewport, contentRect: { width: 100, height: 200 } } as ResizeObserverEntry], {} as ResizeObserver))
+
+	expect(handle.current).not.toBeNull()
+	act(() => handle.current!.scrollToOffset(480))
+	expect(viewport.scrollTop).toBe(480)
+	for (let i = 0; i < 4; i++) act(() => {
+		for (const callback of frames.splice(0)) callback(0)
+	})
+
+	const rows = [...host.querySelectorAll('.vx-virtual-list-item')].map((node) => node.textContent)
+	expect(rows).toContain('12')
+	expect(rows).not.toContain('0')
+	act(() => root.unmount())
+	expect(handle.current).toBeNull()
 })

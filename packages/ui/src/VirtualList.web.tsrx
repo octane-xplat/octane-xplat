@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'octane'
+import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { VirtualListProps } from './props'
 import {
 	createVirtualListEntries,
@@ -327,6 +327,26 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		scrollOffsetRef.current = root.scrollTop
 		refreshWindow()
 	}
+
+	function scrollToOffset(offset: number, animated = false) {
+		const node = scrollRef.current
+		if (!node || !Number.isFinite(offset)) return
+		const top = Math.max(0, offset)
+		if (animated && typeof node.scrollTo === 'function') {
+			node.scrollTo({ top, behavior: 'smooth' })
+			return
+		}
+
+		node.scrollTop = top
+		// Mount the destination window now; the scroll event may not dispatch
+		// synchronously and animated seeks stream their own.
+		scrollOffsetRef.current = node.scrollTop
+		refreshWindow()
+	}
+
+	useImperativeHandle(props.ref, () => ({
+		scrollToOffset: (offset, options) => scrollToOffset(offset, options?.animated),
+	}), [props.ref])
 
 	const range = currentRange()
 	rangeRef.current = range

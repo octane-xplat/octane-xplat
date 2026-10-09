@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useMemo, useRef, useState } from 'octane'
+import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { VirtualListProps } from './props'
 import {
 	createVirtualListEntries,
@@ -295,6 +295,34 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		anchorRestoreScheduledRef.current = false
 		pendingOffsetDeltaRef.current = 0
 	}
+
+	function scrollToOffset(offset: number, animated = false) {
+		const view = scrollRef.current
+		if (!view || view.isLoaded === false || !Number.isFinite(offset)) return
+		// A pending anchor correction would otherwise compose into this write.
+		cancelAnchorRestore()
+		const target = Math.max(0, offset)
+		const nativeView = view.nativeViewProtected
+		const makePoint = (globalThis as any).CGPointMake
+		if (typeof nativeView?.setContentOffsetAnimated === 'function' && typeof makePoint === 'function') {
+			const current = nativeView.contentOffset
+			nativeView.setContentOffsetAnimated(makePoint(current.x, target), animated)
+		} else if (typeof view.scrollToVerticalOffset === 'function') {
+			view.scrollToVerticalOffset(target, animated)
+		} else {
+			return
+		}
+
+		if (animated) return
+		// Mount the destination window now — some targets do not emit a scroll
+		// event for programmatic writes, and animated seeks stream their own.
+		scrollOffsetRef.current = target
+		refreshWindow()
+	}
+
+	useImperativeHandle(props.ref, () => ({
+		scrollToOffset: (offset, options) => scrollToOffset(offset, options?.animated),
+	}), [props.ref])
 
 	function scheduleEstimateRebuild() {
 		if (estimateTimerRef.current != null) clearTimeout(estimateTimerRef.current)

@@ -1,8 +1,9 @@
 import { useState } from 'octane'
-import { Pressable, Text, View, VirtualList } from '@octane-xplat/ui'
+import { Pressable, Text, View, VirtualList, type VirtualListHandle } from '@octane-xplat/ui'
 import {
 	VIRTUAL_LIST_BENCH_FIXED_ITEMS,
 	VIRTUAL_LIST_BENCH_ITEMS,
+	virtualListBenchHandles,
 	type VirtualListBenchItem,
 } from './virtual-list-benchmark'
 
@@ -88,6 +89,10 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
 		{result ? <Text className="text-xs text-muted">{'Result: ' + result}</Text> : null}
 		<VirtualList
 			id="vlist-bench-list"
+			ref={(handle: VirtualListHandle | null) => {
+				if (handle) virtualListBenchHandles.set('vlist-bench-list', handle)
+				else virtualListBenchHandles.delete('vlist-bench-list')
+			}}
 			className="flex-1 min-h-0"
 			items={items}
 			keyExtractor={keyExtractor}

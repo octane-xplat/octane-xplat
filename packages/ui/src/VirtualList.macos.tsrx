@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { VirtualListProps } from './props'
 import { cx } from './cx'
 import {
@@ -20,7 +20,7 @@ const sameSize = (a: number, b: number) => Math.abs(a - b) < 0.5
  *  documentView (a vertical NSStackView) is normally flipped so clip origin y
  *  already counts from the top; the isFlipped check keeps non-flipped
  *  documents correct too. */
-function scrollViewSetTop(scroll: any, top: number): void {
+function scrollViewSetTop(scroll: any, top: number, animated = false): void {
 	const clip = scroll?.contentView
 	const doc = scroll?.documentView
 	if (!clip) {return}
@@ -29,7 +29,10 @@ function scrollViewSetTop(scroll: any, top: number): void {
 	const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
 	const flipped = flip === true || Number(flip) === 1
 	const y = Math.max(0, flipped ? top : docHeight - clipHeight - top)
-	clip.scrollToPoint({ x: 0, y })
+	// NSClipView.scrollToPoint is animatable through the animator proxy;
+	// fall back to an instant write when the bridge cannot vend one.
+	const target = animated && typeof clip.animator === 'function' ? clip.animator() : clip
+	target.scrollToPoint({ x: 0, y })
 	scroll.reflectScrolledClipView(clip)
 }
 
@@ -328,6 +331,29 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	function onScrollViewLayout() {
 		syncViewport()
 	}
+
+	function scrollToOffset(offset: number, animated = false) {
+		const scroll = scrollRef.current
+		if (!scroll || !Number.isFinite(offset)) {return}
+		const docHeight = Number(scroll.documentView?.frame?.size?.height ?? 0)
+		const clipHeight = scrollViewViewport(scroll).height
+		const top = Math.min(Math.max(0, offset), Math.max(0, docHeight - clipHeight))
+		// Match onScroll's external-seek detection: a deep handle seek must
+		// suppress anchor-restore writes while estimates converge.
+		if (Math.abs(top - scrollOffsetRef.current) > Math.max(200, viewportHeightRef.current * 1.5)) {
+			seekStateRef.current = { target: top, until: Date.now() + 1000 }
+		}
+
+		programmaticWriteRef.current = { offset: top, until: Date.now() + 250 }
+		scrollViewSetTop(scroll, top, animated)
+		if (animated) {return}
+		scrollOffsetRef.current = top
+		refreshWindow()
+	}
+
+	useImperativeHandle(props.ref, () => ({
+		scrollToOffset: (offset, options) => scrollToOffset(offset, options?.animated),
+	}), [props.ref])
 
 	function onHeaderLayout(event: AppKitLayoutEvent) {
 		const height = Number(event?.height ?? 0)

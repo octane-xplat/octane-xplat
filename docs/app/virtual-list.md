@@ -162,6 +162,45 @@ export function Example() {
 }
 ```
 
+## Scroll to a pixel offset
+
+Pass a `ref` to get a `VirtualListHandle` and call `scrollToOffset` to move the
+viewport to a content offset — for example to restore a saved scroll position
+or jump under scripted navigation. The offset counts down from the top of the
+list content, including the header, in px on web and dips/points on native;
+values clamp to the scrollable range. Rows between the current and target
+windows mount on the next update, so a deep seek is approximate while the
+rows it passes remain unmeasured.
+
+```tsx
+import { VirtualList, Text, Pressable, type VirtualListHandle } from '@octane-xplat/ui'
+import { useRef } from 'octane'
+
+export function Example() {
+	const list = useRef<VirtualListHandle | null>(null)
+	const items = [{ id: 'coat', title: 'Coat' }]
+	return (
+		<>
+			<Pressable onPress={() => list.current?.scrollToOffset(0, { animated: true })}>
+				<Text>Back to top</Text>
+			</Pressable>
+			<VirtualList
+				ref={list}
+				className="item-viewport"
+				items={items}
+				keyExtractor={(item) => item.id}
+				renderItem={(item) => <Text>{item.title}</Text>}
+			/>
+		</>
+	)
+}
+```
+
+Calls before the list mounts are no-ops, and the handle clears on unmount.
+`{ animated: true }` uses the platform's scroll animation where the leaf
+provides one; the default is an instant write. There is no indexed seek —
+row heights are content-measured, so index-to-offset mapping is not stable.
+
 See the maintained [interactive example](../../packages/demos/src/VirtualList.tsrx)
 for prepend, removal, reverse, resize, empty, restore, and keyed local state.
 Header, footer, separator, and empty content use the corresponding render slots.
@@ -216,7 +255,8 @@ Read the [current evidence](../notes/primitive-notes.md#virtuallist-readiness-re
 before choosing this list for a performance-sensitive feed or chat.
 
 There is no shared viewability callback, load threshold, sticky-row/grid/masonry
-layout, bottom-pinned chat policy, or public scroll handle. Application-level
+layout, bottom-pinned chat policy, or indexed scroll seek (`scrollToOffset` on
+`VirtualListHandle` is the only imperative scroll surface). Application-level
 loading and chat anchoring need explicit designs; the prepend contract does not
 establish those workflows. Actual native frame pacing and direct finger/physical
 trackpad input remain separate verification requirements. JavaScript polling

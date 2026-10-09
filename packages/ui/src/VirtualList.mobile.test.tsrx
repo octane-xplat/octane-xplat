@@ -27,7 +27,7 @@ function collect(nodes: any[]): any[] {
 	return nodes.flatMap((node) => [node, ...collect(node.children ?? [])])
 }
 
-async function mount(viewportWidth = 100, itemRenderer = renderItem) {
+async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps: Record<string, any> = {}) {
 	vi.useFakeTimers()
 	const container = createObjectContainer('nativescript')
 	const driver = createObjectDriver('nativescript')
@@ -59,7 +59,7 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem) {
 
 	const root = createUniversalRoot(container, driver)
 	roots.push(root)
-	root.render(VirtualList as any, { items, keyExtractor, renderItem: itemRenderer })
+	root.render(VirtualList as any, { items, keyExtractor, renderItem: itemRenderer, ...extraProps })
 	const scroll: any = container.children[0]
 	scroll.verticalOffset = 0
 	scroll.getActualSize = () => ({ width: viewportWidth, height: 200 })
@@ -302,6 +302,37 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 			expect(row.props.testID).toBe('item.' + row.props.id.slice(4) + '.open')
 			expect(originalIDs).not.toContain(row.props.testID)
 		}
+	})
+
+	it('scrolls to a pixel offset through the imperative handle', async () => {
+		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
+		const { scroll, container } = await mount(100, renderItem, { ref: handle })
+		expect(handle.current).not.toBeNull()
+		handle.current!.scrollToOffset(480)
+		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(480, false)
+		await vi.advanceTimersByTimeAsync(32)
+		const rows = collect(container.children).filter((node) => node.props.id?.startsWith('row-'))
+		expect(rows.some((node) => node.props.id === 'row-r10')).toBe(true)
+		expect(rows.some((node) => node.props.id === 'row-r0')).toBe(false)
+	})
+
+	it('prefers the platform animated scroll write when the native view offers one', async () => {
+		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
+		const { scroll } = await mount(100, renderItem, { ref: handle })
+		const setContentOffsetAnimated = vi.fn()
+		scroll.nativeViewProtected = { contentOffset: { x: 0, y: 0 }, setContentOffsetAnimated }
+		vi.stubGlobal('CGPointMake', (x: number, y: number) => ({ x, y }))
+		handle.current!.scrollToOffset(960, { animated: true })
+		expect(setContentOffsetAnimated).toHaveBeenCalledWith({ x: 0, y: 960 }, true)
+		expect(scroll.scrollToVerticalOffset).not.toHaveBeenCalled()
+	})
+
+	it('treats scrollToOffset before mount and non-finite offsets as no-ops', async () => {
+		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
+		const { scroll } = await mount(100, renderItem, { ref: handle })
+		handle.current!.scrollToOffset(Number.NaN)
+		expect(scroll.scrollToVerticalOffset).not.toHaveBeenCalled()
+		expect(scroll.verticalOffset).toBe(0)
 	})
 
 	it('cancels queued work when the list is disposed', async () => {

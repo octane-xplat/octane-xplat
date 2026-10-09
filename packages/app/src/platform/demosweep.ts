@@ -3,7 +3,7 @@ import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/u
 
 import { findInRootLayouts } from '@octane-xplat/ui/native'
 
-import { DEMOS } from '@xplat/demos'
+import { DEMOS, virtualListHandle } from '@xplat/demos'
 import { goBack, navigate } from './nav'
 import { closeBottomSheet, bottomSheetHost } from './sheet'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
@@ -260,7 +260,7 @@ function visibleVirtualListRows(list: any) {
 
 function runVirtualListHeightProbe() {
 	const list: any = find('vlist')
-	setVirtualListOffset(list, 960)
+	virtualListHandle.current?.scrollToOffset(960)
 	const heightAnchorReady = () => {
 		const offset = Number(list?.verticalOffset)
 		const listY = Number(list?.getLocationOnScreen?.()?.y)
@@ -442,20 +442,6 @@ function runVirtualListHeightProbe() {
 		},
 		40,
 	)
-}
-
-function setVirtualListOffset(list: any, offset: number) {
-	const nativeView = list?.nativeViewProtected
-	const makePoint = (globalThis as any).CGPointMake
-	if (
-		typeof nativeView?.setContentOffsetAnimated === 'function' &&
-		typeof makePoint === 'function'
-	) {
-		const current = nativeView.contentOffset
-		nativeView.setContentOffsetAnimated(makePoint(current.x, offset), false)
-	} else {
-		list?.scrollToVerticalOffset?.(offset, false)
-	}
 }
 
 function waitForVirtualListDeepRowVisible(
