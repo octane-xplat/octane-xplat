@@ -231,8 +231,6 @@ export function measureTree(stageView: any) {
 /** Same seam as the web leaf — the sweep calls __xplatParity() once the
  *  parity route is pushed on the root stack. */
 export function installParityDump() {
-	;(globalThis as any).__xplatParityPage = () => getStack('root')?.currentPage
-
 	;(globalThis as any).__xplatParity = () => {
 		const page = getStack('root')?.currentPage as any
 		const stage = page?.getViewById?.('parity-stage')
