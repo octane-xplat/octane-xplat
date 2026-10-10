@@ -43,8 +43,10 @@ export default defineConfig(({ mode }) => {
 				index: 'src/index.ts',
 				'CameraView.ios': 'src/CameraView.ios.tsrx',
 				'CameraView.android': 'src/CameraView.android.tsrx',
+				'CameraView.windows': 'src/CameraView.windows.tsrx',
 				'session-backend.ios': 'src/session-backend.ios.ts',
 				'session-backend.android': 'src/session-backend.android.ts',
+				'session-backend.windows': 'src/session-backend.windows.ts',
 				'session-backend': 'src/session-backend.ts',
 			}
 		: { index: 'src/index.web.ts' }

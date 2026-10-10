@@ -5,7 +5,8 @@ pnpm add @octane-xplat/camera
 ```
 
 Live camera preview for Octane xplat apps: `getUserMedia` video on web,
-`AVCaptureSession` on iOS, CameraX on Android.
+`AVCaptureSession` on iOS, CameraX on Android, `MediaCapture` +
+`CaptureElement` on the Windows (WinUI 3) target.
 
 ```tsx
 import { CameraView } from '@octane-xplat/camera'
@@ -26,8 +27,8 @@ This is the preview surface only — for one-shot still capture and library
 picking use [`@octane-xplat/media`](../media/README.md). Permissions are
 requested when the session starts; `onError` is how a denial shows up.
 `ref` hands you the platform surface (`HTMLVideoElement` on web) for
-controls the shared props don't cover, and the `ios`/`android`/`web`
-escape props apply after the shared props.
+controls the shared props don't cover, and the `ios`/`android`/`web`/
+`windows` escape props apply after the shared props.
 
 ```tsx
 // Preview.web.tsx — browser properties belong in this platform file.
@@ -78,8 +79,10 @@ if (outcome.kind === 'clip') {
 One preview and one recording per session; a second `startRecording` throws
 `CameraCaptureError` with `kind: 'busy'`. Check `session.capabilities()` for
 `supported`/`available` before presenting capture UI, and `session.snapshot()`
-or `session.subscribe` for state. iOS, Android, and Web have recording adapters;
-Web requires persistent origin storage. Desktop adapters remain unfinished.
+or `session.subscribe` for state. iOS, Android, Web, and the Windows WinUI
+target have recording adapters; Web requires persistent origin storage.
+Windows records through `MediaCapture` into app-private MP4 files and is
+pending real-host qualification. macOS and Linux adapters remain unfinished.
 See [Record and reopen a camera movie](../../docs/app/movie-capture.md) for
 explicit permission actions, audio, local output, and qualification limits.
 

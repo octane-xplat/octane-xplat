@@ -1,8 +1,11 @@
 # Record and reopen a camera movie
 
 Build a short video recorder with a live preview, a Record button, and a Stop
-button. This guide covers Android and Web movie capture; iOS uses the same
-session interface. Desktop adapters remain unfinished.
+button. This guide covers Android, Web, and Windows (WinUI 3) movie capture;
+iOS uses the same session interface. macOS and Linux adapters remain
+unfinished. Windows support is implemented through the NativeScript WinUI
+host but still needs a real Windows machine with a camera to finish
+qualification — see the gaps at the end of this guide.
 
 Install the camera package from your app's folder:
 
@@ -80,6 +83,19 @@ apps need `CAMERA` and `RECORD_AUDIO` manifest declarations; the leaf contribute
 both. Android reports `blocked` when it cannot distinguish permanent denial
 from a policy restriction.
 
+On Windows, the app must declare `webcam` and `microphone` device capabilities in
+`App_Resources/Windows/Package.appxmanifest`; a missing declaration reports a
+`configurationMissing` error rather than pretending a permission status. The
+operating system's own privacy toggles also apply: a user-level refusal reports
+`denied`, and a system or policy level refusal reports `restricted`.
+
+```xml
+<Capabilities>
+  <DeviceCapability Name="webcam" />
+  <DeviceCapability Name="microphone" />
+</Capabilities>
+```
+
 ```ts
 async function enableAudio() {
 	if (await session.requestPermission('microphone') === 'granted') {
@@ -125,9 +141,10 @@ async function stop() {
 ```
 
 A duration limit requests stopping; it is not an editing cutoff. Android uses
-CameraX media-time enforcement. Web timers are best effort and may run late
-when a page is busy or suspended. Elapsed time is an estimate on Web and native
-media time on Android; the clip's duration is read from finalized media.
+CameraX media-time enforcement. Web and Windows timers are best effort and may
+run late when the app is busy or suspended. Elapsed time is an estimate on Web
+and Windows and native media time on Android; the clip's duration is read from
+finalized media.
 
 ```ts
 console.log((await session.capabilities()).durationLimit)
@@ -155,9 +172,9 @@ await session.dispose()
 Keep the clip's `output` reference in your app's library. A fresh session can
 reopen that reference after app restart or page reload, without activating the
 camera. Release the returned access when playback ends; release does not delete
-the stored movie. Android returns an app-private MP4 file URL. Web commits bytes
-and metadata to IndexedDB and returns a stable resource ID; the opened Blob URL
-is temporary playback access.
+the stored movie. Android and Windows return app-private MP4 file URLs. Web
+commits bytes and metadata to IndexedDB and returns a stable resource ID; the
+opened Blob URL is temporary playback access.
 
 ```ts
 import { createCameraSession } from '@octane-xplat/camera'
@@ -173,9 +190,10 @@ async function reviewSavedMovie(output: MovieOutput) {
 }
 ```
 
-Android additionally accepts a new writable absolute `.mp4` destination file
-URL. It reserves that path before capture and refuses existing files and known
-cache directories. Web does not accept native file destinations. Check the destination capability before
+Android and Windows additionally accept a new writable absolute `.mp4`
+destination file URL. They reserve that path before capture and refuse
+existing files and known cache or temporary directories. Web does not accept
+native file destinations. Check the destination capability before
 showing that option.
 
 ```ts
@@ -206,10 +224,12 @@ console.log((await session.capabilities()).profiles)
 Android and Web currently advertise no fixed cardinal orientations. Omit
 `orientation`; clips report `unspecified` alongside actual presentation width
 and height. Android samples display rotation at start and reads the final MP4
-transform; Web reads final container metadata. Recorded output is unmirrored;
+transform; Web reads final container metadata. Windows advertises cardinal
+orientations only while a live source exposes `SetRecordRotation`; clips
+otherwise report the rotation stored in the file. Recorded output is unmirrored;
 front-camera preview may be mirrored. No shared file suffix or codec is assumed:
-Android writes MP4, while Web selects an explicitly supported WebM or MP4 codec
-and reports the finalized file's actual MIME type, including codecs.
+Android and Windows write MP4, while Web selects an explicitly supported WebM or
+MP4 codec and reports the finalized file's actual MIME type, including codecs.
 
 ```ts
 const take = session.startRecording()
@@ -247,5 +267,20 @@ the audio-track check. Runtime evidence does not establish physical
 phone rotation, actual OS backgrounding, disk exhaustion, front-camera visual
 mirroring, or playback by an OS player after restart. Those remain acceptance
 gaps. MP4-only browser hosts need their own codec and permission qualification; Chromium evidence here
-covers WebM VP8/Opus. macOS, Windows, Linux, and the final platform matrix remain
-separate unfinished milestones.
+covers WebM VP8/Opus.
+
+Windows delivers preview and recording through the WinUI 3 `MediaCapture` +
+`CaptureElement` projection in the NativeScript host — permission status and
+requests through `AppCapability`/`DeviceAccessInformation`, device selection
+through `DeviceInformation` (including external webcams by id), app-private
+MP4 output in `ApplicationData.LocalFolder`, native finalization through
+`StopRecordAsync`, and clip metadata verified from the finalized file's video
+properties and audio tracks. Because no Windows host was available during this
+delivery, the projection details — event subscription, async marshaling, and
+the recording pipeline itself — are source-verified only. A Windows machine
+with a camera still needs to qualify real preview, recording, permission
+prompts, contention, restart reopening, and suspension behavior. The
+WebView2 experiment in `apps/windows/webview-host` is not a configured camera
+presentation; its media permissions and persistence would need separate
+qualification if it ever becomes one. macOS, Linux, and the final platform
+matrix remain separate unfinished milestones.

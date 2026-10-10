@@ -66,4 +66,5 @@ export interface CameraViewProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	windows?: Record<string, any>
 }

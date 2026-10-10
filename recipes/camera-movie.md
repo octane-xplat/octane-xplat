@@ -12,8 +12,8 @@ owns recording controls, saved output references, playback, and deletion.
 ## Requirements
 
 Windows is also part of the movie-capture delivery plan. The recipe validator
-currently cannot represent it in Targets; its implementation and qualification
-remain open alongside the desktop gaps below.
+currently cannot represent it in Targets; its WinUI adapter is implemented and
+its real-host qualification remains open alongside the desktop gaps below.
 
 - Use one camera owner for preview and capture, with explicit permission actions.
 - Wait for finalized, verified, locally committed output before review.
