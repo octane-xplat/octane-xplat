@@ -13,6 +13,15 @@ but that does not mean every control works; see
 [Windows setup](../platform/windows-setup.md) and [Windows limits](../notes/windows-notes.md).
 The [target guide](../start/spec.md#choose-your-targets) explains desktop setup.
 
+OTA bundle updates are optional and available only in iOS/Android release
+binaries with the startup hook. They activate on cold launch and recover
+unconfirmed startup failures before JavaScript runs. iOS simulator and Android
+emulator release lifecycle checks passed; signed physical iOS, hosted HTTPS
+and npm publication remain pending. Bundle integrity uses SHA-256 over TLS,
+without a detached signature or automatic native dependency fingerprint.
+Browser and desktop clients report unsupported. See the
+[phone update guide](../app/updates.md).
+
 Native macOS AppKit cannot play Lottie animations. Its explicit leaf displays
 an unsupported label, reports `onError` on mount, and supplies no playback
 handle or loaded/ended events. The harness motion-package route is also

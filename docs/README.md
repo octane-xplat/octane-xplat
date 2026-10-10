@@ -70,6 +70,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Move between screens                            | [Moving between screens](app/navigation.md)            |
 | Load information from a server                  | [Fetching data](app/data.md)                           |
 | Save a setting, attach a photo, or share a link | [Using device features](platform/platform-services.md) |
+| Update an installed phone app between releases  | [Phone app updates](app/updates.md)                    |
 
 For more pieces to use on your screens, browse the [component index](app/components.md).
 When a feature is ready to try, use [Checking an Xplat app](verify/testing.md) and

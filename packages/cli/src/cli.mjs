@@ -9,11 +9,12 @@ import { clean } from './commands/clean.mjs'
 import { routes } from './commands/routes.mjs'
 import { patches } from './commands/patches.mjs'
 import { fonts } from './commands/fonts.mjs'
+import { updates } from './commands/updates.mjs'
 
 const cli = subcommands({
 	name: 'xplat',
 	description: 'One Octane codebase → web + iOS + Android + experimental macOS AppKit/WKWebView',
-	cmds: { add, dev, build, typecheck, doctor, clean, routes, patches, fonts },
+	cmds: { add, dev, build, typecheck, doctor, clean, routes, patches, fonts, updates },
 })
 
 await run(binary(cli), process.argv)

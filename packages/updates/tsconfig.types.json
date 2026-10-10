@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"types": ["@nativescript/types"],
+		"declaration": true,
+		"allowImportingTsExtensions": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"rootDir": "src",
+		"outDir": "types/generated"
+	},
+	"include": ["src/**/*.ts"]
+}
