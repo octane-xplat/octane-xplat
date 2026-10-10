@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import Security
 import UniformTypeIdentifiers
 import UserNotifications
@@ -63,12 +64,112 @@ private final class XplatWebViewChannel: NSObject, WKScriptMessageHandler, WKNav
 		)
 	}
 
-	private func isTrusted(_ origin: WKSecurityOrigin) -> Bool {
+	func isTrusted(_ origin: WKSecurityOrigin) -> Bool {
 		guard let trustedOrigin else { return false }
 		return origin.protocol == trustedOrigin.scheme &&
 			origin.host == trustedOrigin.host &&
 			(trustedOrigin.port == nil || origin.port == trustedOrigin.port)
 	}
+}
+
+// Media capture (camera/microphone via getUserMedia) is granted only to the
+// app's own trusted origin and only when the host app holds the matching
+// macOS privacy permission. Requests from any other frame are denied.
+private final class XplatWebViewUIDelegate: NSObject, WKUIDelegate {
+	let channel: XplatWebViewChannel
+
+	init(channel: XplatWebViewChannel) {
+		self.channel = channel
+		super.init()
+	}
+
+	func webView(
+		_ webView: WKWebView,
+		requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+		initiatedByFrame frame: WKFrameInfo,
+		type: WKMediaCaptureType,
+		decisionHandler: @escaping (WKPermissionDecision) -> Void
+	) {
+		guard channel.isTrusted(origin), channel.isTrusted(frame.securityOrigin) else {
+			decisionHandler(.deny)
+			return
+		}
+
+		let mediaTypes: [AVMediaType] =
+			switch type {
+			case .camera:
+				[.video]
+			case .microphone:
+				[.audio]
+			case .cameraAndMicrophone:
+				[.video, .audio]
+			@unknown default:
+				[.video]
+			}
+
+		requestMediaAccess(mediaTypes) { granted in
+			decisionHandler(granted ? .grant : .deny)
+		}
+	}
+}
+
+func mediaUsageKey(for mediaType: AVMediaType) -> String {
+	mediaType == .audio ? "NSMicrophoneUsageDescription" : "NSCameraUsageDescription"
+}
+
+// A missing usage description makes the request prompt fail or terminate the
+// process — report denial instead of touching AVFoundation.
+func mediaDeclared(_ mediaType: AVMediaType) -> Bool {
+	Bundle.main.object(forInfoDictionaryKey: mediaUsageKey(for: mediaType)) != nil
+}
+
+func mediaStatus(_ mediaType: AVMediaType) -> String {
+	switch AVCaptureDevice.authorizationStatus(for: mediaType) {
+	case .authorized:
+		return "granted"
+	case .denied:
+		return "denied"
+	case .restricted:
+		return "restricted"
+	case .notDetermined:
+		return "notDetermined"
+	@unknown default:
+		return "unknown"
+	}
+}
+
+func requestMediaAccess(_ mediaTypes: [AVMediaType], completion: @escaping (Bool) -> Void) {
+	var remaining = mediaTypes
+	var grantedAll = true
+	var step: (() -> Void)!
+	step = {
+		while let mediaType = remaining.first {
+			remaining.removeFirst()
+			guard mediaDeclared(mediaType) else {
+				grantedAll = false
+				continue
+			}
+
+			switch AVCaptureDevice.authorizationStatus(for: mediaType) {
+			case .authorized:
+				continue
+			case .notDetermined:
+				AVCaptureDevice.requestAccess(for: mediaType) { granted in
+					grantedAll = grantedAll && granted
+					DispatchQueue.main.async {
+						step()
+					}
+				}
+				return
+			default:
+				grantedAll = false
+				continue
+			}
+		}
+
+		completion(grantedAll)
+	}
+	step()
 }
 
 private final class XplatBundleSchemeHandler: NSObject, WKURLSchemeHandler {
@@ -149,6 +250,7 @@ public final class XplatWebViewHost: NSObject {
 	private let channel: XplatWebViewChannel
 	private let userContentController: WKUserContentController
 	private let bundleSchemeHandler: XplatBundleSchemeHandler
+	private let uiDelegate: XplatWebViewUIDelegate
 	private let keychainService = Bundle.main.bundleIdentifier ?? "org.octane.xplat"
 	private var disposed = false
 
@@ -181,9 +283,11 @@ public final class XplatWebViewHost: NSObject {
 		configuration.setURLSchemeHandler(bundleSchemeHandler, forURLScheme: "xplat")
 		webView = WKWebView(frame: .zero, configuration: configuration)
 		channel = XplatWebViewChannel()
+		uiDelegate = XplatWebViewUIDelegate(channel: channel)
 		super.init()
 		controller.add(channel, name: "xplat")
 		webView.navigationDelegate = channel
+		webView.uiDelegate = uiDelegate
 		webView.autoresizingMask = [.width, .height]
 	}
 
@@ -367,6 +471,170 @@ public final class XplatWebViewHost: NSObject {
 		return fileRef(for: url)
 	}
 
+	// App-private durable storage for camera movies. Browser-side IndexedDB or
+	// temporary object URLs cannot satisfy the session contract inside a
+	// packaged webview, so recorded bytes commit to the host filesystem under
+	// the app's own Application Support directory.
+
+	private func appPrivateRoot() -> URL? {
+		guard let base = FileManager.default.urls(
+			for: .applicationSupportDirectory,
+			in: .userDomainMask
+		).first else {
+			return nil
+		}
+
+		let identifier = Bundle.main.bundleIdentifier ?? "org.octane.xplat"
+		return base.appendingPathComponent(identifier, isDirectory: true)
+	}
+
+	/** The app-private recordings directory URL (file://…), created on demand. */
+	@objc public func movieDirectory() -> NSString? {
+		guard let root = appPrivateRoot() else { return nil }
+		let directory = root.appendingPathComponent("octane-camera", isDirectory: true)
+		guard (try? FileManager.default.createDirectory(
+			at: directory,
+			withIntermediateDirectories: true
+		)) != nil else {
+			return nil
+		}
+
+		return directory.absoluteString as NSString
+	}
+
+	private func moviePathInsidePrivateRoot(_ fileUrl: URL) -> URL? {
+		guard let root = appPrivateRoot()?.standardizedFileURL else { return nil }
+		let candidate = fileUrl.standardizedFileURL
+		return candidate.path.hasPrefix(root.path + "/") ? candidate : nil
+	}
+
+	/** Validate a destination before capture. When `fileUrl` is set the target
+	 *  must be a new file inside the app-private root; otherwise a fresh
+	 *  recording name is reserved in the movie directory. */
+	@objc public func reserveMoviePath(_ options: NSDictionary) -> NSDictionary? {
+		if let requested = options["fileUrl"] as? String, !requested.isEmpty {
+			guard
+				let url = URL(string: requested),
+				url.isFileURL,
+				let target = moviePathInsidePrivateRoot(url)
+			else {
+				return nil
+			}
+
+			let parent = target.deletingLastPathComponent()
+			guard !FileManager.default.fileExists(atPath: target.path),
+				FileManager.default.fileExists(atPath: parent.path)
+			else {
+				return nil
+			}
+
+			return ["fileUrl": target.absoluteString]
+		}
+
+		guard let directory = movieDirectory() as String?,
+			let directoryUrl = URL(string: directory)
+		else {
+			return nil
+		}
+
+		let suffix = (options["container"] as? String)?.lowercased()
+		let ext = ["mp4", "mov", "webm"].contains(suffix) ? suffix! : "mp4"
+		let name = "clip-\(Int(Date().timeIntervalSince1970 * 1000))-\(UUID().uuidString.prefix(8)).\(ext)"
+		return ["fileUrl": directoryUrl.appendingPathComponent(name).absoluteString]
+	}
+
+	/** Commit recorded bytes atomically; never overwrites an existing file. */
+	@objc public func writeMovieFile(_ options: NSDictionary) -> NSDictionary? {
+		guard
+			let fileUrlValue = options["fileUrl"] as? String,
+			let url = URL(string: fileUrlValue),
+			url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url),
+			let base64 = options["base64"] as? String,
+			let data = Data(base64Encoded: base64)
+		else {
+			return nil
+		}
+
+		guard !FileManager.default.fileExists(atPath: target.path) else { return nil }
+		guard (try? data.write(to: target, options: .atomic)) != nil else { return nil }
+		return fileRef(for: target)
+	}
+
+	@objc public func movieFileInfo(_ uri: String) -> NSDictionary? {
+		guard
+			let url = URL(string: uri),
+			url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url)
+		else {
+			return nil
+		}
+
+		guard FileManager.default.fileExists(atPath: target.path) else {
+			return ["exists": false]
+		}
+
+		let size = (try? FileManager.default.attributesOfItem(atPath: target.path))?[.size] as? NSNumber
+		return ["exists": true, "fileUrl": target.absoluteString, "size": size ?? -1]
+	}
+
+	@objc public func readMovieFile(_ uri: String) -> NSString? {
+		guard
+			let url = URL(string: uri),
+			url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url),
+			let data = try? Data(contentsOf: target)
+		else {
+			return nil
+		}
+
+		return data.base64EncodedString() as NSString
+	}
+
+	@objc public func deleteMovieFile(_ uri: String) -> Bool {
+		guard
+			let url = URL(string: uri),
+			url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url)
+		else {
+			return false
+		}
+
+		guard FileManager.default.fileExists(atPath: target.path) else { return true }
+		return (try? FileManager.default.removeItem(at: target)) != nil
+	}
+
+	/** macOS privacy status for 'camera' or 'microphone', plus 'undeclared'
+	 *  when the app's Info.plist lacks the usage description. */
+	@objc public func mediaPermissionStatus(_ kind: String) -> NSString {
+		let mediaType: AVMediaType = kind == "microphone" ? .audio : .video
+		guard mediaDeclared(mediaType) else { return "undeclared" }
+		return mediaStatus(mediaType) as NSString
+	}
+
+	@objc public func requestMediaPermission(_ kind: String) -> NSString {
+		let mediaType: AVMediaType = kind == "microphone" ? .audio : .video
+		guard mediaDeclared(mediaType) else { return "undeclared" }
+		if mediaStatus(mediaType) != "notDetermined" {
+			return mediaStatus(mediaType) as NSString
+		}
+
+		var result = "unknown"
+		var done = false
+		AVCaptureDevice.requestAccess(for: mediaType) { _ in
+			result = mediaStatus(mediaType)
+			done = true
+		}
+
+		// A system privacy prompt can sit unanswered — give the person time
+		// to respond instead of failing the request early.
+		let deadline = Date().addingTimeInterval(120)
+		while !done && Date() < deadline {
+			RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.01))
+		}
+		return result as NSString
+	}
+
 	private func waitForResult<T>(_ operation: (@escaping (T) -> Void) -> Void) -> T? {
 		var result: T?
 		var done = false
@@ -489,6 +757,7 @@ public final class XplatWebViewHost: NSObject {
 		channel.dispatch = nil
 		webView.stopLoading()
 		webView.navigationDelegate = nil
+		webView.uiDelegate = nil
 		webView.configuration.userContentController.removeScriptMessageHandler(forName: "xplat")
 		webView.removeFromSuperview()
 	}

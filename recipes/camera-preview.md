@@ -1,7 +1,7 @@
 # Show a live camera preview
 
 ID: camera-preview
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: CameraView, @octane-xplat/camera, media.capturePhoto
 
 ## Starting point
@@ -19,7 +19,7 @@ preview are outside this recipe; still photos use the media leaf described in [p
 
 ## Acceptance criteria
 
-- AC1: The reader can add `@octane-xplat/camera` and mount a preview on web, iOS, and Android without adding a separate camera plugin or finding platform permission setup in framework source.
+- AC1: The reader can add `@octane-xplat/camera` and mount a preview on web, iOS, Android, and macOS without adding a separate camera plugin or finding platform permission setup in framework source.
 - AC2: A maintained example lets the reader start and stop the preview, switch front and rear cameras, and observe ready or error state on each target.
 - AC3: The reader can explain what `onReady` means on each target, what stopping the preview does, and how to capture a still photo separately.
 

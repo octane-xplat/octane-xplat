@@ -21,10 +21,12 @@
 		"smoke": "node scripts/smoke.mjs",
 		"test:animation": "node test/verify-animation.mjs",
 		"test:layout-channels": "node test/verify-layout-channels.mjs",
-		"test:layout-placement": "node test/verify-layout-placement.mjs"
+		"test:layout-placement": "node test/verify-layout-placement.mjs",
+		"test:camera-webview": "node ./scripts/camera-webview-proof.mjs --verify"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/desktop-webview": "workspace:*",
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
@@ -64,7 +66,11 @@
 					"hostViteConfig": "vite.webview-app-host.config.mjs",
 					"hostBundleFile": "dist/webview-app-host/host.cjs",
 					"webOutDir": "dist/webview-app",
-					"entitlements": "entitlements.plist"
+					"entitlements": "entitlements.plist",
+					"infoPlist": {
+						"NSCameraUsageDescription": "This app records video with the camera.",
+						"NSMicrophoneUsageDescription": "This app records audio with your video."
+					}
 				}
 			}
 		}

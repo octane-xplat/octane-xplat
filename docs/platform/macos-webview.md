@@ -180,6 +180,46 @@ if (client) {
 }
 ```
 
+## Camera and movie output
+
+The host registers a `camera` service for the shared
+`@octane-xplat/camera` session backend. Inside a qualified host the Web
+adapter switches to it automatically: `permissions()` and
+`requestPermission()` report the app's real macOS camera/microphone status,
+and recorded bytes commit to the host's app-private storage under
+`~/Library/Application Support/<bundle id>/octane-camera` instead of
+IndexedDB. Output stays file-backed — `openOutput` returns a temporary
+playback `url` alongside the durable `fileUrl` — and
+`capabilities().output` reports `appPrivateFile` storage and
+`destinationFileUrl` support. Browser behavior outside the host is unchanged.
+
+Two host-side qualifications make capture work. The `WKUIDelegate` grants
+media capture only to the app's trusted origin and only while the app itself
+holds the matching privacy permission — untrusted frames are denied. And the
+bundle must carry usage descriptions or the system rejects the prompt; the
+adapter reports `undeclared` honestly rather than crashing:
+
+```json
+{
+	"xplat": {
+		"targets": {
+			"macos": {
+				"package": {
+					"infoPlist": {
+						"NSCameraUsageDescription": "This app records video with the camera.",
+						"NSMicrophoneUsageDescription": "This app records audio with your video."
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+A `destinationFileUrl` from `startRecording` must name a new `.mp4`, `.mov`,
+or `.webm` file inside the app's private storage root; existing files,
+missing directories, and outside paths fail `destinationUnavailable`.
+
 ## Verify the boundary
 
 The [macOS WKWebView proof](../../apps/macos/webview-proof/ProofScreen.web.ts)
@@ -189,6 +229,11 @@ that can run without user interaction: bootstrap state, clipboard, app state,
 window size, file reads, secure storage, host storage, appearance, app-defined
 calls/events, deep links, and a secondary webview window's close event. Run it
 with `pnpm --filter @xplat/macos webview:proof`; the verifier reports
-`[webview-proof] verified 28 typed host methods`. The full shared frontend used
+`[webview-proof] verified 28 typed host methods`. The
+[camera webview proof](../../apps/macos/webview-camera-proof/main.web.ts)
+verifies the `camera` service end to end inside a signed bundle — permission
+status and request, app-private movie storage round-trip, private-root
+containment, and the session backend's host-storage switch. Run it with
+`pnpm --filter @xplat/macos test:camera-webview`. The full shared frontend used
 by the configured macOS renderer starts from
 [`apps/web/src/main.tsrx`](../../apps/web/src/main.tsrx).

@@ -180,6 +180,28 @@ export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
 					mustExist: true,
 				})
 
+	if (settings.infoPlist !== undefined) {
+		if (!settings.infoPlist || typeof settings.infoPlist !== 'object' || Array.isArray(settings.infoPlist)) {
+			issues.push('xplat.targets.macos.package.infoPlist must be an object')
+		} else {
+			for (const [key, value] of Object.entries(settings.infoPlist)) {
+				if (!/^[A-Za-z0-9._() -]+$/.test(key)) {
+					issues.push(`invalid macOS Info.plist key: ${key}`)
+					continue
+				}
+
+				const kind = typeof value
+				if (kind !== 'string' && kind !== 'boolean' && kind !== 'number') {
+					issues.push(
+						`xplat.targets.macos.package.infoPlist.${key} must be a string, number, or boolean`,
+					)
+				} else if (kind === 'number' && !Number.isInteger(value)) {
+					issues.push(`xplat.targets.macos.package.infoPlist.${key} must be an integer`)
+				}
+			}
+		}
+	}
+
 	return { settings, renderer, ...buildPaths, iconPath, entitlementsPath, issues }
 }
 

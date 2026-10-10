@@ -18,6 +18,23 @@ export interface MacOSWebView {
 	secureStorageGet(key: string): string | null
 	secureStorageSet(key: string, value: string): boolean
 	secureStorageRemove(key: string): boolean
+	/** The app-private recordings directory URL (file://…), created on demand. */
+	movieDirectory(): string | null
+	/** Validate a movie destination before capture; returns the file URL to use. */
+	reserveMoviePath(options: {
+		fileUrl?: string
+		container?: string
+	}): { fileUrl: string } | null
+	/** Commit recorded movie bytes atomically; never overwrites. */
+	writeMovieFile(options: { fileUrl: string; base64: string }): { name: string; uri: string } | null
+	movieFileInfo(uri: string): { exists: boolean; fileUrl?: string; size?: number } | null
+	/** Read a stored movie back as base64. */
+	readMovieFile(uri: string): string | null
+	deleteMovieFile(uri: string): boolean
+	/** macOS privacy status for 'camera' or 'microphone'; 'undeclared' when the
+	 *  app's Info.plist lacks the usage description. */
+	mediaPermissionStatus(kind: 'camera' | 'microphone'): string
+	requestMediaPermission(kind: 'camera' | 'microphone'): string
 	dispose(): void
 }
 

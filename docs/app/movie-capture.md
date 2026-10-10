@@ -1,8 +1,8 @@
 # Record and reopen a camera movie
 
 Build a short video recorder with a live preview, a Record button, and a Stop
-button. This guide covers Android, Web, and Windows (WinUI 3) movie capture;
-iOS uses the same session interface. macOS and Linux adapters remain
+button. This guide covers Android, Web, macOS, and Windows (WinUI 3) movie
+capture; iOS uses the same session interface. Linux adapters remain
 unfinished. Windows support is implemented through the NativeScript WinUI
 host but still needs a real Windows machine with a camera to finish
 qualification — see the gaps at the end of this guide.
@@ -96,6 +96,35 @@ operating system's own privacy toggles also apply: a user-level refusal reports
 </Capabilities>
 ```
 
+macOS needs usage descriptions in the app bundle's `Info.plist`. Declare them
+through the package config and both dev launches and packaged builds receive
+them:
+
+```json
+{
+	"xplat": {
+		"targets": {
+			"macos": {
+				"package": {
+					"infoPlist": {
+						"NSCameraUsageDescription": "This app records video with the camera.",
+						"NSMicrophoneUsageDescription": "This app records audio with your video."
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+Without the matching key, `permissions()` stays `unknown` and
+`requestPermission` fails with `configurationMissing` — the system would
+reject the prompt outright, so the adapter fails instead. The macOS camera
+leaf is a compiled Swift host, so the AppKit backend and the WKWebView host
+both need a native build; `xplat` dev and package builds compile it when the
+app depends on `@octane-xplat/camera`.
+
+
 ```ts
 async function enableAudio() {
 	if (await session.requestPermission('microphone') === 'granted') {
@@ -141,10 +170,11 @@ async function stop() {
 ```
 
 A duration limit requests stopping; it is not an editing cutoff. Android uses
-CameraX media-time enforcement. Web and Windows timers are best effort and may
-run late when the app is busy or suspended. Elapsed time is an estimate on Web
-and Windows and native media time on Android; the clip's duration is read from
-finalized media.
+CameraX media-time enforcement and macOS uses `AVCaptureMovieFileOutput`
+media-time enforcement. Web and Windows timers are best effort and may
+run late when the app is busy or suspended. Elapsed time is native
+media time on Android and macOS and an estimate on Web and Windows; the clip's
+duration is read from finalized media.
 
 ```ts
 console.log((await session.capabilities()).durationLimit)
@@ -172,9 +202,15 @@ await session.dispose()
 Keep the clip's `output` reference in your app's library. A fresh session can
 reopen that reference after app restart or page reload, without activating the
 camera. Release the returned access when playback ends; release does not delete
-the stored movie. Android and Windows return app-private MP4 file URLs. Web
-commits bytes and metadata to IndexedDB and returns a stable resource ID; the
-opened Blob URL is temporary playback access.
+the stored movie. Android and Windows return app-private MP4 file URLs and
+macOS returns an app-private MOV file URL. Web commits bytes
+and metadata to IndexedDB and returns a stable resource ID; the opened Blob URL
+is temporary playback access.
+
+Inside a qualified macOS WKWebView host the same Web backend stores finalized
+bytes in the host's app-private Application Support directory instead of
+IndexedDB. Output still reopens through `session.openOutput` — the returned
+`url` is temporary playback access while `fileUrl` is the durable reference.
 
 ```ts
 import { createCameraSession } from '@octane-xplat/camera'
@@ -192,8 +228,11 @@ async function reviewSavedMovie(output: MovieOutput) {
 
 Android and Windows additionally accept a new writable absolute `.mp4`
 destination file URL. They reserve that path before capture and refuse
-existing files and known cache or temporary directories. Web does not accept
-native file destinations. Check the destination capability before
+existing files and known cache or temporary directories. macOS accepts a new
+`.mov` destination file URL inside the app's private Application Support root
+and refuses existing files, missing directories, and paths outside that root.
+Web does not accept native file destinations. Check the destination capability
+before
 showing that option.
 
 ```ts
@@ -226,10 +265,17 @@ Android and Web currently advertise no fixed cardinal orientations. Omit
 and height. Android samples display rotation at start and reads the final MP4
 transform; Web reads final container metadata. Windows advertises cardinal
 orientations only while a live source exposes `SetRecordRotation`; clips
-otherwise report the rotation stored in the file. Recorded output is unmirrored;
+otherwise report the rotation stored in the file. On macOS 14 and later the four
+cardinal orientations are advertised and locked through the recording
+connection's rotation angle; on macOS 13 `orientations` is empty and an
+orientation request fails `unsupportedConfiguration`. macOS clips report the
+actual orientation read from the finalized MOV track transform. Recorded output
+is unmirrored;
 front-camera preview may be mirrored. No shared file suffix or codec is assumed:
-Android and Windows write MP4, while Web selects an explicitly supported WebM or
-MP4 codec and reports the finalized file's actual MIME type, including codecs.
+Android and Windows write MP4, macOS writes MOV (`video/quicktime`), while Web
+selects an explicitly supported WebM or MP4 codec
+and reports the finalized file's actual MIME type, including codecs.
+
 
 ```ts
 const take = session.startRecording()
@@ -258,16 +304,31 @@ pnpm --filter @octane-xplat/camera test
 node packages/camera/tests/browser-conformance.web.mjs
 pnpm probe run packages/camera/tests/movie-capture.android.tsrx \
   --target android --device DEVICE_ID --deps @octane-xplat/camera --timeout 130000
+pnpm probe run packages/camera/tests/movie-capture.macos.tsrx \
+  --target macos --deps @octane-xplat/camera --timeout 120000
+pnpm --filter @xplat/macos test:camera-webview
 ```
 
 The Android case needs camera permission granted to its isolated test app and
 microphone permission initially left denied. After the audio-refusal assertion,
 its `CAMERA_PROBE_ALLOW_MIC` log identifies when to grant microphone access for
-the audio-track check. Runtime evidence does not establish physical
+the audio-track check. The [macOS conformance case](../../packages/camera/tests/movie-capture.macos.tsrx)
+runs inside a signed probe bundle carrying camera and microphone usage
+descriptions: on a camera-equipped Mac it exercises the full
+recording assertions, and on a camera-less host it verifies real system
+permission status, capability honesty, preview failure, and recording-admission
+rejection. The [WKWebView camera proof](../../apps/macos/scripts/camera-webview-proof.mjs)
+verifies the host camera service end to end: system media permission status,
+app-private movie storage reserve/commit/reopen/delete, private-root
+containment, and the session backend switching to host storage — all inside a
+bundled `xplat` WKWebView. Runtime evidence does not establish physical
 phone rotation, actual OS backgrounding, disk exhaustion, front-camera visual
 mirroring, or playback by an OS player after restart. Those remain acceptance
 gaps. MP4-only browser hosts need their own codec and permission qualification; Chromium evidence here
-covers WebM VP8/Opus.
+covers WebM VP8/Opus. **The development host used for the current macOS
+evidence has no camera hardware** — real AppKit capture, interruption
+settlement, and WKWebView `MediaRecorder` capture remain unverified until run
+on a camera-equipped Mac.
 
 Windows delivers preview and recording through the WinUI 3 `MediaCapture` +
 `CaptureElement` projection in the NativeScript host — permission status and
@@ -282,5 +343,5 @@ with a camera still needs to qualify real preview, recording, permission
 prompts, contention, restart reopening, and suspension behavior. The
 WebView2 experiment in `apps/windows/webview-host` is not a configured camera
 presentation; its media permissions and persistence would need separate
-qualification if it ever becomes one. macOS, Linux, and the final platform
-matrix remain separate unfinished milestones.
+qualification if it ever becomes one. Linux and the final platform matrix
+remain separate unfinished milestones.

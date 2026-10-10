@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Octane camera webview proof</title>
+		<style>
+			body {
+				font: 15px system-ui;
+				margin: 2rem;
+				color: #202124;
+			}
+			pre {
+				white-space: pre-wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>Camera host proof</h1>
+			<p>Camera permissions and app-private movie storage inside WKWebView.</p>
+			<pre id="result">Checking host camera service…</pre>
+		</main>
+		<script>
+			window.addEventListener('error', (event) => {
+				const result = {
+					ok: false,
+					error: `${event.message} (${event.filename}:${event.lineno}:${event.colno})`,
+				}
+				document.querySelector('#result').textContent = JSON.stringify(result, null, 2)
+				window.webkit?.messageHandlers?.xplat?.postMessage(
+					JSON.stringify({
+						type: 'call',
+						id: 1,
+						service: 'application',
+						method: 'report',
+						args: [result],
+					}),
+				)
+			})
+		</script>
+		<script type="module" src="./main.web.ts"></script>
+	</body>
+</html>

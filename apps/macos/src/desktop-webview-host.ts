@@ -206,70 +206,93 @@ export function createDesktopWebViewHost<
 	}
 
 	const servicesFor = (sender: MacOSWebView): Services =>
-		({
-			app: {
-				getInfo: () => appKit.appInfo,
-				getState: () => appKit.appState,
-				getWindowSize: () => senderWindowSize(sender),
-				consumeInitialUrl: () => {
-					const url = pendingInitialUrls.get(sender) ?? null
-					pendingInitialUrls.delete(sender)
-					return url
+		Object.assign(
+			{
+				app: {
+					getInfo: () => appKit.appInfo,
+					getState: () => appKit.appState,
+					getWindowSize: () => senderWindowSize(sender),
+					consumeInitialUrl: () => {
+						const url = pendingInitialUrls.get(sender) ?? null
+						pendingInitialUrls.delete(sender)
+						return url
+					},
 				},
-			},
-			clipboard: {
-				read: () => Promise.resolve(appKit.readClipboard()),
-				write: (value) => Promise.resolve(appKit.writeClipboard(value)),
-			},
-			files: {
-				pick: (accept, options) =>
-					Promise.resolve(
-						fileRef(sender.pickFile(accept ?? '*/*', options?.startingFolder ?? null)),
-					),
-				readText: (uri) => Promise.resolve(sender.readFileText(uri)),
-				writeText: (name, text) => Promise.resolve(fileRef(sender.writeFileText(name, text))),
-			},
-			notifications: {
-				ensure: () => Promise.resolve(notificationPermission(sender)),
-				notify: (title, body) => Promise.resolve(sender.notify(title, body ?? '')),
-			},
-			secureStorage: {
-				get: (key) => Promise.resolve(sender.secureStorageGet(key)),
-				set: (key, value) => Promise.resolve(sender.secureStorageSet(key, value)),
-				remove: (key) => Promise.resolve(sender.secureStorageRemove(key)),
-			},
-			appearance: {
-				get: () => Promise.resolve(appKit.getColorScheme()),
-			},
-			windows: {
-				open: (options) => Promise.resolve(openWebWindow(sender, options)),
-				close: (id) => {
-					const entry = secondaryWindows.get(id)
-					if (!entry) {
-						return Promise.resolve(false)
-					}
+				clipboard: {
+					read: () => Promise.resolve(appKit.readClipboard()),
+					write: (value) => Promise.resolve(appKit.writeClipboard(value)),
+				},
+				files: {
+					pick: (accept, options) =>
+						Promise.resolve(
+							fileRef(sender.pickFile(accept ?? '*/*', options?.startingFolder ?? null)),
+						),
+					readText: (uri) => Promise.resolve(sender.readFileText(uri)),
+					writeText: (name, text) => Promise.resolve(fileRef(sender.writeFileText(name, text))),
+				},
+				notifications: {
+					ensure: () => Promise.resolve(notificationPermission(sender)),
+					notify: (title, body) => Promise.resolve(sender.notify(title, body ?? '')),
+				},
+				secureStorage: {
+					get: (key) => Promise.resolve(sender.secureStorageGet(key)),
+					set: (key, value) => Promise.resolve(sender.secureStorageSet(key, value)),
+					remove: (key) => Promise.resolve(sender.secureStorageRemove(key)),
+				},
+				appearance: {
+					get: () => Promise.resolve(appKit.getColorScheme()),
+				},
+				windows: {
+					open: (options) => Promise.resolve(openWebWindow(sender, options)),
+					close: (id) => {
+						const entry = secondaryWindows.get(id)
+						if (!entry) {
+							return Promise.resolve(false)
+						}
 
-					entry.controller.close()
-					return Promise.resolve(true)
+						entry.controller.close()
+						return Promise.resolve(true)
+					},
+					setTitle: (id, title) => {
+						const entry = secondaryWindows.get(id)
+						entry?.controller.setTitle(title)
+						return Promise.resolve(Boolean(entry))
+					},
 				},
-				setTitle: (id, title) => {
-					const entry = secondaryWindows.get(id)
-					entry?.controller.setTitle(title)
-					return Promise.resolve(Boolean(entry))
+				system: {
+					openUrl: (url) => Promise.resolve(appKit.openUrl(url)),
+					openPath: (path) => Promise.resolve(appKit.openPath(path)),
+					shareContent: (input) => Promise.resolve(appKit.shareContent(input)),
+				},
+				storage: {
+					get: (key) => Promise.resolve(appKit.storageGet(key)),
+					set: (key, value) => Promise.resolve(appKit.storageSet(key, value)),
+					remove: (key) => Promise.resolve(appKit.storageRemove(key)),
+				},
+			} as Services,
+			// Camera movie storage + honest macOS media permission status for
+			// the shared camera session backend inside this webview.
+			{
+				camera: {
+					permissionStatus: (options: { kind: 'camera' | 'microphone' }) =>
+						Promise.resolve({ status: sender.mediaPermissionStatus(options.kind) }),
+					requestPermission: (options: { kind: 'camera' | 'microphone' }) =>
+						Promise.resolve({ status: sender.requestMediaPermission(options.kind) }),
+					movieDirectory: () => Promise.resolve({ fileUrl: sender.movieDirectory() }),
+					reserveMoviePath: (options: { fileUrl?: string; container?: string }) =>
+						Promise.resolve({ reservation: sender.reserveMoviePath(options) }),
+					writeMovieFile: (options: { fileUrl: string; base64: string }) =>
+						Promise.resolve({ file: sender.writeMovieFile(options) }),
+					movieFileInfo: (options: { fileUrl: string }) =>
+						Promise.resolve({ info: sender.movieFileInfo(options.fileUrl) }),
+					readMovieFile: (options: { fileUrl: string }) =>
+						Promise.resolve({ base64: sender.readMovieFile(options.fileUrl) }),
+					deleteMovieFile: (options: { fileUrl: string }) =>
+						Promise.resolve({ removed: sender.deleteMovieFile(options.fileUrl) }),
 				},
 			},
-			system: {
-				openUrl: (url) => Promise.resolve(appKit.openUrl(url)),
-				openPath: (path) => Promise.resolve(appKit.openPath(path)),
-				shareContent: (input) => Promise.resolve(appKit.shareContent(input)),
-			},
-			storage: {
-				get: (key) => Promise.resolve(appKit.storageGet(key)),
-				set: (key, value) => Promise.resolve(appKit.storageSet(key, value)),
-				remove: (key) => Promise.resolve(appKit.storageRemove(key)),
-			},
-			...extraServices(sender, (name, payload) => emitTo(sender, name, payload)),
-		}) as Services
+			extraServices(sender, (name, payload) => emitTo(sender, name, payload)),
+		)
 
 	const dispatcher = attach(webView, servicesFor(webView))
 

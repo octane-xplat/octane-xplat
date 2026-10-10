@@ -5,8 +5,9 @@ pnpm add @octane-xplat/camera
 ```
 
 Live camera preview for Octane xplat apps: `getUserMedia` video on web,
-`AVCaptureSession` on iOS, CameraX on Android, `MediaCapture` +
-`CaptureElement` on the Windows (WinUI 3) target.
+`AVCaptureSession` on iOS, CameraX on Android,
+`AVCaptureSession` + `AVCaptureVideoPreviewLayer` on macOS (AppKit), and
+`MediaCapture` + `CaptureElement` on the Windows (WinUI 3) target.
 
 ```tsx
 import { CameraView } from '@octane-xplat/camera'
@@ -28,7 +29,10 @@ picking use [`@octane-xplat/media`](../media/README.md). Permissions are
 requested when the session starts; `onError` is how a denial shows up.
 `ref` hands you the platform surface (`HTMLVideoElement` on web) for
 controls the shared props don't cover, and the `ios`/`android`/`web`/
-`windows` escape props apply after the shared props.
+`windows` escape props apply after the shared props. On macOS the leaf is a
+compiled Swift `XplatCameraHost` that owns the capture session; the app bundle
+needs `NSCameraUsageDescription` (and `NSMicrophoneUsageDescription` for
+audio) declared through `xplat.targets.macos.package.infoPlist`.
 
 ```tsx
 // Preview.web.tsx — browser properties belong in this platform file.
@@ -79,10 +83,14 @@ if (outcome.kind === 'clip') {
 One preview and one recording per session; a second `startRecording` throws
 `CameraCaptureError` with `kind: 'busy'`. Check `session.capabilities()` for
 `supported`/`available` before presenting capture UI, and `session.snapshot()`
-or `session.subscribe` for state. iOS, Android, Web, and the Windows WinUI
-target have recording adapters; Web requires persistent origin storage.
-Windows records through `MediaCapture` into app-private MP4 files and is
-pending real-host qualification. macOS and Linux adapters remain unfinished.
+or `session.subscribe` for state. iOS, Android, Web, macOS, and the Windows
+WinUI target have recording adapters; Web requires persistent origin storage.
+macOS writes app-private MOV files through `AVCaptureMovieFileOutput` and
+reports finalized track metadata; on macOS 14+ the four cardinal orientations
+are lockable. Inside a qualified `xplat` WKWebView host the Web backend stores
+output in the app's private storage root instead of IndexedDB. Windows records
+through `MediaCapture` into app-private MP4 files and is pending real-host
+qualification. Linux adapters remain unfinished.
 See [Record and reopen a camera movie](../../docs/app/movie-capture.md) for
 explicit permission actions, audio, local output, and qualification limits.
 

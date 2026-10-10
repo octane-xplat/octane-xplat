@@ -164,6 +164,7 @@ export async function runTarget(target, args, onResult, signal) {
 	let project = await prepare(target, args.case, args.deps, args.resources)
 	const { build, createServer } = await importFrom(project.root, 'vite')
 	let host
+	let hostBundleCleanup
 	let server
 	let browser
 	let page
@@ -228,6 +229,9 @@ export async function runTarget(target, args, onResult, signal) {
 		const closing = host
 		host = undefined
 		await closing?.stop()
+		const bundleCleanup = hostBundleCleanup
+		hostBundleCleanup = undefined
+		await bundleCleanup?.()
 	}
 
 	const fail = (error) => {
@@ -326,7 +330,6 @@ export async function runTarget(target, args, onResult, signal) {
 				join(repo, 'packages/cli/src/macos/native.mjs')
 			)
 
-			const { macOSExecutable } = await import(join(repo, 'packages/cli/src/macos/executables.mjs'))
 			const { hostBundle, validateHostBundle } = await import(
 				join(repo, 'packages/cli/src/macos/jsc-host/runtime.mjs')
 			)
@@ -335,8 +338,41 @@ export async function runTarget(target, args, onResult, signal) {
 			const bootstrap = join(project.root, 'bootstrap.js')
 			await writeNativeBootstrap(artifact, bootstrap)
 			await validateHostBundle(join(project.root, 'dist/shell.cjs'), project.root)
+
+			// Wrap the host in a signed .app so bundle-bound APIs (usage
+			// descriptions, keychain identity, media privacy grants) resolve
+			// the same way they do under `xplat dev`.
+			const { createMacOSDevBundle } = await import(
+				join(repo, 'packages/cli/src/macos/dev-bundle.mjs')
+			)
+
+			const devBundle = await createMacOSDevBundle(project.root, {
+				xplat: {
+					targets: {
+						macos: {
+							dev: { viteConfig: 'package.json', bundleFile: 'dist/case.cjs' },
+							package: {
+								productName: 'Octane Probe',
+								bundleIdentifier: `org.octanexplat.probe.${project.identity}`,
+								executableName: 'OctaneProbe',
+								version: '0.0.0',
+								minimumSystemVersion: '13.5',
+								infoPlist: {
+									NSCameraUsageDescription:
+										'The isolated probe exercises camera preview and movie recording.',
+									NSMicrophoneUsageDescription:
+										'The isolated probe exercises microphone audio during movie recording.',
+								},
+							},
+						},
+					},
+				},
+			})
+
+			hostBundleCleanup = devBundle.cleanup
+
 			host = ownedProcess(
-				await macOSExecutable(project.root, 'macos-arm64/host'),
+				devBundle.executable,
 				[
 					join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 					join(project.root, 'dist/shell.cjs'),

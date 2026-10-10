@@ -149,6 +149,9 @@ importers:
       '@nativescript/macos-node-api':
         specifier: 0.4.4-next.2026-08-09-31292056208
         version: 0.4.4-next.2026-08-09-31292056208
+      '@octane-xplat/camera':
+        specifier: workspace:*
+        version: link:../../packages/camera
       '@octane-xplat/desktop-webview':
         specifier: workspace:*
         version: link:../../packages/desktop-webview
@@ -715,6 +718,9 @@ importers:
 
   packages/camera:
     dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       mediabunny:
         specifier: 1.61.3
         version: 1.61.3

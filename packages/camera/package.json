@@ -90,6 +90,16 @@
 		}
 	},
 	"dependencies": {
+		"@octane-xplat/platform": "workspace:*",
 		"mediabunny": "1.61.3"
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"AVFoundation",
+				"CoreMedia",
+				"AppKit"
+			]
+		}
 	}
 }

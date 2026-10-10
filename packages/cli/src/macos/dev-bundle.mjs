@@ -103,6 +103,7 @@ export async function createMacOSDevBundle(appRoot, manifest) {
 		version: packageSettings.version ?? '0.0.0',
 		minimumSystemVersion: packageSettings.minimumSystemVersion ?? '13.5',
 		icon: dev.icon ?? packageSettings.icon,
+		infoPlist: dev.infoPlist ?? packageSettings.infoPlist,
 		// Validate identity independently of production build/signing configuration.
 		viteConfig: dev.viteConfig ?? dev.hostViteConfig,
 		bundleFile: dev.bundleFile ?? dev.hostBundleFile,
