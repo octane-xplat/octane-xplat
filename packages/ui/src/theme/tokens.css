@@ -2798,19 +2798,19 @@
 		user-select: none;
 	}
 
+	/* xplat-web-only:start — wrapped code blocks are DOM-only; native
+	   CodeBlock leaves wrap via the whiteSpace prop and never emit
+	   vx-codeblock--wrap */
 	.vx-codeblock--wrap .vx-codeblock-line {
 		white-space: pre-wrap;
-	}
-	/* xplat-web-only:start — DOM-only breaking inside wrapped code */
-	.vx-codeblock--wrap .vx-codeblock-line {
 		word-break: break-word;
 	}
-	/* xplat-web-only:end */
 
 	.vx-codeblock--wrap .vx-codeblock-row,
 	.vx-codeblock--wrap .vx-codeblock-line {
 		min-width: 0;
 	}
+	/* xplat-web-only:end */
 
 	.vx-timestamp-card-grid {
 		display: grid;
@@ -2841,6 +2841,8 @@
 	}
 	/* xplat-web-only:end */
 
+	/* xplat-web-only:start — the animated classes are DOM-only; their
+	   keyframes are stripped with the blocks above */
 	@media (prefers-reduced-motion: reduce) {
 		.vx-statusdot--pulse,
 		.vx-progressbar-fill--indeterminate {
