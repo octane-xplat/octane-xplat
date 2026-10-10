@@ -61,9 +61,9 @@ export function Recorder() {
 }
 ```
 
-A take settles only after the movie is finalized on disk and its duration,
-dimensions, and orientation have been read back. Output lives in app-private
-storage; reopen it with `session.openOutput(output)`.
+A take settles after the movie is finalized, metadata is verified, and local
+storage is committed. Native output lives in app-private files; Web uses
+persistent origin storage. Reopen it with `session.openOutput(output)`.
 
 ```ts
 const take = session.startRecording({ maximumDurationMs: 30_000 })
@@ -71,16 +71,24 @@ const take = session.startRecording({ maximumDurationMs: 30_000 })
 const outcome = await take.stop()
 if (outcome.kind === 'clip') {
 	const clip = outcome.clip
-	console.log(clip.durationMs, clip.width, clip.height, clip.output.fileUrl)
+	console.log(clip.durationMs, clip.width, clip.height, clip.output)
 }
 ```
 
 One preview and one recording per session; a second `startRecording` throws
 `CameraCaptureError` with `kind: 'busy'`. Check `session.capabilities()` for
 `supported`/`available` before presenting capture UI, and `session.snapshot()`
-or `session.subscribe` for state. Recording support lands per platform —
-iOS ships first; other adapters report `unsupported` rather than faking a
-camera.
+or `session.subscribe` for state. iOS, Android, and Web have recording adapters;
+Web requires persistent origin storage. Desktop adapters remain unfinished.
+See [Record and reopen a camera movie](../../docs/app/movie-capture.md) for
+explicit permission actions, audio, local output, and qualification limits.
+
+```ts
+console.log(await session.permissions())
+// Call from an app button:
+await session.requestPermission('camera')
+console.log(await session.capabilities())
+```
 
 Guide: [Building screens](../../docs/app/primitives.md) (leaf components);
 component index: [`docs/app/components.md`](../../docs/app/components.md).

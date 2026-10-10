@@ -114,6 +114,19 @@ describe('camera session contract', () => {
 		expect(a).toBe(b)
 	})
 
+	it('stopping an old settled take cannot stop a newer attempt', async () => {
+		const session = createSyntheticCameraSession()
+		await ready(session)
+		const first = session.startRecording()
+		await first.stop()
+		const next = session.startRecording()
+		await settle()
+		await first.stop()
+		expect(next.state).toBe('recording')
+		await next.stop()
+		await session.dispose()
+	})
+
 	it('stop during starting settles once after capture begins', async () => {
 		const session = createSyntheticCameraSession({}, { startDelayMs: 60 })
 		await ready(session)

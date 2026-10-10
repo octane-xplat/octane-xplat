@@ -45,6 +45,10 @@ public final class CameraPreviewView extends FrameLayout implements LifecycleOwn
 		return previewView.getSurfaceProvider();
 	}
 
+	public androidx.lifecycle.LiveData<PreviewView.StreamState> getStreamState() {
+		return previewView.getPreviewStreamState();
+	}
+
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();

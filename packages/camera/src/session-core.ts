@@ -33,6 +33,8 @@ export type BackendSettle =
 			hasAudio: boolean
 			/** Native duration-limit enforcement ended the take. */
 			limitReached?: boolean
+			/** Adapter-driven endings when no earlier app/lifecycle cause exists. */
+			endReason?: MovieEndReason
 			warning?: CaptureIssue
 	  }
 	| {
@@ -45,6 +47,8 @@ export type BackendSettle =
 export interface BackendCaptureSink {
 	/** Native capture actually began; exactly once per settled attempt. */
 	started(config: EffectiveCaptureConfig): void
+	/** Capture has ended; metadata verification and storage still own the attempt. */
+	finishing(reason?: MovieEndReason): void
 	/** Terminal result; exactly once per admitted attempt. */
 	settled(result: BackendSettle): void
 }
@@ -82,9 +86,10 @@ export interface CameraSessionBackend {
 	attachPreview(host: unknown, listener?: BackendPreviewListener): () => void
 	/** Replace configuration while idle; throws CameraCaptureError. */
 	configure?(config: CameraSessionConfig): void
+	/** Synchronous platform-specific admission checks; creates no attempt on failure. */
+	validateStart?(options: StartRecordingOptions): void
 	/** Begin capture for an admitted attempt. Async failures settle via
-	 *  `sink.settled`; a synchronous throw settles as a preparation
-	 *  failure. */
+	 *  `sink.settled`; a synchronous throw settles as a preparation failure. */
 	startCapture(request: BackendCaptureRequest, sink: BackendCaptureSink): void
 	/** Request capture stop; settlement still arrives via the sink. */
 	stopCapture(): void
@@ -441,6 +446,8 @@ export class SharedCameraSession implements CameraSession {
 			)
 		}
 
+		this.backend.validateStart?.(options)
+
 		attemptCounter += 1
 		const id = `take-${Date.now()}-${attemptCounter}`
 		let resolveCompletion!: (outcome: MovieOutcome) => void
@@ -487,15 +494,37 @@ export class SharedCameraSession implements CameraSession {
 						options.maximumDurationMs !== undefined &&
 						capabilities?.durationLimit === 'bestEffort'
 					) {
-						current.limitTimer = setTimeout(() => {
-							this.requestStop('maximumDuration')
-						}, options.maximumDurationMs)
+						const limit = options.maximumDurationMs
+						const checkLimit = () => {
+							if (this.attempt?.id !== id || current.state !== 'recording') {
+								return
+							}
+
+							const remaining = limit - this.backend.elapsedMs()
+							if (remaining > 0) {
+								current.limitTimer = setTimeout(checkLimit, Math.min(remaining, 2_147_483_647))
+							} else {
+								this.requestStop('maximumDuration')
+							}
+						}
+
+						current.limitTimer = setTimeout(checkLimit, Math.min(limit, 2_147_483_647))
 					}
 
 					if (current.stopRequested) {
 						this.requestStop(current.cause ?? 'stopped')
 					}
 				}
+			},
+			finishing: (reason) => {
+				const current = this.attempt
+				if (!current || current.id !== id || current.state === 'settled') {
+					return
+				}
+
+				current.cause ??= reason
+				current.state = 'finalizing'
+				this.setState('finalizing')
 			},
 			settled: (result) => {
 				const current = this.attempt
@@ -508,7 +537,7 @@ export class SharedCameraSession implements CameraSession {
 				}
 
 				current.state = 'settled'
-				const cause = current.cause
+				const cause = current.cause ?? (result.kind === 'clip' ? result.endReason : undefined)
 				const outcome: MovieOutcome =
 					result.kind === 'clip'
 						? {
@@ -584,7 +613,10 @@ export class SharedCameraSession implements CameraSession {
 			},
 			completion,
 			stop: () => {
-				this.requestStop('stopped')
+				if (this.attempt?.id === id) {
+					this.requestStop('stopped')
+				}
+
 				return completion
 			},
 		}

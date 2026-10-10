@@ -54,7 +54,8 @@
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test": "vitest run"
+		"test": "vitest run",
+		"test:web": "node tests/browser-conformance.web.mjs"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
@@ -87,5 +88,8 @@
 			"ios": "7.0.0",
 			"android": "7.0.0"
 		}
+	},
+	"dependencies": {
+		"mediabunny": "1.61.3"
 	}
 }

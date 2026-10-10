@@ -43,6 +43,9 @@ export default defineConfig(({ mode }) => {
 				index: 'src/index.ts',
 				'CameraView.ios': 'src/CameraView.ios.tsrx',
 				'CameraView.android': 'src/CameraView.android.tsrx',
+				'session-backend.ios': 'src/session-backend.ios.ts',
+				'session-backend.android': 'src/session-backend.android.ts',
+				'session-backend': 'src/session-backend.ts',
 			}
 		: { index: 'src/index.web.ts' }
 
@@ -74,6 +77,7 @@ export default defineConfig(({ mode }) => {
 				},
 				external: [
 					/^octane/,
+					/^mediabunny$/,
 					/^@nativescript\//,
 					/^@nativescript-community\//,
 					// Platform-suffixed modules stay extensionless in the

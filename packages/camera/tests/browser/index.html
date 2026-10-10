@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Camera movie conformance</title>
+<button id="permission">Allow camera and microphone</button>
+<video id="preview" autoplay muted playsinline></video>
+<script type="module">
+import { SharedCameraSession } from '../../src/session-core.ts'
+import { createSessionBackend } from '../../src/session-backend.web.ts'
+window.createTestSession = (config = {}) => {
+  const session = new SharedCameraSession(createSessionBackend(config), config)
+  window.session = session
+  window.events = []
+  session.subscribe(event => window.events.push(event))
+  return session
+}
+window.attach = () => {
+  window.detach = window.session.attach(document.querySelector('video'))
+}
+window.createTestSession()
+document.querySelector('button').onclick = async () => {
+  window.permissionResult = undefined
+  window.permissionResult = {
+    camera: await window.session.requestPermission('camera'),
+    microphone: await window.session.requestPermission('microphone'),
+  }
+}
+window.serialize = outcome => outcome.kind === 'failed' ? { ...outcome, error: { kind: outcome.error.kind, message: outcome.error.message, operation: outcome.error.operation, cause: String(outcome.error.cause) } } : outcome
+window.testReady = true
+</script>
+</html>

@@ -40,6 +40,7 @@ Workflows:
 - [Pick and capture images](pick-and-capture-images.md)
 - [Build a chat conversation](chat-conversation.md)
 - [Show a live camera preview](camera-preview.md)
+- [Record and reopen a camera movie](camera-movie.md)
 - [Use platform-specific implementations from shared code](platform-leaves.md)
 - [Open a screen from an incoming link](incoming-links.md)
 - [Sign in with a passkey or hosted auth ceremony](passkey-sign-in.md)

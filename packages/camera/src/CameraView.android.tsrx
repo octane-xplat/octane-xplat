@@ -4,6 +4,7 @@ import { Application, View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import type { CameraViewProps } from './props'
+import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
 import { cx } from './cx.mobile'
@@ -45,15 +46,22 @@ export function CameraView(props: CameraViewProps) @{
 
 		const fail = (message: string) => props.onError?.({ message })
 		if (props.session) {
-			// Session-backed previews arrive with the Android capture
-			// adapter; owning a second session would break the shared model.
-			fail(
-				props.facing !== undefined
-					? 'camera session conflicts with facing'
-					: 'camera sessions are not supported on this platform yet',
-			)
+			if (props.facing !== undefined) {
+				fail('camera session conflicts with facing')
+				return () => nativeView.setCameraActive(false)
+			}
 
-			return () => nativeView.setCameraActive(false)
+			try {
+				const detach = attachSessionPreview(props.session, nativeView, {
+					onReady: props.onReady,
+					onError: (issue) => fail(issue.message),
+				})
+
+				return () => { detach(); nativeView.setCameraActive(false) }
+			} catch (error: any) {
+				fail(error?.message ?? 'camera session error')
+				return () => nativeView.setCameraActive(false)
+			}
 		}
 
 		if (!cameraHardwarePresent()) {

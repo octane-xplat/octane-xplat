@@ -1,5 +1,6 @@
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
+import { attachSessionPreview } from './session'
 import { applyEscapeProps, layoutChildProps } from './layout-child.web'
 
 /** Live web preview backed by getUserMedia. */
@@ -14,16 +15,20 @@ export function CameraView(props: CameraViewProps) @{
 		const element = video.current
 		if (!element || !active) return
 		if (props.session) {
-			// Session-backed previews arrive with the web capture adapter;
-			// owning a second stream would break the shared-session model.
-			props.onError?.({
-				message:
-					props.facing !== undefined
-						? 'camera session conflicts with facing'
-						: 'camera sessions are not supported on this platform yet',
-			})
+			if (props.facing !== undefined) {
+				props.onError?.({ message: 'camera session conflicts with facing' })
+				return
+			}
 
-			return
+			try {
+				return attachSessionPreview(props.session, element, {
+					onReady: props.onReady,
+					onError: (issue) => props.onError?.({ message: issue.message }),
+				})
+			} catch (error: any) {
+				props.onError?.({ message: error?.message ?? 'camera session error' })
+				return
+			}
 		}
 
 		const mediaDevices = navigator.mediaDevices
@@ -106,7 +111,7 @@ export function CameraView(props: CameraViewProps) @{
 					transform: facing === 'front' ? 'scaleX(-1)' : undefined,
 				}}
 				onPlaying={() => {
-					if (readyFired.current) return
+					if (props.session || readyFired.current) return
 					readyFired.current = true
 					props.onReady?.()
 				}}
