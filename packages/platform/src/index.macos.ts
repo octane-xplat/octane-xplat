@@ -3,8 +3,6 @@ import type {
 	AppInfo,
 	AppState,
 	Capability,
-	ConnectivityImpl,
-	ConnectivityState,
 	DeviceInfo,
 	Insets,
 	Locale,
@@ -91,17 +89,7 @@ export const appInfo: AppInfo = {
 
 export const locale: Locale = { tag: language, language: languageTag, region }
 
-export const connectivity: ConnectivityImpl = {
-	getState(): ConnectivityState {
-		return { supported: false, online: false, type: 'unknown' }
-	},
-	subscribe(listener) {
-		console.warn('[octane-xplat] Connectivity status is unsupported by the AppKit host.')
-		return () => {
-			void listener
-		}
-	},
-}
+export { connectivity } from './connectivity.macos'
 
 const hostStorage = new Map<string, string>()
 

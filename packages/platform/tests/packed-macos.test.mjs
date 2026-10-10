@@ -9,7 +9,7 @@ import ts from 'typescript'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-test('packed macOS consumer resolves generated declarations and the announce contract', () => {
+test('packed macOS consumer resolves generated declarations and platform contracts', () => {
 	const directory = mkdtempSync(join(tmpdir(), 'xplat-announce-consumer-'))
 	const run = (command, args, cwd) => {
 		const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 120_000 })
@@ -24,10 +24,23 @@ test('packed macOS consumer resolves generated declarations and the announce con
 	run('tar', ['-xzf', tarball, '--strip-components=1', '-C', modules], directory)
 	const manifest = JSON.parse(readFileSync(join(modules, 'package.json'), 'utf8'))
 	assert.equal(manifest.exports['.'].macos.types, './types/generated/macos/index.macos.d.ts')
+	assert.match(
+		readFileSync(join(modules, 'platforms/macos/include/XplatConnectivity.h'), 'utf8'),
+		/readState/,
+	)
+
+	assert.match(
+		readFileSync(join(modules, 'platforms/macos/src/XplatConnectivity.m'), 'utf8'),
+		/nw_path_monitor_start/,
+	)
+
 	const entry = join(directory, 'consumer.ts')
 	writeFileSync(
 		entry,
-		`import { announce, random } from '@octane-xplat/platform'
+		`import { announce, random, connectivity, type ConnectivityState } from '@octane-xplat/platform'
+const state: ConnectivityState = connectivity.getState()
+const stop: () => void = connectivity.subscribe((next) => console.log(next.online, next.type))
+stop()
 const fn: (text: string) => void = announce
 const result: void = fn('Saved ✓')
 // @ts-expect-error only string messages are accepted

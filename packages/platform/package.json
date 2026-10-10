@@ -137,6 +137,7 @@
 	},
 	"scripts": {
 		"test": "node --test tests/*.test.mjs",
+		"test:connectivity:macos": "node tests/verify-connectivity-macos.mjs",
 		"typegen": "node scripts/typegen-macos.mjs",
 		"prepack": "pnpm build",
 		"build": "vite build && vite build --mode native && vite build --mode linux && pnpm typegen && node ../../scripts/check-native-dist.mjs",
@@ -177,6 +178,14 @@
 		"platforms": {
 			"android": "9.1.0",
 			"ios": "9.1.0"
+		}
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"Foundation",
+				"Network"
+			]
 		}
 	}
 }
