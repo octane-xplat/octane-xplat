@@ -67,8 +67,9 @@ export function Recorder() {
 ```
 
 A take settles after the movie is finalized, metadata is verified, and local
-storage is committed. Native output lives in app-private files; Web uses
-persistent origin storage. Reopen it with `session.openOutput(output)`.
+storage is committed. Native output lives in app-private files — including the
+packaged Linux WebKitGTK host, which writes under the app's data directory;
+Web uses persistent origin storage. Reopen it with `session.openOutput(output)`.
 
 ```ts
 const take = session.startRecording({ maximumDurationMs: 30_000 })
@@ -83,14 +84,16 @@ if (outcome.kind === 'clip') {
 One preview and one recording per session; a second `startRecording` throws
 `CameraCaptureError` with `kind: 'busy'`. Check `session.capabilities()` for
 `supported`/`available` before presenting capture UI, and `session.snapshot()`
-or `session.subscribe` for state. iOS, Android, Web, macOS, and the Windows
-WinUI target have recording adapters; Web requires persistent origin storage.
+or `session.subscribe` for state. iOS, Android, Web, macOS, the Windows WinUI
+target, and the packaged Linux WebKitGTK host have recording adapters; Web
+requires persistent origin storage.
 macOS writes app-private MOV files through `AVCaptureMovieFileOutput` and
 reports finalized track metadata; on macOS 14+ the four cardinal orientations
 are lockable. Inside a qualified `xplat` WKWebView host the Web backend stores
 output in the app's private storage root instead of IndexedDB. Windows records
 through `MediaCapture` into app-private MP4 files and is pending real-host
-qualification. Linux adapters remain unfinished.
+qualification. On Linux the GJS/WebKitGTK host owns media permissions and
+writes MP4 clips under the app's data directory.
 See [Record and reopen a camera movie](../../docs/app/movie-capture.md) for
 explicit permission actions, audio, local output, and qualification limits.
 

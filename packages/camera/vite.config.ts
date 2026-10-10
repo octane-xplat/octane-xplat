@@ -36,8 +36,28 @@ const WEB_EXTS = [
 	'.json',
 ]
 
+// The Linux WebKitGTK target resolves .linux → .web → unsuffixed, sharing the
+// DOM entry while its own adapter leaves win.
+const LINUX_EXTS = [
+	'.linux.tsrx',
+	'.web.tsrx',
+	'.tsrx',
+	'.linux.tsx',
+	'.web.tsx',
+	'.tsx',
+	'.linux.ts',
+	'.web.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
+]
+
 export default defineConfig(({ mode }) => {
 	const native = mode === 'native'
+	const linux = mode === 'linux'
 	const entry: Record<string, string> = native
 		? {
 				index: 'src/index.ts',
@@ -65,7 +85,7 @@ export default defineConfig(({ mode }) => {
 				entry,
 				formats: ['es'],
 			},
-			outDir: native ? 'dist/native' : 'dist/web',
+			outDir: native ? 'dist/native' : linux ? 'dist/linux' : 'dist/web',
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
@@ -82,6 +102,9 @@ export default defineConfig(({ mode }) => {
 					/^mediabunny$/,
 					/^@nativescript\//,
 					/^@nativescript-community\//,
+					// The desktop host bridge ships in the platform package — the
+					// consumer's own @octane-xplat/platform supplies it at runtime.
+					/^@octane-xplat\/platform/,
 					// Platform-suffixed modules stay extensionless in the
 					// native build so the app's resolver picks the right
 					// variant per target. Web resolves them normally.
@@ -90,8 +113,8 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		resolve: {
-			conditions: [native ? 'native' : 'web'],
-			extensions: native ? NATIVE_EXTS : WEB_EXTS,
+			conditions: native ? ['native'] : linux ? ['linux', 'web'] : ['web'],
+			extensions: native ? NATIVE_EXTS : linux ? LINUX_EXTS : WEB_EXTS,
 		},
 	}
 })

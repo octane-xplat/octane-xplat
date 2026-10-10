@@ -83,6 +83,12 @@ const MIMES = {
 	'.wasm': 'application/wasm',
 	'.map': 'application/json',
 	'.txt': 'text/plain',
+	'.mp4': 'video/mp4',
+	'.m4v': 'video/mp4',
+	'.webm': 'video/webm',
+	'.mov': 'video/quicktime',
+	'.m4a': 'audio/mp4',
+	'.ogg': 'audio/ogg',
 }
 
 function serveBundle(webContext) {
@@ -91,6 +97,29 @@ function serveBundle(webContext) {
 	}
 
 	webContext.register_uri_scheme(appSettings.scheme, (request) => {
+		// Host-managed movies play back same-origin without a bridge
+		// round-trip; unlike app routes, this prefix never falls back to
+		// index.html — a missing movie is a real miss.
+		if (request.get_path().startsWith('/-/media/')) {
+			const file = GLib.build_filenamev([
+				mediaDir(),
+				GLib.path_get_basename(request.get_path()),
+			])
+
+			try {
+				const f = Gio.File.new_for_path(file)
+				const info = f.query_info('standard::size', Gio.FileQueryInfoFlags.NONE, null)
+				const ext = file.slice(file.lastIndexOf('.')).toLowerCase()
+				request.finish(f.read(null), info.get_size(), MIMES[ext] ?? 'video/mp4')
+			} catch (e) {
+				request.finish_error(
+					new GLib.Error(Gio.IOErrorEnum.quark(), Gio.IOErrorEnum.NOT_FOUND, e.message),
+				)
+			}
+
+			return
+		}
+
 		// SPA fallback: unknown paths serve index.html; '..' never escapes.
 		let path = request.get_path().replace(/\/+$/, '') || '/index.html'
 		let file = GLib.build_filenamev([bundleDir, '.' + GLib.canonicalize_filename(path, '/')])
@@ -237,6 +266,16 @@ const hostCapabilities = {
 	windows: ['open', 'close', 'setTitle'],
 	system: ['openUrl', 'openPath'],
 	storage: ['get', 'set', 'remove'],
+	camera: [
+		'permissionStatus',
+		'requestPermission',
+		'movieDirectory',
+		'reserveMoviePath',
+		'writeMovieFile',
+		'movieFileInfo',
+		'readMovieFile',
+		'deleteMovieFile',
+	],
 }
 
 const appInfo = () => ({
@@ -274,6 +313,310 @@ const appStateFor = (targetWindow) =>
 
 const storagePath = () =>
 	GLib.build_filenamev([GLib.get_user_config_dir(), appSettings.applicationId, 'storage.json'])
+
+// --- media capture: permission store + app-private movie files ---
+// getUserMedia surfaces through the webview's permission-request signal as a
+// WebKitUserMediaPermissionRequest — the host is the deciding authority on an
+// unsandboxed Linux install (no OS-level camera gate outside Flatpak portals).
+// Decisions persist per capture kind so checkPermission can answer without
+// prompting. XPLAT_MEDIA_POLICY=allow|deny overrides the interactive prompt
+// for harnesses; XPLAT_CAMERA_MOCK=1 swaps real devices for WebKit's mock
+// capture devices (deterministic source on camera-less hosts).
+const mediaDir = () =>
+	GLib.build_filenamev([GLib.get_user_data_dir(), appSettings.applicationId, 'media'])
+
+const mediaPermissionsPath = () =>
+	GLib.build_filenamev([
+		GLib.get_user_config_dir(),
+		appSettings.applicationId,
+		'media-permissions.json',
+	])
+
+const readMediaGrants = () => {
+	try {
+		const [ok, bytes] = GLib.file_get_contents(mediaPermissionsPath())
+		return ok ? JSON.parse(imports.byteArray.toString(bytes)) : {}
+	} catch {
+		return {}
+	}
+}
+
+const writeMediaGrants = (grants) => {
+	const file = mediaPermissionsPath()
+	GLib.mkdir_with_parents(GLib.path_get_dirname(file), 0o700)
+	GLib.file_set_contents(file, JSON.stringify(grants))
+}
+
+const mediaPolicy = () => {
+	const value = GLib.getenv('XPLAT_MEDIA_POLICY')
+	return value === 'allow' || value === 'deny' ? value : 'prompt'
+}
+
+// Status vocabulary matches the desktop camera contract — 'restricted' marks
+// a policy refusal the user cannot override in this process (XPLAT_MEDIA_POLICY=deny).
+const mediaPermissionStatus = (kind) => {
+	const policy = mediaPolicy()
+	if (policy === 'deny') {
+		return 'restricted'
+	}
+
+	if (policy === 'allow') {
+		return 'granted'
+	}
+
+	const value = readMediaGrants()[kind]
+	return value === 'granted' || value === 'denied' ? value : 'notDetermined'
+}
+
+// Explicit app action: answer from the persisted grant when one exists,
+// otherwise follow the env policy or raise the interactive GTK dialog and
+// remember the choice. Replies asynchronously — the bridge tolerates a late
+// reply.
+const mediaRequestPermission = (kind, wv, done) => {
+	const status = mediaPermissionStatus(kind)
+	if (status !== 'notDetermined') {
+		done(status)
+		return
+	}
+
+	const policy = mediaPolicy()
+	if (policy === 'deny') {
+		done('restricted')
+		return
+	}
+
+	if (policy === 'allow') {
+		done('granted')
+		return
+	}
+
+	const dialog = new Gtk.AlertDialog({
+		message: `Allow ${kind} access?`,
+		detail: `${appSettings.productName} is requesting access to your ${kind}. The decision is remembered for this app.`,
+		buttons: ['Deny', 'Allow'],
+		cancel_button: 0,
+		default_button: 1,
+	})
+
+	dialog.choose(winFor(wv) ?? win, null, (d, res) => {
+		let allowed = false
+		try {
+			allowed = d.choose_finish(res) === 1
+		} catch {}
+
+		const next = readMediaGrants()
+		next[kind] = allowed ? 'granted' : 'denied'
+		writeMediaGrants(next)
+		done(next[kind])
+	})
+}
+
+// App-private data root — mirrors the macOS host's Application Support root.
+const appPrivateRoot = () =>
+	GLib.build_filenamev([GLib.get_user_data_dir(), appSettings.applicationId])
+
+const uriToPath = (uri) => {
+	const value = String(uri)
+	if (value.startsWith('/')) {
+		return value
+	}
+
+	const path = Gio.File.new_for_uri(value).get_path()
+	return path || null
+}
+
+const pathInsidePrivateRoot = (uri) => {
+	const path = uriToPath(uri)
+	if (!path) {
+		return null
+	}
+
+	const root = `${appPrivateRoot()}/`
+	return path === appPrivateRoot() || path.startsWith(root) ? path : null
+}
+
+const movieDirectory = () => {
+	const dir = mediaDir()
+	GLib.mkdir_with_parents(dir, 0o700)
+	return Gio.File.new_for_path(dir).get_uri()
+}
+
+const reserveMoviePath = (options) => {
+	// The app-private root always exists on demand so a destination directly
+	// under it validates; deeper parents must already exist.
+	GLib.mkdir_with_parents(appPrivateRoot(), 0o700)
+
+	if (options.fileUrl) {
+		const target = pathInsidePrivateRoot(String(options.fileUrl))
+		if (!target) {
+			return null
+		}
+
+		const file = Gio.File.new_for_path(target)
+		const parent = file.get_parent()
+		if (file.query_exists(null) || !parent || !parent.query_exists(null)) {
+			return null
+		}
+
+		return { fileUrl: file.get_uri() }
+	}
+
+	const suffix = String(options.container ?? '').toLowerCase()
+	const ext = ['mp4', 'mov', 'webm'].includes(suffix) ? suffix : 'mp4'
+	const name = `clip-${Date.now()}-${GLib.uuid_string_random().slice(0, 8)}.${ext}`
+	movieDirectory()
+	const file = Gio.File.new_for_path(mediaDir())
+	return { fileUrl: file.get_child(name).get_uri() }
+}
+
+const writeMovieFile = (options) => {
+	const target = pathInsidePrivateRoot(String(options.fileUrl ?? ''))
+	if (!target) {
+		return null
+	}
+
+	const bytes = GLib.base64_decode(String(options.base64 ?? ''))
+	const file = Gio.File.new_for_path(target)
+	const parent = file.get_parent()
+	if (!parent || file.query_exists(null)) {
+		return null
+	}
+
+	try {
+		const free = parent
+			.query_filesystem_info(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE, null)
+			.get_attribute_uint64(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+
+		if (free < bytes.length + 1_048_576) {
+			return null
+		}
+	} catch {
+		return null
+	}
+
+	// Write-then-move keeps partial files out of the output name;
+	// FileCopyFlags.NONE makes the move refuse an existing target.
+	const tmpPath = `${target}.tmp-${GLib.uuid_string_random().slice(0, 8)}`
+	GLib.file_set_contents(tmpPath, bytes)
+	try {
+		Gio.File.new_for_path(tmpPath).move(file, Gio.FileCopyFlags.NONE, null, null)
+	} catch {
+		Gio.File.new_for_path(tmpPath).delete(null)
+		return null
+	}
+
+	return { name: GLib.path_get_basename(target), uri: file.get_uri() }
+}
+
+const movieFileInfo = (uri) => {
+	const target = pathInsidePrivateRoot(uri)
+	if (!target) {
+		return null
+	}
+
+	const file = Gio.File.new_for_path(target)
+	if (!file.query_exists(null)) {
+		return { exists: false }
+	}
+
+	const info = file.query_info('standard::size', Gio.FileQueryInfoFlags.NONE, null)
+	return { exists: true, fileUrl: file.get_uri(), size: info.get_size() }
+}
+
+const readMovieFile = (uri) => {
+	const target = pathInsidePrivateRoot(uri)
+	if (!target) {
+		return null
+	}
+
+	const [ok, bytes] = GLib.file_get_contents(target)
+	return ok ? GLib.base64_encode(bytes) : null
+}
+
+const deleteMovieFile = (uri) => {
+	const target = pathInsidePrivateRoot(uri)
+	if (!target) {
+		return false
+	}
+
+	const file = Gio.File.new_for_path(target)
+	if (!file.query_exists(null)) {
+		return true
+	}
+
+	try {
+		return file.delete(null)
+	} catch {
+		return false
+	}
+}
+
+function decideUserMedia(wv, request) {
+	const required = []
+	if (WebKit.user_media_permission_is_for_video_device(request)) {
+		required.push('camera')
+	}
+
+	if (WebKit.user_media_permission_is_for_audio_device(request)) {
+		required.push('microphone')
+	}
+
+	const grants = readMediaGrants()
+	// An explicit denial is a durable user decision — deny without reprompting.
+	if (required.some((kind) => grants[kind] === 'denied')) {
+		request.deny()
+		return true
+	}
+
+	const missing = required.filter((kind) => grants[kind] !== 'granted')
+	if (!missing.length) {
+		request.allow()
+		return true
+	}
+
+	const policy = mediaPolicy()
+	if (policy === 'deny') {
+		request.deny()
+		return true
+	}
+
+	if (policy === 'allow') {
+		// Test-seam decisions stay in memory — persisted grants belong to
+		// interactive choices.
+		request.allow()
+		return true
+	}
+
+	const names = missing.join(' and ')
+	const dialog = new Gtk.AlertDialog({
+		message: `Allow ${names} access?`,
+		detail: `${appSettings.productName} is requesting access to your ${names}. The decision is remembered for this app.`,
+		buttons: ['Deny', 'Allow'],
+		cancel_button: 0,
+		default_button: 1,
+	})
+
+	dialog.choose(winFor(wv) ?? win, null, (d, res) => {
+		let allowed = false
+		try {
+			allowed = d.choose_finish(res) === 1
+		} catch {}
+
+		const next = readMediaGrants()
+		for (const kind of missing) {
+			next[kind] = allowed ? 'granted' : 'denied'
+		}
+
+		writeMediaGrants(next)
+		if (allowed) {
+			request.allow()
+		} else {
+			request.deny()
+		}
+	})
+
+	return true
+}
 
 const readStorage = () => {
 	try {
@@ -486,6 +829,54 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 			return
 		}
 
+		if (service === 'camera') {
+			// Shared desktop contract — packages/camera/src/host-movie.web.ts on
+			// the page side, XplatWebViewHost.swift on macOS. All movie paths are
+			// confined to the app-private data root; nothing overwrites.
+			const options = args[0] ?? {}
+
+			if (method === 'permissionStatus') {
+				reply({ status: mediaPermissionStatus(String(options.kind)) })
+				return
+			}
+
+			if (method === 'requestPermission') {
+				mediaRequestPermission(String(options.kind), wv, (status) => reply({ status }))
+				return
+			}
+
+			if (method === 'movieDirectory') {
+				reply({ fileUrl: movieDirectory() })
+				return
+			}
+
+			if (method === 'reserveMoviePath') {
+				reply({ reservation: reserveMoviePath(options) })
+				return
+			}
+
+			if (method === 'writeMovieFile') {
+				reply({ file: writeMovieFile(options) })
+				return
+			}
+
+			if (method === 'movieFileInfo') {
+				reply({ info: movieFileInfo(String(options.fileUrl ?? '')) })
+				return
+			}
+
+			if (method === 'readMovieFile') {
+				reply({ base64: readMovieFile(String(options.fileUrl ?? '')) })
+				return
+			}
+
+			if (method === 'deleteMovieFile') {
+				reply({ removed: deleteMovieFile(String(options.fileUrl ?? '')) })
+				return
+			}
+		}
+
+
 		if (service === 'files') {
 			if (method === 'readText') {
 				const [ok, bytes] = Gio.File.new_for_uri(String(args[0])).load_contents(null)
@@ -633,6 +1024,34 @@ function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = 
 			selfTestExit = result.failed.length === 0 ? 0 : 1
 			app.quit()
 		}
+	})
+
+	// getUserMedia needs the media-stream feature; the mock capture flag is a
+	// deterministic device source for camera-less hosts and harnesses — real
+	// devices remain the default for packaged apps.
+	const wvSettings = wv.get_settings()
+	wvSettings.set_enable_media_stream(true)
+	if (GLib.getenv('XPLAT_CAMERA_MOCK') === '1') {
+		wvSettings.set_enable_mock_capture_devices(true)
+	}
+
+	wv.connect('permission-request', (_w, request) => {
+		if (request instanceof WebKit.UserMediaPermissionRequest) {
+			return decideUserMedia(wv, request)
+		}
+
+		if (request instanceof WebKit.DeviceInfoPermissionRequest) {
+			const grants = readMediaGrants()
+			if (grants.camera === 'granted' || grants.microphone === 'granted') {
+				request.allow()
+			} else {
+				request.deny()
+			}
+
+			return true
+		}
+
+		return false
 	})
 
 	const initialUrl = consumeInitial ? (linkQueue.shift() ?? pendingInitialUrl) : null

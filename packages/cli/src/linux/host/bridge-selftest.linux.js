@@ -78,6 +78,21 @@
 			storage: ['get', 'set', 'remove'],
 		}
 
+		// The camera service is implemented by the Linux GJS host; when a host
+		// reports it, the declared methods must be complete.
+		if (caps.camera) {
+			expected.camera = [
+				'permissionStatus',
+				'requestPermission',
+				'movieDirectory',
+				'reserveMoviePath',
+				'writeMovieFile',
+				'movieFileInfo',
+				'readMovieFile',
+				'deleteMovieFile',
+			]
+		}
+
 		return Object.entries(expected).every(([service, methods]) =>
 			methods.every((method) => caps[service]?.includes(method)),
 		)
@@ -123,6 +138,63 @@
 	await run('notifications.notify', () => call('notifications', 'notify', ['title', 'body']))
 	await run('appearance.get', () => call('appearance', 'get', []))
 	await run('files.readText', () => call('files', 'readText', ['file:///etc/hosts']))
+
+	// camera movie storage: reserve, write, info, read-back, delete — the
+	// shared desktop contract also served by the macOS WKWebView host.
+	// Only runs on hosts that advertise the service (Linux today).
+	const capsForCamera = await window.__xplatBridge.capabilities()
+	if (capsForCamera.camera?.includes('writeMovieFile')) {
+		await run('camera.permissionStatus', async () => {
+			const { status } = await call('camera', 'permissionStatus', [{ kind: 'camera' }])
+			return ['notDetermined', 'granted', 'denied', 'restricted', 'unknown'].includes(status)
+		})
+
+		let movieFileUrl = null
+		await run('camera.writeMovieFile', async () => {
+			const { reservation } = await call('camera', 'reserveMoviePath', [
+				{ container: 'mp4' },
+			])
+
+			const { file } = await call('camera', 'writeMovieFile', [
+				{ fileUrl: reservation.fileUrl, base64: btoa('movie-bytes') },
+			])
+
+			if (!file?.uri?.startsWith('file://')) {
+				throw new Error('unexpected write result: ' + JSON.stringify(file))
+			}
+
+			movieFileUrl = file.uri
+			return file.uri
+		})
+
+		await run('camera.movieFileInfo', async () => {
+			const { info } = await call('camera', 'movieFileInfo', [{ fileUrl: movieFileUrl }])
+			return info?.exists && info.size === 11
+		})
+
+		await run('camera.readMovieFile', async () => {
+			const { base64 } = await call('camera', 'readMovieFile', [{ fileUrl: movieFileUrl }])
+			return atob(base64) === 'movie-bytes'
+		})
+
+		await run('camera.noOverwrite', async () => {
+			const { file } = await call('camera', 'writeMovieFile', [
+				{ fileUrl: movieFileUrl, base64: btoa('x') },
+			])
+
+			return file === null
+		})
+
+		await run('camera.privateRoot', async () => {
+			const { info } = await call('camera', 'movieFileInfo', [{ fileUrl: 'file:///etc/passwd' }])
+			return info === null
+		})
+
+		await run('camera.deleteMovieFile', async () => {
+			await call('camera', 'deleteMovieFile', [{ fileUrl: movieFileUrl }])
+			return !(await call('camera', 'movieFileInfo', [{ fileUrl: movieFileUrl }])).info.exists
+		})
+	}
 
 	// windows.open → real window+webview; windows.close → host emits
 	// windows.closed back to the opener.

@@ -116,6 +116,11 @@ sudo apt install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 \
 pnpm exec xplat doctor
 ```
 
+Camera capture additionally needs GStreamer encoder plugins — `video/mp4`
+requires `gstreamer1.0-plugins-ugly`, `gstreamer1.0-libav`, and
+`gstreamer1.0-plugins-bad` (H.264/AAC encoders and parsers). `video/webm`
+recording needs GStreamer ≥ 1.24.9, which Ubuntu 24.04 does not ship.
+
 Execution requires Linux, GTK 4.10 or later, libadwaita, WebKitGTK's `6.0`
 introspection API, libsecret, a graphical X11/Wayland session, and a session
 D-Bus. Doctor checks the target configuration and archive tool; on Linux it

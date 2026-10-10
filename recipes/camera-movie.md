@@ -30,7 +30,7 @@ its real-host qualification remains open alongside the desktop gaps below.
 
 ## Documentation
 
-- AC1: [Permission and preview setup](../docs/app/movie-capture.md#ask-for-access-from-a-button). Gap: Linux permission and persistence setup remains unfinished; Windows prompts await a real host.
-- AC2: [Recording and completion](../docs/app/movie-capture.md#record-then-wait-for-the-finished-movie). Gap: macOS capture, interruption, and lifecycle proof require a camera-equipped host; Windows runtime conformance awaits a real host; Linux remains unfinished.
+- AC1: [Permission and preview setup](../docs/app/movie-capture.md#ask-for-access-from-a-button). Gap: The interactive Linux GTK prompt is unqualified under a compositor; Windows prompts await a real host.
+- AC2: [Recording and completion](../docs/app/movie-capture.md#record-then-wait-for-the-finished-movie). Gap: macOS capture, interruption, and lifecycle proof require a camera-equipped host; Windows runtime conformance awaits a real host; Linux is qualified on WebKitGTK mock devices — physical camera/audio hardware remains unproven.
 - AC3: [Reopening saved output](../docs/app/movie-capture.md#reopen-for-playback). Gap: Native player playback after restart and browser persistence approval remain unqualified on every desktop; macOS and Windows reopen-after-restart proofs require hardware hosts.
-- AC4: [Camera selection and orientation](../docs/app/movie-capture.md#camera-selection-and-orientation). Gap: Fixed Android/Web orientation, physical-device rotation, MP4-only browser hosts, macOS 13 orientation, Windows real-host capabilities, and Linux support remain unqualified.
+- AC4: [Camera selection and orientation](../docs/app/movie-capture.md#camera-selection-and-orientation). Gap: Fixed Android/Web orientation, physical-device rotation, MP4-only browser hosts, macOS 13 orientation, Windows real-host capabilities, and physical Linux camera selection remain unqualified.

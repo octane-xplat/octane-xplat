@@ -110,3 +110,25 @@ apps/linux/host/run.sh --self-test  # build + launch + bridge round-trip check
 
 Host-side services on real Linux are mostly D-Bus (org.freedesktop.\*,
 xdg-desktop-portal) plus GDK/libsecret — no JS↔native binding layer needed.
+
+## Media capture
+
+`getUserMedia` surfaces through the webview `permission-request` signal as a
+`WebKitUserMediaPermissionRequest`; the host is the deciding authority because
+a non-Flatpak Linux install has no OS-level camera gate. Interactive decisions
+get a GTK dialog and persist in
+`~/.config/<applicationId>/media-permissions.json`. Environment overrides:
+
+- `XPLAT_MEDIA_POLICY=allow|deny|prompt` — skip or force the interactive
+  prompt (default `prompt`; overrides are per-process, only interactive
+  decisions persist).
+- `XPLAT_CAMERA_MOCK=1` — WebKit's mock capture devices, deterministic input
+  for camera-less hosts and harnesses.
+
+Recorded movies commit under `~/.local/share/<applicationId>/media/` and play
+back same-origin through the `/-/media/<name>` scheme route, which never falls
+back to `index.html`. Container support follows the installed GStreamer
+plugins: `video/mp4` needs H.264/AAC encoders and parsers
+(`gstreamer1.0-plugins-ugly`, `gstreamer1.0-libav`,
+`gstreamer1.0-plugins-bad`); `video/webm` additionally needs GStreamer
+≥ 1.24.9, so Ubuntu 24.04 ships MP4-only.
