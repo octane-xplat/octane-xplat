@@ -110,11 +110,11 @@
 		"build": "node ../../scripts/sync-ui-barrels.mjs --check && vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"test:native": "node --test tests/animated-value.test.mjs tests/tap-to-blur.ios.test.mjs tests/bottom-sheet-service.macos.test.mjs tests/color-scheme.macos.test.mjs && vitest run --config vitest.native.config.mts",
+		"test:native": "node --test tests/animated-value.test.mjs tests/tap-to-blur.ios.test.mjs tests/bottom-sheet-service.macos.test.mjs tests/color-scheme.macos.test.mjs tests/query-storage.macos.test.mjs && vitest run --config vitest.native.config.mts",
 		"typegen": "tsrx-typegen --target ui",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:layer:web": "node --test tests/layer-position.web.mjs",
-		"test:macos": "node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only"
+		"test:macos": "node --test tests/query-storage.macos.test.mjs && node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

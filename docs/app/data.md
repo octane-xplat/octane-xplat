@@ -658,7 +658,8 @@ export const user$ = cachedQuery$(
 ```
 
 `platformQueryStorage` is the built-in adapter — `localStorage` on web,
-NativeScript `ApplicationSettings` on iOS/Android — fine for bounded JSON
+NativeScript `ApplicationSettings` on iOS/Android, and `NSUserDefaults`
+through the AppKit host bridge on macOS — fine for bounded JSON
 snapshots. Any object with `get`/`set`/`remove` works as a
 `QueryStorageAdapter`, so a web app can swap in an idb-keyval-style async
 store and a native app can use a file-backed or secure store:

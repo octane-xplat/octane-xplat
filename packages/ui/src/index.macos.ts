@@ -304,11 +304,37 @@ export {
 } from './route.macos'
 
 export { RouteBoundary } from './RouteBoundary.macos.tsrx'
+export { useBackInterceptor } from './use-back.tsrx'
 
-export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-table'
+export {
+	deriveRouteManifest,
+	defineRoutes,
+	mergeRouteManifests,
+	manifestToJson,
+} from './route-table'
+
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './useStore.macos.tsrx'
+
+// Shared keyed query cache over octane/signals query$ — the same portable
+// contract as mobile; AppKit persistence uses the host defaults bridge.
+export {
+	cachedQuery$,
+	invalidateQueries,
+	clearQueryCache,
+	createMemoryQueryStorage,
+} from './query-cache'
+
+export { platformQueryStorage } from './query-storage.macos'
+export type {
+	QueryKey,
+	QueryKeyPart,
+	QueryStorageAdapter,
+	QueryPersistence,
+	CachedQueryOptions,
+} from './query-cache'
+
 export { openBottomSheet, closeBottomSheet, bottomSheetHost } from './bottom-sheet-service.macos'
 
 export { Blockquote } from './Blockquote.macos.tsrx'

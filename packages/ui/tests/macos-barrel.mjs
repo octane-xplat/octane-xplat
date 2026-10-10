@@ -36,7 +36,19 @@ export async function buildMacOSBarrel(
 	)
 
 	assert.ok(chunk, 'normal UI barrel emits an AppKit fixture')
-	assert.ok(chunk.exports.includes('useLayer'), 'fixture retains the public layer API')
+	for (const name of [
+		'useLayer',
+		'useBackInterceptor',
+		'manifestToJson',
+		'cachedQuery$',
+		'invalidateQueries',
+		'clearQueryCache',
+		'createMemoryQueryStorage',
+		'platformQueryStorage',
+	]) {
+		assert.ok(chunk.exports.includes(name), `fixture retains the public ${name} API`)
+	}
+
 	return chunk.exports
 }
 
