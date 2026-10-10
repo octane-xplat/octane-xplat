@@ -22,7 +22,8 @@
 		"directory": "packages/geolocation"
 	},
 	"files": [
-		"src"
+		"src",
+		"platforms"
 	],
 	"type": "module",
 	"exports": {
@@ -36,7 +37,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test": "node --experimental-strip-types --test tests/geolocation.macos.test.ts",
+		"test:macos": "node tests/verify-macos.mjs && node tests/verify-host.mjs"
 	},
 	"dependencies": {
 		"@nativescript/geolocation": "9.0.0"
@@ -63,6 +66,14 @@
 		"platforms": {
 			"android": "9.1.0",
 			"ios": "9.1.0"
+		}
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"Foundation",
+				"CoreLocation"
+			]
 		}
 	}
 }
