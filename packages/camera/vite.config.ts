@@ -72,7 +72,15 @@ export default defineConfig(({ mode }) => {
 					// second octane runtime. Exact match only.
 					...(native ? { paths: (id) => (id === 'octane' ? 'octane/universal/native' : id) } : {}),
 				},
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^\.\/CameraView$/],
+				external: [
+					/^octane/,
+					/^@nativescript\//,
+					/^@nativescript-community\//,
+					// Platform-suffixed modules stay extensionless in the
+					// native build so the app's resolver picks the right
+					// variant per target. Web resolves them normally.
+					...(native ? [/^\.\/CameraView$/, /^\.\/session-backend$/] : []),
+				],
 			},
 		},
 		resolve: {

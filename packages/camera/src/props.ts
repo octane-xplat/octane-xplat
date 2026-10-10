@@ -1,4 +1,5 @@
 import type { Octane } from 'octane/jsx-runtime'
+import type { CameraSession } from './types'
 
 export type CameraAccessibilityRole =
 	| 'button'
@@ -48,7 +49,11 @@ export interface CameraViewProps {
 		checked?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
-	/** Lens — defaults to the rear camera. */
+	/** Shared camera owner enabling movie recording. When set, the preview
+	 *  attaches to the session's acquisition instead of owning one, and
+	 *  `facing` must be omitted — camera selection lives on the session. */
+	session?: CameraSession
+	/** Lens — defaults to the rear camera. Invalid together with `session`. */
 	facing?: 'front' | 'back'
 	/** Default true. False releases the preview session. */
 	active?: boolean

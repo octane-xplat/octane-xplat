@@ -9,5 +9,5 @@
 		"noEmitOnError": true,
 		"outDir": "types"
 	},
-	"include": ["src/props.ts", "types/index.d.ts"]
+	"include": ["src/props.ts", "src/types.ts", "src/synthetic-session.ts", "types/index.d.ts"]
 }

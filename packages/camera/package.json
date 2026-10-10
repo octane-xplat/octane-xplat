@@ -53,7 +53,8 @@
 		"typegen": "tsc -p tsconfig.types.json",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"test": "vitest run"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
@@ -62,7 +63,8 @@
 		"octane": "0.11.0",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "5.9.3",
-		"vite": "8.3.0"
+		"vite": "8.3.0",
+		"vitest": "5.0.1"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

@@ -51,9 +51,15 @@ Application.run({ create: () => frame })
 let lastRun
 let busy = false
 const sessionPath = path.join(knownFolders.documents().path, 'probe-session.json')
+// Physical devices can't receive a Documents file before launch, so the
+// session may arrive as a launch environment variable instead.
+const launchSession =
+	typeof NSProcessInfo !== 'undefined'
+		? NSProcessInfo.processInfo.environment?.objectForKey?.('XPLAT_PROBE_SESSION')
+		: undefined
 
 setInterval(async () => {
-	if (busy || !File.exists(sessionPath)) {
+	if (busy || (!launchSession && !File.exists(sessionPath))) {
 		return
 	}
 
@@ -61,7 +67,7 @@ setInterval(async () => {
 	let control
 	let session
 	try {
-		session = JSON.parse(await File.fromPath(sessionPath).readText())
+		session = JSON.parse(launchSession ?? (await File.fromPath(sessionPath).readText()))
 		control = await (await fetch(session.url + '/control')).json()
 		if (!control.runId || control.runId === lastRun) {
 			return

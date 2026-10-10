@@ -978,6 +978,64 @@ If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](../notes/primitive-notes.md)
 cover the less common components, accessibility details, and renderer limits.
 
+### Camera sessions and movie recording
+
+`createCameraSession` creates a shared camera owner — the same
+`AVCaptureSession` can feed a `CameraView` preview and a movie-recording
+attempt. Pass the session to `CameraView` via the `session` prop instead of
+`facing`; the two are mutually exclusive. Recording is opt-in: preview-only
+screens keep working exactly as before with no session.
+
+```tsx
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+
+const session = createCameraSession({ camera: 'default' })
+
+export function RecorderScreen() {
+	return <CameraView session={session} />
+}
+```
+
+A session owns at most one preview and one recording attempt. Start a take
+once the session-backed preview is ready; `take.stop()` resolves only after
+the movie is finalized on disk and its duration, dimensions, and orientation
+are read back — a valid early stop is a successful partial clip
+(`endReason: 'stopped'`, `partial: false`), not an automatic retry. Recording
+survives view detachment, but the shared session means the app should keep
+the session object alive for the capture's lifetime.
+
+```ts
+const take = session.startRecording({ maximumDurationMs: 30_000 })
+const outcome = await take.stop()
+if (outcome.kind === 'clip') {
+	const clip = outcome.clip
+	saveClip(clip.output.fileUrl, clip.durationMs, clip.width, clip.height)
+}
+```
+
+Sessions are honest about what a host can do: `capabilities()` reports
+`supported`, `available`, discovered cameras, and per-profile resolution
+without prompting or acquiring hardware. Check it before showing capture UI —
+on a host with no camera (a stock iOS simulator, say) `supported` is `false`
+and `startRecording` rejects with a typed `CameraCaptureError` instead of
+fabricating a lens.
+
+```ts
+const caps = await session.capabilities()
+if (!caps.supported) {
+	return // hide capture UI on this host
+}
+const permission = await session.requestPermission('camera')
+```
+
+Output is a durable file in app-private storage (`nativeFile` output —
+`fileUrl`/`path`), reopenable via `session.openOutput(output)` for playback
+or sharing; the package never uploads, persists, or deletes clips. See the
+[camera package README](../../packages/camera/README.md#movie-recording) for
+the full contract: errors, interruption causes, and ownership rules. Android
+and web session adapters are still pending — they reject with `unsupported`
+until they land; see [known limits](../verify/known-limits.md#primitives).
+
 ## Refs
 
 Use Octane's ordinary `ref` prop. Layout and interaction primitives such as

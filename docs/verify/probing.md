@@ -38,6 +38,16 @@ For both mobile targets use `--ios-device` and `--android-device`. Boot your
 chosen simulator first; the runner does not reset another session's simulator.
 Unavailable requested targets return `unavailable` and a nonzero exit status.
 
+Physical iOS devices also work: `doctor` lists paired, booted devices from
+`xcrun devicectl` alongside simulators. Pass the device's UDID to `--device`;
+the launcher builds the app for device, installs the `.ipa` through
+`devicectl`, and hands the session URL over as a launch environment variable
+(the device reaches the probe server over the LAN, so the host binds
+`0.0.0.0`). The device must be unlocked for launch and for the duration of
+the probe; signing needs a development team — set
+`XPLAT_IOS_DEVELOPMENT_TEAM` unless the probe project's
+`App_Resources/iOS/build.xcconfig` already sets `DEVELOPMENT_TEAM`.
+
 ## Write a case
 
 A `.ts` case exports `run(ctx)`. A `.tsrx` component case also exports a default

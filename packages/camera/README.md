@@ -44,6 +44,44 @@ export function Preview() {
 }
 ```
 
+## Movie recording
+
+`createCameraSession` creates a shared camera owner: the same session can
+drive a `CameraView` preview and one movie-recording attempt at a time.
+Pass the session to `CameraView` instead of `facing`; the preview attaches
+the camera the session owns. Recording requires an attached, ready preview.
+
+```tsx
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+
+const session = createCameraSession({ camera: 'default' })
+
+export function Recorder() {
+	return <CameraView session={session} />
+}
+```
+
+A take settles only after the movie is finalized on disk and its duration,
+dimensions, and orientation have been read back. Output lives in app-private
+storage; reopen it with `session.openOutput(output)`.
+
+```ts
+const take = session.startRecording({ maximumDurationMs: 30_000 })
+// … later, on a stop press or a maximum-duration limit:
+const outcome = await take.stop()
+if (outcome.kind === 'clip') {
+	const clip = outcome.clip
+	console.log(clip.durationMs, clip.width, clip.height, clip.output.fileUrl)
+}
+```
+
+One preview and one recording per session; a second `startRecording` throws
+`CameraCaptureError` with `kind: 'busy'`. Check `session.capabilities()` for
+`supported`/`available` before presenting capture UI, and `session.snapshot()`
+or `session.subscribe` for state. Recording support lands per platform —
+iOS ships first; other adapters report `unsupported` rather than faking a
+camera.
+
 Guide: [Building screens](../../docs/app/primitives.md) (leaf components);
 component index: [`docs/app/components.md`](../../docs/app/components.md).
 Exercised by [`CameraDemo`](../demos/src/CameraDemo.tsrx).

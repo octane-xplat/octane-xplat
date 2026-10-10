@@ -4,5 +4,7 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to show a live preview.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is required to record audio with a movie.</string>
 </dict>
 </plist>

@@ -3,10 +3,13 @@ import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { startCameraPreview } from './camera-session.ios'
+import { attachSessionPreview } from './session'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
 import { cx } from './cx.mobile'
 
-/** Live iOS preview backed by AVFoundation. */
+/** Live iOS preview backed by AVFoundation. With `session`, the preview
+ *  attaches to the session-owned AVCaptureSession so movie recording can
+ *  share it; without one the view owns its session as before. */
 export function CameraView(props: CameraViewProps) @{
 	const host = useRef<any>(null)
 	const active = props.active !== false
@@ -23,6 +26,29 @@ export function CameraView(props: CameraViewProps) @{
 		let disposed = false
 		let stopPreview: (() => void) | undefined
 		const fail = (message: string) => props.onError?.({ message })
+
+		if (props.session) {
+			if (props.facing !== undefined) {
+				fail('camera session conflicts with facing')
+				return
+			}
+
+			try {
+				const detach = attachSessionPreview(props.session, view, {
+					onReady: () => {
+						if (!disposed) props.onReady?.()
+					},
+				})
+
+				return () => {
+					disposed = true
+					detach()
+				}
+			} catch (error: any) {
+				fail(error?.message ?? 'camera session error')
+				return
+			}
+		}
 
 		if (!cameraHardwarePresent()) {
 			fail('camera unsupported')
@@ -47,7 +73,7 @@ export function CameraView(props: CameraViewProps) @{
 			disposed = true
 			stopPreview?.()
 		}
-	}, [active, facing])
+	}, [active, facing, props.session])
 
 	useEffect(() => {
 		const view = host.current

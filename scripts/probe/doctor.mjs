@@ -44,6 +44,41 @@ export async function doctor() {
 			if (!targets.ios.devices.length) {
 				targets.ios.issues.push('No available iOS simulator; configure one in Xcode')
 			}
+
+			const physical = await inspect('xcrun', [
+				'devicectl',
+				'list',
+				'devices',
+				'--json-output',
+				'/dev/stdout',
+			])
+
+			if (physical.code === 0) {
+				try {
+					const reported = JSON.parse(physical.stdout)
+					for (const entry of reported.result?.devices ?? []) {
+						const hardware = entry.hardwareProperties ?? {}
+						const deviceProps = entry.deviceProperties ?? {}
+						const connection = entry.connectionProperties ?? {}
+						if (
+							hardware.reality !== 'physical' ||
+							deviceProps.bootState !== 'booted' ||
+							connection.pairingState !== 'paired'
+						) {
+							continue
+						}
+
+						targets.ios.devices.push({
+							id: hardware.udid ?? entry.identifier,
+							name: deviceProps.name ?? hardware.marketingName ?? 'iPhone',
+							state: 'Booted',
+							physical: true,
+						})
+					}
+				} catch {
+					// A malformed device list never blocks simulator probing.
+				}
+			}
 		} else {
 			targets.ios.issues.push(sims.stderr)
 		}

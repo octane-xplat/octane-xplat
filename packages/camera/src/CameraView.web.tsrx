@@ -13,6 +13,19 @@ export function CameraView(props: CameraViewProps) @{
 	useEffect(() => {
 		const element = video.current
 		if (!element || !active) return
+		if (props.session) {
+			// Session-backed previews arrive with the web capture adapter;
+			// owning a second stream would break the shared-session model.
+			props.onError?.({
+				message:
+					props.facing !== undefined
+						? 'camera session conflicts with facing'
+						: 'camera sessions are not supported on this platform yet',
+			})
+
+			return
+		}
+
 		const mediaDevices = navigator.mediaDevices
 		if (!mediaDevices?.getUserMedia) {
 			props.onError?.({ message: 'camera unsupported' })
@@ -51,7 +64,7 @@ export function CameraView(props: CameraViewProps) @{
 			element.srcObject = null
 			if (stream) for (const track of stream.getTracks()) track.stop()
 		}
-	}, [active, facing])
+	}, [active, facing, props.session])
 
 	useImperativeHandle(props.ref, () => ({ native: hostRef.current }), undefined);
 

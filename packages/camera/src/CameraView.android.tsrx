@@ -44,6 +44,18 @@ export function CameraView(props: CameraViewProps) @{
 		if (!active) return () => nativeView.setCameraActive(false)
 
 		const fail = (message: string) => props.onError?.({ message })
+		if (props.session) {
+			// Session-backed previews arrive with the Android capture
+			// adapter; owning a second session would break the shared model.
+			fail(
+				props.facing !== undefined
+					? 'camera session conflicts with facing'
+					: 'camera sessions are not supported on this platform yet',
+			)
+
+			return () => nativeView.setCameraActive(false)
+		}
+
 		if (!cameraHardwarePresent()) {
 			fail('camera unsupported')
 			return () => nativeView.setCameraActive(false)
@@ -98,7 +110,7 @@ export function CameraView(props: CameraViewProps) @{
 				} catch {}
 			}
 		}
-	}, [active, facing])
+	}, [active, facing, props.session])
 
 	useEffect(() => {
 		const view = host.current

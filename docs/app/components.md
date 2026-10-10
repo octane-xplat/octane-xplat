@@ -564,7 +564,7 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | Package                 | Exports                                                              | What it is                                |
 | ----------------------- | -------------------------------------------------------------------- | ----------------------------------------- |
 | `@octane-xplat/pager`   | `Pager`                                                              | Full-page swipe container                 |
-| `@octane-xplat/camera`  | `CameraView`                                                         | Live camera preview                       |
+| `@octane-xplat/camera`  | `CameraView`, `createCameraSession`                                  | Camera preview and movie recording        |
 | `@octane-xplat/video`   | `Video`                                                              | Embedded video player                     |
 | `@octane-xplat/gif`     | `AnimatedImage`                                                      | Animated images (GIF/webp)                |
 | `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetch`, `evictImage`, `clearImageCaches`, `isImageCached` | Recommended `Image` on native (Glide/SDWebImage via ui-image) — same contract as core `Image` |

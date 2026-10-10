@@ -11,6 +11,20 @@ import nativeCaseConfig from './native-case.config.mjs'
 import { marker } from './runtime.mjs'
 import { isNonFatalError } from './errors.mjs'
 
+import { networkInterfaces } from 'node:os'
+
+const lanAddress = () => {
+	for (const entries of Object.values(networkInterfaces())) {
+		for (const entry of entries ?? []) {
+			if (entry.family === 'IPv4' && !entry.internal) {
+				return entry.address
+			}
+		}
+	}
+
+	throw new Error('No LAN address for a physical-device probe server')
+}
+
 export function validateResult(result, options) {
 	if (
 		result?.schema !== 1 ||
@@ -134,6 +148,8 @@ export async function runTarget(target, args, onResult, signal) {
 	const device = native
 		? selectDevice(target, availability, args.devices[target] ?? args.device)
 		: undefined
+
+	const physical = availability.devices.find((entry) => entry.id === device)?.physical === true
 
 	if (
 		target === 'ios' &&
@@ -269,6 +285,7 @@ export async function runTarget(target, args, onResult, signal) {
 					project.appId,
 					url,
 					String(args.startupTimeout),
+					physical ? 'physical' : 'simulator',
 				],
 				{ verbose: args.verbose },
 			)
@@ -376,10 +393,10 @@ export async function runTarget(target, args, onResult, signal) {
 
 			await new Promise((resolve, reject) => {
 				server.once('error', reject)
-				server.listen(0, '127.0.0.1', resolve)
+				server.listen(0, physical ? '0.0.0.0' : '127.0.0.1', resolve)
 			})
 
-			url = 'http://127.0.0.1:' + server.address().port
+			url = 'http://' + (physical ? lanAddress() : '127.0.0.1') + ':' + server.address().port
 		} else if (target !== 'macos') {
 			server = await createServer({
 				...config,
