@@ -32,6 +32,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   platforms. Where parity is genuinely unachievable, expose platform entry
   points or an explicitly documented API subset with matching behavior —
   never silent divergence.
+- **Cross-platform by default.** New features and packages should aim to
+  support every project platform. When feasibility is unclear, investigate
+  and prove support in this order: web, iOS, then macOS. If any platform cannot
+  be supported, document the concrete feasibility evidence and the specific
+  limitation.
 - **Proven engines first.** Build on proven engines and libraries; treat
   from-scratch implementation as a last resort — but reject dependencies
   whose abstractions fundamentally mismatch Octane Xplat's model.
