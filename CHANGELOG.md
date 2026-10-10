@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.13.0] - 2026-10-10
+
+### Features
+
+- *(dnd-kit)* Add activation distance and drag handles
+- *(ui)* Add VirtualListHandle with scrollToOffset
+- *(rolling-text)* Add @octane-xplat/rolling-text package
+
+### Bug Fixes
+
+- *(cli,lint)* Restore bins for link: consumers under pnpm 11
+- *(macos-renderer)* Normalize declarative className values before tokenizing
+- *(dnd-kit)* Close documented-behavior gaps in drag feedback and auto-scroll
+- *(patches)* Resolve # package-imports specifiers in the /ns/m device rewrite
+- *(lottie)* Accept nullable native host ref
+- *(rolling-text)* Avoid Unicode regex literal in native bundle
+
 ## [0.12.0] - 2026-10-08
 
 ### Features

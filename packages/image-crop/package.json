@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/image-crop",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"description": "Inline controlled image crop selection for Octane Xplat web, iOS, Android and macOS",
 	"keywords": [
 		"crop",

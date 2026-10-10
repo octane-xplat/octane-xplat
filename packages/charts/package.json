@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/charts",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"description": "Cross-platform SVG charts for Octane xplat — a DOM-free d3 core with web, iOS/Android, and macOS AppKit leaves",
 	"keywords": [
 		"android",

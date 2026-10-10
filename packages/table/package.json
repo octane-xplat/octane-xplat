@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/table",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"description": "Headless data grid for Octane xplat — @tanstack/table-core row model (sorting, filtering, pagination, selection, grouping) rendered through shared VirtualList on web, iOS, Android, and macOS",
 	"keywords": [
 		"android",
