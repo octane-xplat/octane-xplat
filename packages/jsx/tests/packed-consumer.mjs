@@ -57,7 +57,8 @@ const tree = (
 		<textfield hint="name" onTextChange={(event) => void event.value} />
 		<listview items={[1, 2]} renderItem={(item) => <label text={String(item)} />} />
 		<svgview src="<svg />" stretch="aspectFit" />
-		<drawer><gridlayout hostSlot="mainContent" /></drawer>
+		<gridlayout hostSlot="mainContent" />
+		<cachedimage src="a.png" failureImageUri="f.png" noCache />
 		<xplatvideo src="v.mp4" onFinished={() => {}} />
 		<nscanvas onReady={() => {}} />
 		<xplatlottie src="a.json" loop />

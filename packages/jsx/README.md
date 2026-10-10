@@ -30,8 +30,9 @@ every target; a `customConditions` setting binds the host element type only:
 Conditions change host element value types only — never intrinsic
 membership. The shared map carries the 39 NativeScript-baseline tags, the
 compiler-produced `#text` node, and the nine maintained cross-platform
-extension tags (`drawer`, `svgview`, `xplatvideo`, `nscanvas`, `xplatlottie`,
-`pager`, `animatedimage`, `applesigninbutton`, `googlesigninbutton`).
+extension tags (`cachedimage`, `svgview`, `xplatvideo`, `nscanvas`,
+`xplatlottie`, `pager`, `animatedimage`, `applesigninbutton`,
+`googlesigninbutton`).
 
 The `native` condition resolves `@nativescript/core` for the `View` ref type —
 it is an optional peer; the default and `macos` declarations never reference

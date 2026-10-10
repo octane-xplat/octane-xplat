@@ -501,11 +501,41 @@ export interface PlaceholderProps<TElement> {
 // class references; `HostObject` marks upstream host-object members.
 // ---------------------------------------------------------------------------
 
-export interface DrawerProps<TElement> {
-	/** Drawer slot children attach via `hostSlot` (`mainContent`, `leftDrawer`, …). */
-	gestureEnabled?: boolean;
-	onOpen?: (event: NativeEvent<TElement>) => void;
-	onClose?: (event: NativeEvent<TElement>) => void;
+export interface CachedImageProps {
+	/** Upstream `SrcType` — uri, `ImageSource`/`ImageAsset`, a promise of one, or a resolver function. */
+	src?: string | HostObject | PromiseLike<string | HostObject>;
+	stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill';
+	placeholderImageUri?: string;
+	failureImageUri?: string;
+	lowerResSrc?: string;
+	backgroundUri?: string;
+	headers?: Record<string, string> | (() => Record<string, string>);
+	fadeDuration?: number;
+	alwaysFade?: boolean;
+	progressiveRenderingEnabled?: boolean;
+	localThumbnailPreviewsEnabled?: boolean;
+	showProgressBar?: boolean;
+	/** Upstream `Color | string`. */
+	progressBarColor?: string | HostObject;
+	roundAsCircle?: boolean;
+	roundTopLeftRadius?: number | string;
+	roundTopRightRadius?: number | string;
+	roundBottomLeftRadius?: number | string;
+	roundBottomRightRadius?: number | string;
+	blurRadius?: number;
+	blurDownSampling?: number;
+	imageRotation?: number;
+	autoPlayAnimations?: boolean;
+	tapToRetryEnabled?: boolean;
+	aspectRatio?: number;
+	decodeWidth?: number;
+	decodeHeight?: number;
+	animatedImageView?: boolean;
+	loadMode?: 'sync' | 'async';
+	noCache?: boolean;
+	noRatioEnforce?: boolean;
+	/** Upstream `Color`. */
+	tintColor?: string | HostObject;
 }
 
 export interface SvgViewProps {
@@ -631,7 +661,7 @@ export interface NativeElements<TElement> {
 	/** Compiler-produced text node — carries `props.value`, folded into the parent's text. */
 	'#text': Attributes<TElement, { value?: string }>;
 	// Maintained cross-platform extensions (registered for iOS + Android).
-	drawer: Attributes<TElement, DrawerProps<TElement>>;
+	cachedimage: Attributes<TElement, CachedImageProps>;
 	svgview: Attributes<TElement, SvgViewProps>;
 	xplatvideo: Attributes<TElement, VideoProps<TElement>>;
 	nscanvas: Attributes<TElement, CanvasProps<TElement>>;
