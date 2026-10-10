@@ -1,7 +1,7 @@
 # Enter and submit text reliably
 
 ID: text-entry
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoiding, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onSubmit, Sheet, Overlay
 
 ## Starting point
@@ -31,3 +31,13 @@ space through form and overlay lifecycles.
 - AC4: [Release and restore focus](../docs/app/text-entry.md#release-and-restore-focus).
 - AC5: [Modal focus](../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../docs/app/text-entry.md#verification-boundaries).
 - AC6: [Building screens: grouped fields](../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx).
+
+## macOS verification
+
+Run `pnpm --filter @xplat/macos test:text-controls` for the maintained
+[AppKit fixture](../apps/macos/test/text-controls-fixture.macos.tsx). It checks
+text-control handles and responder callbacks, secure-mode updates while focused,
+and submit dispatch distinct from text changes. Multiline action Return uses
+`done`/`send`; other Return actions remain newlines. The fixture dispatches
+commands directly, so it does not qualify real keyboards, composition,
+assistive navigation, or the complete modal and form criteria.

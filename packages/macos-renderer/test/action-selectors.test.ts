@@ -20,6 +20,7 @@ const context = {
 	NSPanGestureRecognizer: class {},
 	NSNotification: class {},
 	NSTextViewDelegate: class {},
+	NSTextFieldDelegate: class {},
 	interop: { types: { void: 'void', bool: 'bool', id: 'id' } },
 	NativeClass() {},
 }

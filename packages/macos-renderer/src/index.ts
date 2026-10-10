@@ -121,7 +121,7 @@ function invokeAction(actionId: number | undefined) {
 }
 
 class ButtonActionTarget extends NSObject {
-	static ObjCProtocols = [NSTextViewDelegate]
+	static ObjCProtocols = [NSTextViewDelegate, NSTextFieldDelegate]
 
 	static ObjCExposedMethods = {
 		buttonPressed: { params: [NSButton], returns: interop.types.void },
@@ -131,6 +131,10 @@ class ButtonActionTarget extends NSObject {
 		controlTextDidChange: { params: [NSNotification], returns: interop.types.void },
 		textFieldSubmitted: { params: [NSObject], returns: interop.types.void },
 		textDidChange: { params: [NSNotification], returns: interop.types.void },
+		controlTextDidBeginEditing: { params: [NSNotification], returns: interop.types.void },
+		controlTextDidEndEditing: { params: [NSNotification], returns: interop.types.void },
+		textDidBeginEditing: { params: [NSNotification], returns: interop.types.void },
+		textDidEndEditing: { params: [NSNotification], returns: interop.types.void },
 	}
 
 	static {
@@ -194,15 +198,59 @@ class ButtonActionTarget extends NSObject {
 	textDidChange(notification: NSNotification) {
 		const node = textNodesByView.get(notification.object)
 		syncTextViewPlaceholder(node)
+		fitTextView(node)
 		invokeAction(actionIdsByView.get(notification.object))
+	}
+	controlTextDidBeginEditing(notification: NSNotification) {
+		dispatchTextEvent(textNodesByView.get(notification.object), 'onFocus')
+	}
+
+	controlTextDidEndEditing(notification: NSNotification) {
+		dispatchTextEvent(textNodesByView.get(notification.object), 'onBlur')
+	}
+
+	textDidBeginEditing(notification: NSNotification) {
+		this.controlTextDidBeginEditing(notification)
+	}
+
+	textDidEndEditing(notification: NSNotification) {
+		this.controlTextDidEndEditing(notification)
+	}
+
+	textViewDoCommandBySelector(view: NSTextView, selector: string) {
+		const node = textNodesByView.get(view)
+		if (
+			String(selector) !== 'insertNewline:' ||
+			!node ||
+			!['done', 'send'].includes(node.props.returnKeyType)
+		) {
+			return false
+		}
+
+		dispatchTextEvent(node, 'onSubmit')
+		return true
 	}
 }
 
 const buttonActionTarget = ButtonActionTarget.new()
 
-class ContentAlignedTextField extends NSTextField {
+class ContentAlignedTextField extends NSSecureTextField {
 	static {
 		NativeClass(this)
+	}
+
+	becomeFirstResponder() {
+		const accepted = super.becomeFirstResponder()
+		if (accepted) {
+			dispatchTextEvent(textNodesByView.get(this), 'onFocus')
+		}
+
+		return accepted
+	}
+
+	textDidEndEditing(notification: NSNotification) {
+		super.textDidEndEditing(notification)
+		dispatchTextEvent(textNodesByView.get(this), 'onBlur')
 	}
 
 	// These controls have no bezel or background, so the text area and layout
@@ -212,13 +260,47 @@ class ContentAlignedTextField extends NSTextField {
 	}
 }
 
-class ContentAlignedSecureTextField extends NSSecureTextField {
+class InteractionTextView extends NSTextView {
 	static {
 		NativeClass(this)
 	}
+	becomeFirstResponder() {
+		const accepted = super.becomeFirstResponder()
+		if (accepted) {
+			dispatchTextEvent(textNodesByView.get(this), 'onFocus')
+		}
 
-	alignmentRectInsets() {
-		return { top: 0, left: 0, bottom: 0, right: 0 }
+		return accepted
+	}
+	resignFirstResponder() {
+		const accepted = super.resignFirstResponder()
+		if (accepted) {
+			dispatchTextEvent(textNodesByView.get(this), 'onBlur')
+		}
+
+		return accepted
+	}
+}
+
+class InteractionTextFieldCell extends NSTextFieldCell {
+	static {
+		NativeClass(this)
+	}
+	endEditing(editor: NSTextView) {
+		const node = textNodesByView.get(editor.delegate)
+		super.endEditing(editor)
+		dispatchTextEvent(node, 'onBlur')
+	}
+}
+
+class InteractionSecureTextFieldCell extends NSSecureTextFieldCell {
+	static {
+		NativeClass(this)
+	}
+	endEditing(editor: NSTextView) {
+		const node = textNodesByView.get(editor.delegate)
+		super.endEditing(editor)
+		dispatchTextEvent(node, 'onBlur')
 	}
 }
 
@@ -585,9 +667,13 @@ function marginInsetsOf(node: ElementNode) {
 	return insets && (insets.top || insets.right || insets.bottom || insets.left) ? insets : null
 }
 
+function layoutView(node: ElementNode) {
+	return node.textViewport ?? node.view
+}
+
 /** The view a stack should arrange for a child — a margin wrapper when set. */
 function arrangedView(node: ElementNode) {
-	return node.marginHost ?? node.view
+	return node.marginHost ?? layoutView(node)
 }
 
 /** NSStackView has no per-child margins, so a margined child is wrapped in a
@@ -600,13 +686,19 @@ function makeMarginHost(node: ElementNode) {
 	})
 
 	host.translatesAutoresizingMaskIntoConstraints = false
-	host.addSubview(node.view!)
+	host.addSubview(layoutView(node))
 	const insets = marginInsetsOf(node)
 	const constraints = [
-		node.view!.leadingAnchor.constraintEqualToAnchorConstant(host.leadingAnchor, insets.left),
-		node.view!.trailingAnchor.constraintEqualToAnchorConstant(host.trailingAnchor, -insets.right),
-		node.view!.topAnchor.constraintEqualToAnchorConstant(host.topAnchor, insets.top),
-		node.view!.bottomAnchor.constraintEqualToAnchorConstant(host.bottomAnchor, -insets.bottom),
+		layoutView(node).leadingAnchor.constraintEqualToAnchorConstant(host.leadingAnchor, insets.left),
+		layoutView(node).trailingAnchor.constraintEqualToAnchorConstant(
+			host.trailingAnchor,
+			-insets.right,
+		),
+		layoutView(node).topAnchor.constraintEqualToAnchorConstant(host.topAnchor, insets.top),
+		layoutView(node).bottomAnchor.constraintEqualToAnchorConstant(
+			host.bottomAnchor,
+			-insets.bottom,
+		),
 	]
 
 	for (const constraint of constraints) {
@@ -640,8 +732,8 @@ function syncMarginHost(node: ElementNode) {
 	if (insets && !node.marginHost) {
 		const gravity = stackGravity(parent, node)
 		const index = gravityInsertIndex(parent, node, gravity)
-		stack.removeArrangedSubview(node.view)
-		node.view.removeFromSuperview()
+		stack.removeArrangedSubview(layoutView(node))
+		layoutView(node).removeFromSuperview()
 		const host = makeMarginHost(node)
 		stack.insertViewAtIndexInGravity(host, index, gravity)
 		queueLayoutReconcile(node.container, parent)
@@ -1088,13 +1180,14 @@ function setTextFieldPlaceholder(field: NSTextField, props: PropBag, scheme = 'l
 
 function makeTextField(props: PropBag, multiline = false) {
 	const field = multiline
-		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
-		: (props.secure ? ContentAlignedSecureTextField : ContentAlignedTextField)
-				.alloc()
-				.initWithFrame({
-					origin: { x: 0, y: 0 },
-					size: { width: 320, height: 28 },
-				})
+		? InteractionTextView.alloc().initWithFrame({
+				origin: { x: 0, y: 0 },
+				size: { width: 320, height: 72 },
+			})
+		: ContentAlignedTextField.alloc().initWithFrame({
+				origin: { x: 0, y: 0 },
+				size: { width: 320, height: 28 },
+			})
 
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
@@ -1365,7 +1458,7 @@ function gridPreferredSize(child: ElementNode, axis: 'rows' | 'columns', availab
 		return Math.max(0, layoutLength(styled, available, 0))
 	}
 
-	const intrinsic = Number(child.view!.intrinsicContentSize?.[name] ?? 0)
+	const intrinsic = Number(layoutView(child).intrinsicContentSize?.[name] ?? 0)
 	return Number.isFinite(intrinsic) ? Math.max(0, intrinsic) : 0
 }
 
@@ -1448,14 +1541,14 @@ function pinLayoutChild(
 ) {
 	const pins = (child.placementPins ??= {})
 	if (!pins.leading) {
-		pins.leading = child.view!.leadingAnchor.constraintEqualToAnchorConstant(
+		pins.leading = layoutView(child).leadingAnchor.constraintEqualToAnchorConstant(
 			parentView.leadingAnchor,
 			0,
 		)
 
-		pins.top = child.view!.topAnchor.constraintEqualToAnchorConstant(parentView.topAnchor, 0)
-		pins.width = child.view!.widthAnchor.constraintEqualToConstant(0)
-		pins.height = child.view!.heightAnchor.constraintEqualToConstant(0)
+		pins.top = layoutView(child).topAnchor.constraintEqualToAnchorConstant(parentView.topAnchor, 0)
+		pins.width = layoutView(child).widthAnchor.constraintEqualToConstant(0)
+		pins.height = layoutView(child).heightAnchor.constraintEqualToConstant(0)
 		for (const pin of [pins.leading, pins.top, pins.width, pins.height]) {
 			pin.active = true
 		}
@@ -1560,7 +1653,7 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 			const cellHeight = rowSizes.slice(row!, row! + rowSpan).reduce((sum, size) => sum + size, 0)
 			const horizontal = child.props.horizontalAlignment ?? 'stretch'
 			const vertical = child.props.verticalAlignment ?? 'stretch'
-			const intrinsic = child.view!.intrinsicContentSize ?? { width: 0, height: 0 }
+			const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
 			const childWidth =
 				style.width == null
 					? horizontal === 'stretch'
@@ -1602,7 +1695,7 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 		const style = child.props.style ?? {}
 		const horizontal = child.props.horizontalAlignment ?? 'stretch'
 		const vertical = child.props.verticalAlignment ?? 'stretch'
-		const intrinsic = child.view!.intrinsicContentSize ?? { width: 0, height: 0 }
+		const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
 		const childWidth =
 			style.width == null
 				? horizontal === 'stretch'
@@ -1651,7 +1744,7 @@ function layoutAbsoluteChildren(parent: ElementNode | undefined) {
 		}
 
 		const style = child.props.style ?? {}
-		const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
+		const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
 		const left = layoutLength(child.props.left, width, Number.NaN)
 		const right = layoutLength(child.props.right, width, Number.NaN)
 		const top = layoutLength(child.props.top, height, Number.NaN)
@@ -1814,9 +1907,6 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		appliedFontFamily: container.fontFamily,
 		scrollObserverInstalled: false,
 		text: '',
-		// The native class is fixed at creation; post-mount `secure` updates
-		// are rejected against this in applyProps.
-		secure: type === 'textfield' && !!props.secure,
 	}
 
 	try {
@@ -1915,6 +2005,29 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		}
 
 		if (type === 'textview') {
+			const viewport = NSScrollView.alloc().initWithFrame(node.view!.frame)
+			viewport.translatesAutoresizingMaskIntoConstraints = false
+			viewport.drawsBackground = false
+			viewport.borderType = NSBorderType.NoBorder
+			viewport.hasVerticalScroller = true
+			viewport.autohidesScrollers = true
+			node.view!.translatesAutoresizingMaskIntoConstraints = true
+			node.view!.autoresizingMask = NSAutoresizingMaskOptions.ViewWidthSizable
+			node.view!.verticallyResizable = true
+			node.view!.horizontallyResizable = false
+			node.view!.maxSize = { width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER }
+			node.view!.textContainer.widthTracksTextView = true
+			viewport.documentView = node.view!
+			node.textViewport = viewport
+			viewport.contentView.postsFrameChangedNotifications = true
+			node.textLayoutObserver =
+				NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+					NSViewFrameDidChangeNotification,
+					viewport.contentView,
+					null,
+					() => fitTextView(node),
+				)
+
 			const placeholder = makeLabel()
 			placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
 			placeholder.textColor = nativeColor('#666666')
@@ -2179,14 +2292,14 @@ function applySizeConstraint(node: ElementNode, name: string) {
 			return
 		}
 
-		const anchor = name === 'width' ? node.view.widthAnchor : node.view.heightAnchor
+		const anchor = name === 'width' ? layoutView(node).widthAnchor : layoutView(node).heightAnchor
 		const parentAnchor = name === 'width' ? parentView.widthAnchor : parentView.heightAnchor
 		constraint = anchor.constraintEqualToAnchorMultiplier(parentAnchor, spec.multiplier)
 	} else {
 		constraint =
 			name === 'width'
-				? node.view.widthAnchor.constraintEqualToConstant(spec.points)
-				: node.view.heightAnchor.constraintEqualToConstant(spec.points)
+				? layoutView(node).widthAnchor.constraintEqualToConstant(spec.points)
+				: layoutView(node).heightAnchor.constraintEqualToConstant(spec.points)
 	}
 
 	constraints[name] = constraint
@@ -2847,6 +2960,141 @@ function syncText(parent: ElementNode | null | undefined) {
 	setLabelText(parent, text)
 }
 
+function dispatchTextEvent(node: ElementNode | undefined, name: string) {
+	if (!node) {
+		return
+	}
+
+	if (name === 'onFocus' || name === 'onBlur') {
+		const focused = name === 'onFocus'
+		if (Boolean(node.textFocused) === focused) {
+			return
+		}
+
+		node.textFocused = focused
+	}
+
+	const handler = node.props[name]
+	if (typeof handler !== 'function') {
+		return
+	}
+
+	try {
+		node!.container.root!.eventScope('discrete', handler)
+	} catch (error) {
+		console.error('[macos-event] text ' + name + ' handler failed', error)
+	}
+}
+
+/** NSSecureTextField can host either cell; an ordinary NSTextField cannot host a secure
+ *  editor. Keep the secure-capable view mounted and swap its cell to retain refs/layout. */
+function syncSecureTextField(node: ElementNode) {
+	const secure = Boolean(node.props.secure)
+	if (secure === node.secureMode) {
+		return
+	}
+
+	const field = node.view!
+	const editor = field.currentEditor()
+	const selection = editor?.selectedRange
+	const window = field.window
+	const focused = editor != null && window != null
+	const value = String(editor?.string ?? field.stringValue ?? '')
+	const previous = field.cell
+	if (focused) {
+		window.makeFirstResponder(null)
+	}
+
+	const cell = (secure ? InteractionSecureTextFieldCell : InteractionTextFieldCell)
+		.alloc()
+		.initTextCell(value)
+
+	for (const name of [
+		'font',
+		'textColor',
+		'alignment',
+		'editable',
+		'selectable',
+		'enabled',
+		'bezeled',
+		'bordered',
+		'drawsBackground',
+		'backgroundColor',
+		'sendsActionOnEndEditing',
+		'target',
+		'action',
+		'tag',
+	]) {
+		cell[name] = previous[name]
+	}
+
+	field.cell = cell
+	field.stringValue = value
+	node.secureMode = secure
+	if (focused) {
+		window.makeFirstResponder(field)
+		if (selection) {
+			field.currentEditor().selectedRange = selection
+		}
+	}
+}
+
+/** Measure wrapped content with AppKit, then size the viewport rather than truncate text. */
+function fitTextView(node: ElementNode | undefined) {
+	if (!node?.textViewport || node.fittingText) {
+		return
+	}
+
+	node.fittingText = true
+	try {
+		const view = node.view!
+		const viewport = node.textViewport
+		const width = Number(viewport.contentView.bounds.size.width)
+		if (width > 0) {
+			view.textContainer.containerSize = { width, height: Number.MAX_SAFE_INTEGER }
+		}
+
+		view.layoutManager.ensureLayoutForTextContainer(view.textContainer)
+		const used = view.layoutManager.usedRectForTextContainer(view.textContainer)
+		const font = view.font
+		const measured = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
+		const line = Math.max(
+			1,
+			Math.round(
+				measured > 0 ? measured : Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
+			),
+		)
+
+		const rows = Math.max(1, Math.floor(Number(node.props.rows) || (node.props.autoGrow ? 1 : 3)))
+		const cap =
+			Number(node.props.maxRows) > 0
+				? Math.max(rows, Math.floor(Number(node.props.maxRows))) * line
+				: Infinity
+
+		// TextKit's used rect excludes the extra fragment after a trailing newline.
+		const extra = view.layoutManager.extraLineFragmentRect
+		const content = Math.max(
+			line,
+			Math.ceil(Number(used.origin?.y ?? 0) + Number(used.size.height)),
+			Math.ceil(Number(extra?.origin?.y ?? 0) + Number(extra?.size?.height ?? 0)),
+		)
+
+		const height = node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line
+		if (node.props.style?.height == null && node.sizeConstraintSpecs?.height?.points !== height) {
+			setSizeConstraint(node, 'height', height)
+		}
+
+		const visibleHeight = Number(viewport.contentView.bounds.size.height) || height
+		view.minSize = { width: 0, height: visibleHeight }
+		view.setFrameSize({
+			width: width || Number(view.frame.size.width),
+			height: Math.max(visibleHeight, content),
+		})
+	} finally {
+		node.fittingText = false
+	}
+}
+
 function syncTextViewPlaceholder(node: ElementNode | undefined) {
 	if (node?.placeholderView) {
 		node.placeholderView.hidden = String(node.view!.string ?? '').length > 0
@@ -3192,6 +3440,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 			case 'textfield':
 			case 'textview':
 				if (name === 'value') {
+					if (value === undefined) {
+						continue
+					}
+
 					if (node.type === 'textview') {
 						node.view!.string = String(value ?? '')
 						syncTextViewPlaceholder(node)
@@ -3214,25 +3466,13 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'onSubmit') {
 					if (node.type === 'textfield') {
 						setTextSubmitAction(node, value)
-					} else if (typeof value === 'function') {
-						console.warn('[macos-host] onSubmit is unsupported on multiline textview')
 					}
 				} else if (name === 'editable' || name === 'isEnabled' || name === 'enabled') {
 					syncTextControlState(node)
 				} else if (name === 'secure') {
-					// The native class is chosen in makeTextField; a secure change
-					// would require a new view, so it is rejected rather than
-					// silently downgraded to plain text.
-					if (node.type !== 'textfield') {
-						if (value) {
-							console.warn(
-								'[macos-host] secure is unsupported on <' + node.type + '>; rendering plain text',
-							)
-						}
-					} else if (!!value !== node.secure) {
+					if (node.type !== 'textfield' && value) {
 						console.warn(
-							'[macos-host] changing "secure" after mount is unsupported; the field keeps its initial secure=' +
-								node.secure,
+							'[macos-host] secure is unsupported on <' + node.type + '>; rendering plain text',
 						)
 					}
 				} else if (name === 'style') {
@@ -3240,6 +3480,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'id') {
+					continue
+				} else if (['onFocus', 'onBlur', 'onSubmit'].includes(name)) {
 					continue
 				} else if (name === 'rows' && node.type === 'textview') {
 					continue
@@ -3337,6 +3579,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	if (node.type === 'textfield') {
+		syncSecureTextField(node)
+		node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
+		node.view!.editable = node.view!.enabled && node.props.editable !== false
 		setTextFieldPlaceholder(node.view as NSTextField, node.props, nodeScheme(node))
 	}
 
@@ -3363,19 +3608,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	if (node.type === 'textview') {
-		const style = node.props.style ?? {}
-		const rows = Number(node.props.rows)
-		if (style.height == null && Number.isFinite(rows) && rows > 0) {
-			const font = node.view!.font
-			const lineHeight = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
-			const rowHeight = Math.round(
-				Number.isFinite(lineHeight)
-					? lineHeight
-					: Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
-			)
-
-			setSizeConstraint(node, 'height', Math.max(1, Math.floor(rows)) * rowHeight)
-		}
+		node.view!.editable = node.props.isEnabled !== false && node.props.editable !== false
+		fitTextView(node)
 	}
 
 	if (node.type === 'gridlayout' || node.type === 'absolutelayout') {
@@ -3489,13 +3723,13 @@ function insert(
 	if (node.view) {
 		if (parent) {
 			if (parent.type === 'gridlayout') {
-				parentView.addSubview(node.view)
-				node.view.translatesAutoresizingMaskIntoConstraints = false
+				parentView.addSubview(layoutView(node))
+				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
 				queueLayoutReconcile(container, parent)
 			} else if (parent.type === 'absolutelayout') {
-				parentView.addSubview(node.view)
-				node.view.translatesAutoresizingMaskIntoConstraints = false
+				parentView.addSubview(layoutView(node))
+				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
 				queueLayoutReconcile(container, parent)
 			} else {
@@ -3514,11 +3748,13 @@ function insert(
 				queueLayoutReconcile(container, parent)
 			}
 		} else {
-			parentView.addSubview(node.view)
-			node.view.leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
-			node.view.trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active = true
-			node.view.topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
-			node.view.bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
+			parentView.addSubview(layoutView(node))
+			layoutView(node).leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
+			layoutView(node).trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active =
+				true
+
+			layoutView(node).topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
+			layoutView(node).bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 			applySizeConstraints(node)
 		}
 
@@ -3553,7 +3789,7 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 			parentView.removeArrangedSubview(arrangedView(node))
 		}
 
-		node.view.removeFromSuperview()
+		layoutView(node).removeFromSuperview()
 		node.marginHost?.removeFromSuperview()
 		node.marginHost = null
 		node.marginConstraints = null
@@ -3566,6 +3802,16 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	if (node.textLayoutObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.textLayoutObserver)
+	}
+
+	if ((node.type === 'textfield' || node.type === 'textview') && node.view) {
+		textNodesByView.delete(node.view)
+		actionIdsByView.delete(node.view)
+		node.view.delegate = null
+	}
+
 	// Nodes destroyed by a failed makeNode may have a null view — every
 	// branch below must tolerate partial construction.
 	if (node.type === 'webview' && node.view) {
@@ -3712,7 +3958,12 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				applyProps(
 					node,
 					node.type === 'label'
-						? { maxLines: undefined, whiteSpace: undefined, textOverflow: undefined, ...command.props }
+						? {
+								maxLines: undefined,
+								whiteSpace: undefined,
+								textOverflow: undefined,
+								...command.props,
+							}
 						: command.props,
 				)
 			} catch (error) {

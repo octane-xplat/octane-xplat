@@ -470,3 +470,8 @@ declare const console: {
 }
 
 declare const process: { env: { [key: string]: string | undefined } }
+
+declare const NSTextFieldDelegate: any
+declare const NSTextFieldCell: NSClass<any>
+declare const NSSecureTextFieldCell: NSClass<any>
+declare const NSAutoresizingMaskOptions: { [key: string]: number }

@@ -25,3 +25,8 @@ hooks, and release ref ownership correctly. Migrate existing Xplat bind usage.
 - AC1: [Refs](../docs/app/primitives.md#refs), [focus handles](../docs/app/text-entry.md#release-and-restore-focus), and maintained [web ref fixture](../packages/ui/src/refs.web.test.tsrx).
 - AC2: [Ref lifecycle](../docs/app/primitives.md#refs), maintained [web ref tests](../packages/ui/src/refs.web.test.tsrx), and [universal ref tests](../packages/ui/src/refs.mobile.test.tsrx).
 - AC3: [Refs](../docs/app/primitives.md#refs), [migration](../docs/app/primitives.md#migrate-from-bind), [intersection example](../examples/probes/intersection-observer.tsrx), and [drag and drop composition](../packages/dnd-kit/README.md#compose-drag-and-drop).
+
+The [AppKit text fixture](../apps/macos/test/text-controls-fixture.macos.tsx)
+checks TextInput/TextArea object handles, native focus/blur, stable native identity
+when secure mode changes, and ref clearing on unmount. Other ref forms and
+replacement are covered by the shared ref suites above.

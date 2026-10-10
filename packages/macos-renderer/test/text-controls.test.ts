@@ -66,10 +66,10 @@ function textNode(type, extra = {}) {
 	}
 }
 
-test('secure prop selects the secure AppKit field and keeps its value', () => {
+test('text fields retain a secure-capable host and their initial values', () => {
 	const { makeTextField: make } = runInNewContext(makeTextField + '\n({ makeTextField })', {
-		NSTextView: FakeTextView,
-		ContentAlignedTextField: FakeTextField,
+		InteractionTextView: FakeTextView,
+		ContentAlignedTextField: FakeSecureTextField,
 		ContentAlignedSecureTextField: FakeSecureTextField,
 		fontForStyle: () => ({}),
 		nativeColor: (value) => value,
@@ -78,7 +78,7 @@ test('secure prop selects the secure AppKit field and keeps its value', () => {
 
 	const plain = make({ value: 'name' })
 	assert.ok(plain instanceof FakeTextField)
-	assert.ok(!(plain instanceof FakeSecureTextField))
+	assert.ok(plain instanceof FakeSecureTextField)
 	assert.equal(plain.stringValue, 'name')
 
 	const secure = make({ secure: true, value: 's3cret' })
@@ -114,6 +114,10 @@ function propsHarness() {
 		applyClassName: () => {},
 		syncText: () => {},
 		syncTextViewPlaceholder: () => {},
+		fitTextView: () => {},
+		syncSecureTextField: (node) => {
+			node.secureMode = Boolean(node.props.secure)
+		},
 		setTextFieldPlaceholder: () => {},
 		nodeScheme: () => 'light',
 		setSizeConstraint: () => {},
@@ -160,24 +164,17 @@ test('isEnabled and editable map to native enabled/editable/selectable state', (
 	assert.equal(area.view.selectable, false)
 })
 
-test('secure changes after mount and secure multiline entry are rejected explicitly', () => {
+test('secure changes reach the synchronizer while secure multiline entry warns', () => {
 	const { applyProps, warnings } = propsHarness()
-	const node = textNode('textfield', { secure: true })
-
+	const node = textNode('textfield')
 	applyProps(node, { secure: true })
-	assert.equal(warnings.length, 0)
+	assert.equal(node.secureMode, true)
 	applyProps(node, { secure: false })
+	assert.equal(node.secureMode, false)
+	assert.equal(warnings.length, 0)
+	applyProps(textNode('textview'), { secure: true })
 	assert.equal(warnings.length, 1)
-	assert.match(warnings[0], /changing "secure" after mount is unsupported/)
-
-	const plain = textNode('textfield')
-	applyProps(plain, { secure: true })
-	assert.equal(warnings.length, 2)
-
-	const area = textNode('textview')
-	applyProps(area, { secure: true })
-	assert.equal(warnings.length, 3)
-	assert.match(warnings[2], /secure is unsupported on <textview>/)
+	assert.match(warnings[0], /secure is unsupported on <textview>/)
 })
 
 test('onTextChange reads the field value and onSubmit binds a separate submit handler', () => {
@@ -197,8 +194,7 @@ test('onTextChange reads the field value and onSubmit binds a separate submit ha
 
 	const area = textNode('textview')
 	applyProps(area, { onSubmit: () => {} })
-	assert.equal(warnings.length, 1)
-	assert.match(warnings[0], /onSubmit is unsupported on multiline textview/)
+	assert.equal(warnings.length, 0)
 })
 
 test('text-control accessibility props reach the native element', () => {
@@ -228,12 +224,17 @@ test('per-edit delegate events fire the change handler while the action fires su
 		NSPanGestureRecognizer: class {},
 		NSNotification: class {},
 		NSTextViewDelegate: {},
+		NSTextFieldDelegate: {},
 		actionHandlers,
 		actionIdsByView,
 		textNodesByView,
 		panHandlersByView: new WeakMap(),
 		invokeAction: (id) => actionHandlers.get(id)?.(),
 		syncTextViewPlaceholder: () => {},
+		fitTextView: () => {},
+		syncSecureTextField: (node) => {
+			node.secureMode = Boolean(node.props.secure)
+		},
 		console,
 	})
 

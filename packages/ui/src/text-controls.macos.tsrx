@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useImperativeHandle, useRef } from 'octane'
 import type { TextAreaProps, TextInputProps } from './props'
 import { cx } from './cx'
 import { Pressable } from './Pressable.macos.tsrx'
@@ -8,9 +9,26 @@ import { useFieldControlProps } from './field-context'
 export function TextInput(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
+	const el = useRef<any>(null)
+	useImperativeHandle(props.ref, () => ({
+		focus: () => el.current?.window?.makeFirstResponder(el.current),
+		blur: () => {
+			const view = el.current
+			const responder = view?.window?.firstResponder
+			if (responder === view || (responder && responder === view?.currentEditor?.())) {
+				view.window.makeFirstResponder(null)
+			}
+		},
+		get native() { return el.current },
+	}), [])
 
 	<flexboxlayout className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
 		<textfield
+			ref={el}
+			secure={props.secure}
+			onSubmit={props.onSubmit}
+			onFocus={props.onFocus}
+			onBlur={props.onBlur}
 			id={props.id}
 			value={props.value}
 			placeholder={props.placeholder}
@@ -18,9 +36,7 @@ export function TextInput(inputProps: TextInputProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			secure={props.secure}
 			onTextChange={props.onChange}
-			onSubmit={props.onSubmit}
 			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
@@ -34,6 +50,18 @@ export function TextInput(inputProps: TextInputProps) @{
 export function TextArea(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
+	const el = useRef<any>(null)
+	useImperativeHandle(props.ref, () => ({
+		focus: () => el.current?.window?.makeFirstResponder(el.current),
+		blur: () => {
+			const view = el.current
+			const responder = view?.window?.firstResponder
+			if (responder === view || (responder && responder === view?.currentEditor?.())) {
+				view.window.makeFirstResponder(null)
+			}
+		},
+		get native() { return el.current },
+	}), [])
 
-	<textview id={props.id} value={props.value} placeholder={props.placeholder} rows={props.autoGrow ? undefined : props.rows ?? 3} className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)} style={props.style} isEnabled={!props.isDisabled} editable={!isBlocked} secure={props.secure} onTextChange={props.onChange} onSubmit={props.onSubmit} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} />
+	<textview ref={el} onFocus={props.onFocus} onBlur={props.onBlur} onSubmit={props.onSubmit} returnKeyType={props.returnKeyType} autoGrow={props.autoGrow} maxRows={props.maxRows} id={props.id} value={props.value} placeholder={props.placeholder} rows={props.rows ?? (props.autoGrow ? 1 : 3)} className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)} style={props.style} isEnabled={!props.isDisabled} editable={!isBlocked} secure={props.secure} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} />
 }

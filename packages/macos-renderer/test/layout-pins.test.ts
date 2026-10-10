@@ -12,16 +12,19 @@ const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
 
-const layout = source.slice(
-	source.indexOf('function layoutLength'),
-	source.indexOf('function performGridAccessibilityAdjustment'),
-)
+const layout =
+	source.slice(
+		source.indexOf('function layoutView('),
+		source.indexOf('/** The view a stack should arrange'),
+	) +
+	source.slice(
+		source.indexOf('function layoutLength'),
+		source.indexOf('function performGridAccessibilityAdjustment'),
+	)
 
-const {
-	releasePlacementPins,
-	layoutGridChildren,
-	layoutAbsoluteChildren,
-} = runInNewContext(layout + '\n({ releasePlacementPins, layoutGridChildren, layoutAbsoluteChildren })')
+const { releasePlacementPins, layoutGridChildren, layoutAbsoluteChildren } = runInNewContext(
+	layout + '\n({ releasePlacementPins, layoutGridChildren, layoutAbsoluteChildren })',
+)
 
 function constraint() {
 	return { active: false, constant: 0 }
@@ -114,8 +117,12 @@ test('grid children are pinned to their resolved cell rects', () => {
 	layoutGridChildren(host)
 
 	assert.equal(a.view.frame, undefined)
-	const rect = (node) =>
-		[node.leading.constant, node.top.constant, node.width.constant, node.height.constant]
+	const rect = (node) => [
+		node.leading.constant,
+		node.top.constant,
+		node.width.constant,
+		node.height.constant,
+	]
 
 	assert.deepEqual(rect(pins(a)), [0, 0, 100, 40])
 	assert.deepEqual(rect(pins(b)), [100, 40, 200, 160])
