@@ -671,6 +671,17 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 			continue
 		}
 
+		// Type-only imports emit no module edge — `import type` and
+		// specifier-level `type` markers can never reach the consumer's
+		// runtime graph, so they cannot create a second bundled instance.
+		const specifiers = node.specifiers ?? []
+		if (
+			node.importKind === 'type' ||
+			(specifiers.length > 0 && specifiers.every((s) => s.importKind === 'type'))
+		) {
+			continue
+		}
+
 		const source = node.source?.value
 		if (typeof source === 'string' && source.startsWith('@nativescript/core/ui/')) {
 			out.push({

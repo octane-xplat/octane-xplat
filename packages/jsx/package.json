@@ -1,0 +1,81 @@
+{
+	"name": "@octane-xplat/jsx",
+	"version": "0.10.0",
+	"description": "Shared native JSX type contract for Octane xplat — one intrinsic element vocabulary for the NativeScript and AppKit drivers, with DOM types exposed separately",
+	"keywords": [
+		"appkit",
+		"ios",
+		"android",
+		"jsx",
+		"jsx-runtime",
+		"macos",
+		"nativescript",
+		"octane",
+		"types",
+		"xplat"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/jsx",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/jsx"
+	},
+	"files": [
+		"src",
+		"README.md"
+	],
+	"type": "module",
+	"exports": {
+		"./jsx-runtime": {
+			"types": {
+				"macos": "./src/macos.d.ts",
+				"native": "./src/native.d.ts",
+				"default": "./src/jsx-runtime.d.ts"
+			}
+		},
+		"./jsx-dev-runtime": {
+			"types": {
+				"macos": "./src/macos.d.ts",
+				"native": "./src/native.d.ts",
+				"default": "./src/jsx-runtime.d.ts"
+			}
+		},
+		"./intrinsics": {
+			"types": {
+				"macos": "./src/macos.d.ts",
+				"native": "./src/native.d.ts",
+				"default": "./src/intrinsics.d.ts"
+			}
+		},
+		"./dom": {
+			"types": "./src/dom/index.d.ts"
+		},
+		"./dom/jsx-runtime": {
+			"types": "./src/dom/jsx-runtime.d.ts"
+		},
+		"./dom/jsx-dev-runtime": {
+			"types": "./src/dom/jsx-runtime.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"typecheck": "tsc -p tsconfig.json",
+		"test:packed": "node tests/packed-consumer.mjs"
+	},
+	"devDependencies": {
+		"@nativescript/core": "9.1.2",
+		"@nativescript/types": "9.1.4",
+		"octane": "0.6.3",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
+	}
+}
