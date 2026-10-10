@@ -37,7 +37,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test": "node --test tests/macos.test.mjs",
+		"test:macos-runtime": "node ../../apps/macos/test/verify-biometrics.mjs"
 	},
 	"dependencies": {
 		"@nativescript/biometrics": "1.3.1"
