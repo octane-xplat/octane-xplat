@@ -1,0 +1,38 @@
+{
+	"name": "@octane-xplat/mcp",
+	"version": "0.0.0",
+	"private": true,
+	"description": "MCP server for Octane Xplat consumer apps — project identity, capability discovery, permission and evidence contracts.",
+	"license": "MIT",
+	"bin": {
+		"xplat-mcp": "./src/xplat-mcp.mjs"
+	},
+	"files": [
+		"src",
+		"README.md"
+	],
+	"type": "module",
+	"exports": {
+		"./contracts": {
+			"types": "./src/contracts/index.d.ts",
+			"default": "./src/contracts/index.mjs"
+		},
+		"./contracts/*": {
+			"types": "./src/contracts/*.d.ts",
+			"default": "./src/contracts/*.mjs"
+		}
+	},
+	"scripts": {
+		"start": "node src/xplat-mcp.mjs",
+		"test": "node --test tests/*.test.mjs",
+		"typecheck": "tsc -p tsconfig.json"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "1.31.0",
+		"yaml": "2.9.1",
+		"zod": "4.6.5"
+	},
+	"devDependencies": {
+		"typescript": "5.9.3"
+	}
+}
