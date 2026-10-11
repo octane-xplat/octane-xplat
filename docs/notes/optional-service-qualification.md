@@ -102,6 +102,51 @@ pnpm --filter @octane-xplat/media test
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit photo lifecycle"}' -- pnpm --filter @octane-xplat/camera test:macos-photo
 ```
 
+## macOS UI sounds
+
+The existing `@nativescript/audio-context` 1.3.3 dependency declares iOS/Android
+only. The old packed SoundBank import failed to resolve that dependency under
+AppKit's macOS conditions; the host also lacks `NSCAudioContext` and
+`AVAudioSession`. The mobile backend is retained. A separate macOS export uses
+Apple's [AVAudioPlayer](https://developer.apple.com/documentation/avfaudio/avaudioplayer)
+with one player per voice and retained clip bytes. No new native library, mixer,
+synthesis, or format implementation is added.
+
+```ts
+import { createSoundBank } from '@octane-xplat/sounds'
+
+export async function loadAppKitSound(source: string) {
+	const bank = createSoundBank({ maxVoices: 2 })
+	try {
+		await bank.load('saved', source)
+		return bank
+	} catch (error) {
+		bank.dispose()
+		throw error
+	}
+}
+```
+
+The nonvisual packed AppKit run passes import/construction, local/file-URL and
+HTTP loading, independent same-clip overlap with advancing player times,
+oldest-voice eviction at two voices, per-play volume/clamping, targeted/global
+stop, completion/replay, reload, malformed/missing/HTTP-failed loads, and disposal
+including cancellation of a pending download. Deterministic tests also cover
+late download callbacks, load replacement, timer ownership, and absent AppKit
+APIs. The existing web/mobile engines pass mock contract tests; this run does
+not add fresh browser, iOS or Android device evidence.
+
+```sh
+pnpm --filter @octane-xplat/sounds test
+pnpm --filter @octane-xplat/sounds test:packed
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Silent AppKit SoundBank qualification"}' -- pnpm --filter @octane-xplat/sounds test:macos-runtime
+```
+
+The WAV fixture is silent. Audible overlap, output-route coexistence with
+long-form playback, and physical-device behavior remain unqualified. Use the
+[media integration checks](../platform/media-services.md#check-your-integration)
+before relying on those properties in an app.
+
 ## Historical defects rechecked
 
 The older Android null-after-granted-camera-permission result was followed by

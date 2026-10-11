@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { checkPublicImport, verifyMacOS } from './verify-macos.mjs'
 import { spawnSync } from 'node:child_process'
 import {
 	cpSync,
@@ -57,7 +58,10 @@ const consumers = {
 	web: `import { createSoundBank, type SoundBank } from '@octane-xplat/sounds'
 const bank: SoundBank = createSoundBank({ maxVoices: 4 })
 const loaded: Promise<void> = bank.load('ding', 'ding.mp3')
-const played: Promise<boolean> = bank.play('ding')
+const played: Promise<boolean> = bank.play('ding', { volume: 0.5 })
+bank.stop('ding')
+bank.stop()
+bank.dispose()
 // @ts-expect-error maxVoices is a number
 const bad = createSoundBank({ maxVoices: 'many' })
 void loaded
@@ -67,7 +71,10 @@ void bad
 	native: `import { createSoundBank, type SoundBank } from '@octane-xplat/sounds'
 const bank: SoundBank = createSoundBank({ maxVoices: 4 })
 const loaded: Promise<void> = bank.load('ding', 'ding.mp3')
-const played: Promise<boolean> = bank.play('ding')
+const played: Promise<boolean> = bank.play('ding', { volume: 0.5 })
+bank.stop('ding')
+bank.stop()
+bank.dispose()
 // @ts-expect-error maxVoices is a number
 const bad = createSoundBank({ maxVoices: 'many' })
 void loaded
@@ -76,6 +83,8 @@ void bad
 `,
 }
 
+consumers.macos = consumers.native
+
 const extraFiles = {}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
@@ -83,6 +92,7 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
+	macos: { moduleSuffixes: ['.macos', ''], customConditions: ['macos', 'native'], types: [] },
 	web: {
 		moduleSuffixes: ['.web', ''],
 		customConditions: ['web'],
@@ -215,6 +225,11 @@ try {
 				typecheck(consumerPackage, target, mode, index)
 			}
 		}
+	}
+
+	await checkPublicImport(packedRoot, join(temporary, 'public-macos'))
+	if (process.argv.includes('--macos-runtime')) {
+		await verifyMacOS(packedRoot, temporary)
 	}
 
 	console.log('sounds packed consumer: exports typecheck in Bundler and NodeNext modes')

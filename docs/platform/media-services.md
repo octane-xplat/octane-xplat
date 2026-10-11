@@ -138,13 +138,16 @@ export function realtimeExample() {
 
 Use `createSoundBank({ maxVoices })` for short effects. `load(name, source)`
 prepares a sound; `play(name, { volume })` uses a clamped per-play volume, and
-`stop(name?)` stops one sound or every effect. The voice limit is a hard cap;
-when full, the oldest active effect is stopped before the next starts. Web
+`stop(name?)` stops every voice of one sound or every effect. The voice limit is
+a hard cap; when full, the oldest active effect is stopped before the next starts. Web
 `stop()` also unloads each stopped voice; the preloaded clip remains reusable. Call
-`dispose()` when the owning screen or service ends. Native playback uses one
+`dispose()` when the owning screen or service ends. iOS/Android playback uses one
 `@nativescript/audio-context` context with reusable decoded buffers and a gain
 node per voice; the web backend uses preloaded HTML audio. It is pinned to the
 stable `1.3.3` release, already present in the workspace's NativeScript probe.
+macOS AppKit retains loaded bytes and uses an independent `AVAudioPlayer` for
+each voice, so repeated plays can overlap. Local paths, file URLs, and HTTP(S)
+URLs are accepted; malformed or missing audio rejects during load.
 
 ```ts
 import { createSoundBank } from '@octane-xplat/sounds'
@@ -180,6 +183,31 @@ export async function playSaved(bank: SoundBank) {
 	const needsGesture = bank.capabilities().userGestureRequired
 	const played = await bank.play('saved') // call from a button when needsGesture
 	if (!played) console.log(needsGesture ? 'Try again from a button' : 'Sound unavailable')
+}
+```
+
+macOS construction is safe when AppKit audio APIs are absent: check `supported`
+before loading. Reloading a name stops its existing voices and cancels its
+pending download. Disposal cancels all pending downloads and stops all effects.
+The packed silent AppKit checks qualify overlap and cleanup; audible output and
+long-form route coexistence still need the [integration checks](#check-your-integration).
+
+```ts
+import { createSoundBank } from '@octane-xplat/sounds'
+
+export async function prepareAppKitEffect(source: string) {
+	const bank = createSoundBank({ maxVoices: 2 })
+	try {
+		if (!bank.capabilities().supported) {
+			bank.dispose()
+			return undefined
+		}
+		await bank.load('saved', source)
+		return bank // keep until the screen or service ends
+	} catch (error) {
+		bank.dispose()
+		throw error
+	}
 }
 ```
 

@@ -7,7 +7,8 @@ pnpm add @octane-xplat/sounds
 Short UI sound effects for Octane xplat apps — tap blips, confirmations,
 alerts — not long-form playback. iOS/Android decode and mix through
 `@nativescript/audio-context` (a Web Audio port); web pools cloned
-`HTMLAudioElement` voices.
+`HTMLAudioElement` voices. macOS AppKit uses a separate `AVAudioPlayer` for each
+voice and reuses the loaded bytes.
 
 ```ts
 import { createSoundBank } from '@octane-xplat/sounds'
@@ -17,9 +18,11 @@ await bank.load('confirm', { uri: 'https://example.com/confirm.mp3' })
 await bank.play('confirm', { volume: 0.8 })
 ```
 
-`load(name, source)` prepares the clip before playback; native decodes it up
-front, while browsers may defer audio data until `play`. `stop(name?)` ends one
-voice or all. `capabilities()` reports `supported`,
+`load(name, source)` prepares the clip before playback; iOS/Android decode it up
+front, macOS validates local files or downloaded HTTP(S) bytes, and browsers may
+defer audio data until `play`. `stop(name)` ends every voice for that name;
+`stop()` ends all effects. At the voice limit, the oldest active voice is stopped
+before the next begins. `capabilities()` reports `supported`,
 `userGestureRequired` (web autoplay policy can refuse the first `play`,
 which resolves `false`), and `maxVoices` — check it before relying on
 polyphony.
@@ -40,3 +43,16 @@ For queued music/podcast playback use
 
 Guide: [Media services](../../docs/platform/media-services.md); per-target
 availability: [platform notes](../../docs/notes/platform-notes.md).
+
+macOS requires the AppKit host's Foundation and AVFoundation APIs. Without them,
+construction is safe, capabilities report unsupported, loads reject, and plays
+resolve `false`. Disposal cancels pending macOS downloads. Audible output and
+coexistence with long-form playback remain separate qualification checks.
+
+```ts
+import { createSoundBank } from '@octane-xplat/sounds'
+
+const effects = createSoundBank()
+if (!effects.capabilities().supported) console.log('UI sounds unavailable')
+effects.dispose()
+```

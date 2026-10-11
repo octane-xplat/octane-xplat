@@ -1,7 +1,7 @@
 # Add UI sound effects
 
 ID: ui-sounds
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: `@octane-xplat/sounds`, `createSoundBank`, `SoundBank`
 
 ## Starting point

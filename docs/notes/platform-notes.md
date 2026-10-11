@@ -186,9 +186,9 @@ so their native dependencies and build costs stay out of `ui` and the basic
 haptics; Android apps compile with SDK 36 while targeting 35 and supporting
 Android 24+.
 
-`@octane-xplat/sounds` uses `@nativescript/audio-context` 1.3.3 on native and
-preloaded HTML audio on web. Its native implementation decodes each effect
-once and routes overlapping sources through per-voice gain nodes. Android
+`@octane-xplat/sounds` uses `@nativescript/audio-context` 1.3.3 on iOS/Android,
+preloaded HTML audio on web, and independent `AVAudioPlayer` voices on macOS. The mobile implementation decodes each effect once and routes
+overlapping sources through per-voice gain nodes. Android
 sound/overlap calls ran without exceptions while the player session remained
 active, but emulator audio output is disabled, so audible mixing and route
 preservation still need a physical device.
