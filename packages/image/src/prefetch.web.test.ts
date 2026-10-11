@@ -102,4 +102,25 @@ describe('prefetchBatch', () => {
 	it('reports false if the warm callback throws', async () => {
 		expect(await prefetchBatch(['a', 'b'], 5, () => Promise.reject(new Error('boom')))).toBe(false)
 	})
+
+	it('stops dequeuing new URLs once a failure resolves the batch', async () => {
+		const warmed: string[] = []
+		const release: Array<() => void> = []
+		const promise = prefetchBatch(
+			['a', 'b', 'c', 'd'],
+			2,
+			(url) =>
+				new Promise<boolean>((resolve) => {
+					warmed.push(url)
+					release.push(() => resolve(url !== 'a'))
+				}),
+		)
+
+		expect(warmed).toEqual(['a', 'b'])
+		release[0]() // 'a' fails — the batch resolves false
+		expect(await promise).toBe(false)
+		release[1]() // 'b' settles on its own but must not start 'c' or 'd'
+		await flush()
+		expect(warmed).toEqual(['a', 'b'])
+	})
 })

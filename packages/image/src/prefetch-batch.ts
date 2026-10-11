@@ -26,16 +26,21 @@ export function prefetchBatch(
 	return new Promise<boolean>((resolve) => {
 		let next = 0
 		let active = Math.min(limit, urls.length)
+		// Surviving workers stop dequeuing once a failure decides the result —
+		// only already-running warm() calls settle on their own.
+		let failed = false
 		for (let i = 0; i < active; i++) {
 			void (async () => {
-				while (next < urls.length) {
+				while (!failed && next < urls.length) {
 					const url = urls[next++]
 					try {
 						if (!(await warm(url))) {
+							failed = true
 							resolve(false)
 							return
 						}
 					} catch {
+						failed = true
 						resolve(false)
 						return
 					}
