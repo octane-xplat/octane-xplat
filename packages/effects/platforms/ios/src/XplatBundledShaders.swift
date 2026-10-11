@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 /// Registers the leaf's bundled stitchable shaders under the names
@@ -12,14 +13,16 @@ import SwiftUI
 /// in place before the first factory lookup — apps need no Swift code of
 /// their own. Apps can still register additional names on
 /// `XplatShaderEffectRegistry` with their own `ShaderLibrary`.
+@available(iOS 17.0, *)
 enum XplatBundledShaders {
+	#if targetEnvironment(simulator)
+	private static let resourceName = "OctaneShaders.sim"
+	#else
+	private static let resourceName = "OctaneShaders"
+	#endif
+
 	private static let library: ShaderLibrary? = {
-		#if targetEnvironment(simulator)
-		let resource = "OctaneShaders.sim"
-		#else
-		let resource = "OctaneShaders"
-		#endif
-		guard let url = Bundle.main.url(forResource: resource, withExtension: "metallib") else {
+		guard let url = Bundle.main.url(forResource: resourceName, withExtension: "metallib") else {
 			return nil
 		}
 		return ShaderLibrary(url: url)
@@ -30,7 +33,10 @@ enum XplatBundledShaders {
 	static func install() {
 		guard !installed else { return }
 		installed = true
-		guard let library else { return }
+		guard let library else {
+			NSLog("[octane-xplat/effects] %@.metallib missing from the app bundle — bundled effects render unmodified", resourceName)
+			return
+		}
 
 		register(library, "heatHaze", kind: .distortion, function: "octaneHeatHaze") { fn, args in
 			fn(.float(args.f("time")), .float2(args.size), .float(args.f("intensity")))

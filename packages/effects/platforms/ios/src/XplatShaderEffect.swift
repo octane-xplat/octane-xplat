@@ -18,6 +18,7 @@ import UIKit
 /// `args` carries everything the JS side sent as `args`, plus `time`
 /// (seconds since the host mounted, injected per frame when `animate` is
 /// on) and `size` (the host's CGSize) inserted under those keys.
+@available(iOS 17.0, *)
 public enum XplatShaderEffectRegistry {
 	public enum Kind: String {
 		case distortion, color, layer
@@ -47,6 +48,17 @@ final class XplatShaderEffectModel: ObservableObject {
 	@Published var args: [String: Any] = [:]
 }
 
+/// One-time diagnostics for the silent-degrade paths — a miss must be
+/// visible once without logging per frame.
+private enum XplatShaderEffectDiagnostics {
+	static var reportedUnknownEffects = Set<String>()
+
+	static func warnUnknownEffect(_ name: String) {
+		guard !name.isEmpty, reportedUnknownEffects.insert(name).inserted else { return }
+		NSLog("[octane-xplat/effects] no shader factory registered for effect '%@' — subtree renders unmodified", name)
+	}
+}
+
 struct XplatShaderEffectView: View {
 	@ObservedObject var model: XplatShaderEffectModel
 
@@ -56,17 +68,27 @@ struct XplatShaderEffectView: View {
 	private let start = Date()
 
 	var body: some View {
-		TimelineView(.animation(paused: !model.animate)) { context in
-			GeometryReader { geometry in
-				shaderApplied(to: content, time: context.date.timeIntervalSince(start), size: geometry.size)
+		if #available(iOS 17.0, *) {
+			TimelineView(.animation(paused: !model.animate)) { context in
+				GeometryReader { geometry in
+					shaderApplied(to: content, time: context.date.timeIntervalSince(start), size: geometry.size)
+				}
+			}
+		} else {
+			// Stitchable shaders are iOS 17+ — below that the subtree
+			// renders unmodified.
+			if #available(iOS 14.0, *) {
+				content
 			}
 		}
 	}
 
+	@available(iOS 14.0, *)
 	private var content: NativeScriptView {
 		NativeScriptView(id: model.viewId)
 	}
 
+	@available(iOS 17.0, *)
 	@ViewBuilder
 	private func shaderApplied<V: View>(to base: V, time: TimeInterval, size: CGSize) -> some View {
 		let merged = shaderArguments(time: time, size: size)
@@ -81,6 +103,7 @@ struct XplatShaderEffectView: View {
 				base.colorEffect(shader)
 			}
 		} else {
+			XplatShaderEffectDiagnostics.warnUnknownEffect(model.effect)
 			base
 		}
 	}
@@ -107,7 +130,9 @@ public class XplatShaderEffectProvider: UIViewController, SwiftUIProvider {
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
-		XplatBundledShaders.install()
+		if #available(iOS 17.0, *) {
+			XplatBundledShaders.install()
+		}
 		setupSwiftUIView(content: XplatShaderEffectView(model: model))
 	}
 

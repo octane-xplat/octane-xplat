@@ -35,6 +35,10 @@ const setUniforms = (shader: any, uniforms: Record<string, number | number[]>) =
 export function ShaderEffect(props: ShaderEffectProps) @{
 	const ref = useRef<any>(null);
 
+	// Key the effect on uniform VALUES, not identity — an inline uniforms
+	// object is a new reference every render and would otherwise rebuild
+	// the shader pipeline on every parent render.
+	const uniformsKey = JSON.stringify(props.uniforms ?? null);
 	useEffect(() => {
 		const view = ref.current;
 		const native = view?.android;
@@ -48,14 +52,51 @@ export function ShaderEffect(props: ShaderEffectProps) @{
 		}
 
 		const android = (globalThis as any).android;
-		const shader = new android.graphics.RuntimeShader(props.source);
-		const effect = android.graphics.RenderEffect.createRuntimeShaderEffect(shader, 'content');
+		let shader: any;
+		let effect: any;
+		try {
+			shader = new android.graphics.RuntimeShader(props.source);
+			effect = android.graphics.RenderEffect.createRuntimeShaderEffect(shader, 'content');
+		} catch (error) {
+			console.warn('ShaderEffect: AGSL shader failed to build — subtree renders without the effect', error);
+			return;
+		}
+
+		// `time`/`size` are injected only while the shader accepts them —
+		// setFloatUniform throws for undeclared names, so one rejection
+		// disables that injection for this effect instance.
+		const inject = { time: true, size: true };
+		let degraded = false;
 		const apply = (timeSec: number) => {
-			setUniforms(shader, props.uniforms ?? {});
-			shader.setFloatUniform('time', timeSec);
-			shader.setFloatUniform('size', native.getWidth(), native.getHeight());
-			native.setRenderEffect(effect);
-			native.invalidate();
+			if (degraded) {
+				return;
+			}
+
+			try {
+				setUniforms(shader, props.uniforms ?? {});
+				if (inject.time) {
+					try {
+						shader.setFloatUniform('time', timeSec);
+					} catch {
+						inject.time = false;
+					}
+				}
+
+				if (inject.size) {
+					try {
+						shader.setFloatUniform('size', native.getWidth(), native.getHeight());
+					} catch {
+						inject.size = false;
+					}
+				}
+
+				native.setRenderEffect(effect);
+				native.invalidate();
+			} catch (error) {
+				degraded = true;
+				native.setRenderEffect(null);
+				console.warn('ShaderEffect: applying the AGSL shader failed — subtree renders without the effect', error);
+			}
 		};
 
 		apply(0);
@@ -82,7 +123,7 @@ export function ShaderEffect(props: ShaderEffectProps) @{
 			android.view.Choreographer.getInstance().removeFrameCallback(callback);
 			native.setRenderEffect(null);
 		};
-	}, [props.source, props.uniforms, props.animate]);
+	}, [props.source, uniformsKey, props.animate]);
 
 	<gridlayout id={props.id} className={props.className} style={props.style} ref={ref}>
 		{props.children}

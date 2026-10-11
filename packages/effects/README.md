@@ -19,7 +19,7 @@ import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
 
 export function DistortedTitle() @{
-	<ShaderEffect effect="heatHaze" args={{ strength: 1 }}>
+	<ShaderEffect effect="heatHaze" args={{ intensity: 1 }}>
 		<Text>Distorted content</Text>
 	</ShaderEffect>
 }
@@ -33,6 +33,13 @@ rate — pass `false` for static effects. `maxSampleOffset` bounds how far a
 distortion shader may displace. On both targets the subtree renders
 normally into a detached host, so the shader sees real framework pixels.
 
+Two boundaries to know: the iOS leaf needs a deployment target of **iOS
+17** — below it the subtree renders without the effect (the starter app's
+`build.xcconfig` already pins 17.0). And children mount through a separate
+octane root, so `createContext`/`useContext` values from ancestors do not
+cross into the effected subtree — signals are global and still work, or
+pass the values in through props.
+
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
 // effect.ios.tsx
@@ -43,7 +50,7 @@ export function StaticEffect() {
 	return (
 		<ShaderEffect
 			effect="heatHaze"
-			args={{ strength: 1 }}
+			args={{ intensity: 1 }}
 			animate={false}
 			maxSampleOffset={{ width: 10, height: 10 }}
 		>
