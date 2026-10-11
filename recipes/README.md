@@ -35,6 +35,7 @@ Workflows:
 - [Add advanced haptics](advanced-haptics.md)
 - [Add UI sound effects](ui-sounds.md)
 - [Add long-form audio playback](audio-playback.md)
+- [Keep an illustration when Canvas drawing is unavailable](canvas-fallback.md)
 
 - [Select an image crop inline](inline-image-crop.md)
 - [Pick and capture images](pick-and-capture-images.md)

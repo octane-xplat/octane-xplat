@@ -15,6 +15,8 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { build } from 'vite'
+import { xplatMacOS } from '../../cli/src/macos/vite.mjs'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
@@ -51,6 +53,8 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript/types',
 	'@nativescript/canvas',
+	'@octane-xplat/macos-renderer',
+	'@octanejs/vite-plugin',
 ]
 
 const consumers = {
@@ -66,6 +70,20 @@ void getGPU
 	native: `import { Canvas, getGPU, type CanvasProps } from '@octane-xplat/canvas'
 const canvas = <Canvas context="webgl" onReady={() => {}} />
 // @ts-expect-error context follows the published union
+const badContext = <Canvas context="3d" />
+void canvas
+void badContext
+void getGPU
+`,
+	macos: `import { Canvas, getGPU, type CanvasProps, type CanvasReady } from '@octane-xplat/canvas'
+const props: CanvasProps = { context: '2d', width: 320, height: 200,
+  onReady: ({ canvas, context }: CanvasReady) => {
+    const acquired = context ?? canvas.getContext('2d')
+    if (acquired) acquired.fillRect(0, 0, 20, 20)
+  }
+}
+const canvas = <Canvas {...props} />
+// @ts-expect-error context follows the published union on macOS too
 const badContext = <Canvas context="3d" />
 void canvas
 void badContext
@@ -91,6 +109,12 @@ const targetConfig = {
 		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
 		customConditions: ['native'],
 		types: ['@nativescript/types'],
+	},
+	macos: {
+		jsxImportSource: 'octane',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos', 'native'],
+		types: [],
 	},
 }
 
@@ -161,6 +185,59 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 		[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath],
 		consumerRoot,
 	)
+
+	return consumerRoot
+}
+
+async function checkMacOSResolution(root, expectedEntry) {
+	writeFileSync(join(root, 'drawing.tsx'), `
+import { Canvas, getGPU } from '@octane-xplat/canvas'
+export function Drawing() {
+  return <Canvas context="webgpu" onReady={({ canvas, context }) => {
+    if (!context || !getGPU()) return
+    void canvas
+  }} />
+}
+export { getGPU }
+`)
+
+	// Use the actual CLI preset: `macos` must beat the mobile `native` export.
+	const config = await xplatMacOS(
+		{ mode: 'production' },
+		{
+			root,
+			packaged: false,
+			entry: 'drawing.tsx',
+		},
+	)
+
+	const loaded = []
+	config.plugins.push({
+		name: 'canvas-no-mobile-imports',
+		resolveId(id) {
+			assert.ok(!id.startsWith('@nativescript/canvas'), `unsafe macOS import: ${id}`)
+		},
+		load(id) {
+			loaded.push(id)
+		},
+	})
+
+	await build({
+		...config,
+		configFile: false,
+		logLevel: 'error',
+		build: { ...config.build, write: false, minify: false },
+	})
+
+	assert.ok(
+		loaded.some((id) => id.endsWith(expectedEntry)),
+		`resolved ${expectedEntry}`,
+	)
+
+	assert.ok(
+		!loaded.some((id) => id.includes('/dist/native/') || id.endsWith('/src/gpu.ts')),
+		'AppKit bundle excludes the mobile Canvas/GPU implementation',
+	)
 }
 
 try {
@@ -171,6 +248,11 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+	assert.equal(
+		packedManifest.exports['.'].macos,
+		'./dist/macos/index.js',
+		'pnpm pack retains the published macOS entry',
+	)
 
 	const exportMaps = [
 		workspaceManifest.exports,
@@ -213,12 +295,17 @@ try {
 					moduleResolution: 'nodenext',
 				},
 			]) {
-				typecheck(consumerPackage, target, mode, index)
+				const root = typecheck(consumerPackage, target, mode, index)
+				if (target === 'macos' && mode.name === 'bundler') {
+					await checkMacOSResolution(root, exportsMap['.'].macos.slice(1))
+				}
 			}
 		}
 	}
 
-	console.log('canvas packed consumer: exports typecheck in Bundler and NodeNext modes')
+	console.log(
+		'canvas packed consumer: web/native/macos exports typecheck in Bundler and NodeNext; AppKit bundles exclude mobile backends',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

@@ -42,23 +42,50 @@ const WEB_EXTS = [
 	'.json',
 ]
 
+const MACOS_EXTS = [
+	'.macos.tsrx',
+	'.tsrx',
+	'.macos.tsx',
+	'.tsx',
+	'.macos.ts',
+	'.ts',
+	'.mjs',
+	'.mts',
+	'.js',
+	'.json',
+]
+
 export default defineConfig(({ mode }) => {
-	const native = mode === 'native'
+	const macos = mode === 'macos'
+	const native = mode === 'native' || macos
+	const renderer = macos ? 'macos' : 'nativescript'
 	return {
 		plugins: octane({
 			renderers: native
 				? {
-						registry: { nativescript: nativeScriptRenderer },
-						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
+						registry: macos
+							? {
+									macos: {
+										module: '@octane-xplat/macos-renderer',
+										target: 'universal',
+										server: 'unsupported',
+										text: 'host',
+										intrinsics: '@octane-xplat/macos-renderer/intrinsics',
+									},
+								}
+							: { nativescript: nativeScriptRenderer },
+						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer }],
 					}
 				: undefined,
 		}),
 		build: {
 			lib: {
-				entry: { index: native ? 'src/index.ts' : 'src/index.web.ts' },
+				entry: {
+					index: macos ? 'src/index.macos.ts' : native ? 'src/index.ts' : 'src/index.web.ts',
+				},
 				formats: ['es'],
 			},
-			outDir: native ? 'dist/native' : 'dist/web',
+			outDir: macos ? 'dist/macos' : native ? 'dist/native' : 'dist/web',
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
@@ -70,12 +97,17 @@ export default defineConfig(({ mode }) => {
 					// second octane runtime. Exact match only.
 					...(native ? { paths: (id) => (id === 'octane' ? 'octane/universal/native' : id) } : {}),
 				},
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
+				external: [
+					/^octane/,
+					/^@nativescript\//,
+					/^@nativescript-community\//,
+					/^@octane-xplat\/macos-renderer/,
+				],
 			},
 		},
 		resolve: {
-			conditions: [native ? 'native' : 'web'],
-			extensions: native ? NATIVE_EXTS : WEB_EXTS,
+			conditions: macos ? ['macos', 'native'] : [native ? 'native' : 'web'],
+			extensions: macos ? MACOS_EXTS : native ? NATIVE_EXTS : WEB_EXTS,
 		},
 	}
 })
