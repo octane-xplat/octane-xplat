@@ -77,6 +77,10 @@ export function desktopHost(): DesktopHost | null {
 	}
 
 	return {
+		keepAwake: {
+			activate: (tag) => host.call('keepAwake', 'activate', tag),
+			deactivate: (tag) => host.call('keepAwake', 'deactivate', tag),
+		},
 		app: {
 			getInfo: () => host.call('app', 'getInfo'),
 			getState: () => host.call('app', 'getState'),

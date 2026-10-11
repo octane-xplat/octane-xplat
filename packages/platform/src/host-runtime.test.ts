@@ -4,6 +4,7 @@ import type { FrameworkHostEvents, FrameworkHostServices } from './host-services
 import { desktopHost, desktopHostBootstrap, desktopHostSupports } from './host-runtime.web'
 
 const services: FrameworkHostServices = {
+	keepAwake: { activate: async () => true, deactivate: async () => true },
 	app: {
 		getInfo: () => ({ supported: true, version: '1.0', build: '2', bundleId: 'app.test' }),
 		getState: () => 'active',

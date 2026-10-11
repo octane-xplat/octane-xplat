@@ -89,6 +89,21 @@ export async function pickAndShare() {
 }
 ```
 
+## Keep a screen awake
+
+Keep a reading or presentation screen awake while it is mounted. The hook
+releases its request on unmount; see [keep-awake ownership and target limits](keep-awake.md).
+
+```tsx
+import { useKeepAwake } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function ReadingScreen() {
+ useKeepAwake()
+ return <Text>Reading</Text>
+}
+```
+
 ## Announce a status
 
 Keep a status such as “Settings saved” visible, and call `announce` after the

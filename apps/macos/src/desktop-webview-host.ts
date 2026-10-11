@@ -1,3 +1,5 @@
+import { createTaggedKeepAwake } from '../../../packages/platform/src/keep-awake-tags'
+import { keepAwake } from '../../../packages/platform/src/keep-awake.macos'
 import { createMacOSWebView, type MacOSWebView } from '@octane-xplat/desktop-webview/macos'
 import { createHostDispatcher, type HostReplyPort } from '@octane-xplat/platform/host'
 
@@ -75,6 +77,8 @@ const fileRef = (value: { name: string; uri: string } | null): HostFileRef | nul
  * Install the typed framework bridge on one WKWebView. Secondary windows get
  * their own webview and dispatcher; close events go back to their opener.
  */
+let nextKeepAwakeOwner = 0
+
 export function createDesktopWebViewHost<
 	Services extends FrameworkHostServices,
 	Events extends FrameworkHostEvents,
@@ -155,7 +159,54 @@ export function createDesktopWebViewHost<
 		return dispatcher
 	}
 
+	const keepAwakeTags = new Map<MacOSWebView, Map<string, string>>()
+	const releaseKeepAwake = (target: MacOSWebView) => {
+		for (const key of keepAwakeTags.get(target)?.values() ?? []) {
+			void keepAwake.deactivate(key)
+		}
+
+		keepAwakeTags.delete(target)
+	}
+
+	const keepAwakeFor = (sender: MacOSWebView) => {
+		const owner = ++nextKeepAwakeOwner
+		const tags = new Map<string, string>()
+		keepAwakeTags.set(sender, tags)
+		const service = createTaggedKeepAwake({
+			available: () => keepAwake.isAvailable(),
+			async activate(tag) {
+				const key = `webview:${owner}:${tag}`
+				if (!(await keepAwake.activate(key))) {
+					return false
+				}
+
+				if (!keepAwakeTags.has(sender)) {
+					await keepAwake.deactivate(key)
+					return false
+				}
+
+				tags.set(tag, key)
+				return true
+			},
+			async deactivate(tag) {
+				const key = tags.get(tag)
+				if (key && !(await keepAwake.deactivate(key))) {
+					return false
+				}
+
+				tags.delete(tag)
+				return true
+			},
+		})
+
+		return {
+			activate: (tag: string) => service.activate(tag),
+			deactivate: (tag: string) => service.deactivate(tag),
+		}
+	}
+
 	const detach = (target: MacOSWebView) => {
+		releaseKeepAwake(target)
 		endpoints.delete(target)
 		pendingInitialUrls.delete(target)
 		target.dispose()
@@ -208,6 +259,7 @@ export function createDesktopWebViewHost<
 	const servicesFor = (sender: MacOSWebView): Services =>
 		Object.assign(
 			{
+				keepAwake: keepAwakeFor(sender),
 				app: {
 					getInfo: () => appKit.appInfo,
 					getState: () => appKit.appState,
@@ -330,6 +382,7 @@ export function createDesktopWebViewHost<
 			}
 
 			for (const { webView } of endpoints.values()) {
+				releaseKeepAwake(webView)
 				webView.dispose()
 			}
 

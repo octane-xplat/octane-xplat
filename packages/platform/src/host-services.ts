@@ -31,6 +31,10 @@ export interface HostShareInput {
 
 /** Framework services exposed by a native desktop webview host. */
 export interface FrameworkHostServices {
+	keepAwake: {
+		activate(tag: string): Promise<boolean>
+		deactivate(tag: string): Promise<boolean>
+	}
 	app: {
 		getInfo(): AppInfo
 		getState(): AppState

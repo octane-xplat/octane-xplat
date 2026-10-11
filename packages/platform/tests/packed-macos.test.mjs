@@ -37,7 +37,15 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	const entry = join(directory, 'consumer.ts')
 	writeFileSync(
 		entry,
-		`import { announce, random, connectivity, type ConnectivityState } from '@octane-xplat/platform'
+		`import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState } from '@octane-xplat/platform'
+const keepOptions: KeepAwakeOptions = { suppressDeactivateWarnings: true, onRelease: tag => console.log(tag) }
+const hook: (tag?: string, options?: KeepAwakeOptions) => void = useKeepAwake
+const active: Promise<boolean> = keepAwake.activate('reading')
+const inactive: Promise<boolean> = keepAwake.deactivate('reading')
+const held: Promise<boolean> = keepAwake.isActivated()
+const available: Promise<boolean> = keepAwake.isAvailable()
+// @ts-expect-error tags must be strings
+keepAwake.activate(42)
 const state: ConnectivityState = connectivity.getState()
 const stop: () => void = connectivity.subscribe((next) => console.log(next.online, next.type))
 stop()

@@ -46,3 +46,7 @@ export { useSafeAreaInsets } from './safe-area'
 export { useWindowSize } from './screen'
 export { useBreakpoints$ } from './breakpoints'
 export type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
+
+export { keepAwake, KeepAwakeDefaultTag } from './keep-awake'
+export { useKeepAwake } from './use-keep-awake'
+export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'

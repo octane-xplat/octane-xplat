@@ -32,6 +32,7 @@ Workflows:
 - [Compose motion patterns](motion-patterns.md)
 - [Recreate fancy components](fancy-components.md)
 - [Fetch remote data in a screen](fetch-remote-data.md)
+- [Keep a screen awake during an activity](keep-awake.md)
 - [Add advanced haptics](advanced-haptics.md)
 - [Add UI sound effects](ui-sounds.md)
 - [Add long-form audio playback](audio-playback.md)

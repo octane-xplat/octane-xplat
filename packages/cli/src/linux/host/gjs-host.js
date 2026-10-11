@@ -256,7 +256,17 @@ function subscribeAppearance() {
 // Canonical framework service table — packages/platform/src/host-services.ts is
 // the type source; this JS host is covered by bridge conformance checks.
 // wv is the sender's webview: replies must land on the window that asked.
+const keepAwakeCookies = new Map()
+function releaseKeepAwake(wv) {
+	for (const cookie of keepAwakeCookies.get(wv)?.values() ?? []) {
+		app.uninhibit(cookie)
+	}
+
+	keepAwakeCookies.delete(wv)
+}
+
 const hostCapabilities = {
+	keepAwake: typeof app.inhibit === 'function' ? ['activate', 'deactivate'] : [],
 	app: ['getInfo', 'getState', 'getWindowSize', 'consumeInitialUrl'],
 	notifications: ['ensure', 'notify'],
 	clipboard: ['read', 'write'],
@@ -663,6 +673,37 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 	}
 
 	try {
+		if (service === 'keepAwake') {
+			const tag = String(args[0])
+			let cookies = keepAwakeCookies.get(wv)
+			if (!cookies) {
+				cookies = new Map()
+				keepAwakeCookies.set(wv, cookies)
+			}
+
+			if (method === 'activate') {
+				if (!cookies.has(tag)) {
+					const cookie = app.inhibit(wv.get_root(), Gtk.ApplicationInhibitFlags.IDLE, tag)
+					if (!cookie) {
+						reply(false)
+						return
+					}
+
+					cookies.set(tag, cookie)
+				}
+			} else {
+				const cookie = cookies.get(tag)
+				if (cookie) {
+					app.uninhibit(cookie)
+				}
+
+				cookies.delete(tag)
+			}
+
+			reply(true)
+			return
+		}
+
 		if (service === 'notifications') {
 			// org.freedesktop.Notifications directly — GApplication.send_notification
 			// needs an org.gtk.Notifications server (GNOME Shell); the freedesktop
@@ -1150,6 +1191,7 @@ function openSecondaryWindow(opener, wid, opts) {
 	windows.set(wid, { win: w, wv, opener })
 
 	w.connect('close-request', () => {
+		releaseKeepAwake(wv)
 		windows.delete(wid)
 		if (opener) {
 			emitTo(opener, 'windows', 'closed', wid)
@@ -1175,6 +1217,11 @@ function ensureWindow() {
 	win.set_default_size(1024, 768)
 
 	webView = new WebKit.WebView()
+	win.connect('close-request', () => {
+		releaseKeepAwake(webView)
+		return false
+	})
+
 	if (selfTest || GLib.getenv('XPLAT_LOG_CONSOLE') === '1') {
 		webView.get_settings().set_enable_write_console_messages_to_stdout(true)
 	}

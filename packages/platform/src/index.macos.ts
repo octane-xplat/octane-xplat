@@ -213,3 +213,7 @@ export function useBreakpoints$<T extends Record<string, number>>(
 		[K in keyof T]: boolean
 	}
 }
+
+export { keepAwake, KeepAwakeDefaultTag } from './keep-awake.macos'
+export { useKeepAwake } from './use-keep-awake.macos'
+export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'
