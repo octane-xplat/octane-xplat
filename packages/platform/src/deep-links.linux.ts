@@ -31,7 +31,14 @@ export function onDeepLink(cb: LinkHandler): () => void {
 	return () => handlers.delete(cb)
 }
 
+let consumedInitialUrl = false
+
 export function consumeInitialUrl(): string | null {
+	if (consumedInitialUrl) {
+		return null
+	}
+
+	consumedInitialUrl = true
 	if (bridged()) {
 		const url = bootstrap()?.initialUrl ?? window.__xplatInitialUrl ?? null
 		if (window.__xplatHostSnapshot) {

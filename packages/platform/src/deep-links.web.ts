@@ -35,7 +35,14 @@ export function onDeepLink(cb: LinkHandler): () => void {
 	return () => handlers.delete(cb)
 }
 
+let consumedInitialUrl = false
+
 export function consumeInitialUrl(): string | null {
+	if (consumedInitialUrl) {
+		return null
+	}
+
+	consumedInitialUrl = true
 	if (hasInitialHostUrl) {
 		hasInitialHostUrl = false
 		const url = initialHostUrl

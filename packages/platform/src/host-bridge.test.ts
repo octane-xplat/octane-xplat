@@ -65,6 +65,26 @@ describe('desktop host bridge', () => {
 		)
 	})
 
+	it('drops malformed host frames without throwing or wedging pending calls', async () => {
+		let receive!: (message: string) => void
+		const transport = {
+			postMessage() {},
+			listen(listener: (message: string) => void) {
+				receive = listener
+				return () => {}
+			},
+		}
+
+		const client = createHostClient<{ framework: { read(): Promise<string> } }>(transport)
+		const pending = client.call('framework', 'read')
+
+		expect(() => receive('not json {')).not.toThrow()
+		expect(() => receive('')).not.toThrow()
+
+		receive(JSON.stringify({ type: 'reply', id: 1, ok: true, value: 'native value' }))
+		expect(await pending).toBe('native value')
+	})
+
 	it('releases event listeners and rejects pending calls when disposed', async () => {
 		let receive!: (message: string) => void
 		let listening = false

@@ -70,6 +70,8 @@ test('macOS reads real bridge state and does not fabricate support or online sta
 		sample(false, 'none'),
 		sample(true, 'ethernet'),
 		sample(true, 'mobile'),
+		sample(true, 'bluetooth'),
+		sample(true, 'vpn'),
 		sample(true, 'unknown'),
 		unavailable,
 	]) {

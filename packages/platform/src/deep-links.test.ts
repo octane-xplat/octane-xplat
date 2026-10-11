@@ -52,3 +52,26 @@ it('accepts repeated warm URLs from distinct intents, deduplicating resume', asy
 
 	expect(received.mock.calls).toEqual([['xplat://detail'], ['xplat://detail']])
 })
+
+it('suppresses the iOS launch echo once, then dispatches repeated URLs', async () => {
+	native.app.ios = {} as any
+	const links = await import('./deep-links.ts')
+	const received = vi.fn()
+	links.onDeepLink(received)
+	native.listeners.get('launch')!({
+		ios: {
+			objectForKey: () => ({ absoluteString: 'xplat://detail' }),
+		},
+	})
+
+	// UIKit echoes the launch URL through openUrl once — suppressed.
+	native.listeners.get('openUrl')!({ url: { absoluteString: 'xplat://detail' } })
+	expect(received).not.toHaveBeenCalled()
+	// A later identical URL is a new user action and must dispatch.
+	native.listeners.get('openUrl')!({ url: { absoluteString: 'xplat://detail' } })
+	native.listeners.get('openUrl')!({ url: { absoluteString: 'xplat://other' } })
+	expect(received.mock.calls).toEqual([['xplat://detail'], ['xplat://other']])
+	expect(links.consumeInitialUrl()).toBe('xplat://detail')
+	expect(links.consumeInitialUrl()).toBeNull()
+	native.app.ios = null
+})

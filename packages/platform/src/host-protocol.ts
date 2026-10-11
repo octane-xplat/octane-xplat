@@ -89,7 +89,15 @@ export function createHostClient<Services extends object, Events extends object 
 	let disposed = false
 
 	const removeListener = transport.listen((message) => {
-		const packet = JSON.parse(message) as HostMessage
+		let packet: HostMessage
+		try {
+			packet = JSON.parse(message) as HostMessage
+		} catch {
+			// A malformed frame is dropped — it must not throw inside the
+			// host's receive path or poison the transport listener.
+			return
+		}
+
 		if (packet.type === 'reply') {
 			const task = pending.get(packet.id)
 			if (!task) {

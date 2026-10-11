@@ -7,6 +7,7 @@ type LinkHandler = (url: string) => void
 const handlers = new Set<LinkHandler>()
 let wired = false
 let initial: string | null = null
+let launchEchoSuppressed = false
 let lastIntent: any = null
 
 function dispatch(url: string | null | undefined) {
@@ -35,9 +36,12 @@ function wire() {
 	if (Application.ios) {
 		Application.on('openUrl', (args: any) => {
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
-			// UIKit can also report a launch URL through openUrl. Keep it
-			// queued for consumeInitialUrl while bootstrap is still pending.
-			if (url === initial) {
+			// UIKit can also report a launch URL through openUrl once. Keep it
+			// queued for consumeInitialUrl while bootstrap is still pending —
+			// but only suppress that first echo; a later identical URL is a
+			// new user action and must dispatch.
+			if (url === initial && !launchEchoSuppressed) {
+				launchEchoSuppressed = true
 				return
 			}
 

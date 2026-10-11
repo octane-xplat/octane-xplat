@@ -13,7 +13,8 @@ function decode(value: string): ConnectivityState {
 	if (
 		typeof state.supported !== 'boolean' ||
 		typeof state.online !== 'boolean' ||
-		!['none', 'wifi', 'mobile', 'ethernet', 'unknown'].includes(state.type)
+		// Every ConnectionType the shared contract defines.
+		!['none', 'wifi', 'mobile', 'ethernet', 'bluetooth', 'vpn', 'unknown'].includes(state.type)
 	) {
 		throw new Error('Invalid macOS connectivity sample')
 	}
