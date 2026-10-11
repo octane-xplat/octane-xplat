@@ -17,6 +17,15 @@ export function xplatBoundary(
  *  `process` reads still fail on runtimes without a `process` global. */
 export function xplatNodeEnvDefine(mode: string): Record<string, string>
 
+/** Development-action bridge (MCP). Dev-server middleware: the app announces
+ *  its action registry and polls for invocations under /__xplat_dev__/; the
+ *  MCP server discovers the endpoint through a same-uid session file under
+ *  node_modules/.cache/xplat/dev-bridge/ and authenticates with the per-server
+ *  token the plugin injects through a dev-only define. apply:'serve' — never
+ *  part of a production build. Included automatically by xplatNative; web
+ *  configs add it to `plugins` alongside xplatBoundary. */
+export function xplatDevBridge(options?: { appRoot?: string }): Plugin
+
 export interface XplatNativeOptions {
 	/** Extra optimizeDeps.exclude entries — app-shipped @nativescript plugins. */
 	deps?: string[]

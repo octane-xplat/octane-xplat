@@ -20,6 +20,7 @@ import {
 const INSTRUCTIONS =
 	'MCP server for Octane Xplat apps. Call xplat_project_status first — it reports detected apps, framework versions, guidance, prerequisites, and capabilities. ' +
 	'If several apps are detected, ask the developer which to use and bind it with xplat_select_app; never guess. ' +
+	'With a dev-mode app running, xplat_dev_actions lists the app-declared action registry and xplat_dev_action_invoke runs one against an exact instance and registry revision. ' +
 	'Results always say what was actually checked; a successful build is not proof of behavior.'
 
 const respond = (outcome) => ({
@@ -30,6 +31,17 @@ const respond = (outcome) => ({
 
 const ok = (data) => respond({ ok: true, data })
 const fail = (error) => respond({ ok: false, error })
+
+/** The bound app for runtime tools — explicit, configured, or sole-app. */
+const boundApp = (context) => {
+	const selection = resolveSelection(context)
+	return selection.state === 'bound' ? selection.app : null
+}
+
+const NO_APP = () =>
+	contractError('invalid_selection', 'No app is bound.', {
+		recovery: { action: 'Bind an app with xplat_select_app first.' },
+	})
 
 export function createXplatMcpServer(context) {
 	const server = new McpServer(
@@ -240,6 +252,91 @@ export function createXplatMcpServer(context) {
 			}
 
 			return ok({ result: await context.sessions.end(sessionId) })
+		},
+	)
+
+	server.registerTool(
+		'xplat_dev_actions',
+		{
+			description:
+				"List the bound app's declared development actions — the live registry announced by a running dev app: stable ids, titles, input/result contracts, effects, availability with reasons, and the registry revision. Never executes an action. An empty registry is reported distinctly from a disconnected app.",
+			inputSchema: {},
+		},
+		async () => {
+			const app = boundApp(context)
+			return app ? ok(await context.devActions.list(app)) : fail(NO_APP())
+		},
+	)
+
+	server.registerTool(
+		'xplat_dev_action_invoke',
+		{
+			description:
+				'Invoke an app-declared development action against a specific app instance and registry revision. Input is validated against the declared contract before anything runs; stale revisions, unavailable actions and saturated queues are rejected up front. Returns a job — poll xplat_job_status, cancel with xplat_job_cancel. Successful setup does not prove app behavior; verify separately.',
+			inputSchema: {
+				appInstanceId: z
+					.string()
+					.optional()
+					.describe('Target app instance from xplat_dev_actions; required when several instances are live'),
+				actionId: z.string().describe('Stable action id from the registry'),
+				input: z
+					.record(z.string(), z.unknown())
+					.optional()
+					.describe('Named inputs matching the declared input contract'),
+				registryRevision: z
+					.number()
+					.optional()
+					.describe('The revision returned by xplat_dev_actions — stale revisions are rejected'),
+				requestKey: z
+					.string()
+					.optional()
+					.describe('Idempotence key: a retry with the same key returns the live job instead of re-running'),
+			},
+		},
+		async ({ appInstanceId, actionId, input, registryRevision, requestKey }) => {
+			const app = boundApp(context)
+			if (!app) {
+				return fail(NO_APP())
+			}
+
+			const result = await context.devActions.invoke(app, {
+				appInstanceId,
+				actionId,
+				input: input ?? {},
+				registryRevision,
+				requestKey,
+			})
+
+			return result.error ? fail(result.error) : ok(result)
+		},
+	)
+
+	server.registerTool(
+		'xplat_dev_action_status',
+		{
+			description:
+				'Status of a development-action invocation: job state, structured result or failure, and disclosed partial effects. Same data as xplat_job_status, restricted to dev-action jobs.',
+			inputSchema: { jobId: z.string() },
+		},
+		async ({ jobId }) => {
+			const described = context.devActions.describeJob(jobId)
+			if (!described) {
+				return fail(
+					contractError('not_found', `No job "${jobId}".`, {
+						recovery: { action: 'Invoke an action first; finished history is bounded.' },
+					}),
+				)
+			}
+
+			if (described.job.kind !== 'dev-action') {
+				return fail(
+					contractError('invalid_selection', `Job "${jobId}" is a ${described.job.kind} job, not a dev-action invocation.`, {
+						recovery: { action: 'Use xplat_job_status for other job kinds.' },
+					}),
+				)
+			}
+
+			return ok(described)
 		},
 	)
 

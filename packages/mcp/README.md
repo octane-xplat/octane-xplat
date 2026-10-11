@@ -47,8 +47,11 @@ Options: `--workspace` / `XPLAT_MCP_WORKSPACE` (default cwd), `--app` /
 | `xplat_sessions`                        | Bound sessions: owned vs attached user-owned, state, build identity.                                                                                                                                           |
 | `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                               |
 | `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved.                                                                                                                     |
+| `xplat_dev_actions`                     | The bound app's live development-action registry: instance identity, revision, declarations (contracts, effects, availability). Empty vs disconnected vs no-bridge are distinct states.                          |
+| `xplat_dev_action_invoke`               | Invoke an action against an exact app instance + registry revision. Pre-validates input, availability, grants and queue bounds; returns a job (`requestKey` dedupes retries).                                    |
+| `xplat_dev_action_status`               | Invocation status/result — same job data restricted to dev-action jobs, with instance/request identity.                                                                                                          |
 | `xplat_evidence`                        | `list` / `retain` / `delete` evidence; retain takes an optional ISO expiration.                                                                                                                                |
-| `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters. |
+| `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters.   |
 | `xplat_code_read`                       | Bounded read of current source by search ref (`xplat-code://…`) or explicit corpus + path; results carry freshness markers and continuation offsets.                                                           |
 
 Code search reads the bound application's source plus its installed
@@ -98,6 +101,16 @@ documented surface and the `.mjs` files carry the runtime values and stores.
 - `code` — the `CodeProvider` seam the context's `code` slot consumes, plus
   `CodeHit` / `CodeSearchResult` / provenance and freshness shapes.
 - `boundaries` — `PRODUCT_BOUNDARIES`, the advertised out-of-scope list.
+- `actions` — the app-declared development-action wire contract (package G):
+  `DevActionDeclaration` (stable id, title, description, runtime-validatable
+  input/result field contracts, disclosed effects, availability, execution
+  policy), `DevActionRegistryAnnouncement` (instance identity + revision +
+  declarations), invocation request/outcome types, and the field-subset
+  validators both sides share. The app announces its registry through a
+  dev-bridge (`xplatDevBridge` vite middleware in `@octane-xplat/cli`, included
+  in the `xplatNative` preset); the server scans the app's bridge session
+  files under `node_modules/.cache/xplat/dev-bridge/` and polls live
+  announcements — an empty registry is never confused with a disconnected app.
 
 ## Boundaries
 

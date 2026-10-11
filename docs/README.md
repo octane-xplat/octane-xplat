@@ -75,6 +75,9 @@ Pick a guide when you need it. You don't need to read them all before you start.
 For more pieces to use on your screens, browse the [component index](app/components.md).
 When a feature is ready to try, use [Checking an Xplat app](verify/testing.md) and
 check [known limits](verify/known-limits.md) for the platforms you plan to release for.
+To let a connected agent run named setup actions in a dev build (test logins,
+fixture data, performance scenarios), see
+[Declare development actions](verify/development-actions.md).
 If a native screen stutters or eats memory while scrolling images, see
 [Debug native image performance](verify/image-performance.md).
 

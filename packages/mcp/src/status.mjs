@@ -22,6 +22,9 @@ import {
 	selectApp,
 } from './discovery.mjs'
 
+import { registerDevActionProviders } from './actions/capabilities.mjs'
+import { createDevActionsService } from './actions/service.mjs'
+
 export const SERVER_NAME = '@octane-xplat/mcp'
 export const SERVER_VERSION = '0.0.0'
 
@@ -57,7 +60,7 @@ export function createWorkspaceContext(options) {
 		sessions: createSessionRegistry(),
 		jobs: createJobRegistry(),
 		evidence: createEvidenceStore({ root: options.evidenceRoot ?? defaultEvidenceRoot() }),
-		// Slots for later packages: docs (B), code index (C), runtime (D), inspection (E), actions (G).
+		// Slots for later packages: docs (B), code index (C), runtime (D), inspection (E).
 		docsStatus: () => NOT_PROVIDED,
 		codeIndexStatus: () => NOT_PROVIDED,
 		// Work item C supplies a code provider at composition time; without one
@@ -68,6 +71,17 @@ export function createWorkspaceContext(options) {
 	if (context.code) {
 		context.codeIndexStatus = (app) => context.code.status(app)
 	}
+
+	// Package G: app-declared development-action registry. The service scans
+	// the bound app's dev-bridge session files on every use — always live,
+	// never a cached claim. Providers report per-platform support honestly.
+	context.devActions = createDevActionsService({
+		jobs: context.jobs,
+		policy: context.policy,
+		endpoints: options.devActionEndpoints,
+	})
+
+	registerDevActionProviders({ capabilities: context.capabilities, service: context.devActions })
 
 	if (context.configuredAppSelector) {
 		const matches = selectApp(context.discovery, context.configuredAppSelector)

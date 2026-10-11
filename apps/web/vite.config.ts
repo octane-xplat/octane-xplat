@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 import { xplatBamboo } from '@octane-xplat/bamboo/vite'
 import { fileURLToPath } from 'node:url'
 
@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => ({
 		...octane(),
 		xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts` }),
 		xplatBoundary('web'),
+		xplatDevBridge(),
 	],
 	define: xplatNodeEnvDefine(mode),
 	// The native dev server prefers 5173 and auto-bumps on collision; the

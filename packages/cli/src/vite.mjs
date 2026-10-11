@@ -19,6 +19,9 @@ import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.mjs'
+import { xplatDevBridge } from './mcp/dev-bridge.mjs'
+
+export { xplatDevBridge } from './mcp/dev-bridge.mjs'
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
 // belong to the CONSUMING app, not to this package — under pnpm's isolated
@@ -779,6 +782,9 @@ export async function xplatNative(env, opts = {}) {
 				xplatBoundary(nativePlatform() ?? 'native'),
 				nativeExtensionOrder(),
 				nativeRelativeResolution(),
+				// Dev-action registry bridge (MCP package G): dev-server-only —
+				// apply:'serve' keeps it and the token define out of builds.
+				xplatDevBridge(),
 			],
 			server: {
 				fs: {
