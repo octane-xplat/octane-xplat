@@ -143,8 +143,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		}
 	}
 
-	const selectedCameraId = (): string | undefined => {
-		const selection = currentConfig.camera
+	const selectedCameraId = (config: CameraSessionConfig = currentConfig): string | undefined => {
+		const selection = config.camera
 		if (selection && typeof selection === 'object' && 'deviceId' in selection) {
 			return selection.deviceId
 		}
@@ -369,7 +369,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
 			if (configured) {
 				throw error(
-					configured === 'permissionDenied' ? 'permissionDenied' : 'unavailable',
+					configured === 'busy'
+						? 'busy'
+						: configured === 'permissionDenied'
+							? 'permissionDenied'
+							: 'unavailable',
 					'attachPreview',
 					`Failed to configure the capture session: ${configured}`,
 				)
@@ -392,15 +396,20 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			}
 		},
 		configure: (next) => {
-			currentConfig = { ...next }
 			const configured = host.configure({
-				cameraId: selectedCameraId(),
+				cameraId: selectedCameraId(next),
 				audio: next.audio ?? false,
 			})
+
+			if (configured === 'busy') {
+				throw error('busy', 'configure', 'Another camera session owns the requested device')
+			}
 
 			if (configured === 'unavailable') {
 				throw error('unavailable', 'configure', 'The requested camera device is not available')
 			}
+
+			currentConfig = { ...next }
 		},
 		startCapture: (request, sink) => {
 			if (host.permissionStatus('camera') === 'undeclared') {

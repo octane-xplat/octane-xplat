@@ -57,6 +57,7 @@
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test": "vitest run",
+		"test:macos-photo": "node tests/photo-native.macos.mjs",
 		"test:web": "node tests/browser-conformance.web.mjs",
 		"test:webkitgtk": "node tests/webkitgtk-conformance.linux.mjs"
 	},
@@ -98,6 +99,9 @@
 	},
 	"xplat": {
 		"macos": {
+			"swiftHeaderImports": [
+				"AppKit/AppKit.h"
+			],
 			"frameworks": [
 				"AVFoundation",
 				"CoreMedia",

@@ -90,12 +90,26 @@ private final class XplatRecordingDelegate: NSObject, AVCaptureFileOutputRecordi
 	}
 }
 
+private final class XplatPhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+	var reply: ((Data?) -> Void)?
+	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+		let data = error == nil ? photo.fileDataRepresentation() : nil
+		DispatchQueue.main.async { [self] in
+			reply?(data)
+			reply = nil
+		}
+	}
+}
+
 @objc(XplatCameraHost)
 public final class XplatCameraHost: NSObject {
 	private var session: AVCaptureSession?
 	private var videoInput: AVCaptureDeviceInput?
 	private var audioInput: AVCaptureDeviceInput?
 	private var movieOutput: AVCaptureMovieFileOutput?
+	private var photoOutput: AVCapturePhotoOutput?
+	private var photoDelegate: XplatPhotoDelegate?
+	private var claimedCameraIds: Set<String> = []
 	private var previewLayer: AVCaptureVideoPreviewLayer?
 	private weak var previewView: NSView?
 	private var configuredCameraId: String?
@@ -291,11 +305,14 @@ public final class XplatCameraHost: NSObject {
 	}
 
 	@objc public func configure(_ options: NSDictionary) -> NSString? {
+		guard !disposed else { return "unavailable" }
 		guard let session = ensureSession() else { return "permissionDenied" }
 		var failure: String?
 		queue.sync {
+			guard !disposed else { failure = "unavailable"; return }
 			let cameraId = options["cameraId"] as? String
-			let audio = options["audio"] as? Bool ?? false
+			let photo = options["photo"] as? Bool ?? false
+			let audio = !photo && (options["audio"] as? Bool ?? false)
 			rotationAngle = (options["rotationAngle"] as? NSNumber)?.doubleValue
 			let devices = cameraDevices()
 			guard let device = cameraId != nil
@@ -306,6 +323,21 @@ public final class XplatCameraHost: NSObject {
 				return
 			}
 
+			guard CameraOwnership.claim(device.uniqueID, owner: self) else {
+				failure = "busy"
+				return
+			}
+			claimedCameraIds.insert(device.uniqueID)
+			defer {
+				// Failed reconfiguration may retain either input. Hold both claims
+				// until disposal rather than admitting an overlapping session.
+				if failure == nil {
+					for old in claimedCameraIds where old != device.uniqueID {
+						CameraOwnership.release(old, owner: self)
+					}
+					claimedCameraIds = [device.uniqueID]
+				}
+			}
 			session.beginConfiguration()
 			if videoInput == nil || videoInput?.device.uniqueID != device.uniqueID {
 				do {
@@ -316,6 +348,8 @@ public final class XplatCameraHost: NSObject {
 					videoInput = input
 					if session.canAddInput(input) {
 						session.addInput(input)
+					} else {
+						failure = "unavailable"
 					}
 				} catch {
 					session.commitConfiguration()
@@ -337,7 +371,16 @@ public final class XplatCameraHost: NSObject {
 				self.audioInput = nil
 			}
 
-			if movieOutput == nil {
+			if photo && photoOutput == nil {
+				let output = AVCapturePhotoOutput()
+				if session.canAddOutput(output) {
+					session.addOutput(output)
+					photoOutput = output
+				} else {
+					failure = "unavailable"
+				}
+			}
+			if !photo && movieOutput == nil {
 				let output = AVCaptureMovieFileOutput()
 				if session.canAddOutput(output) {
 					session.addOutput(output)
@@ -394,9 +437,29 @@ public final class XplatCameraHost: NSObject {
 			applyRotation(layer.connection)
 		}
 		queue.async {
-			if !session.isRunning {
+			if !self.disposed && !session.isRunning {
 				session.startRunning()
 			}
+		}
+		return nil
+	}
+
+	/// Stills use AVCapturePhotoOutput, never movie recording or an audio input.
+	@objc public func capturePhoto(_ reply: @escaping (NSData?) -> Void) -> NSString? {
+		guard !disposed, photoDelegate == nil, let photoOutput, session?.isRunning == true else {
+			return "unavailable"
+		}
+		guard photoOutput.availablePhotoCodecTypes.contains(.jpeg) else { return "unavailable" }
+		let delegate = XplatPhotoDelegate()
+		delegate.reply = { [weak self] data in
+			self?.photoDelegate = nil
+			reply(data as NSData?)
+		}
+		photoDelegate = delegate
+		let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+		queue.async { [self] in
+			guard !disposed else { return }
+			photoOutput.capturePhoto(with: settings, delegate: delegate)
 		}
 		return nil
 	}
@@ -495,19 +558,34 @@ public final class XplatCameraHost: NSObject {
 	@objc public func dispose() {
 		guard !disposed else { return }
 		disposed = true
-		for observer in observers {
-			NotificationCenter.default.removeObserver(observer)
-		}
+		for observer in observers { NotificationCenter.default.removeObserver(observer) }
 		observers = []
-		detachPreview()
-		session = nil
-		videoInput = nil
-		audioInput = nil
-		movieOutput = nil
+		previewLayer?.removeFromSuperlayer()
+		previewLayer = nil
+		previewView = nil
+		photoDelegate?.reply = nil
+		photoDelegate = nil
+		// Keep the session alive until stop completes. Releasing the claim sooner
+		// could admit another host while AVFoundation still holds the hardware.
+		queue.async { [self] in
+			session?.stopRunning()
+			for id in claimedCameraIds { CameraOwnership.release(id, owner: self) }
+			claimedCameraIds = []
+			session = nil
+			videoInput = nil
+			audioInput = nil
+			movieOutput = nil
+			photoOutput = nil
+		}
 		emit = nil
 	}
 
 	deinit {
-		dispose()
+		for observer in observers { NotificationCenter.default.removeObserver(observer) }
+		let stoppedSession = session
+		// Explicit disposal handles claims. A live claim keeps no strong owner;
+		// synchronous fallback only runs if consumers omit disposal.
+		stoppedSession?.stopRunning()
+		for id in claimedCameraIds { CameraOwnership.release(id, owner: self) }
 	}
 }

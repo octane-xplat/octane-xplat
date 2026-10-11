@@ -1,5 +1,6 @@
 // Media — AppKit file selection. Photos-library browsing is not requested.
 import type { MediaImpl, PickedImage } from './types'
+import { capturePhoto, ensureCamera } from './photo-capture.macos'
 
 function temporaryImages(): Set<string> {
 	return ((globalThis as any).__xplatMediaTemporaryFiles ??= new Set<string>())
@@ -117,8 +118,8 @@ function pickSelections(multiple: boolean): PickedImage[] {
 }
 
 export const media: MediaImpl = {
-	async ensure() {
-		return 'unsupported'
+	async ensure(kind) {
+		return kind === 'camera' ? ensureCamera() : 'unsupported'
 	},
 	async pickImage() {
 		return pickSelections(false)[0] ?? null
@@ -126,7 +127,5 @@ export const media: MediaImpl = {
 	async pickImages() {
 		return pickSelections(true)
 	},
-	async capturePhoto() {
-		return null
-	},
+	capturePhoto,
 }

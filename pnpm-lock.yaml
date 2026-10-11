@@ -1542,6 +1542,9 @@ importers:
       '@nativescript/imagepicker':
         specifier: 5.0.0
         version: 5.0.0
+      '@octane-xplat/camera':
+        specifier: workspace:*
+        version: link:../camera
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4

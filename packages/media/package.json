@@ -43,7 +43,8 @@
 	},
 	"dependencies": {
 		"@nativescript/camera": "7.0.0",
-		"@nativescript/imagepicker": "5.0.0"
+		"@nativescript/imagepicker": "5.0.0",
+		"@octane-xplat/camera": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

@@ -9,7 +9,8 @@ Still-image picking and OS camera capture for Octane xplat apps. iOS runs
 plugins over its photo picker/camera intent; web uses `<input
 type="file">` (with the `capture` attribute for camera shots, which mobile
 browsers route to the camera app). macOS AppKit uses the normal file picker
-for existing images; Photos-library permission and capture remain unsupported.
+for existing images and an app-owned Capture/Cancel sheet for still photos.
+Photos-library browsing and gallery saving remain unsupported.
 
 ```ts
 import { media } from '@octane-xplat/media'
@@ -77,3 +78,20 @@ Guide: [Using device features](../../docs/platform/platform-services.md);
 per-target availability: [platform notes](../../docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen and
 [`CameraDemo`](../demos/src/CameraDemo.tsrx).
+
+On AppKit, invoke capture from a user action. The first Capture press authorizes
+and starts the camera preview; the next takes the photo. Cancel or failure keeps
+a null result. Add `NSCameraUsageDescription` to your macOS package's Info.plist.
+The still-photo flow requests no microphone permission and rejects gallery saving
+before permission or UI. Actual camera capture on AppKit remains unqualified;
+deterministic sheet and lifecycle checks use an injected camera backend.
+
+```ts
+import { media } from '@octane-xplat/media'
+
+export async function onCapturePress() {
+	return media.capturePhoto({ width: 800, height: 600, saveToGallery: false })
+}
+```
+
+[AppKit setup and ownership example](../../docs/platform/platform-services.md#appkit-still-photos).

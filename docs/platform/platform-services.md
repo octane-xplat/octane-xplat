@@ -542,6 +542,65 @@ The isolated [AppKit runtime check](../../packages/media/tests/macos-runtime.mjs
 uses real PNG/JPEG conversion and file IO with an injected panel; it confirms
 dimensions and file/data-URL byte equality without displaying an image.
 
+### AppKit still photos
+
+On macOS AppKit, call capture from a button press. The app opens a sheet with
+Capture and Cancel. The first Capture press requests camera access and starts
+the preview; frame the photo and press Capture again to take it. Cancel, denial,
+a missing or busy camera, or closing the window returns `null`, so keep the
+previous image. Preparation and shutter work time out after 15 seconds. The
+[maintained action](../../examples/media/capture-photo.macos.ts) also ignores
+late results after its screen owner ends. Actual camera capture still needs
+qualification on a camera-equipped Mac; deterministic sheet checks use an
+injected camera backend.
+
+```ts
+import { media } from '@octane-xplat/media'
+import type { PickedImage } from '@octane-xplat/media'
+
+// Call from your app's capture button, not during screen mount.
+export async function takePhoto(current: PickedImage | null) {
+	const next = await media.capturePhoto({ saveToGallery: false })
+	return next ?? current
+}
+```
+
+Set `NSCameraUsageDescription` in the AppKit package configuration. Still
+capture requests no microphone access. `saveToGallery: true` rejects before
+permission or UI; macOS library saving is unavailable. Width and height resize
+the returned JPEG; aspect ratio is preserved by default. Mac cameras use the
+default available device; front/rear hints have no AppKit lens mapping.
+Movies use the separate [camera session workflow](camera-movie.md).
+
+```json
+{
+	"xplat": {
+		"targets": {
+			"macos": {
+				"package": {
+					"infoPlist": {
+						"NSCameraUsageDescription": "Take photos for your profile."
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+```ts
+import { media } from '@octane-xplat/media'
+
+export async function takeProfilePhoto() {
+	return media.capturePhoto({
+		width: 800,
+		height: 600,
+		keepAspectRatio: true,
+		saveToGallery: false,
+	})
+}
+```
+
 ## Passkeys and auth ceremonies
 
 A **passkey** lets someone sign in using their device instead of a password.

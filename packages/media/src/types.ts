@@ -47,10 +47,11 @@ export interface MediaImpl {
 	pickImage(): Promise<PickedImage | null>
 	pickImages(): Promise<PickedImage[]>
 	/**
-	 * Still-image capture through the OS camera UI. Resolves null when the
+	 * Still-image capture through the OS camera UI (app-owned sheet on AppKit). Resolves null when the
 	 * shot is canceled, permission is denied, or no camera exists — call
-	 * `ensure('camera')` first to tell those apart. Video capture is not part
-	 * of the contract: no maintained NativeScript substrate exists.
+	 * `ensure('camera')` from a user action to check permission separately.
+	 * AppKit rejects saveToGallery:true before permission or UI; it never writes
+	 * to Photos or requests microphone access. Use @octane-xplat/camera for movies.
 	 */
 	capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null>
 	ensure(kind: MediaPermissionKind): Promise<PermissionResult>

@@ -85,6 +85,22 @@ independently. Repository-wide lint now passes; keep typechecking explicit
 because NativeScript bundling can continue despite type errors. Bundle emission
 alone cannot qualify the complete app.
 
+AppKit still-photo capture has a separate app-owned sheet. Deterministic checks
+passed 66 lifecycle/ownership assertions and 24 sheet assertions with an injected
+camera backend, including cancel during authorization/capture, denial, busy
+failure, timeout, close, disposal, and JPEG persistence. A nonvisual
+AppKit/JavaScriptCore probe passed eight assertions for native bridge registration
+and gallery-save rejection without changing permission. That host enumerated
+zero cameras; no camera access was requested. OS camera input, real authorization
+dialogs, busy-device recovery, and physical JPEG capture remain unqualified.
+Silo experiment `e09bd290-dccc-4e73-8f68-4c5e1e96bd7c` is queued after movie-capture
+qualification and requires exclusive camera access on a camera-equipped Mac.
+
+```sh
+pnpm --filter @octane-xplat/media test
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit photo lifecycle"}' -- pnpm --filter @octane-xplat/camera test:macos-photo
+```
+
 ## Historical defects rechecked
 
 The older Android null-after-granted-camera-permission result was followed by

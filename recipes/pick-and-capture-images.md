@@ -7,7 +7,7 @@ Related APIs: @octane-xplat/media, media.ensure, media.pickImage, media.pickImag
 ## Starting point
 
 An app that previews or uploads selected still images. Live preview belongs to
-[camera-preview](camera-preview.md); this workflow uses the OS/browser picker.
+[camera-preview](camera-preview.md); this workflow uses the OS/browser picker or the AppKit still-photo sheet.
 
 ## Requirements
 
@@ -18,12 +18,12 @@ An app that previews or uploads selected still images. Live preview belongs to
 
 ## Acceptance criteria
 
-- AC1: The reader can install the leaf, configure native permission setup, and choose single, multiple, or still capture on web, iOS and Android. On macOS the reader can select existing image files through the normal file picker without requesting Photos-library permission.
+- AC1: The reader can install the leaf, configure native permission setup, and choose single, multiple, or still capture on web, iOS and Android. On macOS the reader can select existing image files through the normal file picker without requesting Photos-library permission, or capture a still photo in an app-owned sheet. AppKit gallery saving rejects before permission or UI.
 - AC2: Denial, unsupported cameras, and user cancellation leave the app without a new selected image; the reader can distinguish an ensure result from a null capture result.
 - AC3: Successful selection returns an upload data URL and an opaque preview URI; replacement and owner cleanup release the returned references, and failed conversion does not retain inaccessible previews.
 
 ## Documentation
 
-- AC1: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images) and the maintained [AppKit Services example](../packages/app/src/Services.macos.tsrx).
+- AC1: [AppKit still photos](../docs/platform/platform-services.md#appkit-still-photos), [maintained AppKit action](../examples/media/capture-photo.macos.ts), and [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images) and the maintained [AppKit Services example](../packages/app/src/Services.macos.tsrx).
 - AC2: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track real permission/capture revalidation.
-- AC3: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images), [cleanup regressions](../packages/media/tests/cleanup.test.mjs), and [macOS selection/release checks](../packages/media/tests/macos-picker.test.mjs). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track native runtime checks separately from coverage.
+- AC3: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images), [cleanup regressions](../packages/media/tests/cleanup.test.mjs), and [macOS selection/release checks](../packages/media/tests/macos-picker.test.mjs) and [AppKit capture regressions](../packages/media/tests/photo-capture.macos.test.mjs). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track native runtime checks separately from coverage.
