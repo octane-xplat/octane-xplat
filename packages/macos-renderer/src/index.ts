@@ -11,6 +11,7 @@ import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
+import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -643,6 +644,11 @@ function updateCrossAxisConstraints(parent: ElementNode) {
 	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
 	const dimension = horizontal ? 'height' : 'width'
 	const alignItems = stackAlignItems(parent)
+	const bothScrollAxes =
+		parent.type === 'scrollview' &&
+		scrollAxes(parent.props).inline &&
+		scrollAxes(parent.props).block
+
 	// Stretch must respect edgeInsets — an unconstrained child would
 	// otherwise span the stack's full cross size, overflowing the padding.
 	const insets = stack.edgeInsets ?? { top: 0, left: 0, bottom: 0, right: 0 }
@@ -654,7 +660,12 @@ function updateCrossAxisConstraints(parent: ElementNode) {
 
 		child.crossAxisConstraint = null
 		const childView = arrangedView(child)
-		if (alignItems !== 'stretch' || !childView || child.sizeConstraintSpecs?.[dimension]) {
+		if (
+			bothScrollAxes ||
+			alignItems !== 'stretch' ||
+			!childView ||
+			child.sizeConstraintSpecs?.[dimension]
+		) {
 			continue
 		}
 
@@ -1039,7 +1050,6 @@ function makeScrollView() {
 	scroll.borderType = NSBorderType.NoBorder
 	scroll.translatesAutoresizingMaskIntoConstraints = false
 	scroll.documentView = content
-	content.widthAnchor.constraintEqualToAnchor(scroll.contentView.widthAnchor).active = true
 	return { view: scroll, childHost: content }
 }
 
@@ -1119,7 +1129,12 @@ function syncLayoutObserver(node: ElementNode) {
 	}
 
 	layoutHandlers.delete(observed)
-	NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
+	if (node.layoutObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
+	}
+
+	node.scrollGeometryDetach?.()
+	node.scrollGeometryDetach = null
 	node.layoutObserver = null
 	node.layoutObservedView = null
 }
@@ -1136,11 +1151,21 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 	syncLayoutObserver(node)
 	if (typeof handler !== 'function') {
 		layoutHandlers.delete(target)
+		node.scrollGeometryDetach?.()
+		node.scrollGeometryDetach = null
 		return
 	}
 
 	target.postsFrameChangedNotifications = true
-	if (!node.layoutObserver) {
+	if (node.type === 'scrollview') {
+		if (!node.scrollGeometryDetach) {
+			node.scrollGeometryDetach = observeScrollGeometry(node, target, () =>
+				layoutHandlers.get(target)?.(),
+			)
+
+			node.layoutObservedView = target
+		}
+	} else if (!node.layoutObserver) {
 		node.layoutObserver =
 			NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 				typeof NSViewFrameDidChangeNotification !== 'undefined'
@@ -3469,6 +3494,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (
 					name === 'id' ||
 					name === 'horizontal' ||
+					name === 'orientation' ||
 					name === 'showsVerticalScrollIndicator'
 				) {
 					continue
@@ -3656,6 +3682,14 @@ function applyProps(node: ElementNode, props: PropBag) {
 	if (node.type === 'textview') {
 		node.view!.editable = node.props.isEnabled !== false && node.props.editable !== false
 		fitTextView(node)
+	}
+
+	if (
+		node.type === 'scrollview' &&
+		(!node.scrollAxisConstraints || 'orientation' in props || 'horizontal' in props)
+	) {
+		configureScrollAxes(node)
+		queueLayoutReconcile(node.container, node)
 	}
 
 	if (node.type === 'gridlayout' || node.type === 'absolutelayout') {
@@ -3883,6 +3917,12 @@ function destroy(node: ElementNode) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.scrollObserver)
 		node.scrollObserver = null
 		node.scrollObserverInstalled = false
+	}
+
+	node.scrollGeometryDetach?.()
+	node.scrollGeometryDetach = null
+	for (const constraint of node.scrollAxisConstraints ?? []) {
+		constraint.active = false
 	}
 
 	if (node.layoutObserver) {

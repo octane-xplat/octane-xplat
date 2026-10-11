@@ -535,8 +535,9 @@ uses a fallback stack when needed. Anchored notifications keep the existing
 Lightbox video playback is unavailable; use the separate `@octane-xplat/video`
 package when your screen needs a player. macOS `Overlay` retains its
 experimental inline implementation. `Carousel` is a basic horizontal scroller without navigation buttons, looping,
-edge fades, or a `CarouselHandle`; `ScrollableArea` ignores pull-to-refresh and
-uses block scrolling for `axis="both"`.
+edge fades, or a `CarouselHandle`; `ScrollableArea` supports block (the default), inline, and both-axis scrolling;
+pull-to-refresh remains unsupported on macOS. Use the
+[app-owned refresh action](primitives.md#macos-scrolling-and-refresh) instead.
 
 ```tsx
 import { Dialog, Toast, ScrollableArea, Text } from '@octane-xplat/ui'

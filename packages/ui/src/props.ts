@@ -1068,7 +1068,8 @@ export interface UseScrollableAreaResult {
  *  `ScrollableArea`). The root is the scroll container; children render
  *  inside a content box. Pull-to-refresh props (`refreshing`, `onRefresh`,
  *  `refreshThreshold`) are an xplat extension with no upstream equivalent —
- *  they only apply on the block axis. */
+ *  they only apply on the block axis on web/iOS/Android. macOS does not
+ *  support pull-to-refresh; use an app-owned refresh action. */
 export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
 	className?: any
 	style?: any
@@ -1082,7 +1083,7 @@ export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProp
 	 *  native has no group/region role and ignores this. @default 'group' */
 	role?: 'group' | 'region'
 	overscroll?: ScrollOverscroll
-	/** Viewport sizing; numbers are px on web / dips on native. */
+	/** Viewport sizing; numbers are CSS px on web, dips on mobile, points on macOS. */
 	width?: number | string
 	height?: number | string
 	maxWidth?: number | string

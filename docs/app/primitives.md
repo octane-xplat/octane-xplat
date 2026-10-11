@@ -628,8 +628,9 @@ export function Example() {
 
 - `openModal` in the subpaths — there is no shared `Modal`.
 
-`ScrollableArea` and the platform lists (`UITableView`, `RecyclerView`) accept
-`refreshing`, `onRefresh`, and `refreshThreshold` for pull-to-refresh.
+On web, iOS, and Android, `ScrollableArea` and the platform lists
+(`UITableView`, `RecyclerView`) accept `refreshing`, `onRefresh`, and
+`refreshThreshold` for pull-to-refresh.
 `onRefresh` enables the gesture; `refreshing` is controlled — set it while
 reloading and the self-drawn `Spinner` strip stays docked above
 the content. There is no OS spinner anywhere in the path.
@@ -1035,6 +1036,102 @@ or sharing; the package never uploads, persists, or deletes clips. See the
 the full contract: errors, interruption causes, and ownership rules. Android
 and web session adapters are still pending — they reject with `unsupported`
 until they land; see [known limits](../verify/known-limits.md#primitives).
+
+## macOS scrolling and refresh
+
+Give scrolling content a bounded viewport. `ScrollableArea` scrolls vertically
+by default; choose `axis="inline"` for horizontal content or `axis="both"`
+for content wider and taller than the viewport. Its object or callback `ref`
+receives the AppKit viewport, clears when replaced or removed, and does not
+provide a portable scrolling handle. Numeric dimensions use AppKit points,
+independent of the display's pixel density.
+
+```tsx
+import { useRef } from 'octane'
+import { ScrollableArea, View, Text } from '@octane-xplat/ui'
+
+export function WideDetails() {
+	const viewport = useRef<any>(null)
+	return (
+		<ScrollableArea ref={viewport} axis="both" width={320} height={240} label="Trip details">
+			<View style={{ width: 640, height: 480 }}>
+				<Text>A wide trip summary</Text>
+			</View>
+		</ScrollableArea>
+	)
+}
+```
+
+For a custom macOS viewport, `useScrollableArea` supplies refs and handlers
+through its two prop getters. Its per-axis `state` reports overflow and the
+start/end edges after layout, resizing, content changes, axis changes, and
+scrolling. Pass a caller scroll handler to `getViewportProps`; it receives the
+existing AppKit event once, after the hook updates its measured state. Layout
+measurements alone do not invoke the caller scroll handler. Keep editable children in charge
+of their editing keys; the hook does not intercept them.
+
+```tsx
+// Details.macos.tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+import { useScrollableArea } from '@octane-xplat/ui'
+
+export function Details(props: { onScrolled: (atEnd: boolean, event: any) => void }) {
+	const area = useScrollableArea({ axis: 'both' })
+	return (
+		<scrollview {...area.getViewportProps({
+			style: { width: 320, height: 240 },
+			onScroll: (event: any) => {
+				props.onScrolled(area.state.block.atEnd, event)
+			},
+		})}>
+			<flexboxlayout {...area.getContentProps({ style: { width: 640, height: 480 } })} />
+		</scrollview>
+	)
+}
+```
+
+macOS has no built-in pull-to-refresh. Put a named refresh action outside the
+viewport, disable it while loading, and show completion or failure text. The
+app owns the reload function; replace `loadRows` with your data source. The
+maintained [macOS scrolling demo](../../packages/demos/src/ScrollBoxDemo.macos.tsrx)
+uses this pattern. Readable status text is available to accessibility readers;
+automatic spoken status announcements and real keyboard/trackpad behavior
+require separate platform verification.
+
+```tsx
+import { useState } from 'octane'
+import { Pressable, ScrollableArea, Text, View } from '@octane-xplat/ui'
+
+export function RefreshableRows(props: { loadRows: () => Promise<string[]> }) {
+	const [rows, setRows] = useState<string[]>([])
+	const [refreshing, setRefreshing] = useState(false)
+	const [status, setStatus] = useState('Ready')
+	async function refresh() {
+		if (refreshing) return
+		setRefreshing(true)
+		setStatus('Refreshing rows')
+		try {
+			setRows(await props.loadRows())
+			setStatus('Rows updated')
+		} catch {
+			setStatus('Could not refresh. Try again.')
+		} finally {
+			setRefreshing(false)
+		}
+	}
+	return (
+		<View>
+			<Pressable disabled={refreshing} accessibilityLabel="Refresh rows" onPress={refresh}>
+				<Text>{refreshing ? 'Refreshing…' : 'Refresh rows'}</Text>
+			</Pressable>
+			<Text accessibilityLabel={status}>{status}</Text>
+			<ScrollableArea label="Rows" height={240}>
+				{rows.map((row, index) => <Text key={index}>{row}</Text>)}
+			</ScrollableArea>
+		</View>
+	)
+}
+```
 
 ## Refs
 

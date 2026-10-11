@@ -1,20 +1,39 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ScrollableAreaProps } from './props'
+import { layoutChildProps } from './layout-child'
+import { spacingStep } from './spacing'
+import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 
-/** AppKit NSScrollView leaf. `axis` maps the same way as on NativeScript;
- *  `axis: 'both'` isn't supported by the AppKit leaf — the scroller
- *  follows the block axis there (documented deviation). Pull-to-refresh
- *  props are ignored on macOS. */
+/** AppKit viewport. Pull-to-refresh remains unsupported; apps own a refresh
+ * action outside the scrolling content. */
 export function ScrollableArea(props: ScrollableAreaProps) @{
-	const horizontal = props.axis === 'inline';
+	const area = useScrollableArea({ axis: props.axis })
+	const horizontal = props.axis === 'inline'
+	const padding = spacingStep(props.padding)
 
 	<scrollview
+		{...area.getViewportProps({ ref: props.ref })}
+		{...layoutChildProps(props)}
 		id={props.id}
 		className={props.className}
-		style={props.style}
-		horizontal={horizontal as any}
+		style={{
+			width: props.width,
+			height: props.height,
+			maxWidth: props.maxWidth,
+			minHeight: props.minHeight,
+			...props.style,
+		}}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<flexboxlayout flexDirection={horizontal ? 'row' : 'column'}>{props.children}</flexboxlayout>
+		<flexboxlayout
+			{...area.getContentProps()}
+			flexDirection={horizontal ? 'row' : 'column'}
+			style={{
+				paddingTop: spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
+				paddingBottom: spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
+				paddingLeft: spacingStep(props.paddingInlineStart) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
+				paddingRight: spacingStep(props.paddingInlineEnd) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
+			}}
+		>{props.children}</flexboxlayout>
 	</scrollview>
 }
