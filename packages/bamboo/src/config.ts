@@ -1,6 +1,8 @@
 import { preset as presetBase } from '@bamboocss/preset-base'
 import type { Preset, Theme, UserConfig, UtilityConfig } from '@bamboocss/types'
 
+// Bamboo 1.56.2 has no flexWrap utility. Keep it outside this selected subset
+// rather than promising a utility that cannot be generated.
 const portableProperties = [
 	'alignItems',
 	'alignSelf',
@@ -13,7 +15,6 @@ const portableProperties = [
 	'flexDirection',
 	'flexGrow',
 	'flexShrink',
-	'flexWrap',
 	'fontFamily',
 	'fontSize',
 	'fontWeight',
@@ -52,15 +53,17 @@ const radii = Object.fromEntries(
 )
 
 const portableUtilities = Object.fromEntries(
-	portableProperties.flatMap((property) => {
+	portableProperties.map((property) => {
 		const config = presetBase.utilities[property]
 		if (!config) {
-			return []
+			throw new Error(
+				`@octane-xplat/bamboo: missing portable utility "${property}" in @bamboocss/preset-base`,
+			)
 		}
 
 		// Bamboo's default margin scale includes `auto`, which NativeScript
 		// ignores; expose token spacing only in the shared preset.
-		return [[property, property.startsWith('margin') ? { ...config, values: 'spacing' } : config]]
+		return [property, property.startsWith('margin') ? { ...config, values: 'spacing' } : config]
 	}),
 ) as UtilityConfig
 

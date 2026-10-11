@@ -1,4 +1,18 @@
 import { bamboocss, type BambooVitePluginOptions } from '@bamboocss/vite'
+import type { Plugin } from 'vite'
+
+function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
+	const hook = plugin?.generateBundle
+	if (plugin && typeof hook === 'function') {
+		plugin.generateBundle = { order: 'pre', handler: hook }
+	} else if (hook && typeof hook === 'object' && typeof hook.handler === 'function') {
+		hook.order = 'pre'
+	} else {
+		throw new Error(
+			`@octane-xplat/bamboo: native CSS adaptation requires ${anchor} with a generateBundle handler`,
+		)
+	}
+}
 
 export interface XplatBambooOptions extends BambooVitePluginOptions {
 	/** NativeScript consumes CSS assets in its own generateBundle hook. */
@@ -18,13 +32,28 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 		// Let Bamboo prune and validate the emitted asset before NativeScript's
 		// main-entry hook serializes it into the native bootstrap and removes it.
 		const cssPlugin = plugins.find((plugin) => plugin.name === 'bamboocss:css')
-		if (cssPlugin && typeof cssPlugin.generateBundle === 'object') {
-			cssPlugin.generateBundle.order = 'pre'
-		}
+		runBeforeNativeCss(cssPlugin, 'bamboocss:css')
 
+		let isBuild = false
 		plugins.push({
 			name: 'xplat-bamboo:nativescript-entry-graph',
 			enforce: 'post',
+			configResolved(config) {
+				isBuild = config.command === 'build'
+			},
+			buildEnd(error) {
+				if (!isBuild || error) {
+					return
+				}
+
+				// Inspect the graph, including cached modules in watch builds. A
+				// custom entry that already imports the sheet needs no injection.
+				if (![...this.getModuleIds()].some((id) => id.split('?')[0] === '\0virtual:bamboo.css')) {
+					this.error(
+						'@octane-xplat/bamboo: native entry graph is missing virtual:bamboo.css; expected virtual:entry-with-polyfills or an explicit stylesheet import',
+					)
+				}
+			},
 			transform(code, id) {
 				// @nativescript/vite builds from a generated entry
 				// (`virtual:entry-with-polyfills`). Under HMR that entry boots
@@ -49,13 +78,8 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 			options: {
 				order: 'post',
 				handler(inputOptions) {
-					type OutputHook = {
-						name?: string
-						generateBundle?: { order?: string } | ((...args: never[]) => unknown)
-					}
-
-					const options = inputOptions as unknown as {
-						output?: { plugins?: OutputHook[] } | Array<{ plugins?: OutputHook[] }>
+					const options = inputOptions as typeof inputOptions & {
+						output?: { plugins?: Plugin[] } | Array<{ plugins?: Plugin[] }>
 					}
 
 					const outputs = Array.isArray(options.output)
@@ -64,14 +88,23 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 							? [options.output]
 							: []
 
+					// Upstream installs one finalizer per configured output. With no
+					// output configured its options hook deliberately installs none.
 					for (const output of outputs) {
-						for (const plugin of output.plugins ?? []) {
-							if (
-								plugin.name?.startsWith('bamboocss:output-finalizer:') &&
-								typeof plugin.generateBundle === 'object'
-							) {
-								plugin.generateBundle.order = 'pre'
-							}
+						const finalizers = (output.plugins ?? [])
+							.flat(Infinity)
+							.filter((plugin): plugin is Plugin =>
+								Boolean(plugin && plugin.name?.startsWith('bamboocss:output-finalizer:')),
+							)
+
+						if (!finalizers.length) {
+							throw new Error(
+								'@octane-xplat/bamboo: native CSS adaptation requires a bamboocss:output-finalizer:* plugin for each configured output',
+							)
+						}
+
+						for (const finalizer of finalizers) {
+							runBeforeNativeCss(finalizer, finalizer.name)
 						}
 					}
 				},

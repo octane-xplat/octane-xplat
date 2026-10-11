@@ -25,11 +25,31 @@ describe('Bamboo xplat defaults', () => {
 
 		const finalizer = {
 			name: 'bamboocss:output-finalizer:css',
-			generateBundle: { order: 'post' },
+			generateBundle: { order: 'post', handler() {} },
 		}
 
 		expect(cssPlugin.generateBundle.order).toBe('pre')
 		outputAdapter.options.handler({ output: { plugins: [finalizer] } })
 		expect(finalizer.generateBundle.order).toBe('pre')
+	})
+
+	it('adapts the finalizers installed by the pinned Bamboo compiler for multiple outputs', () => {
+		const plugins = xplatBamboo({ native: true })
+		const compiler = plugins.find((plugin) => plugin.name === 'bamboocss:compiler') as any
+		const adapter = plugins.find(
+			(plugin) => plugin.name === 'xplat-bamboo:nativescript-output',
+		) as any
+
+		const input = { output: [{ plugins: [] as any[] }, { plugins: [] as any[] }] }
+		compiler.options.call({ environment: { name: 'client' } }, input)
+		adapter.options.handler(input)
+		for (const output of input.output) {
+			const finalizer = output.plugins.find((plugin) =>
+				plugin.name.startsWith('bamboocss:output-finalizer:'),
+			)
+
+			expect(finalizer.generateBundle.order).toBe('pre')
+			expect(typeof finalizer.generateBundle.handler).toBe('function')
+		}
 	})
 })
