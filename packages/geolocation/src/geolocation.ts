@@ -5,13 +5,21 @@ import { CoreTypes } from '@nativescript/core'
 import type { Capability, GeolocationImpl, GeolocationPosition } from './types'
 
 function asPosition(nativeLocation: any): GeolocationPosition {
+	const android = nativeLocation.android
+	const ios = nativeLocation.ios
+	const heading = nativeLocation.direction ?? nativeLocation.heading
+	const speed = nativeLocation.speed
 	return {
 		latitude: nativeLocation.latitude,
 		longitude: nativeLocation.longitude,
 		accuracy: nativeLocation.horizontalAccuracy ?? nativeLocation.accuracy ?? 0,
-		altitude: nativeLocation.altitude ?? null,
-		heading: nativeLocation.direction ?? nativeLocation.heading ?? null,
-		speed: nativeLocation.speed ?? null,
+		// Altitude itself can be negative; iOS validity uses verticalAccuracy.
+		altitude:
+			(android && !android.hasAltitude()) || (ios && ios.verticalAccuracy < 0)
+				? null
+				: (nativeLocation.altitude ?? null),
+		heading: (android && !android.hasBearing()) || heading == null || heading < 0 ? null : heading,
+		speed: (android && !android.hasSpeed()) || speed == null || speed < 0 ? null : speed,
 		timestamp: Number(nativeLocation.timestamp ?? Date.now()),
 	}
 }

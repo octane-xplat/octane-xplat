@@ -43,7 +43,32 @@ export const geolocation: Capability<GeolocationImpl> = {
 			return 'granted'
 		} catch (error) {
 			const code = (error as { code?: number }).code
-			return code === 1 ? 'denied' : 'unsupported'
+			if (code === 1) {
+				return 'denied'
+			}
+
+			if (code === 3) {
+				return 'granted'
+			}
+
+			// POSITION_UNAVAILABLE can precede authorization (inactive document).
+			// Only a permission query can establish access in that case.
+			if (code === 2 && navigator.permissions?.query) {
+				try {
+					const permission = await navigator.permissions.query({ name: 'geolocation' })
+					if (permission.state === 'granted') {
+						return 'granted'
+					}
+
+					if (permission.state === 'denied') {
+						return 'denied'
+					}
+				} catch {
+					// Some browsers expose Permissions but cannot query geolocation.
+				}
+			}
+
+			return 'unsupported'
 		}
 	},
 	impl,

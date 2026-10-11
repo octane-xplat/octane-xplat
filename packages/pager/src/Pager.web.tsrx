@@ -17,6 +17,7 @@ export function Pager(props: PagerProps) @{
 	// updated by controlled writes and settled swipes. A scroll that lands
 	// on `current` is programmatic — the settle never reports it.
 	const current = useRef(props.page ?? props.defaultPage ?? 0);
+	const hasItems = props.items.length > 0;
 	const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
@@ -45,17 +46,19 @@ export function Pager(props: PagerProps) @{
 		return () => {
 			el.removeEventListener('scroll', onScroll);
 			if (settle.current !== null) clearTimeout(settle.current);
+			settle.current = null;
 		};
-	}, []);
+	}, [hasItems]);
 
-	// Mount: jump (no animation) to the starting page — an initial position
+	// Each new host: jump (no animation) to the starting page — an initial position
 	// is not a scroll. Runs after the scroll listener attaches so the write
 	// still flows through the tracked-index path.
 	useEffect(() => {
 		const el = host.current;
-		if (!el || current.current <= 0) return;
+		if (!el) return;
+		current.current = props.page ?? current.current;
 		el.scrollLeft = current.current * el.clientWidth;
-	}, []);
+	}, [hasItems]);
 
 	// Controlled writes scroll smoothly. Skipped when the page already
 	// matches `current` — a user swipe that the parent echoes back unchanged

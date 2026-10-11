@@ -52,6 +52,42 @@ describe('Pager (web leaf)', () => {
 		el.remove();
 	});
 
+	it('wires each host after empty states and cancels detached-host work', () => {
+		vi.useFakeTimers();
+		const width = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
+		const onPageChange = vi.fn();
+		const el = document.createElement('div');
+		const root = createRoot(el);
+		const render = (values: string[], page?: number) => act(() => root.render(
+			<Pager items={values} renderItem={renderItem} defaultPage={1} page={page} onPageChange={onPageChange} />,
+		));
+
+		try {
+			render([]);
+			render(items);
+			const first = el.querySelector('.vx-pager') as HTMLElement;
+			expect(first.scrollLeft).toBe(100);
+			first.scrollLeft = 200;
+			first.dispatchEvent(new Event('scroll'));
+			render([]);
+			vi.advanceTimersByTime(200);
+			expect(onPageChange).not.toHaveBeenCalled();
+			render(items, 2);
+			const second = el.querySelector('.vx-pager') as HTMLElement;
+			expect(second).not.toBe(first);
+			expect(second.scrollLeft).toBe(200);
+			second.scrollLeft = 0;
+			second.dispatchEvent(new Event('scroll'));
+			vi.advanceTimersByTime(200);
+			expect(onPageChange).toHaveBeenCalledExactlyOnceWith(0);
+			first.dispatchEvent(new Event('scroll'));
+			expect(vi.getTimerCount()).toBe(0);
+		} finally {
+			root.unmount();
+			width.mockRestore();
+		}
+	});
+
 	it('suppresses the echo of its own controlled writes', () => {
 		vi.useFakeTimers();
 		const onPageChange = vi.fn();

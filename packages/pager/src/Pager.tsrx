@@ -88,10 +88,11 @@ function releasePagerCells(pager: any) {
 
 function PagerInner(props: PagerProps) @{
 	const host = useRef<any>(null);
-	// selectedIndex writes the leaf makes itself — the plugin raises
+	// Track selectedIndex writes across synchronous and delayed echoes.
+	// The plugin raises
 	// 'selectedIndexChange' for script writes exactly as for swipes, and
 	// the driver's auto-mute only covers JSX prop writes, not ours.
-	const suppressEcho = useRef(false);
+	const current = useRef(props.page ?? props.defaultPage ?? 0);
 	const pageSeeded = useRef(false);
 
 	// Stable ref identity — an inline closure re-fires ref(null)/ref(v) per
@@ -156,12 +157,9 @@ function PagerInner(props: PagerProps) @{
 		if (pager.items !== props.items) pager.items = props.items;
 		const target = props.page ?? (pageSeeded.current ? undefined : props.defaultPage);
 		if (target !== undefined && pager.selectedIndex !== target) {
-			suppressEcho.current = true;
-			try {
-				pager.selectedIndex = target;
-			} finally {
-				suppressEcho.current = false;
-			}
+			// Track the coerced target before writing: Android may echo later.
+			current.current = Math.max(0, Math.min(props.items.length - 1, target));
+			pager.selectedIndex = target;
 		}
 
 		pageSeeded.current = true;
@@ -176,7 +174,10 @@ function PagerInner(props: PagerProps) @{
 		onItemLoading={bindCell}
 		onItemDisposing={disposeCell}
 		onSelectedIndexChange={(args: any) => {
-			if (!suppressEcho.current) props.onPageChange?.(args.value);
+			if (args.value !== current.current) {
+				current.current = args.value;
+				props.onPageChange?.(args.value);
+			}
 		}}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
 		accessibilityLabel={props.accessibilityLabel}
@@ -202,7 +203,25 @@ const MemoPager = memo(PagerInner, (a, b) =>
 	a.page === b.page &&
 	a.onPageChange === b.onPageChange &&
 	a.ios === b.ios &&
-	a.android === b.android
+	a.android === b.android &&
+	a.row === b.row &&
+	a.col === b.col &&
+	a.rowSpan === b.rowSpan &&
+	a.colSpan === b.colSpan &&
+	a.dock === b.dock &&
+	a.left === b.left &&
+	a.top === b.top &&
+	a.flexGrow === b.flexGrow &&
+	a.flexShrink === b.flexShrink &&
+	a.alignSelf === b.alignSelf &&
+	a.order === b.order &&
+	a.accessible === b.accessible &&
+	a.accessibilityRole === b.accessibilityRole &&
+	a.accessibilityLabel === b.accessibilityLabel &&
+	a.accessibilityHint === b.accessibilityHint &&
+	a.accessibilityValue === b.accessibilityValue &&
+	a.accessibilityState === b.accessibilityState &&
+	a.accessibilityLiveRegion === b.accessibilityLiveRegion
 );
 
 /** Pager — paged horizontal swiping via @nativescript-community/ui-pager
@@ -213,6 +232,13 @@ const MemoPager = memo(PagerInner, (a, b) =>
 export function Pager(props: PagerProps) @{
 	@if (props.items.length > 0) {
 		<MemoPager
+			accessible={props.accessible}
+			accessibilityRole={props.accessibilityRole}
+			accessibilityLabel={props.accessibilityLabel}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityValue={props.accessibilityValue}
+			accessibilityState={props.accessibilityState}
+			accessibilityLiveRegion={props.accessibilityLiveRegion}
 			id={props.id}
 			className={props.className}
 			style={props.style}

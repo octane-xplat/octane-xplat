@@ -24,6 +24,24 @@ implementation exists on this target, `ensure()` resolves
 defers the prompt), and `impl` is the service once usable. Nullable
 `altitude`/`heading`/`speed` mean the platform did not report them.
 
+On iOS and Android, position failures preserve the plugin's original error;
+a numeric `code` is not guaranteed. Web and macOS failures use codes 1
+(denied), 2 (unavailable), and 3 (timeout). Handle an unclassified failure too:
+
+```ts
+import { geolocation } from '@octane-xplat/geolocation'
+
+if ((await geolocation.ensure()) === 'granted') {
+  try {
+    const position = await geolocation.impl!.getCurrentPosition()
+    console.log(position.latitude, position.longitude)
+  } catch (error) {
+    const code = (error as { code?: number }).code
+    console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
+  }
+}
+```
+
 Guide: [Using device features](../../docs/platform/platform-services.md)
 per-target availability: [platform notes](../../docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
