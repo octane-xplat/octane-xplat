@@ -13,8 +13,7 @@ concurrency:
 jobs:
   # Fast gates every push/PR runs: lint, repo checks, both typecheck surfaces,
   # unit tests, web build, package builds, packed-payload checks, and the
-  # packed-consumer/starter verification. Playwright browser coverage runs
-  # locally with `pnpm test:e2e` because browser downloads are too costly in CI.
+  # packed-consumer/starter verification.
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +34,15 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('apps/visual/package.json', 'pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: apps/visual/node_modules/.bin/playwright install chromium
 
       - name: Generate declarations before checking consumers
         run: pnpm typegen
@@ -78,7 +86,7 @@ jobs:
       # Release-path evidence: packs every publishable package, scaffolds a
       # starter via the PACKED create bin, installs it against file: tarballs
       # (no workspace links), then lints/typechecks/builds/doctor-checks the
-      # consumer. Browser smoke runs locally with `pnpm test:e2e`.
+      # consumer.
       - name: Packed consumer + starter verification
         run: pnpm check:consumer --no-build
 
