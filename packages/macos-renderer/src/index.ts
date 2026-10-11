@@ -1,5 +1,13 @@
-import { showWindowLayer, type WindowLayerOptions } from './layer'
 import '@nativescript/macos-node-api'
+import {
+	configureGesture,
+	setPressGesture,
+	disposePressGestures,
+	swipeDirection,
+	registerGestureClass,
+} from './gestures'
+
+import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
@@ -125,8 +133,8 @@ class ButtonActionTarget extends NSObject {
 
 	static ObjCExposedMethods = {
 		buttonPressed: { params: [NSButton], returns: interop.types.void },
-		viewPressed: { params: [NSObject], returns: interop.types.void },
-		viewPanned: { params: [NSPanGestureRecognizer], returns: interop.types.void },
+		'viewPressed:': { params: [NSObject], returns: interop.types.void },
+		'viewPanned:': { params: [NSPanGestureRecognizer], returns: interop.types.void },
 		controlChanged: { params: [NSObject], returns: interop.types.void },
 		controlTextDidChange: { params: [NSNotification], returns: interop.types.void },
 		textFieldSubmitted: { params: [NSObject], returns: interop.types.void },
@@ -138,14 +146,14 @@ class ButtonActionTarget extends NSObject {
 	}
 
 	static {
-		NativeClass(this)
+		registerGestureClass(this)
 	}
 
 	buttonPressed(sender: NSButton) {
 		invokeAction(sender.tag)
 	}
 
-	viewPressed(sender: NSClickGestureRecognizer) {
+	['viewPressed:'](sender: NSClickGestureRecognizer) {
 		invokeAction(actionIdsByView.get(sender.view))
 	}
 
@@ -165,6 +173,10 @@ class ButtonActionTarget extends NSObject {
 	// masquerades as a value-change event.
 	textFieldSubmitted(sender: NSObject) {
 		textNodesByView.get(sender)?.submitHandler?.()
+	}
+
+	['viewPanned:'](sender: NSPanGestureRecognizer) {
+		this.viewPanned(sender)
 	}
 
 	viewPanned(sender: NSPanGestureRecognizer) {
@@ -968,7 +980,9 @@ function makeFlexbox(props: PropBag) {
 
 	if (actionId !== undefined) {
 		stack.addGestureRecognizer(
-			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
+			configureGesture(
+				NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
+			),
 		)
 
 		actionIdsByView.set(stack, actionId)
@@ -3107,7 +3121,9 @@ function setAction(node: ElementNode, value: any) {
 		actionIdsByView.set(node.view!, node.actionId)
 		actionHandlers.set(node.actionId, null)
 		node.view!.addGestureRecognizer(
-			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
+			configureGesture(
+				NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
+			),
 		)
 	}
 
@@ -3116,7 +3132,9 @@ function setAction(node: ElementNode, value: any) {
 		typeof value === 'function'
 			? () => {
 					try {
-						node.container.root!.eventScope('discrete', value)
+						if (!node.props.disabled) {
+							node.container.root!.eventScope('discrete', value)
+						}
 					} catch (error) {
 						console.error('[macos-event] press handler failed', error)
 					}
@@ -3125,24 +3143,41 @@ function setAction(node: ElementNode, value: any) {
 	)
 }
 
-function setPanAction(node: ElementNode, value: any) {
-	if (typeof value === 'function' && !node.panGestureRecognizer) {
-		node.panGestureRecognizer = NSPanGestureRecognizer.alloc().initWithTargetAction(
-			buttonActionTarget,
-			'viewPanned:',
+function setPanAction(node: ElementNode, _value: any) {
+	const enabled =
+		!node.props.disabled &&
+		(typeof node.props.onPan === 'function' || typeof node.props.onSwipe === 'function')
+
+	if (enabled && !node.panGestureRecognizer) {
+		node.panGestureRecognizer = configureGesture(
+			NSPanGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPanned:'),
 		)
 
 		node.view!.addGestureRecognizer(node.panGestureRecognizer)
 	}
 
+	if (node.panGestureRecognizer) {
+		node.panGestureRecognizer.enabled = enabled
+	}
+
 	panHandlersByView.set(
 		node.view!,
-		typeof value === 'function'
+		enabled
 			? (event: PanEvent) => {
+					if (node.props.disabled) {
+						return
+					}
+
 					try {
-						node.container.root!.eventScope('discrete', () => value(event))
+						node.container.root!.eventScope('discrete', () => {
+							node.props.onPan?.(event)
+							const direction = swipeDirection(event)
+							if (direction !== null && !node.props.disabled) {
+								node.props.onSwipe?.({ direction })
+							}
+						})
 					} catch (error) {
-						console.error('[macos-event] pan handler failed', error)
+						console.error('[macos-event] pan/swipe handler failed', error)
 					}
 				}
 			: null,
@@ -3263,6 +3298,27 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
+		if (['flexboxlayout', 'gridlayout', 'absolutelayout'].includes(node.type)) {
+			if (['onTouch', 'onLongPress', 'onDoubleTap'].includes(name)) {
+				setPressGesture(node, name)
+				continue
+			}
+
+			if (name === 'onSwipe') {
+				setPanAction(node, value)
+				continue
+			}
+
+			if (name === 'disabled') {
+				setPanAction(node, node.props.onPan)
+				for (const event of ['onTouch', 'onLongPress', 'onDoubleTap']) {
+					setPressGesture(node, event)
+				}
+
+				continue
+			}
+		}
+
 		switch (node.type) {
 			case 'stack':
 				if (name === 'spacing') {
@@ -3291,12 +3347,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 					setAction(node, value)
 				} else if (name === 'onPan') {
 					setPanAction(node, value)
-				} else if (name === 'onTouch') {
-					continue
-				} else if (name === 'onSwipe') {
-					if (typeof value === 'function') {
-						console.warn('[macos-host] ' + name + ' is unsupported by the AppKit renderer')
-					}
 				} else if (name.startsWith('on') && value == null) {
 					continue
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -3331,10 +3381,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 					setPanAction(node, value)
 				} else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
 					continue
-				} else if (name === 'onSwipe') {
-					if (typeof value === 'function') {
-						console.warn('[macos-host] onSwipe is unsupported by the AppKit renderer')
-					}
 				} else if (name.startsWith('on') && value == null) {
 					continue
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -3802,6 +3848,15 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	disposePressGestures(node)
+	if (node.view) {
+		panHandlersByView.delete(node.view)
+	}
+
+	if (node.panGestureRecognizer) {
+		node.panGestureRecognizer.enabled = false
+	}
+
 	if (node.textLayoutObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.textLayoutObserver)
 	}

@@ -4,11 +4,9 @@ import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
-// AppKit resolves target/action selectors by name — a method exposed with one
-// param registers `name:`, so a bare `'name'` action string silently never
-// fires. Derive each target class's registered selector set from its real
-// ObjCExposedMethods and assert every action string in the source resolves
-// against the target it is attached to.
+// The NAPI runtime registers exposed keys verbatim. Preserve the action-site
+// arity check, but verify gesture registration against exact metadata keys and
+// prototype methods below. Arity alone does not establish native delivery.
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
@@ -23,6 +21,7 @@ const context = {
 	NSTextFieldDelegate: class {},
 	interop: { types: { void: 'void', bool: 'bool', id: 'id' } },
 	NativeClass() {},
+	registerGestureClass() {},
 }
 
 const { ButtonActionTarget } = runInNewContext(
@@ -41,9 +40,9 @@ const { MenuActionTarget } = runInNewContext(
 	context,
 )
 
-// The runtime registers `name` verbatim when it already contains ':',
-// otherwise `name` + ':' per declared param.
-function registeredSelectors(klass) {
+// An intended selector's arity follows its declared parameter count. This
+// legacy convention is not the runtime's registration algorithm.
+function intendedSelectors(klass) {
 	return new Set(
 		Object.entries(klass.ObjCExposedMethods).map(([name, method]) =>
 			name.includes(':') ? name : name + ':'.repeat(method.params?.length ?? 0),
@@ -52,8 +51,8 @@ function registeredSelectors(klass) {
 }
 
 const selectorsByTarget = {
-	buttonActionTarget: registeredSelectors(ButtonActionTarget),
-	menuActionTarget: registeredSelectors(MenuActionTarget),
+	buttonActionTarget: intendedSelectors(ButtonActionTarget),
+	menuActionTarget: intendedSelectors(MenuActionTarget),
 }
 
 // Sites whose target is assigned as a property next to the action string
@@ -97,13 +96,18 @@ function* actionSites() {
 	}
 }
 
-test('registered ObjC action selectors match every assigned action string', () => {
+test('assigned action strings retain declared arity and gestures use explicit ObjC keys', () => {
 	const sites = [...actionSites()]
 
 	// Guard against a pattern silently matching nothing after a refactor.
 	assert.equal(sites.length, 9)
 
 	for (const { target, selector } of sites) {
+		if (target === 'buttonActionTarget' && ['viewPressed:', 'viewPanned:'].includes(selector)) {
+			assert.ok(ButtonActionTarget.ObjCExposedMethods[selector])
+			assert.equal(typeof ButtonActionTarget.prototype[selector], 'function')
+		}
+
 		const registered = selectorsByTarget[target]
 		assert.ok(
 			registered,

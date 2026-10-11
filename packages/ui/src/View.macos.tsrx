@@ -17,6 +17,7 @@ export function View(props: ViewProps) @{
 		className={cx(props.className)}
 		style={props.style}
 		onPan={usePan(props.onPan)}
+		onSwipe={props.onSwipe}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole}

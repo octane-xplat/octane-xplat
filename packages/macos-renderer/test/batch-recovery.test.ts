@@ -74,6 +74,8 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		},
 		buttonActionTarget: {},
 		fontForFamilyStyle: () => ({ pointSize: 14 }),
+		disposePressGestures: () => {},
+		panHandlersByView: new WeakMap(),
 		disposeWebView: (view: any) => disposedWebViews.push(view),
 		disposeImage: () => {},
 		applyProps: applyProps ?? (() => {}),

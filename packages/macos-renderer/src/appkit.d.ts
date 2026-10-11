@@ -86,12 +86,26 @@ interface NSButtonClass extends NSClass<NSButton> {
 
 declare const NSButton: NSButtonClass
 
-interface NSGestureRecognizer extends NSObject {
+declare const NSGestureRecognizerDelegate: any
+
+declare class NSGestureRecognizer extends NSObject {
+	delegate: any
+	delaysPrimaryMouseButtonEvents: boolean
+	reset(): void
+	mouseDown(event: NSEvent): void
+	mouseDragged(event: NSEvent): void
+	mouseUp(event: NSEvent): void
 	initWithTargetAction(target: any, action: string): this
 	readonly view: NSView
-	state: number
+	readonly state: number
 	enabled: boolean
 }
+
+interface NSPressGestureRecognizer extends NSGestureRecognizer {
+	minimumPressDuration: number
+}
+
+declare const NSPressGestureRecognizer: NSClass<NSPressGestureRecognizer>
 
 interface NSClickGestureRecognizer extends NSGestureRecognizer {
 	numberOfClicksRequired: number

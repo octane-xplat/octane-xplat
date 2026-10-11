@@ -2,7 +2,7 @@
 
 ID: interactive-actions
 Targets: web, ios, android, macos
-Related APIs: Button, IconButton, ButtonGroup, ToggleButton, ToggleButtonGroup, ClickableCard, SelectableCard, MoreMenu
+Related APIs: Button, IconButton, ButtonGroup, ToggleButton, ToggleButtonGroup, ClickableCard, SelectableCard, MoreMenu, Pressable
 
 ## Starting point
 
@@ -24,6 +24,10 @@ or an overflow action menu across supported targets.
 - AC4: The guide documents Button legacy prop migration and pending action behavior.
 
 ## Documentation
+
+AppKit foundation callbacks and remaining OS-input limits are described in
+[macOS gesture callbacks](../packages/ui/changes/macos-gestures.md). This fixture
+does not qualify the complete action-control composition below.
 
 - AC1: [Action controls guide example](../docs/app/interactive-actions.md#action-controls-and-interactive-cards) and the maintained [action controls demo](../packages/demos/src/ActionControlsDemo.tsrx).
 - AC2: [Groups, toggles, and overflow menus](../docs/app/interactive-actions.md#action-controls-and-interactive-cards).

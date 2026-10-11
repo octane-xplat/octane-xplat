@@ -219,6 +219,7 @@ test('per-edit delegate events fire the change handler while the action fires su
 	const { ButtonActionTarget } = runInNewContext(targetClass + '\n({ ButtonActionTarget })', {
 		NSObject: class {},
 		NativeClass: () => {},
+		registerGestureClass: () => {},
 		interop: { types: { void: 'void', bool: 'bool', id: 'id' } },
 		NSButton: class {},
 		NSPanGestureRecognizer: class {},

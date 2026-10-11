@@ -375,3 +375,14 @@ the checkout. It checks declarations and production compilation on every
 host; on Apple Silicon macOS it also packages and launches the app and verifies
 retained-root HMR. Programmatic action dispatch establishes handler behavior,
 not OS input or hit-testing.
+
+## Press and swipe callbacks
+
+See [macOS gesture callbacks](../ui/changes/macos-gestures.md) for shared
+Pressable and View examples, swipe directions, and verification limits.
+The maintained nonvisual fixture checks Objective-C gesture target dispatch;
+physical OS input remains a separate manual check.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm --filter @octane-xplat/macos-renderer test:gestures
+```
