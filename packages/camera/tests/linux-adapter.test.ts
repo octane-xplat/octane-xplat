@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SharedCameraSession } from '../src/session-core'
 import { createSessionBackend } from '../src/session-backend.linux'
 import { CameraCaptureError } from '../src/types'
+import type { CameraSessionEvent } from '../src/types'
 
 const hostMovie = vi.hoisted(() => ({
 	host: null as null | { call: ReturnType<typeof vi.fn> },
@@ -350,6 +351,31 @@ describe('linux WebKitGTK adapter', () => {
 			expect(outcome.clip.hasAudio).toBe(true)
 		}
 
+		await session.dispose()
+	})
+
+	it('a re-acquired live stream clears the ended-track interruption', async () => {
+		const session = await ready()
+		const events: CameraSessionEvent[] = []
+		session.subscribe((event) => events.push(event))
+		track.readyState = 'ended'
+		track.dispatchEvent(new Event('ended'))
+		await flush()
+		expect(session.snapshot().interrupted).toBe(true)
+		expect(session.snapshot().cameraAvailable).toBe(false)
+
+		// Re-acquiring a live stream ends the interruption so recording can
+		// resume without disposing the session.
+		track = new Track()
+		expect(await session.requestPermission('camera')).toBe('granted')
+		await flush()
+		expect(session.snapshot().interrupted).toBe(false)
+		expect(session.snapshot().cameraAvailable).toBe(true)
+		const phases = events
+			.filter((event) => event.type === 'interruption')
+			.map((event) => (event as { phase: string }).phase)
+
+		expect(phases).toEqual(['began', 'ended'])
 		await session.dispose()
 	})
 
