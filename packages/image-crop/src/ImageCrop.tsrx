@@ -20,7 +20,9 @@ export function ImageCrop(props: ImageCropProps) @{
 	const pan = (handle: CropHandle, event: PanEvent) => {
 		if (props.disabled || frame.width <= 0 || frame.height <= 0) { gesture.current = null; return }
 		if (event.state === 'began') {
-			gesture.current = { handle, start: crop, size: frame, dx: event.dx, dy: event.dy, src: props.src }
+			if (!gesture.current) {
+				gesture.current = { handle, start: crop, size: frame, dx: event.dx, dy: event.dy, src: props.src }
+			}
 			return
 		}
 
@@ -44,6 +46,7 @@ export function ImageCrop(props: ImageCropProps) @{
 		<Absolute style={viewport}>
 			<Source src={props.src} alt={props.alt} width={viewport.width} height={viewport.height} />
 			<Gesture id={props.id ? props.id + '-move' : undefined} left={left} top={top}
+				accessibilityLabel="Move crop selection" accessibilityState={{ disabled: props.disabled }}
 				style={{ width: crop.width, height: crop.height, borderWidth: 1, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.13)' }}
 				onPan={props.disabled ? undefined : (e: PanEvent) => pan('move', e)} />
 			@if (props.ruleOfThirds) {

@@ -109,13 +109,16 @@ export function dragCrop(
 	limits: CropConstraints = {},
 ): PixelCrop {
 	const p = constrainCrop(start, size, limits)
+	const frameW = positive(size.width),
+		frameH = positive(size.height)
+
 	dx = finite(dx)
 	dy = finite(dy)
 	if (handle === 'move') {
 		return {
 			...p,
-			x: clamp(p.x + dx, 0, size.width - p.width),
-			y: clamp(p.y + dy, 0, size.height - p.height),
+			x: clamp(p.x + dx, 0, frameW - p.width),
+			y: clamp(p.y + dy, 0, frameH - p.height),
 		}
 	}
 
@@ -129,10 +132,18 @@ export function dragCrop(
 	// edge midpoint under aspect lock, so the other axis expands symmetrically.
 	const ax = west ? p.x + p.width : east ? p.x : p.x + p.width / 2
 	const ay = north ? p.y + p.height : south ? p.y : p.y + p.height / 2
-	const boundW = west ? ax : east ? size.width - ax : 2 * Math.min(ax, size.width - ax)
-	const boundH = north ? ay : south ? size.height - ay : 2 * Math.min(ay, size.height - ay)
-	const maxW = Math.min(boundW, limits.maxWidth ?? Infinity)
-	const maxH = Math.min(boundH, limits.maxHeight ?? Infinity)
+	const boundW = west ? ax : east ? frameW - ax : 2 * Math.min(ax, frameW - ax)
+	const boundH = north ? ay : south ? frameH - ay : 2 * Math.min(ay, frameH - ay)
+	const maxW = Math.min(
+		boundW,
+		limits.maxWidth === undefined ? Infinity : positive(limits.maxWidth),
+	)
+
+	const maxH = Math.min(
+		boundH,
+		limits.maxHeight === undefined ? Infinity : positive(limits.maxHeight),
+	)
+
 	let width = p.width + (west ? -dx : east ? dx : 0)
 	let height = p.height + (north ? -dy : south ? dy : 0)
 	const aspect = positive(limits.aspect ?? 0)

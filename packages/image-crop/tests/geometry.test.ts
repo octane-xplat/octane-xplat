@@ -99,6 +99,27 @@ describe('selection geometry', () => {
 		})
 	})
 
+	it('sanitizes non-finite limits and frame sizes during a drag', () => {
+		const collapsed = dragCrop(start, 'se', 20, 20, size, {
+			maxWidth: Number.NaN,
+			maxHeight: Number.NaN,
+		})
+
+		expect(collapsed).toEqual(constrainCrop(start, size, {
+			maxWidth: Number.NaN,
+			maxHeight: Number.NaN,
+		}))
+
+		expect(Number.isFinite(collapsed.x + collapsed.y + collapsed.width + collapsed.height)).toBe(
+			true,
+		)
+
+		for (const handle of ['move', 'nw', 'se'] as CropHandle[]) {
+			const dragged = dragCrop(start, handle, 20, 20, { width: Number.NaN, height: Number.NaN })
+			expect(Number.isFinite(dragged.x + dragged.y + dragged.width + dragged.height)).toBe(true)
+		}
+	})
+
 	it('handles zero layout and impossible minimums without NaN', () => {
 		expect(constrainCrop(start, { width: 0, height: 0 }, { aspect: 2, minWidth: 100 })).toEqual({
 			unit: 'px',
