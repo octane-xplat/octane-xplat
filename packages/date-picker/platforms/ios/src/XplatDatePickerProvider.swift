@@ -116,12 +116,16 @@ public final class XplatDatePickerProvider: UIViewController, SwiftUIProvider {
 	}
 
 	public func updateData(data: NSDictionary) {
-		if let title = data["title"] as? String {
-			model.title = title.isEmpty ? nil : title
+		// dataSerialize drops undefined keys — an absent key is a revert to
+		// the unset state, not "leave the previous value".
+		if data.object(forKey: "title") == nil {
+			model.title = nil
+		} else {
+			let title = data["title"] as? String
+			model.title = title?.isEmpty == false ? title : nil
 		}
-		if let selection = data["selection"] as? NSNumber {
-			model.selection = Date(timeIntervalSince1970: selection.doubleValue / 1000)
-		}
+		model.selection = Self.millisToDate(data["selection"])
+
 		if let range = data["range"] as? [String: Any] {
 			model.rangeStart = Self.millisToDate(range["start"])
 			model.rangeEnd = Self.millisToDate(range["end"])

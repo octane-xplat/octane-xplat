@@ -5020,13 +5020,17 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 	}
 
 	const isTime = options?.mode === 'time'
+	const isBoth = options?.mode === 'dateAndTime'
 	const picker = NSDatePicker.alloc().init()
 	picker.datePickerElements = isTime
 		? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
-		: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
+		: isBoth
+			? ((DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0) |
+				(DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c))
+			: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
 
 	picker.datePickerStyle =
-		!isTime && options?.style === 'graphical'
+		!isTime && !isBoth && options?.style === 'graphical'
 			? (DATE_PICKER_STYLES.Graphical ?? 2)
 			: isTime
 				? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)

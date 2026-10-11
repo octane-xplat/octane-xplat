@@ -15,9 +15,9 @@ export function AppKitDatePicker(props: AppKitDatePickerProps) @{
 	const handle = useRef<any>(null)
 
 	const options = () => ({
-		mode: props.components === 'time' ? 'time' : 'date',
+		mode: props.components,
 		style: props.pickerStyle,
-		selectionMillis: (props.selection ?? props.defaultSelection)?.getTime?.(),
+		selectionMillis: props.selection?.getTime?.(),
 		minimumMillis: props.minimumDate?.getTime?.(),
 		maximumMillis: props.maximumDate?.getTime?.(),
 		enabled: !props.disabled,
@@ -27,9 +27,15 @@ export function AppKitDatePicker(props: AppKitDatePickerProps) @{
 		const view = anchor.current
 		const attach = host().attachDatePicker
 		if (!view || typeof attach !== 'function') return
-		handle.current = attach(view, options(), (millis: number) => {
-			props.onSelectionChange?.(new Date(millis))
-		})
+		// defaultSelection seeds the initial date; after that the user's
+		// pick owns the value — only the controlled `selection` is pushed.
+		handle.current = attach(
+			view,
+			{ ...options(), selectionMillis: (props.selection ?? props.defaultSelection)?.getTime?.() },
+			(millis: number) => {
+				props.onSelectionChange?.(new Date(millis))
+			},
+		)
 
 		return () => {
 			handle.current?.detach()

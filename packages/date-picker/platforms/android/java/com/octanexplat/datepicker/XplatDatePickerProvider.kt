@@ -21,6 +21,8 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.isSystemInDarkTheme
 import org.json.JSONObject
 import java.util.Calendar
 import java.util.Date
@@ -47,8 +50,18 @@ private fun Any?.asLong(): Long? = when (this) {
 	else -> null
 }
 
+// android.graphics.Color.parseColor only accepts #RRGGBB/#AARRGGBB (and
+// named colors); the elementColors doc also advertises the CSS-style #rgb
+// shorthand — expand it so a documented value doesn't silently fall back.
+private fun expandShortHex(value: String): String =
+	if (value.length == 4 && value.startsWith('#')) {
+		"#" + value.substring(1).map { "$it$it" }.joinToString("")
+	} else {
+		value
+	}
+
 private fun Any?.asColor(): Color? = when (this) {
-	is String -> runCatching { Color(android.graphics.Color.parseColor(this)) }.getOrNull()
+	is String -> runCatching { Color(android.graphics.Color.parseColor(expandShortHex(this))) }.getOrNull()
 	else -> null
 }
 
