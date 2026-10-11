@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/updates",
-	"version": "0.12.0",
+	"version": "0.14.0",
 	"description": "Optional next-launch OTA bundle updates for Octane Xplat iOS and Android apps",
 	"license": "MIT",
 	"repository": {

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.14.0] - 2026-10-11
+
+### Features
+
+- *(camera)* Shared camera-session movie-capture contract with iOS adapter
+- *(camera)* Record and reopen movies on Android and web
+- *(camera)* Preview and record movies on the Windows WinUI target
+- *(camera)* Record and reopen movies on macOS AppKit and WKWebView
+- *(updates)* Add recoverable next-launch OTA bundle updates
+- *(camera)* Record and reopen movies in the Linux WebKitGTK host
+
+### Bug Fixes
+
+- *(ui)* Mark CodeBlock wrap styles web-only in tokens.css
+
 ## [0.13.0] - 2026-10-10
 
 ### Features
