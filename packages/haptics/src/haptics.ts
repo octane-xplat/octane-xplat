@@ -78,10 +78,19 @@ export const createHaptics = (): Haptics => {
 				return false
 			}
 
-			if (android) {
-				sdk.getPresets().getByName(presetNames[preset])?.play()
-			} else {
-				bridge.playPreset(presetNames[preset])
+			try {
+				if (android) {
+					const named = sdk.getPresets().getByName(presetNames[preset])
+					if (!named) {
+						return false
+					}
+
+					named.play()
+				} else {
+					return bridge.playPreset(presetNames[preset]) === true
+				}
+			} catch {
+				return false
 			}
 
 			return true
@@ -91,27 +100,31 @@ export const createHaptics = (): Haptics => {
 				return false
 			}
 
-			if (android) {
-				const amplitude = new java.util.ArrayList()
-				for (const point of pattern.points) {
-					amplitude.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.intensity))
+			try {
+				if (android) {
+					const amplitude = new java.util.ArrayList()
+					for (const point of pattern.points) {
+						amplitude.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.intensity))
+					}
+
+					const frequency = new java.util.ArrayList()
+					for (const point of pattern.points) {
+						frequency.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5))
+					}
+
+					const data = new com.swmansion.pulsar.types.PatternData(
+						new com.swmansion.pulsar.types.ContinuousPattern(amplitude, frequency),
+						new java.util.ArrayList(),
+					)
+
+					const composer = sdk.getPatternComposer()
+					composer.parsePattern(data)
+					composer.play()
+				} else {
+					return bridge.playPattern(JSON.stringify(pattern)) === true
 				}
-
-				const frequency = new java.util.ArrayList()
-				for (const point of pattern.points) {
-					frequency.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5))
-				}
-
-				const data = new com.swmansion.pulsar.types.PatternData(
-					new com.swmansion.pulsar.types.ContinuousPattern(amplitude, frequency),
-					new java.util.ArrayList(),
-				)
-
-				const composer = sdk.getPatternComposer()
-				composer.parsePattern(data)
-				composer.play()
-			} else {
-				bridge.playPattern(JSON.stringify(pattern))
+			} catch {
+				return false
 			}
 
 			return true

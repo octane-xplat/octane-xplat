@@ -44,18 +44,48 @@ export const createHaptics = (): Haptics => {
 				return false
 			}
 
+			// Vibration patterns are [vibrate, pause, ...] — lead with a
+			// zero-length buzz so each gap lands in a pause slot, advance the
+			// cursor by the emitted pulse length, and clip to the authored
+			// duration envelope.
+			const duration = Number.isFinite(pattern.duration)
+				? Math.max(0, pattern.duration)
+				: null
+
 			const pulses: number[] = []
 			let cursor = 0
 			for (const point of pattern.points) {
-				pulses.push(
-					Math.max(0, point.at - cursor),
-					Math.round(10 + Math.max(0, Math.min(1, point.intensity)) * 40),
-				)
+				if (!Number.isFinite(point.at)) {
+					continue
+				}
 
-				cursor = point.at + 10
+				const at = Math.max(0, point.at)
+				if (duration !== null && at >= duration) {
+					continue
+				}
+
+				const intensity = Number.isFinite(point.intensity)
+					? Math.max(0, Math.min(1, point.intensity))
+					: 0
+
+				let pulse = Math.round(10 + intensity * 40)
+				if (duration !== null) {
+					pulse = Math.min(pulse, Math.max(0, Math.round(duration - at)))
+				}
+
+				if (pulse <= 0) {
+					continue
+				}
+
+				if (pulses.length === 0) {
+					pulses.push(0)
+				}
+
+				pulses.push(Math.max(0, Math.round(at - cursor)), pulse)
+				cursor = at + pulse
 			}
 
-			return navigator.vibrate(pulses)
+			return pulses.length > 0 && navigator.vibrate(pulses)
 		},
 		startRealtime: () => ({ update: () => {}, stop }),
 		stop,

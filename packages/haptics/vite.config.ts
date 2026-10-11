@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
-const EXTENSIONS = [
+const NATIVE_EXTS = [
 	'.ios.tsrx',
 	'.android.tsrx',
 	'.mobile.tsrx',
@@ -14,6 +14,20 @@ const EXTENSIONS = [
 	'.ios.ts',
 	'.android.ts',
 	'.mobile.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
+]
+
+const WEB_EXTS = [
+	'.web.tsrx',
+	'.tsrx',
+	'.web.tsx',
+	'.tsx',
+	'.web.ts',
 	'.mjs',
 	'.mts',
 	'.ts',
@@ -55,7 +69,7 @@ export default defineConfig(({ mode }) => {
 		},
 		resolve: {
 			conditions: [native ? 'native' : 'web'],
-			extensions: EXTENSIONS,
+			extensions: native ? NATIVE_EXTS : WEB_EXTS,
 		},
 	}
 })
