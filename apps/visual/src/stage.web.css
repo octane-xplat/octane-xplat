@@ -1,0 +1,15 @@
+.visual-stage {
+	color-scheme: light;
+	width: 96px;
+	height: 64px;
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.visual-stage *,
+.visual-stage *::before,
+.visual-stage *::after {
+	animation: none !important;
+	transition: none !important;
+}
