@@ -19,7 +19,9 @@ if ((await notifications.ensure()) === 'granted') {
 The shared capability contract: `supported`, `ensure()` →
 `'granted' | 'denied' | 'unsupported'`, then `impl`. `notify(title, body?)`
 fires immediately — delayed scheduling and cancellation are deliberately out
-of scope.
+of scope. On iOS the underlying plugin schedules a fixed ~2s trigger, so
+delivery lags the immediate macOS/web path by a couple of seconds; that is a
+plugin limitation the package cannot schedule around.
 
 ## Platform support
 
