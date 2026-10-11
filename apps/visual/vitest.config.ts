@@ -9,14 +9,18 @@ export default defineConfig({
 		...octane(),
 		vis({
 			preset: 'manual',
-			snapshotRootDir: () => process.env.VIS_MOCK_ROOT || 'vis/web',
-			snapshotSubpath: () => 'mock-workflow',
+			snapshotRootDir: () => process.env.VIS_ROOT || 'vis/web',
+			snapshotSubpath: ({ subpath }) =>
+				subpath.includes('mock.test') ? 'mock-workflow' : 'switch',
 			failureThreshold: 0,
 			failureThresholdType: 'pixel',
 			diffOptions: { threshold: 0, includeAA: true },
 		}),
 	],
-	define: { __MOCK_ALTERED__: JSON.stringify(process.env.VIS_MOCK_ALTERED === '1') },
+	define: {
+		__MOCK_ALTERED__: JSON.stringify(process.env.VIS_MOCK_ALTERED === '1'),
+		__WEB_ALTERED__: JSON.stringify(process.env.VIS_WEB_ALTERED === '1'),
+	},
 	resolve: {
 		conditions: ['web'],
 		dedupe: ['octane'],
@@ -37,7 +41,17 @@ export default defineConfig({
 		browser: {
 			enabled: true,
 			headless: true,
-			provider: playwright(),
+			viewport: { width: 640, height: 420 },
+			provider: playwright({
+				contextOptions: {
+					viewport: { width: 800, height: 600 },
+					deviceScaleFactor: 1,
+					colorScheme: 'light',
+					reducedMotion: 'reduce',
+					locale: 'en-US',
+					timezoneId: 'UTC',
+				},
+			}),
 			instances: [{ browser: 'chromium' }],
 			screenshotFailures: false,
 		},

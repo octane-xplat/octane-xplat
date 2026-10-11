@@ -1,5 +1,8 @@
 .visual-stage {
 	color-scheme: light;
+	position: fixed;
+	left: 0;
+	top: 0;
 	width: 96px;
 	height: 64px;
 	background: #fff;

@@ -4,9 +4,13 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:mock": "vitest run",
-		"update:mock": "vitest run --update",
-		"verify:mock": "node scripts/verify-mock.mjs"
+		"test": "vitest run",
+		"test:mock": "vitest run mock.test",
+		"update:mock": "vitest run mock.test --update",
+		"verify:mock": "node scripts/verify-mock.mjs",
+		"test:web": "vitest run web.test",
+		"update:web": "vitest run web.test --update",
+		"verify:web": "node scripts/verify-web.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

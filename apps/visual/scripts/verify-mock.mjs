@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'xplat-vis-mock-'))
 function run(label, env, expectedStatus, expectedMessage) {
-	const result = spawnSync('pnpm', ['exec', 'vitest', 'run'], {
+	const result = spawnSync('pnpm', ['exec', 'vitest', 'run', 'mock.test'], {
 		encoding: 'utf8',
 		timeout: 60000,
 		env: { ...process.env, ...env },
@@ -28,17 +28,17 @@ function run(label, env, expectedStatus, expectedMessage) {
 }
 
 try {
-	run('unchanged mock', { VIS_MOCK_ALTERED: '0', VIS_MOCK_ROOT: 'vis/web' }, 0)
+	run('unchanged mock', { VIS_MOCK_ALTERED: '0', VIS_ROOT: 'vis/web' }, 0)
 	run(
 		'one pixel altered mock',
-		{ VIS_MOCK_ALTERED: '1', VIS_MOCK_ROOT: 'vis/web' },
+		{ VIS_MOCK_ALTERED: '1', VIS_ROOT: 'vis/web' },
 		1,
 		/differ by 1 pixels/,
 	)
 
 	run(
 		'missing baseline',
-		{ VIS_MOCK_ALTERED: '0', VIS_MOCK_ROOT: temporaryRoot },
+		{ VIS_MOCK_ALTERED: '0', VIS_ROOT: temporaryRoot },
 		1,
 		/has no baseline image/,
 	)
