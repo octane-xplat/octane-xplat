@@ -7,7 +7,6 @@ import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
-import { cx } from './cx.mobile'
 
 class CameraPreview extends View {
 	createNativeView() {
@@ -130,7 +129,7 @@ export function CameraView(props: CameraViewProps) @{
 		id={props.id}
 		rows="*"
 		columns="*"
-		className={cx('vx-layers', 'vx-cameraview', props.className)}
+		className={['vx-layers', 'vx-cameraview', props.className]}
 		style={{ backgroundColor: '#000', ...props.style }}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}

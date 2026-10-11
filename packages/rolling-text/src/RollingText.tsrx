@@ -1,7 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'
-import { cx } from './cx.mobile'
 import { applyEscapeProps } from './escape-props.mobile'
 import { layoutChildProps } from './layout-child'
 
@@ -20,7 +19,7 @@ export function RollingText(props: RollingTextProps) @{
 			roll.attachRow(view)
 		}}
 		{...layoutChildProps(props)}
-		className={cx('vx-rolling-text', props.className)}
+		className={['vx-rolling-text', props.className]}
 		style={props.style}
 		flexDirection="row"
 		flexWrap="nowrap"

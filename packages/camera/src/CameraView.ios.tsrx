@@ -5,7 +5,6 @@ import { cameraHardwarePresent, ensureCameraPermission } from './camera-permissi
 import { startCameraPreview } from './camera-session.ios'
 import { attachSessionPreview } from './session'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
-import { cx } from './cx.mobile'
 
 /** Live iOS preview backed by AVFoundation. With `session`, the preview
  *  attaches to the session-owned AVCaptureSession so movie recording can
@@ -86,7 +85,7 @@ export function CameraView(props: CameraViewProps) @{
 		id={props.id}
 		rows="*"
 		columns="*"
-		className={cx('vx-layers', 'vx-cameraview', props.className)}
+		className={['vx-layers', 'vx-cameraview', props.className]}
 		style={{ backgroundColor: '#000', ...props.style }}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}

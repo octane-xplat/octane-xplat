@@ -8,7 +8,6 @@ import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.windows'
 import { startCameraPreview } from './camera-session.windows'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child.windows'
-import { cx } from './cx.windows'
 
 class CameraPreview extends View {
 	createNativeView() {
@@ -108,7 +107,7 @@ export function CameraView(props: CameraViewProps) @{
 		id={props.id}
 		rows="*"
 		columns="*"
-		className={cx('vx-layers', 'vx-cameraview', props.className)}
+		className={['vx-layers', 'vx-cameraview', props.className]}
 		style={{ backgroundColor: '#000', ...props.style }}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}

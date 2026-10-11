@@ -4,7 +4,6 @@ import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer';
 import type { VideoHandle, VideoProps } from './props';
-import { cx } from './cx.mobile';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child';
 import { VideoChrome } from './video-chrome.tsrx';
@@ -102,7 +101,7 @@ export function Video(props: VideoProps) @{
 		id={props.id}
 		rows="*"
 		columns="*"
-		className={cx('vx-layers', 'vx-video', props.className)}
+		className={['vx-layers', 'vx-video', props.className]}
 		style={props.style}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}

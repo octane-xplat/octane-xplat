@@ -12,7 +12,6 @@ import type { UniversalRoot } from '@nativescript-community/octane';
 import { Pager as NSPager } from '@nativescript-community/ui-pager';
 import { GridLayout } from '@nativescript/core';
 import type { PagerProps } from './props';
-import { cx } from './cx.mobile';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props.mobile';
 import { layoutChildProps } from './layout-child';
 
@@ -169,7 +168,7 @@ function PagerInner(props: PagerProps) @{
 		ref={bindHost}
 		id={props.id}
 		{...layoutChildProps(props)}
-		className={cx('vx-pager', props.className)}
+		className={['vx-pager', props.className]}
 		style={props.style}
 		onItemLoading={bindCell}
 		onItemDisposing={disposeCell}

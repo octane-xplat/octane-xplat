@@ -4,7 +4,6 @@ import { registerElement } from '@nativescript-community/octane';
 import { isAndroid } from '@nativescript/core';
 import { LottieView } from './vendor/ui-lottie/src/lottie';
 import type { LottieHandle, LottieProps } from './props';
-import { cx } from './cx.mobile';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child';
 
@@ -148,7 +147,7 @@ export function Lottie(props: LottieProps) @{
 	<xplatlottie
 		ref={bindHost}
 		id={props.id}
-		className={cx(props.className)}
+		className={[props.className]}
 		style={props.style}
 		{...layoutChildProps(props)}
 		loop={props.loop ?? false}

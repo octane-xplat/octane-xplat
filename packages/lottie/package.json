@@ -20,7 +20,6 @@
 		"src/props.ts",
 		"src/native-elements.d.ts",
 		"src/references.d.ts",
-		"src/cx.mobile.ts",
 		"src/escape-props.ts",
 		"src/escape-props.web.ts",
 		"src/layout-child.ts",
