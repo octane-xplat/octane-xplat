@@ -124,7 +124,30 @@ export async function checkMacOSMotionConsumer({
 	}
 
 	const container = api.createObjectContainer('macos')
-	const root = api.createUniversalRoot(container, api.createObjectDriver('macos'))
+	const driver = api.createObjectDriver('macos')
+	const originalTransaction = globalThis.CATransaction
+	if (packageName === '@octane-xplat/motion') {
+		// Supply explicit AppKit property doubles for this import/mount check.
+		// The object driver alone has no NSView/CALayer behavior.
+		const publicInstance = driver.getPublicInstance.bind(driver)
+		driver.getPublicInstance = (...args) => {
+			const node = publicInstance(...args)
+			if (!node.layer) {
+				const values = new Map()
+				node.alphaValue = 1
+				node.layer = {
+					valueForKeyPath: (path) => values.get(path) ?? (path.includes('scale') ? 1 : 0),
+					setValueForKeyPath: (value, path) => values.set(path, value),
+				}
+			}
+
+			return node
+		}
+
+		globalThis.CATransaction = { begin() {}, setDisableActions() {}, commit() {} }
+	}
+
+	const root = api.createUniversalRoot(container, driver)
 	try {
 		if (packageName === '@octane-xplat/motion') {
 			assert.deepEqual(
@@ -154,6 +177,11 @@ export async function checkMacOSMotionConsumer({
 		assert.equal(container.children.length, 1, 'initial object-driver mount creates a host')
 	} finally {
 		root.unmount()
+		if (originalTransaction === undefined) {
+			delete globalThis.CATransaction
+		} else {
+			globalThis.CATransaction = originalTransaction
+		}
 	}
 
 	assert.equal(container.children.length, 0, 'unmount removes the host')

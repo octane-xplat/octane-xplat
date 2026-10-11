@@ -364,8 +364,9 @@ uncharacterized. On iOS the preference is observed through
 ## macOS package boundary
 
 Motion and RollingText have a separate macOS package build. This is package
-acceptance only; AppKit transforms, gestures, retained presence, clipping,
-cell movement, and live accessibility preferences require separate host checks.
+acceptance only; gestures, retained presence, clipping, cell movement, and
+live accessibility preferences require separate host checks. Motion numeric
+channels have an additional focused AppKit runtime check below.
 No AppKit runtime or OS input is exercised by the packed-consumer checks.
 
 | Package                      | Workspace `macos` export | Published `macos` export | Type conditions                             |
@@ -386,7 +387,21 @@ Each check packs the package, checks both export maps in Bundler and NodeNext
 mode, verifies the selected runtime entry, imports all public runtime exports
 without startup timers or the mobile gesture plugin, and mounts/unmounts initial
 hosts with the universal object driver. It uses the production AppKit core shim
-unchanged, substituting only the renderer driver for the object driver.
+unchanged, substituting the renderer driver and supplying explicit NSView/CALayer
+property doubles for Motion. These doubles are not native-host evidence.
+
+The separate nonvisual runtime fixture checks actual NSView/CALayer values for
+all seven numeric channels on View, Row and Pressable, including intermediate
+samples, retargeting, scale composition, units and restoration. It passed on
+macOS 27.0.1 arm64 using the AppKit/JSC host. From the repository root, run:
+
+```sh
+pnpm --filter @octane-xplat/motion test:macos-runtime
+```
+
+The fixture opens no window and changes no system preference. Success prints
+`MOTION_CHANNELS_OK`; this focused check does not complete N2's live preference
+and broader lifecycle acceptance or qualify RollingText.
 
 Motion's macOS preference leaf reads [AppKit's Reduce Motion setting](https://developer.apple.com/documentation/appkit/nsworkspace/accessibilitydisplayshouldreducemotion) and subscribes
 to accessibility-display changes on the workspace notification center. Cleanup

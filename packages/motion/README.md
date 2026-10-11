@@ -49,6 +49,7 @@ Build with `pnpm --filter @octane-xplat/motion build`; run DOM/engine tests with
 `pnpm --filter @octane-xplat/motion exec vitest run --config vitest.native.config.mts`.
 Native compilation and object-driver tests are not physical-device evidence.
 
-macOS currently has [package-boundary acceptance](UPSTREAM.md#macos-package-boundary)
-only. Its source and published imports are checked separately from AppKit host
-behavior. Live OS preferences and animation/input behavior remain unqualified.
+macOS has [package-boundary acceptance and focused native-channel checks](UPSTREAM.md#macos-package-boundary).
+Its source and published imports are checked separately from real AppKit runtime
+assertions. Live OS preference changes, broader lifecycle acceptance and input
+behavior remain unqualified.
