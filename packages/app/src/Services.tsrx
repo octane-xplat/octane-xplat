@@ -191,10 +191,14 @@ export function Services() @{
 			</HStack>
 			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('img', async () => {
-					if ((await media.ensure('photos')) !== 'granted') return 'denied/unsupported';
 					const img = await media.pickImage();
 					if (!img) return 'cancelled';
-					setPicked({ name: img.name, dataUrl: img.dataUrl });
+					try {
+						setPicked({ name: img.name, dataUrl: img.dataUrl });
+					} finally {
+						files.release(img);
+					}
+
 					return img.name;
 				})}>
 					<Text>Pick image</Text>

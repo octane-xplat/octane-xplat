@@ -1,7 +1,7 @@
 # Pick and capture images
 
 ID: pick-and-capture-images
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: @octane-xplat/media, media.ensure, media.pickImage, media.pickImages, media.capturePhoto, PickedImage, files.release
 
 ## Starting point
@@ -18,12 +18,12 @@ An app that previews or uploads selected still images. Live preview belongs to
 
 ## Acceptance criteria
 
-- AC1: The reader can install the leaf, configure native permission setup, and choose single, multiple, or still capture on each target.
+- AC1: The reader can install the leaf, configure native permission setup, and choose single, multiple, or still capture on web, iOS and Android. On macOS the reader can select existing image files through the normal file picker without requesting Photos-library permission.
 - AC2: Denial, unsupported cameras, and user cancellation leave the app without a new selected image; the reader can distinguish an ensure result from a null capture result.
 - AC3: Successful selection returns an upload data URL and an opaque preview URI; replacement and owner cleanup release the returned references, and failed conversion does not retain inaccessible previews.
 
 ## Documentation
 
-- AC1: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images).
+- AC1: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images) and the maintained [AppKit Services example](../packages/app/src/Services.macos.tsrx).
 - AC2: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track real permission/capture revalidation.
-- AC3: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images) and [cleanup regressions](../packages/media/tests/cleanup.test.mjs). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track native runtime checks separately from coverage.
+- AC3: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images), [cleanup regressions](../packages/media/tests/cleanup.test.mjs), and [macOS selection/release checks](../packages/media/tests/macos-picker.test.mjs). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track native runtime checks separately from coverage.

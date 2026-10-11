@@ -21,6 +21,24 @@ the table remain unchanged.
 
 ## Fresh results and boundaries
 
+macOS image selection uses the normal AppKit file picker, with no Photos-library
+request. The [selection tests](../../packages/media/tests/macos-picker.test.mjs)
+exercise deterministic panel/codec/filesystem responses through public entries:
+cancel, invalid data, write/conversion cleanup, ordered single/multiple results,
+repeated selection and app-owned preview release. The same suite runs against
+packed media/files sources; this is object-driver evidence. A separate isolated
+AppKit runtime check passed 27 assertions with an injected panel and real
+PNG/JPEG conversion and file IO: landscape/portrait dimensions, JPEG signature,
+file/data-URL byte equality, cancellation, repeated selection, invalid-batch
+cleanup and preview release. Real panel selection, sandbox access,
+HEIC/orientation and visual display remain runtime gates.
+
+```sh
+pnpm --filter @octane-xplat/media test
+pnpm --filter @octane-xplat/media test:packed
+pnpm --filter @octane-xplat/media test:macos-runtime
+```
+
 | Capability           | Web                                                                                                                                                                                                                                                                                                   | iOS                                                                                                                                                                                                                                      | Android                                                                                                                                                                                                  |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Hosted `authSession` | Chromium, Firefox, and WebKit report unsupported; ordinary navigation/WebAuthn remain app-owned.                                                                                                                                                                                                      | Mocked adapter tests cover callback, cancel, error, invalid URL, failed start and native construction failure. System-browser ceremony not run.                                                                                          | Mocked adapter tests cover fresh callback, cancel without callback, stale intent rejection, busy session, failed launch and retry/listener cleanup. System-browser ceremony not run.                     |

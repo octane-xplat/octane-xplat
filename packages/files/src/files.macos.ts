@@ -76,5 +76,19 @@ export const files: Files = {
 	): Promise<FileExportResult> {
 		return 'unavailable'
 	},
-	release(_file: FileRef): void {},
+	release(file: FileRef): void {
+		// Media registers only app-owned JPEGs; arbitrary panel selections are never deleted.
+		const host = globalThis as any
+		const owned: Set<string> | undefined = host.__xplatMediaTemporaryFiles
+		if (!owned?.has(file.uri)) {
+			return
+		}
+
+		const manager = host.NSFileManager.defaultManager
+		if (manager.fileExistsAtPath(file.uri) && !manager.removeItemAtPathError(file.uri, null)) {
+			throw new Error(`Could not remove temporary image: ${file.uri}`)
+		}
+
+		owned.delete(file.uri)
+	},
 }

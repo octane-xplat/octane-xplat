@@ -24,8 +24,14 @@ const extractedRoot = join(temporary, 'extracted')
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
-function run(command, args, cwd) {
-	const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+function run(command, args, cwd, env = process.env) {
+	const result = spawnSync(command, args, {
+		cwd,
+		env,
+		encoding: 'utf8',
+		maxBuffer: 16 * 1024 * 1024,
+	})
+
 	if (result.stdout) {
 		process.stdout.write(result.stdout)
 	}
@@ -72,9 +78,11 @@ void captured
 `,
 	macos: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
+const multiple: Promise<import('@octane-xplat/media').PickedImage[]> = media.pickImages()
 const ensureResult = media.ensure('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
 void picked
+void multiple
 void ensureResult
 void captured
 `,
@@ -222,6 +230,23 @@ try {
 	}
 
 	console.log('media packed consumer: exports typecheck in Bundler mode')
+
+	// Exercise the packed public macOS entries, including the preview owner's release API.
+	const filesPack = join(temporary, 'files-pack')
+	const filesExtracted = join(temporary, 'files-extracted')
+	mkdirSync(filesPack)
+	mkdirSync(filesExtracted)
+	run('pnpm', ['pack', '--pack-destination', filesPack], join(repoRoot, 'packages/files'))
+	const filesTarballs = readdirSync(filesPack).filter((name) => name.endsWith('.tgz'))
+	assert.equal(filesTarballs.length, 1)
+	run('tar', ['-xzf', join(filesPack, filesTarballs[0]), '-C', filesExtracted], temporary)
+	run(process.execPath, ['--test', join(packageRoot, 'tests/macos-picker.test.mjs')], repoRoot, {
+		...process.env,
+		XPLAT_MEDIA_TEST_PACKAGE: packedRoot,
+		XPLAT_FILES_TEST_PACKAGE: join(filesExtracted, 'package'),
+	})
+
+	console.log('media packed consumer: macOS selection/release object-driver checks passed')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

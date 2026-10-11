@@ -442,6 +442,27 @@ const image = await media.capturePhoto({
 
 ## Pick and capture images
 
+On macOS AppKit, offer the normal file picker directly from a button. It reads
+only selected files and returns app-owned temporary JPEGs with the original
+pixel dimensions and aspect ratio, plus upload data URLs. No Photos browsing
+or broad photo-library permission is requested. The picker does not depend on
+`ensure('photos')`, which still reports `unsupported` on this target.
+
+```ts
+import { media } from '@octane-xplat/media'
+import { files } from '@octane-xplat/files'
+
+export async function chooseImage() {
+	const image = await media.pickImage() // null on cancel
+	if (!image) return null
+	try {
+		return image.dataUrl // Retain the data URL after releasing its temporary file.
+	} finally {
+		files.release(image)
+	}
+}
+```
+
 Install `@octane-xplat/media`; it owns the NativeScript camera/image-picker
 plugins. Import `media` from that leaf. Add app-specific
 `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to iOS
@@ -513,6 +534,13 @@ The [nonvisual browser probe](../../apps/web/scripts/optional-services.mjs) uses
 synthetic file-input payload and never renders or inspects an image. The
 [cleanup tests](../../packages/media/tests/cleanup.test.mjs) inject read/conversion
 failures; they do not qualify camera hardware or native permission dialogs.
+The [macOS selection checks](../../packages/media/tests/macos-picker.test.mjs)
+inject panel/codec/filesystem responses for cancellation, invalid data, cleanup,
+single/multiple picks and repeated selection. Packed consumer checks exercise
+the macOS public entries. Real panel interaction remains a separate runtime gate.
+The isolated [AppKit runtime check](../../packages/media/tests/macos-runtime.mjs)
+uses real PNG/JPEG conversion and file IO with an injected panel; it confirms
+dimensions and file/data-URL byte equality without displaying an image.
 
 ## Passkeys and auth ceremonies
 

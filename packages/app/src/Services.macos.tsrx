@@ -1,16 +1,40 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import { secureStorage } from '@octane-xplat/secure-storage'
-import { HStack, Text, Pressable, View } from '@octane-xplat/ui'
+import { files } from '@octane-xplat/files'
+import { media } from '@octane-xplat/media'
+import { HStack, Image, Text, Pressable, View } from '@octane-xplat/ui'
 import { announce, clipboard, connectivity, device, locale, useAppState, useWindowSize } from '@octane-xplat/platform'
 
 export function Services() @{
 	const [clipboardResult, setClipboardResult] = useState('—')
 	const [announcementResult, setAnnouncementResult] = useState('—')
 	const [keychainResult, setKeychainResult] = useState('—')
+	const [imageResult, setImageResult] = useState('—')
+	const [picked, setPicked] = useState<{ name: string; dataUrl: string } | null>(null)
 	const conn = connectivity.getState()
 	const appState = useAppState()
 	const size = useWindowSize()
+	async function chooseImages(multiple: boolean) {
+		try {
+			const single = multiple ? null : await media.pickImage()
+			const images = multiple ? await media.pickImages() : single ? [single] : []
+			if (!images.length) {
+				setImageResult('cancelled')
+				return
+			}
+
+			try {
+				setPicked({ name: images[0].name, dataUrl: images[0].dataUrl })
+				setImageResult(images.map((image) => image.name).join(', '))
+			} finally {
+				// The preview retains data bytes; it no longer needs the temporary files.
+				for (const image of images) files.release(image)
+			}
+		} catch {
+			setImageResult('Could not read the selection')
+		}
+	}
 
 	<View className="gap-6">
 		<View className="sink-section">
@@ -49,6 +73,7 @@ export function Services() @{
 					setKeychainResult('unsupported')
 					return
 				}
+
 				const store = secureStorage.impl
 				const key = 'octane-xplat-demo-' + String(Date.now()) + String(Math.random())
 				const payload = String(Date.now()) + String(Math.random())
@@ -64,8 +89,19 @@ export function Services() @{
 			<Text className="text-sm text-muted">{keychainResult}</Text>
 		</View>
 		<View className="sink-section">
+			<Text className="section-label">Select image files</Text>
+			<HStack className="gap-3 items-center">
+				<Pressable className="btn btn-secondary" onPress={() => chooseImages(false)}><Text>Pick image</Text></Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => chooseImages(true)}><Text>Pick multiple images</Text></Pressable>
+			</HStack>
+			<Text className="text-sm text-muted">{imageResult}</Text>
+			@if (picked) {
+				<Image src={picked.dataUrl} alt={picked.name} stretch="aspectFit" className="w-32 h-32" />
+			}
+		</View>
+		<View className="sink-section">
 			<Text className="section-label">Unsupported on this AppKit host</Text>
-			<Text className="text-sm text-muted">Connectivity, audio, UI sounds, haptics, notifications, location, camera, photo and file pickers, sharing, app settings, biometrics, and system bars.</Text>
+			<Text className="text-sm text-muted">Connectivity, audio, UI sounds, haptics, notifications, location, camera, Photos-library browsing, file pickers, sharing, app settings, biometrics, and system bars.</Text>
 			<Text className="text-sm text-muted">{conn.supported === false ? 'Connectivity: unsupported' : 'Connectivity: available'}</Text>
 		</View>
 	</View>
