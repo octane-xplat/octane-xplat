@@ -1,12 +1,9 @@
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
-import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
-import { Popover } from './Popover.web.tsrx';
-import { TypeaheadItem } from './TypeaheadItem.web.tsrx';
-import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
 import { BusyLaneContext } from './busy-lane';
-import { characterCount, groupTypeaheadItems } from './typeahead-source';
+import { characterCount } from './typeahead-source';
+import { BaseTypeaheadView } from './BaseTypeaheadView.web.tsrx';
 
 /** A query shorter than the caller's threshold; an empty query is the
  *  untouched state — `hasEntriesOnFocus` owns what happens there. */
@@ -15,14 +12,14 @@ function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
 	return length > 0 && length < minQueryLength;
 }
 
-function isImeKeyEvent(e: any): boolean {
-	return e?.isComposing === true || e?.keyCode === 229;
-}
-
 /** Combobox engine: input, debounced search/bootstrap, keyboard navigation,
  *  and an anchored result listbox. No wrapper chrome — Typeahead and
  *  Tokenizer own the visible field and pass `anchor` to position the menu.
- *  `item.element` > `renderItem` > TypeaheadItem for option content. */
+ *  `item.element` > `renderItem` > TypeaheadItem for option content.
+ *
+ *  This is the container half of the split: it coordinates query, results,
+ *  highlight, search progress, and open state, then renders
+ *  `BaseTypeaheadView` with the resolved state and intent callbacks. */
 export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadProps<T>) @{
 	const props = useFieldControlProps(inProps);
 	const searchSource = props.searchSource;
@@ -40,7 +37,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const panelId = `${generatedId}-panel`;
 
 	const inputRef = useRef<HTMLInputElement | null>(null);
-	const fallbackAnchor = useRef<any>(null);
 	const busyLane = useContext(BusyLaneContext);
 
 	const [query, setQuery] = useState('');
@@ -58,8 +54,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const searchGenRef = useRef(0);
 	const resultsGenRef = useRef(0);
 	const loadingRef = useRef(false);
-	const latest = useRef(props);
-	latest.current = props;
 
 	const setLoading = (next: boolean) => {
 		if (loadingRef.current === next) return;
@@ -68,7 +62,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		busyLane?.onBusyChange(next);
 	};
 
-	const anchorEl = () => props.anchorRef?.current ?? fallbackAnchor.current;
+	const anchorEl = () => props.anchorRef?.current ?? inputRef.current;
 
 	const showLayer = () => {
 		const el = anchorEl() as HTMLElement | null;
@@ -246,64 +240,22 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		hideLayer();
 	};
 
-	const handleKeyDown = (e: any) => {
-		props.onKeyDown?.(e);
-		if (e.defaultPrevented) return;
-		// An IME candidate window owns Enter/Escape/arrows mid-composition.
-		if (isImeKeyEvent(e)) return;
-
-		if (!open) {
-			if (e.key === 'ArrowDown' && (hasEntriesOnFocus || query.length > 0)) {
-				e.preventDefault();
-				if (results.length > 0) {
-					showLayer();
-					setHighlightedIndex(0);
-				} else if (hasEntriesOnFocus && !isBelowMinQueryLength(query, minQueryLength)) {
-					void performBootstrap();
-				}
-			}
-
+	// The view reports the closed-state ArrowDown as an open intent; the
+	// container decides between reshowing results and bootstrapping.
+	const handleOpenIntent = (next: boolean) => {
+		if (!next) {
+			hideLayer();
 			return;
 		}
 
-		switch (e.key) {
-			case 'ArrowDown':
-				e.preventDefault();
-				if (results.length > 0) setHighlightedIndex((prev) => prev < results.length - 1 ? prev + 1 : 0);
-				break;
-			case 'ArrowUp':
-				e.preventDefault();
-				if (results.length > 0) setHighlightedIndex((prev) => prev > 0 ? prev - 1 : results.length - 1);
-				break;
-			case 'Enter':
-				e.preventDefault();
-				if (highlightedIndex >= 0 && highlightedIndex < results.length) handleSelect(results[highlightedIndex]);
-				break;
-			case 'Escape':
-				e.preventDefault();
-				hideLayer();
-				break;
-			case 'Tab':
-				hideLayer();
-				break;
-			case 'Home':
-				e.preventDefault();
-				if (results.length > 0) setHighlightedIndex(0);
-				break;
-			case 'End':
-				e.preventDefault();
-				if (results.length > 0) setHighlightedIndex(results.length - 1);
-				break;
+		if (open) return;
+		if (results.length > 0) {
+			showLayer();
+			setHighlightedIndex(0);
+		} else if (hasEntriesOnFocus && !isBelowMinQueryLength(query, minQueryLength)) {
+			void performBootstrap();
 		}
 	};
-
-	const itemId = (index: number) => `${listboxId}-option-${index}`;
-
-	// Keep the keyboard highlight scrolled into view (hover never scrolls).
-	useEffect(() => {
-		if (!open || highlightedIndex < 0) return;
-		document.getElementById(itemId(highlightedIndex))?.scrollIntoView?.({ block: 'nearest' });
-	}, [highlightedIndex, open]);
 
 	useEffect(() => {
 		if (props.hasAutoFocus) inputRef.current?.focus();
@@ -315,9 +267,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		prevSearchSourceRef.current.cancel?.();
 	}, []);
 
-	const groups = groupTypeaheadItems(results, { ungroupedFirst: true });
-	const selectedId = props.value?.id;
-
 	useImperativeHandle(props.ref, () => ({
 		focus: () => inputRef.current?.focus(),
 		blur: () => inputRef.current?.blur(),
@@ -325,90 +274,31 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		native: inputRef.current,
 	}), undefined);
 
-	<>
-		<input
-			ref={(el: any) => {
-				inputRef.current = el;
-				fallbackAnchor.current = el;
-				if (!el) return;
-				applyEscapeProps(el, props);
-			}}
-			id={inputId}
-			tabIndex={props.inputTabIndex}
-			type="text"
-			role="combobox"
-			className={['vx-typeahead-input', `vx-typeahead-input--size-${size}`, props.isDisabled ? 'vx-typeahead-input--disabled' : undefined, props.inputClassName, props.className]}
-			style={{ ...props.style, ...props.inputStyle }}
-			aria-expanded={open}
-			aria-controls={listboxId}
-			aria-activedescendant={open && highlightedIndex >= 0 && highlightedIndex < results.length ? itemId(highlightedIndex) : undefined}
-			aria-autocomplete="list"
-			aria-busy={isLoading || undefined}
-			aria-label={props.ariaLabel}
-			aria-labelledby={props.ariaLabelledBy}
-			aria-describedby={props.ariaDescribedBy}
-			aria-required={props.isRequired && !props.isOptional || undefined}
-			aria-invalid={props.status?.type === 'error' || undefined}
-			aria-disabled={props.isFocusableDisabled ? 'true' : undefined}
-			value={query}
-			onInput={(e: any) => handleQueryChange(e.target.value)}
-			onFocus={handleFocus}
-			onBlur={handleBlur}
-			onKeyDown={handleKeyDown}
-			placeholder={placeholder}
-			disabled={props.isDisabled && !props.isFocusableDisabled || undefined}
-			readOnly={props.isFocusableDisabled || props.isReadOnly || undefined}
-			autoComplete="off"
-		/>
-		{isLoading && busyLane == null
-			? <span className="vx-typeahead-loading" role="status" aria-label="Loading"><ActivityIndicator busy={true} /></span>
-			: null}
-		<span className="vx-sr-only" role="status">{announcement}</span>
-		<Popover
-			anchor={props.anchorRef ?? fallbackAnchor}
-			open={open}
-			placement={props.placement ?? 'bottom'}
-			onDismiss={hideLayer}
-			className="vx-typeahead-dropdown"
-			style={{ minWidth: anchorWidth > 0 ? anchorWidth : undefined, width: props.menuWidth }}
-			web={{ id: panelId }}
-		>
-			<div id={listboxId} role="listbox" aria-label="Search results" className="vx-typeahead-list">
-				{results.length === 0 && hasSearched
-					? <div role="option" aria-disabled="true" className="vx-typeahead-empty">{emptyText}</div>
-					: groups.map((group, gi) => {
-						const options = group.items.map((item) => {
-							const index = results.indexOf(item);
-							const isSelected = item.id === selectedId && selectedId != null;
-							return (
-								<div
-									key={`${item.id}-${index}`}
-									id={itemId(index)}
-									role="option"
-									aria-selected={isSelected || undefined}
-									tabIndex={-1}
-									className={['vx-typeahead-option', `vx-typeahead-option--size-${size}`, index === highlightedIndex ? 'vx-typeahead-option--highlighted' : undefined, isSelected ? 'vx-typeahead-option--selected' : undefined]}
-									onMouseDown={(e: any) => e.preventDefault()}
-									onMouseEnter={() => setHighlightedIndex(index)}
-									onClick={() => handleSelect(item)}
-								>
-									<span className="vx-typeahead-option-content">
-										{props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
-									</span>
-									{isSelected ? <span className="vx-typeahead-option-check" aria-hidden="true">✓</span> : null}
-								</div>
-							);
-						});
-
-						if (group.heading == null) return options;
-						return (
-							<div key={`group-${group.heading ?? gi}`} role="group" aria-label={group.heading}>
-								<div className="vx-typeahead-group" aria-hidden="true">{group.heading}</div>
-								{options}
-							</div>
-						);
-					})}
-			</div>
-		</Popover>
-	</>
+	<BaseTypeaheadView
+		{...props}
+		inputId={inputId}
+		listboxId={listboxId}
+		panelId={panelId}
+		inputRef={inputRef}
+		anchor={props.anchorRef ?? inputRef}
+		size={size}
+		placeholder={placeholder}
+		hasEntriesOnFocus={hasEntriesOnFocus}
+		query={query}
+		results={results}
+		open={open}
+		highlightedIndex={highlightedIndex}
+		isSearching={isLoading}
+		hasSearched={hasSearched}
+		value={props.value}
+		emptyText={emptyText}
+		announcement={announcement}
+		anchorWidth={anchorWidth}
+		onQueryChange={handleQueryChange}
+		onSelect={handleSelect}
+		onOpenChange={handleOpenIntent}
+		onInputFocus={handleFocus}
+		onInputBlur={handleBlur}
+		onHighlight={setHighlightedIndex}
+	/>
 }

@@ -1,13 +1,10 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useContext, useEffect, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
-import { cx } from "./cx";
 import { useFieldControlProps } from './field-context';
-import { Popover } from './surfaces.macos.tsrx';
-import { TypeaheadItem } from './TypeaheadItem.macos.tsrx';
-import { ActivityIndicator } from './controls.macos.tsrx';
 import { BusyLaneContext } from './busy-lane';
-import { characterCount, groupTypeaheadItems } from './typeahead-source';
+import { characterCount } from './typeahead-source';
+import { BaseTypeaheadView } from './BaseTypeaheadView.macos.tsrx';
 
 function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
 	const length = characterCount(query);
@@ -18,7 +15,11 @@ function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
  *  AppKit leaf — the renderer's textfield exposes only `value` +
  *  `onTextChange`, so there is no focus bootstrap, key navigation, or
  *  return-to-select; the list opens when results exist and options are
- *  tap-selected. Popover renders inline below the anchor on this target. */
+ *  tap-selected. Popover renders inline below the anchor on this target.
+ *
+ *  This is the container half of the split: it coordinates query, results,
+ *  highlight, search progress, and open state, then renders
+ *  `BaseTypeaheadView` with the resolved state and intent callbacks. */
 export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadProps<T>) @{
 	const props = useFieldControlProps(inProps);
 	const searchSource = props.searchSource;
@@ -185,9 +186,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		prevSearchSourceRef.current.cancel?.();
 	}, []);
 
-	const groups = groupTypeaheadItems(results, { ungroupedFirst: true });
-	const selectedId = props.value?.id;
-
 	useImperativeHandle(props.ref, () => ({
 		focus: () => inputRef.current.window?.makeFirstResponder?.(inputRef.current),
 		blur: () => inputRef.current.window?.makeFirstResponder?.(null),
@@ -195,58 +193,24 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		native: inputRef.current,
 	}), undefined);
 
-	<flexboxlayout flexDirection="column" className={cx('vx-typeahead', props.className)} style={props.style}>
-		<textfield
-			ref={(v: any) => {
-				inputRef.current = v;
-				if (!v) return;
-			}}
-			id={props.inputId ?? props.id}
-			className={cx('vx-typeahead-input', `vx-typeahead-input--size-${size}`, props.isDisabled && 'vx-typeahead-input--disabled', props.inputClassName)}
-			style={props.inputStyle}
-			value={query}
-			placeholder={placeholder}
-			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-			accessibilityHint={props.accessibilityHint}
-			accessibilityState={{ disabled: props.isDisabled }}
-			onTextChange={(value: any) => handleQueryChange(String(value ?? ''))}
-		/>
-		{isLoading && busyLane == null
-			? <flexboxlayout className="vx-typeahead-loading"><ActivityIndicator busy={true} /></flexboxlayout>
-			: null}
-		<Popover
-			anchor={inputRef}
-			open={open}
-			className="vx-typeahead-dropdown"
-			style={{ width: props.menuWidth }}
-		>
-			<flexboxlayout className="vx-typeahead-list" flexDirection="column">
-				{results.length === 0 && hasSearched
-					? <flexboxlayout className="vx-typeahead-empty"><label text={emptyText} /></flexboxlayout>
-					: null}
-				@for (const group of groups; key group.heading ?? 'ungrouped') {
-					{group.heading != null
-						? <label className="vx-typeahead-group" text={group.heading} />
-						: null}
-
-					@for (const item of group.items; index gi; key item.id + '-' + gi) {
-						const index = results.indexOf(item);
-						const isSelected = item.id === selectedId && selectedId != null;
-						<flexboxlayout
-							className={cx('vx-typeahead-option', `vx-typeahead-option--size-${size}`, index === highlightedIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')}
-							flexDirection="row"
-							alignItems="center"
-							onTap={() => handleSelect(item)}
-							accessibilityState={{ selected: isSelected }}
-						>
-							<flexboxlayout className="vx-typeahead-option-content" flexGrow={1}>
-								{props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
-							</flexboxlayout>
-							{isSelected ? <label className="vx-typeahead-option-check" text="✓" /> : null}
-						</flexboxlayout>
-					}
-				}
-			</flexboxlayout>
-		</Popover>
-	</flexboxlayout>
+	<BaseTypeaheadView
+		{...props}
+		inputId={props.inputId ?? props.id}
+		inputRef={inputRef}
+		anchor={inputRef}
+		size={size}
+		placeholder={placeholder}
+		hasEntriesOnFocus={hasEntriesOnFocus}
+		query={query}
+		results={results}
+		open={open}
+		highlightedIndex={highlightedIndex}
+		isSearching={isLoading}
+		hasSearched={hasSearched}
+		value={props.value}
+		emptyText={emptyText}
+		onQueryChange={handleQueryChange}
+		onSelect={handleSelect}
+		onOpenChange={(next: boolean) => { if (!next) hideLayer(); }}
+	/>
 }

@@ -1,0 +1,77 @@
+/** @jsxImportSource @octane-xplat/macos-renderer */
+import { useContext } from 'octane';
+import type { SearchableItem } from './props';
+import type { BaseTypeaheadViewProps } from './typeahead-view';
+import { cx } from './cx';
+import { Popover } from './surfaces.macos.tsrx';
+import { TypeaheadItem } from './TypeaheadItem.macos.tsrx';
+import { ActivityIndicator } from './controls.macos.tsrx';
+import { BusyLaneContext } from './busy-lane';
+import { groupTypeaheadItems } from './typeahead-source';
+
+/** BaseTypeahead presentation — resolved combobox state in, user intents
+ *  out. AppKit leaf — the renderer's textfield exposes only `value` +
+ *  `onTextChange`, so there is no focus, key navigation, or return-to-select;
+ *  options are tap-selected. Internal only — consumers use `BaseTypeahead`. */
+export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeaheadViewProps<T>) @{
+	const busyLane = useContext(BusyLaneContext);
+	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true });
+	const selectedId = props.value?.id;
+	const activeIndex = props.highlightedIndex >= 0 && props.highlightedIndex < props.results.length
+		? props.highlightedIndex
+		: -1;
+
+	<flexboxlayout flexDirection="column" className={cx('vx-typeahead', props.className)} style={props.style}>
+		<textfield
+			ref={(v: any) => {
+				props.inputRef.current = v;
+			}}
+			id={props.inputId}
+			className={cx('vx-typeahead-input', `vx-typeahead-input--size-${props.size}`, props.isDisabled && 'vx-typeahead-input--disabled', props.inputClassName)}
+			style={props.inputStyle}
+			value={props.query}
+			placeholder={props.placeholder}
+			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityState={{ disabled: props.isDisabled }}
+			onTextChange={(value: any) => props.onQueryChange(String(value ?? ''))}
+		/>
+		{props.isSearching && busyLane == null
+			? <flexboxlayout className="vx-typeahead-loading"><ActivityIndicator busy={true} /></flexboxlayout>
+			: null}
+		<Popover
+			anchor={props.anchor}
+			open={props.open}
+			className="vx-typeahead-dropdown"
+			style={{ width: props.menuWidth }}
+		>
+			<flexboxlayout className="vx-typeahead-list" flexDirection="column">
+				{props.results.length === 0 && props.hasSearched
+					? <flexboxlayout className="vx-typeahead-empty"><label text={props.emptyText} /></flexboxlayout>
+					: null}
+				@for (const group of groups; key group.heading ?? 'ungrouped') {
+					{group.heading != null
+						? <label className="vx-typeahead-group" text={group.heading} />
+						: null}
+
+					@for (const item of group.items; index gi; key item.id + '-' + gi) {
+						const index = props.results.indexOf(item);
+						const isSelected = item.id === selectedId && selectedId != null;
+						<flexboxlayout
+							className={cx('vx-typeahead-option', `vx-typeahead-option--size-${props.size}`, index === activeIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')}
+							flexDirection="row"
+							alignItems="center"
+							onTap={() => props.onSelect(item)}
+							accessibilityState={{ selected: isSelected }}
+						>
+							<flexboxlayout className="vx-typeahead-option-content" flexGrow={1}>
+								{props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
+							</flexboxlayout>
+							{isSelected ? <label className="vx-typeahead-option-check" text="✓" /> : null}
+						</flexboxlayout>
+					}
+				}
+			</flexboxlayout>
+		</Popover>
+	</flexboxlayout>
+}

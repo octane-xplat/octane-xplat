@@ -1,16 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useImperativeHandle, useContext, useEffect, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
-import { cx } from "./cx";
-import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { useFieldControlProps } from './field-context';
-import { isWritingText, writeText } from './text-write';
+import { writeText } from './text-write';
 import { blurText } from './text-focus';
-import { Popover } from './Popover';
-import { TypeaheadItem } from './TypeaheadItem';
-import { ActivityIndicator } from './ActivityIndicator.tsrx';
 import { BusyLaneContext } from './busy-lane';
-import { characterCount, groupTypeaheadItems } from './typeahead-source';
+import { characterCount } from './typeahead-source';
+import { BaseTypeaheadView } from './BaseTypeaheadView.tsrx';
 
 function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
 	const length = characterCount(query);
@@ -21,7 +17,11 @@ function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
  *  result listbox. Native leaf — options are tap-driven (native text fields
  *  emit no arrow/escape key events; the return key selects the highlighted
  *  or first option). No wrapper chrome; callers supply the visible field
- *  and pass `anchor` to position the menu. */
+ *  and pass `anchor` to position the menu.
+ *
+ *  This is the container half of the split: it coordinates query, results,
+ *  highlight, search progress, and open state, then renders
+ *  `BaseTypeaheadView` with the resolved state and intent callbacks. */
 export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadProps<T>) @{
 	const props = useFieldControlProps(inProps);
 	const searchSource = props.searchSource;
@@ -34,7 +34,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const emptyText = props.emptySearchResultsText ?? 'No results found';
 
 	const inputRef = useRef<any>(null);
-	const fallbackAnchor = useRef<any>(null);
 	const busyLane = useContext(BusyLaneContext);
 
 	const [query, setQuery] = useState('');
@@ -60,7 +59,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		busyLane?.onBusyChange(next);
 	};
 
-	const anchorView = () => props.anchorRef?.current ?? fallbackAnchor.current;
+	const anchorView = () => props.anchorRef?.current ?? inputRef.current;
 
 	const showLayer = () => {
 		const size2 = (anchorView() as any)?.getActualSize?.();
@@ -217,9 +216,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		prevSearchSourceRef.current.cancel?.();
 	}, []);
 
-	const groups = groupTypeaheadItems(results, { ungroupedFirst: true });
-	const selectedId = props.value?.id;
-
 	useImperativeHandle(props.ref, () => ({
 		focus: () => inputRef.current.focus(),
 		blur: () => blurText(inputRef.current),
@@ -227,71 +223,27 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		native: inputRef.current,
 	}), undefined);
 
-	<>
-		<textfield
-			ref={(v: any) => {
-				inputRef.current = v;
-				fallbackAnchor.current = v;
-				if (!v) return;
-				applyEscapeProps(v, props);
-			}}
-			id={props.inputId ?? props.id}
-			className={cx('vx-typeahead-input', `vx-typeahead-input--size-${size}`, props.isDisabled && 'vx-typeahead-input--disabled', props.inputClassName, props.className)}
-			style={{ ...props.style, ...props.inputStyle }}
-			hint={placeholder}
-			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
-			isEnabled={!props.isDisabled || props.isFocusableDisabled}
-			editable={!(props.isDisabled || props.isReadOnly)}
-			onTextChange={(e: any) => { if (!isWritingText(e.object)) handleQueryChange(e.value); }}
-			onReturnPress={() => {
-				const item = highlightedIndex >= 0 && highlightedIndex < results.length ? results[highlightedIndex] : results[0];
-				if (item) handleSelect(item);
-			}}
-			onFocus={handleFocus}
-			onBlur={props.onBlur}
-		/>
-		{isLoading && busyLane == null
-			? <flexboxlayout className="vx-typeahead-loading"><ActivityIndicator busy={true} /></flexboxlayout>
-			: null}
-		<Popover
-			anchor={props.anchorRef ?? fallbackAnchor}
-			open={open}
-			placement={props.placement ?? 'bottom'}
-			onDismiss={hideLayer}
-			className="vx-typeahead-dropdown"
-			style={{ minWidth: anchorWidth > 0 ? anchorWidth : undefined, width: props.menuWidth }}
-		>
-			<scrollview className="vx-typeahead-scroll">
-				<flexboxlayout className="vx-typeahead-list" flexDirection="column">
-					{results.length === 0 && hasSearched
-						? <flexboxlayout className="vx-typeahead-empty"><label text={emptyText} /></flexboxlayout>
-						: null}
-					@for (const group of groups; key group.heading ?? 'ungrouped') {
-						{group.heading != null
-							? <label className="vx-typeahead-group" text={group.heading} />
-							: null}
-
-						@for (const item of group.items; index gi; key item.id + '-' + gi) {
-							const index = results.indexOf(item);
-							const isSelected = item.id === selectedId && selectedId != null;
-							<flexboxlayout
-								className={cx('vx-typeahead-option', `vx-typeahead-option--size-${size}`, index === highlightedIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')}
-								flexDirection="row"
-								alignItems="center"
-								onTap={() => handleSelect(item)}
-								accessibilityState={nativeAccessibilityState({ selected: isSelected }) as any}
-							>
-								<flexboxlayout className="vx-typeahead-option-content" flexGrow={1}>
-									{props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
-								</flexboxlayout>
-								{isSelected ? <label className="vx-typeahead-option-check" text="✓" /> : null}
-							</flexboxlayout>
-						}
-					}
-				</flexboxlayout>
-			</scrollview>
-		</Popover>
-	</>
+	<BaseTypeaheadView
+		{...props}
+		inputId={props.inputId ?? props.id}
+		inputRef={inputRef}
+		anchor={props.anchorRef ?? inputRef}
+		size={size}
+		placeholder={placeholder}
+		hasEntriesOnFocus={hasEntriesOnFocus}
+		query={query}
+		results={results}
+		open={open}
+		highlightedIndex={highlightedIndex}
+		isSearching={isLoading}
+		hasSearched={hasSearched}
+		value={props.value}
+		emptyText={emptyText}
+		anchorWidth={anchorWidth}
+		onQueryChange={handleQueryChange}
+		onSelect={handleSelect}
+		onOpenChange={(next: boolean) => { if (!next) hideLayer(); }}
+		onInputFocus={handleFocus}
+		onInputBlur={props.onBlur}
+	/>
 }
