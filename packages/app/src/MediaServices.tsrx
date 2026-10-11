@@ -55,8 +55,8 @@ export function MediaServices() @{
 		</HStack>
 		<HStack className="gap-2">
 			<Pressable id="media-player-play" onPress={() => { void player.play().catch((error) => setPlayerState('error: ' + String(error))); }} className="chip"><Text>Play</Text></Pressable>
-			<Pressable id="media-player-pause" onPress={() => { void player.pause(); }} className="chip"><Text>Pause</Text></Pressable>
-			<Pressable id="media-player-seek" onPress={() => { void player.seek(10); }} className="chip"><Text>Seek 10s</Text></Pressable>
+			<Pressable id="media-player-pause" onPress={() => { void player.pause().catch((error) => setPlayerState('error: ' + String(error))); }} className="chip"><Text>Pause</Text></Pressable>
+			<Pressable id="media-player-seek" onPress={() => { void player.seek(10).catch((error) => setPlayerState('error: ' + String(error))); }} className="chip"><Text>Seek 10s</Text></Pressable>
 		</HStack>
 		<Text id="media-player-state">Player: {playerState} · {position}</Text>
 		<Text>Background playback: {caps.backgroundPlayback ? 'available' : 'not available in this backend'}</Text>

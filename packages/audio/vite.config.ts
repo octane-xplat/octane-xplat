@@ -24,6 +24,7 @@ const EXTENSIONS = [
 
 export default defineConfig(({ mode }) => {
 	const native = mode === 'native'
+	const macos = mode === 'macos'
 	return {
 		plugins: octane({
 			renderers: native
@@ -35,10 +36,10 @@ export default defineConfig(({ mode }) => {
 		}),
 		build: {
 			lib: {
-				entry: native ? 'src/index.ts' : 'src/index.web.ts',
+				entry: macos ? 'src/index.macos.ts' : native ? 'src/index.ts' : 'src/index.web.ts',
 				formats: ['es'],
 			},
-			outDir: native ? 'dist/native' : 'dist/web',
+			outDir: macos ? 'dist/macos' : native ? 'dist/native' : 'dist/web',
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
@@ -54,7 +55,7 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		resolve: {
-			conditions: [native ? 'native' : 'web'],
+			conditions: [macos ? 'macos' : native ? 'native' : 'web'],
 			extensions: EXTENSIONS,
 		},
 	}

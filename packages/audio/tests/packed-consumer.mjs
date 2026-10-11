@@ -77,13 +77,28 @@ void badTrack
 `,
 }
 
-const extraFiles = {}
+consumers.macos = consumers.web
+
+const macosGuide = readFileSync(
+	new URL('../../../docs/platform/media-services.md', import.meta.url),
+	'utf8',
+)
+	.split('### macOS playback')[1]
+	.split('## Recording audio')[0]
+
+const extraFiles = Object.fromEntries(
+	[...macosGuide.matchAll(/```ts\n([\s\S]*?)```/g)].map((match, index) => [
+		`docs-macos-${index}.ts`,
+		match[1],
+	]),
+)
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
 // .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
+	macos: { moduleSuffixes: ['.macos', ''], customConditions: ['macos', 'native'], types: [] },
 	web: {
 		moduleSuffixes: ['.web', ''],
 		customConditions: ['web'],
@@ -102,7 +117,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 	const packageLink = join(modules, '@octane-xplat/audio')
 	mkdirSync(dirname(packageLink), { recursive: true })
 	cpSync(packagePath, packageLink, { recursive: true })
-	for (const dependency of dependencies) {
+	for (const dependency of target === 'macos' ? [] : dependencies) {
 		const source = join(packageRoot, 'node_modules', dependency)
 		const fallback = join(repoRoot, 'node_modules', dependency)
 		const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
@@ -193,6 +208,9 @@ try {
 		consumerManifest.exports = exportsMap
 		writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
+		const { checkPublicImport } = await import('./verify-macos.mjs')
+		await checkPublicImport(consumerPackage, join(temporary, `public-${index}`))
+
 		for (const target of Object.keys(consumers)) {
 			// Subpath exports absent from a map (e.g. ./macos only exists in the
 			// workspace map) cannot resolve — skip that lane for that map.
@@ -218,7 +236,18 @@ try {
 		}
 	}
 
-	console.log('audio packed consumer: exports typecheck in Bundler and NodeNext modes')
+	if (process.argv.includes('--macos-runtime')) {
+		const { verifyMacOS } = await import('./verify-macos.mjs')
+		await verifyMacOS(packedRoot, temporary)
+	}
+
+	console.log(
+		'audio packed consumer: web/native/macos exports typecheck in Bundler and NodeNext modes',
+	)
 } finally {
-	rmSync(temporary, { recursive: true, force: true })
+	if (process.env.XPLAT_AUDIO_KEEP_FIXTURE) {
+		console.log('Retained audio fixture:', temporary)
+	} else {
+		rmSync(temporary, { recursive: true, force: true })
+	}
 }

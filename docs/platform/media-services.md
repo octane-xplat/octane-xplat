@@ -265,6 +265,73 @@ commands, interruption observation, and the app's audio background mode. Both
 platform adapters are implemented, but route and interruption coexistence with
 short effects still need device verification.
 
+### macOS playback
+
+macOS uses the same public import and an AVPlayer owned by each player instance.
+Install the audio package and rebuild the macOS app so its native playback
+code is included. Sources can be absolute local paths, `file:` URLs, or HTTP(S)
+URLs. Loading waits for the track to become ready. A new queue stops the old
+item and rejects its pending load; an empty queue returns to `idle`.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+export async function loadMacAudio(source: string) {
+	const player = createAudioPlayer()
+	try {
+		await player.setQueue([{ id: 'first', source }])
+		return player
+	} catch (error) {
+		player.dispose()
+		throw error
+	}
+}
+```
+
+Subscribe to receive state changes and progress in seconds. End-of-track
+advances to the next track and plays it. Invalid media, network failures, and
+errors reported by the native output engine enter `error`; loading or buffering
+that stalls for 30 seconds also fails. Handle command rejections and install a
+new queue to retry. Disposal rejects pending loads, stops the owned playback,
+and removes its notifications and subscriptions.
+
+```ts
+import type { AudioPlayer } from '@octane-xplat/audio'
+
+export async function playMacAudio(player: AudioPlayer) {
+	const unsubscribe = player.subscribe(({ state, currentTime, error }) => {
+		console.log(state, currentTime, error?.message)
+	})
+	try {
+		await player.play()
+		await player.seek(10)
+		await player.pause()
+	} finally {
+		unsubscribe()
+		player.dispose()
+	}
+}
+```
+
+macOS reports system controls and interruption recovery as unavailable.
+Background playback means playback can continue while the app is running
+without focus; it does not promise playback after the app quits. If the native
+code is absent, construction stays safe and `supported` is false. Audio output
+from real speakers or headphones needs a separate listening check. The
+maintained [packed macOS check](../../packages/audio/tests/verify-macos.mjs)
+uses silent audio to test the native engine and injects output failures to test
+cleanup; neither demonstrates audible playback or physical route failures.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+const player = createAudioPlayer()
+const capabilities = player.capabilities()
+console.log(capabilities.supported, capabilities.reason)
+console.log(capabilities.systemControls, capabilities.interruptions) // false, false on macOS
+player.dispose()
+```
+
 ## Recording audio
 
 Use `createAudioRecorder()` when the app needs microphone capture — a voice
