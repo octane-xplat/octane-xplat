@@ -38,6 +38,7 @@ export function WindowsUICase() @{
 					case 'name': setName(command.value); break
 					case 'visible': setVisible(command.value); break
 				}
+
 				console.log('[input-contract-command] ' + JSON.stringify({ sequence, action: command.action, id: command.id, focusState: handle?.native.nativeViewProtected?.FocusState }))
 			} catch (error) {
 				console.log('[input-contract-error] ' + String(error))
@@ -45,8 +46,10 @@ export function WindowsUICase() @{
 				reading = false
 			}
 		}, 100)
+
 		return () => { clearInterval(timer); for (const id of Object.keys(handles)) handles[id] = null }
 	}, [])
+
 	<stacklayout>
 		@if (visible) {
 			<TextInput value={ordinary} onChange={(value) => { setOrdinary(value); event('ordinary', 'change', value) }}

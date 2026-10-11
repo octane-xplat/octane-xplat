@@ -23,6 +23,7 @@ export function ImageCrop(props: ImageCropProps) @{
 			if (!gesture.current) {
 				gesture.current = { handle, start: crop, size: frame, dx: event.dx, dy: event.dy, src: props.src }
 			}
+
 			return
 		}
 

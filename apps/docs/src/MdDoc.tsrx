@@ -196,6 +196,7 @@ function BlockView(props: { b: Block; lede?: boolean; dir: string; homeActions?:
 			<a className="home-action home-action-secondary" href="#agent-prompt">Set up your agent</a>
 		</div>}
 	</View>;
+
 	if (b.kind === 'callout') {
 		return <View className={'callout callout-' + b.level}>
 			<View className="callout-tag"><Text className="callout-tagtext">{b.level}</Text></View>

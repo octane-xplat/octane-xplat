@@ -48,6 +48,7 @@ export function Lottie(props: LottieProps) @{
 		() => (globalThis as any).XplatLottieAdapter.new() as AppKitLottieAdapter,
 		[],
 	)
+
 	const latest = useRef(props)
 	latest.current = props
 
@@ -61,6 +62,7 @@ export function Lottie(props: LottieProps) @{
 			current.onLoaded?.({ duration })
 			if (current.playing ?? current.autoPlay ?? true) adapter.play()
 		}
+
 		adapter.onEnded = () => latest.current.onEnded?.()
 		adapter.onError = (message) => latest.current.onError?.({ message })
 
@@ -74,6 +76,7 @@ export function Lottie(props: LottieProps) @{
 			} catch (error) {
 				props.onError?.({ message: String(error) })
 			}
+
 			return
 		}
 

@@ -12,6 +12,7 @@ export default function RichTextProbe() @{
   <label id="explicit"><formattedstring><span text="First run "/><span text="bold run" fontWeight="bold"/></formattedstring></label>
  </stacklayout>
 }
+
 const combined=(view:any)=>view.formattedText?.toString()??view.text;
 export async function run(ctx:ProbeContext) {
  await ctx.waitFor(()=>ctx.find('rich')?.formattedText?.spans.length>0);
@@ -26,10 +27,12 @@ export async function run(ctx:ProbeContext) {
    const paint=new android.text.TextPaint();nativeStyles[i].updateMeasureState(paint);
    styles.push({style:paint.getTypeface().getStyle(),start:styled.getSpanStart(nativeStyles[i]),end:styled.getSpanEnd(nativeStyles[i])});
   }
+
   ctx.record('Android native style spans',styles);
   ctx.assert('Android native bold',styles.some(run=>run.style===1),true);
   ctx.assert('Android native bold italic',styles.some(run=>run.style===3),true);
  }
+
  if(isIOS) {
   await ctx.waitFor(()=>String(label.nativeViewProtected?.attributedText?.string)==='First run bold deep tail end');
   const attributed=label.nativeViewProtected.attributedText;
@@ -40,6 +43,7 @@ export async function run(ctx:ProbeContext) {
   ctx.assert('iOS native bold',(bold&2)!==0,true);
   ctx.assert('iOS native bold italic',(italic&3)===3,true);
  }
+
  const weights=[];for(let i=0;i<label.formattedText.spans.length;i++) weights.push(label.formattedText.spans.getItem(i).fontWeight);
  ctx.record('run weights',weights);ctx.assert('bold nested run',weights[1],'bold');
  ctx.assert('explicit FormattedString',combined(ctx.find('explicit')),'First run bold run');
@@ -49,6 +53,7 @@ export async function run(ctx:ProbeContext) {
   await ctx.waitFor(()=>String(label.nativeViewProtected.getText()).includes('UPDATED'));
   ctx.assert('Android native reactive text',String(label.nativeViewProtected.getText()),'First run UPDATED deep tail end');
  }
+
  styled$.set(false);await ctx.waitFor(()=>label.formattedText.spans.getItem(1).fontWeight==='normal');
  ctx.assert('removed inline bold reveals normal',label.formattedText.spans.getItem(1).fontWeight,'normal');
  if(isAndroid) {
@@ -57,10 +62,12 @@ export async function run(ctx:ProbeContext) {
   const paint=new android.text.TextPaint();fonts[0].updateMeasureState(paint);
   ctx.assert('Android native formatting update',paint.getTypeface().getStyle(),2);
  }
+
  if(isIOS) {
   const font=label.nativeViewProtected.attributedText.attributeAtIndexEffectiveRange(NSFontAttributeName,10,null);
   ctx.assert('iOS native formatting update',font.fontDescriptor.symbolicTraits&3,1);
  }
+
  reverse$.set(true);await ctx.waitFor(()=>combined(ctx.find('ordered'))==='B / A');
  ctx.assert('ordered spans',combined(ctx.find('ordered')),'B / A');
  show$.set(false);await ctx.waitFor(()=>combined(label)==='First run  end');

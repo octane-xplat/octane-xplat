@@ -69,6 +69,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 	const [cells, setCells] = useState<CellState[]>(() =>
 		initialCells(unitsFor(props.value), alloc),
 	)
+
 	const cellsRef = useRef(cells)
 	const committedRef = useRef(props.value)
 	const pendingRef = useRef<string | null>(null)
@@ -341,6 +342,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 						writeCell(view, sign * distanceRef.current, 0)
 					}
 				}
+
 				attachFns.current.set(id, fn)
 			}
 

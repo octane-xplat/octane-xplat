@@ -71,6 +71,7 @@ function UITableViewInner(props: {
 		props.initialScrollIndex,
 		props.items.length,
 	);
+
 	useEffect(() => {
 		const list = props.runtime.list.current;
 		if (!list) return;

@@ -10,6 +10,7 @@ export function changeRichText(stage: number) {
 	if (stage === 2) {order$.set(['B','A']);styled$.set(false)}
 	if (stage === 3) show$.set(false)
 }
+
 export function WindowsUICase() @{
 	<stacklayout>
 		<Text id="mixed" style={{width:280,fontSize:18}}>{'First run '}
@@ -23,6 +24,7 @@ export function WindowsUICase() @{
 		<label id="explicit" width={280} fontSize={18}><formattedstring><span text="First run "/><span text="bold run" fontWeight="bold"/></formattedstring></label>
 	</stacklayout>
 }
+
 function Part(props: {name:string}) @{
 	<Text style={{fontWeight:props.name==='B'?'bold':'normal'}}>{props.name}</Text>
 }

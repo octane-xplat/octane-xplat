@@ -10,6 +10,7 @@ vi.mock('@nativescript/core', () => ({
 	Device: { sdkVersion: 30 },
 	Utils: { android: { getApplicationContext: () => ({}) } },
 }))
+
 vi.mock('@nativescript/core/animation-frame', () => ({
 	requestAnimationFrame: (cb: () => void) => setTimeout(cb, 16) as any,
 	cancelAnimationFrame: (id: any) => clearTimeout(id),
@@ -82,6 +83,7 @@ describe('RollingText (native leaf, object driver)', () => {
 		flushUniversalSync(() =>
 			root.render(RollingText as any, { value: 'b', reducedMotion: 'always' }),
 		)
+
 		expect(cellTexts(container).join('')).toBe('b')
 		root.unmount()
 	})
