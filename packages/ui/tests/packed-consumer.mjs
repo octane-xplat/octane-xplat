@@ -317,6 +317,36 @@ void keyboard
 `
 	}
 
+	// Exercise changed families through the canonical package root in every
+	// export map, resolver mode and peer configuration above.
+	source += `
+import { Selector, BaseTypeahead, Typeahead, Tokenizer, ComplexSelector, PowerSearch } from '@octane-xplat/ui'
+import type { SearchableItem, SearchSource, TypeaheadInputHandle, PowerSearchConfig } from '@octane-xplat/ui'
+// @ts-expect-error internal presentation is not a supported root export
+import { SelectView } from '@octane-xplat/ui'
+// @ts-expect-error internal presentation is not a supported root export
+import { BaseTypeaheadView } from '@octane-xplat/ui'
+// @ts-expect-error internal presentation is not a supported root export
+import { PowerSearchView } from '@octane-xplat/ui'
+// @ts-expect-error internal presentation is not a supported root export
+import { ComplexSelectorView } from '@octane-xplat/ui'
+const choice: SearchableItem = { id: 'apple', label: 'Apple' }
+const searchSource: SearchSource<SearchableItem> = { search: () => [choice], bootstrap: () => [choice] }
+const inputHandle: { current: TypeaheadInputHandle | null } = { current: null }
+const selector = <Selector label="Fruit" value="apple" options={[{ value: 'apple', label: 'Apple' }]} onValueChange={value => { void value }} />
+const base = <BaseTypeahead value={choice} searchSource={searchSource} onChange={item => { const selected: SearchableItem | null = item; void selected }} ref={inputHandle} debounceMs={0} />
+const typeahead = <Typeahead label="Fruit" value={choice} searchSource={searchSource} onChange={() => {}} />
+const tokenizer = <Tokenizer label="Tags" value={[choice]} searchSource={searchSource} onChange={() => {}} tokenOverflowBehavior="unfocusedInline" />
+const complex = <ComplexSelector label="Fruit" value={choice} onChange={() => {}}>{(value, commit, close, state) => { const open: boolean = state.isOpen; commit(value); close(); return String(open) }}</ComplexSelector>
+const searchConfig: PowerSearchConfig = { name: 'fruit', fields: [] }
+const power = <PowerSearch config={searchConfig} filters={[]} onChange={(filters, type, index) => { const position: number = index; void [filters, type, position] }} />
+inputHandle.current?.focus()
+inputHandle.current?.setQuery('apple')
+// @ts-expect-error selector values use string keys
+const invalidSelector = <Selector options={[]} value={42} />
+void [selector, base, typeahead, tokenizer, complex, power, invalidSelector, SelectView, BaseTypeaheadView, PowerSearchView, ComplexSelectorView]
+`
+
 	// ESM consumer — NodeNext treats extensionless .tsx as CJS without it,
 	// which would let an ESM-only package slip type checks its runtime
 	// resolution can't satisfy.
