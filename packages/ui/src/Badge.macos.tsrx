@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { BadgeProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 
 /** Badge — inline label chip. Pure composition; `vx-badge` supplies only the

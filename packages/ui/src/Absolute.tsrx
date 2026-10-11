@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { AbsoluteProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 
 export function Absolute(props: AbsoluteProps) @{

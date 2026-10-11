@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { FormField } from './FormField';
 import { BaseTypeahead } from './BaseTypeahead';

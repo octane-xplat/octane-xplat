@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
 import type { InputNumberProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { TextInput } from './TextInput.tsrx';
 import { Pressable } from './Pressable';

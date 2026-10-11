@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { PanEvent, SliderProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { useMeasure } from './useMeasure';
 import { usePan } from './pan';
 import { applyNativeProps } from './platformProps';

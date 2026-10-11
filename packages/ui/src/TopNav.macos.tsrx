@@ -10,7 +10,7 @@ import type {
 	TopNavProps,
 } from './props';
 
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon.macos.tsrx';
 import { Text } from './Text.macos.tsrx';
 import { Image } from './Image.macos.tsrx';

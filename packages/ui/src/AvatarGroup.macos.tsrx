@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { AvatarGroupProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { toChildArray, mapChildren } from './child-array';
 import { Avatar } from './Avatar.macos.tsrx';

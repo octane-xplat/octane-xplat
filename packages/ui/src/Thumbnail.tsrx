@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef, useState } from 'octane';
 import type { ThumbnailProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { Icon } from './Icon';
 import { Pressable } from './Pressable';

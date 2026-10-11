@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useImperativeHandle, useEffect, useRef } from 'octane';
 import type { TextInputProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { OverflowItem, OverflowListProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { computeOverflow } from './overflow-math';
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'octane';
 import type { ToastProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 
 const SWIPE_DISMISS_PX = 44;

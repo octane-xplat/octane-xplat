@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane';
 import type { InputRatingProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { Icon } from './Icon.macos.tsrx';
 import { useFieldControlProps } from './field-context';

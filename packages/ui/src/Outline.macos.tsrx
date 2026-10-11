@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane';
 import type { OutlineProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
 import { accentColor, mutedColor, textColor } from './scheme-colors';
 

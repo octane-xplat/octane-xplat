@@ -2,7 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { ListProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { toChildArray, mapChildren } from './child-array'
 import { ListProvider } from './list-context'

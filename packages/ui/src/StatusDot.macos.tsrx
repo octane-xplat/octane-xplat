@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef } from 'octane';
 import type { StatusDotProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
 import { statusDotColor } from './scheme-colors';
 import { isRenderable } from './is-renderable';

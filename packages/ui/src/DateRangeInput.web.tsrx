@@ -1,6 +1,6 @@
 import { useImperativeHandle, useContext, useId, useMemo, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps, ISODateString } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.web.tsrx'

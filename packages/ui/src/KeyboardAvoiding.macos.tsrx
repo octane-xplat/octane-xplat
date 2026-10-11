@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { KeyboardAvoidingProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	<flexboxlayout

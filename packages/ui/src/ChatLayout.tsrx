@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useRef } from 'octane';
 import type { ChatLayoutProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { useChatStreamScroll } from './useChatStreamScroll.tsrx';
 import { useChatNewMessages } from './useChatNewMessages.tsrx';
 import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.tsrx';

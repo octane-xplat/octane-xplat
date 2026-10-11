@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane';
 import type { TreeProps, TreeNode } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 
 function TreeRow(props: { node: TreeNode; depth: number; open: Set<string>; toggle: (n: TreeNode) => void; onSelect?: (n: TreeNode) => void }) @{

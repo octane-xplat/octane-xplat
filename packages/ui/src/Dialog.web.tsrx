@@ -5,7 +5,7 @@ import { applyEscapeProps } from './escape-props';
 import { useThemeScheme } from './theme/theme-scheme';
 import { DialogContext, DialogProvider } from './dialog-context';
 import { spacingStep } from './spacing';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon.web.tsrx';
 import { Pressable } from './Pressable.web.tsrx';
 

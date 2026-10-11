@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { SkeletonProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 
 /** Skeleton — placeholder block while content loads. Sizing via

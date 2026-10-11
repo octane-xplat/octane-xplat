@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon'
 import { Pressable } from './Pressable'

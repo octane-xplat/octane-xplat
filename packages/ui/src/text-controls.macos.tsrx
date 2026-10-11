@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useRef } from 'octane'
 import type { TextAreaProps, TextInputProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { useFieldControlProps } from './field-context'

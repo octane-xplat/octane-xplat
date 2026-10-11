@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { DrawerProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 
 /** Self-drawn drawer — grid host: `main` fills the cell, backdrop + left

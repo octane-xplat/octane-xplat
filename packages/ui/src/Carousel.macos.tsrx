@@ -2,7 +2,7 @@
 import type { CarouselProps } from './props'
 import { toChildArray, mapChildren } from './child-array'
 import { spacingStep } from './spacing'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 /** macOS coverage: the slide row inside the AppKit scroller. Buttons,
  *  loop, edge fades, and the imperative handle are unimplemented on this

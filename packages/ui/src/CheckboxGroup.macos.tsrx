@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane';
 import type { CheckboxGroupProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { Checkbox } from './controls.macos.tsrx';
 import { useFieldControlProps } from './field-context';

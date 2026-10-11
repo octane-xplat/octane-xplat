@@ -1,6 +1,6 @@
 /** @jsxImportSource octane */
 import type { KeyboardAvoidingProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 // Web keeps the wrapper's layout and styling, without claiming keyboard avoidance.
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{

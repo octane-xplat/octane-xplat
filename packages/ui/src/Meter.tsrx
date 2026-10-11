@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { AccessibilityRole } from '@nativescript/core';
 import type { MeterProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { meterRange } from './meter-math';
 import './svg';
 

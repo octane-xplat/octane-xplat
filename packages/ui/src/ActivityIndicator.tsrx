@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ActivityIndicatorProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from './platformProps';
 
 /** Self-drawn spinner — a bordered ring (.vx-spinner, same class as web)

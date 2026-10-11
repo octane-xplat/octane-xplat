@@ -2,7 +2,7 @@
 import type { NavLinkProps } from './props';
 import { Pressable } from './Pressable';
 import { pushRoute, useRoute } from './route';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 export function NavLink(props: NavLinkProps) @{
 	const current = useRoute(props.route.stack);

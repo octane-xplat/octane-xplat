@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 

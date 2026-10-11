@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useRef } from 'octane'
 import type { WebViewProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 
 export function WebView(props: WebViewProps) @{

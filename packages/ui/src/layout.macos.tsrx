@@ -2,7 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { AbsoluteProps, GridProps, SpacerProps, StackItemProps, StackProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { resolveStackLayout, stackItemStyle } from './stack-layout'
 

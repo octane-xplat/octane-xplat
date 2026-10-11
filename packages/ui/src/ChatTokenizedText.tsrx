@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatTokenizedTextProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { ChatTokenChip } from './chat-tokens.tsrx';
 import { tokenizeChatText } from './chat-tokenize';
 

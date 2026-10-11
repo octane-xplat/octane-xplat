@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { TabList, Tab } from './TabList';
 import { errorBoundaryFor, layoutsForRoute, screenFor, useRoute } from './route';
 import { RouteHost, screenParamsFor } from './route-host';

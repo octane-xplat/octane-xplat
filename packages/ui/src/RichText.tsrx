@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { RichTextProps, RichTextSpanProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { layoutChildProps } from './layout-child';
 

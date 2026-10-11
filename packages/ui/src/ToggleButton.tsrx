@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
 import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-group-context'
 import { Button } from './Button.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 export function ToggleButton(props: ToggleButtonProps) @{
 	const group = useToggleButtonGroup()

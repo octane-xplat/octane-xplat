@@ -2,7 +2,7 @@
 import type { PowerSearchTokenProps } from './props'
 import { resolveOperatorLabel, formatFilterValue, createInternalConfig } from './power-search-config'
 import { Pressable } from './Pressable.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 type InternalTokenProps = PowerSearchTokenProps & { timezoneID?: string }
 

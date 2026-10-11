@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { IconProps } from './props';
 import { getIcon } from './icons';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from './platformProps';
 import { glyphSvgMarkup, isSvgSrc, svgSource } from './svg';
 

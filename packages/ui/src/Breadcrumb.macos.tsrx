@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { DropdownMenu } from './DropdownMenu.macos.tsrx';
 import type { BreadcrumbProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 
 /** Breadcrumb — ancestor trail. Every item with `onSelect` renders as a

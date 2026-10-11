@@ -2,7 +2,7 @@
 import { useContext } from 'octane';
 import type { SearchableItem } from './props';
 import type { BaseTypeaheadViewProps } from './typeahead-view';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Popover } from './surfaces.macos.tsrx';
 import { TypeaheadItem } from './TypeaheadItem.macos.tsrx';
 import { ActivityIndicator } from './controls.macos.tsrx';

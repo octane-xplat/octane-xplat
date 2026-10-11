@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { SearchableItem, TypeaheadItemProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { Icon } from './Icon.macos.tsrx';
 
 /** Default option content for typeahead dropdowns — label with an optional

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
 import type { MetadataListProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { MetadataListProvider } from './metadata-list-context';
 import { Grid } from './Grid.tsrx';

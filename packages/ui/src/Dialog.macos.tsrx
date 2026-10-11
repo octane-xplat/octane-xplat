@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import type { DialogHeaderProps, DialogProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { usePresentation } from './presentation.macos.tsrx'
 import { Button } from './controls.macos.tsrx'
 

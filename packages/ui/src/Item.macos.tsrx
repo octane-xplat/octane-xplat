@@ -2,7 +2,7 @@
 import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 function Leading(props: ItemSlotProps) @{
 	<flexboxlayout className={cx('vx-item-leading', props.className)}>{props.children}</flexboxlayout>

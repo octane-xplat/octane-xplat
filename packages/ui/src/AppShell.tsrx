@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useId, useMemo, useState } from 'octane';
 import type { AppShellProps, MobileNavConfig } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { MobileNavToggle } from './MobileNav';
 import { isMobileNavConfig } from './app-shell-config';

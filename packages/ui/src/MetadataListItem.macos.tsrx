@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useContext } from 'octane';
 import type { MetadataListItemProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { MetadataListContext } from './metadata-list-context';
 import { isRenderable } from './is-renderable';
 

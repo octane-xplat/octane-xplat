@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { BlockquoteProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 /** macOS AppKit leaf — same structure as the shared native leaf; the AppKit
  *  host has no CSS layer for the blockquote rule, so the inline-start bar

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ViewProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 import { usePan } from './pan.macos.tsrx'
 

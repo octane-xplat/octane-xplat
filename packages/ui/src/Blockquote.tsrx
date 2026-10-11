@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { TextSlot } from './text-slot';
 import type { BlockquoteProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 
 /** Blockquote — quoted content with an inline-start rule and secondary text.

@@ -3,7 +3,7 @@ import { useMemo, useEffect, useRef } from 'octane';
 import { mergedRef } from './ref-list'
 import type { ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';

@@ -1,6 +1,6 @@
 import { createPortal, useCallback, useEffect, useRef, useState } from 'octane';
 import type { LightboxMedia, LightboxProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { isolateModalFocus } from './modal-focus.web';
 import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon.web.tsrx';

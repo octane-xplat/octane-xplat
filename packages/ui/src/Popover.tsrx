@@ -6,7 +6,7 @@ import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { PopoverProps } from './props';
 import { applyNativeProps } from './platformProps';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, resolveLayerSide, type PopoverPosition } from './popover-position';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout';

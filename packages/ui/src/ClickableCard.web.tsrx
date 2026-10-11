@@ -1,5 +1,5 @@
 import type { ClickableCardProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { sanitizeUrl } from './safe-url'
 
 export function ClickableCard(props: ClickableCardProps) @{

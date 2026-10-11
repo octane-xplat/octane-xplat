@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useRef } from 'octane';
 import type { ResizeHandleProps, PanEvent } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 import { Pressable } from './Pressable.macos.tsrx';
 

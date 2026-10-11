@@ -11,7 +11,7 @@ import {
 	resolveTimestampFormat,
 } from './time-format';
 
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { textRoleClasses } from './text-role';
 

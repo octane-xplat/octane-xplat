@@ -2,7 +2,7 @@
 import { isAndroid, isIOS } from '@nativescript/core';
 import { useImperativeHandle, useEffect, useRef } from 'octane';
 import type { WebViewProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
 

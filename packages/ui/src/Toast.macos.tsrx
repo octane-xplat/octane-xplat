@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps, ToastContentRenderProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Button } from './controls.macos.tsrx'
 import { toastTiming } from './toast-store'
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'

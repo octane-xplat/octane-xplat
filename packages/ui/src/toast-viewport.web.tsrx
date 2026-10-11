@@ -12,7 +12,7 @@ import {
 
 import { useStore } from './use-store.web.tsrx';
 import { applyThemeClasses } from './theme/theme-scheme';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { ToastSurface } from './Toast.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 

@@ -10,7 +10,7 @@ import { Popover } from './Popover.macos.tsrx'
 import { PowerSearchToken } from './PowerSearchToken.macos.tsrx'
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.macos.tsrx'
 import { powerSearchTranslate } from './power-search-strings'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 export function PowerSearchView(props: PowerSearchViewProps) @{
 	const anchor = useRef<any>(null)

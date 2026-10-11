@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ActivityIndicatorProps, PlatformWidgetProps } from '../props';
-import { cx } from '../cx';
+import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from '../platformProps';
 
 /** CircularProgressIndicator — the platform spinner (Android indeterminate

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'octane';
 import type { HoverCardProps } from './props';
 import { useHoverCard } from './use-hover-card.web.tsrx';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 const isTextOnly = (children: any) =>
 	typeof children === 'string' || typeof children === 'number';

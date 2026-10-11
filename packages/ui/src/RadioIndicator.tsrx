@@ -2,7 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { IndicatorProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 
 /** RadioIndicator — decorative circle (20/24dip); a filled dot appears

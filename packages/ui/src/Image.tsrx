@@ -2,7 +2,7 @@
 import { isAndroid, isIOS, ImageSource, knownFolders, Screen } from '@nativescript/core';
 import { useLayoutEffect, useMemo, useRef } from 'octane';
 import type { ImageProps, ImageSourceLike } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { rememberGridChildPlacement } from './grid-placement';
 import { layoutChildProps } from './layout-child';

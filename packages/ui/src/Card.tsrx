@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { CardProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 
 /** Card — container with optional header/footer slots. */

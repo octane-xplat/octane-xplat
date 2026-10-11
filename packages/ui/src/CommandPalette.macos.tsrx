@@ -4,7 +4,7 @@ import type { CommandPaletteItem, CommandPaletteProps } from './props';
 import { createCommandPaletteController } from './command-palette-state';
 import { useStore } from './use-store.tsrx';
 import { groupTypeaheadItems } from './typeahead-source';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { useEffect, useRef } from 'octane';
 import { Pressable } from './Pressable.macos.tsrx';
 import { Icon } from './Icon.macos.tsrx';

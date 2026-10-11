@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { OverflowItem, OverflowListProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 import { computeOverflow } from './overflow-math';
 

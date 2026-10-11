@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { TooltipProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { View } from './View';
 
 /** Touch-target leaf: renders the trigger unchanged and never mounts the

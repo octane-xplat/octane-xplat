@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable'
 import { Popover } from './Popover'
 import { TextInput } from './TextInput.tsrx'

@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { PlatformWidgetProps, SwitchProps } from "../props";
-import { cx } from "../cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "../escape-props";
 
 /** MaterialSwitch — the platform widget (Material SwitchMaterial via

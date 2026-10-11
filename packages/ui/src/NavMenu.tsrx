@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useContext, useMemo } from 'octane';
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon';
 import { Text } from './Text';

@@ -10,7 +10,7 @@ import type {
 	LayerOptions,
 } from './props';
 
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position';
 
 const host = () => (globalThis as any).__xplatAppKit ?? {};

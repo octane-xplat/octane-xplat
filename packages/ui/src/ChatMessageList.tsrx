@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useMemo, useRef, useState } from 'octane';
 import type { ChatMessageListProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { ChatListProvider, useChatLayoutContext } from './chat-context';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
 

@@ -15,7 +15,7 @@ import {
 
 import { VirtualListCellPool, type VirtualListCell } from './virtual-list-cell-pool'
 
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { layoutChildProps } from './layout-child'
 

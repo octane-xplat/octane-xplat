@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'octane';
 import { Application } from '@nativescript/core';
 import type { KeyboardAvoidingProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 function useKeyboardInset() {
 	const [inset, setInset] = useState(0);

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useContext } from 'octane';
 import type { MetadataListItemProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { MetadataListContext } from './metadata-list-context';
 import { isRenderable } from './is-renderable';

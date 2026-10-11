@@ -8,7 +8,7 @@ import type {
 	ChatComposerTokenElementProps,
 } from './props';
 
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { isWritingText, writeText } from './text-write';
 import { ChatTriggerMenuOverlay, useTriggerMenu, type ChatTriggerHost } from './useTriggerMenu.tsrx';

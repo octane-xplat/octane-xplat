@@ -3,7 +3,7 @@ import { MenuData } from './MenuParts';
 import { MenuSurface } from './MenuSurface';
 import { useRef, useState } from 'octane';
 import type { DropdownMenuProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable';
 import { Popover } from './Popover';
 import { useButtonGroup } from './button-group-context';

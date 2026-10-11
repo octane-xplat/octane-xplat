@@ -1,5 +1,5 @@
 import { defineUniversalComponent, universalComponent } from 'octane/universal/native'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 /** Compose CSS-backed class names onto an AppKit component factory. */
 export function styled<P extends { className?: any }, V extends Record<string, any>>(

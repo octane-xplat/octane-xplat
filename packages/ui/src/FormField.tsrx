@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useContext, useId } from 'octane'
 import type { FormFieldProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'

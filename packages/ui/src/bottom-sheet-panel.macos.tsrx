@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'octane'
 import { useThemeScheme } from './theme/theme-scheme'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 /** Imperative content gets the same handle, scrolling and live theme as a
  * declaration. Context stays inside this detached root. */

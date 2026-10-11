@@ -5,7 +5,7 @@ import { DropdownMenu } from './DropdownMenu'
 import { Pressable } from './Pressable'
 import { BottomSheet } from './BottomSheet'
 import { Icon } from './Icon'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 function popoverPlacement(placement?: MoreMenuPlacement): any {
 	if (placement === 'above') return 'top'

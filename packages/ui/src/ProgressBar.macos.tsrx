@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ProgressBarProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
 import { mutedColor, progressFillColor, textColor } from './scheme-colors';
 

@@ -2,7 +2,7 @@
 import { useMemo, useEffect, useRef } from 'octane';
 import { refList } from './ref-list'
 import type { ProgressBarProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole } from './escape-props';
 import { useColorScheme } from './theme/colorScheme';
 import { mutedColor, progressFillColor } from './scheme-colors';

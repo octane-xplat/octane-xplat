@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CodeProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Text } from './Text.macos.tsrx';
 
 /** Code — macOS leaf. The AppKit host resolves `text-muted` for the

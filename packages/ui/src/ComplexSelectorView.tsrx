@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ComplexSelectorViewProps } from './complex-selector-view';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { FormField } from './FormField';
 import { Popover } from './Popover';
 import { Pressable } from './Pressable';

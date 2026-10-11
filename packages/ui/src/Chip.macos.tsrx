@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ChipProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable.macos.tsrx';
 
 /** Chip — small action/filter element with a selected state and an

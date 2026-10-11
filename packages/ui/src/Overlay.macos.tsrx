@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { OverlayProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 export function Overlay(props: OverlayProps) @{
 	@if (props.open) {

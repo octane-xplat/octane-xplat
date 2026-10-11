@@ -2,7 +2,7 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useEffect, useRef } from 'octane'
 import type { PopoverProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from './theme/theme-scheme'
 
 function PopoverPanel(props: PopoverProps & { dark: boolean; layerDepth: number }) @{

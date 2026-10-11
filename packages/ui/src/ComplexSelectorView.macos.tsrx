@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ComplexSelectorViewProps } from './complex-selector-view';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { FormField } from './FormField.macos.tsrx';
 import { Popover } from './surfaces.macos.tsrx';
 import { Pressable } from './Pressable.macos.tsrx';

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ThumbnailProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon.macos.tsrx';
 import { ActivityIndicator } from './controls.macos.tsrx';
 import { Skeleton } from './Skeleton.macos.tsrx';

@@ -11,7 +11,7 @@ import type {
 
 import { useThemeScheme } from './theme/theme-scheme';
 import { Popover } from './Popover';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { ownAnchorName } from './layer-position.web';
 
 interface FloatingLayerProps {

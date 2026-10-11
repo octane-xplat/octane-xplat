@@ -8,7 +8,7 @@ import {
 	type BottomSheetSwitcherHandle,
 } from './bottom-sheet-context';
 
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { useThemeScheme } from './theme/theme-scheme';
 import { normalizeSnapPoints } from './sheet-snap';
 import { attachSheetDetents } from './sheet-detents.web';

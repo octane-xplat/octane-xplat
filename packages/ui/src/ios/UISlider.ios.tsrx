@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { PlatformWidgetProps, SliderProps } from '../props';
-import { cx } from '../cx';
+import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from '../platformProps';
 
 /** UISlider — the platform widget (UIKit UISlider via NativeScript `slider`).

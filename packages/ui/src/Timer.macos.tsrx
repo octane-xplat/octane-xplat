@@ -8,7 +8,7 @@ import {
 	timerPresentation,
 } from './timer-format';
 
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { textRoleClasses } from './text-role';
 
 /** Timer — macOS leaf, same as the mobile leaf (label + ISO duration). */

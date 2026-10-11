@@ -1,5 +1,5 @@
 import type { ComplexSelectorViewProps } from './complex-selector-view';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Popover } from './Popover.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { Tooltip } from './Tooltip.web.tsrx';

@@ -117,6 +117,9 @@
 		"test:layer:web": "node --test tests/layer-position.web.mjs",
 		"test:macos": "node --test tests/query-storage.macos.test.mjs && node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only"
 	},
+	"dependencies": {
+		"@octane-xplat/lib": "workspace:*"
+	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript-community/ui-drawer": "0.1.32",

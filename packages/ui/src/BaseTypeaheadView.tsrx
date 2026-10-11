@@ -2,7 +2,7 @@
 import { useContext } from 'octane';
 import type { SearchableItem } from './props';
 import type { BaseTypeaheadViewProps } from './typeahead-view';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityState } from './escape-props';
 import { isWritingText } from './text-write';
 import { Popover } from './Popover';

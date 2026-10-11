@@ -4,7 +4,7 @@ import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/cor
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from '../stacks';
-import { cx } from '../cx';
+import { cx } from '@octane-xplat/lib';
 import { getIcon } from '../icons';
 import { Icon } from '../Icon.tsrx';
 import { Pressable } from '../Pressable.tsrx';

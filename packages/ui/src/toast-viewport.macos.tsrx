@@ -7,7 +7,7 @@ import { useStore } from './useStore.macos.tsrx'
 import { usePresentation } from './presentation.macos.tsrx'
 import { Toast } from './Toast.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 const POSITIONS: ToastPosition[] = ['topStart', 'topEnd', 'bottomStart', 'bottomEnd']
 

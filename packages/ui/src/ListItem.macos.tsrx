@@ -2,7 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { ListItemProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { useListContext } from './list-context'
 import { pushDeepLink } from './route'

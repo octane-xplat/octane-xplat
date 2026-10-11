@@ -5,7 +5,7 @@ import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octan
 import { ScrollView } from '@nativescript/core';
 import type { PlatformListProps, PlatformWidgetProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
-import { cx } from "../cx";
+import { cx } from "@octane-xplat/lib";
 import { ActivityIndicator } from '../ActivityIndicator.tsrx';
 import { applyEscapeProps } from '../escape-props';
 import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';

@@ -2,7 +2,7 @@
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { SearchInputProps } from './props';
 import { Icon } from './Icon';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityState } from './escape-props';
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';

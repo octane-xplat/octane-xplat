@@ -2,7 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { ViewProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child';
 import { usePan } from './pan';

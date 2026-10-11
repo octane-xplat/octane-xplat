@@ -9,7 +9,7 @@ import {
 } from './bottom-sheet-context'
 
 import { createStore } from './store'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { usePresentation } from './presentation.macos.tsrx'

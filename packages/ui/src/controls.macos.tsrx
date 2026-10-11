@@ -4,7 +4,7 @@ import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, PanEvent, Sear
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { usePan } from './pan'
 import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'

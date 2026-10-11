@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useColorScheme } from './theme/colorScheme';
 import type { CodeProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Text } from './Text';
 import { mutedColor } from './scheme-colors';
 import { nativeColor } from './native-color';

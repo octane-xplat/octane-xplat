@@ -1,6 +1,6 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { isDateComposing, timeOptionIndex } from './date-keyboard'
 import { runDateChangeAction } from './date-field-action'

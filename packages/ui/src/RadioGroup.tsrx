@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { RadioGroupProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { useFieldControlProps } from './field-context';
 import { useIndicator, RadioIndicator, indicatorScope } from './indicators';

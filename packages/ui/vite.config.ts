@@ -106,6 +106,7 @@ export default defineConfig(({ mode }) => {
 						: {}),
 				},
 				external: [
+					/^@octane-xplat\/lib$/,
 					/^octane/,
 					/^@nativescript\//,
 					/^@nativescript-community\//,

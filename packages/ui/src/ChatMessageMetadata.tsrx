@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatMessageMetadataProps, ChatMessageStatus } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
 import { useChatMessageContext } from './chat-context';
 

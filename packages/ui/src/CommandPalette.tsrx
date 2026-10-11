@@ -4,7 +4,7 @@ import type { CommandPaletteItem, CommandPaletteProps } from './props';
 import { createCommandPaletteController } from './command-palette-state';
 import { useStore } from './use-store.tsrx';
 import { groupTypeaheadItems } from './typeahead-source';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Screen } from '@nativescript/core';
 import { BottomSheet } from './BottomSheet.tsrx';
 import { TextInput } from './TextInput.tsrx';

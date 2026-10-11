@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { AccessibilityRole } from '@nativescript/core';
 import type { HeadingProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from './platformProps';
 
 export function Heading(props: HeadingProps) @{

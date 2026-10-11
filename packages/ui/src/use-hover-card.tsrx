@@ -2,7 +2,7 @@
 import { useLayer } from './use-layer';
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { HoverCardOptions, HoverCardReturn } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 const host = () => (globalThis as any).__xplatAppKit ?? {};
 

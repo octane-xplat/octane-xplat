@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'octane'
 import { getColorScheme, subscribeSystemScheme } from './colorScheme'
-import { cx } from '../cx'
+import { cx } from '@octane-xplat/lib'
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane'
 import type { TooltipProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { View } from './View'
 
 const host = () => (globalThis as any).__xplatAppKit ?? {}

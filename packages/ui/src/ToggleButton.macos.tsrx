@@ -5,7 +5,7 @@ import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { Icon } from './Icon.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 export function ToggleButton(props: ToggleButtonProps) @{
 	const group=useToggleButtonGroup(); const [local,setLocal]=useState(!!props.isPressed)
 	const pressed=group&&props.value!=null?group.selectedValues.has(props.value):props.isPressed??local

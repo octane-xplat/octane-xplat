@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CitationProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
 import { accentColor, mutedColor, textColor } from './scheme-colors';
 import { isSafeUrl } from './safe-url';

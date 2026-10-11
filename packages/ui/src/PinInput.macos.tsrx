@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef, useState } from 'octane';
 import type { PinInputProps, TextInputHandle } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { TextInput } from './text-controls.macos.tsrx';
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { HoverCardProps } from './props';
 import { useHoverCard } from './use-hover-card.mobile.tsrx';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 /** Touch-leaf HoverCard: a tap on the trigger opens the anchored card
  *  (`touchTrigger` 'auto'/'tap'; 'none' disables it). There is no hover

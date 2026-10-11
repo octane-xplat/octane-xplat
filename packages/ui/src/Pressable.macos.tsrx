@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { PressableProps } from './props'
 import { usePan } from './pan.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 
 export function Pressable(props: PressableProps) @{

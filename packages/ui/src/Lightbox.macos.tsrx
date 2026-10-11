@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import type { LightboxProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Button } from './controls.macos.tsrx'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { usePresentation } from './presentation.macos.tsrx'

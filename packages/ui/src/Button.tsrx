@@ -3,7 +3,7 @@ import { useState } from 'octane';
 import { Utils } from '@nativescript/core';
 import { TextSlot } from './text-slot';
 import type { ButtonProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
 import { Icon } from './Icon';

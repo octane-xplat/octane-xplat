@@ -2,7 +2,7 @@
 import { useCallback, useRef, useState } from 'octane';
 import type { HoverCardOptions, HoverCardReturn } from './props';
 import { useLayer } from './use-layer';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 /**
  * Touch-leaf of the hover card hook. There is no hover or focus traversal

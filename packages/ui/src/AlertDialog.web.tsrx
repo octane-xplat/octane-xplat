@@ -2,7 +2,7 @@ import type { AlertDialogProps } from './props';
 import { Dialog } from './Dialog.web.tsrx';
 import { Button } from './Button.web.tsrx';
 import { Text } from './Text.web.tsrx';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
 	primary: 'bg-primary text-onprimary',

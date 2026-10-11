@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
 

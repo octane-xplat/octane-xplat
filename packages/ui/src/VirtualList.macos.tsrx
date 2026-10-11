@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { VirtualListProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import {
 	VirtualListSizeIndex,
 	createVirtualListEntries,

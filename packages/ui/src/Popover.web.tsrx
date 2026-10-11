@@ -2,7 +2,7 @@ import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { createPortal, useEffect, useRef, useState } from 'octane';
 import { useThemeScheme } from './theme/theme-scheme';
 import type { PopoverProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { resolveCSSLayerOffset } from './layer-position.web';
 import { positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position';
 

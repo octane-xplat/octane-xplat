@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'octane';
 import { useLayer } from './use-layer';
 import { View } from './View.web.tsrx';
 import type { TooltipProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
 

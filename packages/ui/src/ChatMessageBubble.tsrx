@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatMessageBubbleProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { useChatMessageContext } from './chat-context';
 
 const renderable = (v: any) => v != null && v !== false && v !== true;

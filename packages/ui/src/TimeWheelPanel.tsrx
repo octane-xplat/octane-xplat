@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
 

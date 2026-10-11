@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useRef } from 'octane';
 import type { ResizeHandleProps, PanEvent } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { Pressable } from './Pressable';
 

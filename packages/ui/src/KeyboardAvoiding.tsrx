@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { KeyboardAvoidingProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 // Targets without mobile keyboard insets retain the shared column layout.
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{

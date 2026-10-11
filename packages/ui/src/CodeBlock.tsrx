@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useState } from 'octane';
 import type { CodeBlockProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon';
 import { Pressable } from './Pressable';

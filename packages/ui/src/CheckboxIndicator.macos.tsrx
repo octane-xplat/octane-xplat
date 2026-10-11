@@ -2,7 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { IndicatorProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 
 /** CheckboxIndicator — decorative box: check glyph when checked, inset bar

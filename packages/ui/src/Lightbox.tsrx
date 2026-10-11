@@ -4,7 +4,7 @@ import { GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { LightboxProps, LightboxMedia } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';

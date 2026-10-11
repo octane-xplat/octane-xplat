@@ -2,7 +2,7 @@
 import { createContext, useContext } from 'octane';
 import { Application } from '@nativescript/core';
 import type { TextProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
 

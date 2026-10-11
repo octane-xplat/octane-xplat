@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useMemo, useRef, useState } from 'octane';
 import type { ChatComposerInputControl, ChatComposerProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { ChatComposerProvider } from './chat-context';
 import { ChatComposerInput } from './ChatComposerInput.tsrx';
 import { ChatSendButton } from './ChatSendButton.tsrx';

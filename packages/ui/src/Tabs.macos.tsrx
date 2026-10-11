@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { createContext, useContext, useState } from 'octane'
 import type { TabsProps } from './props'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 import { TabList, Tab } from './TabList.macos.tsrx'
 import { RouteHost } from './RouteHost.macos.tsrx'
 import { errorBoundaryFor, layoutsFor, useRoute, screenFor } from './route.macos'

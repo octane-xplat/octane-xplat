@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
 import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
 import { Badge } from './Badge';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';

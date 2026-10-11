@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ButtonGroupProps } from './props'
 import { ButtonGroupProvider } from './button-group-context'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 export function ButtonGroup(props: ButtonGroupProps) @{
 	const orientation = props.orientation ?? 'horizontal'

@@ -5,7 +5,7 @@ import { DropdownMenu } from './DropdownMenu.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
 import { BottomSheet } from './BottomSheet.macos.tsrx'
 import { Icon } from './Icon.macos.tsrx'
-import { cx } from './cx'
+import { cx } from '@octane-xplat/lib'
 
 function popoverPlacement(placement?: MoreMenuPlacement): any {
 	if (placement === 'above') return 'top'

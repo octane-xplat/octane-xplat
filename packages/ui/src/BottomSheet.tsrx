@@ -13,7 +13,7 @@ import {
 
 import { createStore } from './store';
 import { useStore } from './use-store.tsrx';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';

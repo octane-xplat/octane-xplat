@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
 import type { ToastProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { Text } from './Text';
 

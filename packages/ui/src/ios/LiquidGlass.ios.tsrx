@@ -3,7 +3,7 @@ import { LiquidGlass as NSLiquidGlass } from '@nativescript/core';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import type { LiquidGlassProps, PlatformWidgetProps } from '../props';
-import { cx } from '../cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from '../escape-props';
 import { layoutChildProps } from '../layout-child';
 

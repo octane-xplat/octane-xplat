@@ -74,6 +74,9 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 						'@nativescript/types',
 					]
 
+	// Internal utilities are a runtime dependency on every target.
+	dependencies.push('@octane-xplat/lib')
+
 	for (const dependency of dependencies) {
 		const source = join(packageRoot, 'node_modules', dependency)
 		if (!existsSync(source)) {

@@ -3,7 +3,7 @@ import { registerElement } from '@nativescript-community/octane';
 import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer';
 import { useEffect, useRef } from 'octane';
 import type { DrawerProps, PlatformWidgetProps } from '../props';
-import { cx } from '../cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from '../escape-props';
 
 // Optional peer: this leaf resolves only when the app ships the plugin

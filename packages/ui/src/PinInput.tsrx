@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef, useState } from 'octane';
 import type { PinInputProps, TextInputHandle } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { FieldProvider, useFieldControlProps } from './field-context';
 import { TextInput } from './TextInput.tsrx';

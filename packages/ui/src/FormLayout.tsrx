@@ -2,7 +2,7 @@
 import { useMemo, useEffect, useRef } from 'octane';
 import { refList } from './ref-list'
 import type { FormLayoutProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { FormLayoutProvider } from './form-layout-context';
 

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { TokenProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable.macos.tsrx';
 import { Icon } from './Icon.macos.tsrx';
 import { pushDeepLink } from './route.macos';

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { Icon } from './Icon';
 import { Text } from './Text';

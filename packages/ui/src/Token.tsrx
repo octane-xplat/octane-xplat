@@ -3,7 +3,7 @@ import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import { Utils } from '@nativescript/core';
 import type { TokenProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { Icon } from './Icon';
 import { Pressable } from './Pressable';

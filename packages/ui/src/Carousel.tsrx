@@ -4,7 +4,7 @@ import type { CarouselHandle, CarouselProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { toChildArray, mapChildren } from './child-array';
 import { spacingStep } from './spacing';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
 import { Pressable } from './Pressable';
 

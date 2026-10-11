@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
 import type { StatusDotProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole } from './escape-props';
 import { useColorScheme } from './theme/colorScheme';
 import { statusDotColor } from './scheme-colors';

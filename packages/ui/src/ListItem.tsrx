@@ -3,7 +3,7 @@ import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import { Utils } from '@nativescript/core';
 import type { ListItemProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { useListContext } from './list-context';
 import { pushDeepLink } from './route';

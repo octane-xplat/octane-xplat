@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { Utils } from '@nativescript/core';
 import type { CitationProps } from './props';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { useColorScheme } from './theme/colorScheme';
 import { accentColor, mutedColor, textColor } from './scheme-colors';

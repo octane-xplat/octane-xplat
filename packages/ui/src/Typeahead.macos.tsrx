@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
-import { cx } from "./cx";
+import { cx } from "@octane-xplat/lib";
 import { FormField } from './FormField.macos.tsrx';
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx';
 import { Token } from './Token.macos.tsrx';

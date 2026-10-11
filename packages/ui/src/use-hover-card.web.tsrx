@@ -7,7 +7,7 @@ import type {
 } from './props';
 
 import { useLayer } from './use-layer';
-import { cx } from './cx';
+import { cx } from '@octane-xplat/lib';
 
 /** Elements a tap "belongs to" — under `touchTrigger: 'auto'` their tap
  *  runs the control instead of opening the card. */
