@@ -577,9 +577,12 @@ the preview; frame the photo and press Capture again to take it. Cancel, denial,
 a missing or busy camera, or closing the window returns `null`, so keep the
 previous image. Preparation and shutter work time out after 15 seconds. The
 [maintained action](../../examples/media/capture-photo.macos.ts) also ignores
-late results after its screen owner ends. Actual camera capture still needs
-qualification on a camera-equipped Mac; deterministic sheet checks use an
-injected camera backend.
+late results after its screen owner ends. Deterministic sheet checks inject the
+camera backend, while the [real-host checks](../../packages/camera/tests/photo-hardware.macos.mjs)
+run the production sheet and AVFoundation against the attached hardware: on a
+camera-equipped Mac they validate the returned JPEG, and on a Mac with no
+camera they qualify the no-device settle. User-granted permission prompts,
+physical unplug and OS input still need a human on a camera-equipped Mac.
 
 ```ts
 import { media } from '@octane-xplat/media'

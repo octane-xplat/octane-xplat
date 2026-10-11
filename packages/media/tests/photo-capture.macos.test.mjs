@@ -15,7 +15,7 @@ async function load(overrides = {}) {
 		clearTimeout,
 		NSFileManager: {
 			defaultManager: {
-				temporaryDirectory: { standardizedFileURL: { path: '/temp' } },
+				temporaryDirectory: { path: '/temp' },
 			},
 		},
 		XplatPhotoCaptureSheet: {

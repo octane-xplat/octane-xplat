@@ -10,7 +10,8 @@ import { macOSExecutable } from '../../cli/src/macos/executables.mjs'
 import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.mjs'
 
 // No panel, window, image view, camera, Photos access or desktop input.
-// Actual AppKit image decoding/JPEG encoding and Foundation IO; only the panel is injected.
+// Actual AppKit image decoding/JPEG encoding and Foundation IO; the panel and
+// the photo sheet class are injected — no OS permission or camera hardware.
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'octane-macos-picker-runtime-'))
 
@@ -56,21 +57,40 @@ try {
 	await writeFile(sources[1], png(4, 6))
 	const invalid = join(directory, 'invalid.png')
 	await writeFile(invalid, 'invalid image bytes')
-	const modules = await Promise.all(
-		['media', 'files'].map(async (name) => {
+	// Transpile each AppKit leaf in dependency order and give CommonJS output a
+	// sibling-only require: the JSC shim allows no relative requires.
+	const transpileOptions = {
+		module: ts.ModuleKind.CommonJS,
+		target: ts.ScriptTarget.ES2022,
+	}
+
+	const leaves = await Promise.all(
+		[
+			['media', 'photo-capture.macos'],
+			['media', 'media.macos'],
+			['files', 'files.macos'],
+		].map(async ([pkg, base]) => {
 			const source = await readFile(
-				new URL(`../../${name}/src/${name}.macos.ts`, import.meta.url),
+				new URL(`../../${pkg}/src/${base}.ts`, import.meta.url),
 				'utf8',
 			)
 
-			return `const ${name} = (() => { const exports = {}; ${ts.transpile(source, {
-				module: ts.ModuleKind.CommonJS,
-				target: ts.ScriptTarget.ES2022,
-			})}; return exports.${name}; })();`
+			return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${ts.transpile(
+				source,
+				transpileOptions,
+			)}; return exports; })();`
 		}),
 	)
 
-	const script = join(directory, 'fixture.cjs')
+	const modules = [
+		`const registry = (() => { const registry = {}; const require = (spec) => { const found = registry[spec]; if (!found) { throw new Error('unsupported fixture require: ' + spec); } return found; };`,
+		...leaves,
+		'return registry; })();',
+		'const media = registry[\'./media.macos\'].media;',
+		'const files = registry[\'./files.macos\'].files;',
+	]
+
+	const script = join(directory, "fixture.cjs")
 	await writeFile(
 		script,
 		`${modules.join('\n')}
@@ -84,6 +104,21 @@ Object.defineProperty(globalThis, 'NSOpenPanel', { configurable: true, value: { 
 const sourcePaths = ${JSON.stringify(sources)};
 const sourceURLs = sourcePaths.map(path => NSURL.fileURLWithPath(path));
 const invalidURL = NSURL.fileURLWithPath(${JSON.stringify(invalid)});
+// Injected sheet class stands in for the camera leaf's XplatPhotoCaptureSheet:
+// same alloc/init surface, recorded events, caller-driven replies.
+const sheets = [];
+const sheetEvents = [];
+const sheetState = { status: 'notDetermined' };
+Object.defineProperty(globalThis, 'XplatPhotoCaptureSheet', { configurable: true, value: { alloc() { return { init() {
+  const sheet = {
+    permissionStatus() { return sheetState.status; },
+    presentReply(options, reply) { this.options = options; this.reply = reply; sheetEvents.push('present'); },
+    dispose() { sheetEvents.push('dispose'); },
+    discard(uri) { sheetEvents.push('discard ' + uri); },
+  };
+  sheets.push(sheet);
+  return sheet;
+} }; } } });
 const retained = [];
 let assertions = 0;
 function check(value, message) { assertions++; if (!value) throw new Error(message); }
@@ -122,9 +157,55 @@ setTimeout(async () => {
     for (const image of retained) { files.release(image); check(!NSFileManager.defaultManager.fileExistsAtPath(image.uri), 'preview released'); }
     check(globalThis.__xplatTemporaryFiles.size === 0, 'ownership cleared');
     check(sourcePaths.every(path => NSFileManager.defaultManager.fileExistsAtPath(path)), 'originals retained');
-    console.log('APPKIT_PICKER_CODEC_OK: ' + assertions + ' assertions; injected panel; actual PNG/JPEG/file bridge');
+    // Still-photo leaf: passive ensure, option rejection, null settles, a
+    // successful shot registered for files.release, and late-reply discard.
+    check(await media.ensure('photos') === 'unsupported', 'photos ensure unsupported');
+    check(await media.ensure('camera') === 'unsupported', 'undecided camera ensure unsupported');
+    check(sheetEvents.length === 1 && sheetEvents[0] === 'dispose', 'ensure allocates and disposes without present');
+    sheetState.status = 'granted';
+    check(await media.ensure('camera') === 'granted', 'granted camera ensure');
+    sheetState.status = 'denied';
+    check(await media.ensure('camera') === 'denied', 'denied camera ensure');
+    let galleryRejected = false;
+    try { await media.capturePhoto({ saveToGallery: true }); } catch (error) { galleryRejected = /saveToGallery/.test(error.message); }
+    check(galleryRejected, 'saveToGallery rejects');
+    check(sheets.length === 3, 'option rejection never allocates a sheet');
+    const cancelled = media.capturePhoto();
+    check(sheets.length === 4, 'sheet allocated');
+    sheets[3].reply(null);
+    check(await cancelled === null, 'cancel resolves null');
+    check(sheetEvents.at(-1) === 'dispose', 'cancel disposes');
+    const manager = NSFileManager.defaultManager;
+    const shotName = 'octane-capture-' + NSUUID.UUID().UUIDString + '.jpg';
+    const shotUri = String(manager.temporaryDirectory.URLByAppendingPathComponent(shotName).path);
+    const jpegType = globalThis.NSBitmapImageFileTypeJPEG ?? 3;
+    const shotData = NSBitmapImageRep.imageRepWithData(NSData.dataWithContentsOfURL(sourceURLs[0]))
+      .representationUsingTypeProperties(jpegType, {});
+    check(shotData.writeToFileAtomically(shotUri, true), 'fixture shot written');
+    const replyJSON = JSON.stringify({ name: shotName, uri: shotUri,
+      dataUrl: 'data:image/jpeg;base64,' + shotData.base64EncodedStringWithOptions(0) });
+    const pendingShot = media.capturePhoto({ width: 6, height: 4 });
+    check(sheets[4].options.width === 6 && sheets[4].options.height === 4, 'options reach the sheet');
+    const concurrent = await media.capturePhoto();
+    check(concurrent === null, 'overlap resolves null without a second sheet');
+    check(sheets.length === 5, 'overlap allocates nothing');
+    sheets[4].reply(replyJSON);
+    const shot = await pendingShot;
+    check(shot.name === shotName && shot.uri === shotUri, 'shot fields');
+    check(globalThis.__xplatTemporaryFiles.has(shotUri), 'shot registered for release');
+    check(shot.dataUrl.startsWith('data:image/jpeg;base64,'), 'shot data URL prefix');
+    const shotBitmap = NSBitmapImageRep.imageRepWithData(NSData.dataWithContentsOfFile(shotUri));
+    check(shotBitmap.pixelsWide === 6 && shotBitmap.pixelsHigh === 4, 'shot pixel dimensions');
+    const stray = String(manager.temporaryDirectory.URLByAppendingPathComponent('octane-capture-' + NSUUID.UUID().UUIDString + '.jpg').path);
+    sheets[4].reply(JSON.stringify({ name: stray, uri: stray,
+      dataUrl: 'data:image/jpeg;base64,' + shotData.base64EncodedStringWithOptions(0) }));
+    check(sheetEvents.at(-1) === 'discard ' + stray, 'late shot discarded');
+    files.release(shot);
+    check(!manager.fileExistsAtPath(shotUri), 'released shot deleted');
+    check(!globalThis.__xplatTemporaryFiles.has(shotUri), 'release unregisters');
+    console.log('APPKIT_MEDIA_RUNTIME_OK: ' + assertions + ' assertions; injected panel and sheet; actual PNG/JPEG/file bridge');
   } catch (error) {
-    console.error('APPKIT_PICKER_CODEC_FAIL: ' + error.stack);
+    console.error('APPKIT_MEDIA_RUNTIME_FAIL: ' + (error && error.message) + ' @ ' + error.stack);
   } finally {
     for (const uri of Array.from(globalThis.__xplatTemporaryFiles || [])) {
       files.release({ uri });
@@ -150,11 +231,11 @@ setTimeout(async () => {
 
 	const output = result.stdout + result.stderr
 	assert.equal(result.status, 0, output)
-	assert.doesNotMatch(output, /APPKIT_PICKER_CODEC_FAIL/)
-	assert.match(output, /APPKIT_PICKER_CODEC_OK/)
+	assert.doesNotMatch(output, /APPKIT_MEDIA_RUNTIME_FAIL/)
+	assert.match(output, /APPKIT_MEDIA_RUNTIME_OK/)
 	console.log(output.trim())
 	console.log(
-		'Real panel selection, sandbox scope, HEIC/orientation and visual display remain unqualified.',
+		'Real panel selection, OS permission, camera hardware and visual display remain unqualified.',
 	)
 } finally {
 	await rm(directory, { recursive: true, force: true })

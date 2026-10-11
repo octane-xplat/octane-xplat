@@ -58,6 +58,7 @@
 		"pack:check": "tsrx-typegen --pack-check",
 		"test": "vitest run",
 		"test:macos-photo": "node tests/photo-native.macos.mjs",
+		"test:macos-photo-hardware": "node tests/photo-hardware.macos.mjs",
 		"test:web": "node tests/browser-conformance.web.mjs",
 		"test:webkitgtk": "node tests/webkitgtk-conformance.linux.mjs"
 	},

@@ -77,9 +77,11 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
 				// Shared with the AppKit file picker and files.release; never register
 				// a user-owned original or a rejected/late capture result. Only the
 				// host's own captures belong in the deletable registry — mirror the
-				// sheet's tempDir + octane-capture- guard on the reply's uri.
+				// sheet's tempDir + octane-capture- guard on the reply's uri. The
+				// bridge does not expose standardizedFileURL, so compare against
+				// the same unstandardized temporaryDirectory the sheet writes to.
 				const manager = (globalThis as any).NSFileManager?.defaultManager
-				const tempDir = String(manager?.temporaryDirectory?.standardizedFileURL?.path ?? '')
+				const tempDir = String(manager?.temporaryDirectory?.path ?? '')
 				const name = image.uri.slice(image.uri.lastIndexOf('/') + 1)
 				if (
 					tempDir !== '' &&
