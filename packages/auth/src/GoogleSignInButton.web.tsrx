@@ -14,7 +14,7 @@ export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
 			if (el && !props.disabled) {
 				void renderGoogleButton(
 					el,
-					{ theme: props.theme, variant: props.variant },
+					{ theme: props.theme, variant: props.variant, onPress: () => props.onPress?.() },
 					(result: SignInResult) => props.onResult?.(result),
 				);
 			}

@@ -287,7 +287,11 @@ export interface HostedAuthFlow {
 }
 
 export interface HostedAuthConfig {
-	/** HTTPS origin of the hosted backend; same-origin requests may carry Bearer tokens. */
+	/**
+	 * HTTPS origin of the hosted backend; same-origin requests may carry
+	 * Bearer tokens. Loopback HTTP (localhost, 127.0.0.1, [::1]) is allowed
+	 * for local development.
+	 */
 	apiOrigin: string
 	/** The product's hosted-auth wire contract. */
 	flow: HostedAuthFlow
@@ -350,8 +354,9 @@ export interface HostedAuth {
 	/**
 	 * `fetch` that attaches `Authorization: Bearer <access token>` to
 	 * `authorizePath`-matching requests under `apiOrigin` and replays once
-	 * after a refresh when the server rejects the token. Other URLs pass
-	 * through.
+	 * after a refresh when the server rejects the token. A body that cannot
+	 * be replayed (e.g. a consumed stream) surfaces the original challenge
+	 * response. Other URLs pass through.
 	 */
 	fetch(url: string, init?: HostedAuthRequestInit): Promise<HostedAuthResponse>
 	/** Revoke the durable session via `flow.revoke` and clear stored credentials. */

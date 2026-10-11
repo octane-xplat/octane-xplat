@@ -295,3 +295,18 @@ test('Google hosted cancellation, errors, malformed credentials and concurrent/r
 	assert.equal((await auth.signIn()).status, 'error')
 	assert.equal(loadGoogle(null).supported, false)
 })
+
+test('Google signOut resolves even when the hosted backend logout fails', async () => {
+	const auth = loadGoogle(null)
+	await auth.configure({
+		hostedFlow: flow({
+			signOut: async () => {
+				throw new Error('backend offline')
+			},
+		}),
+	})
+
+	await auth.signOut()
+
+	await loadGoogle(null).configure({ hostedFlow: flow() })
+})

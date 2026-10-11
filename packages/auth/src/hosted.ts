@@ -48,6 +48,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 	let credentials: HostedAuthCredentials | null | undefined
 	let refreshPromise: Promise<string | null> | null = null
+	let signingIn: Promise<HostedAuthSignInResult> | null = null
 
 	function store(): HostedAuthCredentialStore | null {
 		return config.storage ?? secureStorage.impl
@@ -108,6 +109,12 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		}
 
 		const next = await config.flow.refresh(creds, { fetch: transport })
+		// A signOut or fresh signIn landing mid-refresh owns the credential
+		// slot — reconciling `creds` would resurrect or clobber that session.
+		if (credentials !== creds) {
+			return null
+		}
+
 		if (!isCredentials(next)) {
 			// The durable session is expired or revoked — local state is dead.
 			await persist(null)
@@ -139,7 +146,22 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		return refreshedAccessToken()
 	}
 
-	async function signIn(): Promise<HostedAuthSignInResult> {
+	function signIn(): Promise<HostedAuthSignInResult> {
+		if (signingIn) {
+			return Promise.resolve({
+				status: 'error',
+				message: 'hostedAuth: a hosted sign-in flow is already active',
+			})
+		}
+
+		signingIn = runSignIn().finally(() => {
+			signingIn = null
+		})
+
+		return signingIn
+	}
+
+	async function runSignIn(): Promise<HostedAuthSignInResult> {
 		const session = config.authSession ?? {
 			supported: authSession.supported,
 			open: (url, options) => {
@@ -228,7 +250,13 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 			return response
 		}
 
-		return transport(target, withBearer(init, refreshed))
+		try {
+			return await transport(target, withBearer(init, refreshed))
+		} catch {
+			// A consumed one-shot body cannot be replayed — surface the
+			// original challenge response instead of a transport throw.
+			return response
+		}
 	}
 
 	async function signOut() {
@@ -259,9 +287,14 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 function normalizeOrigin(value: string): string {
 	const trimmed = value.trim().replace(/\/+$/u, '')
-	if (!/^https?:\/\/[^\s/?#]+$/u.test(trimmed)) {
+	// Bearer credentials and the sessionToken-bearing refresh/revoke calls
+	// travel to this origin — it must be TLS. Loopback HTTP stays allowed for
+	// local development backends. Userinfo never belongs in an apiOrigin.
+	const secure = /^https:\/\/[^@\s/?#]+$/u.test(trimmed)
+	const loopback = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/u.test(trimmed)
+	if (!secure && !loopback) {
 		throw new TypeError(
-			`hostedAuth: apiOrigin must be an HTTP(S) origin without path or parameters, got ${JSON.stringify(value)}`,
+			`hostedAuth: apiOrigin must be an HTTPS origin without path or parameters (loopback HTTP is allowed for local development), got ${JSON.stringify(value)}`,
 		)
 	}
 
@@ -289,7 +322,17 @@ export function queryParam(url: string, name: string): string | null {
 		const eq = pair.indexOf('=')
 		const key = eq === -1 ? pair : pair.slice(0, eq)
 		if (key === name) {
-			return eq === -1 ? '' : decodeURIComponent(pair.slice(eq + 1).replaceAll('+', ' '))
+			if (eq === -1) {
+				return ''
+			}
+
+			try {
+				return decodeURIComponent(pair.slice(eq + 1).replaceAll('+', ' '))
+			} catch {
+				// Malformed percent escapes read as absent — callers compare
+				// against the expected value and report an ordinary mismatch.
+				return null
+			}
 		}
 	}
 

@@ -464,3 +464,162 @@ test('supported reports the platform ceremony and CSPRNG capabilities', async ()
 	assert.equal(supportedPlatform.createHostedAuth({ apiOrigin: ORIGIN, flow }).supported, true)
 	assert.equal(noRandom.createHostedAuth({ apiOrigin: ORIGIN, flow }).supported, false)
 })
+
+test('apiOrigin requires HTTPS, allows loopback HTTP for development', () => {
+	const { createHostedAuth } = loadHosted()
+	const flow = ticketFlow()
+	for (const bad of [
+		'http://api.test',
+		'https://user:pass@api.test',
+		'http://user@localhost',
+		'ftp://api.test',
+	]) {
+		assert.throws(() => createHostedAuth({ apiOrigin: bad, flow }), /HTTPS origin/)
+	}
+
+	for (const good of [
+		'https://api.test',
+		'https://api.test:8443',
+		'http://localhost:3000',
+		'http://127.0.0.1:8080',
+		'http://[::1]',
+	]) {
+		assert.doesNotThrow(() => createHostedAuth({ apiOrigin: good, flow }))
+	}
+})
+
+test('a second concurrent signIn resolves an already-active error', async () => {
+	const { createHostedAuth } = loadHosted()
+	const { session } = sessionReturning(() => new Promise(() => {}))
+	const { fetch } = fakeFetch(() =>
+		response(200, { attempt_id: 'a'.repeat(43), state: 's'.repeat(43) }),
+	)
+
+	const auth = createHostedAuth({
+		apiOrigin: ORIGIN,
+		authSession: session,
+		fetch,
+		flow: ticketFlow(),
+	})
+
+	void auth.signIn() // first ceremony stays parked on the open browser session
+	const second = await auth.signIn()
+	assert.equal(second.status, 'error')
+	assert.match(second.message, /already active/)
+})
+
+test('a malformed percent-encoded callback resolves an error result', async () => {
+	const { createHostedAuth } = loadHosted()
+	const { session } = sessionReturning({
+		type: 'success',
+		url: `testapp://cb?ticket=t.${'x'.repeat(32)}&state=%`,
+	})
+
+	const { fetch, requests } = fakeFetch(() =>
+		response(200, { attempt_id: 'a'.repeat(43), state: 's'.repeat(43) }),
+	)
+
+	const auth = createHostedAuth({
+		apiOrigin: ORIGIN,
+		authSession: session,
+		fetch,
+		flow: ticketFlow(),
+	})
+
+	const result = await auth.signIn()
+	assert.equal(result.status, 'error')
+	assert.match(result.message ?? '', /state/)
+	assert.ok(!requests.some((r) => r.url.endsWith('/oauth2/grant')))
+})
+
+test('a signOut landing mid-refresh is not resurrected by the refresh result', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set(
+		'hosted-auth',
+		storedCreds({ expiresAt: Date.now() - 1000, sessionToken: 'old-session', token: 'stale' }),
+	)
+
+	let releaseRefresh
+	const flow = ticketFlow({
+		overrides: { refresh: () => new Promise((resolve) => (releaseRefresh = resolve)) },
+	})
+
+	const { fetch } = fakeFetch(() => response(200, {}))
+	const auth = createHostedAuth({ apiOrigin: ORIGIN, fetch, flow, storage })
+
+	await auth.restore()
+	const token = auth.getAccessToken() // starts the in-flight refresh
+	await auth.signOut() // clears the slot while the refresh is pending
+	releaseRefresh({
+		expiresAt: Date.now() + 3_600_000,
+		sessionToken: 'new-session',
+		token: 'fresh',
+	})
+
+	assert.equal(await token, null)
+	assert.equal(storage.map.has('hosted-auth'), false)
+	assert.equal(await auth.getAccessToken(), null)
+})
+
+test('a fresh signIn landing mid-refresh survives a dead-session refresh result', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set(
+		'hosted-auth',
+		storedCreds({ expiresAt: Date.now() - 1000, sessionToken: 'old-session' }),
+	)
+
+	let releaseRefresh
+	const flow = ticketFlow({
+		overrides: { refresh: () => new Promise((resolve) => (releaseRefresh = resolve)) },
+	})
+
+	const { fetch, session } = attemptThenGrant()
+	const auth = createHostedAuth({ apiOrigin: ORIGIN, authSession: session, fetch, flow, storage })
+
+	await auth.restore()
+	const token = auth.getAccessToken() // pending refresh on the old session
+	assert.equal((await auth.signIn()).status, 'success')
+	releaseRefresh(null) // the old session reports dead
+
+	assert.equal(await token, null)
+	const stored = JSON.parse(storage.map.get('hosted-auth'))
+	assert.equal(stored.sessionToken, 'session-token') // the new signIn's credential survives
+	assert.equal(await auth.getAccessToken(), 'access-token')
+})
+
+test('a non-replayable body surfaces the original challenge instead of a replay throw', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set('hosted-auth', storedCreds({ token: 'stale-token' }))
+
+	const body = { used: false }
+	let apiCalls = 0
+	const { fetch, requests } = fakeFetch((url, init) => {
+		if (url.endsWith('/oauth2/access')) {
+			return response(200, { access_token: 'fresh-token', valid_until: Date.now() + 3_600_000 })
+		}
+
+		apiCalls++
+		if (init?.body === body) {
+			if (body.used) {
+				throw new Error('body used already')
+			}
+
+			body.used = true
+		}
+
+		return apiCalls === 1
+			? response(401, {}, { 'www-authenticate': 'Bearer error="invalid_token"' })
+			: response(200, {})
+	})
+
+	const auth = createHostedAuth({ apiOrigin: ORIGIN, fetch, flow: ticketFlow(), storage })
+	await auth.restore()
+
+	const res = await auth.fetch('/api/me', { body, method: 'POST' })
+	assert.equal(res.status, 401)
+	assert.equal(apiCalls, 2)
+	assert.equal(requests[2].init?.headers?.authorization, 'Bearer fresh-token')
+})

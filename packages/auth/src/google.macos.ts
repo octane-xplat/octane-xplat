@@ -80,6 +80,10 @@ export const googleAuth: GoogleAuth = {
 		}
 	},
 	async signOut() {
-		await configuration?.hostedFlow?.signOut?.()
+		try {
+			await configuration?.hostedFlow?.signOut?.()
+		} catch {
+			// Best-effort like the sibling leaves — nothing local to roll back.
+		}
 	},
 }
