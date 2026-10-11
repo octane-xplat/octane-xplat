@@ -1,3 +1,5 @@
+import { visualRegexPlugin } from './visual-regex.mjs'
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import { xplatNative } from '@octane-xplat/cli/vite'
 import { xplatBamboo } from '@octane-xplat/bamboo/vite'
@@ -12,7 +14,36 @@ const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url)
 export default defineConfig(({ mode }) =>
 	xplatNative(mode, {
 		extra: {
+			define: {
+				__VISUAL_CAPTURE__: JSON.stringify(
+					process.env.VISUAL_CAPTURE_URL
+						? {
+								url: process.env.VISUAL_CAPTURE_URL,
+								runId: process.env.VISUAL_RUN_ID,
+								revision: process.env.VISUAL_REVISION,
+								scenarioHash: process.env.VISUAL_SCENARIO_HASH,
+							}
+						: null,
+				),
+			},
 			plugins: [
+				...(process.env.VISUAL_CAPTURE_URL
+					? [
+							visualRegexPlugin(),
+							{
+								name: 'xplat-visual-ios-host',
+								enforce: 'pre' as const,
+								load(id: string) {
+									if (id === fileURLToPath(new URL('./src/test.ts', import.meta.url))) {
+										return readFileSync(
+											new URL('./src/visual-test.ios.ts', import.meta.url),
+											'utf8',
+										)
+									}
+								},
+							},
+						]
+					: []),
 				xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts`, native: true }),
 			],
 		},

@@ -13,12 +13,12 @@ export const WEB_PROFILE = {
 const READINESS_TIMEOUT = 2000
 
 /** Real web capture: bounded readiness, then Playwright pixels of the stage. */
-export async function launchWeb(storyId: string) {
+export async function launchWeb(storyId: string, args?: Record<string, unknown>) {
 	const mounted = mountStory(
 		storyId,
 		__WEB_ALTERED__ && storyId === 'switch--unchecked-light'
-			? { checked: true }
-			: undefined,
+			? { ...args, checked: true }
+			: args,
 	)
 
 	try {

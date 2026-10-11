@@ -1,0 +1,138 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { PNG } from 'pngjs'
+import { assertParity, comparePixels, profile, validateCapture } from './parity.mjs'
+
+// Unit fixtures borrow a committed real web PNG; they are not native capture evidence.
+const bytes = readFileSync(
+	new URL(
+		'../vis/web/__baselines__/switch/unchecked-light-switch-real-web-capture-real.png',
+		import.meta.url,
+	),
+)
+
+const reference = PNG.sync.read(bytes)
+const expected = { runId: 'unit-fixture', revision: 'fixture', scenarioHash: 'fixture' }
+const capture = (target) => ({
+	...expected,
+	target,
+	storyId: 'switch--unchecked-light',
+	args: { checked: false, stageId: 'switch--unchecked-light' },
+	provenance: 'real',
+	profile,
+	width: 96,
+	height: 64,
+	runtime: { capture: 'unit fixture, not a host capture' },
+	displacement: 0,
+	pngBase64: bytes.toString('base64'),
+})
+
+test('exact comparator includes every decoded channel and excludes PNG compression', () => {
+	const encoded = PNG.sync.write(reference, { deflateLevel: 0 })
+	assert.equal(comparePixels(reference, PNG.sync.read(encoded)).differentPixels, 0)
+	const mutated = PNG.sync.read(bytes)
+	mutated.data[0] ^= 1
+	assert.equal(comparePixels(reference, mutated).differentPixels, 1)
+})
+
+test('a one-pixel translation fails exact parity', () => {
+	const displaced = PNG.sync.read(bytes)
+	for (let y = 0; y < 64; y++) {
+		for (let x = 95; x > 0; x--) {
+			const index = (y * 96 + x) * 4
+			displaced.data.set(reference.data.subarray(index - 4, index), index)
+		}
+	}
+
+	assert.ok(comparePixels(reference, displaced).differentPixels > 0)
+})
+
+test('common reference detects a divergent target even when both targets drift together', () => {
+	const changed = PNG.sync.read(bytes)
+	changed.data[0] ^= 1
+	const captures = ['web', 'ios'].map((target) => ({
+		...capture(target),
+		pngBase64: PNG.sync.write(changed).toString('base64'),
+	}))
+
+	assert.deepEqual(
+		assertParity(captures, reference, expected).map(({ target, status, differentPixels }) => ({
+			target,
+			status,
+			differentPixels,
+		})),
+		['web', 'ios'].map((target) => ({ target, status: 'divergence', differentPixels: 1 })),
+	)
+})
+
+test('rejects partial, duplicate, stale, mock and incompatible capture cohorts', () => {
+	assert.throws(() => assertParity([capture('web')], reference, expected), /Incomplete/)
+	assert.throws(
+		() => assertParity([capture('web'), capture('web')], reference, expected),
+		/Incomplete/,
+	)
+
+	for (const patch of [
+		{ revision: 'stale' },
+		{ runId: 'stale' },
+		{ scenarioHash: 'stale' },
+		{ provenance: 'mock' },
+		{ profile: { ...profile, scale: 2 } },
+		{ width: 95 },
+		{ storyId: 'wrong' },
+	]) {
+		assert.throws(() => validateCapture({ ...capture('ios'), ...patch }, expected), /Invalid/)
+	}
+})
+
+test('CLI divergence names the target, exits nonzero and preserves reference bytes', async () => {
+	const { mkdtempSync, writeFileSync, rmSync, mkdirSync } = await import('node:fs')
+	const { tmpdir } = await import('node:os')
+	const { join } = await import('node:path')
+	const { spawnSync } = await import('node:child_process')
+	const { runParity } = await import('./parity.mjs')
+	const directory = mkdtempSync(join(tmpdir(), 'xplat-parity-unit-'))
+	try {
+		const common = join(directory, 'common')
+		mkdirSync(common)
+		writeFileSync(join(directory, 'manifest.json'), JSON.stringify(expected))
+		writeFileSync(join(directory, 'web-0.json'), JSON.stringify(capture('web')))
+		const changed = PNG.sync.read(bytes)
+		changed.data[0] ^= 1
+		writeFileSync(
+			join(directory, 'ios-0.json'),
+			JSON.stringify({ ...capture('ios'), pngBase64: PNG.sync.write(changed).toString('base64') }),
+		)
+
+		writeFileSync(join(common, 'reference.png'), bytes)
+		writeFileSync(join(common, 'reference.json'), JSON.stringify(capture('web')))
+		assert.equal(runParity(directory, common), 1)
+		const report = JSON.parse(readFileSync(join(directory, 'parity-report.json')))
+		assert.deepEqual(
+			report.results.map((r) => [r.target, r.status, r.differentPixels]),
+			[
+				['web', 'pass', 0],
+				['ios', 'divergence', 1],
+			],
+		)
+
+		assert.deepEqual(readFileSync(join(common, 'reference.png')), bytes)
+		const result = spawnSync(
+			process.execPath,
+			[
+				new URL('./parity.mjs', import.meta.url).pathname,
+				`--captures=${directory}`,
+				'--diagnostic=opaque-pixel',
+			],
+			{ encoding: 'utf8' },
+		)
+
+		assert.equal(result.status, 1)
+		assert.equal(JSON.parse(result.stdout).target, 'web')
+		assert.equal(JSON.parse(result.stdout).differentPixels, 1)
+		assert.deepEqual(readFileSync(join(common, 'reference.png')), bytes)
+	} finally {
+		rmSync(directory, { recursive: true, force: true })
+	}
+})

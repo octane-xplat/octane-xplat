@@ -1,0 +1,42 @@
+{
+  "runId": "4133ca0a-cd31-4e39-b5d6-ca7284976364",
+  "revision": "c75f1b4977f3631408fe468d679c5ae832fc6e84",
+  "scenarioHash": "c4d86806bcbd656d3c41020248f9af06ebcf078686abb82f6df86f0a30739600",
+  "provenance": "real",
+  "storyId": "switch--unchecked-light",
+  "target": "web",
+  "profile": {
+    "id": "switch-light-96x64@1",
+    "width": 96,
+    "height": 64,
+    "scale": 1,
+    "crop": {
+      "x": 0,
+      "y": 0
+    },
+    "appearance": "light",
+    "format": "png"
+  },
+  "width": 96,
+  "height": 64,
+  "args": {
+    "checked": false,
+    "stageId": "switch--unchecked-light"
+  },
+  "index": 0,
+  "displacement": 0,
+  "runtime": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+    "scale": 1,
+    "capture": "Playwright stage screenshot"
+  },
+  "sourceDirty": true,
+  "toolchain": {
+    "nativeCore": "9.1.3",
+    "nativeIOS": "9.1.0",
+    "nativeOctane": "0.2.4",
+    "octane": "0.11.0",
+    "storybook": "10.6.1",
+    "playwright": "1.63.0"
+  }
+}

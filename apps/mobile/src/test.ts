@@ -17,7 +17,9 @@ const coordinator = new NativeScriptVitestCoordinator({
 	// require.context registry upstream scaffolds).
 	// Rolldown's glob expansion does not support extglob `@(a|b)` — use
 	// brace alternation.
-	registry: createNativeScriptTestRegistry(import.meta.glob('./**/*.spec.{ts,tsx,tsrx}')),
+	registry: createNativeScriptTestRegistry(
+		import.meta.glob(['./**/*.spec.{ts,tsx,tsrx}', '!./tests/visual/**']),
+	),
 })
 
 void coordinator.start()
