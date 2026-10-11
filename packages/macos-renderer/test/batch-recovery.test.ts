@@ -27,6 +27,8 @@ const slices = [
 	fn('makeNode'),
 	fn('destroy'),
 	fn('validateBatch'),
+	source.slice(at('const CLEAR_ON_UPDATE'), at('\nfunction clearOnUpdate(')),
+	fn('clearOnUpdate'),
 	source.slice(at('function applyCommand('), at('\nconst macOSDriver')),
 	source.slice(at('const macOSDriver'), at('\nconst round')),
 ].join('\n')

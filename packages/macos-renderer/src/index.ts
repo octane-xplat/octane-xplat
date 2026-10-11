@@ -984,17 +984,27 @@ function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 
 function makeFlexbox(props: PropBag) {
 	const stack = makeStack(props, AccessibleStackView)
-	const actionId =
+	const interactive =
 		typeof props.onTap === 'function' || props.accessibilityRole === 'button'
+
+	// Accessibility props need the AX id too — a 'checkbox'/'link' role or a
+	// bare accessibilityLabel must not drop every accessibility prop.
+	const actionId =
+		interactive || props.accessibilityRole !== undefined || props.accessibilityLabel !== undefined
 			? nextActionId++
 			: undefined
 
 	if (actionId !== undefined) {
-		stack.addGestureRecognizer(
-			configureGesture(
-				NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
-			),
-		)
+		if (interactive) {
+			stack.addGestureRecognizer(
+				configureGesture(
+					NSClickGestureRecognizer.alloc().initWithTargetAction(
+						buttonActionTarget,
+						'viewPressed:',
+					),
+				),
+			)
+		}
 
 		actionIdsByView.set(stack, actionId)
 		actionHandlers.set(actionId, null)
@@ -1714,7 +1724,8 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 				x += cellWidth - childWidth
 			}
 
-			x += layoutLength(style.left, cellWidth, 0) + Number(style.marginLeft ?? 0)
+			const insets = marginInsetsOf(child)
+			x += layoutLength(style.left, cellWidth, 0) + (insets?.left ?? 0)
 
 			let top = cellTop
 			if (vertical === 'middle' || vertical === 'center') {
@@ -1723,8 +1734,15 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 				top += cellHeight - childHeight
 			}
 
-			top += layoutLength(style.top, cellHeight, 0) + Number(style.marginTop ?? 0)
-			pinLayoutChild(child, parent.view, x, top, childWidth, childHeight)
+			top += layoutLength(style.top, cellHeight, 0) + (insets?.top ?? 0)
+			pinLayoutChild(
+				child,
+				parent.view,
+				x,
+				top,
+				Math.max(0, childWidth - (insets?.right ?? 0)),
+				Math.max(0, childHeight - (insets?.bottom ?? 0)),
+			)
 		}
 
 		return
@@ -1924,6 +1942,28 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		const placeholder = props.placeholder ?? baseProps?.placeholder
 		if (String(placeholder ?? '') !== '') {
 			nativeColor(props.placeholderTextColor)
+		}
+	}
+
+	if (type === 'label') {
+		// syncLabelOverflow and syncNodeFont throw the same deterministic
+		// errors inside applyProps — validate here so pre-flight honors its
+		// contract and the batch aborts before earlier commands mutate state.
+		const merged = { ...baseProps, ...props }
+		if (merged.whiteSpace != null && !['normal', 'nowrap'].includes(merged.whiteSpace)) {
+			throw new Error('[macos-host] label whiteSpace supports only normal and nowrap')
+		}
+
+		if (merged.textOverflow != null && !['clip', 'ellipsis'].includes(merged.textOverflow)) {
+			throw new Error('[macos-host] label textOverflow supports only clip and ellipsis')
+		}
+
+		if (merged.maxLines != null && (!Number.isInteger(merged.maxLines) || merged.maxLines < 0)) {
+			throw new Error('[macos-host] label maxLines must be a non-negative integer')
+		}
+
+		if (props?.fontSize !== undefined && !Number.isFinite(Number(props.fontSize))) {
+			throw new Error('[macos-host] label fontSize must be a finite number')
 		}
 	}
 }
@@ -2149,14 +2189,25 @@ function nativeColor(value: any): NSColor {
 		)
 	}
 
-	match = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]*([\d.]*)[\s%]*\)$/i.exec(string)
+	match =
+		/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]*([\d.]*)\s*(%?)\s*\)$/i.exec(string)
+
 	if (match) {
-		const alpha = match[4] === '' ? 1 : Number(match[4])
+		// Clamp components like CSS does; a percent alpha is /100, a bare
+		// number is already 0–1.
+		const component = (raw: string) => Math.min(255, Math.max(0, Number(raw))) / 255
+		const alpha =
+			match[4] === ''
+				? 1
+				: match[5] === '%'
+					? Number(match[4]) / 100
+					: Number(match[4])
+
 		return NSColor.colorWithRedGreenBlueAlpha(
-			Number(match[1]) / 255,
-			Number(match[2]) / 255,
-			Number(match[3]) / 255,
-			alpha,
+			component(match[1]),
+			component(match[2]),
+			component(match[3]),
+			Math.min(1, Math.max(0, alpha)),
 		)
 	}
 
@@ -2978,6 +3029,9 @@ function setLabelText(node: ElementNode, text: any) {
 
 	const paragraphStyle = NSMutableParagraphStyle.alloc().init()
 	paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
+	// An attributed string's own paragraph style governs rendering — carry
+	// the control's alignment or textAlign silently renders left.
+	paragraphStyle.alignment = node.view!.alignment
 	paragraphStyle.minimumLineHeight = lineHeight
 	paragraphStyle.maximumLineHeight = lineHeight
 	node.view!.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(text, {
@@ -3073,7 +3127,10 @@ function syncSecureTextField(node: ElementNode) {
 	if (focused) {
 		window.makeFirstResponder(field)
 		if (selection) {
-			field.currentEditor().selectedRange = selection
+			const editor = field.currentEditor()
+			if (editor) {
+				editor.selectedRange = selection
+			}
 		}
 	}
 }
@@ -3289,6 +3346,21 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 	}
 }
 
+/** Sticky props each type's readers consult through node.props — a key
+ *  dropped by a host update must read as removed, not stale. */
+const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	label: ['maxLines', 'whiteSpace', 'textOverflow'],
+	webview: ['html', 'src'],
+	textfield: ['secure', 'returnKeyType', 'placeholderTextColor'],
+	textview: ['returnKeyType'],
+	scrollview: ['orientation', 'horizontal', 'scrollBarIndicatorVisible'],
+}
+
+function clearOnUpdate(type: string): PropBag {
+	const names = CLEAR_ON_UPDATE[type]
+	return names ? Object.fromEntries(names.map((name) => [name, undefined])) : {}
+}
+
 function applyProps(node: ElementNode, props: PropBag) {
 	node.props = { ...node.props, ...props }
 	if (node.type === '#text') {
@@ -3491,6 +3563,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyClassName(node, value)
 				} else if (name === 'accessibilityLabel') {
 					node.view!.setAccessibilityLabel?.(String(value ?? ''))
+				} else if (name === 'scrollBarIndicatorVisible') {
+					configureScrollAxes(node)
 				} else if (
 					name === 'id' ||
 					name === 'horizontal' ||
@@ -3802,6 +3876,15 @@ function insert(
 	node.parent = parent
 	if (node.view) {
 		if (parent) {
+			if (parent.type === 'gridlayout' || parent.type === 'absolutelayout') {
+				// Re-homing under a manually laid-out parent — release the
+				// margin wrapper so arrangedView() stops returning the
+				// detached host and the grid cannot keep a ghost view.
+				node.marginHost?.removeFromSuperview()
+				node.marginHost = null
+				node.marginConstraints = null
+			}
+
 			if (parent.type === 'gridlayout') {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
@@ -4048,19 +4131,11 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// mid-update so the bookkeeping doesn't claim unapplied props.
 			const previousProps = node.props
 			try {
-				// Host updates carry the complete current prop bag. Clear omitted
-				// label modes before merging so spread removals restore defaults.
-				applyProps(
-					node,
-					node.type === 'label'
-						? {
-								maxLines: undefined,
-								whiteSpace: undefined,
-								textOverflow: undefined,
-								...command.props,
-							}
-						: command.props,
-				)
+				// Host updates carry the complete current prop bag, but
+				// applyProps merges — a dropped key stays stale for node.props
+				// readers. Inject explicit clears for every sticky prop so a
+				// removed key restores its default.
+				applyProps(node, { ...clearOnUpdate(node.type), ...command.props })
 			} catch (error) {
 				node.props = previousProps
 				throw error

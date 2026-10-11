@@ -14,7 +14,7 @@ const source = stripTypeScriptTypes(
 
 const layout =
 	source.slice(
-		source.indexOf('function layoutView('),
+		source.indexOf('function marginInsetsOf('),
 		source.indexOf('/** The view a stack should arrange'),
 	) +
 	source.slice(

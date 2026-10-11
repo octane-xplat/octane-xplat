@@ -229,10 +229,21 @@ export function updateWebView(
 			if (!url) {
 				state.emit('onError', { url: src, error: 'Invalid document URL' })
 			} else if (url.isFileURL) {
-				state.navigation = view.loadFileURLAllowingReadAccessToURL(
-					url,
-					url.URLByDeletingLastPathComponent,
-				)
+				if (src.startsWith('~/')) {
+					// Bundle-resident sources may reference sibling resources.
+					state.navigation = view.loadFileURLAllowingReadAccessToURL(
+						url,
+						url.URLByDeletingLastPathComponent,
+					)
+				} else {
+					// Any other absolute path is foreign to the bundle — grant
+					// read access to the file itself, not its whole directory.
+					console.warn(
+						'[macos-webview] file src outside the bundle is limited to the file itself; use ~/ for bundle resources',
+					)
+
+					state.navigation = view.loadFileURLAllowingReadAccessToURL(url, url)
+				}
 			} else {
 				state.navigation = view.loadRequest(NSURLRequest.requestWithURL(url))
 			}

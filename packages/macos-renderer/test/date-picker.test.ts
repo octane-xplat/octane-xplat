@@ -12,6 +12,7 @@ const slice = source.slice(
 	source.indexOf('function attachDatePicker('),
 	source.indexOf('const openSheets'),
 )
+
 const dateFromMillis = source.slice(
 	source.indexOf('function dateFromMillis('),
 	source.indexOf('function attachDatePicker('),
@@ -50,7 +51,9 @@ function fixture() {
 							topAnchor: anchor(),
 							bottomAnchor: anchor(),
 						}
+
 						pickers.push(picker)
+
 						return picker
 					},
 				}),

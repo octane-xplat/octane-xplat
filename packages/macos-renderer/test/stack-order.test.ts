@@ -67,12 +67,16 @@ function fixture() {
 		releasePlacementPins: noop,
 		setLayoutAction: noop,
 		syncText: noop,
+		layoutView: (node) => node.view,
+		layoutGridChildren: noop,
+		layoutAbsoluteChildren: noop,
 	})
 
 	const row = (id, gravity = 1) => ({ id, view: { id, gravity, removeFromSuperview() {} } })
 	return {
-		insert: (node, before = null) => insert(container, 1, node, before),
+		insert: (node, before = null, parentId = 1) => insert(container, parentId, node, before),
 		parent,
+		container,
 		arranged,
 		row,
 	}
@@ -113,4 +117,42 @@ test('native insertion counts views in the same gravity, including margin hosts'
 	assert.deepEqual(arranged, [a.view, c.marginHost, b.view])
 	insert(c)
 	assert.deepEqual(arranged, [a.view, b.view, c.marginHost])
+})
+
+test('re-homing under a manual-layout parent releases the margin wrapper', () => {
+	const { insert, container, row } = fixture()
+	const added = []
+	const grid = {
+		id: 9,
+		type: 'gridlayout',
+		children: [],
+		view: {
+			addSubview(view) {
+				added.push(view)
+			},
+		},
+	}
+
+	container.nodes.set(9, grid)
+
+	const c = row('c', 2)
+	const host = {
+		id: 'margin-c',
+		removed: false,
+		removeFromSuperview() {
+			this.removed = true
+		},
+	}
+
+	c.marginHost = host
+	c.marginConstraints = []
+	insert(c, null, 9)
+
+	// The inner view lands directly in the grid and the dead wrapper is
+	// released — a stale marginHost would leave a ghost view and keep
+	// arrangedView() returning the detached host.
+	assert.deepEqual(added, [c.view])
+	assert.equal(c.marginHost, null)
+	assert.equal(c.marginConstraints, null)
+	assert.equal(host.removed, true)
 })

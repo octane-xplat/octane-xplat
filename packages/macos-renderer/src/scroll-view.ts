@@ -6,7 +6,8 @@ export function scrollAxes(props: Record<string, any>) {
 
 export function configureScrollAxes(node: any) {
 	const { inline, block } = scrollAxes(node.props)
-	const axisKey = `${inline}:${block}`
+	const indicators = node.props.scrollBarIndicatorVisible !== false
+	const axisKey = `${inline}:${block}:${indicators}`
 	if (node.scrollAxisKey === axisKey) {
 		return
 	}
@@ -19,8 +20,8 @@ export function configureScrollAxes(node: any) {
 	const scroll = node.view
 	const document = scroll.documentView
 	const clip = scroll.contentView
-	scroll.hasHorizontalScroller = inline
-	scroll.hasVerticalScroller = block
+	scroll.hasHorizontalScroller = inline && indicators
+	scroll.hasVerticalScroller = block && indicators
 	document.orientation =
 		inline && !block
 			? NSUserInterfaceLayoutOrientation.Horizontal
