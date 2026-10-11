@@ -54,19 +54,37 @@ export async function ensureCameraPermission(): Promise<boolean> {
 
 			return await new Promise<boolean>((resolve) => {
 				const currentRequest = requestCode++
+				const finish = (granted: boolean) => {
+					clearTimeout(timer)
+					Application.android.off(
+						Application.android.activityRequestPermissionsEvent,
+						onResult,
+					)
+
+					resolve(granted)
+				}
+
 				const onResult = (args: any) => {
 					if (args.requestCode !== currentRequest) {
 						return
 					}
 
-					Application.android.off(Application.android.activityRequestPermissionsEvent, onResult)
-
-					resolve(args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED)
+					finish(
+						args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED,
+					)
 				}
 
+				// Same bound the session adapter uses — an activity destroyed or
+				// rotated before the result must not hang the caller or leak the
+				// listener.
+				const timer = setTimeout(() => finish(false), 120_000)
 				Application.android.on(Application.android.activityRequestPermissionsEvent, onResult)
 
-				activity.requestPermissions([permission], currentRequest)
+				try {
+					activity.requestPermissions([permission], currentRequest)
+				} catch {
+					finish(false)
+				}
 			})
 		}
 	} catch {

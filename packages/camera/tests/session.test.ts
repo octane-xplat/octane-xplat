@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { attachSessionPreview, createCameraSession } from '../src/session'
+import { canonicalizePath, SharedCameraSession } from '../src/session-core'
 import { createMemoryCameraStorage, createSyntheticCameraSession } from '../src/synthetic-session'
 import { CameraCaptureError } from '../src/types'
 import type { CameraSessionEvent } from '../src/types'
+import type { CameraSessionBackend } from '../src/session-core'
 
 const ready = async (session: ReturnType<typeof createSyntheticCameraSession>) => {
 	const detach = attachSessionPreview(session, {})
@@ -56,6 +58,7 @@ describe('camera session contract', () => {
 			{ maximumDurationMs: -5 },
 			{ maximumDurationMs: Number.NaN },
 			{ destinationFileUrl: 'https://example.com/clip.mov' },
+			{ destinationFileUrl: 'file:///clip%zz.mov' },
 		]) {
 			try {
 				session.startRecording(options)
@@ -260,5 +263,41 @@ describe('camera session contract', () => {
 		// result; the duration limit settles the attempt on its own.
 		const outcome = await session.startRecording({ maximumDurationMs: 60 }).completion
 		expect(outcome.kind).toBe('clip')
+	})
+
+	it('a rejected permission request does not poison later requests', async () => {
+		let attempts = 0
+		const backend = {
+			platform: 'test',
+			supported: true,
+			checkPermission: async () => 'unknown',
+			requestPermission: async () => {
+				attempts += 1
+				if (attempts === 1) {
+					throw new Error('transport lost')
+				}
+
+				return 'granted'
+			},
+			getCapabilities: async () => ({ supported: false }),
+			previewReady: () => false,
+			attachPreview: () => () => {},
+			release: async () => {},
+			setObserver: () => {},
+		} as unknown as CameraSessionBackend
+
+		const session = new SharedCameraSession(backend, {})
+		await expect(session.requestPermission('camera')).rejects.toThrow('transport lost')
+		// The next request must retry the backend, not replay the rejection.
+		await expect(session.requestPermission('camera')).resolves.toBe('granted')
+		expect(attempts).toBe(2)
+	})
+
+	it('canonicalizePath resolves dot segments before prefix checks', () => {
+		expect(canonicalizePath('/app/data/movies/../clip.mov')).toBe('/app/data/clip.mov')
+		expect(canonicalizePath('/app/data/../../etc/passwd')).toBe('/etc/passwd')
+		expect(canonicalizePath('/app//data/./clip.mov')).toBe('/app/data/clip.mov')
+		expect(canonicalizePath('C:\\app\\data\\..\\clip.mp4', '\\')).toBe('C:\\app\\clip.mp4')
+		expect(canonicalizePath('/app/data/clip.mov')).toBe('/app/data/clip.mov')
 	})
 })

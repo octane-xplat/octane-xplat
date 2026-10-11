@@ -134,6 +134,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		observer?.interruption('began', 'background')
 	}
 
+	// Track-caused interruptions (ended/mute) need an explicit 'ended' —
+	// a fresh live stream resolves them, and without the event the core
+	// keeps interrupted=true until the session is recreated.
+	let deviceInterrupted = false
+
 	const observeTracks = (target: MediaStream) => {
 		for (const track of target.getTracks()) {
 			track.addEventListener('ended', () => {
@@ -146,6 +151,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				}
 
 				markReady(false)
+				deviceInterrupted = true
 				observer?.availability(false)
 				observer?.interruption('began', 'unknown')
 			})
@@ -157,12 +163,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
 				if (stream === target) {
 					markReady(false)
+					deviceInterrupted = true
 					observer?.interruption('began', 'unknown')
 				}
 			})
 
 			track.addEventListener('unmute', () => {
 				if (stream === target && document.visibilityState !== 'hidden') {
+					deviceInterrupted = false
 					observer?.interruption('ended', 'unknown')
 					observer?.availability(true)
 					markReady(!!host)
@@ -219,6 +227,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			stream = acquired
 			known.camera = 'granted'
 			observeTracks(acquired)
+			if (deviceInterrupted) {
+				deviceInterrupted = false
+				observer?.interruption('ended', 'unknown')
+			}
+
 			observer?.availability(true)
 		} catch (cause) {
 			if (owner === lease) {

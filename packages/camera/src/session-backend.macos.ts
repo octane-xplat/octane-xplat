@@ -1,6 +1,7 @@
 import '@nativescript/macos-node-api'
 
 import { CameraCaptureError } from './types'
+import { canonicalizePath } from './session-core'
 import type { BackendCaptureRequest, BackendCaptureSink, BackendObserver } from './session-core'
 import type { CameraSessionBackend } from './session-core'
 import type { BackendPreviewListener } from './session-core'
@@ -103,7 +104,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	let observer: BackendObserver | undefined
 	let captureSink: BackendCaptureSink | undefined
 	let captureRequest: BackendCaptureRequest | undefined
-	let captureFileUrl = ''
+	let captureFilePath = ''
 	let released = false
 
 	const emitIssue = (
@@ -164,7 +165,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
 		switch (event.type) {
 			case 'recordingStarted': {
-				if (event.fileUrl !== captureFileUrl || !captureSink || !captureRequest) {
+				if (!sameFile(event.fileUrl, captureFilePath) || !captureSink || !captureRequest) {
 					return
 				}
 
@@ -184,7 +185,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				return
 			}
 			case 'recordingFinished': {
-				if (event.fileUrl !== captureFileUrl || !captureSink || !captureRequest) {
+				if (!sameFile(event.fileUrl, captureFilePath) || !captureSink || !captureRequest) {
 					return
 				}
 
@@ -201,6 +202,24 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 							'captureFailed',
 							'finalize',
 							event.error?.message ?? 'Movie recording did not complete',
+						),
+					})
+
+					return
+				}
+
+				if (
+					!(event.clip.durationMs > 0) ||
+					!(event.clip.width > 0) ||
+					!(event.clip.height > 0)
+				) {
+					sink.settled({
+						kind: 'failed',
+						stage: 'capture',
+						issue: emitIssue(
+							'captureFailed',
+							'finalize',
+							'The finalized movie has no usable video media',
 						),
 					})
 
@@ -304,6 +323,22 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	const pathExists = (path: string): boolean =>
 		Boolean(NSFileManager.defaultManager.fileExistsAtPath(path))
 
+	// Correlate capture events by path, not serialized URL — Foundation's
+	// URL(fileURLWithPath:).absoluteString escapes differently than
+	// encodeURIComponent, so URL equality drops real start/finish events.
+	const sameFile = (fileUrl: string | undefined, filePath: string): boolean => {
+		if (!fileUrl || !filePath) {
+			return false
+		}
+
+		const raw = fileUrl.startsWith('file://') ? fileUrl.slice('file://'.length) : fileUrl
+		try {
+			return decodeURIComponent(raw) === filePath
+		} catch {
+			return raw === filePath
+		}
+	}
+
 	return {
 		platform: 'macos',
 		get supported() {
@@ -401,12 +436,18 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				audio: next.audio ?? false,
 			})
 
-			if (configured === 'busy') {
-				throw error('busy', 'configure', 'Another camera session owns the requested device')
-			}
-
-			if (configured === 'unavailable') {
-				throw error('unavailable', 'configure', 'The requested camera device is not available')
+			if (configured) {
+				throw error(
+					configured === 'busy'
+						? 'busy'
+						: configured === 'permissionDenied'
+							? 'permissionDenied'
+							: configured === 'unsupportedConfiguration'
+								? 'unsupportedConfiguration'
+								: 'unavailable',
+					'configure',
+					`Failed to configure the capture session: ${configured}`,
+				)
 			}
 
 			currentConfig = { ...next }
@@ -510,11 +551,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
 			let filePath: string
 			if (request.destinationPath) {
-				const inside = request.destinationPath.startsWith(`${appPrivateRoot()}/`)
-				const directory = request.destinationPath.slice(0, request.destinationPath.lastIndexOf('/'))
+				// Canonicalize before the prefix check — a '..' segment keeps
+				// the root prefix on a raw string while resolving outside it.
+				const destination = canonicalizePath(request.destinationPath)
+				const inside = destination.startsWith(`${appPrivateRoot()}/`)
+				const directory = destination.slice(0, destination.lastIndexOf('/'))
 
 				const directoryExists = inside && pathExists(directory)
-				const fileExists = inside && pathExists(request.destinationPath)
+				const fileExists = inside && pathExists(destination)
 				if (!inside || !directoryExists || fileExists) {
 					sink.settled({
 						kind: 'failed',
@@ -533,7 +577,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					return
 				}
 
-				if (!/\.mov$/i.test(request.destinationPath)) {
+				if (!/\.mov$/i.test(destination)) {
 					sink.settled({
 						kind: 'failed',
 						stage: 'preparation',
@@ -547,7 +591,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					return
 				}
 
-				filePath = request.destinationPath
+				filePath = destination
 			} else {
 				try {
 					filePath = `${recordingsDirectory()}/clip-${Date.now()}-${Math.random()
@@ -569,7 +613,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				}
 			}
 
-			captureFileUrl = `file://${filePath.split('/').map(encodeURIComponent).join('/')}`
+			captureFilePath = filePath
 
 			captureSink = sink
 			captureRequest = request
@@ -577,7 +621,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			if (failure) {
 				captureSink = undefined
 				captureRequest = undefined
-				captureFileUrl = ''
+				captureFilePath = ''
 				sink.settled({
 					kind: 'failed',
 					stage: 'preparation',

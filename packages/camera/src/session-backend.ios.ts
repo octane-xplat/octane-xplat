@@ -1,5 +1,6 @@
 import { File, knownFolders, path } from '@nativescript/core'
 import { CameraCaptureError } from './types'
+import { canonicalizePath } from './session-core'
 import type {
 	BackendCaptureRequest,
 	BackendCaptureSink,
@@ -353,12 +354,21 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			observer?.availability(false)
 		})
 
-		add(AVCaptureDeviceWasDisconnectedNotification, device, () => {
-			observer?.availability(false)
+		// Filter by the ACTIVE device — `device` is reassigned on
+		// configure(), so an observer bound to the captured object would
+		// keep reporting on the stale one while the active camera's
+		// disconnect went unreported (and any device's connect reported
+		// availability(true)).
+		add(AVCaptureDeviceWasDisconnectedNotification, null, (note) => {
+			if (device && note.object === device) {
+				observer?.availability(false)
+			}
 		})
 
-		add(AVCaptureDeviceWasConnectedNotification, null, () => {
-			observer?.availability(true)
+		add(AVCaptureDeviceWasConnectedNotification, null, (note) => {
+			if (device && note.object === device) {
+				observer?.availability(true)
+			}
 		})
 
 		add(UIApplicationDidEnterBackgroundNotification, null, () => {
@@ -926,24 +936,32 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
 			let filePath: string
 			if (request.destinationPath) {
-				const directory = request.destinationPath.slice(0, request.destinationPath.lastIndexOf('/'))
-				if (!File.exists(directory) || File.exists(request.destinationPath)) {
+				// Durable output stays app-private — canonicalize first so a
+				// '..' segment cannot keep the Documents prefix while
+				// resolving outside it.
+				const destination = canonicalizePath(request.destinationPath)
+				const documents = knownFolders.documents().path
+				const inside = destination.startsWith(`${documents}/`)
+				const directory = destination.slice(0, destination.lastIndexOf('/'))
+				if (!inside || !File.exists(directory) || File.exists(destination)) {
 					sink.settled({
 						kind: 'failed',
 						stage: 'preparation',
 						issue: emitIssue(
 							'destinationUnavailable',
 							'startRecording',
-							File.exists(request.destinationPath)
-								? 'destinationFileUrl already exists'
-								: 'destinationFileUrl directory does not exist',
+							!inside
+								? 'destinationFileUrl must resolve inside the app-private documents directory'
+								: File.exists(destination)
+									? 'destinationFileUrl already exists'
+									: 'destinationFileUrl directory does not exist',
 						),
 					})
 
 					return
 				}
 
-				filePath = request.destinationPath
+				filePath = destination
 			} else {
 				try {
 					filePath = path.join(

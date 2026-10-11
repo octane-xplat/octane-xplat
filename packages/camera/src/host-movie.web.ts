@@ -44,33 +44,43 @@ export type CameraHost = HostClient<CameraHostServices>
 
 let hostProbe: Promise<CameraHost | null> | undefined
 
-/** The camera-capable desktop host client, or null outside a qualified host. */
-export function cameraHost(): Promise<CameraHost | null> {
-	hostProbe ??= (async () => {
-		try {
-			const transport = createWebKitTransport()
-			if (!transport) {
-				return null
-			}
-
-			const client = createHostClient<CameraHostServices>(transport)
-			const capabilities = (await client.capabilities().catch(() => null)) as {
-				camera?: string[]
-			} | null
-
-			const methods = capabilities?.camera
-			if (Array.isArray(methods) && requiredMethods.every((name) => methods.includes(name))) {
-				return client
-			}
-
-			client.dispose()
-			return null
-		} catch {
+const probeHost = async (): Promise<CameraHost | null> => {
+	try {
+		const transport = createWebKitTransport()
+		if (!transport) {
 			return null
 		}
-	})()
 
-	return hostProbe
+		const client = createHostClient<CameraHostServices>(transport)
+		const capabilities = (await client.capabilities().catch(() => null)) as {
+			camera?: string[]
+		} | null
+
+		const methods = capabilities?.camera
+		if (Array.isArray(methods) && requiredMethods.every((name) => methods.includes(name))) {
+			return client
+		}
+
+		client.dispose()
+		return null
+	} catch {
+		return null
+	}
+}
+
+/** The camera-capable desktop host client, or null outside a qualified host.
+ *  Only a confirmed client stays cached — a null result may be a transient
+ *  transport or capabilities failure, so the next call probes again rather
+ *  than sticking 'absent' for the page lifetime. */
+export async function cameraHost(): Promise<CameraHost | null> {
+	hostProbe ??= probeHost()
+	const host = await hostProbe
+	if (!host) {
+		hostProbe = probeHost()
+		return hostProbe
+	}
+
+	return host
 }
 
 const error = (kind: 'destinationUnavailable' | 'storageFailed' | 'unavailable', message: string) =>

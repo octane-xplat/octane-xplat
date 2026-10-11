@@ -1,5 +1,6 @@
 import { Application } from '@nativescript/core'
 import { CameraCaptureError } from './types'
+import { canonicalizePath } from './session-core'
 import type {
 	BackendCaptureSink,
 	BackendObserver,
@@ -341,6 +342,35 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		},
 		startCapture: (request, target) => {
 			sink = target
+			if (request.destinationPath) {
+				// Durable output stays app-private like every other leaf —
+				// canonicalize so '..' cannot escape the files root.
+				const destination = canonicalizePath(request.destinationPath)
+				let filesRoot = ''
+				try {
+					filesRoot = context()?.getFilesDir?.().getAbsolutePath?.() ?? ''
+				} catch {
+					filesRoot = ''
+				}
+
+				if (!filesRoot || !destination.startsWith(`${filesRoot}/`)) {
+					sink = undefined
+					target.settled({
+						kind: 'failed',
+						stage: 'preparation',
+						issue: error(
+							'destinationUnavailable',
+							'startRecording',
+							'destinationFileUrl must resolve inside the app-private files directory',
+						),
+					})
+
+					return
+				}
+
+				request = { ...request, destinationPath: destination }
+			}
+
 			try {
 				bridge.start(
 					request.audio,

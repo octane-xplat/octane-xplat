@@ -1,5 +1,6 @@
 import { Application } from '@nativescript/core'
 import { CameraCaptureError } from './types'
+import { canonicalizePath } from './session-core'
 import type {
 	BackendCaptureRequest,
 	BackendCaptureSink,
@@ -536,7 +537,12 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		observer?.interruption('began', /in use|denied|access/i.test(message) ? 'cameraInUse' : 'unknown')
 		if (sink) {
 			// The pipeline died under a live take — try to finalize the
-			// partial media instead of discarding it outright.
+			// partial media instead of discarding it outright. wantStop
+			// makes the early stop stick while
+			// StartRecordToStorageFileAsync is still in flight, and the
+			// deadline settles the take if that call never resolves.
+			wantStop = true
+			armSettleDeadline(sink)
 			sink.finishing(/device|available|found/i.test(message) ? 'cameraUnavailable' : 'captureError')
 			void stopRecording()
 		}
@@ -545,6 +551,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	const onRecordLimitationExceeded = () => {
 		// The OS-level recording limitation ended the take — finalize the
 		// usable media and keep first-cause semantics from the core.
+		wantStop = true
+		armSettleDeadline(sink)
 		sink?.finishing('interrupted')
 		void stopRecording()
 	}
@@ -850,7 +858,21 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			return toPromise(folder.CreateFileAsync(name, collisionGenerateUniqueName))
 		}
 
-		const filePath = normalizePath(destinationPath)
+		// Durable output stays app-private like every other leaf — resolve
+		// against LocalFolder, canonicalizing first so '..' cannot escape it.
+		const filePath = canonicalizePath(normalizePath(destinationPath), '\\')
+		const localRoot = normalizePath(
+			String(storage?.ApplicationData?.Current?.LocalFolder?.Path ?? ''),
+		)
+
+		if (!localRoot || !filePath.toLowerCase().startsWith(`${localRoot.toLowerCase()}\\`)) {
+			throw error(
+				'destinationUnavailable',
+				'startRecording',
+				'destinationFileUrl must resolve inside app-private storage',
+			)
+		}
+
 		const directory = filePath.slice(0, filePath.lastIndexOf('\\'))
 		const name = filePath.slice(filePath.lastIndexOf('\\') + 1)
 		if (!directory || !name) {
@@ -1011,11 +1033,33 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		finalizing = false
 		wantStop = false
 		recordStartedAt = 0
+		clearTimeout(settleDeadline)
 		const file = recordFile
 		recordFile = undefined
 		void removeFileQuietly(file)
 		target?.settled({ kind: 'failed', stage, issue: cause })
 		teardown()
+	}
+
+	// Same 30s settle deadline the web/linux adapters carry — once
+	// finalization starts, a hung native call must still settle the take.
+	let settleDeadline: ReturnType<typeof setTimeout> | undefined
+	const armSettleDeadline = (target: BackendCaptureSink | undefined) => {
+		clearTimeout(settleDeadline)
+		if (!target) {
+			return
+		}
+
+		settleDeadline = setTimeout(() => {
+			if (sink !== target) {
+				return
+			}
+
+			finishWithError(
+				'finalization',
+				error('finalizationFailed', 'finalize', 'Movie finalization timed out'),
+			)
+		}, 30_000)
 	}
 
 	const settleClip = async (file: any) => {
@@ -1024,6 +1068,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		if (!target || !take) {
 			return
 		}
+
+		clearTimeout(settleDeadline)
 
 		try {
 			let metadata: Awaited<ReturnType<typeof nativeVideoMetadata>>
@@ -1108,6 +1154,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		}
 
 		finalizing = true
+		armSettleDeadline(sink)
 		try {
 			await toPromise(target.StopRecordAsync())
 		} catch (cause) {
@@ -1491,6 +1538,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			released = true
 			generation += 1
 			unbindLifecycle()
+			clearTimeout(settleDeadline)
 			sink = undefined
 			request = undefined
 			wantStop = false

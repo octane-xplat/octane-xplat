@@ -123,6 +123,34 @@ const issue = (
 	extra?: Partial<CaptureIssue>,
 ): CameraCaptureError => new CameraCaptureError({ kind, operation, message, ...extra })
 
+/** Collapse '.' and '..' segments without touching the filesystem — the
+ *  adapters' app-private containment checks compare against this canonical
+ *  form, so a '..' inside the requested path can never keep the root
+ *  prefix while escaping it. */
+export const canonicalizePath = (raw: string, separator = '/'): string => {
+	const rooted = raw.startsWith(separator)
+	const parts: string[] = []
+	for (const part of raw.split(separator)) {
+		if (part === '' || part === '.') {
+			continue
+		}
+
+		if (part === '..') {
+			if (parts.length > 0 && parts[parts.length - 1] !== '..') {
+				parts.pop()
+			} else if (!rooted) {
+				parts.push(part)
+			}
+
+			continue
+		}
+
+		parts.push(part)
+	}
+
+	return (rooted ? separator : '') + parts.join(separator)
+}
+
 /** The concrete session object wrapping a platform backend. Internal to
  *  the package; `CameraSession` is the public shape. */
 export class SharedCameraSession implements CameraSession {
@@ -283,7 +311,10 @@ export class SharedCameraSession implements CameraSession {
 			return status
 		})
 
-		this.requestChains.set(kind, chain)
+		// Store a swallowed continuation — a rejected backend call must not
+		// poison the chain and refuse every later request with the original
+		// error. The caller still receives the real rejection.
+		this.requestChains.set(kind, chain.catch(() => 'unknown' as CameraPermissionStatus))
 		return chain
 	}
 
@@ -414,11 +445,28 @@ export class SharedCameraSession implements CameraSession {
 			}
 		}
 
-		if (
-			options.destinationFileUrl !== undefined &&
-			!options.destinationFileUrl.startsWith('file://')
-		) {
-			throw issue('invalidArgument', operation, 'destinationFileUrl must be a local file:// URL')
+		let destinationPath: string | undefined
+		if (options.destinationFileUrl !== undefined) {
+			if (!options.destinationFileUrl.startsWith('file://')) {
+				throw issue(
+					'invalidArgument',
+					operation,
+					'destinationFileUrl must be a local file:// URL',
+				)
+			}
+
+			try {
+				destinationPath = decodeURIComponent(
+					options.destinationFileUrl.slice('file://'.length),
+				)
+			} catch (cause) {
+				throw issue(
+					'invalidArgument',
+					operation,
+					'destinationFileUrl is not valid percent-encoding',
+					{ cause },
+				)
+			}
 		}
 
 		if (
@@ -577,9 +625,7 @@ export class SharedCameraSession implements CameraSession {
 			audio: this.config.audio === true,
 			orientation: options.orientation,
 			maximumDurationMs: options.maximumDurationMs,
-			destinationPath: options.destinationFileUrl?.startsWith('file://')
-				? decodeURIComponent(options.destinationFileUrl.slice('file://'.length))
-				: undefined,
+			destinationPath,
 		}
 
 		try {
