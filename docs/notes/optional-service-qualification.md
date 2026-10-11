@@ -158,3 +158,33 @@ These are feature-specific release gates for an app relying on that capability.
 Credentials/signing, a configured backend and available physical hardware remain
 external blockers. No current result qualifies every optional capability across
 Web, iOS and Android, and no error-only or mocked demo counts as end-to-end success.
+
+## macOS recorder qualification
+
+2026-10-11: the recorder's `macos` export loads without mobile APIs. Software
+checks cover authorization admission, state transitions, pause/resume,
+interruptions, metering snapshots, stop failures, cancellation and disposal.
+Packed consumers typecheck in Bundler and NodeNext modes, including the
+[voice-memo example](../../examples/recorder/voice-memo.ts). The actual AppKit
+host loads the packed Swift leaf and exercises undeclared-permission guards
+and disposal without requesting access. A separate AVFoundation fixture writes
+and closes a 16000 Hz stereo WAV; its int16 samples, RIFF lengths and derived
+metadata pass validation.
+
+```sh
+pnpm --filter @octane-xplat/recorder test
+pnpm --filter @octane-xplat/recorder test:packed
+# On an Apple Silicon Mac, reserve shared build capacity when a broker is available:
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"recorder native smoke without microphone"}' -- pnpm --filter @octane-xplat/recorder test:macos-runtime
+```
+
+Real microphone qualification is queued separately in Silo experiment
+`702f4ac5-3c32-410e-b9f6-f25d5b8c619a`. Use a signed, isolated app identity with
+[macOS privacy setup](../../packages/recorder/README.md#macos-setup-and-lifecycle).
+Reserve exclusive `macos:microphone` and `macos:camera` together, and ensure no
+camera or recorder session owns the input before beginning. Exercise prompt
+pending/denial/grant, default mono and requested stereo WAVs, pause exclusion,
+physical metering, input disconnect/reconnect without automatic resume,
+foreground loss and microphone/file cleanup after cancel/dispose. Preserve
+user TCC settings and completed files. Current software evidence does not
+qualify physical capture, audible quality or interruption recovery.

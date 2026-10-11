@@ -107,13 +107,21 @@ void bad
 `,
 }
 
-const extraFiles = {}
+consumers.macos = consumers.native
+const extraFiles = {
+	'voice-memo.ts': readFileSync(join(repoRoot, 'examples/recorder/voice-memo.ts'), 'utf8'),
+}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
 // .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 	web: {
 		moduleSuffixes: ['.web', ''],
 		customConditions: ['web'],
@@ -199,6 +207,27 @@ try {
 	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
+	assert.ok(existsSync(join(packedRoot, 'platforms/macos/src/XplatAudioRecorder.swift')))
+	// Resolve and execute the actual public condition with no mobile modules
+	// installed. A missing native bridge must be a safe unsupported recorder.
+	const importRoot = join(temporary, 'macos-import')
+	const packageLink = join(importRoot, 'node_modules/@octane-xplat/recorder')
+	mkdirSync(dirname(packageLink), { recursive: true })
+	cpSync(packedRoot, packageLink, { recursive: true })
+	writeFileSync(
+		join(importRoot, 'consumer.mjs'),
+		`
+import assert from 'node:assert/strict'
+import { createAudioRecorder } from '@octane-xplat/recorder'
+const recorder = createAudioRecorder()
+assert.equal(recorder.capabilities().supported, false)
+assert.equal(await recorder.requestPermission(), 'unsupported')
+await assert.rejects(recorder.start(), /unsupported/)
+recorder.dispose()
+`,
+	)
+
+	run(process.execPath, ['--conditions=macos', join(importRoot, 'consumer.mjs')], importRoot)
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
@@ -246,6 +275,11 @@ try {
 				typecheck(consumerPackage, target, mode, index)
 			}
 		}
+	}
+
+	if (process.argv.includes('--macos-native')) {
+		const { checkMacOSNative } = await import('./macos-native.mjs')
+		await checkMacOSNative(packedRoot)
 	}
 
 	console.log('recorder packed consumer: exports typecheck in Bundler and NodeNext modes')

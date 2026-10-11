@@ -87,6 +87,7 @@ Workflows:
 - [Render SVG images on AppKit](appkit-svg-images.md)
 - [Render bundled icons across web, mobile, and AppKit](bundled-icons.md)
 - [Reorder and move draggable items](drag-and-drop.md)
+- [Record a voice memo to WAV](voice-memo.md)
 
 ## Authoring contract
 

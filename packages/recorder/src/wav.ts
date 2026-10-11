@@ -74,3 +74,69 @@ export function decodeBase64(value: string): Uint8Array {
 
 	return out.subarray(0, at)
 }
+
+/** Validate finalized native WAV bytes and derive metadata from the file,
+ * including noncanonical AVFoundation chunk layouts. */
+export function inspectPcmWav(bytes: Uint8Array): {
+	sampleRate: number
+	channels: number
+	durationSeconds: number
+} {
+	const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+	const text = (at: number) => String.fromCharCode(...bytes.subarray(at, at + 4))
+	const invalid = () => new Error('Recording is not a finalized 16-bit PCM WAV')
+	if (
+		bytes.length < 44 ||
+		text(0) !== 'RIFF' ||
+		text(8) !== 'WAVE' ||
+		view.getUint32(4, true) !== bytes.length - 8
+	) {
+		throw invalid()
+	}
+
+	let sampleRate = 0
+	let channels = 0
+	let dataLength: number | undefined
+	let at = 12
+	while (at + 8 <= bytes.length) {
+		const kind = text(at)
+		const length = view.getUint32(at + 4, true)
+		const end = at + 8 + length
+		if (end > bytes.length) {
+			throw invalid()
+		}
+
+		if (kind === 'fmt ') {
+			if (sampleRate || length < 16) {
+				throw invalid()
+			}
+
+			channels = view.getUint16(at + 10, true)
+			sampleRate = view.getUint32(at + 12, true)
+			if (
+				view.getUint16(at + 8, true) !== 1 ||
+				view.getUint16(at + 22, true) !== 16 ||
+				(channels !== 1 && channels !== 2) ||
+				!sampleRate ||
+				view.getUint16(at + 20, true) !== channels * 2 ||
+				view.getUint32(at + 16, true) !== sampleRate * channels * 2
+			) {
+				throw invalid()
+			}
+		} else if (kind === 'data') {
+			if (dataLength !== undefined) {
+				throw invalid()
+			}
+
+			dataLength = length
+		}
+
+		at = end + (length % 2)
+	}
+
+	if (at !== bytes.length || !sampleRate || !dataLength || dataLength % (channels * 2)) {
+		throw invalid()
+	}
+
+	return { sampleRate, channels, durationSeconds: dataLength / (sampleRate * channels * 2) }
+}

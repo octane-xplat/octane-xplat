@@ -14,7 +14,7 @@ const compiled = ts.transpile(source, {
 const sandbox = { exports: {}, module: { exports: {} } }
 sandbox.exports = sandbox.module.exports
 vm.runInNewContext(compiled, sandbox)
-const { wavHeader, encodeWavFloat32, decodeBase64 } = sandbox.exports
+const { wavHeader, encodeWavFloat32, decodeBase64, inspectPcmWav } = sandbox.exports
 
 const view = (bytes) => new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
 const asciiAt = (bytes, at, length) => String.fromCharCode(...bytes.subarray(at, at + length))
@@ -79,4 +79,49 @@ test('decodeBase64 round-trips WAV bytes', () => {
 test('decodeBase64 handles unpadded input', () => {
 	assert.deepEqual(list(decodeBase64('QQ')), [0x41]) // 'A'
 	assert.deepEqual(list(decodeBase64('QUE')), [0x41, 0x41])
+})
+
+test('inspectPcmWav derives duration and metadata from sample bytes', () => {
+	const bytes = encodeWavFloat32([new Float32Array(160), new Float32Array(160)], 16000)
+	const metadata = inspectPcmWav(bytes)
+	assert.equal(metadata.channels, 2)
+	assert.equal(metadata.sampleRate, 16000)
+	assert.equal(metadata.durationSeconds, 0.01)
+	// Nonzero offsets are supported (bridge views need not own their buffer).
+	const padded = new Uint8Array(bytes.length + 7)
+	padded.set(bytes, 7)
+	assert.equal(inspectPcmWav(padded.subarray(7)).durationSeconds, 0.01)
+})
+
+test('inspectPcmWav accepts extra chunks with odd-byte padding', () => {
+	const canonical = encodeWavFloat32([new Float32Array([0.5])], 8000)
+	const bytes = new Uint8Array(canonical.length + 10)
+	bytes.set(canonical.subarray(0, 36))
+	bytes.set([74, 85, 78, 75, 1, 0, 0, 0, 42, 0], 36) // JUNK + 1 byte + pad
+	bytes.set(canonical.subarray(36), 46)
+	view(bytes).setUint32(4, bytes.length - 8, true)
+	assert.equal(inspectPcmWav(bytes).durationSeconds, 1 / 8000)
+})
+
+for (const [name, alter] of [
+	['unfinalized header', (v) => v.setUint32(4, 0, true)],
+	['truncated samples', (v) => v.setUint32(40, 999, true)],
+	['non-PCM format', (v) => v.setUint16(20, 3, true)],
+	['non-16-bit samples', (v) => v.setUint16(34, 24, true)],
+	['invalid byte rate', (v) => v.setUint32(28, 1, true)],
+	['invalid block alignment', (v) => v.setUint16(32, 4, true)],
+	['zero sample rate', (v) => v.setUint32(24, 0, true)],
+]) {
+	test(`inspectPcmWav rejects ${name}`, () => {
+		const bytes = encodeWavFloat32([new Float32Array([0.5])], 8000)
+		alter(view(bytes))
+		assert.throws(() => inspectPcmWav(bytes), /finalized 16-bit PCM WAV/)
+	})
+}
+
+test('inspectPcmWav rejects empty takes and incomplete stereo frames', () => {
+	assert.throws(() => inspectPcmWav(wavHeader(0, 44100, 1)), /finalized/)
+	const bytes = new Uint8Array(46)
+	bytes.set(wavHeader(2, 44100, 2))
+	assert.throws(() => inspectPcmWav(bytes), /finalized/)
 })

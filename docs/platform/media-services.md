@@ -374,8 +374,10 @@ try {
 } catch (error) {
 	console.log(`Cannot record: ${recorder.snapshot().permission}`)
 }
-await recorder.pause()
-await recorder.resume() // also resumes a cleared interruption
+if (recorder.snapshot().state === 'recording') {
+	await recorder.pause()
+	await recorder.resume() // explicit; interruptions never resume themselves
+}
 await recorder.cancel() // discards the take entirely
 off()
 recorder.dispose()
@@ -386,12 +388,36 @@ recorder.dispose()
 take was written to; your app owns deleting it. `permissions.ensure('microphone')`
 from `@octane-xplat/platform` also delegates to this leaf when it is installed.
 
-Native recording runs `AVAudioRecorder` on iOS and `AudioRecord` on Android;
+Native recording runs `AVAudioRecorder` on iOS/macOS and `AudioRecord` on Android;
 the web target captures through `getUserMedia` and an AudioWorklet tap
 (ScriptProcessor fallback). Android captures in the foreground only —
 background microphone use needs an app-owned foreground service, which the
 package does not start. Real-device permission prompts, interruption recovery,
 route coexistence, and mic audio quality still need on-device qualification.
+
+On macOS, configure the app's microphone explanation and signing entitlement
+before recording; follow [macOS recorder setup](../../packages/recorder/README.md#macos-setup-and-lifecycle).
+The `macos` export loads independently of mobile APIs. Permission prompts leave
+the snapshot `idle`. A foreground loss or disconnected input interrupts capture;
+recovery requires an explicit app action. Stop waits for a valid finished WAV;
+cancel and dispose remove only the unfinished operation's file and release input.
+Real macOS microphone qualification remains queued, including privacy prompts,
+input removal and foreground recovery. The maintained
+[voice-memo example](../../examples/recorder/voice-memo.ts) is typechecked by the
+packed-consumer suite.
+
+```ts
+import { createAudioRecorder } from '@octane-xplat/recorder'
+
+const recorder = createAudioRecorder()
+try {
+	await recorder.start() // idle until authorized; default 44100 Hz, mono
+	const take = await recorder.stop() // rejects an empty or invalid take
+	console.log(take.sampleRate, take.channels, take.durationSeconds)
+} finally {
+	recorder.dispose() // keeps a successfully finished result's path
+}
+```
 
 ## Check your integration
 
