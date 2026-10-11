@@ -35,7 +35,7 @@ export const notifications: Capability<NotificationsImpl> = {
 				return
 			}
 
-			if (Notification.permission === 'granted') {
+			if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
 				new Notification(title, { body })
 			}
 		},

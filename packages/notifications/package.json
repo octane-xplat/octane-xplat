@@ -43,7 +43,7 @@
 		"test:packed": "node tests/packed-consumer.mjs",
 		"build": "tsc -p tsconfig.types.json",
 		"prepack": "pnpm build",
-		"test": "node --experimental-strip-types --test tests/notifications.macos.test.ts",
+		"test": "node --experimental-strip-types --test tests/*.test.ts",
 		"test:macos": "node tests/verify-macos.mjs"
 	},
 	"dependencies": {

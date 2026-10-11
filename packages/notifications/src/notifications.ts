@@ -1,8 +1,12 @@
 // Notifications — local notifications via plugin; push (APNs/FCM) is an
 // app-level concern, not this seam.
 import { LocalNotifications } from '@nativescript/local-notifications'
+import { notificationBody } from './notification-body'
 import type { Capability } from './types'
 import type { NotificationsImpl } from './types'
+
+// Keep IDs distinct for rapid sends and within Android's signed integer range.
+let nextId = Date.now() % 2147483647
 
 export const notifications: Capability<NotificationsImpl> = {
 	supported: true,
@@ -12,7 +16,13 @@ export const notifications: Capability<NotificationsImpl> = {
 	},
 	impl: {
 		notify(title, body) {
-			LocalNotifications.schedule([{ id: Date.now() % 2147483647, title, body: body ?? '' }])
+			const id = nextId
+			nextId = (nextId + 1) % 2147483647
+			void (async () => {
+				if (await LocalNotifications.hasPermission()) {
+					await LocalNotifications.schedule([{ id, title, body: notificationBody(body) }])
+				}
+			})().catch(() => {})
 		},
 	},
 }
