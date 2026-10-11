@@ -266,6 +266,43 @@ describe('DataGrid selection and row accessibility', () => {
 		expect(document.getElementById('grid-select-a')!.getAttribute('aria-checked')).toBe('false')
 	})
 
+	it('renders every row without pagination controls or state', () => {
+		mount({ data: Array.from({ length: 15 }, (_, i) => ({ id: `r${i}`, name: `Row ${i}`, count: i })) })
+
+		expect(names()).toHaveLength(15)
+	})
+
+	it('pins the primitive renderValue contract — strings and numbers draw as text', () => {
+		mount({ columns: [
+			{ accessorKey: 'name', header: 'Name' },
+			{ accessorKey: 'count', header: 'Count' },
+		] })
+
+		expect(names()[0]).toContain('Alice')
+		expect(names()[0]).toContain('1')
+	})
+
+	it('pins the non-node renderValue contract — values reach cells as stringified text', () => {
+		// TemplateContent returns non-primitive renderValue output verbatim;
+		// the web leaf then stringifies the child. A plain object shows
+		// '[object Object]' — degraded but explicit output, pinned so any
+		// future coercion guard is chosen deliberately rather than by drift.
+
+		mount({
+			data: [
+				{ id: 'a', v: { deep: 1 } },
+				{ id: 'b', v: true },
+				{ id: 'c', v: new Date(0) },
+			],
+			columns: [{ accessorKey: 'v', header: 'V' }],
+		})
+
+		const cells = [...document.querySelectorAll('[role="cell"]')].map((cell) => cell.textContent)
+		expect(cells[0]).toBe('[object Object]')
+		expect(cells[1]).toBe('true')
+		expect(cells[2]).toContain('1969')
+	})
+
 	it.each([[-1, undefined], [101, 100]])('describes manual server pages with total %s', (expected, rowCount) => {
 		mount({ showRowSelection: true, state: { pagination: { pageIndex: 3, pageSize: 10 } },
 			options: { manualPagination: true, rowCount, pageCount: -1 } })

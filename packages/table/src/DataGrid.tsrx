@@ -213,6 +213,12 @@ function DataGridBodyRow<TData extends RowData>(props: {
  *  the library's `ColumnDef`s plus `TableState` slices. Large-column or
  *  platform-recycler presentations belong to platform subpaths. */
 export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData>) {
+	// Pagination is opt-in chrome AND slicing: with showPagination off and no
+	// consumer-supplied pagination state, upstream's default pageSize=10
+	// would silently hide every row past the first page.
+	const paginationState =
+		(props.state as any)?.pagination ?? (props.initialState as any)?.pagination
+
 	const { table, state }: UseTable<DataGridFeatures, TData> = useTable<TData, DataGridFeatures>({
 		...props.options,
 		defaultColumn: props.showColumnFilters
@@ -221,7 +227,14 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 		data: props.data,
 		columns: props.columns as any,
 		features: props.features as any,
-		initialState: props.initialState as any,
+		initialState: (!props.showPagination && !paginationState
+			? {
+					...(props.initialState as any),
+					// MAX_SAFE_INTEGER, not Infinity — row-ordinal math multiplies
+					// pageIndex × pageSize and 0 × Infinity is NaN.
+					pagination: { pageIndex: 0, pageSize: Number.MAX_SAFE_INTEGER },
+				}
+			: props.initialState) as any,
 		state: props.state as any,
 		getRowId: props.getRowId,
 	})

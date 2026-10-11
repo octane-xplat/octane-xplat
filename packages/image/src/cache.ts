@@ -42,16 +42,26 @@ export function prefetch(srcs: string | string[], options?: PrefetchOptions): Pr
 	}
 }
 
-/** Remove `src` from memory and disk caches. */
+/** Remove `src` from memory and disk caches. Resolves false when the
+ *  pipeline is not up yet — same degradation contract as prefetch. */
 export function evictImage(src: string): Promise<boolean> {
-	initialize();
-	return getImagePipeline().evictFromCache(src);
+	try {
+		initialize();
+		return getImagePipeline().evictFromCache(src);
+	} catch {
+		return Promise.resolve(false);
+	}
 }
 
-/** Drop every cached image (memory + disk). */
+/** Drop every cached image (memory + disk). Resolves with no action when
+ *  the pipeline is not up yet — same degradation contract as prefetch. */
 export function clearImageCaches(): Promise<void> {
-	initialize();
-	return getImagePipeline().clearCaches();
+	try {
+		initialize();
+		return getImagePipeline().clearCaches();
+	} catch {
+		return Promise.resolve();
+	}
 }
 
 // The published index.d.ts omits the options params on the two presence
@@ -77,10 +87,21 @@ export async function isImageCached(
 	srcs: string | readonly string[],
 	options?: ImageCacheQueryOptions,
 ): Promise<Record<string, ImageCacheState>> {
-	initialize();
-	const pipeline = getImagePipeline() as unknown as CacheProbe;
 	const list = typeof srcs === 'string' ? [srcs] : srcs;
 	const states: Record<string, ImageCacheState> = {};
+	try {
+		initialize();
+	} catch {
+		// Pipeline not up yet (e.g. called before app launch) — report every
+		// src 'none' like prefetch's resolve-false degradation.
+		for (const src of list) {
+			states[src] = 'none';
+		}
+
+		return states;
+	}
+
+	const pipeline = getImagePipeline() as unknown as CacheProbe;
 	await Promise.all(
 		list.map(async (src) => {
 			states[src] = pipeline.isInBitmapMemoryCache(src, options)

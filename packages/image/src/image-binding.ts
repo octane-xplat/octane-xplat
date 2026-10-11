@@ -28,7 +28,6 @@ export function createImageBinding(options: {
 }) {
 	let view: any = null;
 	let host: any = null; // computed-rect path: the absolutelayout wrapper
-	let listening = false;
 	let pending: { source: any; sources: ImageSourceLike[] | null } = {
 		source: null,
 		sources: null,
@@ -133,13 +132,19 @@ export function createImageBinding(options: {
 
 	const onLayout = () => evaluate();
 
-	const listen = (target: any) => {
-		if (listening || !target) {
+	// The measured view is the layoutChanged target — retarget when it
+	// changes (host arriving after the image ref, or a computed->non-computed
+	// fit change) and detach from the previous one.
+	let measured: any = null;
+	const listen = () => {
+		const target = host ?? view;
+		if (target === measured) {
 			return;
 		}
 
-		listening = true;
-		target.on('layoutChanged', onLayout);
+		measured?.off?.('layoutChanged', onLayout);
+		measured = target ?? null;
+		measured?.on?.('layoutChanged', onLayout);
 	};
 
 	return {
@@ -147,23 +152,27 @@ export function createImageBinding(options: {
 		 *  path's wrapper host. Refreshes the pending src from props and
 		 *  evaluates; idempotent. */
 		update(imageView: any, hostView: any) {
-			if (imageView) {
+			// Explicit null clears a view — refs fire with null on detach.
+			if (imageView !== undefined) {
 				view = imageView;
 			}
 
-			if (hostView) {
+			if (hostView !== undefined) {
 				host = hostView;
 			}
 
 			pending = options.getSrc();
-			listen(host ?? view);
+			listen();
 			evaluate();
 		},
 		/** Engine set the final bitmap — record intrinsic size for the
 		 *  content-rect path. */
-		setIntrinsic(widthPx: number, heightPx: number) {
-			imageWidth = widthPx / scale();
-			imageHeight = heightPx / scale();
+		/** Engine-reported intrinsic size. `dips` marks reports that are
+		 *  already density-independent (iOS UIImage.size) — Android reports
+		 *  raw pixels and still converts through the screen scale. */
+		setIntrinsic(widthPx: number, heightPx: number, dips = false) {
+			imageWidth = dips ? widthPx : widthPx / scale();
+			imageHeight = dips ? heightPx : heightPx / scale();
 			applyRect();
 		},
 	};

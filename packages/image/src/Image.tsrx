@@ -132,25 +132,45 @@ export function Image(props: ImageProps) @{
 	const imageRef = useRef<any>(null);
 	const hostRef = useRef<any>(null);
 
-	const binding = useMemo(
-		() =>
-			createImageBinding({
-				getFit: () => resolveContentFit(latest.current.contentFit),
-				getPosition: () => resolveContentPosition(latest.current.contentPosition),
-				getSrc: () => {
-					const src = latest.current.src;
-					return Array.isArray(src)
-						? { source: null, sources: src }
-						: { source: resolveSrc(src), sources: null };
-				},
-				getDecodeBounds: () => ({
-					width: latest.current.decodeWidth,
-					height: latest.current.decodeHeight,
-				}),
-				screenScale: () => Screen.mainScreen?.scale ?? 1,
+	const binding = useMemo(() => {
+		let lastSrc: unknown;
+		let lastSource: string | ImageSource | null;
+		return createImageBinding({
+			getFit: () => resolveContentFit(latest.current.contentFit),
+			getPosition: () => resolveContentPosition(latest.current.contentPosition),
+			getSrc: () => {
+				const src = latest.current.src;
+				if (Array.isArray(src)) {
+					return { source: null, sources: src };
+				}
+
+				// Memoize per-src — a data: URI decodes to a new ImageSource
+				// each call, which would defeat the binding's identity check
+				// and re-decode on every layout evaluation.
+				if (src === lastSrc) {
+					return { source: lastSource, sources: null };
+				}
+
+				lastSrc = src;
+				try {
+					lastSource = resolveSrc(src);
+				} catch (cause) {
+					// A malformed data: URI surfaces like a failed load.
+					lastSource = null;
+					latest.current.onError?.({
+						error: cause instanceof Error ? cause : new Error(String(cause)),
+					});
+				}
+
+				return { source: lastSource, sources: null };
+			},
+			getDecodeBounds: () => ({
+				width: latest.current.decodeWidth,
+				height: latest.current.decodeHeight,
 			}),
-		[],
-	);
+			screenScale: () => Screen.mainScreen?.scale ?? 1,
+		});
+	}, []);
 
 	const boundRef = useRef({ key: props.recyclingKey, src: props.src });
 	const bound = boundRef.current;
@@ -185,12 +205,19 @@ export function Image(props: ImageProps) @{
 		applyEscapeProps(view, props);
 		const ph = latest.current.placeholder;
 		if (ph) {
-			const resolved = placeholderValue(ph);
-			if (resolved != null) {
-				// string | ImageSource — the prop is typed `string` but the
-				// plugin's placeholder resolution accepts an ImageSource on
-				// both platforms.
-				view.placeholderImageUri = resolved;
+			try {
+				const resolved = placeholderValue(ph);
+				if (resolved != null) {
+					// string | ImageSource — the prop is typed `string` but the
+					// plugin's placeholder resolution accepts an ImageSource on
+					// both platforms.
+					view.placeholderImageUri = resolved;
+				}
+			} catch (cause) {
+				// A malformed data: placeholder surfaces like a failed load.
+				latest.current.onError?.({
+					error: cause instanceof Error ? cause : new Error(String(cause)),
+				});
 			}
 		}
 
@@ -200,8 +227,16 @@ export function Image(props: ImageProps) @{
 				const info = e.imageInfo;
 				const w = info?.getWidth?.() ?? info?.width ?? 0;
 				const h = info?.getHeight?.() ?? info?.height ?? 0;
-				binding.setIntrinsic(w, h);
-				latest.current.onLoad?.({ width: w, height: h, source: e.source });
+				// iOS reports UIImage.size (dips); Android reports drawable
+				// intrinsic pixels. The binding measures in dips; onLoad's
+				// documented contract is device pixels.
+				const scale = Screen.mainScreen?.scale ?? 1;
+				binding.setIntrinsic(w, h, isIOS);
+				latest.current.onLoad?.({
+					width: isIOS ? w * scale : w,
+					height: isIOS ? h * scale : h,
+					source: e.source,
+				});
 			});
 
 			view.on(Img.failureEvent, (e: any) => {
