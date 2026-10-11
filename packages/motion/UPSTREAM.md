@@ -388,23 +388,28 @@ without startup timers or the mobile gesture plugin, and mounts/unmounts initial
 hosts with the universal object driver. It uses the production AppKit core shim
 unchanged, substituting only the renderer driver for the object driver.
 
-Until host qualification, the macOS preference leaf conservatively reports
-reduced motion without reading or observing the OS. User-policy motion settles;
-this must not be interpreted as live system preference support. These settings
-exercise that conservative baseline:
+Motion's macOS preference leaf reads [AppKit's Reduce Motion setting](https://developer.apple.com/documentation/appkit/nsworkspace/accessibilitydisplayshouldreducemotion) and subscribes
+to accessibility-display changes on the workspace notification center. Cleanup
+removes the subscription and suppresses callbacks queued after disposal. Without
+an AppKit workspace, the preference reads false and observation is inert; this
+fallback is not OS evidence. Enable system policy explicitly:
 
 ```tsx
-import { MotionConfig } from '@octane-xplat/motion'
-import { RollingText } from '@octane-xplat/rolling-text'
+import { MotionConfig, motion } from '@octane-xplat/motion'
 
-export function SettledLabel() {
+export function SystemMotion() {
 	return (
 		<MotionConfig reducedMotion="user">
-			<RollingText value="Ready" reducedMotion="user" />
+			<motion.View initial={{ x: 0 }} animate={{ x: 40 }} />
 		</MotionConfig>
 	)
 }
 ```
+
+Deterministic preference and observer tests establish source behavior only.
+Real OS preference changes and the remaining N2 host/lifecycle acceptance still
+require independent nonvisual runtime qualification. RollingText retains its
+separate conservative preference baseline; this Motion fix does not qualify it.
 
 Motion's macOS drag leaf throws `motion: macOS drag backend is not implemented`
 when drag is requested. The mobile gesture backend is never loaded on macOS;
