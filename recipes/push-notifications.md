@@ -1,7 +1,7 @@
 # Receive push notifications
 
 ID: push-notifications
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: @octane-xplat/push, push.configure, push.getToken, push.requestPermission, push.onMessage, push.onNotificationOpen, push.onTokenRefresh, firebase-messaging-sw.js
 
 ## Starting point
@@ -12,13 +12,15 @@ published package and place app-level credential files under `App_Resources`.
 
 ## Requirements
 
-- Register the app for Firebase Cloud Messaging on every target: plugin
+- Register the app for Firebase Cloud Messaging on web, iOS, and Android: plugin
   config files on iOS/Android, the shipped service worker on web.
 - Acquire a device token, and re-register it when it rotates.
 - Receive foreground messages and notification taps, including the
   cold-start tap, through one cross-platform contract.
 - Keep APNs/Firebase credentials and the web service worker as app-owned
   setup, not leaf magic.
+- Import shared push code safely on macOS and distinguish unavailable remote
+  push from a user denying notification permission.
 
 ## Acceptance criteria
 
@@ -34,6 +36,11 @@ published package and place app-level credential files under `App_Resources`.
   for tap-through.
 - AC5: The maintained probe (`PushDemo`) reports 'unconfigured' instead of
   failing when credentials are absent.
+- AC6: On macOS, workspace and published imports select the unavailable
+  backend without loading mobile Firebase. Configuration remains false,
+  configuration and permission requests report unsupported rather than denied,
+  tokens remain absent, and subscriptions/unsubscriptions create no listeners
+  or fabricated events. The demo shows that remote push is unavailable.
 
 ## Documentation
 
@@ -42,6 +49,7 @@ published package and place app-level credential files under `App_Resources`.
 - AC3: [Permission, token, events](../docs/platform/push-notifications.md#permission-token-events).
 - AC4: [Behavior by app state](../docs/platform/push-notifications.md#behavior-by-app-state).
 - AC5: [PushDemo](../packages/demos/src/PushDemo.tsrx) and the [Android harness configuration](../docs/platform/push-notifications.md#install-and-platform-setup).
+- AC6: [macOS availability](../docs/platform/push-notifications.md#macos-availability) and [PushDemo](../packages/demos/src/PushDemo.tsrx).
 
 Configured permission/token/delivery/tap-through qualification remains blocked by
 app-owned Firebase/APNs/VAPID setup; see

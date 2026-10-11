@@ -15,6 +15,7 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { build } from 'vite'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
@@ -76,6 +77,20 @@ void token
 void unsubscribe
 void permission
 `,
+	macos: `import { push, type Push, type PushConfigureOptions, type PushPermission } from '@octane-xplat/push'
+const service: Push = push
+const options: PushConfigureOptions = {}
+const supported: boolean = service.supported
+const configured: boolean = service.configured
+const configuration: Promise<void> = service.configure(options)
+const permission: Promise<PushPermission> = service.requestPermission()
+const token: Promise<string | null> = service.getToken()
+const deletion: Promise<void> = service.deleteToken()
+const offMessage: () => void = service.onMessage((message) => void message.title)
+const offOpen: () => void = service.onNotificationOpen((message) => void message.data)
+const offRefresh: () => void = service.onTokenRefresh((value: string) => void value)
+void [supported, configured, configuration, permission, token, deletion, offMessage, offOpen, offRefresh]
+`,
 }
 
 const extraFiles = {}
@@ -95,6 +110,81 @@ const targetConfig = {
 		customConditions: ['native'],
 		types: ['@nativescript/types'],
 	},
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos', 'native'],
+		types: [],
+	},
+}
+
+async function checkMacOSRuntime(packagePath, exportMapIndex) {
+	const consumerRoot = join(temporary, `runtime-${exportMapIndex}-macos`)
+	const packageLink = join(consumerRoot, 'node_modules/@octane-xplat/push')
+	mkdirSync(dirname(packageLink), { recursive: true })
+	cpSync(packagePath, packageLink, { recursive: true })
+	// No Firebase, NativeScript or renderer dependencies in this consumer.
+	writeFileSync(join(consumerRoot, 'package.json'), '{"type":"module"}\n')
+	cpSync(join(packageRoot, 'tests/macos-contract.mjs'), join(consumerRoot, 'contract.mjs'))
+	const entry = join(consumerRoot, 'consumer.mjs')
+	writeFileSync(
+		entry,
+		`import { push } from '@octane-xplat/push'
+export { push }
+`,
+	)
+
+	const result = await build({
+		configFile: false,
+		root: consumerRoot,
+		logLevel: 'error',
+		resolve: { conditions: ['macos', 'native'], extensions: ['.macos.ts', '.ts', '.js'] },
+		build: {
+			lib: { entry, formats: ['es'], fileName: () => 'consumer.js' },
+			minify: false,
+		},
+	})
+
+	const outputs = (Array.isArray(result) ? result : [result]).flatMap((output) => output.output)
+	const modules = outputs
+		.filter((item) => item.type === 'chunk')
+		.flatMap((item) => Object.keys(item.modules))
+
+	assert.ok(
+		modules.some((name) => /(?:index|push)\.macos\.ts$|\/dist\/macos\//.test(name)),
+		'macos wins over native in both export maps',
+	)
+
+	assert.ok(
+		modules.every((name) => !/firebase|\/dist\/native\/|\/src\/push\.ts$/.test(name)),
+		'macOS consumer never loads mobile Firebase',
+	)
+
+	writeFileSync(
+		join(consumerRoot, 'verify.mjs'),
+		`import { assertMacOSPush } from './contract.mjs'
+const { push } = await import('./dist/consumer.js')
+await assertMacOSPush(push)
+`,
+	)
+
+	run(process.execPath, ['verify.mjs'], consumerRoot)
+	// Published ESM must also resolve directly without a bundler or SDK deps.
+	const manifest = JSON.parse(readFileSync(join(packageLink, 'package.json'), 'utf8'))
+	if (manifest.exports['.'].macos.default.startsWith('./dist/')) {
+		writeFileSync(
+			join(consumerRoot, 'verify-node.mjs'),
+			`import { assertMacOSPush } from './contract.mjs'
+import { push } from '@octane-xplat/push'
+await assertMacOSPush(push)
+`,
+		)
+
+		run(
+			process.execPath,
+			['--conditions=macos', '--conditions=native', 'verify-node.mjs'],
+			consumerRoot,
+		)
+	}
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -193,6 +283,7 @@ try {
 		const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
 		consumerManifest.exports = exportsMap
 		writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
+		await checkMacOSRuntime(consumerPackage, index)
 
 		for (const target of Object.keys(consumers)) {
 			// Subpath exports absent from a map (e.g. ./macos only exists in the
@@ -219,7 +310,9 @@ try {
 		}
 	}
 
-	console.log('push packed consumer: exports typecheck in Bundler and NodeNext modes')
+	console.log(
+		'push packed consumer: web/native/macos types pass; macOS imports and subscriptions are inert',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

@@ -1,7 +1,7 @@
 # `@octane-xplat/push`
 
-Push notifications for Octane Xplat apps over Firebase Cloud Messaging — one
-API on every target. For app-fired local notifications, use
+Push notifications for Octane Xplat apps over Firebase Cloud Messaging on
+web, iOS, and Android. For app-fired local notifications, use
 [`@octane-xplat/notifications`](../notifications/README.md).
 
 ```sh
@@ -39,3 +39,18 @@ push.onTokenRefresh((token) => {
 Native config files, iOS entitlements, and the web service worker are
 app-level setup — see the framework guide
 [`docs/platform/push-notifications.md`](../../docs/platform/push-notifications.md).
+
+On macOS, the workspace and published package select a safe unavailable entry.
+`supported` and `configured` stay false; configuration and permission requests
+reject with `push: remote push is not supported on macOS`, rather than returning
+a user denial. Guard push registration with the availability check:
+
+```ts
+import { push } from '@octane-xplat/push'
+
+export async function enablePush() {
+	if (!push.supported) return 'Push is unavailable on this platform'
+	await push.configure()
+	return await push.requestPermission()
+}
+```

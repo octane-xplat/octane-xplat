@@ -29,7 +29,9 @@ Add `@octane-xplat/push` to your app. The NativeScript plugins ship as real
 dependencies, so `ns prepare` picks them up transitively — no extra plugin
 install step.
 
-Every target needs a Firebase project with Cloud Messaging enabled.
+The supported web, iOS, and Android targets need a Firebase project with
+Cloud Messaging enabled. For macOS, read the
+[availability boundary](#macos-availability) before configuring a provider.
 
 **iOS.** Drop `GoogleService-Info.plist` into `App_Resources/iOS/`, enable the
 Push Notifications capability (`aps-environment` in your entitlements file)
@@ -90,8 +92,8 @@ await push.configure({
 })
 ```
 
-`configure` is idempotent — repeated calls return the same promise. On
-native it resolves the already-initialized default Firebase app when the
+On web, iOS, and Android, `configure` is idempotent — repeated calls return
+the same promise. On iOS/Android it resolves the already-initialized default Firebase app when the
 host called `firebase().initializeApp()` itself. On web, pass `app` instead
 of `firebaseConfig` to reuse an app you initialized for other Firebase
 features.
@@ -130,7 +132,7 @@ export async function registerPush(sendTokenToYourServer: (token: string) => Pro
 }
 ```
 
-Each `on*` returns an unsubscribe function. Handlers attach cleanly before
+On supported targets, each `on*` returns an unsubscribe function. Handlers attach cleanly before
 or after `configure()` — the leaf queues them, and the native plugin queues
 the cold-start tap until a listener exists.
 
@@ -197,6 +199,55 @@ const off = push.onMessage((message) => console.log(message.title))
 // Call off() when the screen or app listener owner is disposed.
 ```
 
+## macOS availability
+
+Remote push is unavailable on macOS. The workspace and published package
+select a safe macOS entry: `supported` and `configured` stay false.
+Check availability before offering push registration in a shared screen.
+macOS provider delivery and Apple/Firebase setup remain deferred.
+On macOS, `configure()` and `requestPermission()` reject with
+`push: remote push is not supported on macOS`. This indicates a missing
+backend, rather than a user denying permission.
+
+```ts
+import { push } from '@octane-xplat/push'
+
+export async function enablePush() {
+	if (!push.supported) return 'Push is unavailable on this platform'
+	await push.configure()
+	return await push.requestPermission()
+}
+```
+
+On macOS, `getToken()` returns null and `deleteToken()` does nothing.
+
+```ts
+import { push } from '@octane-xplat/push'
+
+export async function clearPushRegistration() {
+	await push.deleteToken()
+	return await push.getToken() // null on macOS
+}
+```
+
+Imports and subscriptions on macOS load no mobile
+Firebase code, install no native listeners, and emit no messages, opens, or
+token refresh events. Unsubscribe functions are safe to call repeatedly.
+
+```ts
+import { push } from '@octane-xplat/push'
+
+// Safe shared startup, including on macOS.
+const offMessage = push.onMessage((message) => console.log(message.title))
+const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
+const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
+export function stopPushListeners() {
+	offMessage()
+	offOpen()
+	offRefresh()
+}
+```
+
 ## Limits and notes
 
 - `onTokenRefresh` has no web event — the leaf re-reads the token on
@@ -209,4 +260,5 @@ const off = push.onMessage((message) => console.log(message.title))
   If a real delegate conflict surfaces — either plugin silently swallowing
   the other's callbacks — add `@nativescript/shared-notification-delegate`
   between them; don't install it preemptively.
-- macOS/Windows are not supported by this leaf.
+- Windows is not supported by this leaf. macOS has the
+  [safe unavailable entry](#macos-availability) described above.

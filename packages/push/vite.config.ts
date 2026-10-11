@@ -1,18 +1,19 @@
 import { defineConfig } from 'vite'
 
 // Library build — pure TypeScript service leaf (no JSX/.tsrx, so no octane
-// plugin needed). Emits dist/web + dist/native ES modules; platform SDKs stay
+// plugin needed). Emits dist/web + dist/native + dist/macos ES modules; platform SDKs stay
 // external and are resolved by the consuming app.
 
 export default defineConfig(({ mode }) => {
 	const native = mode === 'native'
+	const target = mode === 'macos' ? 'macos' : native ? 'native' : 'web'
 	return {
 		build: {
 			lib: {
-				entry: native ? 'src/index.ts' : 'src/index.web.ts',
+				entry: target === 'native' ? 'src/index.ts' : `src/index.${target}.ts`,
 				formats: ['es'],
 			},
-			outDir: native ? 'dist/native' : 'dist/web',
+			outDir: `dist/${target}`,
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
@@ -29,7 +30,7 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		resolve: {
-			conditions: [native ? 'native' : 'web'],
+			conditions: [target],
 		},
 	}
 })

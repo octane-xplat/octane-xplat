@@ -54,35 +54,39 @@ export interface PushConfigureOptions {
 export interface Push {
 	/** Whether a push backend can run on this target. Web checks for service
 	 *  worker + PushManager support; iOS/Android are always true (iOS
-	 *  simulators can register but never receive messages). */
+	 *  simulators can register but never receive messages). macOS is false:
+	 *  no remote push backend is available. */
 	readonly supported: boolean
-	/** True once `configure()` has resolved. */
+	/** True once a messaging backend is initialized. Always false on macOS. */
 	readonly configured: boolean
 	/** Initialize the Firebase app and messaging backend. Call once, early in
 	 *  app startup; repeat calls return the same in-flight promise. Native
 	 *  resolves the already-initialized default app when the host app called
-	 *  `firebase().initializeApp()` itself. */
+	 *  `firebase().initializeApp()` itself. Rejects with an unsupported error
+	 *  on macOS, leaving `configured` false. */
 	configure(options?: PushConfigureOptions): Promise<void>
 	/** Ask the user for notification permission. No-op → 'granted' where no
-	 *  prompt exists (Android < 13, already-granted). */
+	 *  prompt exists (Android < 13, already-granted). Rejects with an unsupported
+	 *  error on macOS; no permission prompt or denial result is fabricated. */
 	requestPermission(): Promise<PushPermission>
 	/** Current FCM registration token, or null when unavailable. On iOS this
-	 *  also registers for remote notifications if needed. */
+	 *  also registers for remote notifications if needed. Always null on macOS. */
 	getToken(): Promise<string | null>
-	/** Invalidate the current token; the next `getToken` mints a new one. */
+	/** Invalidate the current token; the next `getToken` mints a new one.
+	 *  No-op on macOS. */
 	deleteToken(): Promise<void>
 	/** Messages received while the app is in the foreground. Returns an
-	 *  unsubscribe function. */
+	 *  unsubscribe function. Inert on macOS: no listeners or events. */
 	onMessage(handler: (message: PushMessage) => void): () => void
 	/** Notification taps — including the cold-start tap that launched the
 	 *  app, which the plugin queues until a handler attaches. On web the FCM
 	 *  service worker delivers the click only when the message carries a link
 	 *  (`fcmOptions.link` / `notification.click_action`), so set one for
-	 *  tap-through to fire. */
+	 *  tap-through to fire. Inert on macOS. */
 	onNotificationOpen(handler: (message: PushMessage) => void): () => void
 	/** Token rotation. Fires on iOS/Android whenever the plugin reports a new
 	 *  token; on web the SDK has no refresh event, so the leaf re-reads the
-	 *  token on visibility changes and fires when it differs. */
+	 *  token on visibility changes and fires when it differs. Inert on macOS. */
 	onTokenRefresh(handler: (token: string) => void): () => void
 }
 

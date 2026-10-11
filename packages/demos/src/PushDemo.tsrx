@@ -20,7 +20,8 @@ const note = (line: string) => pushLog.set((l) => [line, ...l].slice(0, 12));
 const summarize = (m: PushMessage) =>
 	`${m.title ?? m.body ?? 'message'}${m.data ? ' ' + JSON.stringify(m.data) : ''}`;
 
-// Handlers attach before configure on purpose — the leaf queues them.
+// Handlers attach before configure on purpose — supported leaves queue them;
+// the unavailable macOS leaf leaves them inert.
 push.onMessage((m) => note('onMessage: ' + summarize(m)));
 push.onNotificationOpen((m) => note('opened: ' + summarize(m)));
 push.onTokenRefresh((t) => note('token: ' + t.slice(0, 24) + '…'));
@@ -32,6 +33,11 @@ export function PushDemo() @{
 	const log = useStore(pushLog);
 
 	const configure = async () => {
+		if (!push.supported) {
+			note('unavailable: remote push is not supported on this platform');
+			return;
+		}
+
 		try {
 			await push.configure(CONFIG ?? {});
 			note(`configured (supported: ${push.supported})`);
@@ -45,8 +51,11 @@ export function PushDemo() @{
 		<Text>
 			FCM via @nativescript/firebase-messaging on iOS/Android, the Firebase JS
 			SDK + shipped service worker on web. Needs real credentials — see
-			docs/push-notifications.md.
+			docs/platform/push-notifications.md.
 		</Text>
+		@if (!push.supported) {
+			<Text id="push-unavailable">Remote push is unavailable on this platform.</Text>
+		}
 		<HStack className="gap-2">
 			<Pressable id="push-configure" className="btn btn-secondary" onPress={() => void configure()}>
 				<Text>Configure</Text>

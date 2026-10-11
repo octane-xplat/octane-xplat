@@ -32,7 +32,10 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": "./src/index.macos.ts",
+			"macos": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"types": "./types/index.d.ts",
 			"web": "./src/index.web.ts",
 			"native": "./src/index.ts",
@@ -46,6 +49,10 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/macos/index.js"
+				},
 				"types": "./types/index.d.ts",
 				"web": "./dist/web/index.js",
 				"native": "./dist/native/index.js",
@@ -59,7 +66,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"test": "node --test tests/macos.test.mjs",
 		"typegen": "tsc -p tsconfig.types.json",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
