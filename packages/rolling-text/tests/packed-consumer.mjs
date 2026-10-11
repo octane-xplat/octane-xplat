@@ -1,3 +1,4 @@
+import { checkMacOSMotionConsumer } from '../../../scripts/check-macos-motion-consumer.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
@@ -50,6 +51,8 @@ const dependencies = [
 	'@nativescript-community/octane',
 	'@nativescript/core',
 	'@nativescript/types',
+	'@octane-xplat/macos-renderer',
+	'@octane-xplat/jsx',
 ]
 
 const consumers = {
@@ -71,6 +74,21 @@ void missingValue
 `,
 }
 
+// Package acceptance retains the shared contract; clipping, cell movement and
+// live system preference behavior still require AppKit qualification.
+consumers.macos =
+	consumers.native +
+	`
+const macosLabel = <RollingText value="Ready" reducedMotion="user" direction="down" />
+// @ts-expect-error the macOS type condition preserves the direction union
+const badDirection = <RollingText value="Ready" direction="sideways" />
+// @ts-expect-error the macOS type condition preserves the reduced-motion union
+const badPolicy = <RollingText value="Ready" reducedMotion="sometimes" />
+void macosLabel
+void badDirection
+void badPolicy
+`
+
 const extraFiles = {}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
@@ -78,6 +96,12 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
+	macos: {
+		jsxImportSource: '@octane-xplat/macos-renderer',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos', 'native'],
+		types: [],
+	},
 	web: {
 		jsxImportSource: 'octane',
 		moduleSuffixes: ['.web', ''],
@@ -92,7 +116,7 @@ const targetConfig = {
 	},
 }
 
-function typecheck(packagePath, target, mode, exportMapIndex) {
+async function typecheck(packagePath, target, mode, exportMapIndex) {
 	const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
 	const modules = join(consumerRoot, 'node_modules')
 	const packageLink = join(modules, '@octane-xplat/rolling-text')
@@ -122,6 +146,15 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 	writeFileSync(join(consumerRoot, 'consumer.tsx'), consumers[target])
 	for (const [name, contents] of Object.entries(extraFiles)) {
 		writeFileSync(join(consumerRoot, name), contents)
+	}
+
+	if (target === 'macos' && mode.name === 'bundler') {
+		await checkMacOSMotionConsumer({
+			packageRoot,
+			consumerRoot,
+			packageName: '@octane-xplat/rolling-text',
+			exportsMap: JSON.parse(readFileSync(join(packageLink, 'package.json'), 'utf8')).exports,
+		})
 	}
 
 	const config = targetConfig[target]
@@ -211,12 +244,14 @@ try {
 					moduleResolution: 'nodenext',
 				},
 			]) {
-				typecheck(consumerPackage, target, mode, index)
+				await typecheck(consumerPackage, target, mode, index)
 			}
 		}
 	}
 
-	console.log('rolling-text packed consumer: exports typecheck in Bundler and NodeNext modes')
+	console.log(
+		'rolling-text packed consumer: web/native/macos exports typecheck in Bundler and NodeNext; macOS source/dist imports and object mounts pass (host behavior unqualified)',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

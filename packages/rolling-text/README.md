@@ -56,8 +56,10 @@ accessibility tree, so there is never a mix of old and new text. Pass
 - **Very long values** (over 256 units) roll as one whole label.
 - Roll distance is read from the row's current height — the first update
   before initial layout falls back to a fade.
-- macOS/Windows/Linux leaves are not implemented yet — the package exports
-  web and native targets only.
+- macOS has [package-boundary acceptance](../motion/UPSTREAM.md#macos-package-boundary)
+  only: source and published imports are checked, while AppKit clipping,
+  movement, and live OS preferences remain unqualified. Windows/Linux leaves
+  are not implemented yet.
 
 Derived from Scritto's survivor matching and slot-text's update policy — see
 [UPSTREAM.md](./UPSTREAM.md) for provenance and licenses.

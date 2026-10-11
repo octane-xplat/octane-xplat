@@ -28,7 +28,7 @@ export function MovingCard() {
 }
 ```
 
-Native apps using `drag` must install `@nativescript-community/gesturehandler`
+iOS and Android apps using `drag` must install `@nativescript-community/gesturehandler`
 and call its `install()` before creating the root. Web does not require this
 optional peer. See [drag setup](../../docs/app/animation-gestures.md#drag-a-component).
 
@@ -48,3 +48,7 @@ Build with `pnpm --filter @octane-xplat/motion build`; run DOM/engine tests with
 `pnpm --filter @octane-xplat/motion test` and universal lifecycle tests with
 `pnpm --filter @octane-xplat/motion exec vitest run --config vitest.native.config.mts`.
 Native compilation and object-driver tests are not physical-device evidence.
+
+macOS currently has [package-boundary acceptance](UPSTREAM.md#macos-package-boundary)
+only. Its source and published imports are checked separately from AppKit host
+behavior. Live OS preferences and animation/input behavior remain unqualified.

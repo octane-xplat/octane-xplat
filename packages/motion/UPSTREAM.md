@@ -360,3 +360,61 @@ uncharacterized. On iOS the preference is observed through
 `UIAccessibilityReduceMotionStatusDidChangeNotification`; Android still polls
 `animator_duration_scale` at 500 ms while subscribed (plus
 `ValueAnimator.areAnimatorsEnabled()` on API 26+) and refreshes on resume.
+
+## macOS package boundary
+
+Motion and RollingText have a separate macOS package build. This is package
+acceptance only; AppKit transforms, gestures, retained presence, clipping,
+cell movement, and live accessibility preferences require separate host checks.
+No AppKit runtime or OS input is exercised by the packed-consumer checks.
+
+| Package                      | Workspace `macos` export | Published `macos` export | Type conditions                             |
+| ---------------------------- | ------------------------ | ------------------------ | ------------------------------------------- |
+| `@octane-xplat/motion`       | `src/index.ts`           | `dist/macos/index.js`    | `macos`, `native`; suffixes `.macos`, empty |
+| `@octane-xplat/rolling-text` | `src/index.ts`           | `dist/macos/index.js`    | `macos`, `native`; suffixes `.macos`, empty |
+
+Both keep the shared `types/index.d.ts` contract. Runtime consumers select
+`macos` before `native`; library builds resolve `.macos` leaves and compile
+components for the macOS renderer. Run these commands from the repository root:
+
+```sh
+pnpm --filter @octane-xplat/motion test:packed
+pnpm --filter @octane-xplat/rolling-text test:packed
+```
+
+Each check packs the package, checks both export maps in Bundler and NodeNext
+mode, verifies the selected runtime entry, imports all public runtime exports
+without startup timers or the mobile gesture plugin, and mounts/unmounts initial
+hosts with the universal object driver. It uses the production AppKit core shim
+unchanged, substituting only the renderer driver for the object driver.
+
+Until host qualification, the macOS preference leaf conservatively reports
+reduced motion without reading or observing the OS. User-policy motion settles;
+this must not be interpreted as live system preference support. These settings
+exercise that conservative baseline:
+
+```tsx
+import { MotionConfig } from '@octane-xplat/motion'
+import { RollingText } from '@octane-xplat/rolling-text'
+
+export function SettledLabel() {
+	return (
+		<MotionConfig reducedMotion="user">
+			<RollingText value="Ready" reducedMotion="user" />
+		</MotionConfig>
+	)
+}
+```
+
+Motion's macOS drag leaf throws `motion: macOS drag backend is not implemented`
+when drag is requested. The mobile gesture backend is never loaded on macOS;
+adding its exports to compatibility shims would not provide an AppKit backend.
+The following request remains unsupported at this boundary:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function UnsupportedDrag() {
+	return <motion.View drag="x" />
+}
+```

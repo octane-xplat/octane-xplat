@@ -26,6 +26,20 @@ const NATIVE_EXTS = [
 	'.json',
 ]
 
+const MACOS_EXTS = [
+	'.macos.tsrx',
+	'.tsrx',
+	'.macos.tsx',
+	'.tsx',
+	'.macos.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
+]
+
 const WEB_EXTS = [
 	'.web.tsrx',
 	'.tsrx',
@@ -41,13 +55,25 @@ const WEB_EXTS = [
 ]
 
 export default defineConfig(({ mode }) => {
-	const native = mode === 'native'
+	const macos = mode === 'macos'
+	const native = mode === 'native' || macos
+	const renderer = macos ? 'macos' : 'nativescript'
 	return {
 		plugins: octane({
 			renderers: native
 				? {
-						registry: { nativescript: nativeScriptRenderer },
-						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
+						registry: macos
+							? {
+									macos: {
+										module: '@octane-xplat/macos-renderer',
+										target: 'universal',
+										server: 'unsupported',
+										text: 'host',
+										intrinsics: '@octane-xplat/macos-renderer/intrinsics',
+									},
+								}
+							: { nativescript: nativeScriptRenderer },
+						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer }],
 					}
 				: undefined,
 		}),
@@ -56,7 +82,7 @@ export default defineConfig(({ mode }) => {
 				entry: { index: native ? 'src/index.ts' : 'src/index.web.ts' } as Record<string, string>,
 				formats: ['es'],
 			},
-			outDir: native ? 'dist/native' : 'dist/web',
+			outDir: macos ? 'dist/macos' : native ? 'dist/native' : 'dist/web',
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
@@ -72,8 +98,8 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		resolve: {
-			conditions: [native ? 'native' : 'web'],
-			extensions: native ? NATIVE_EXTS : WEB_EXTS,
+			conditions: macos ? ['macos', 'native'] : [native ? 'native' : 'web'],
+			extensions: macos ? MACOS_EXTS : native ? NATIVE_EXTS : WEB_EXTS,
 		},
 	}
 })
