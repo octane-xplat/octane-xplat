@@ -38,7 +38,9 @@ function mountSubtree(id: string, render: () => any): void {
 			{
 				create: (fullId: string) => hosts.get(fullId.split('-')[0]) as any,
 				destroy: (fullId: string) => {
-					hosts.delete(fullId.split('-')[0])
+					// Drop the octane root too — a stale root would keep
+					// rendering into the destroyed host.
+					unmountSubtree(fullId.split('-')[0])
 				},
 			} as any,
 		)
@@ -84,6 +86,7 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps) @{
 
 		return () => {
 			unmountSubtree(triggerId.current)
+			unmountSubtree(`${triggerId.current}preview`)
 			setReady(false)
 		}
 	}, [])
@@ -93,9 +96,12 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps) @{
 	}, [props.trigger])
 
 	useEffect(() => {
-		if (props.preview) {
-			mountSubtree(`${triggerId.current}preview`, props.preview)
-		}
+		if (!props.preview) return
+		mountSubtree(`${triggerId.current}preview`, props.preview)
+		// The preview subtree is released when the preview prop is removed
+		// or the component unmounts — unmountSubtree is idempotent, so the
+		// mount-effect cleanup above may also hit it.
+		return () => unmountSubtree(`${triggerId.current}preview`)
 	}, [props.preview])
 
 	const items = props.items ?? []

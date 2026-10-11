@@ -58,16 +58,6 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 		root.render(TriggerRoot as unknown as UniversalComponent, { render: props.trigger })
 		com.octanexplat.contextmenu.XplatViewRegistry.register(triggerId.current, host.android)
 		mounted.current = { host, root }
-		// Activation is an NS gesture on the trigger host — the hosted
-		// subtree consumes pointer input before Compose's gesture detectors
-		// could resolve it, so expanded is pushed through data instead.
-		const open = () => setExpanded(true)
-
-		if ((props.activation ?? 'longPress') === 'singlePress') {
-			host.on('tap', open)
-		} else {
-			host.on('longPress', open)
-		}
 
 		// Gate triggerId on registration — the provider only composes the
 		// AndroidView host once triggerId is non-empty, so the factory must
@@ -76,12 +66,24 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 
 		return () => {
 			com.octanexplat.contextmenu.XplatViewRegistry.unregister(triggerId.current)
-			nativeHost.off()
 			root.unmount?.()
 			mounted.current = null
 			setReady(false)
 		}
 	}, [])
+
+	// Activation is an NS gesture on the trigger host — the hosted subtree
+	// consumes pointer input before Compose's gesture detectors could resolve
+	// it, so expanded is pushed through data instead. Rebind when the
+	// activation prop or the mounted host changes.
+	useEffect(() => {
+		const host = mounted.current?.host
+		if (!ready || !host) return
+		const open = () => setExpanded(true)
+		const event = (props.activation ?? 'longPress') === 'singlePress' ? 'tap' : 'longPress'
+		host.on(event, open)
+		return () => host.off(event, open)
+	}, [ready, props.activation])
 
 	useEffect(() => {
 		mounted.current?.root?.render(TriggerRoot as unknown as UniversalComponent, {

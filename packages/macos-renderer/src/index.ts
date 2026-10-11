@@ -4916,9 +4916,10 @@ function attachContextMenu(
 	menu.autoenablesItems = false
 	const created: number[] = []
 	for (const item of options?.items ?? []) {
+		// The shared item contract renders the divider AND the item's own row —
+		// a divider marks the row before it, not a separator-only item.
 		if (item?.divider) {
 			menu.addItem(NSMenuItem.separatorItem())
-			continue
 		}
 
 		const menuItem = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(

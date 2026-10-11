@@ -10,6 +10,10 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
  *  serialized data; selection reports through `onItemSelected`. */
 export function AppKitContextMenu(props: AppKitContextMenuProps) @{
 	const anchor = useRef<any>(null)
+	// Selection must reach the latest handler — re-attaching the NSMenu on
+	// every callback change would churn the view's `menu` subtree.
+	const latest = useRef(props)
+	latest.current = props
 
 	useEffect(() => {
 		const view = anchor.current
@@ -17,8 +21,8 @@ export function AppKitContextMenu(props: AppKitContextMenuProps) @{
 		if (!view || typeof attach !== 'function') return
 		return attach(
 			view,
-			{ items: props.items ?? [] },
-			(id: string) => props.onItemSelected?.(id),
+			{ items: latest.current.items ?? [] },
+			(id: string) => latest.current.onItemSelected?.(id),
 		)
 	}, [props.items])
 
@@ -27,6 +31,7 @@ export function AppKitContextMenu(props: AppKitContextMenuProps) @{
 		id={props.id}
 		className={props.className}
 		style={props.style}
+		accessibilityLabel={props.accessibilityLabel}
 	>
 		{props.trigger()}
 	</flexboxlayout>;
