@@ -6,15 +6,17 @@ import type { SelectProps } from './web/types'
 export function Select(props: SelectProps) @{
 	const controlled = props.value !== undefined
 	const [internalValue, setInternalValue] = useState(props.defaultValue ?? props.options[0]?.value ?? '')
-	const value = controlled ? props.value! : internalValue
-	const labelId = props.id ? `${props.id}-label` : undefined
+	// Uncontrolled with a blank internal selection displays the first option
+	// once options exist — the default is auto-select-first.
+	const value = controlled ? props.value! : internalValue || (props.options[0]?.value ?? '')
 
 	<label className={props.className} style={props.style}>
-		<span id={labelId}>{props.label}</span>
+		{/* The wrapping <label> supplies the implicit accessible name;
+		    aria-label overrides it with accessibilityLabel when given. */}
+		<span>{props.label}</span>
 		<select
 			id={props.id}
 			aria-label={props.accessibilityLabel ?? props.label}
-			aria-labelledby={labelId}
 			value={value}
 			disabled={props.disabled}
 			onChange={(event: any) => {

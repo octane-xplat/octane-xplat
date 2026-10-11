@@ -65,25 +65,26 @@ public final class XplatPickerProvider: UIViewController, SwiftUIProvider {
 	}
 
 	public func updateData(data: NSDictionary) {
-		if let label = data["label"] as? String { model.label = label }
-		if let accessibilityLabel = data["accessibilityLabel"] as? String {
-			model.accessibilityLabel = accessibilityLabel
-		}
-		if let value = data["value"] as? String { model.value = value }
-		if let disabled = data["disabled"] as? NSNumber { model.disabled = disabled.boolValue }
-		if let options = data["options"] as? [[String: Any]] {
-			model.options = options.compactMap { option in
-				guard let value = option["value"] as? String,
-					let label = option["label"] as? String
-				else { return nil }
+		let options = ((data["options"] as? [[String: Any]]) ?? []).compactMap { option in
+			guard let value = option["value"] as? String,
+				let label = option["label"] as? String
+			else { return nil }
 
-				return PickerOption(
-					value: value,
-					label: label,
-					disabled: (option["disabled"] as? NSNumber)?.boolValue ?? false,
-				)
-			}
+			return PickerOption(
+				value: value,
+				label: label,
+				disabled: (option["disabled"] as? NSNumber)?.boolValue ?? false,
+			)
 		}
+
+		// Full replace — matching the Kotlin provider: absent keys reset to
+		// defaults and a missing value falls back to the first option, so a
+		// partial payload cannot leave divergent state across platforms.
+		model.label = data["label"] as? String ?? ""
+		model.accessibilityLabel = data["accessibilityLabel"] as? String ?? ""
+		model.value = data["value"] as? String ?? options.first?.value ?? ""
+		model.disabled = (data["disabled"] as? NSNumber)?.boolValue ?? false
+		model.options = options
 	}
 
 	public var onEvent: ((NSDictionary) -> Void)?

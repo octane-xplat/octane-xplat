@@ -22,7 +22,9 @@ registerSwiftUI('xplat-swiftui-picker', (owner: any) =>
 export function SwiftUIPicker(props: SwiftUIPickerProps) @{
 	const controlled = props.selection !== undefined
 	const [internalSelection, setInternalSelection] = useState(props.defaultSelection ?? props.options[0]?.id ?? '')
-	const selection = controlled ? props.selection! : internalSelection
+	// Uncontrolled with a blank internal selection displays the first option
+	// once options arrive — matching the other leaves' auto-select-first.
+	const selection = controlled ? props.selection! : internalSelection || (props.options[0]?.id ?? '')
 	const update = (nextSelection: string) => {
 		if (!controlled) setInternalSelection(nextSelection)
 		props.onSelectionChange?.(nextSelection)

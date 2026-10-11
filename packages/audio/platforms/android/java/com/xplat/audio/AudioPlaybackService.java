@@ -46,10 +46,17 @@ public final class AudioPlaybackService extends MediaSessionService {
 	@Override public int onStartCommand(Intent intent, int flags, int startId) {
 		int result = super.onStartCommand(intent, flags, startId);
 		if (intent == null || intent.getAction() == null) return result;
+		// com.xplat.audio.* commands execute only for this app's in-process
+		// bridge — the exported service is reachable by any installed app, so
+		// foreign command intents without the process token are dropped.
+		if (intent.getAction().startsWith("com.xplat.audio.") && !AudioBridge.isCommandIntent(intent)) {
+			return result;
+		}
+
 		try {
 			switch (intent.getAction()) {
 				case AudioBridge.ACTION_QUEUE:
-					setQueue(intent.getStringExtra("queue"), intent.getIntExtra("index", 0));
+					setQueue(AudioBridge.takeQueue(), intent.getIntExtra("index", 0));
 					break;
 				case AudioBridge.ACTION_PLAY: player.play(); break;
 				case AudioBridge.ACTION_PAUSE: player.pause(); break;

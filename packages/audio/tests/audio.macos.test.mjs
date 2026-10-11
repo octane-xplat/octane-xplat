@@ -224,6 +224,13 @@ test('command failure and failure while advancing cannot escape the notification
 		throw new Error('Next track failed')
 	}
 
+	// The poll only runs while playing — the ended transition must be
+	// observed from a playing state to trigger the advance.
+	native.play = function () {
+		this.value.state = 'playing'
+	}
+
+	await player.play()
 	native.value.state = 'ended'
 	tick()
 	await new Promise((resolve) => setImmediate(resolve))

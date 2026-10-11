@@ -22,7 +22,9 @@ registerJetpackCompose('xplat-material-dropdown', (owner: any) =>
 export function MaterialDropdown(props: MaterialDropdownProps) @{
 	const controlled = props.selectedKey !== undefined
 	const [internalKey, setInternalKey] = useState(props.defaultSelectedKey ?? props.items[0]?.key ?? '')
-	const selectedKey = controlled ? props.selectedKey! : internalKey
+	// Uncontrolled with a blank internal selection displays the first item
+	// once items arrive — matching the other leaves' auto-select-first.
+	const selectedKey = controlled ? props.selectedKey! : internalKey || (props.items[0]?.key ?? '')
 	const data = {
 		label: props.label,
 		accessibilityLabel: props.accessibilityLabel ?? props.label,

@@ -38,7 +38,7 @@
 	},
 	"scripts": {
 		"test:packed": "node tests/packed-consumer.mjs",
-		"test": "node --test tests/macos.test.mjs",
+		"test": "node --test tests/*.test.mjs",
 		"test:macos-runtime": "node ../../apps/macos/test/verify-biometrics.mjs"
 	},
 	"dependencies": {

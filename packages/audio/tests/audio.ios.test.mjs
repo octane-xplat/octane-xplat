@@ -52,7 +52,9 @@ function createPlayer() {
 	const nativePlayer = {
 		rate: 0,
 		paused: false,
-		currentItem: { duration: { seconds: 30 } },
+		status: 1,
+		error: undefined,
+		currentItem: { duration: { seconds: 30 }, status: 1, error: undefined },
 		currentTime: () => ({ seconds: 5 }),
 		play() {
 			this.rate = 1
@@ -80,6 +82,8 @@ function createPlayer() {
 		AVPlayer: { playerWithPlayerItem: () => nativePlayer },
 		AVPlayerItem: { playerItemWithURL: () => ({}) },
 		AVPlayerItemDidPlayToEndTimeNotification: 'ended',
+		AVPlayerItemFailedToPlayToEndTimeNotification: 'failed',
+		AVPlayerItemFailedToPlayToEndTimeErrorKey: 'error',
 		CMTimeGetSeconds: (time) => time.seconds,
 		CMTimeMakeWithSeconds: (seconds) => ({ seconds }),
 		NSURL: {
@@ -174,4 +178,82 @@ test('iOS resumes only when interruption options allow it and deactivates the se
 
 	player.dispose()
 	assert.deepEqual(sessionCalls.at(-1), ['active', false, 1, null])
+})
+
+test('iOS play() after the queue ends rewinds the finished item', async () => {
+	const { player, observers, nativePlayer } = createPlayer()
+	await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
+	await player.play()
+	observers.find((observer) => observer.name === 'ended').callback()
+	assert.equal(player.snapshot().state, 'ended')
+
+	await player.play()
+	assert.equal(nativePlayer.position, 0)
+	assert.equal(player.snapshot().state, 'playing')
+	player.dispose()
+})
+
+test('iOS surfaces an asynchronous item failure as state error', async () => {
+	const { player, observers, nativePlayer } = createPlayer()
+	await player.setQueue([{ id: 'sample', source: 'https://example.test/dead.mp3' }])
+	const failure = observers.find((observer) => observer.name === 'failed')
+	failure.callback({
+		userInfo: {
+			objectForKey: (key) => (key === 'error' ? { localizedDescription: 'cannot decode' } : undefined),
+		},
+	})
+
+	const snapshot = player.snapshot()
+	assert.equal(snapshot.state, 'error')
+	assert.equal(snapshot.error.message, 'cannot decode')
+	assert.equal(nativePlayer.paused, true)
+	player.dispose()
+})
+
+test('iOS polls player status so a mid-playback failure reaches state error', async () => {
+	const { player, nativePlayer } = createPlayer()
+	await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
+	await player.play()
+	player.subscribe(() => {})
+	nativePlayer.currentItem.status = 2 // AVPlayerStatus.Failed
+	nativePlayer.currentItem.error = { localizedDescription: 'stream dropped' }
+	await new Promise((resolve) => setTimeout(resolve, 600))
+
+	const snapshot = player.snapshot()
+	assert.equal(snapshot.state, 'error')
+	assert.equal(snapshot.error.message, 'stream dropped')
+	player.dispose()
+})
+
+test('iOS ignores a pending resume after an explicit pause during interruption', async () => {
+	const { player, observers } = createPlayer()
+	await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
+	await player.play()
+	const interruption = observers.find((observer) => observer.name === 'interruption')
+	const event = (type, options) => ({
+		userInfo: {
+			objectForKey: (key) => ({ unsignedIntegerValue: key === 'type' ? type : options }),
+		},
+	})
+
+	interruption.callback(event(1, 0)) // Began — was playing
+	await player.pause() // explicit user pause clears the pending resume
+	interruption.callback(event(0, 1)) // Ended + ShouldResume must not restart
+	assert.equal(player.snapshot().state, 'paused')
+	player.dispose()
+})
+
+test('iOS ignores non-Ended interruption notifications for resume', async () => {
+	const { player, observers } = createPlayer()
+	await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
+	await player.play()
+	const interruption = observers.find((observer) => observer.name === 'interruption')
+	interruption.callback({
+		userInfo: { objectForKey: (key) => ({ unsignedIntegerValue: key === 'type' ? 1 : 0 }) },
+	})
+
+	// A notification carrying no type must not be treated as Ended.
+	interruption.callback({ userInfo: { objectForKey: () => undefined } })
+	assert.equal(player.snapshot().state, 'paused')
+	player.dispose()
 })

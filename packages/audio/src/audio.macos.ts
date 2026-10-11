@@ -113,6 +113,10 @@ export const createAudioPlayer = (): AudioPlayer => {
 			}
 
 			stopTimer()
+		} else if (!pending && value.state !== 'playing' && value.state !== 'loading') {
+			// Paused/idle is stable — the poll only exists to observe loading
+			// resolution, playing progress, and the ended auto-advance.
+			stopTimer()
 		}
 
 		emit()

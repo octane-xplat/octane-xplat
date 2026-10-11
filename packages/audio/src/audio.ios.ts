@@ -11,7 +11,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 	const session = AVAudioSession.sharedInstance()
 	// NativeScript's ambient const enums cannot be read with verbatimModuleSyntax.
 	const interruptionBegan = 1 // AVAudioSessionInterruptionType.Began
+	const interruptionEnded = 0 // AVAudioSessionInterruptionType.Ended
 	const interruptionShouldResume = 1 // AVAudioSessionInterruptionOptions.ShouldResume
+	const statusFailed = 2 // AVPlayerStatus.Failed
 	const notifyOthersOnDeactivation = 1 as AVAudioSessionSetActiveOptions
 	// Lock-screen transport (MPRemoteCommandCenter / MPNowPlayingInfoCenter)
 	// needs MediaPlayer.framework linked AND metadata-generated — plugin
@@ -35,6 +37,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 	let wasPlayingBeforeInterruption = false
 	let timer: ReturnType<typeof setInterval> | undefined
 	let endObserver: NSObjectProtocol | undefined
+	let failureObserver: NSObjectProtocol | undefined
 	let interruptionObserver: NSObjectProtocol | undefined
 	const remoteTargets: Array<{ command: any; token: any }> = []
 
@@ -90,10 +93,22 @@ export const createAudioPlayer = (): AudioPlayer => {
 		nowPlaying.nowPlayingInfo = info
 	}
 
+	// AVPlayer failures arrive asynchronously — the item error carries the
+	// detail, falling back to the player error.
+	const playerError = () => {
+		const cause = player?.currentItem?.error ?? player?.error
+		return new Error(cause?.localizedDescription ?? 'Audio playback failed')
+	}
+
 	const clearTrack = () => {
 		if (endObserver) {
 			NSNotificationCenter.defaultCenter.removeObserver(endObserver)
 			endObserver = undefined
+		}
+
+		if (failureObserver) {
+			NSNotificationCenter.defaultCenter.removeObserver(failureObserver)
+			failureObserver = undefined
 		}
 
 		player?.pause()
@@ -102,6 +117,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
 	const load = async (autoplay = false) => {
 		clearTrack()
+		wasPlayingBeforeInterruption = false
 		const track = current()
 		if (!track) {
 			state = 'idle'
@@ -125,6 +141,22 @@ export const createAudioPlayer = (): AudioPlayer => {
 				item,
 				NSOperationQueue.mainQueue,
 				() => void advance(1),
+			)
+
+			failureObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+				AVPlayerItemFailedToPlayToEndTimeNotification,
+				item,
+				NSOperationQueue.mainQueue,
+				(notification) => {
+					const cause = notification.userInfo?.objectForKey(
+						AVPlayerItemFailedToPlayToEndTimeErrorKey,
+					)
+
+					error = new Error(cause?.localizedDescription ?? 'Audio playback failed')
+					state = 'error'
+					player?.pause()
+					emit()
+				},
 			)
 
 			state = 'paused'
@@ -171,6 +203,12 @@ export const createAudioPlayer = (): AudioPlayer => {
 		)
 
 		session.setActiveWithOptionsError(true, 0 as AVAudioSessionSetActiveOptions, undefined)
+		if (state === 'ended') {
+			// The final item sits at end-of-stream — rewind before replaying,
+			// matching the macOS bridge's ended-restart.
+			player.seekToTime(CMTimeMakeWithSeconds(0, 600))
+		}
+
 		player.play()
 		state = 'playing'
 		updateNowPlaying()
@@ -178,6 +216,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 	}
 
 	const pause = async () => {
+		// An explicit pause must not be auto-resumed by a pending interruption
+		// Ended notification.
+		wasPlayingBeforeInterruption = false
 		player?.pause()
 		state = 'paused'
 		updateNowPlaying()
@@ -221,7 +262,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 				player?.pause()
 				state = 'paused'
 				emit()
-			} else if (wasPlayingBeforeInterruption) {
+			} else if (type === interruptionEnded && wasPlayingBeforeInterruption) {
 				const options =
 					notification.userInfo?.objectForKey(AVAudioSessionInterruptionOptionKey)
 						?.unsignedIntegerValue ?? 0
@@ -247,6 +288,11 @@ export const createAudioPlayer = (): AudioPlayer => {
 			listeners.add(listener)
 			listener(snapshot())
 			timer ??= setInterval(() => {
+				if (state !== 'error' && (player?.status === statusFailed || player?.currentItem?.status === statusFailed)) {
+					error = playerError()
+					state = 'error'
+				}
+
 				updateNowPlaying()
 				emit()
 			}, 500)
