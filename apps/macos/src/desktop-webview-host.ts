@@ -283,6 +283,13 @@ export function createDesktopWebViewHost<
 						Promise.resolve({ reservation: sender.reserveMoviePath(options) }),
 					writeMovieFile: (options: { fileUrl: string; base64: string }) =>
 						Promise.resolve({ file: sender.writeMovieFile(options) }),
+					writeMovieFileChunk: (options: {
+						fileUrl: string
+						base64: string
+						final?: boolean
+					}) => Promise.resolve({ file: sender.writeMovieFileChunk(options) }),
+					readMovieFileChunk: (options: { fileUrl: string; offset: number; length: number }) =>
+						Promise.resolve({ base64: sender.readMovieFileChunk(options) }),
 					movieFileInfo: (options: { fileUrl: string }) =>
 						Promise.resolve({ info: sender.movieFileInfo(options.fileUrl) }),
 					readMovieFile: (options: { fileUrl: string }) =>

@@ -578,6 +578,68 @@ public final class XplatWebViewHost: NSObject {
 		return ["exists": true, "fileUrl": target.absoluteString, "size": size ?? -1]
 	}
 
+	/** Append a base64 chunk to a staged '<name>.part' file inside the
+	 *  app-private root; `final` moves it into place atomically. Keeps the
+	 *  writeMovieFile contract — never overwrites, atomic commit — without
+	 *  requiring the whole movie as one base64 payload. */
+	@objc public func writeMovieFileChunk(_ options: NSDictionary) -> NSDictionary? {
+		guard
+			let fileUrlValue = options["fileUrl"] as? String,
+			let url = URL(string: fileUrlValue),
+			url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url),
+			let base64 = options["base64"] as? String,
+			let data = Data(base64Encoded: base64)
+		else {
+			return nil
+		}
+
+		guard !FileManager.default.fileExists(atPath: target.path) else { return nil }
+		let staged = target.appendingPathExtension("part")
+		if FileManager.default.fileExists(atPath: staged.path) {
+			guard let handle = try? FileHandle(forWritingTo: staged) else { return nil }
+			defer { try? handle.close() }
+			guard (try? handle.seekToEnd()) != nil,
+				(try? handle.write(contentsOf: data)) != nil
+			else {
+				return nil
+			}
+		} else {
+			guard (try? data.write(to: staged)) != nil else { return nil }
+		}
+
+		guard (options["final"] as? NSNumber)?.boolValue == true else {
+			return ["ok": true]
+		}
+
+		guard (try? FileManager.default.moveItem(at: staged, to: target)) != nil else { return nil }
+		return fileRef(for: target)
+	}
+
+	/** Read a byte range of a stored movie as base64 — 'offset' and 'length'
+	 *  are byte counts; a short final read is expected. */
+	@objc public func readMovieFileChunk(_ options: NSDictionary) -> NSString? {
+		guard
+			let fileUrlValue = options["fileUrl"] as? String,
+			let url = URL(string: fileUrlValue),
+			url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url),
+			let handle = try? FileHandle(forReadingFrom: target)
+		else {
+			return nil
+		}
+
+		defer { try? handle.close() }
+		let offset = max(0, (options["offset"] as? NSNumber)?.int64Value ?? 0)
+		let length = max(0, (options["length"] as? NSNumber)?.int64Value ?? Int64.max)
+		guard (try? handle.seek(toOffset: UInt64(offset))) != nil else { return nil }
+		guard let chunk = try? handle.read(upToCount: Int(min(length, Int64(Int32.max)))) else {
+			return nil
+		}
+
+		return chunk.base64EncodedString() as NSString
+	}
+
 	@objc public func readMovieFile(_ uri: String) -> NSString? {
 		guard
 			let url = URL(string: uri),

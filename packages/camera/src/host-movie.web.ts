@@ -26,6 +26,19 @@ export interface CameraHostServices {
 		}): Promise<{ info: { exists: boolean; fileUrl?: string; size?: number } | null }>
 		readMovieFile(options: { fileUrl: string }): Promise<{ base64: string | null }>
 		deleteMovieFile(options: { fileUrl: string }): Promise<{ removed: boolean }>
+		/** Optional chunked variants — a multi-hundred-MB movie must not
+		 *  round-trip through the bridge as one base64 payload. Absent on
+		 *  hosts built before the chunked contract; detected per client. */
+		writeMovieFileChunk?(options: {
+			fileUrl: string
+			base64: string
+			final?: boolean
+		}): Promise<{ file: { name: string; uri: string } | { ok: boolean } | null }>
+		readMovieFileChunk?(options: {
+			fileUrl: string
+			offset: number
+			length: number
+		}): Promise<{ base64: string | null }>
 	}
 }
 
@@ -86,8 +99,7 @@ export async function cameraHost(): Promise<CameraHost | null> {
 const error = (kind: 'destinationUnavailable' | 'storageFailed' | 'unavailable', message: string) =>
 	new CameraCaptureError({ kind, operation: 'storage', message })
 
-const blobToBase64 = async (bytes: Blob): Promise<string> => {
-	const data = new Uint8Array(await bytes.arrayBuffer())
+const dataToBase64 = (data: Uint8Array): string => {
 	let binary = ''
 	const chunk = 0x8000
 	for (let offset = 0; offset < data.length; offset += chunk) {
@@ -96,6 +108,9 @@ const blobToBase64 = async (bytes: Blob): Promise<string> => {
 
 	return btoa(binary)
 }
+
+const blobToBase64 = async (bytes: Blob): Promise<string> =>
+	dataToBase64(new Uint8Array(await bytes.arrayBuffer()))
 
 const base64ToBlob = (base64: string, type: string): Blob => {
 	const binary = atob(base64)
@@ -137,12 +152,63 @@ export const reserveHostMovie = async (
 	return reservation
 }
 
-/** Commit finalized movie bytes to host-side app-private storage. */
+/** Bytes bridged per call when the host exposes the chunked movie contract —
+ *  large enough to amortize IPC, small enough to keep peak copies bounded. */
+const MOVIE_CHUNK_BYTES = 4 * 1024 * 1024
+
+const chunkedSupport = new WeakMap<CameraHost, Promise<boolean>>()
+
+/** A host built before the chunked contract lacks the methods entirely —
+ *  the capabilities probe answers that without a probe call. */
+const supportsChunkedMovies = (host: CameraHost): Promise<boolean> => {
+	let probe = chunkedSupport.get(host)
+	if (!probe) {
+		probe = host
+			.capabilities()
+			.then((capabilities) => {
+				const methods = (capabilities as { camera?: string[] }).camera ?? []
+				return (
+					methods.includes('writeMovieFileChunk') &&
+					methods.includes('readMovieFileChunk')
+				)
+			})
+			.catch(() => false)
+
+		chunkedSupport.set(host, probe)
+	}
+
+	return probe
+}
+
+/** Commit finalized movie bytes to host-side app-private storage. Hosts
+ *  with the chunked contract stream 4MB slices — a multi-hundred-MB
+ *  recording no longer materializes ~3-4x its size across the bridge. */
 export const commitHostMovie = async (
 	host: CameraHost,
 	fileUrl: string,
 	bytes: Blob,
 ): Promise<MovieOutput> => {
+	if (await supportsChunkedMovies(host)) {
+		for (let offset = 0; ; offset += MOVIE_CHUNK_BYTES) {
+			const slice = bytes.slice(offset, offset + MOVIE_CHUNK_BYTES)
+			const final = offset + MOVIE_CHUNK_BYTES >= bytes.size
+			const { file } = await host.call('camera', 'writeMovieFileChunk', {
+				fileUrl,
+				base64: dataToBase64(new Uint8Array(await slice.arrayBuffer())),
+				final,
+			})
+
+			if (final) {
+				const committed = file && 'uri' in file ? file : null
+				if (!committed?.uri) {
+					throw error('storageFailed', 'The host could not write the recorded movie')
+				}
+
+				return { kind: 'nativeFile', resourceId: committed.uri, fileUrl: committed.uri }
+			}
+		}
+	}
+
 	const base64 = await blobToBase64(bytes)
 	const { file } = await host.call('camera', 'writeMovieFile', { fileUrl, base64 })
 	if (!file?.uri) {
@@ -174,6 +240,34 @@ export const openHostMovie = async (
 	const { info } = await host.call('camera', 'movieFileInfo', { fileUrl: output.fileUrl })
 	if (!info?.exists) {
 		throw error('unavailable', `Movie file is missing at ${output.fileUrl}`)
+	}
+
+	const size = Number(info.size ?? -1)
+	if (size > 0 && (await supportsChunkedMovies(host))) {
+		const data = new Uint8Array(size)
+		for (let offset = 0; offset < size; offset += MOVIE_CHUNK_BYTES) {
+			const { base64: chunk } = await host.call('camera', 'readMovieFileChunk', {
+				fileUrl: output.fileUrl,
+				offset,
+				length: Math.min(MOVIE_CHUNK_BYTES, size - offset),
+			})
+
+			if (chunk == null) {
+				throw error('unavailable', `Movie file could not be read at ${output.fileUrl}`)
+			}
+
+			const decoded = atob(chunk)
+			for (let index = 0; index < decoded.length; index += 1) {
+				data[offset + index] = decoded.charCodeAt(index)
+			}
+		}
+
+		const url = URL.createObjectURL(new Blob([data], { type: mimeForFileUrl(output.fileUrl) }))
+		return {
+			url,
+			fileUrl: output.fileUrl,
+			release: () => URL.revokeObjectURL(url),
+		}
 	}
 
 	const { base64 } = await host.call('camera', 'readMovieFile', { fileUrl: output.fileUrl })

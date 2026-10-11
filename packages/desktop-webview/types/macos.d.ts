@@ -27,9 +27,17 @@ export interface MacOSWebView {
 	}): { fileUrl: string } | null
 	/** Commit recorded movie bytes atomically; never overwrites. */
 	writeMovieFile(options: { fileUrl: string; base64: string }): { name: string; uri: string } | null
+	/** Append a staged movie chunk; `final` moves it into place atomically and
+	 *  returns the file ref — keeps large recordings off the single-payload path. */
+	writeMovieFileChunk(options: { fileUrl: string; base64: string; final?: boolean }):
+		| { name: string; uri: string }
+		| { ok: boolean }
+		| null
 	movieFileInfo(uri: string): { exists: boolean; fileUrl?: string; size?: number } | null
 	/** Read a stored movie back as base64. */
 	readMovieFile(uri: string): string | null
+	/** Read a byte range of a stored movie as base64. */
+	readMovieFileChunk(options: { fileUrl: string; offset: number; length: number }): string | null
 	deleteMovieFile(uri: string): boolean
 	/** macOS privacy status for 'camera' or 'microphone'; 'undeclared' when the
 	 *  app's Info.plist lacks the usage description. */
