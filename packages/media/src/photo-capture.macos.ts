@@ -75,10 +75,23 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
 			deliveredUri = image?.uri
 			if (image) {
 				// Shared with the AppKit file picker and files.release; never register
-				// a user-owned original or a rejected/late capture result.
-				const state = globalThis as typeof globalThis & { __xplatTemporaryFiles?: Set<string> }
+				// a user-owned original or a rejected/late capture result. Only the
+				// host's own captures belong in the deletable registry — mirror the
+				// sheet's tempDir + octane-capture- guard on the reply's uri.
+				const manager = (globalThis as any).NSFileManager?.defaultManager
+				const tempDir = String(manager?.temporaryDirectory?.standardizedFileURL?.path ?? '')
+				const name = image.uri.slice(image.uri.lastIndexOf('/') + 1)
+				if (
+					tempDir !== '' &&
+					name.startsWith('octane-capture-') &&
+					image.uri === `${tempDir.replace(/\/+$/, '')}/${name}`
+				) {
+					const state = globalThis as typeof globalThis & {
+						__xplatTemporaryFiles?: Set<string>
+					}
 
-				;(state.__xplatTemporaryFiles ??= new Set<string>()).add(image.uri)
+					;(state.__xplatTemporaryFiles ??= new Set<string>()).add(image.uri)
+				}
 			}
 
 			try {

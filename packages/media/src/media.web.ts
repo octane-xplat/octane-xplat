@@ -18,8 +18,34 @@ function selectFiles(multiple: boolean, capture?: 'user' | 'environment'): Promi
 			input.capture = capture
 		}
 
-		input.onchange = () => resolve(Array.from(input.files ?? []))
-		input.oncancel = () => resolve([])
+		let settled = false
+		const settle = (files: File[]) => {
+			if (settled) {
+				return
+			}
+
+			settled = true
+			input.onchange = null
+			input.oncancel = null
+			if (typeof window !== 'undefined') {
+				window.removeEventListener('focus', onFocus)
+			}
+
+			resolve(files)
+		}
+
+		// Browsers without input.oncancel still return focus to the page when
+		// the picker dismisses — wait a beat for a trailing change event.
+		const onFocus = () => {
+			setTimeout(() => settle(Array.from(input.files ?? [])), 350)
+		}
+
+		input.onchange = () => settle(Array.from(input.files ?? []))
+		input.oncancel = () => settle([])
+		if (typeof window !== 'undefined') {
+			window.addEventListener('focus', onFocus)
+		}
+
 		input.click()
 	})
 }
@@ -89,29 +115,23 @@ export const media: MediaImpl = {
 			return null
 		}
 
-		const [image] = await imageRefs([file])
-		return image ?? null
+		// Non-cancel failures resolve null on every leaf — a shared caller
+		// never has to catch a read or persistence failure here.
+		try {
+			const [image] = await imageRefs([file])
+			return image ?? null
+		} catch {
+			return null
+		}
 	},
 	async ensure(kind: MediaPermissionKind): Promise<PermissionResult> {
 		if (kind === 'photos') {
 			return typeof document !== 'undefined' ? 'granted' : 'unsupported'
 		}
 
-		if (!navigator.permissions?.query) {
-			return 'unsupported'
-		}
-
-		try {
-			const status = await navigator.permissions.query({ name: 'camera' as PermissionName })
-			if (status.state === 'granted') {
-				return 'granted'
-			}
-
-			return status.state === 'denied' ? 'denied' : 'unsupported'
-		} catch {
-			// Some browsers expose Permissions API but reject the camera descriptor.
-			return 'unsupported'
-		}
+		// The file-input capture path needs no camera permission — report the
+		// capability the leaf actually delivers, like the photos branch.
+		return typeof document !== 'undefined' ? 'granted' : 'unsupported'
 	},
 }
 

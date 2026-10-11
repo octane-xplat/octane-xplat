@@ -49,7 +49,7 @@ test('web failed batch and capture reads allocate no orphan object URLs', async 
 	pending = media.capturePhoto()
 	input.files = [{ name: 'bad.jpg', bad: true }]
 	input.onchange()
-	await assert.rejects(pending)
+	assert.equal(await pending, null)
 	assert.equal(created.length, 0)
 })
 

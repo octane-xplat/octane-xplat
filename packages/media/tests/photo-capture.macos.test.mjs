@@ -13,6 +13,11 @@ async function load(overrides = {}) {
 		exports,
 		setTimeout,
 		clearTimeout,
+		NSFileManager: {
+			defaultManager: {
+				temporaryDirectory: { standardizedFileURL: { path: '/temp' } },
+			},
+		},
 		XplatPhotoCaptureSheet: {
 			alloc: () => ({
 				init() {
@@ -48,7 +53,11 @@ async function load(overrides = {}) {
 	return { ...exports, events, hosts, context }
 }
 
-const image = { name: 'shot.jpg', uri: '/temp/shot.jpg', dataUrl: 'data:image/jpeg;base64,AA' }
+const image = {
+	name: 'shot.jpg',
+	uri: '/temp/octane-capture-1.jpg',
+	dataUrl: 'data:image/jpeg;base64,AA',
+}
 
 test('import is passive; gallery save rejects before allocation, permission or UI', async () => {
 	const api = await load()
@@ -94,7 +103,13 @@ test('late result after cancel is discarded and cannot settle or reopen a newer 
 	const retry = api.capturePhoto()
 	api.hosts[0].reply(JSON.stringify(image))
 	assert.equal(api.hosts.length, 2)
-	assert.deepEqual(api.events, ['present', 'dispose', 'present', 'discard /temp/shot.jpg'])
+	assert.deepEqual(api.events, [
+		'present',
+		'dispose',
+		'present',
+		'discard /temp/octane-capture-1.jpg',
+	])
+
 	api.hosts[1].reply(null)
 	assert.equal(await retry, null)
 })
@@ -159,4 +174,26 @@ test('successful shots participate in the AppKit files.release ownership registr
 	assert.equal(api.context.__xplatTemporaryFiles.size, 0)
 	api.context.exports.files.release(result)
 	assert.deepEqual(removed, [image.uri])
+})
+
+test('a host uri outside the temp captures prefix resolves but never registers', async () => {
+	const api = await load()
+	const pending = api.capturePhoto()
+	const foreign = {
+		name: 'shot.jpg',
+		uri: '/Users/shared/keep.jpg',
+		dataUrl: 'data:image/jpeg;base64,AA',
+	}
+
+	api.hosts[0].reply(JSON.stringify(foreign))
+	assert.deepEqual(JSON.parse(JSON.stringify(await pending)), foreign)
+	assert.equal(api.context.__xplatTemporaryFiles?.has(foreign.uri) ?? false, false)
+
+	const stray = { ...foreign, uri: '/temp/shot.jpg' }
+
+	const wrongName = await load()
+	const pending2 = wrongName.capturePhoto()
+	wrongName.hosts[0].reply(JSON.stringify(stray))
+	assert.ok(await pending2)
+	assert.equal(wrongName.context.__xplatTemporaryFiles?.has(stray.uri) ?? false, false)
 })

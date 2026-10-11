@@ -17,8 +17,15 @@ import type {
 } from './types'
 
 async function ensurePhotos(): Promise<PermissionResult> {
+	let picker
 	try {
-		const picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
+		picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
+	} catch {
+		// Plugin missing or unusable — capability absence, not user denial.
+		return 'unsupported'
+	}
+
+	try {
 		const permission = (await picker.authorize()) as { authorized?: boolean } | boolean
 		return permission === true || (typeof permission === 'object' && permission.authorized === true)
 			? 'granted'
@@ -55,6 +62,11 @@ async function ensureCamera(): Promise<PermissionResult> {
 				return 'denied'
 			}
 
+			// Framework unlinked or metadata missing — nothing can be granted.
+			if (typeof av?.requestAccessForMediaTypeCompletionHandler !== 'function') {
+				return 'unsupported'
+			}
+
 			return await new Promise<PermissionResult>((resolve) => {
 				av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
 					resolve(granted ? 'granted' : 'denied'),
@@ -77,12 +89,13 @@ async function ensureCamera(): Promise<PermissionResult> {
 
 		return await new Promise<PermissionResult>((resolve) => {
 			const requestCode = cameraRequestCode++
+			const event = Application.android.activityRequestPermissionsEvent
 			const onResult = (args: any) => {
 				if (args.requestCode !== requestCode) {
 					return
 				}
 
-				Application.android.off(Application.android.activityRequestPermissionsEvent, onResult)
+				Application.android.off(event, onResult)
 
 				resolve(
 					args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -91,9 +104,15 @@ async function ensureCamera(): Promise<PermissionResult> {
 				)
 			}
 
-			Application.android.on(Application.android.activityRequestPermissionsEvent, onResult)
-
-			activity.requestPermissions([perm], requestCode)
+			Application.android.on(event, onResult)
+			try {
+				activity.requestPermissions([perm], requestCode)
+			} catch {
+				// A finishing activity rejects the request synchronously —
+				// do not leak the global listener.
+				Application.android.off(event, onResult)
+				resolve('denied')
+			}
 		})
 	} catch (e) {
 		console.log('[media] ensureCamera error: ' + (e as Error)?.message)
