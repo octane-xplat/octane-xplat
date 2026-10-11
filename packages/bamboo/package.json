@@ -17,16 +17,31 @@
 		"directory": "packages/bamboo"
 	},
 	"files": [
-		"src"
+		"src",
+		"types"
 	],
 	"type": "module",
 	"exports": {
-		".": "./src/config.ts",
-		"./config": "./src/config.ts",
-		"./vite": "./src/vite.ts"
+		".": {
+			"types": "./types/generated/config.d.ts",
+			"default": "./src/config.ts"
+		},
+		"./config": {
+			"types": "./types/generated/config.d.ts",
+			"default": "./src/config.ts"
+		},
+		"./vite": {
+			"types": "./types/generated/vite.d.ts",
+			"default": "./src/vite.ts"
+		}
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.types.json",
+		"prepack": "pnpm build",
+		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
 		"@bamboocss/preset-base": "1.56.2",
@@ -35,5 +50,8 @@
 	},
 	"peerDependencies": {
 		"vite": ">=5"
+	},
+	"devDependencies": {
+		"typescript": "5.9.3"
 	}
 }
