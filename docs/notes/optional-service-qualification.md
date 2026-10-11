@@ -89,8 +89,9 @@ AppKit still-photo capture has a separate app-owned sheet. Deterministic checks
 passed 66 lifecycle/ownership assertions and 24 sheet assertions with an injected
 camera backend, including cancel during authorization/capture, denial, busy
 failure, timeout, close, disposal, and JPEG persistence. A nonvisual
-AppKit/JavaScriptCore probe passed eight assertions for native bridge registration
-and gallery-save rejection without changing permission. That host enumerated
+AppKit/JavaScriptCore probe passed ten assertions for native bridge registration,
+query-only permission checks, removal of the direct authorization helper, and
+gallery-save rejection without changing permission. That host enumerated
 zero cameras; no camera access was requested. OS camera input, real authorization
 dialogs, busy-device recovery, and physical JPEG capture remain unqualified.
 Silo experiment `e09bd290-dccc-4e73-8f68-4c5e1e96bd7c` is queued after movie-capture

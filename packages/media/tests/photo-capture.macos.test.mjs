@@ -17,6 +17,9 @@ async function load(overrides = {}) {
 			alloc: () => ({
 				init() {
 					const host = {
+						permissionStatus() {
+							return 'notDetermined'
+						},
 						requestPermissionReply(reply) {
 							events.push('camera permission')
 							reply('granted')
@@ -112,23 +115,23 @@ test('launch throw and malformed host result release the active slot', async () 
 	assert.deepEqual(malformed.events, ['present', 'dispose'])
 })
 
-test('explicit ensure requests camera only and always disposes its helper', async () => {
-	const api = await load()
-	assert.equal(await api.ensureCamera(), 'granted')
-	assert.deepEqual(api.events, ['camera permission', 'dispose'])
+test('ensure queries permission without prompting, including before the first capture', async () => {
 	for (const [status, expected] of [
+		['granted', 'granted'],
 		['denied', 'denied'],
 		['restricted', 'denied'],
 		['undeclared', 'unsupported'],
+		['notDetermined', 'unsupported'],
+		['unknown', 'unsupported'],
 	]) {
-		const other = await load({
-			requestPermissionReply(reply) {
-				reply(status)
+		const api = await load({
+			permissionStatus() {
+				return status
 			},
 		})
 
-		assert.equal(await other.ensureCamera(), expected)
-		assert.deepEqual(other.events, ['dispose'])
+		assert.equal(await api.ensureCamera(), expected)
+		assert.deepEqual(api.events, ['dispose'])
 	}
 })
 

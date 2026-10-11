@@ -2,7 +2,6 @@ import type { CapturePhotoOptions, PermissionResult, PickedImage } from './types
 
 interface PhotoSheet {
 	permissionStatus(): string
-	requestPermissionReply(reply: (status: string) => void): void
 	presentReply(options: CapturePhotoOptions, reply: (result: string | null) => void): void
 	dispose(): void
 	discard(uri: string): void
@@ -12,7 +11,7 @@ declare const XplatPhotoCaptureSheet: { alloc(): { init(): PhotoSheet } }
 
 let active: PhotoSheet | undefined
 
-/** Explicit permission action; importing this leaf never prompts. */
+/** Query only. Still-photo authorization belongs to the sheet's Capture action. */
 export async function ensureCamera(): Promise<PermissionResult> {
 	if (typeof XplatPhotoCaptureSheet === 'undefined') {
 		return 'unsupported'
@@ -20,20 +19,12 @@ export async function ensureCamera(): Promise<PermissionResult> {
 
 	const sheet = XplatPhotoCaptureSheet.alloc().init()
 	try {
-		const status = await new Promise<string>((resolve) => {
-			const timer = setTimeout(() => resolve('denied'), 15_000)
-			try {
-				sheet.requestPermissionReply((next) => {
-					clearTimeout(timer)
-					resolve(next)
-				})
-			} catch {
-				clearTimeout(timer)
-				resolve('denied')
-			}
-		})
-
-		return status === 'granted' ? 'granted' : status === 'undeclared' ? 'unsupported' : 'denied'
+		const status = String(sheet.permissionStatus())
+		return status === 'granted'
+			? 'granted'
+			: status === 'denied' || status === 'restricted'
+				? 'denied'
+				: 'unsupported'
 	} finally {
 		sheet.dispose()
 	}

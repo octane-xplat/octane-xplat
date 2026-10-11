@@ -19,9 +19,6 @@ public final class XplatPhotoCaptureSheet: NSObject, NSWindowDelegate {
 	var operationTimeout: TimeInterval = 15
 
 	@objc public func permissionStatus() -> NSString { host.permissionStatus("camera") }
-	@objc(requestPermissionReply:) public func requestPermission(_ reply: @escaping (String) -> Void) {
-		host.requestPermission("camera", reply: reply)
-	}
 
 	@objc public func present(_ options: NSDictionary, reply: @escaping (String?) -> Void) {
 		guard let parent = NSApp.keyWindow ?? NSApp.mainWindow else { reply(nil); return }

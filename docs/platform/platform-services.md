@@ -544,6 +544,18 @@ dimensions and file/data-URL byte equality without displaying an image.
 
 ### AppKit still photos
 
+On AppKit, `ensure('camera')` only queries permission. An undecided status
+returns `unsupported`; call capture directly from a user action to offer the
+sheet before authorization. Checking permission never opens an OS prompt.
+
+```ts
+import { media } from '@octane-xplat/media'
+
+export async function cameraPermissionAlreadyGranted() {
+	return (await media.ensure('camera')) === 'granted'
+}
+```
+
 On macOS AppKit, call capture from a button press. The app opens a sheet with
 Capture and Cancel. The first Capture press requests camera access and starts
 the preview; frame the photo and press Capture again to take it. Cancel, denial,
