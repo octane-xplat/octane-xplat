@@ -9,6 +9,7 @@ import { EVIDENCE_KINDS } from './contracts/evidence.mjs'
 import { PLATFORMS } from './contracts/identity.mjs'
 import { PERMISSION_SCOPES } from './contracts/policy.mjs'
 import { discoverWorkspace } from './discovery.mjs'
+import { registerRuntimeTools } from './runtime/tools.mjs'
 import {
 	bindApp,
 	buildProjectStatus,
@@ -21,6 +22,7 @@ const INSTRUCTIONS =
 	'MCP server for Octane Xplat apps. Call xplat_project_status first — it reports detected apps, framework versions, guidance, prerequisites, and capabilities. ' +
 	'If several apps are detected, ask the developer which to use and bind it with xplat_select_app; never guess. ' +
 	'With a dev-mode app running, xplat_dev_actions lists the app-declared action registry and xplat_dev_action_invoke runs one against an exact instance and registry revision. ' +
+	'For runtime work, check xplat_capability_matrix then xplat_targets; xplat_launch starts an owned session as a job and xplat_attach binds a session you already run. ' +
 	'Results always say what was actually checked; a successful build is not proof of behavior.'
 
 const respond = (outcome) => ({
@@ -251,7 +253,7 @@ export function createXplatMcpServer(context) {
 				return fail(usable.error)
 			}
 
-			return ok({ result: await context.sessions.end(sessionId) })
+			return ok({ result: await context.runtime.endSession(sessionId) })
 		},
 	)
 
@@ -536,12 +538,14 @@ export function createXplatMcpServer(context) {
 		},
 	)
 
+	registerRuntimeTools(server, context, respond)
+
 	return {
 		server,
 		context,
 		/** Ownership-safe teardown: end owned sessions, delete session-scoped evidence. */
 		async shutdown() {
-			const sessions = await context.sessions.shutdown()
+			const sessions = await context.runtime.endAll()
 			const evidence = context.evidence.closeSession()
 			return { sessions, evidence }
 		},

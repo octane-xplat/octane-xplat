@@ -313,6 +313,17 @@ const prerequisiteChecks = [
 		probe: () => ({ status: 'satisfied', detail: process.version }),
 	},
 	{
+		id: 'pnpm',
+		name: 'pnpm',
+		probe: () =>
+			run('pnpm', ['--version'])
+				? { status: 'satisfied', detail: run('pnpm', ['--version'])?.trim() }
+				: {
+						status: 'missing',
+						remedy: 'Install pnpm — runtime sessions spawn the app\u2019s toolchain through `pnpm exec`.',
+					},
+	},
+	{
 		id: 'git',
 		name: 'Git',
 		platforms: undefined, // docs snapshots use it, but every workflow benefits

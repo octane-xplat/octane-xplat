@@ -14,6 +14,7 @@ import {
 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { createRuntimeService } from './runtime/service.mjs'
 import {
 	checkPrerequisites,
 	detectGuidance,
@@ -60,7 +61,7 @@ export function createWorkspaceContext(options) {
 		sessions: createSessionRegistry(),
 		jobs: createJobRegistry(),
 		evidence: createEvidenceStore({ root: options.evidenceRoot ?? defaultEvidenceRoot() }),
-		// Slots for later packages: docs (B), code index (C), runtime (D), inspection (E).
+		// Slots for later packages: docs (B), inspection (E).
 		docsStatus: () => NOT_PROVIDED,
 		codeIndexStatus: () => NOT_PROVIDED,
 		// Work item C supplies a code provider at composition time; without one
@@ -82,6 +83,11 @@ export function createWorkspaceContext(options) {
 	})
 
 	registerDevActionProviders({ capabilities: context.capabilities, service: context.devActions })
+
+	// Runtime (D): platform adapters feed the capability matrix; the service
+	// owns sessions/jobs/logs for build, launch, attach and cleanup.
+	context.runtime = createRuntimeService(context, options.runtime)
+	context.runtime.registerCapabilities()
 
 	if (context.configuredAppSelector) {
 		const matches = selectApp(context.discovery, context.configuredAppSelector)

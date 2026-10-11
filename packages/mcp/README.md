@@ -45,11 +45,16 @@ Options: `--workspace` / `XPLAT_MCP_WORKSPACE` (default cwd), `--app` /
 | `xplat_capability_matrix`               | Per-platform capability entries: build, launch, logs, inspection, screenshot, interaction, and the rest are separate rows with status, detail, and alternatives.                                               |
 | `xplat_permissions`                     | Grant states per scope plus the action-time check result and recovery path.                                                                                                                                    |
 | `xplat_sessions`                        | Bound sessions: owned vs attached user-owned, state, build identity.                                                                                                                                           |
-| `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                               |
-| `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved.                                                                                                                     |
+| `xplat_targets`                         | Launchable targets per platform (simulators, devices, host targets) with availability, missing-toolchain reasons, and busy/ownership state.                                                                    |
+| `xplat_build`                           | Build the bound app for one platform as a job — same commands `xplat build` runs. `requestKey` dedupes retries.                                                                                                |
+| `xplat_launch`                          | Owned dev session on one target as a job; completes at confirmed readiness, session owns the processes until `xplat_session_end`.                                                                             |
+| `xplat_attach`                          | Bind a compatible already-running dev session (user-owned, preserved).                                                                                                                                        |
+| `xplat_logs`                            | Bounded ordered logs for a session or build job: cursor, limit, stream filter, truncation/reset indicators, `historical` flag for dead sessions.                                                               |
 | `xplat_dev_actions`                     | The bound app's live development-action registry: instance identity, revision, declarations (contracts, effects, availability). Empty vs disconnected vs no-bridge are distinct states.                          |
 | `xplat_dev_action_invoke`               | Invoke an action against an exact app instance + registry revision. Pre-validates input, availability, grants and queue bounds; returns a job (`requestKey` dedupes retries).                                    |
 | `xplat_dev_action_status`               | Invocation status/result — same job data restricted to dev-action jobs, with instance/request identity.                                                                                                          |
+| `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                               |
+| `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved (our log taps still stop).                                                                                           |
 | `xplat_evidence`                        | `list` / `retain` / `delete` evidence; retain takes an optional ISO expiration.                                                                                                                                |
 | `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters.   |
 | `xplat_code_read`                       | Bounded read of current source by search ref (`xplat-code://…`) or explicit corpus + path; results carry freshness markers and continuation offsets.                                                           |
@@ -111,6 +116,38 @@ documented surface and the `.mjs` files carry the runtime values and stores.
   in the `xplatNative` preset); the server scans the app's bridge session
   files under `node_modules/.cache/xplat/dev-bridge/` and polls live
   announcements — an empty registry is never confused with a disconnected app.
+
+## Runtime (work item D)
+
+`src/runtime/` implements build/launch/attach/logs/cleanup for consumer apps
+on all six platforms. Adapters (`src/runtime/adapters/*`) own platform
+mechanics and always spawn the app's own toolchain — `pnpm exec vite`,
+`pnpm exec ns run …`, the app's installed `@octane-xplat/cli` dev entry, or
+its `dev` script — so a session behaves like the app's installed framework
+version. `service.mjs` owns the shared contract behavior: explicit
+app+target binding, `target_busy` contention, job dedupe/cooperative
+cancel, ownership-safe cleanup, bounded logs, and capability-matrix entries.
+
+| Platform | Launch | Attach | Host gate |
+| --- | --- | --- | --- |
+| web / Chromium | `pnpm exec vite` + headless Chromium (devtools endpoint reported) | probe common dev ports — identity heuristic | none |
+| iOS | `ns run ios --device <udid>` | booted sim + app running → `simctl log stream` tap | macOS |
+| Android | `ns run android --device <serial>` | package running → `adb logcat --pid` tap | none (adb) |
+| macOS | `xplat.targets.macos.dev` → CLI dev entry, else `pnpm run dev` | pgrep on app root — no scrollback | macOS |
+| Linux | `pnpm run dev` (app-owned script) | pgrep on app root | Linux |
+| Windows | `ns run windows` | not yet qualified | Windows |
+
+Readiness is probe/marker-confirmed (`ready` session state) — HTTP 200 for
+web, the host-start marker for macOS, `Successfully synced application` /
+first `CONSOLE` line for `ns run`. A timeout or pre-ready exit fails the job
+and ends the owned session honestly. Chromium is located via
+`XPLAT_MCP_CHROMIUM`, the Playwright browser cache, or system installs;
+without it the web session still reports the server URL with an explicit
+`browser.launched: false`.
+
+Physical iOS devices, Windows attach detection, and non-simulator iOS log
+taps are reported limitations, not silent gaps — the capability matrix
+carries the detail and an alternative.
 
 ## Boundaries
 

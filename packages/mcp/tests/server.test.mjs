@@ -62,7 +62,7 @@ test('ambiguous workspaces require explicit selection', async () => {
 test('capability matrix separates capabilities and explains gaps', async () => {
 	const root = makeWorkspace()
 	makeConsumerApp(root, '.', { name: 'cap-app' })
-	const { client } = await connect(root)
+	const { client } = await connect(root, { runtime: { exec: () => '1.0.0\n' } })
 
 	const result = await client.callTool({ name: 'xplat_capability_matrix', arguments: {} })
 	const [matrix] = result.structuredContent.data.capabilities
@@ -72,9 +72,13 @@ test('capability matrix separates capabilities and explains gaps', async () => {
 		assert.ok(byId[id], `missing ${id}`)
 	}
 
-	assert.equal(byId.build.status, 'unavailable')
-	assert.equal(byId.build.alternative.command, 'xplat dev --target web')
+	// Runtime providers (item D) report real support; E capabilities still
+	// carry their honest defaults.
+	assert.equal(byId.build.status, 'supported')
+	assert.equal(byId.launch.status, 'supported')
+	assert.equal(byId.target_discovery.status, 'supported')
 	assert.equal(byId.screenshot.requiresPermission, 'visual-capture')
+	assert.equal(byId.screenshot.status, 'unavailable')
 })
 
 test('permissions report grant states; screenshots are never baseline-granted', async () => {
