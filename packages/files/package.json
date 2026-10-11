@@ -91,6 +91,7 @@
 		"access": "public"
 	},
 	"scripts": {
+		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"build": "vite build && vite build --mode native && vite build --mode linux && node ../../scripts/check-native-dist.mjs",
 		"prepack": "pnpm build"
@@ -106,7 +107,9 @@
 		"@octane-xplat/ui": "workspace:*",
 		"octane": "0.11.0",
 		"@octanejs/vite-plugin": "0.1.61",
-		"vite": "8.3.0"
+		"vite": "8.3.0",
+		"vitest": "5.0.1",
+		"jsdom": "30.1.1"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

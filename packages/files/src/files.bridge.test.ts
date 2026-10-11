@@ -15,6 +15,7 @@ const bridge = vi.hoisted(() => ({
 	removedPaths: [] as string[],
 	channelWrites: [] as any[],
 	presented: [] as any[],
+	dataCalls: [] as { view: any; length: number }[],
 }))
 
 vi.mock('@nativescript-community/ui-document-picker', () => ({
@@ -33,7 +34,10 @@ vi.mock('@nativescript/core', () => ({
 	},
 	knownFolders: {
 		documents: () => ({ path: '/docs' }),
-		temp: () => ({ path: '/tmp' }),
+		temp: () => ({
+			path: '/tmp',
+			getFolder: (name: string) => ({ path: `/tmp/${name}` }),
+		}),
 	},
 	path: {
 		join: (...parts: string[]) => parts.join('/'),
@@ -47,11 +51,46 @@ vi.mock('@nativescript/core', () => ({
 
 // Explicit .ts specifier: the web resolve chain would otherwise pick
 // files.web.ts; this suite covers the shared iOS/Android leaf.
+import { openFilePicker } from '@nativescript-community/ui-document-picker'
 import { files } from './files.ts'
 import { files as macosFiles } from './files.macos'
 
+// NS runtime builtins the byte path uses: Array.create produces a Java
+// byte[]; ArrayBuffer.from materializes one back into JS memory.
+function stubByteRuntime() {
+	;(Array as any).create = (_type: string, length: number) => Array.from({ length })
+
+	;(ArrayBuffer as any).from = (bytes: any) => new Uint8Array(bytes).buffer
+}
+
+function streamOf(bytes: number[]) {
+	let offset = 0
+	return {
+		read: vi.fn((chunk: number[]) => {
+			const remaining = bytes.length - offset
+			if (remaining <= 0) {
+				return -1
+			}
+
+			const count = Math.min(chunk.length, remaining)
+			for (let i = 0; i < count; i++) {
+				chunk[i] = bytes[offset++]
+			}
+
+			return count
+		}),
+		close: vi.fn(),
+	}
+}
+
 function stubAndroid() {
-	bridge.resolver = { openOutputStream: vi.fn(() => ({ close: vi.fn() })) }
+	stubByteRuntime()
+	bridge.resolver = {
+		openOutputStream: vi.fn(() => ({ close: vi.fn() })),
+		openInputStream: vi.fn(),
+		query: vi.fn(() => null),
+	}
+
 	bridge.activity = {
 		getContentResolver: () => bridge.resolver,
 		startActivityForResult: vi.fn(),
@@ -95,6 +134,7 @@ beforeEach(() => {
 	bridge.removedPaths = []
 	bridge.channelWrites = []
 	bridge.presented = []
+	bridge.dataCalls = []
 	bridge.keyWindow = true
 	bridge.writeAtomic = true
 	bridge.resolver = null
@@ -149,11 +189,13 @@ beforeEach(() => {
 				toByteArray() {
 					return this.data
 				}
+				toString() {
+					return new TextDecoder().decode(new Uint8Array(this.data))
+				}
 			},
-			BufferedReader: class {},
-			InputStreamReader: class {},
 		},
 		nio: {
+			ByteBuffer: { wrap: (bytes: any) => bytes },
 			channels: {
 				Channels: {
 					newChannel: (out: any) => ({
@@ -168,11 +210,14 @@ beforeEach(() => {
 	})
 
 	vi.stubGlobal('NSData', {
-		dataWithBytesLength: (view: Uint8Array, length: number) => ({
-			view,
-			length,
-			writeToFileAtomically: vi.fn(() => bridge.writeAtomic),
-		}),
+		dataWithBytesLength: (view: any, length: number) => {
+			bridge.dataCalls.push({ view, length })
+			return {
+				view,
+				length,
+				writeToFileAtomically: vi.fn(() => bridge.writeAtomic),
+			}
+		},
 	})
 
 	vi.stubGlobal('NSURL', { fileURLWithPath: (p: string) => ({ path: p }) })
@@ -207,6 +252,8 @@ beforeEach(() => {
 
 afterEach(() => {
 	bridge.application.android = undefined
+	delete (Array as any).create
+	delete (ArrayBuffer as any).from
 	vi.unstubAllGlobals()
 	vi.restoreAllMocks()
 })
@@ -222,6 +269,69 @@ describe('files.writeBytes (ios bridge)', () => {
 	it('returns a sandbox ref after a confirmed write', async () => {
 		const ref = await files.writeBytes('a.bin', new Uint8Array([1, 2]))
 		expect(ref).toEqual({ name: 'a.bin', uri: '/docs/a.bin' })
+	})
+
+	it('marshals only the view’s byte range for offset views', async () => {
+		const backing = new Uint8Array([9, 1, 2, 3, 8])
+		await files.writeBytes('a.bin', backing.subarray(1, 4))
+		const call = bridge.dataCalls.at(-1)!
+		expect(call.length).toBe(3)
+		expect([...new Uint8Array(call.view)]).toEqual([1, 2, 3])
+	})
+})
+
+describe('files.pick (android bridge)', () => {
+	beforeEach(stubAndroid)
+
+	it('names the picked ref from the provider _display_name column', async () => {
+		vi.mocked(openFilePicker).mockResolvedValueOnce({
+			files: ['content://docs/1234'],
+			android: { doc: true },
+		} as any)
+
+		bridge.resolver.query.mockReturnValue({
+			moveToFirst: () => true,
+			getColumnIndex: (column: string) => (column === '_display_name' ? 0 : -1),
+			getString: () => 'Quarterly Report.pdf',
+			close: vi.fn(),
+		})
+
+		const ref = await files.pick()
+		expect(ref?.name).toBe('Quarterly Report.pdf')
+		expect(bridge.resolver.query).toHaveBeenCalled()
+	})
+
+	it('falls back to the decoded URI segment when the column is absent', async () => {
+		vi.mocked(openFilePicker).mockResolvedValueOnce({
+			files: ['content://docs/report%20final.txt'],
+		} as any)
+
+		const ref = await files.pick()
+		expect(ref?.name).toBe('report final.txt')
+	})
+})
+
+describe('files.readText (android bridge)', () => {
+	beforeEach(stubAndroid)
+
+	it('decodes content:// bytes without rewriting line endings', async () => {
+		const bytes = [...new TextEncoder().encode('a\r\nb\n')]
+		bridge.resolver.openInputStream.mockReturnValue(streamOf(bytes))
+
+		await expect(files.readText({ name: 'doc', uri: 'content://x/doc' })).resolves.toBe(
+			'a\r\nb\n',
+		)
+
+		expect(bridge.resolver.openInputStream).toHaveBeenCalledTimes(1)
+	})
+
+	it('routes file:// refs through the resolver like readBytes', async () => {
+		bridge.resolver.openInputStream.mockReturnValue(streamOf([104, 105]))
+		await expect(files.readText({ name: 'doc', uri: 'file:///data/doc.txt' })).resolves.toBe(
+			'hi',
+		)
+
+		expect(bridge.resolver.openInputStream).toHaveBeenCalledTimes(1)
 	})
 })
 
@@ -295,7 +405,7 @@ describe('files.export (ios bridge)', () => {
 
 		lastPicker.delegate.documentPickerDidPickDocumentAtURL(lastPicker, { path: '/dest' })
 		expect(await pending).toBe('saved')
-		expect(bridge.removedPaths).toEqual(['/tmp/out.bin'])
+		expect(bridge.removedPaths).toEqual(['/tmp/xplat-export/out.bin'])
 		expect(lastPicker.delegate).toBeNull()
 	})
 
@@ -303,7 +413,7 @@ describe('files.export (ios bridge)', () => {
 		const pending = files.export('out.bin', new Uint8Array([9]))
 		lastPicker.delegate.documentPickerWasCancelled(lastPicker)
 		expect(await pending).toBe('cancelled')
-		expect(bridge.removedPaths).toEqual(['/tmp/out.bin'])
+		expect(bridge.removedPaths).toEqual(['/tmp/xplat-export/out.bin'])
 	})
 
 	it('rejects when the temp write fails instead of hanging', async () => {
@@ -315,13 +425,22 @@ describe('files.export (ios bridge)', () => {
 		expect(bridge.presented).toHaveLength(0)
 	})
 
+	it('stages inside a dedicated folder so app temp files cannot be clobbered', async () => {
+		const pending = files.export('settings.json', new Uint8Array([1]))
+		expect(lastPicker.urls[0].path).toBe('/tmp/xplat-export/settings.json')
+
+		lastPicker.delegate.documentPickerWasCancelled(lastPicker)
+		expect(await pending).toBe('cancelled')
+		expect(bridge.removedPaths).toEqual(['/tmp/xplat-export/settings.json'])
+	})
+
 	it('rejects when no view controller can present instead of hanging', async () => {
 		bridge.keyWindow = false
 		await expect(files.export('out.bin', new Uint8Array([1]))).rejects.toThrow(
 			/No visible view controller/,
 		)
 
-		expect(bridge.removedPaths).toEqual(['/tmp/out.bin'])
+		expect(bridge.removedPaths).toEqual(['/tmp/xplat-export/out.bin'])
 	})
 
 	it('rejects a concurrent export with ExportBusyError', async () => {

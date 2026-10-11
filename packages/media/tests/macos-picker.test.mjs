@@ -79,6 +79,7 @@ test('multiple selection preserves order, dimensions and each original name', as
 	for (const result of results) {
 		d.files.release(result)
 	}
+
 	assert.deepEqual(outputs(d), [])
 	assert.ok(selected.every((url) => d.disk.has(url.path) && !url.active))
 })
@@ -136,7 +137,7 @@ for (const [name, options, error] of [
 		d.selections.push({ urls: selected })
 		await assert.rejects(d.media.pickImages(), error)
 		assert.deepEqual(outputs(d), [])
-		assert.equal(d.host.__xplatMediaTemporaryFiles.size, 0)
+		assert.equal(d.host.__xplatTemporaryFiles.size, 0)
 		assert.ok(selected.every((url) => d.disk.has(url.path) && !url.active))
 	})
 }
@@ -178,7 +179,7 @@ test('macOS cleanup failures are reported and all batch outputs are attempted', 
 
 	assert.equal(d.events.filter(([event]) => event === 'remove').length, 2)
 	assert.equal(
-		d.host.__xplatMediaTemporaryFiles.size,
+		d.host.__xplatTemporaryFiles.size,
 		2,
 		'failed cleanup retains ownership for retry',
 	)
@@ -191,8 +192,11 @@ test('files.release never removes an unregistered original and retains ownership
 	assert.ok(d.disk.has(original.path))
 	d.selections.push({ urls: [original] })
 	const result = await d.media.pickImage()
-	assert.throws(() => d.files.release(result), /Could not remove/)
-	assert.ok(d.host.__xplatMediaTemporaryFiles.has(result.uri))
+	// Best-effort cleanup: a failed delete stays registered for a later retry
+	// instead of throwing from a void cleanup API.
+	assert.doesNotThrow(() => d.files.release(result))
+	assert.ok(d.disk.has(result.uri))
+	assert.ok(d.host.__xplatTemporaryFiles.has(result.uri))
 })
 
 test('macOS public import remains safe without AppKit; picker reports unavailable', async () => {

@@ -2,8 +2,10 @@
 import type { MediaImpl, PickedImage } from './types'
 import { capturePhoto, ensureCamera } from './photo-capture.macos'
 
+// __xplatTemporaryFiles is a registry shared with @octane-xplat/files: app
+// registers only the temp outputs it minted, and files.release deletes them.
 function temporaryImages(): Set<string> {
-	return ((globalThis as any).__xplatMediaTemporaryFiles ??= new Set<string>())
+	return ((globalThis as any).__xplatTemporaryFiles ??= new Set<string>())
 }
 
 function removeOutput(uri: string): void {

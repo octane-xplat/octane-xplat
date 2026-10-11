@@ -41,6 +41,7 @@ function png(width, height) {
 	for (let row = 0; row < height; row++) {
 		pixels[row * (1 + width * 3)] = 0
 	}
+
 	return Buffer.concat([
 		Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
 		chunk('IHDR', header),
@@ -117,15 +118,15 @@ setTimeout(async () => {
     let rejected = false;
     try { await media.pickImages(); } catch (error) { rejected = /decode/.test(error.message); }
     check(rejected, 'invalid batch rejects');
-    check(globalThis.__xplatMediaTemporaryFiles.size === 3, 'failed batch leaves no owned output');
+    check(globalThis.__xplatTemporaryFiles.size === 3, 'failed batch leaves no owned output');
     for (const image of retained) { files.release(image); check(!NSFileManager.defaultManager.fileExistsAtPath(image.uri), 'preview released'); }
-    check(globalThis.__xplatMediaTemporaryFiles.size === 0, 'ownership cleared');
+    check(globalThis.__xplatTemporaryFiles.size === 0, 'ownership cleared');
     check(sourcePaths.every(path => NSFileManager.defaultManager.fileExistsAtPath(path)), 'originals retained');
     console.log('APPKIT_PICKER_CODEC_OK: ' + assertions + ' assertions; injected panel; actual PNG/JPEG/file bridge');
   } catch (error) {
     console.error('APPKIT_PICKER_CODEC_FAIL: ' + error.stack);
   } finally {
-    for (const uri of Array.from(globalThis.__xplatMediaTemporaryFiles || [])) {
+    for (const uri of Array.from(globalThis.__xplatTemporaryFiles || [])) {
       files.release({ uri });
     }
     globalThis.__xplatStopHost();

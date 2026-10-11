@@ -1,6 +1,7 @@
-import { useImperativeHandle, useId, useRef, useState } from 'octane'
+import { useEffect, useImperativeHandle, useId, useRef, useState } from 'octane'
 import { Field as FormField, Icon, Spinner as ActivityIndicator, Tooltip, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
+import { files as fileService } from './files'
 import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
 
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
@@ -23,6 +24,37 @@ function FileInputControl(inputProps: FileInputProps) @{
 	const statusType = validationErrors.length ? 'error' : props.status?.type
 	const statusMessage = validationErrors.length ? validationErrors.join(' ') : props.status?.message
 
+	// Object URLs minted by this control — revoked through files.release as
+	// they leave the value list and at unmount, so picks don't leak their
+	// backing Blobs for the page's lifetime.
+	const minted = useRef(new Set<string>())
+	const mintRef = (file: any): FileInputFile => {
+		const uri = URL.createObjectURL(file)
+		minted.current.add(uri)
+		return { name: file.name, uri, size: file.size, mimeType: file.type, file }
+	}
+
+	const releaseDropped = (next: FileInputFile[], candidates: FileInputFile[]) => {
+		const keep = new Set(next.map((file) => file.uri))
+		for (const file of candidates) {
+			if (file.uri && minted.current.has(file.uri) && !keep.has(file.uri)) {
+				minted.current.delete(file.uri)
+				fileService.release(file)
+			}
+		}
+	}
+
+	useEffect(
+		() => () => {
+			for (const uri of minted.current) {
+				fileService.release({ name: '', uri })
+			}
+
+			minted.current.clear()
+		},
+		[],
+	)
+
 	// `onChange` mirrors `value`'s shape: array when `isMultiple`, single ref
 	// or null otherwise.
 	const emitValue = (next: FileInputFile[]): FileInputFile | FileInputFile[] | null =>
@@ -33,12 +65,19 @@ function FileInputControl(inputProps: FileInputProps) @{
 		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(emitted)).finally(() => setBusy(false))
+			Promise.resolve(props.changeAction(emitted))
+				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
+				.finally(() => setBusy(false))
 		}
 	}
 
 	const acceptRefs = (picked: FileInputFile[]) => {
-		if (isDisabled || isBusy || !picked.length) return
+		if (isDisabled || isBusy || !picked.length) {
+			// Refs minted for a pick the control cannot adopt still get revoked.
+			releaseDropped(files, picked)
+			return
+		}
+
 		const merged = props.isMultiple ? [...files, ...picked] : picked
 		const { valid, errors } = validateFiles(merged, {
 			accept: props.accept,
@@ -48,6 +87,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 		setValidationErrors(errors)
 		const next = !props.isMultiple && errors.length ? files : valid
+		releaseDropped(next, [...files, ...picked])
 		if (next.length !== files.length || next.some((file, index) => file.uri !== files[index]?.uri)) {
 			fireChange(next)
 		}
@@ -56,7 +96,9 @@ function FileInputControl(inputProps: FileInputProps) @{
 	const removeAt = (index: number) => {
 		if (isDisabled || isBusy) return
 		setValidationErrors([])
-		fireChange(files.filter((_, i) => i !== index))
+		const next = files.filter((_, i) => i !== index)
+		releaseDropped(next, files)
+		fireChange(next)
 	}
 
 	const pick = () => {
@@ -78,8 +120,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 		const picked: FileInputFile[] = []
 		if (list) {
 			for (let i = 0; i < list.length; i++) {
-				const f = list[i]
-				picked.push({ name: f.name, uri: URL.createObjectURL(f), size: f.size, mimeType: f.type, file: f })
+				picked.push(mintRef(list[i]))
 			}
 		}
 
@@ -96,8 +137,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 		if (!list?.length) return
 		const picked: FileInputFile[] = []
 		for (let i = 0; i < list.length; i++) {
-			const f = list[i]
-			picked.push({ name: f.name, uri: URL.createObjectURL(f), size: f.size, mimeType: f.type, file: f })
+			picked.push(mintRef(list[i]))
 		}
 
 		acceptRefs(picked)
@@ -158,7 +198,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 					Browse files
 				</button>
 			) : null}
-			{canClear ? <button type="button" className="vx-fileinput-clear" aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`} onClick={() => { setValidationErrors([]); fireChange([]) }}>{'×'}</button> : null}
+			{canClear ? <button type="button" className="vx-fileinput-clear" aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`} onClick={() => { setValidationErrors([]); releaseDropped([], files); fireChange([]) }}>{'×'}</button> : null}
 			{isBusy ? <ActivityIndicator busy className="vx-fileinput-spinner" /> : null}
 			{statusType ? (
 				props.statusVariant === 'tooltip' && statusMessage

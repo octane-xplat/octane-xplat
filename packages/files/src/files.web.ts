@@ -33,16 +33,41 @@ function chooseFiles(accept: string, multiple: boolean): Promise<FileRef[]> {
 		input.type = 'file'
 		input.accept = accept
 		input.multiple = multiple
+		let settled = false
+		const settle = (refs: FileRef[]) => {
+			if (settled) {
+				return
+			}
+
+			settled = true
+			window.removeEventListener('focus', onWindowFocus)
+			resolve(refs)
+		}
+
 		input.onchange = () => {
 			const refs: FileRef[] = []
 			for (const file of Array.from(input.files ?? [])) {
 				refs.push({ name: file.name, uri: mintObjectUrl(file) })
 			}
 
-			resolve(refs)
+			settle(refs)
 		}
 
-		input.oncancel = () => resolve([])
+		input.oncancel = () => settle([])
+
+		// input.oncancel only exists on newer engines (Chrome 113+/Safari
+		// 16.4+); without it a dismissed dialog leaves this promise pending
+		// forever. Regained window focus without a selection is the fallback
+		// signal — the delay lets a pending change event settle first.
+		const onWindowFocus = () => {
+			setTimeout(() => {
+				if (!input.files?.length) {
+					settle([])
+				}
+			}, 300)
+		}
+
+		window.addEventListener('focus', onWindowFocus)
 		input.click()
 	})
 }
@@ -116,7 +141,9 @@ export const files: Files = {
 			return text
 		}
 
-		return (await fetch(ref.uri)).text()
+		// fetchBytes applies the same response.ok guard readBytes enforces —
+		// a bare fetch().text() would resolve an HTTP error body as content.
+		return new TextDecoder().decode(await fetchBytes(ref.uri))
 	},
 	async readBytes(ref: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array> {
 		throwIfAborted(opts?.signal)

@@ -32,7 +32,9 @@ function FileInputControl(inputProps: FileInputProps) @{
 		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(emitted)).finally(() => setBusy(false))
+			Promise.resolve(props.changeAction(emitted))
+				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
+				.finally(() => setBusy(false))
 		}
 	}
 

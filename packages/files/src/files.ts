@@ -61,7 +61,9 @@ function androidDisplayName(uri: string, nativeUri: any): string | undefined {
 				return undefined
 			}
 
-			const index = cursor.getColumnIndex('display_name')
+			// android.provider.OpenableColumns.DISPLAY_NAME — the literal the
+			// column contract requires; 'display_name' resolves to -1.
+			const index = cursor.getColumnIndex('_display_name')
 			return index >= 0 ? cursor.getString(index) : undefined
 		} finally {
 			cursor.close()
@@ -80,26 +82,13 @@ function fallbackName(uri: string): string {
 	}
 }
 
-async function readContentUri(uri: string): Promise<string> {
-	const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
-	const input = activity?.getContentResolver()?.openInputStream(android.net.Uri.parse(uri))
-
-	if (!input) {
-		throw new Error(`Unable to open picked file: ${uri}`)
-	}
-
-	const reader = new java.io.BufferedReader(new java.io.InputStreamReader(input))
-	const lines: string[] = []
-	try {
-		let line: string | null
-		while ((line = reader.readLine()) !== null) {
-			lines.push(line)
-		}
-
-		return lines.join('\n')
-	} finally {
-		reader.close()
-	}
+// Text reads go through the byte path so content://, file://, and bare paths
+// share one opener and the decoded text is byte-faithful — BufferedReader +
+// join would rewrite \r\n/\r endings and drop a trailing newline. Decoding in
+// Java keeps the byte[] on the native side; TextDecoder has no type surface
+// in the DOM-free native context.
+function readAndroidText(uri: string): string {
+	return readAndroidToStream(uri).toString('UTF-8') as unknown as string
 }
 
 async function pickFiles(
@@ -133,7 +122,7 @@ function openAndroidInput(uri: string): any {
 	return new java.io.FileInputStream(uri)
 }
 
-function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
+function readAndroidToStream(uri: string, opts?: FileReadBytesOptions): any {
 	const input = openAndroidInput(uri)
 	if (!input) {
 		throw new Error(`Unable to open picked file: ${uri}`)
@@ -154,6 +143,11 @@ function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array 
 		input.close()
 	}
 
+	return out
+}
+
+function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
+	const out = readAndroidToStream(uri, opts)
 	// ArrayBuffer.from is an NS Android runtime builtin that takes a
 	// java.nio.ByteBuffer — wrap the byte[] rather than marshalling per byte.
 	return new Uint8Array((ArrayBuffer as any).from(java.nio.ByteBuffer.wrap(out.toByteArray())))
@@ -333,11 +327,14 @@ async function iosExport(
 	bytes: Uint8Array,
 	slot: { delegate?: any; controller?: any },
 ): Promise<FileExportResult> {
-	const tempPath = path.join(knownFolders.temp().path, name)
-	const staged = NSData.dataWithBytesLength(bytes as any, bytes.byteLength).writeToFileAtomically(
-		tempPath,
-		true,
-	)
+	// Stage under a dedicated folder — a bare name in the shared temp folder
+	// could overwrite (and then delete) an unrelated app file with that name.
+	const staging = knownFolders.temp().getFolder('xplat-export')
+	const tempPath = path.join(staging.path, name)
+	const staged = NSData.dataWithBytesLength(
+		exactBuffer(bytes) as any,
+		bytes.byteLength,
+	).writeToFileAtomically(tempPath, true)
 
 	const removeTemp = () => {
 		try {
@@ -390,11 +387,11 @@ export const files: Files = {
 		return (await pickFiles(accept, false, opts))[0] ?? null
 	},
 	async readText(ref: FileRef): Promise<string> {
-		if (ref.uri.startsWith('content://')) {
-			return readContentUri(ref.uri)
+		if (Application.android) {
+			return readAndroidText(ref.uri)
 		}
 
-		return File.fromPath(Application.android ? ref.uri : iosFilePath(ref.uri)).readText()
+		return File.fromPath(iosFilePath(ref.uri)).readText()
 	},
 	async readBytes(ref: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array> {
 		throwIfAborted(opts?.signal)
@@ -416,9 +413,10 @@ export const files: Files = {
 			// FileSystemAccess.writeBufferSync drops the writeToFileAtomically
 			// result and swallows errors without an onError callback, so a
 			// failed write would resolve with a ref to a missing file. Check
-			// the BOOL — it is the platform's overwrite confirmation.
+			// the BOOL — it is the platform's overwrite confirmation. Marshal
+			// the view's exact range — the bridge treats the buffer as whole.
 			const written = NSData.dataWithBytesLength(
-				bytes as any,
+				exactBuffer(bytes) as any,
 				bytes.byteLength,
 			).writeToFileAtomically(p, true)
 

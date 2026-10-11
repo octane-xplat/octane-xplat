@@ -85,6 +85,36 @@ describe('files.readBytes (web)', () => {
 	})
 })
 
+describe('files.readText (web)', () => {
+	it('rejects on a non-2xx response instead of returning the error body', async () => {
+		vi.stubGlobal('fetch', vi.fn(async () => new Response('not found', { status: 404 })))
+		await expect(
+			files.readText({ name: 'x.txt', uri: 'https://x/missing.txt' }),
+		).rejects.toThrow(/Unable to read file/)
+	})
+
+	it('returns fetched text for a good response', async () => {
+		vi.stubGlobal('fetch', vi.fn(async () => new Response('héllo ✓')))
+		await expect(files.readText({ name: 'x.txt', uri: 'https://x/a.txt' })).resolves.toBe(
+			'héllo ✓',
+		)
+	})
+})
+
+describe('files.pick (web)', () => {
+	it('resolves null when the window refocuses without a selection', async () => {
+		vi.useFakeTimers()
+		try {
+			const pending = files.pick('*/*')
+			window.dispatchEvent(new Event('focus'))
+			await vi.advanceTimersByTimeAsync(400)
+			await expect(pending).resolves.toBeNull()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+})
+
 describe('files.export (web)', () => {
 	it('returns unavailable without the File System Access API', async () => {
 		expect(await files.export('a.bin', new Uint8Array([1]))).toBe('unavailable')

@@ -76,9 +76,9 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
 			if (image) {
 				// Shared with the AppKit file picker and files.release; never register
 				// a user-owned original or a rejected/late capture result.
-				const state = globalThis as typeof globalThis & { __xplatMediaTemporaryFiles?: Set<string> }
+				const state = globalThis as typeof globalThis & { __xplatTemporaryFiles?: Set<string> }
 
-				;(state.__xplatMediaTemporaryFiles ??= new Set<string>()).add(image.uri)
+				;(state.__xplatTemporaryFiles ??= new Set<string>()).add(image.uri)
 			}
 
 			try {
