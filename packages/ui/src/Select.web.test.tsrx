@@ -144,6 +144,7 @@ describe('Select finite-list interaction', () => {
 		ui.key('Escape', search)
 		expect(onChangeQuery).toHaveBeenLastCalledWith('')
 		expect(onOpenChange).toHaveBeenLastCalledWith(false)
+		expect(onChangeQuery.mock.invocationCallOrder.at(-1)!).toBeLessThan(onOpenChange.mock.invocationCallOrder.at(-1)!)
 	})
 
 	it('ignores a rejected commit after unmount', async () => {
