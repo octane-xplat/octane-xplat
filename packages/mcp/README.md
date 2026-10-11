@@ -38,16 +38,27 @@ Options: `--workspace` / `XPLAT_MCP_WORKSPACE` (default cwd), `--app` /
 
 ## Tools
 
-| Tool                                    | Purpose                                                                                                                                                                                                  |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `xplat_project_status`                  | Detected apps, selection state, framework version binding, guidance sources, docs/code-index status, declared platforms, runtime prerequisites, capability summary, permissions, boundaries, next steps. |
-| `xplat_select_app`                      | Explicitly bind an app by id/path/name. Ambiguous or unknown selections fail with the candidate list — the server never picks silently.                                                                  |
-| `xplat_capability_matrix`               | Per-platform capability entries: build, launch, logs, inspection, screenshot, interaction, and the rest are separate rows with status, detail, and alternatives.                                         |
-| `xplat_permissions`                     | Grant states per scope plus the action-time check result and recovery path.                                                                                                                              |
-| `xplat_sessions`                        | Bound sessions: owned vs attached user-owned, state, build identity.                                                                                                                                     |
-| `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                         |
-| `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved.                                                                                                               |
-| `xplat_evidence`                        | `list` / `retain` / `delete` evidence; retain takes an optional ISO expiration.                                                                                                                          |
+| Tool                                    | Purpose                                                                                                                                                                                                        |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `xplat_project_status`                  | Detected apps, selection state, framework version binding, guidance sources, docs/code-index status, declared platforms, runtime prerequisites, capability summary, permissions, boundaries, next steps.       |
+| `xplat_select_app`                      | Explicitly bind an app by id/path/name. Ambiguous or unknown selections fail with the candidate list — the server never picks silently.                                                                        |
+| `xplat_capability_matrix`               | Per-platform capability entries: build, launch, logs, inspection, screenshot, interaction, and the rest are separate rows with status, detail, and alternatives.                                               |
+| `xplat_permissions`                     | Grant states per scope plus the action-time check result and recovery path.                                                                                                                                    |
+| `xplat_sessions`                        | Bound sessions: owned vs attached user-owned, state, build identity.                                                                                                                                           |
+| `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                               |
+| `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved.                                                                                                                     |
+| `xplat_evidence`                        | `list` / `retain` / `delete` evidence; retain takes an optional ISO expiration.                                                                                                                                |
+| `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters. |
+| `xplat_code_read`                       | Bounded read of current source by search ref (`xplat-code://…`) or explicit corpus + path; results carry freshness markers and continuation offsets.                                                           |
+
+Code search reads the bound application's source plus its installed
+`@octane-xplat/*` package sources — corpora stay labeled and distinguishable.
+The semantic index is local TF-IDF (`local-tfidf`): it builds in the
+background, reports `preparing` / `ready` / `stale` / `unavailable`, and stale
+hits are revalidated against current file content before serving. Nothing
+leaves the machine; there is no remote embedding path. Secrets, private
+configuration, generated output, and paths outside the bound scope are
+excluded and unreadable.
 
 Every result is `{ ok: true, data } | { ok: false, error }` where `error` is a
 `ContractError` from the shared vocabulary.
@@ -84,6 +95,8 @@ documented surface and the `.mjs` files carry the runtime values and stores.
   `TRANSCRIPT_LIMITATION_NOTE`. `isOsInputEvidence` is the guard that keeps
   handler-dispatch results from being labeled OS-input verification.
 - `status` — `ProjectStatusReport`, the shape `xplat_project_status` returns.
+- `code` — the `CodeProvider` seam the context's `code` slot consumes, plus
+  `CodeHit` / `CodeSearchResult` / provenance and freshness shapes.
 - `boundaries` — `PRODUCT_BOUNDARIES`, the advertised out-of-scope list.
 
 ## Boundaries

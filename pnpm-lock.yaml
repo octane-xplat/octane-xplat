@@ -1604,6 +1604,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.31.0
         version: 1.31.0(supports-color@10.2.2)(zod@4.6.5)
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../cli
       yaml:
         specifier: 2.9.1
         version: 2.9.1

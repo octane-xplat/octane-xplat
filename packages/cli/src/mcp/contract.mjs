@@ -12,6 +12,8 @@ export const SOURCES = Object.freeze({
 	DEVELOPMENT_DOCS: 'development-docs', // linked/workspace checkout, no release version
 	INSTALLED_SOURCE: 'installed-source', // fallback pointer into node_modules
 	PROJECT_GUIDANCE: 'project-guidance', // consumer-workspace guidance, scoped
+	APP_SOURCE: 'app-source', // the bound application's current working tree
+	FRAMEWORK_SOURCE: 'framework-source', // installed/linked package source
 })
 
 // Version match status for a served result (design: "exact, verified

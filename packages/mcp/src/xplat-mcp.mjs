@@ -3,6 +3,7 @@
 // diagnostics go to stderr only.
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { createCodeService } from '@octane-xplat/cli/mcp/code-service'
 import { PERMISSION_SCOPES } from './contracts/policy.mjs'
 import { createXplatMcpServer } from './server.mjs'
 import { createWorkspaceContext } from './status.mjs'
@@ -40,11 +41,17 @@ if (unknown.length) {
 	process.stderr.write(`xplat-mcp: ignoring unknown permission scopes: ${unknown.join(', ')}\n`)
 }
 
+const workspaceRoot = arg('workspace') ?? process.env.XPLAT_MCP_WORKSPACE ?? process.cwd()
+
 const context = createWorkspaceContext({
-	workspaceRoot: arg('workspace') ?? process.env.XPLAT_MCP_WORKSPACE ?? process.cwd(),
+	workspaceRoot,
 	appSelector: arg('app') ?? process.env.XPLAT_MCP_APP,
 	permissionScopes: permissionScopes.filter((s) => PERMISSION_SCOPES.includes(s)),
 	evidenceRoot: arg('evidence-dir') ?? process.env.XPLAT_MCP_EVIDENCE_DIR,
+	code: createCodeService({
+		workspaceRoot,
+		workspaceKind: () => context.discovery.workspace.kind,
+	}),
 })
 
 const { server, shutdown } = createXplatMcpServer(context)

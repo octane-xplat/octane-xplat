@@ -4,12 +4,18 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { contractError } from './contracts/errors.mjs'
+import { contractError, toContractError } from './contracts/errors.mjs'
 import { EVIDENCE_KINDS } from './contracts/evidence.mjs'
 import { PLATFORMS } from './contracts/identity.mjs'
 import { PERMISSION_SCOPES } from './contracts/policy.mjs'
 import { discoverWorkspace } from './discovery.mjs'
-import { bindApp, buildProjectStatus, SERVER_NAME, SERVER_VERSION } from './status.mjs'
+import {
+	bindApp,
+	buildProjectStatus,
+	resolveSelection,
+	SERVER_NAME,
+	SERVER_VERSION,
+} from './status.mjs'
 
 const INSTRUCTIONS =
 	'MCP server for Octane Xplat apps. Call xplat_project_status first — it reports detected apps, framework versions, guidance, prerequisites, and capabilities. ' +
@@ -56,6 +62,25 @@ export function createXplatMcpServer(context) {
 			return 'denied'
 		}
 	})
+
+	// Work item C: a code provider wired into the context makes code
+	// search/read a server-side capability — supported on every platform,
+	// independent of runtime adapters.
+	if (context.code) {
+		for (const platform of PLATFORMS) {
+			context.capabilities.register({
+				platform,
+				describe: () => [
+					{
+						capability: 'code_search',
+						status: 'supported',
+						detail:
+							'Exact search reads the bound app and its installed framework sources directly. An optional local semantic index accelerates intent-style queries and never blocks exact retrieval.',
+					},
+				],
+			})
+		}
+	}
 
 	server.registerTool(
 		'xplat_project_status',
@@ -249,6 +274,168 @@ export function createXplatMcpServer(context) {
 
 			const result = context.evidence.delete(id)
 			return result.error ? fail(result.error) : ok(result)
+		},
+	)
+
+	// Code retrieval (work item C). Results are leads with provenance and
+	// freshness — exact search reads live files, semantic hits are
+	// revalidated against current source before serving.
+	const boundAppForCode = () => {
+		const selection = resolveSelection(context)
+		if (selection.state === 'ambiguous') {
+			return {
+				error: contractError(
+					'ambiguous_selection',
+					'Several apps are detected — code retrieval targets the bound app and its installed packages, never a guessed one.',
+					{
+						recovery: {
+							action: 'Ask the developer which app to use, then call xplat_select_app.',
+						},
+						context: { candidates: selection.candidates.map((a) => a.id) },
+					},
+				),
+			}
+		}
+
+		// 'none' stays usable for framework-repo workspaces (framework corpus
+		// needs no bound app); the provider reports when an app is required.
+		return { app: selection.state === 'bound' ? selection.app : null }
+	}
+
+	const noCodeProvider = () =>
+		fail(
+			contractError(
+				'unavailable',
+				'No code-search provider is wired into this server (work item C integration absent).',
+				{
+					recovery: {
+						action: 'Use your normal file tools; report the missing provider to the developer.',
+					},
+				},
+			),
+		)
+
+	const codeResult = (result) => {
+		if (!result?.status) {
+			return ok(result)
+		}
+
+		const code = result.status === 'unavailable' ? 'unavailable' : 'invalid_selection'
+
+		return fail(
+			contractError(code, result.detail ?? result.reason ?? result.status, {
+				context: {
+					status: result.status,
+					reason: result.reason,
+					corpus: result.corpus,
+					path: result.path,
+				},
+			}),
+		)
+	}
+
+	server.registerTool(
+		'xplat_code_search',
+		{
+			description:
+				'Search current source. mode=exact (default auto includes it) finds identifiers/tokens by exact match over live files; mode=semantic uses an optional local index that never blocks exact retrieval. Corpora stay labeled: app = the bound app, framework = its installed @octane-xplat packages. Results are leads — open refs with xplat_code_read before citing an API.',
+			inputSchema: {
+				query: z.string().describe('Identifier, phrase, or intent to search for'),
+				mode: z
+					.enum(['auto', 'exact', 'semantic'])
+					.optional()
+					.describe('exact = token search over current files; semantic = local index; auto = both'),
+				corpus: z.enum(['app', 'framework', 'all']).optional().describe('Default: all'),
+				platform: z
+					.enum(PLATFORMS)
+					.optional()
+					.describe('Include shared files plus files marked for this platform'),
+				package: z.string().optional().describe('Limit the framework corpus to one package'),
+				limit: z.number().int().min(1).max(50).optional(),
+			},
+		},
+		async ({ query, mode, corpus, platform, package: pkg, limit }) => {
+			if (!context.code) {
+				return noCodeProvider()
+			}
+
+			const check = context.policy.require('workspace')
+			if (!check.granted) {
+				return fail(check.error)
+			}
+
+			const { app, error } = boundAppForCode()
+			if (error) {
+				return fail(error)
+			}
+
+			try {
+				return codeResult(
+					await context.code.search({
+						app,
+						workspaceKind: context.discovery.workspace.kind,
+						query,
+						mode,
+						corpus,
+						platform,
+						package: pkg,
+						limit,
+					}),
+				)
+			} catch (value) {
+				return fail(toContractError(value))
+			}
+		},
+	)
+
+	server.registerTool(
+		'xplat_code_read',
+		{
+			description:
+				'Read current source by a search ref (xplat-code://…) or explicit corpus + path. Bounded slices return a continuation offset; a file that changed or vanished is reported, never served stale.',
+			inputSchema: {
+				ref: z.string().optional().describe('xplat-code://<corpus>/<key> from a search hit'),
+				corpus: z.enum(['app', 'framework']).optional(),
+				package: z.string().optional().describe('Framework package name for corpus=framework'),
+				path: z
+					.string()
+					.optional()
+					.describe('Workspace-relative path (app) or path inside the package (framework)'),
+				offset: z.number().int().min(0).optional(),
+				limit: z.number().int().min(1).max(64_000).optional(),
+			},
+		},
+		async ({ ref, corpus, package: pkg, path, offset, limit }) => {
+			if (!context.code) {
+				return noCodeProvider()
+			}
+
+			const check = context.policy.require('workspace')
+			if (!check.granted) {
+				return fail(check.error)
+			}
+
+			const { app, error } = boundAppForCode()
+			if (error) {
+				return fail(error)
+			}
+
+			try {
+				return codeResult(
+					await context.code.read({
+						app,
+						workspaceKind: context.discovery.workspace.kind,
+						ref,
+						corpus,
+						package: pkg,
+						path,
+						offset,
+						limit,
+					}),
+				)
+			} catch (value) {
+				return fail(toContractError(value))
+			}
 		},
 	)
 

@@ -35,6 +35,7 @@ const NOT_PROVIDED = { state: 'not_provided' }
  *  - permissionScopes: extra bootstrap scopes (e.g. from XPLAT_MCP_PERMISSIONS)
  *  - evidenceRoot: override evidence directory
  *  - elicit: GrantElicitor wired to client elicitation
+ *  - code: work-item-C code provider { status(app), search(args), read(args) }
  */
 export function createWorkspaceContext(options) {
 	const context = {
@@ -59,6 +60,13 @@ export function createWorkspaceContext(options) {
 		// Slots for later packages: docs (B), code index (C), runtime (D), inspection (E), actions (G).
 		docsStatus: () => NOT_PROVIDED,
 		codeIndexStatus: () => NOT_PROVIDED,
+		// Work item C supplies a code provider at composition time; without one
+		// the search/read tools fail honestly instead of pretending.
+		code: options.code ?? null,
+	}
+
+	if (context.code) {
+		context.codeIndexStatus = (app) => context.code.status(app)
 	}
 
 	if (context.configuredAppSelector) {

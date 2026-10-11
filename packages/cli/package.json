@@ -45,6 +45,9 @@
 		"./macos/vite": {
 			"types": "./src/macos/vite.d.ts",
 			"default": "./src/macos/vite.mjs"
+		},
+		"./mcp/code-service": {
+			"default": "./src/mcp/code-service.mjs"
 		}
 	},
 	"publishConfig": {
