@@ -1067,12 +1067,12 @@ through its two prop getters. Its per-axis `state` reports overflow and the
 start/end edges after layout, resizing, content changes, axis changes, and
 scrolling. Pass a caller scroll handler to `getViewportProps`; it receives the
 existing AppKit event once, after the hook updates its measured state. Layout
-measurements alone do not invoke the caller scroll handler. Keep editable children in charge
-of their editing keys; the hook does not intercept them.
+measurements alone do not invoke the caller scroll handler. Keep editable children
+in charge of their editing keys; the hook does not intercept them.
 
 ```tsx
-// Details.macos.tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
+// Details.macos.tsx
 import { useScrollableArea } from '@octane-xplat/ui'
 
 export function Details(props: { onScrolled: (atEnd: boolean, event: any) => void }) {
