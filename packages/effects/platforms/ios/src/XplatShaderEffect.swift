@@ -103,9 +103,16 @@ struct XplatShaderEffectView: View {
 				base.colorEffect(shader)
 			}
 		} else {
-			XplatShaderEffectDiagnostics.warnUnknownEffect(model.effect)
-			base
+			unregisteredEffectView(base)
 		}
+	}
+
+	/// Renders `base` unchanged while reporting the miss — the warn lives
+	/// in a plain function because @ViewBuilder bodies only accept View
+	/// expressions.
+	private func unregisteredEffectView<V: View>(_ base: V) -> V {
+		XplatShaderEffectDiagnostics.warnUnknownEffect(model.effect)
+		return base
 	}
 
 	private func shaderArguments(time: TimeInterval, size: CGSize) -> [String: Any] {

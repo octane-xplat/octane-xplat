@@ -65,7 +65,7 @@ public final class XplatPickerProvider: UIViewController, SwiftUIProvider {
 	}
 
 	public func updateData(data: NSDictionary) {
-		let options = ((data["options"] as? [[String: Any]]) ?? []).compactMap { option in
+		let options = ((data["options"] as? [[String: Any]]) ?? []).compactMap { option -> PickerOption? in
 			guard let value = option["value"] as? String,
 				let label = option["label"] as? String
 			else { return nil }
