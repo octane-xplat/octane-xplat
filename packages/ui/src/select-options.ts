@@ -13,9 +13,14 @@ export function filterSelectOptions(options: SelectOption[], query: string): Sel
 	return options.filter((option) => (option.label ?? option.value).toLowerCase().includes(lower))
 }
 
+export interface SelectOptionGroup {
+	heading: string | undefined
+	options: SelectOption[]
+}
+
 export function groupSelectOptions(
 	options: SelectOption[],
-): { heading: string | undefined; options: SelectOption[] }[] {
+): SelectOptionGroup[] {
 	const groups = new Map<string | undefined, SelectOption[]>()
 	for (const option of options) {
 		const rows = groups.get(option.group)

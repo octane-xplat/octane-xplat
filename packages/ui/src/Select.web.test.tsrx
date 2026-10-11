@@ -134,6 +134,31 @@ describe('Select finite-list interaction', () => {
 		expect(ui.trigger().textContent).toContain('Apricot')
 	})
 
+	it('reports query edits and resets the query when the surface closes', () => {
+		const onChangeQuery = vi.fn(), onOpenChange = vi.fn()
+		const ui = mount({ searchable: true, onChangeQuery, onOpenChange })
+		ui.click(ui.trigger())
+		const search = document.querySelector('.vx-select-search') as HTMLInputElement
+		act(() => { search.value = 'ber'; search.dispatchEvent(new Event('input', { bubbles: true })) })
+		expect(onChangeQuery).toHaveBeenLastCalledWith('ber')
+		ui.key('Escape', search)
+		expect(onChangeQuery).toHaveBeenLastCalledWith('')
+		expect(onOpenChange).toHaveBeenLastCalledWith(false)
+	})
+
+	it('ignores a rejected commit after unmount', async () => {
+		let reject!: (error: unknown) => void
+		const action = new Promise<void>((_resolve, fail) => { reject = fail })
+		const onValueChange = vi.fn(), onChangeError = vi.fn()
+		const ui = mount({ defaultValue: 'apple', changeAction: () => action, onValueChange, onChangeError })
+		ui.key('b')
+		expect(onValueChange).toHaveBeenCalledTimes(1)
+		ui.root.unmount()
+		ui.host.remove()
+		await act(async () => { reject(new Error('offline')); await action.catch(() => {}) })
+		expect(onChangeError).not.toHaveBeenCalled()
+	})
+
 	it('closes on Tab and leaves composition keys untouched', () => {
 		const ui = mount()
 		ui.key('ArrowDown')
