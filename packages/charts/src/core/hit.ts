@@ -35,16 +35,37 @@ export function hitTest(scene: ChartScene, x: number, y: number, slop = HIT_SLOP
 		return null
 	}
 
-	const centers = new Map<string, number>()
+	if (scene.type === 'scatter') {
+		// Scatter is a point cloud, not a snapped axis — pick the datum
+		// nearest the pointer in 2D and miss when nothing is actually near.
+		let best: SceneHit | null = null
+		let bestDist = Infinity
+		for (const p of points) {
+			const d = Math.hypot(p.cx - x, p.cy - y)
+			if (d < bestDist) {
+				bestDist = d
+				best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
+			}
+		}
+
+		return best !== null && bestDist <= slop ? best : null
+	}
+
+	const centers = new Map<string, { total: number; count: number }>()
 	for (const p of points) {
 		const cur = centers.get(p.key)
-		centers.set(p.key, cur === undefined ? p.cx : (cur + p.cx) / 2)
+		if (cur === undefined) {
+			centers.set(p.key, { total: p.cx, count: 1 })
+		} else {
+			cur.total += p.cx
+			cur.count += 1
+		}
 	}
 
 	let key: string | null = null
 	let keyDist = Infinity
-	for (const [k, cx] of centers) {
-		const d = Math.abs(cx - x)
+	for (const [k, sum] of centers) {
+		const d = Math.abs(sum.total / sum.count - x)
 		if (d < keyDist) {
 			keyDist = d
 			key = k
@@ -67,12 +88,6 @@ export function hitTest(scene: ChartScene, x: number, y: number, slop = HIT_SLOP
 			bestDist = d
 			best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
 		}
-	}
-
-	// Scatter is a point cloud, not a snapped axis — miss when nothing is
-	// actually near the pointer.
-	if (best && scene.type === 'scatter' && bestDist > slop) {
-		return null
 	}
 
 	return best

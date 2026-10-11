@@ -107,6 +107,42 @@ describe('scales', () => {
 		expect(yDomain(stacked, 'bar', true)).toEqual([-3, 9])
 	})
 
+	test('stacked y domain skips non-finite values like the marks do', () => {
+		const dirty = [
+			{
+				name: 'a',
+				values: [
+					{ x: 'k', y: 4 },
+					{ x: 'k', y: Number.NaN },
+					{ x: 'z', y: -2 },
+					{ x: 'z', y: Number.POSITIVE_INFINITY },
+				],
+			},
+		]
+
+		expect(yDomain(dirty, 'bar', true)).toEqual([-2, 4])
+
+		const scene = sceneFor({ type: 'bar', data: dirty, stacked: true })
+		expect(scene.markup).not.toContain('NaN')
+	})
+
+	test('a datum whose x cannot map is dropped from path and points', () => {
+		const mixed = [
+			{
+				name: 's',
+				values: [{ x: 0, y: 1 }, { x: 'gap', y: 9 }, { x: 2, y: 3 }],
+			},
+		]
+
+		const scene = sceneFor({ type: 'line', data: mixed })
+		expect(scene.markup).not.toContain('NaN')
+		expect(scene.points).toHaveLength(2)
+
+		const scatter = sceneFor({ type: 'scatter', data: mixed })
+		expect(scatter.markup).not.toContain('NaN')
+		expect(scatter.points).toHaveLength(2)
+	})
+
 	test('y scale maps domain to inverted pixel range', () => {
 		const y = buildYScale([0, 10], 100)
 		expect(y(0)).toBeCloseTo(100)
@@ -197,6 +233,45 @@ describe('hit math', () => {
 		expect(
 			hitTest(scene, scene.plot.x + scene.plot.width / 2, scene.plot.y + scene.plot.height / 2),
 		).toBeNull()
+	})
+
+	test('scatter picks the 2D-nearest point, not the x-nearest group', () => {
+		const scene = sceneFor({
+			type: 'scatter',
+			data: [
+				{
+					name: 's',
+					values: [
+						{ x: 0, y: 0 },
+						{ x: 1.2, y: 10 },
+						{ x: 30, y: 5 },
+					],
+				},
+			],
+		})
+
+		const [a, b] = scene.points
+		// Just short of B horizontally but level with A — A is nearer in 2D.
+		const hit = hitTest(scene, b.cx - 4, a.cy)
+		expect(hit).toMatchObject({ series: 0, index: 0, x: 0 })
+	})
+
+	test('group centers average every series cx in the band', () => {
+		const three = [
+			...XY,
+			{ name: 'gamma', values: [{ x: 'a', y: 5 }, { x: 'b', y: 4 }, { x: 'c', y: 6 }] },
+		]
+
+		const scene = sceneFor({ type: 'bar', data: three })
+		const center = (key: string) =>
+			scene.points.filter((p) => p.key === key).reduce((s, p) => s + p.cx, 0) /
+			scene.points.filter((p) => p.key === key).length
+
+		const mid = (center('a') + center('b')) / 2
+		// Inside b's half of the a–b boundary — a last-series-weighted center
+		// would drag b's snap boundary right and mislabel this 'a'.
+		expect(hitTest(scene, mid - 1, scene.plot.y + scene.plot.height / 2)?.x).toBe('a')
+		expect(hitTest(scene, mid + 1, scene.plot.y + scene.plot.height / 2)?.x).toBe('b')
 	})
 
 	test('pie hits resolve by angle; the donut hole misses', () => {

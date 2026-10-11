@@ -11,6 +11,16 @@ import type { SceneHit } from './core/hit';
 const EMPTY_SVG = '<svg xmlns="http://www.w3.org/2000/svg"/>';
 const TIP_ESTIMATE_CHAR = 6.2;
 
+// Color throws on unparseable input — user-controlled palette strings
+// degrade to the fallback like a browser dropping a bad CSS value.
+const safeColor = (value: string | undefined, fallback: string): Color => {
+	try {
+		return new Color(value ?? fallback);
+	} catch {
+		return new Color(fallback);
+	}
+};
+
 /** Chart — NativeScript leaf. The core's Mark[] serialize to one svg markup
  *  string fed to `<svgview>` (vendored ui-svg → SVGKit/androidsvg — its
  *  registration arrives transitively through `@octane-xplat/ui`'s native
@@ -106,7 +116,7 @@ export function Chart(props: ChartProps) @{
 			<flexboxlayout flexDirection="row" flexWrap="wrap" style={{ paddingBottom: 4 }}>
 				{scene.legend.map((item) => (
 					<flexboxlayout flexDirection="row" alignItems="center" style={{ marginRight: 12 }}>
-						<contentview style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: new Color(item.color), marginRight: 4 }} />
+						<contentview style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: safeColor(item.color, 'transparent'), marginRight: 4 }} />
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</flexboxlayout>
 				))}
@@ -142,7 +152,7 @@ export function Chart(props: ChartProps) @{
 					<contentview left={cursor.px - 0.5} top={plot.y} width={1} height={plot.height} backgroundColor={new Color('#8a8a8a')} />
 				}
 				@if (cursor && (props.crosshair || props.tooltip)) {
-					<contentview left={cursor.px - 4} top={cursor.py - 4} width={8} height={8} borderRadius={4} backgroundColor={new Color(dotColor ?? '#4e79a7')} />
+					<contentview left={cursor.px - 4} top={cursor.py - 4} width={8} height={8} borderRadius={4} backgroundColor={safeColor(dotColor, '#4e79a7')} />
 				}
 				@if (cursor && props.tooltip && tipText) {
 					<flexboxlayout
@@ -164,7 +174,7 @@ export function Chart(props: ChartProps) @{
 			<flexboxlayout flexDirection="row" flexWrap="wrap" style={{ paddingTop: 4 }}>
 				{scene.legend.map((item) => (
 					<flexboxlayout flexDirection="row" alignItems="center" style={{ marginRight: 12 }}>
-						<contentview style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: new Color(item.color), marginRight: 4 }} />
+						<contentview style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: safeColor(item.color, 'transparent'), marginRight: 4 }} />
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</flexboxlayout>
 				))}

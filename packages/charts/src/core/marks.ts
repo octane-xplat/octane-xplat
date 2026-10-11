@@ -107,7 +107,7 @@ export function buildMarks(
 function lineMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 	const { xKind, x, y } = layout
 	const gen = linePath<ChartDatum>()
-		.defined((d) => Number.isFinite(d.y))
+		.defined((d) => Number.isFinite(d.y) && Number.isFinite(xCenter(xKind, x, d.x)))
 		.x((d) => xCenter(xKind, x, d.x))
 		.y((d) => y(d.y))
 		.curve(curveMonotoneX)
@@ -126,15 +126,13 @@ function lineMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 		})
 
 		s.values.forEach((d, i) => {
-			points.push({
-				series: si,
-				index: i,
-				key: categoryKey(d.x),
-				cx: xCenter(xKind, x, d.x),
-				cy: y(d.y),
-				x: d.x,
-				y: d.y,
-			})
+			const cx = xCenter(xKind, x, d.x)
+			const cy = y(d.y)
+			if (!Number.isFinite(cx) || !Number.isFinite(cy)) {
+				return
+			}
+
+			points.push({ series: si, index: i, key: categoryKey(d.x), cx, cy, x: d.x, y: d.y })
 		})
 	})
 
@@ -144,15 +142,18 @@ function lineMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 function areaMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 	const { xKind, x, y } = layout
 	const zero = y(Math.max(y.domain()[0], Math.min(0, y.domain()[1])))
+	const defined = (d: ChartDatum) =>
+		Number.isFinite(d.y) && Number.isFinite(xCenter(xKind, x, d.x))
+
 	const gen = areaPath<ChartDatum>()
-		.defined((d) => Number.isFinite(d.y))
+		.defined(defined)
 		.x((d) => xCenter(xKind, x, d.x))
 		.y0(zero)
 		.y1((d) => y(d.y))
 		.curve(curveMonotoneX)
 
 	const stroke = linePath<ChartDatum>()
-		.defined((d) => Number.isFinite(d.y))
+		.defined(defined)
 		.x((d) => xCenter(xKind, x, d.x))
 		.y((d) => y(d.y))
 		.curve(curveMonotoneX)
@@ -178,15 +179,13 @@ function areaMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 		})
 
 		s.values.forEach((d, i) => {
-			points.push({
-				series: si,
-				index: i,
-				key: categoryKey(d.x),
-				cx: xCenter(xKind, x, d.x),
-				cy: y(d.y),
-				x: d.x,
-				y: d.y,
-			})
+			const cx = xCenter(xKind, x, d.x)
+			const cy = y(d.y)
+			if (!Number.isFinite(cx) || !Number.isFinite(cy)) {
+				return
+			}
+
+			points.push({ series: si, index: i, key: categoryKey(d.x), cx, cy, x: d.x, y: d.y })
 		})
 	})
 
@@ -201,6 +200,10 @@ function scatterMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks
 		s.values.forEach((d, i) => {
 			const cx = xCenter(xKind, x, d.x)
 			const cy = y(d.y)
+			if (!Number.isFinite(cx) || !Number.isFinite(cy)) {
+				return
+			}
+
 			marks.push({
 				kind: 'circle',
 				cx,

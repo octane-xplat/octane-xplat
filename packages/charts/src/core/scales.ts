@@ -122,6 +122,10 @@ export function yDomain(data: SeriesSpec[], type: ChartType, stacked: boolean): 
 		const neg = new Map<string, number>()
 		for (const series of data) {
 			for (const d of series.values) {
+				if (!Number.isFinite(d.y)) {
+					continue
+				}
+
 				const key = String(d.x)
 				if (d.y >= 0) {
 					pos.set(key, (pos.get(key) ?? 0) + d.y)
