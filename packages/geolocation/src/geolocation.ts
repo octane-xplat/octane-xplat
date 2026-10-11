@@ -12,7 +12,7 @@ function asPosition(nativeLocation: any): GeolocationPosition {
 	return {
 		latitude: nativeLocation.latitude,
 		longitude: nativeLocation.longitude,
-		accuracy: nativeLocation.horizontalAccuracy ?? nativeLocation.accuracy ?? 0,
+		accuracy: Math.max(0, nativeLocation.horizontalAccuracy ?? nativeLocation.accuracy ?? 0),
 		// Altitude itself can be negative; iOS validity uses verticalAccuracy.
 		altitude:
 			(android && !android.hasAltitude()) || (ios && ios.verticalAccuracy < 0)

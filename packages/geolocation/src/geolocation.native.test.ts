@@ -50,8 +50,20 @@ it('uses iOS altitude validity and rejects negative course/speed sentinels', asy
 	expect([present.altitude, present.heading, present.speed]).toEqual([-10, 0, 0])
 })
 
+it('clamps the iOS invalid-accuracy sentinel to the contract floor', async () => {
+	api.getCurrentLocation.mockResolvedValue({ ...fix, horizontalAccuracy: -1 })
+	expect((await geolocation.impl!.getCurrentPosition()).accuracy).toBe(0)
+})
+
 it('preserves plugin errors without inventing numeric codes from localized text', async () => {
 	const error = new Error('Localized platform failure')
 	api.getCurrentLocation.mockRejectedValue(error)
 	await expect(geolocation.impl!.getCurrentPosition()).rejects.toBe(error)
+})
+
+it('reports an unsupported capability on windows', async () => {
+	const windows = await import('./geolocation.windows')
+	expect(windows.geolocation.supported).toBe(false)
+	expect(windows.geolocation.impl).toBeNull()
+	await expect(windows.geolocation.ensure()).resolves.toBe('unsupported')
 })
