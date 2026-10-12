@@ -779,6 +779,16 @@ export type { UseFocusWithinOptions } from './use-focus-within'
 export { useLandmark } from './use-landmark'
 export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 
+// Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
+export { mergeProps } from './merge-props'
+export { useKeyboard } from './use-keyboard'
+export type { UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
+export { useObjectRef } from './use-object-ref'
+export { useClipboard } from './use-clipboard'
+export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
+export { copyText } from './clipboard-write.web'
+export { refList, mergedRef } from './ref-list'
+
 // Shared keyed query cache over octane/signals query$
 export {
 	cachedQuery$,
