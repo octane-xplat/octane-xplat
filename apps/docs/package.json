@@ -5,17 +5,19 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build && node scripts/build-llms.mjs",
+		"build": "vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.mjs",
 		"typecheck": "tsrx-tsc --noEmit",
 		"test": "node --test *.test.mjs",
 		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs --branch=main",
 		"smoke": "pnpm run build && node smoke.mjs",
-		"smoke:keys": "NODE_ENV=development pnpm run smoke"
+		"smoke:keys": "NODE_ENV=development pnpm run smoke",
+		"test:demos": "node demos.browser.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
 		"octane": "0.11.0",
-		"shiki": "4.4.3"
+		"shiki": "4.4.3",
+		"@xplat/demos": "workspace:*"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
@@ -24,6 +26,7 @@
 		"jsdom": "30.1.1",
 		"typescript": "5.9.3",
 		"vite": "8.3.0",
-		"wrangler": "^4.0.0"
+		"wrangler": "^4.0.0",
+		"playwright": "1.63.0"
 	}
 }

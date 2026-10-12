@@ -94,3 +94,5 @@ reference material to give your coding agent, see
 If you're extending or debugging the framework itself, open the
 [design notes](notes/README.md). They collect decisions, implementation records,
 and past experiments; you can leave that detail until you need it.
+
+[Try a small demo](demos/browser-demos.md): reach a goal or pack a day-trip checklist in your browser.

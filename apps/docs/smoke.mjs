@@ -7,7 +7,7 @@ import { join, relative, dirname, basename } from 'node:path'
 import { docPath, titleOf, slugFor, GROUPS } from './src/doc-meta.ts'
 import { inlineSpans, parseMd } from './src/md.ts'
 
-const js = 'dist/assets/' + readdirSync('dist/assets').find((f) => f.endsWith('.js'))
+const js = 'dist' + readFileSync('dist/index.html', 'utf8').match(/src="([^"]+\.js)"/)[1]
 const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
 	url: 'https://x.test/',
 	runScripts: 'outside-only',

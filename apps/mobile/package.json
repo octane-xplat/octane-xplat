@@ -15,7 +15,10 @@
 		"debug:ios:app": "pnpm --filter @xplat/app gen && ns debug ios",
 		"test:ios": "ns test ios",
 		"test:android": "ns test android",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"demos:ios": "XPLAT_DOCS_DEMOS=1 ns run ios --no-hmr",
+		"demos:android": "XPLAT_DOCS_DEMOS=1 ns run android --no-hmr",
+		"demos:build:ios": "XPLAT_DOCS_DEMOS=1 ns build ios"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

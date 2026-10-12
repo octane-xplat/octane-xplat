@@ -1,5 +1,7 @@
 import { useState } from 'octane';
 import { Screen, View, HStack, Text, Pressable, ScrollableArea } from '@octane-xplat/ui';
+import { GoalCounter } from './GoalCounter.tsrx';
+import { PackingList } from './PackingList.tsrx';
 import { Counter } from './Counter.tsrx';
 import { Stopwatch } from './Stopwatch.tsrx';
 import { Todo } from './Todo.tsrx';
@@ -48,6 +50,8 @@ import { useLastDemo } from './store.tsrx';
 // 'proof' = a seam demonstration (probes, proofs, boring stuff) — lives
 // under the harness's Test tab instead of the gallery.
 export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
+	{ id: 'goal-counter', title: 'Goal counter', kind: 'app' },
+	{ id: 'packing-list', title: 'Packing list', kind: 'app' },
 	{ id: 'counter', title: 'Counter', kind: 'app' },
 	{ id: 'watch', title: 'Watch', kind: 'app' },
 	{ id: 'stopwatch', title: 'Stopwatch', kind: 'app' },
@@ -112,6 +116,8 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 // NOTE: an @if/@else-if chain here compiled to an else callback that
 // discards branch results — @else-if lowers wrong in the universal
 // codegen (see docs/notes/demos.md findings).
+const renderGoalCounter = () => <GoalCounter />;
+const renderPackingList = () => <PackingList />;
 const renderCounter = () => <Counter />;
 const renderWatch = () => <WatchFace />;
 const renderStopwatch = () => <Stopwatch />;
@@ -168,6 +174,8 @@ const renderMotionPatterns = () => <MotionPatterns />;
 const renderFancyComponents = () => <FancyComponents />;
 
 export const RENDER: Record<string, () => any> = {
+	'goal-counter': renderGoalCounter,
+	'packing-list': renderPackingList,
 	counter: renderCounter,
 	watch: renderWatch,
 	stopwatch: renderStopwatch,

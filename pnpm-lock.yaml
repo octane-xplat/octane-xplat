@@ -84,6 +84,9 @@ importers:
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@xplat/demos':
+        specifier: workspace:*
+        version: link:../../packages/demos
       octane:
         specifier: 0.11.0
         version: 0.11.0(patch_hash=dc0b2a2b4d9acb84e82789c7e8a53a7da11299736b3a99f196e7f08276cd146d)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -103,6 +106,9 @@ importers:
       jsdom:
         specifier: 30.1.1
         version: 30.1.1(@noble/hashes@2.4.0)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3

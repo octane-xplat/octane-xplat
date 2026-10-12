@@ -12,6 +12,7 @@ import { docPath, docSlugFor, repoPathFor } from './doc-meta';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
 import { nbDark } from './nb-theme';
+import { DemoPreview } from './DemoPreview.web.tsrx';
 import { AgentPrompt } from './AgentPrompt.web.tsrx';
 
 // JS regex engine — no wasm fetch, fully sync. Code slabs are always black,
@@ -213,7 +214,7 @@ function BlockView(props: { b: Block; lede?: boolean; dir: string; homeActions?:
 	return <></>;
 }
 
-export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; showPageActions?: boolean; showHomeActions?: boolean }) @{
+export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; showPageActions?: boolean; showHomeActions?: boolean; demo?: string }) @{
 	// Positions identify nodes within this fixed document; the shell remounts
 	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
@@ -328,6 +329,7 @@ export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; sh
 		@for (const b of blocks; index i; key i) {
 			const prev = blocks[i - 1];
 			<>
+				@if (props.demo && b.kind === 'h' && b.id === 'view-source') { <DemoPreview demo={props.demo} /> }
 				<BlockView b={b} dir={props.dir} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} homeActions={props.showHomeActions && b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
 				@if (props.agentPrompt && b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1) {
 					<AgentPrompt prompt={props.agentPrompt} />

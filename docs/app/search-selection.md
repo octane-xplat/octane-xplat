@@ -444,3 +444,7 @@ The `@octane-xplat/ui` root exports these controls on web, iOS, Android, and
 macOS. macOS is experimental. Linux uses the web leaves. The maintained
 component and parity examples are [ComponentsDemo](../../packages/demos/src/ComponentsDemo.tsrx)
 and [the parity fixture](../../packages/app/src/parity/fixtures.tsrx).
+
+## Try a small demo
+
+[Try the packing list demo](../demos/packing-list.md) with bundled local content.

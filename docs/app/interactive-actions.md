@@ -121,3 +121,7 @@ export function Example() {
 	)
 }
 ```
+
+## Try a small demo
+
+[Try the goal counter demo](../demos/goal-counter.md) with bundled local content.

@@ -855,3 +855,7 @@ export function Greeting() {
 	return <Text>{query.data ?? 'Loading'}</Text>
 }
 ```
+
+## Try a small demo
+
+[Try the packing list demo](../demos/packing-list.md) with bundled local content.

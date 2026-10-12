@@ -27,6 +27,22 @@ export default defineConfig(({ mode }) =>
 				),
 			},
 			plugins: [
+				...(process.env.XPLAT_DOCS_DEMOS
+					? [
+							{
+								name: 'docs-demos-entry',
+								enforce: 'pre' as const,
+								resolveId(source: string, importer?: string) {
+									if (
+										importer?.includes('virtual:entry-with-polyfills') &&
+										source === '/src/index.ts'
+									) {
+										return fileURLToPath(new URL('./src/docs-demos.mobile.tsrx', import.meta.url))
+									}
+								},
+							},
+						]
+					: []),
 				...(process.env.VISUAL_CAPTURE_URL
 					? [
 							visualRegexPlugin(),

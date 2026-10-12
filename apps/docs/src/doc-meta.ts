@@ -11,6 +11,7 @@ export const GROUPS = [
 		label: 'Start here',
 		slugs: ['README', 'spec', 'toolchain', 'architecture'],
 	},
+	{ dir: 'demos', label: 'Demos', slugs: ['browser-demos', 'goal-counter', 'packing-list'] },
 	{
 		dir: 'app',
 		label: 'Build your app',

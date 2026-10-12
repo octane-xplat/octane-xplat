@@ -15,6 +15,8 @@ Pure refactors ordinarily need no recipe change.
 
 Workflows:
 
+- [Try a shared docs demo](docs-demos.md)
+
 - [Publish a Web app](web-deployment.md)
 
 - [Access and compose component refs](component-refs.md)
