@@ -19,6 +19,7 @@ Start here when you need to understand a framework decision or investigate its i
 - [Native SVG rendering on AppKit](icon-svg-notes.md)
 - [Input and focus readiness evidence](input-readiness-notes.md)
 - [iOS editor backing-surface decision](ios-editor-backing-surface.md)
+- [Linux GTK capability inventory and resolution mapping](linux-gtk-capability-inventory.md)
 - [Linux WebKit consumer regression baseline](linux-webkit-baseline.md)
 - [Module-resolution notes](module-resolution-notes.md)
 - [Navigation notes](navigation-notes.md)
