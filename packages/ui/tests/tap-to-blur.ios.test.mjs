@@ -66,7 +66,14 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
 	}
 
 	assert.equal(shouldReceive({ isKindOfClass: () => false }), true)
-	recognizer.target.tap(recognizer)
+	// NativeScript iOS uses each exposedMethods key verbatim as both the
+	// Objective-C selector and the member it dispatches to, so every key must
+	// resolve to a callable member on the target.
+	for (const selector of Object.keys(registrations[0].exposedMethods)) {
+		assert.equal(typeof recognizer.target[selector], 'function', selector)
+	}
+
+	recognizer.target['tap:'](recognizer)
 	assert.deepEqual(editing, [true])
 	detachDuplicate()
 	detachFirst()

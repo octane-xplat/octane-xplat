@@ -63,7 +63,7 @@ function iosAttach() {
 					return true
 				},
 
-				tap(_recognizer: any) {
+				'tap:'(_recognizer: any) {
 					iosWindow.endEditing(true)
 				},
 			},
