@@ -32,6 +32,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   platforms. Where parity is genuinely unachievable, expose platform entry
   points or an explicitly documented API subset with matching behavior —
   never silent divergence.
+- **Astryx over React Aria.** When an API exists in both
+  [Astryx](https://github.com/facebook/astryx/tree/main/packages/core/src)
+  and React Aria, match Astryx's naming and behavior; React Aria is the
+  fallback reference. Track React Aria coverage in Silo's
+  `react_aria_parity` table — update it when equivalents land or change.
 - **Cross-platform by default.** New features and packages should aim to
   support every project platform. When feasibility is unclear, investigate
   and prove support in this order: web, iOS, then macOS. If any platform cannot
