@@ -11,6 +11,8 @@ export { Center } from './Center.macos.tsrx'
 export { Section } from './Section.macos.tsrx'
 export { AspectRatio } from './AspectRatio.macos.tsrx'
 export { VisuallyHidden } from './VisuallyHidden.macos.tsrx'
+/** Keyboard focus containment — web convention; native leaf is an inert container. */
+export { FocusScope } from './FocusScope.macos.tsrx'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate.macos'
 export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
@@ -109,6 +111,7 @@ export type {
 	SpacingStep,
 	VStackProps,
 	VisuallyHiddenProps,
+	FocusScopeProps,
 } from './props'
 
 /** Bounded numeric entry, exported under Astryx's component name. */
@@ -337,6 +340,16 @@ export type {
 	LoadingState,
 	SortDescriptor,
 } from './async-list'
+
+// Focus hooks — shared/native leaves; focus modality and landmark cycling
+// are web-only, so these keep API shape with constant results.
+export { useFocus, useFocusRing } from './use-focus'
+export type { UseFocusOptions, UseFocusRingResult } from './use-focus'
+export { useFocusVisible, isFocusVisible } from './use-focus-visible'
+export { useFocusWithin } from './use-focus-within'
+export type { UseFocusWithinOptions } from './use-focus-within'
+export { useLandmark } from './use-landmark'
+export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 
 // Shared keyed query cache over octane/signals query$ — the same portable
 // contract as mobile; AppKit persistence uses the host defaults bridge.

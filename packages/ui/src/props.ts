@@ -6778,6 +6778,29 @@ export interface VisuallyHiddenProps extends AccessibilityProps {
 	as?: any
 }
 
+/** `FocusScope` — keyboard focus containment, React Aria's FocusScope. The
+ *  web leaf traps Tab inside the subtree (`contain`), can focus the first
+ *  tab stop on mount (`autoFocus`), and returns focus to the previously
+ *  focused element on unmount (`restoreFocus`). Focus containment is a web
+ *  keyboard convention; the native leaf renders a plain accessible
+ *  container and the three behavior flags are inert. */
+export interface FocusScopeProps extends AccessibilityProps {
+	children?: any
+	id?: string
+	ref?: Octane.Ref<any>
+	className?: any
+	style?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	/** Trap Tab/Shift+Tab inside the scope and pull outside focus back in. */
+	contain?: boolean
+	/** On unmount, focus the element that held focus when the scope mounted. */
+	restoreFocus?: boolean
+	/** On mount, focus the first tab stop (or the scope box when empty). */
+	autoFocus?: boolean
+}
+
 /** `AspectRatio` — sizes its box from width / `ratio`. Web uses the CSS
  *  `aspect-ratio` property; native measures the laid-out width and derives
  *  the height (one layout pass). `shape="ellipse"` clips to an ellipse;

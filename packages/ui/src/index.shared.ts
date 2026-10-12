@@ -14,6 +14,8 @@ export { Center } from './Center'
 export { Section } from './Section'
 export { AspectRatio } from './AspectRatio'
 export { VisuallyHidden } from './VisuallyHidden'
+/** Keyboard focus containment — React Aria's FocusScope. */
+export { FocusScope } from './FocusScope'
 export { Absolute } from './Absolute'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate'
@@ -760,6 +762,17 @@ export type {
 	SortDescriptor,
 } from './async-list'
 
+// Focus hooks — React Aria useFocus/useFocusRing/useFocusVisible/
+// useFocusWithin/useLandmark counterparts. Modality tracking and landmark
+// cycling are web leaves; native leaves keep the same API shape.
+export { useFocus, useFocusRing } from './use-focus'
+export type { UseFocusOptions, UseFocusRingResult } from './use-focus'
+export { useFocusVisible, isFocusVisible } from './use-focus-visible'
+export { useFocusWithin } from './use-focus-within'
+export type { UseFocusWithinOptions } from './use-focus-within'
+export { useLandmark } from './use-landmark'
+export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
+
 // Shared keyed query cache over octane/signals query$
 export {
 	cachedQuery$,
@@ -845,6 +858,7 @@ export type {
 	StackSizeProps,
 	StackWrap,
 	VisuallyHiddenProps,
+	FocusScopeProps,
 	CheckboxInputProps,
 	CheckboxListProps,
 	RadioListProps,
