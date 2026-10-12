@@ -317,6 +317,27 @@ export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './useStore.macos.tsrx'
 
+// Immutable collection data stores — shared implementations, no macOS leaf
+export { useListData } from './use-list-data'
+export { useTreeData } from './use-tree-data'
+export { useAsyncList } from './use-async-list'
+export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from './list-data'
+export type {
+	TreeData,
+	TreeDataOptions,
+	TreeNode as CollectionTreeNode,
+	TreeSnapshot,
+} from './tree-data'
+export type {
+	AsyncListData,
+	AsyncListLoadContext,
+	AsyncListLoadResult,
+	AsyncListOptions,
+	AsyncListSnapshot,
+	LoadingState,
+	SortDescriptor,
+} from './async-list'
+
 // Shared keyed query cache over octane/signals query$ — the same portable
 // contract as mobile; AppKit persistence uses the host defaults bridge.
 export {
