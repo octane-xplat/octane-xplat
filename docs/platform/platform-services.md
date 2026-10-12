@@ -345,15 +345,16 @@ JavaScript runtime (Annotation 2).
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
 which requests it when `CameraView` starts. `permissions.ensure(kind)`
 delegates to the owning service for notifications, media, and location rather
-than maintaining a second set of probes. On web, `ensure('camera')` reads the
-permission without ever opening a prompt — a state that would require asking
-the user reports `unsupported`, and `denied` stays `denied`; starting
-`CameraView` instead uses `getUserMedia` to request access for the preview.
+than maintaining a second set of probes. On web, `ensure('camera')` reports
+the file-input capture capability — `granted` wherever the DOM exists —
+without querying or prompting; starting `CameraView` instead uses
+`getUserMedia` to request access for the preview.
 
 ```ts
 import { media } from '@octane-xplat/media'
 
-// Run capture from a user action even if the browser cannot query permission.
+// Web ensure('camera') reports 'granted' — the file-input path needs no
+// browser permission — so the denial gate only binds on native leaves.
 export async function webCapture() {
 	const status = await media.ensure('camera')
 	if (status === 'denied') return null
@@ -366,7 +367,7 @@ import { permissions } from '@octane-xplat/platform'
 import { media } from '@octane-xplat/media'
 
 console.log(await media.ensure('photos'))
-console.log(await permissions.ensure('camera')) // web: reads permission without prompting
+console.log(await permissions.ensure('camera')) // web: reports capture capability without prompting
 ```
 
 `files.writeText(name, text)` writes a file on native. On web, it starts a
@@ -535,9 +536,9 @@ export async function readSelection() {
 }
 ```
 
-On web, `ensure('camera')` only queries browser permission; it does not request
-access. A `prompt` state or unavailable Permissions API reports `unsupported`,
-but the file-input capture flow can still be offered from a user action.
+On web, `ensure('camera')` neither queries nor requests camera access — the
+file-input capture flow needs no browser permission, so the leaf reports
+`granted` wherever the DOM exists and `unsupported` only without one.
 Desktop browsers may open a file picker instead of a camera. Successful picks
 produce an opaque preview URI plus an upload data URL; neither is a persistent
 storage guarantee.
