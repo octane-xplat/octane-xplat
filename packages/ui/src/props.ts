@@ -6962,6 +6962,58 @@ export interface ListItemProps extends AccessibilityProps {
 	isSelected?: boolean
 }
 
+/** `GridList` — interactive 2D cell collection, React Aria's GridList.
+ *  Not virtualized (that's `VirtualList`, which stays 1D): items render
+ *  eagerly into a CSS grid on web (`role="grid"` > `role="row"` >
+ *  `role="gridcell"`, roving tabindex, arrows move by measured column
+ *  count) and a wrapping flexboxlayout of Pressable cells on native.
+ *  Selection mirrors RA: `selectionMode` gates it, `selectedKeys` is the
+ *  controlled form (`'all' | Iterable<Key>`), `onAction` fires on
+ *  activation whether or not selection is enabled. */
+export interface GridListProps<T = any> extends LayoutChildProps, AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	ref?: Octane.Ref<any>
+	items: readonly T[]
+	keyExtractor: (item: T, index: number) => string | number
+	renderItem: (item: T, index: number) => any
+	/** Content rendered when `items` is empty (RA `renderEmptyState`). */
+	renderEmpty?: () => any
+	/** 'grid' (default) lays items out by columns; 'stack' is a
+	 *  single-column list layout — RA's `layout` prop. */
+	layout?: 'grid' | 'stack'
+	/** Fixed column count. When unset, web auto-fills columns via CSS grid
+	 *  and measures the rendered count for arrow-key navigation; native
+	 *  wraps by content width. */
+	columns?: number
+	selectionMode?: 'none' | 'single' | 'multiple'
+	/** 'toggle' (default): click toggles membership, Shift+click extends the
+	 *  range. 'replace': click selects only the pressed key. */
+	selectionBehavior?: 'toggle' | 'replace'
+	/** Controlled selection — `'all'` or the selected key set. */
+	selectedKeys?: 'all' | Iterable<string | number>
+	/** Initial selection for the uncontrolled form. */
+	defaultSelectedKeys?: 'all' | Iterable<string | number>
+	onSelectionChange?: (keys: 'all' | Set<string | number>) => void
+	/** Keys that cannot be selected, focused, or actioned. */
+	disabledKeys?: Iterable<string | number>
+	/** Block deselecting the last selected key. */
+	disallowEmptySelection?: boolean
+	/** Fires when a row is activated (click/Enter on web, tap on native),
+	 *  independent of selection. */
+	onAction?: (key: string | number) => void
+	/** 'arrow' (default): single Tab stop + arrow-key navigation.
+	 *  'tab': every row is a Tab stop and arrows are left to content —
+	 *  use when cells contain interactive controls. Web only. */
+	keyboardNavigationBehavior?: 'arrow' | 'tab'
+	testID?: string
+}
+
 // ---------- Astryx parity: indicators ----------
 
 /** Indicator families fix the state space a visual can draw — single

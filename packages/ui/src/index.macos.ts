@@ -47,6 +47,10 @@ export { FieldGroup } from './FieldGroup.macos.tsrx'
 export { Item } from './Item.macos.tsrx'
 export { List } from './List.macos.tsrx'
 export { ListItem } from './ListItem.macos.tsrx'
+/** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
+export { GridList } from './GridList.macos.tsrx'
+export { useGridList } from './use-grid-list'
+export type { UseGridListOptions, UseGridListResult } from './use-grid-list'
 export { FormLayout } from './FormLayout.macos.tsrx'
 export { InputGroup, InputGroupText } from './InputGroup.macos.tsrx'
 export { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
@@ -93,6 +97,7 @@ export type {
 	ListItemProps,
 	ListMarkerStyle,
 	ListProps,
+	GridListProps,
 	ListStyle,
 	SectionDividerSide,
 	SectionProps,

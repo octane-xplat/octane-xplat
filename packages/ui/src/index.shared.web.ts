@@ -174,6 +174,10 @@ export { Item } from './Item'
 /** Content list + row (Astryx `List`/`ListItem` — not a virtualized list). */
 export { List } from './List'
 export { ListItem } from './ListItem'
+/** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
+export { GridList } from './GridList'
+export { useGridList } from './use-grid-list'
+export type { UseGridListOptions, UseGridListResult } from './use-grid-list'
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './InputNumber'
 export { PinInput } from './PinInput'
@@ -218,6 +222,7 @@ export type {
 	ItemSlotProps,
 	ListItemProps,
 	ListProps,
+	GridListProps,
 	FormFieldProps,
 	InputNumberProps,
 	InputRatingProps,

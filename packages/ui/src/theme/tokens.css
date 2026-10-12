@@ -4037,6 +4037,31 @@
 	display: block;
 }
 /* xplat-web-only:end */
+/* GridList — interactive 2D cell collection (React Aria). Native leaves
+   read the layout bits; web-only declarations stay fenced. */
+.vx-gridlist-row {
+	flex-direction: column;
+}
+.vx-gridlist-row--selected {
+	background-color: var(--color-surface-secondary);
+}
+/* xplat-web-only:start */
+.vx-gridlist {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 8px;
+}
+.vx-gridlist--stack {
+	grid-template-columns: 1fr;
+}
+.vx-gridlist-row:focus-visible {
+	outline: 1.5px solid var(--color-text);
+	outline-offset: -1.5px;
+}
+.vx-gridlist-row--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:end */
 /* DataGrid controls share their layout across platform leaves. */
 .vx-datagrid-controls,
 .vx-datagrid-handles {
