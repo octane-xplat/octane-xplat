@@ -59,7 +59,7 @@
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.web.json && tsrx-tsc --noEmit -p tsconfig.native.json"
+		"typecheck": "node ../../scripts/typecheck.mjs"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

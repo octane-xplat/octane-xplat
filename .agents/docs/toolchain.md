@@ -25,10 +25,21 @@ experience of agents writing Octane-xplat code effectively.
   `test:macos-runtime`, and `apps/linux`'s `build` are `cache: false` — their
   side effects land outside declared `outputs`. `lint` stays a single
   repo-wide pass; `turbo run lint` works via the `//#lint` root task but is
-  uncached for the same reason. Package-level `typecheck` scripts (charts,
-  dnd-kit, icons, image-crop, smooth-corners, table, macos-renderer) are
-  reachable via bare `turbo run typecheck` but stay out of `pnpm typecheck`'s
-  scope.
+  uncached for the same reason. Package-level `typecheck` scripts (auth,
+  charts, dnd-kit, icons, image-crop, rolling-text, smooth-corners, table,
+  macos-renderer) are reachable via bare `turbo run typecheck` but stay out of
+  `pnpm typecheck`'s scope.
+- **Package typechecks use one `tsconfig.envs.json` per package** — never
+  `tsconfig.<platform>.json`. The manifest declares the checked surface once
+  (`environments.<env>.files|include|exclude`); `scripts/typecheck.mjs`
+  expands each entry into a program using the shared presets in
+  `packages/cli/src/tsconfig-envs.mjs` (moduleSuffixes / customConditions /
+  jsxImportSource / lib — the program-wide half of platform build selection)
+  and runs `tsrx-tsc --noEmit` on each under `node_modules/.cache/xplat-typecheck/`.
+  Every platform is meant to expose the same API surface at the type level, so
+  a `src/index.<platform>.ts` barrel that no declared environment checks fails
+  the run. `xplat typecheck` applies the same expansion to app manifests and
+  still honors a legacy `tsconfig.native.json` in older scaffolds.
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
   `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
   Consequence: every package must declare what it imports (no transitive-dep

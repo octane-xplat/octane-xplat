@@ -239,7 +239,7 @@ UI effects, and audio playback.
 > [!IMPORTANT]
 > `references.d.ts`/`@nativescript/types` give native API typings
 > (objc/java-ish globals). Scope them to mobile/OS-specific or unsuffixed
-> native-default files via the mobile tsconfig only — never let UIKit types leak into shared typecheck.
+> native-default files via the native environment only — never let UIKit types leak into shared typecheck.
 
 > [!IMPORTANT]
 > `platform` interfaces should be defined in `.ts` (no hooks at the interface

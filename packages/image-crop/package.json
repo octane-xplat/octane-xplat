@@ -53,7 +53,7 @@
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target crop",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.mobile.json && tsrx-tsc --noEmit -p tsconfig.macos.json",
+		"typecheck": "node ../../scripts/typecheck.mjs",
 		"test": "vitest run tests/geometry.test.ts",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"prepublishOnly": "pnpm build",

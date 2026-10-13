@@ -338,9 +338,11 @@ pnpm check:pack
 
 ## TS configs
 
-`tsconfig.base.json` + `.web` / `.native` variants differing in
-`jsxImportSource`, included globs, and ambient types (`@nativescript/types`
-scoped to native). `tsrx-tsc --noEmit` per target in CI.
+`tsconfig.base.json` + one `tsconfig.envs.json` manifest per package/app —
+`environments.<env>` declares each target's file set; shared presets supply
+`jsxImportSource`/`moduleSuffixes`/ambient types (`@nativescript/types`
+scoped to native). `tsrx-tsc --noEmit` per target in CI via
+`scripts/typecheck.mjs` / `xplat typecheck`.
 See module-resolution.md for the suffix-typing strategy.
 
 ```sh

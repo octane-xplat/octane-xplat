@@ -59,7 +59,7 @@
 	"scripts": {
 		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsc -p tsconfig.types.json",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.check.json && tsrx-tsc --noEmit -p tsconfig.check.web.json && tsrx-tsc --noEmit -p tsconfig.check.macos.json",
+		"typecheck": "node ../../scripts/typecheck.mjs",
 		"test": "vitest run",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",

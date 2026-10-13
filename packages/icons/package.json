@@ -63,7 +63,7 @@
 	"scripts": {
 		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target icons",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.web.json && tsrx-tsc --noEmit -p tsconfig.native.json && tsrx-tsc --noEmit -p tsconfig.macos.json",
+		"typecheck": "node ../../scripts/typecheck.mjs",
 		"test": "pnpm build && node --test tests/*.test.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",

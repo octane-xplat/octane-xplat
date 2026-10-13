@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": {
+			"include": ["src/index.web.ts", "examples/**/*.tsrx"],
+			"exclude": ["**/*.test.*"]
+		},
+		"native": {
+			"include": ["src/index.ts", "examples/**/*.tsrx"],
+			"exclude": ["**/*.test.*"]
+		}
+	}
+}

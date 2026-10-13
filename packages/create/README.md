@@ -59,7 +59,7 @@ From that directory, these commands run other targets or check the app — the
 pnpm dev:ios        # needs macOS, Xcode, and NativeScript setup
 pnpm dev:android    # needs Android SDK, compatible JDK, and NativeScript setup
 pnpm lint
-pnpm typecheck      # every enabled tsconfig
+pnpm typecheck      # tsconfig.json + every declared environment
 pnpm build          # web production bundle
 ```
 

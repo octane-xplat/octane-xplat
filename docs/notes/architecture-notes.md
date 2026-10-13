@@ -258,8 +258,10 @@ packages/
 Single-package `src/` + two vite configs is also viable for a small app; the
 monorepo shape earns its cost once >1 app or a clean publish boundary exists.
 
-Two tsconfigs (`tsconfig.web.json` / `tsconfig.native.json`) extend a base;
-they differ in `jsxImportSource` and which leaf files are in scope. Details in
+One `tsconfig.envs.json` per package declares which files each environment
+checks; `scripts/typecheck.mjs` expands it into per-target programs using the
+shared presets (`jsxImportSource`, `moduleSuffixes`, `customConditions`,
+`lib`) in `packages/cli/src/tsconfig-envs.mjs`. Details in
 [module-resolution](../platform/module-resolution.md).
 
 ```json

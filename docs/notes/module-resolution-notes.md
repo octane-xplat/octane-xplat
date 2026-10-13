@@ -195,13 +195,20 @@ const color = select({ web: '#4f46e5', native: '#4338ca', default: '#4f46e5' })
 
 ## TypeScript
 
-Two program configs over a shared base:
+Per-environment programs are synthesized from one shared declaration —
+`tsconfig.envs.json` (`environments.<env>` file sets) expanded by
+`scripts/typecheck.mjs` using the presets in
+`packages/cli/src/tsconfig-envs.mjs`:
 
 ```jsonc
-// tsconfig.base.json   — shared compilerOptions, paths
-// tsconfig.web.json    — jsxImportSource: "octane", moduleSuffixes: [".web", ""]
-// tsconfig.native.json — jsxImportSource: "@nativescript-community/octane",
-//                        moduleSuffixes: [".ios", ".android", ".native", ""]
+// tsconfig.envs.json — one manifest; presets supply the environment options
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": { "files": ["src/index.web.ts"] }, // → moduleSuffixes: [".web", ""]
+		"native": { "files": ["src/index.ts"] }, // → moduleSuffixes: [".ios", ".android", ".mobile", ""]
+	},
+}
 ```
 
 - Shared files typecheck under **both** programs in CI — that's the point:

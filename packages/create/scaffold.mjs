@@ -64,7 +64,7 @@ export const targets = {
 		files: [
 			'nativescript.config.ts',
 			'vite.config.native.mts',
-			'tsconfig.native.json',
+			'tsconfig.envs.json',
 			'references.d.ts',
 			'src/main.ts',
 			// On-device Vitest lane — `ns test` builds src/test.ts under
@@ -91,7 +91,7 @@ export const targets = {
 			'nativescript',
 			'vitest',
 		],
-		typecheck: 'tsrx-tsc --noEmit -p tsconfig.native.json',
+		typecheck: 'xplat typecheck',
 	},
 }
 
@@ -100,7 +100,7 @@ export const selectableTargets = Object.keys(targets).filter((id) => !targets[id
 /** `pnpm create` without --targets and `xplat add`'s prompt default. */
 export const defaultTargets = ['web', 'ios', 'android']
 
-const BASE_TYPECHECK = 'tsrx-tsc --noEmit'
+const BASE_TYPECHECK = 'xplat typecheck'
 
 // package.json keys every scaffolded app keeps regardless of target set —
 // the targets' `scripts` lists own the rest.
@@ -223,7 +223,7 @@ export function composeManifest(ids) {
 		}
 	}
 
-	scripts.typecheck = typecheck.join(' && ')
+	scripts.typecheck = [...new Set(typecheck)].join(' && ')
 	// Keep the template's key order: scripts sit where they were.
 	manifest.scripts = {}
 	for (const name of Object.keys(tpl.scripts ?? {})) {

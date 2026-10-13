@@ -68,10 +68,10 @@ Then lint-level rules for what validation can't express:
 
 ## Typecheck matrix
 
-The starter runs `tsrx-tsc --noEmit` against `tsconfig.json` and
-`tsconfig.native.json` via `pnpm typecheck` — shared
-files must pass under both `jsxImportSource`s. This is the single most
-valuable CI signal for "the seams held."
+The starter runs `xplat typecheck`, which typechecks `tsconfig.json` (web)
+plus every environment declared in `tsconfig.envs.json` (native) via
+`tsrx-tsc --noEmit` — shared files must pass under both `jsxImportSource`s.
+This is the single most valuable CI signal for "the seams held."
 
 ```sh
 pnpm typecheck

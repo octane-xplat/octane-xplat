@@ -82,7 +82,7 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 	assert.equal(manifest.main, undefined)
 	assert.equal(manifest.scripts.dev, 'vite')
 	assert.equal(manifest.scripts['dev:ios'], undefined)
-	assert.equal(manifest.scripts.typecheck, 'tsrx-tsc --noEmit')
+	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 	assert.ok(!('dependencies' in manifest && '@nativescript/core' in manifest.dependencies))
 	assert.equal(manifest.devDependencies['@nativescript/ios'], undefined)
 	assert.equal(
@@ -113,7 +113,7 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 	assert.equal(manifest.scripts['dev:android'], undefined)
 	assert.equal(
 		manifest.scripts.typecheck,
-		'tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json',
+		'xplat typecheck',
 	)
 
 	assert.equal(
@@ -167,7 +167,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
 	assert.equal(
 		manifest.scripts.typecheck,
-		'tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json',
+		'xplat typecheck',
 	)
 
 	assert.equal(

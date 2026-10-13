@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "esnext",
+		"jsx": "react-jsx"
+	},
+	"environments": {
+		"native": {
+			"files": ["src/index.ts", "src/native-elements.d.ts"],
+			"compilerOptions": { "types": ["@nativescript/types"] }
+		},
+		"web": { "files": ["src/index.web.ts"] },
+		"macos": {
+			"include": ["src/*.macos.ts", "src/*.macos.tsrx", "src/types.ts"]
+		}
+	}
+}

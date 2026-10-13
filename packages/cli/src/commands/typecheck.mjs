@@ -4,10 +4,11 @@ import { join } from 'node:path'
 import * as p from '@clack/prompts'
 import { runTagged } from '../procs.mjs'
 import { generateRoutes } from './routes.mjs'
+import { expandEnvPrograms, loadEnvManifest } from '../tsconfig-envs.mjs'
 
 export const typecheck = command({
 	name: 'typecheck',
-	description: 'tsrx-tsc --noEmit for every tsconfig present',
+	description: 'tsrx-tsc --noEmit for the app plus every declared environment',
 	args: {},
 	handler: async () => {
 		const cwd = process.cwd()
@@ -18,9 +19,24 @@ export const typecheck = command({
 			await generateRoutes(cwd, routeDir, undefined, { bake: false })
 		}
 
-		const configs = ['tsconfig.json', 'tsconfig.native.json'].filter((f) =>
-			existsSync(`${cwd}/${f}`),
-		)
+		// tsconfig.json is the default program. Environments come from the
+		// shared tsconfig.envs.json manifest; a lone tsconfig.native.json is
+		// the legacy per-platform form kept working for older scaffolds.
+		const configs = ['tsconfig.json'].filter((f) => existsSync(join(cwd, f)))
+		const manifest = loadEnvManifest(cwd)
+		if (manifest) {
+			let programs
+			try {
+				programs = expandEnvPrograms(cwd, manifest)
+			} catch (e) {
+				p.log.error(String(e.message ?? e))
+				process.exit(1)
+			}
+
+			configs.push(...programs.map(({ configPath }) => configPath))
+		} else {
+			configs.push(...['tsconfig.native.json'].filter((f) => existsSync(join(cwd, f))))
+		}
 
 		for (const c of configs) {
 			try {

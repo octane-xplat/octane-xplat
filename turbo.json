@@ -34,6 +34,11 @@
 		},
 		"typecheck": {
 			"dependsOn": ["^typegen"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../scripts/typecheck.mjs",
+				"../../packages/cli/src/tsconfig-envs.mjs"
+			],
 			"outputs": []
 		},
 		"test": {
@@ -71,10 +76,6 @@
 		},
 		"typecheck:consumer": {
 			"dependsOn": ["typegen"],
-			"outputs": []
-		},
-		"typecheck:macos": {
-			"dependsOn": ["^typegen"],
 			"outputs": []
 		},
 		"check-types": {

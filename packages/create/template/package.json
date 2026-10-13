@@ -15,7 +15,7 @@
 		"build:android": "ns build android",
 		"lint": "xplat-lint",
 		"lint:fix": "xplat-lint --fix",
-		"typecheck": "tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json"
+		"typecheck": "xplat typecheck"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

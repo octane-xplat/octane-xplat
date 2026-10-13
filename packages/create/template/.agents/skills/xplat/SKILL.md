@@ -134,7 +134,7 @@ export function NativeGreeting() { return <Text>Hello</Text> }
 | Command                             | Catches                                                                  |
 | ----------------------------------- | ------------------------------------------------------------------------ |
 | `pnpm lint`                         | vocabulary / DOM-global / style violations — its output is authoritative |
-| `pnpm typecheck`                    | both web and native TS configs                                           |
+| `pnpm typecheck`                    | `tsconfig.json` + every environment declared in `tsconfig.envs.json`     |
 | `pnpm dev`                          | web behavior                                                             |
 | `pnpm dev:ios` / `pnpm dev:android` | the platform where behavior actually differs                             |
 

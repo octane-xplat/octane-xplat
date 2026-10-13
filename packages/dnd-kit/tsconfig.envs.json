@@ -1,0 +1,24 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"paths": {
+			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
+		}
+	},
+	"environments": {
+		"web": { "files": ["src/index.ts", "src/index.web.ts"] },
+		"native": { "files": ["src/index.ts"] },
+		"macos": {
+			"files": ["src/index.macos.ts", "examples/sortable.macos.tsx"],
+			"compilerOptions": {
+				"paths": {
+					"@octane-xplat/ui": ["../ui/types/generated/index.macos.d.ts"]
+				}
+			}
+		}
+	}
+}
