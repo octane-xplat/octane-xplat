@@ -23,6 +23,8 @@ const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
 let retainedLabel: any
+let retainedContent: any
+let retainedChild: any
 let reloaded = false
 function reload() {
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
@@ -31,6 +33,8 @@ function reload() {
 		root.render(liveComponent, {})
 		setTimeout(() => {
 			retainedLabel = debug.findId('count')
+			retainedContent = debug.findId('hmr-content')
+			retainedChild = debug.findId('revision')
 			debug.pressId('increment')
 			console.log('HMR_CONSUMER_READY')
 		}, 60)
@@ -41,9 +45,20 @@ function reload() {
 			const revision = debug.findId('revision')
 			if (
 				label === retainedLabel &&
+				debug.findId('hmr-content') === retainedContent &&
+				revision === retainedChild &&
+				revision.superview === retainedContent &&
+				Number(retainedContent.subviews.count) === 1 &&
 				String(label.stringValue) === '1' &&
 				String(revision.stringValue) === 'Second revision'
 			) {
+				root.unmount()
+				if (retainedContent.superview || retainedChild.superview) {
+					console.error('PACKED_HMR_FAIL: ContentView teardown retained views')
+					return
+				}
+
+				console.log('PACKED_CONTENTVIEW_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

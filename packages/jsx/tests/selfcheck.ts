@@ -86,3 +86,15 @@ declare module '../src/intrinsics.js' {
 
 const augmented: Tags<NativeElements<HostElement>> = 'fixturewidget';
 void augmented;
+
+// ContentView uses common props across conditions; only refs bind host types.
+const sharedContent: NativeElements<HostElement>['contentview'] = {
+	id: 'single', style: { width: 200, height: 80 }, ref: refArray,
+};
+
+const macContent: MacJSX.IntrinsicElements['contentview'] = {
+	id: 'single', ref: (view) => { void view; return () => {}; },
+};
+
+void sharedContent;
+void macContent;

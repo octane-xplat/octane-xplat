@@ -54,6 +54,10 @@ const tree = (
 		<label text="hi" whiteSpace="nowrap" />
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
+		<contentview id="single" style={{ width: 100, height: 40 }}
+			ref={(view) => { void view; return () => {} }}>
+			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
+		</contentview>
 		<textfield hint="name" onTextChange={(event) => void event.value} />
 		<listview items={[1, 2]} renderItem={(item) => <label text={String(item)} />} />
 		<svgview src="<svg />" stretch="aspectFit" />
@@ -77,6 +81,9 @@ const bad = <div />
 const badProp = <label nosuchprop={1} />
 void bad
 void badProp
+// @ts-expect-error ContentView has common attributes, no invented content prop
+const badContent = <contentview content="text" />
+void badContent
 `
 
 // Module augmentation through the intrinsics entry must reach the contract.

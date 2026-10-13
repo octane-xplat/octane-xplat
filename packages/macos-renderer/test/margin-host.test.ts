@@ -95,6 +95,7 @@ function fixture() {
 		stackGravity: (_parent, node) => node.view.gravity,
 		queueLayoutReconcile: () => {},
 		console,
+		detach: () => {},
 		disposePressGestures: () => {},
 		panHandlersByView: new WeakMap(),
 		disposeWebView: () => {},

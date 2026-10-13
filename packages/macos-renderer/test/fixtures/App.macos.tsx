@@ -25,7 +25,9 @@ export default function App() {
 			<label id="count" style={{ fontSize: 22, fontWeight: 700 }}>
 				{String(count$.get())}
 			</label>
-			<label id="revision" text="First revision" />
+			<contentview id="hmr-content" style={{ width: 180, height: 32 }}>
+				<label id="revision" text="First revision" />
+			</contentview>
 			<stacklayout
 				id="layout"
 				onTap={

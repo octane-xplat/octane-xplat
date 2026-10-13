@@ -26,6 +26,7 @@ const slices = [
 	fn('validateNodeProps'),
 	fn('nativeColor'),
 	fn('parseGridTracks'),
+	fn('observeContentGeometry'),
 	fn('makeNode'),
 	fn('destroy'),
 	fn('validateBatch'),
@@ -44,6 +45,8 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 	const removedObservers = []
 	const disposedWebViews = []
 	const factoryCalls = []
+	const geometryObservers = []
+	const geometryReconciles = []
 
 	const fakeView = (name: string): any => ({
 		name,
@@ -69,12 +72,22 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		actionIdsByView: new WeakMap(),
 		gridLayoutNodesByView: new WeakMap(),
 		absoluteLayoutNodesByView: new WeakMap(),
+		contentViewNodesByView: new WeakMap(),
 		textNodesByView: new WeakMap(),
 		scrollHandlers: new WeakMap(),
 		layoutHandlers: new WeakMap(),
+		NSViewFrameDidChangeNotification: 'frame-changed',
+		queueLayoutReconcile: (_container: any, parent: any) => geometryReconciles.push(parent),
 		NSColor: { colorWithRedGreenBlueAlpha: () => ({}) },
 		NSNotificationCenter: {
-			defaultCenter: { removeObserver: (observer: any) => removedObservers.push(observer) },
+			defaultCenter: {
+				removeObserver: (observer: any) => removedObservers.push(observer),
+				addObserverForNameObjectQueueUsingBlock: (_name: any, view: any, _queue: any, block: any) => {
+					const observer = { view, block }
+					geometryObservers.push(observer)
+					return observer
+				},
+			},
 		},
 		buttonActionTarget: {},
 		fontForFamilyStyle: () => ({ pointSize: 14 }),
@@ -97,6 +110,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		makeStack: () => (factoryCalls.push('stack'), fakeView('stack')),
 		makeFlexbox: () => ({ view: fakeView('flexboxlayout') }),
 		makeGridLayout: () => (factoryCalls.push('gridlayout'), fakeView('gridlayout')),
+		makeContentView: () => (factoryCalls.push('contentview'), fakeView('contentview')),
 		makeAbsoluteLayout: () => fakeView('absolutelayout'),
 		makeLabel: () => fakeView('label'),
 		makeButton: () => (factoryCalls.push('button'), allocAction(fakeView('button'))),
@@ -123,6 +137,8 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		removedObservers,
 		disposedWebViews,
 		factoryCalls,
+		geometryObservers,
+		geometryReconciles,
 		fakeView,
 	}
 }
@@ -261,6 +277,7 @@ test('create on an existing id releases the previous node', () => {
 	const fx = fixture()
 	const old = {
 		id: 7,
+		container: fx.container,
 		type: 'button',
 		view: fx.fakeView('old-button'),
 		props: {},
@@ -386,7 +403,6 @@ for (const type of ['#text', 'span']) {
 	})
 }
 
-
 test('destroying stacklayout detaches a retained descendant host', () => {
 	const fx = fixture()
 	const parent = fx.makeNode(fx.container, 1, 'stacklayout', {})
@@ -398,15 +414,72 @@ test('destroying stacklayout detaches a retained descendant host', () => {
 	assert.equal(parent.children.length, 0)
 })
 
-
 test('stacklayout validates a recreated text child using parents inserted in the same batch', () => {
 	const fx = fixture()
-	assert.throws(() => fx.validateBatch(fx.container, [
-		{ op: 'create', id: 1, type: 'stacklayout', props: {} },
-		{ op: 'create', id: 2, type: 'label', props: {} },
-		{ op: 'insert', id: 2, parent: 1, before: null },
-		{ op: 'recreate', id: 2, type: 'span', props: {} },
-	]), /cannot contain text-only children/)
+	assert.throws(
+		() =>
+			fx.validateBatch(fx.container, [
+				{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+				{ op: 'create', id: 2, type: 'label', props: {} },
+				{ op: 'insert', id: 2, parent: 1, before: null },
+				{ op: 'recreate', id: 2, type: 'span', props: {} },
+			]),
+		/cannot contain text-only children/,
+	)
 
 	assert.equal(fx.container.nodes.size, 0)
+})
+
+test('contentview factory and single-slot parent accept the shared intrinsic', () => {
+	const fx = fixture()
+	assert.ok(fx.makeNode(fx.container, 1, 'contentview', {}).view)
+	assert.doesNotThrow(() =>
+		fx.validateBatch(fx.container, [
+			{ op: 'create', id: 1, type: 'contentview', props: {} },
+			{ op: 'create', id: 2, type: 'label', props: {} },
+			{ op: 'insert', id: 2, parent: 1, before: null },
+			{ op: 'recreate', id: 2, type: 'stacklayout', props: {} },
+		]),
+	)
+})
+
+for (const type of ['#text', 'span']) {
+	for (const op of ['insert', 'recreate']) {
+		test(`contentview rejects ${type} through ${op} before mutation`, () => {
+			const fx = fixture()
+			const commands = [
+				{ op: 'create', id: 1, type: 'contentview', props: {} },
+				{ op: 'create', id: 2, type: op === 'insert' ? type : 'label', props: {} },
+				{ op: 'insert', id: 2, parent: 1, before: null },
+			]
+
+			if (op === 'recreate') {commands.push({ op, id: 2, type, props: {} } as any)}
+			assert.throws(() => fx.validateBatch(fx.container, commands), /contentview.*text-only/)
+			assert.equal(fx.container.nodes.size, 0)
+			assert.deepEqual(fx.factoryCalls, [])
+		})
+	}
+}
+
+
+test('contentview observes real frame changes and ignores callbacks after disposal', () => {
+	const fx = fixture()
+	const host = fx.makeNode(fx.container, 1, 'contentview', {})
+	assert.equal(host.view.postsFrameChangedNotifications, true)
+	const observer = fx.geometryObservers[0]
+	observer.block()
+	assert.deepEqual(fx.geometryReconciles, [host])
+	fx.destroy(host)
+	assert.deepEqual(fx.removedObservers, [observer])
+	assert.equal(host.contentGeometryObserver, null)
+	observer.block()
+	assert.deepEqual(fx.geometryReconciles, [host])
+})
+
+test('failed contentview creation releases its geometry observer', () => {
+	const fx = fixture({ applyProps: () => { throw new Error('prop failed') } })
+	assert.throws(() => fx.makeNode(fx.container, 1, 'contentview', {}), /prop failed/)
+	assert.deepEqual(fx.removedObservers, [fx.geometryObservers[0]])
+	fx.geometryObservers[0].block()
+	assert.equal(fx.geometryReconciles.length, 0)
 })

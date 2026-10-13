@@ -115,6 +115,7 @@ const textNodesByView = new WeakMap<object, ElementNode>()
 const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
 const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
+const contentViewNodesByView = new WeakMap<object, ElementNode>()
 const accessibilityLabels = new Map<number, string>()
 const accessibilityRoles = new Map<number, string>()
 const stackAccessibilityPropsByView = new WeakMap<object, PropBag>()
@@ -486,6 +487,66 @@ class AbsoluteLayoutView extends NSView {
 		super.layout()
 		layoutAbsoluteChildren(absoluteLayoutNodesByView.get(this))
 	}
+}
+
+// A single native slot, with renderer children retained separately so removing
+// a superseded child cannot clear its replacement (NativeScript ContentView).
+class ContentViewHost extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	get intrinsicContentSize() {
+		const child = contentViewNodesByView.get(this)?.contentChild
+		if (!child?.view) {
+			return { width: 0, height: 0 }
+		}
+
+		const intrinsic = layoutView(child).intrinsicContentSize
+		const fitting = layoutView(child).fittingSize
+		const size = (axis: 'width' | 'height') =>
+			Math.max(
+				0,
+				Number(
+					child.props.style?.[axis] ??
+						(Number(intrinsic?.[axis]) >= 0 ? intrinsic?.[axis] : fitting?.[axis]) ??
+						0,
+				) || 0,
+			)
+
+		return { width: size('width'), height: size('height') }
+	}
+
+	layout() {
+		super.layout()
+		layoutContentChild(contentViewNodesByView.get(this))
+	}
+}
+
+function makeContentView() {
+	const view = ContentViewHost.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	return view
+}
+
+function observeContentGeometry(node: ElementNode) {
+	const view = node.view!
+	view.postsFrameChangedNotifications = true
+	// Auto Layout can resize an NSView after its layout() callback. Observe
+	// the resulting frame, so right/bottom alignment and stretch use the
+	// new bounds even when AppKit does not schedule another layout pass.
+	node.contentGeometryObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification, view, null, () => {
+				if (contentViewNodesByView.get(view) === node) {
+					queueLayoutReconcile(node.container, node)
+				}
+			},
+		)
 }
 
 function makeStack(props: PropBag, StackClass: NSClass<NSStackView> = NSStackView) {
@@ -873,8 +934,8 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 		insets[MARGIN_SIDES[name]] = points
 	}
 
-	if (node.parent?.type === 'gridlayout') {
-		// Grids lay out children manually from props.style — no wrapper needed.
+	if (['gridlayout', 'contentview'].includes(node.parent?.type ?? '')) {
+		// These parents lay out children manually from props.style — no wrapper needed.
 		queueLayoutReconcile(node.container, node.parent)
 		return
 	}
@@ -1909,6 +1970,66 @@ function layoutAbsoluteChildren(parent: ElementNode | undefined) {
 	}
 }
 
+function layoutContentChild(parent: ElementNode | undefined) {
+	const child = parent?.contentChild
+	if (!parent?.view || !child?.view) {
+		return
+	}
+
+	const width = Number(parent.view.bounds.size.width)
+	const height = Number(parent.view.bounds.size.height)
+	const style = child.props.style ?? {}
+	const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
+	const horizontal = child.props.horizontalAlignment ?? 'stretch'
+	const vertical = child.props.verticalAlignment ?? 'stretch'
+	const margins = child.marginInsets ?? {}
+	const axis = (
+		available: number,
+		desired: any,
+		natural: number,
+		alignment: string,
+		start: number,
+		end: number,
+	) => {
+		const space = Math.max(0, available - start - end)
+		const size =
+			desired == null
+				? alignment === 'stretch'
+					? space
+					: Math.max(0, Number(natural) || 0)
+				: Math.max(0, layoutLength(desired, available, 0))
+
+		const offset =
+			alignment === 'right' || alignment === 'bottom'
+				? available - end - size
+				: ['stretch', 'center', 'middle'].includes(alignment)
+					? start + (space - size) / 2
+					: start
+
+		return [offset, size]
+	}
+
+	const [x, childWidth] = axis(
+		width,
+		style.width,
+		intrinsic.width,
+		horizontal,
+		margins.left ?? 0,
+		margins.right ?? 0,
+	)
+
+	const [top, childHeight] = axis(
+		height,
+		style.height,
+		intrinsic.height,
+		vertical,
+		margins.top ?? 0,
+		margins.bottom ?? 0,
+	)
+
+	pinLayoutChild(child, parent.view, x, top, childWidth, childHeight)
+}
+
 function performGridAccessibilityAdjustment(view: any, name: string) {
 	const node = gridLayoutNodesByView.get(view)!
 	const handler = node?.props[name]
@@ -1948,6 +2069,7 @@ function makeImageView(props: PropBag) {
 
 /** Types whose views arrange child views; mirrors the check in insert(). */
 const VIEW_PARENT_TYPES = new Set([
+	'contentview',
 	'stack',
 	'stacklayout',
 	'flexboxlayout',
@@ -2097,6 +2219,11 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.actionId = flexbox.actionId
 				break
 			}
+			case 'contentview':
+				node.view = makeContentView()
+				contentViewNodesByView.set(node.view!, node)
+				observeContentGeometry(node)
+				break
 			case 'gridlayout':
 				node.view = makeGridLayout()
 				break
@@ -2469,7 +2596,7 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	}
 
 	const spec = node.sizeConstraintSpecs?.[name]
-	if (!spec || !node.view) {
+	if (!spec || !node.view || node.parent?.type === 'contentview') {
 		return
 	}
 
@@ -3448,6 +3575,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	contentview: ['horizontalAlignment', 'verticalAlignment'],
 	stacklayout: [
 		'orientation',
 		'horizontalAlignment',
@@ -3485,6 +3613,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		absolutelayout: ['left', 'top', 'right', 'bottom'],
+		contentview: ['horizontalAlignment', 'verticalAlignment'],
 		stacklayout: ['horizontalAlignment', 'verticalAlignment'],
 		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
 	}
@@ -3538,6 +3667,16 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 
 		switch (node.type) {
+			case 'contentview':
+				if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name !== 'id') {
+					console.warn('[macos-host] ignored contentview prop ' + name)
+				}
+
+				break
 			case 'stack':
 				if (name === 'spacing') {
 					syncStackLayout(node)
@@ -3899,12 +4038,13 @@ function applyProps(node: ElementNode, props: PropBag) {
 		queueLayoutReconcile(node.container, node)
 	}
 
-	if (node.type === 'gridlayout' || node.type === 'absolutelayout') {
+	if (['gridlayout', 'absolutelayout', 'contentview'].includes(node.type)) {
 		queueLayoutReconcile(node.container, node)
 	} else if (
 		node.parent?.type === 'gridlayout' ||
 		node.parent?.type === 'absolutelayout' ||
-		node.parent?.type === 'stacklayout'
+		node.parent?.type === 'stacklayout' ||
+		node.parent?.type === 'contentview'
 	) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
@@ -3934,6 +4074,11 @@ function detach(container: RootContainer, node: ElementNode) {
 		arrangedView(node).removeFromSuperview()
 	}
 
+	if (previousParent?.type === 'contentview' && previousParent.contentChild === node) {
+		previousParent.contentChild = null
+		previousParent.view!.invalidateIntrinsicContentSize()
+	}
+
 	queueLayoutReconcile(container, previousParent)
 	syncText(previousParent)
 	node.parent = null
@@ -3960,6 +4105,12 @@ function queueLayoutReconcile(container: RootContainer, parent: ElementNode | nu
 }
 
 function reconcileLayoutParent(parent: ElementNode) {
+	if (parent.type === 'contentview') {
+		parent.view?.invalidateIntrinsicContentSize()
+		layoutContentChild(parent)
+		return
+	}
+
 	if (parent.type === 'gridlayout') {
 		layoutGridChildren(parent)
 		return
@@ -3996,8 +4147,8 @@ function insert(
 		throw new Error('Unknown AppKit parent ' + parentId)
 	}
 
-	if (parent?.type === 'stacklayout' && !node.view) {
-		throw new Error('AppKit <stacklayout> cannot contain text-only children')
+	if (['stacklayout', 'contentview'].includes(parent?.type ?? '') && !node.view) {
+		throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 	}
 
 	if (parent && node.view && !VIEW_PARENT_TYPES.has(parent.type)) {
@@ -4017,7 +4168,7 @@ function insert(
 	node.parent = parent
 	if (node.view) {
 		if (parent) {
-			if (parent.type === 'gridlayout' || parent.type === 'absolutelayout') {
+			if (['gridlayout', 'absolutelayout', 'contentview'].includes(parent.type)) {
 				// Re-homing under a manually laid-out parent — release the
 				// margin wrapper so arrangedView() stops returning the
 				// detached host and the grid cannot keep a ghost view.
@@ -4026,7 +4177,19 @@ function insert(
 				node.marginConstraints = null
 			}
 
-			if (parent.type === 'gridlayout') {
+			if (parent.type === 'contentview') {
+				const previous = parent.contentChild
+				if (previous && previous !== node) {
+					releasePlacementPins(previous)
+					layoutView(previous).removeFromSuperview()
+				}
+
+				parent.contentChild = node
+				parentView.addSubview(layoutView(node))
+				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
+				deactivateSizeConstraints(node)
+				queueLayoutReconcile(container, parent)
+			} else if (parent.type === 'gridlayout') {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
@@ -4100,15 +4263,36 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 		setLayoutAction(node, node.props?.onLayoutChanged)
 	}
 
+	if (expectedParent?.type === 'contentview' && expectedParent.contentChild === node) {
+		expectedParent.contentChild = null
+		expectedParent.view!.invalidateIntrinsicContentSize()
+	}
+
 	queueLayoutReconcile(container, expectedParent)
 	node.parent = null
 	syncText(expectedParent)
 }
 
 function destroy(node: ElementNode) {
-	// Removing an ancestor does not detach AppKit's arranged descendants.
-	// A retained host ref must not keep the destroyed stack in that tree.
-	if (node.type === 'stacklayout' && node.view) {
+	// Removing an ancestor does not detach its native descendants. Every
+	// destroyed view releases its own edge, including retained ContentView refs.
+	if (node.type === 'contentview') {
+		if (node.contentGeometryObserver) {
+			NSNotificationCenter.defaultCenter.removeObserver(node.contentGeometryObserver)
+			node.contentGeometryObserver = null
+		}
+
+		// Detaching mutates children; iterate a snapshot.
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
+
+		if (node.view) {
+			contentViewNodesByView.delete(node.view)
+		}
+	}
+
+	if (node.view) {
 		detach(node.container, node)
 	}
 
@@ -4207,8 +4391,11 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const existing = container.nodes.get(command.id)
 				const parentId = parentOf(command.id)
 				const parent = parentId == null ? null : known(parentId)
-				if (parent?.type === 'stacklayout' && !typeHasView(command.type)) {
-					throw new Error('AppKit <stacklayout> cannot contain text-only children')
+				if (
+					['stacklayout', 'contentview'].includes(parent?.type ?? '') &&
+					!typeHasView(command.type)
+				) {
+					throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 				}
 
 				if (
@@ -4245,8 +4432,8 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 						throw new Error('Unknown AppKit parent ' + parentId)
 					}
 
-					if (parent.type === 'stacklayout' && !typeHasView(entry.type)) {
-						throw new Error('AppKit <stacklayout> cannot contain text-only children')
+					if (['stacklayout', 'contentview'].includes(parent.type) && !typeHasView(entry.type)) {
+						throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 					}
 
 					if (typeHasView(entry.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
@@ -4282,8 +4469,11 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// A retried batch can re-create an id the earlier attempt already
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
-			if (existing?.parent?.type === 'stacklayout' && !typeHasView(command.type)) {
-				throw new Error('AppKit <stacklayout> cannot contain text-only children')
+			if (
+				['stacklayout', 'contentview'].includes(existing?.parent?.type ?? '') &&
+				!typeHasView(command.type)
+			) {
+				throw new Error('AppKit <' + existing!.parent!.type + '> cannot contain text-only children')
 			}
 
 			if (existing) {
@@ -4308,7 +4498,11 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				// applyProps merges — a dropped key stays stale for node.props
 				// readers. Inject explicit clears for every sticky prop so a
 				// removed key restores its default.
-				applyProps(node, { ...clearOnUpdate(node.type), ...command.props })
+				const childClears = node.parent?.type === 'contentview'
+					? { horizontalAlignment: undefined, verticalAlignment: undefined }
+					: {}
+
+				applyProps(node, { ...clearOnUpdate(node.type), ...childClears, ...command.props })
 			} catch (error) {
 				node.props = previousProps
 				throw error
@@ -4360,8 +4554,11 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			}
 
 			const parent = node.parent
-			if (parent?.type === 'stacklayout' && !typeHasView(command.type)) {
-				throw new Error('AppKit <stacklayout> cannot contain text-only children')
+			if (
+				['stacklayout', 'contentview'].includes(parent?.type ?? '') &&
+				!typeHasView(command.type)
+			) {
+				throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 			}
 
 			if (parent && typeHasView(command.type) && !VIEW_PARENT_TYPES.has(parent.type)) {

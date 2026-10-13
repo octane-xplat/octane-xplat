@@ -1,5 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { checkContentLifecycle } from './content-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
 
 const app = NSApplication.sharedApplication
@@ -105,7 +106,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 					debug.pressId('layout')
 					check(tapEvents.join(',') === 'tap:true', 'Reactive shared tap payload failed')
 					debug.pressId('increment')
-					setTimeout(() => {
+					setTimeout(async () => {
 						try {
 							nativeWindow.contentView.layoutSubtreeIfNeeded()
 							check(
@@ -130,6 +131,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 							check(refEvents.join(',') === 'attach,cleanup', 'Callback ref cleanup failed')
 							check(!stack.superview, 'Unmount retained the native stack')
 							console.log('PACKED_STACKLAYOUT_OK')
+							const contentRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkContentLifecycle(contentRoot, nativeWindow)
+							} finally {
+								contentRoot.unmount()
+							}
+
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {
 							console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)

@@ -43,15 +43,30 @@ const template = JSON.parse(
 const octaneVersion = template.dependencies.octane
 const oxcVersion = template.devDependencies['@tsrx/oxc']
 const fixture = join(packageRoot, 'test/fixtures')
-for (const file of ['App.macos.tsx', 'main.ts', 'dev-shell.ts', 'types.ts', 'globals.d.ts']) {
+for (const file of [
+	'App.macos.tsx',
+	'Content.macos.tsx',
+	'content-lifecycle.ts',
+	'main.ts',
+	'dev-shell.ts',
+	'types.ts',
+	'globals.d.ts',
+]) {
 	await cp(join(fixture, file), join(app, 'src', file))
 }
 
 // Keep the contributor example checked by the same independent consumer.
 const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md'), 'utf8')
-const example = ledger.match(/```tsx\n([\s\S]*?)```/)?.[1]
-assert.ok(example, 'StackLayout ledger must include its checked JSX example')
-await writeFile(join(app, 'src/Example.macos.tsx'), example)
+const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
+assert.equal(
+	examples.length,
+	2,
+	'Intrinsic ledger must include checked StackLayout and ContentView examples',
+)
+
+for (const [index, example] of examples.entries()) {
+	await writeFile(join(app, `src/Example${index}.macos.tsx`), example[1])
+}
 
 for (const file of ['vite.config.ts', 'vite.dev.config.ts', 'vite.shell.config.ts']) {
 	await cp(join(fixture, file), join(app, file))
@@ -165,9 +180,11 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	})
 
 	const output = result.stdout + result.stderr
+	await writeFile(join(directory, 'appkit-runtime.log'), output)
 	assert.equal(result.status, 0, output)
 	assert.match(output, /PACKED_RENDERER_OK/)
 	assert.match(output, /PACKED_STACKLAYOUT_OK/)
+	assert.match(output, /PACKED_CONTENTVIEW_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -213,8 +230,10 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		})
 
 		await editing
+		await writeFile(join(directory, 'appkit-hmr.log'), devOutput)
 		assert.ifError(failure)
 		assert.equal(verified, true, devOutput.slice(-5000))
+		assert.match(devOutput, /PACKED_CONTENTVIEW_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)
