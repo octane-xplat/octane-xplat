@@ -56,7 +56,12 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 
 - Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies
   use `"workspace:*"`. `packages/ui` takes **no new dependencies or peers**;
-  plugin-backed features belong in leaf packages.
+  plugin-backed features belong in leaf packages. A leaf package is warranted
+  when a feature owns an external cost or a separate system lifecycle — a
+  native plugin, a JS engine dependency, or platform host machinery (decisions
+  #51, #53, #54, #60, #70, #72). Niche but pure-UI, dependency-free component
+  APIs (e.g. the Chat family, PowerSearch) stay in `ui`; don't extract them
+  on API-scope grounds alone.
 - Every non-private `packages/*/package.json` is included in the automated
   lockstep release. Mark fixtures/private workspaces `"private": true`. For a
   publishable package, set `repository.url` exactly to
