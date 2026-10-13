@@ -66,7 +66,7 @@ const seen = storage.getString('has-seen-welcome') // "true"
 Other services cover permissions, clipboard, haptics, files, media
 picking, notifications, safe-area insets, screen size, and app lifecycle.
 A **leaf package** is an add-on installed separately for a feature. Features
-that need a NativeScript plugin live in these packages: `@octane-xplat/share` (`share.text`, `share.url`),
+that need a NativeScript plugin live in these packages: `@octane-xplat/share` (`share.text`, `share.url`, `share.file`),
 `@octane-xplat/files`, `@octane-xplat/media`, `@octane-xplat/biometrics`,
 `@octane-xplat/geolocation`, [`@octane-xplat/notifications`](local-notifications.md),
 `@octane-xplat/secure-storage`, and the `haptics` service in
@@ -435,6 +435,30 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 else if (result === 'copied') console.log('Link copied')
 else console.log('Share flow opened')
 ```
+
+`share.file(path)` opens the same picker for a local file — for example a
+recording or a document your app just saved. The path must be an absolute
+filesystem path or `file://` URL; Android also accepts `content://` URIs.
+On iOS the result is `shared` or `cancelled` (the sheet reports dismissal);
+on Android the system chooser reports no outcome, so a launched sheet
+resolves `shared`. Browsers cannot share a file by path, so web resolves
+`unavailable` — the same call inside a macOS-hosted webview reaches the
+AppKit share picker.
+
+```ts
+import { files } from '@octane-xplat/files'
+import { share } from '@octane-xplat/share'
+
+const saved = await files.writeBytes('clip.mov', bytes)
+const result = await share.file(saved.uri, { subject: 'Share clip' })
+if (result === 'unavailable') console.log('No file-share path on this target')
+```
+
+On Android the package declares its own FileProvider
+(`${applicationId}.xplatshare`) covering app-private storage, cache, and
+shared external storage — paths outside those roots reject. On iOS, the
+sheet's built-in save-to-gallery activities need
+`NSPhotoLibraryAddUsageDescription` in `Info.plist`.
 
 Camera capture is stills-only — no maintained NativeScript video-capture
 plugin exists, so the contract has no `captureVideo`.

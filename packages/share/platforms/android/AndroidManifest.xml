@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- Package visibility for the share-file grant loop on API 30+;
+	     the chooser itself grants the picked target regardless. -->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.SEND" />
+			<data android:mimeType="*/*" />
+		</intent>
+	</queries>
+	<application>
+		<!-- share.file content URIs. Authority `${applicationId}.xplatshare`
+		     stays distinct from @nativescript/social-share's `.provider` so
+		     both merge into one manifest. The androidx class name is correct
+		     post-Jetifier; FILE_PROVIDER_PATHS keeps its legacy support key —
+		     that is the literal androidx.core reads. -->
+		<provider
+			android:name="androidx.core.content.FileProvider"
+			android:authorities="${applicationId}.xplatshare"
+			android:exported="false"
+			android:grantUriPermissions="true">
+			<meta-data
+				android:name="android.support.FILE_PROVIDER_PATHS"
+				android:resource="@xml/xplat_share_paths" />
+		</provider>
+	</application>
+</manifest>

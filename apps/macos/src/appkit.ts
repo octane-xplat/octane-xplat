@@ -353,7 +353,7 @@ function installPlatformServices() {
 			pasteboard.clearContents()
 			return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
 		},
-		shareContent({ text, url, title }: { text?: string; url?: string; title?: string }) {
+		shareContent({ text, url, title, file }: { text?: string; url?: string; title?: string; file?: string }) {
 			const anchor = services.primaryWindow?.contentView
 			if (!anchor || typeof NSSharingServicePicker === 'undefined') {
 				return 'unavailable'
@@ -361,7 +361,13 @@ function installPlatformServices() {
 
 			try {
 				let items
-				if (typeof url === 'string') {
+				if (typeof file === 'string') {
+					if (!NSFileManager.defaultManager.fileExistsAtPath(file)) {
+						return 'unavailable'
+					}
+
+					items = [NSURL.fileURLWithPath(file)]
+				} else if (typeof url === 'string') {
 					const nativeUrl = NSURL.URLWithString(url)
 					if (!nativeUrl) {
 						return 'unavailable'

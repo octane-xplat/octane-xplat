@@ -1,42 +1,54 @@
 // Share — web leaf. navigator.share where present (mobile Safari/Chrome);
 // desktop degrades to clipboard copy so the call still does something useful.
+// Files can't share by path in a browser — the Web Share API needs a File
+// handle — so share.file only reaches a sheet through the desktop host seam.
 import { desktopHost, desktopHostSupports } from '@octane-xplat/platform/host/web'
+import type { Share, ShareResult } from './types'
 
-export const share = {
-	async text(text: string, subject?: string): Promise<'shared' | 'copied' | 'unavailable'> {
+async function navShare(payload: { text?: string; url?: string; title?: string }): Promise<ShareResult> {
+	const nav = navigator as any
+	if (nav.share) {
+		try {
+			await nav.share(payload)
+			return 'shared'
+		} catch (error) {
+			if ((error as Error)?.name === 'AbortError') {
+				return 'cancelled'
+			}
+
+			throw error
+		}
+	}
+
+	if (nav.clipboard) {
+		await nav.clipboard.writeText(payload.url ?? payload.text ?? '')
+		return 'copied'
+	}
+
+	return 'unavailable'
+}
+
+export const share: Share = {
+	async text(text: string, subject?: string): Promise<ShareResult> {
 		const host = desktopHost()
 		if (host && (await desktopHostSupports('system', 'shareContent'))) {
 			return host.system.shareContent({ text, title: subject })
 		}
 
-		const nav = navigator as any
-		if (nav.share) {
-			await nav.share({ text, title: subject })
-			return 'shared'
-		}
-
-		if (nav.clipboard) {
-			await nav.clipboard.writeText(text)
-			return 'copied'
-		}
-
-		return 'unavailable'
+		return navShare({ text, title: subject })
 	},
-	async url(url: string, title?: string): Promise<'shared' | 'copied' | 'unavailable'> {
+	async url(url: string, title?: string): Promise<ShareResult> {
 		const host = desktopHost()
 		if (host && (await desktopHostSupports('system', 'shareContent'))) {
 			return host.system.shareContent({ url, title })
 		}
 
-		const nav = navigator as any
-		if (nav.share) {
-			await nav.share({ url, title })
-			return 'shared'
-		}
-
-		if (nav.clipboard) {
-			await nav.clipboard.writeText(url)
-			return 'copied'
+		return navShare({ url, title })
+	},
+	async file(path: string): Promise<ShareResult> {
+		const host = desktopHost()
+		if (host && (await desktopHostSupports('system', 'shareContent'))) {
+			return host.system.shareContent({ file: path })
 		}
 
 		return 'unavailable'

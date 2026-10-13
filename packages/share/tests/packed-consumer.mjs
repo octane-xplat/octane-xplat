@@ -58,19 +58,27 @@ const consumers = {
 	web: `import { share, type ShareResult } from '@octane-xplat/share'
 const shared: Promise<ShareResult> = share.text('hello', 'subject')
 const linked: Promise<ShareResult> = share.url('https://example.com')
+const filed: Promise<ShareResult> = share.file('/tmp/clip.mov', { subject: 's', mimeType: 'video/quicktime' })
+const cancelled: ShareResult = 'cancelled'
 // @ts-expect-error text needs a string
 const bad = share.text(42)
 void shared
 void linked
+void filed
+void cancelled
 void bad
 `,
 	native: `import { share, type ShareResult } from '@octane-xplat/share'
 const shared: Promise<ShareResult> = share.text('hello', 'subject')
 const linked: Promise<ShareResult> = share.url('https://example.com')
+const filed: Promise<ShareResult> = share.file('/tmp/clip.mov', { subject: 's', mimeType: 'video/quicktime' })
+const cancelled: ShareResult = 'cancelled'
 // @ts-expect-error text needs a string
 const bad = share.text(42)
 void shared
 void linked
+void filed
+void cancelled
 void bad
 `,
 }

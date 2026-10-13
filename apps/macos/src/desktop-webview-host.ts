@@ -23,7 +23,7 @@ export interface AppKitHostServices {
 	readonly windowSize: WindowSize
 	readClipboard(): string | null
 	writeClipboard(value: string): boolean
-	shareContent(input: { text?: string; url?: string; title?: string }): 'shared' | 'unavailable'
+	shareContent(input: { text?: string; url?: string; title?: string; file?: string }): 'shared' | 'unavailable'
 	openUrl(url: string): boolean
 	openPath(path: string): boolean
 	getColorScheme(): 'light' | 'dark'

@@ -27,6 +27,8 @@ export interface HostShareInput {
 	text?: string
 	url?: string
 	title?: string
+	/** Local file path to share — hosts present a file item in the picker. */
+	file?: string
 }
 
 /** Framework services exposed by a native desktop webview host. */

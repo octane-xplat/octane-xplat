@@ -1,13 +1,24 @@
-// Share — native share sheet via @nativescript/social-share.
+// Share — native share sheet via @nativescript/social-share; share.file is
+// per-OS (UIActivityViewController on iOS, FileProvider ACTION_SEND on
+// Android) so the package owns the provider and result semantics.
+import { isIOS } from '@nativescript/core'
 import { shareText, shareUrl } from '@nativescript/social-share'
+import { shareFile as shareFileAndroid } from './share-file.android'
+import { shareFile as shareFileIos } from './share-file.ios'
+import type { Share, ShareFileOptions, ShareResult } from './types'
 
-export const share = {
-	async text(text: string, subject?: string): Promise<'shared'> {
+const shareFile = isIOS ? shareFileIos : shareFileAndroid
+
+export const share: Share = {
+	async text(text: string, subject?: string): Promise<ShareResult> {
 		shareText(text, subject)
 		return 'shared'
 	},
-	async url(url: string, title?: string): Promise<'shared'> {
+	async url(url: string, title?: string): Promise<ShareResult> {
 		shareUrl(url, title ?? url)
 		return 'shared'
+	},
+	file(path: string, options?: ShareFileOptions): Promise<ShareResult> {
+		return shareFile(path, options)
 	},
 }

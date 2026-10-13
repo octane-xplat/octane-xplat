@@ -244,8 +244,19 @@ export function Services() @{
 				<Pressable className="btn btn-secondary" onPress={() => run('shareUrl', async () => 'result: ' + (await share.url('https://github.com/octane-xplat/octane-xplat', 'Octane Xplat')))}>
 					<Text>Share URL</Text>
 				</Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => run('shareFile', async () => {
+					const f = await files.writeText('share-note.txt', 'shared from the octane-xplat harness');
+					try {
+						return 'result: ' + (await share.file(f.uri));
+					} catch (e) {
+						return 'rejected: ' + ((e as Error).message ?? e);
+					}
+				})}>
+					<Text>Share file</Text>
+				</Pressable>
 				<Text className="text-sm text-muted">{echo.share ?? '—'}</Text>
 				<Text className="text-sm text-muted">{echo.shareUrl ?? '—'}</Text>
+				<Text className="text-sm text-muted">{echo.shareFile ?? '—'}</Text>
 				<Pressable className="btn btn-secondary" onPress={() => say('url', openUrl('https://github.com/aleclarson/octane-xplat') ? 'opened' : 'failed')}>
 					<Text>Open repo</Text>
 				</Pressable>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Roots share.file can expose: app-private files/cache plus shared
+     external storage. `root-path` is deliberately absent — it would grant
+     read access to the whole filesystem. Paths outside these roots reject
+     from FileProvider.getUriForFile rather than silently failing. -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+	<files-path name="files" path="." />
+	<cache-path name="cache" path="." />
+	<external-path name="external" path="." />
+	<external-files-path name="external_files" path="." />
+	<external-cache-path name="external_cache" path="." />
+	<external-media-path name="external_media" path="." />
+</paths>

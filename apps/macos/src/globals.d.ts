@@ -39,6 +39,9 @@ declare const NSApplication: NSClass<NSApplication>
 interface NSBundle extends NSObject {}
 declare const NSBundle: NSClass<NSBundle>
 
+interface NSFileManager extends NSObject {}
+declare const NSFileManager: NSClass<NSFileManager>
+
 interface NSPasteboard extends NSObject {}
 declare const NSPasteboard: NSPasteboard & NSClass<NSPasteboard>
 
