@@ -40,6 +40,7 @@ export declare function workshopDev(options?: {
 	target?: string
 	story?: string
 	port?: number
+	device?: string
 }): Promise<unknown>
 
 /**

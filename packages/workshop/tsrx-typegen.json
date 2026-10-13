@@ -24,6 +24,16 @@
 					"source": "src/index.ts",
 					"runtime": ["./src/node.mjs"],
 					"types": ["./src/node.d.ts"]
+				},
+				"./mobile": {
+					"source": "src/mobile/index.mobile.ts",
+					"runtime": ["./dist/mobile/index.js"],
+					"types": ["./types/generated/mobile/index.mobile.d.ts"]
+				},
+				"./vite-mobile": {
+					"source": "src/index.ts",
+					"runtime": ["./src/vite-mobile.mjs"],
+					"types": ["./src/vite-mobile.d.ts"]
 				}
 			}
 		}

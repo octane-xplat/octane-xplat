@@ -5,7 +5,8 @@ and Reset to a fresh example. The current release supports two DOM hosts:
 the **web** browser target, and **Linux** through the real GTK4/WebKitGTK
 webview host on a Linux machine. Authoring contract version: **1**.
 
-iOS, Android, macOS and Windows remain unqualified backends — `xplat workshop
+[iOS/Android launch setup](MOBILE.md) and native adapters are implemented,
+but iOS, Android, macOS and Windows remain unqualified backends — `xplat workshop
 doctor` reports them honestly. Keyboard and browser accessibility semantics
 have regression coverage; actual screen-reader announcements and OS IME input
 still require qualification on every host.

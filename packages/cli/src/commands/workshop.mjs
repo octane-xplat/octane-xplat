@@ -85,7 +85,11 @@ const dev = command({
 		target: option({
 			long: 'target',
 			type: optional(string),
-			description: 'Launch target — web | linux (default web; linux needs a Linux host)',
+			description: 'Launch target — web | linux | ios | android (default web; native hosts unqualified)',
+		}),
+		device: option({
+			long: 'device', type: optional(string),
+			description: 'Explicit mobile device ID; no automatic device selection',
 		}),
 		story: option({
 			long: 'story',
@@ -111,6 +115,7 @@ const dev = command({
 				cwd: process.cwd(),
 				target: args.target ?? 'web',
 				story: args.story,
+				device: args.device,
 				port,
 			})
 			.catch(fail)
@@ -119,6 +124,6 @@ const dev = command({
 
 export const workshop = subcommands({
 	name: 'workshop',
-	description: 'Component workshop — isolated story development (web + Linux hosts)',
+	description: 'Component workshop — isolated stories (web + Linux; mobile hosts unqualified)',
 	cmds: { init, doctor, list, dev },
 })

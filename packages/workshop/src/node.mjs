@@ -17,6 +17,7 @@ import { realpathSync } from 'node:fs'
 import { discoverStories } from './discover.mjs'
 import { windowsPreflight, windowsLaunchBlocker } from './windows/preflight.mjs'
 import { xplatWorkshop } from './vite.mjs'
+import { launchMobile, mobilePrerequisites } from './mobile-node.mjs'
 import { xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 
 const CONFIG_NAMES = [
@@ -139,14 +140,8 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 		status: Object.values(webRequirements).every(Boolean) ? 'available' : 'missing-prerequisites',
 	}
 
-	const nativeConfig = existsSync(join(root, 'nativescript.config.ts'))
 	for (const target of ['ios', 'android']) {
-		report.targets[target] = {
-			backend: 'nativescript',
-			requirements: { 'nativescript.config.ts': nativeConfig },
-			status: 'unqualified-backend',
-			note: 'the workshop does not yet support this target (package A delivers the web preview)',
-		}
+		report.targets[target] = mobilePrerequisites(root, target)
 	}
 
 	report.targets.macos = {
@@ -406,15 +401,30 @@ export async function startWorkshopServer({ root, config, target, story, port } 
 	return { server, url }
 }
 
-export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
+export async function workshopDev({ cwd, target = 'web', story, port, device } = {}) {
 	const root = consumerRoot(cwd)
+	if (target === 'ios' || target === 'android') {
+		if (port !== undefined) {
+			throw new WorkshopUsageError('Mobile workshop uses the consumer native Vite server port; configure it in the native Vite config')
+		}
+
+		const prerequisites = mobilePrerequisites(root, target)
+		if (prerequisites.status !== 'unqualified-backend') {
+			throw new WorkshopUsageError(`Mobile workshop ${target}: ${prerequisites.status}. Run xplat workshop doctor and follow @octane-xplat/workshop/MOBILE.md setup.`)
+		}
+
+		const { config } = await loadWorkshopConfig(root)
+		try { return await launchMobile({ root, target, device, story, config }) }
+		catch (error) { throw new WorkshopUsageError(error.message) }
+	}
+
 	if (target === 'windows') {
 		throw new WorkshopUsageError(windowsLaunchBlocker(windowsPreflight(root)))
 	}
 
 	if (target !== 'web' && target !== 'linux') {
 		throw new WorkshopUsageError(
-			`xplat workshop dev --target ${target}: this workshop release supports the web and linux targets — ` +
+			`xplat workshop dev --target ${target}: this workshop preview provides web, linux, ios and android launch paths — ` +
 				`run \`xplat workshop doctor\` for per-target status`,
 		)
 	}

@@ -9,7 +9,7 @@
 		"noEmit": false,
 		"rootDir": "src",
 		"outDir": "types/generated",
-		"types": ["vite/client"]
+		"types": ["vite/client", "@nativescript/types"]
 	},
-	"files": ["src/index.ts", "src/web/index.web.ts"]
+	"files": ["src/index.ts", "src/web/index.web.ts", "src/mobile/index.mobile.ts"]
 }

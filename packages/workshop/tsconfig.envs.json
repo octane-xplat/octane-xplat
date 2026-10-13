@@ -15,8 +15,19 @@
 				"tests/**/*.ts"
 			],
 			"exclude": [
-				"src/**/*.test.*"
+				"src/**/*.test.*",
+				"src/mobile/**"
 			]
+		},
+		"native": {
+			"files": [
+				"src/mobile/index.mobile.ts"
+			],
+			"compilerOptions": {
+				"types": [
+					"@nativescript/types"
+				]
+			}
 		}
 	}
 }
