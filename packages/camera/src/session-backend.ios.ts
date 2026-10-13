@@ -263,6 +263,7 @@ const numericValue = (value: unknown): number | undefined => {
 		if (typeof value === 'number') {
 			return value
 		}
+
 		if (typeof value === 'boolean') {
 			return value ? 1 : 0
 		}
