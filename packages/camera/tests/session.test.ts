@@ -303,6 +303,7 @@ describe('camera session contract', () => {
 			{ x: 1, y: 0 },
 			{ x: 0.25, y: 0.75 },
 		])
+
 		detach()
 	})
 

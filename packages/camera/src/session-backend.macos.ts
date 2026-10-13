@@ -156,6 +156,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				focusPointOfInterest?: boolean
 				exposurePointOfInterest?: boolean
 			}[]
+
 			const selected = selectedCameraId()
 			const device = list.find((entry) => entry.id === selected) ?? list[0]
 			return {

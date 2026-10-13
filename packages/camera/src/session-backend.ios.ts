@@ -834,9 +834,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			const focus =
 				captureDevice.focusPointOfInterestSupported === true &&
 				captureDevice.isFocusModeSupported?.(focusModeAutoFocus) !== false
+
 			const expose =
 				captureDevice.exposurePointOfInterestSupported === true &&
 				captureDevice.isExposureModeSupported?.(exposureModeAutoExpose) !== false
+
 			if (!focus && !expose) {
 				return
 			}
@@ -851,6 +853,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				point.x * bounds.size.width,
 				point.y * bounds.size.height,
 			)
+
 			if (typeof layer.captureDevicePointOfInterestForPoint !== 'function') {
 				return
 			}
