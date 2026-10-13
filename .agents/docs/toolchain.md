@@ -32,10 +32,15 @@ experience of agents writing Octane-xplat code effectively.
 - **Package typechecks use one `tsconfig.envs.json` per package** — never
   `tsconfig.<platform>.json`. The manifest declares the checked surface once
   (`environments.<env>.files|include|exclude`); `scripts/typecheck.mjs`
-  expands each entry into a program using the shared presets in
-  `packages/cli/src/tsconfig-envs.mjs` (moduleSuffixes / customConditions /
-  jsxImportSource / lib — the program-wide half of platform build selection)
-  and runs `tsrx-tsc --noEmit` on each under `node_modules/.cache/xplat-typecheck/`.
+  expands the declared environments into **one combined program** using the
+  shared presets in `packages/cli/src/tsconfig-envs.mjs` (lib / ambient /
+  types merged; `jsxImportSource` defaults to `octane` with per-file pragmas
+  on native/macOS leaves) and runs `tsrx-tsc --noEmit` on it under
+  `node_modules/.cache/xplat-typecheck/`. Every program resolves under the
+  fixed `moduleSuffixes` order `["" , ".web", ".ios", ".android", ".mobile",
+  ".native", ".macos", ".linux", ".windows"]` — extensionless first — with no
+  platform `customConditions` (package boundaries resolve the default export
+  surface). Per-environment `compilerOptions` are rejected except `types`.
   Every platform is meant to expose the same API surface at the type level, so
   a `src/index.<platform>.ts` barrel that no declared environment checks fails
   the run. `xplat typecheck` applies the same expansion to app manifests and

@@ -6,13 +6,37 @@
 		"moduleResolution": "bundler",
 		"jsx": "preserve",
 		"jsxImportSource": "octane",
-		"moduleSuffixes": [".web", ""],
-		"customConditions": ["web"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
-		"types": ["vite/client"],
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"vite/client",
+			"@nativescript/types"
+		],
 		"noEmit": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"allowImportingTsExtensions": true
 	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "src/main.ts"]
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules"
+	],
+	"files": [
+		"references.d.ts"
+	]
 }

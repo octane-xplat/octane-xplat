@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/pager",
 	"version": "0.14.0",
-	"description": "Paged swipe container for Octane xplat — web scroll-snap row + @nativescript-community/ui-pager (ViewPager2 / paging UICollectionView)",
+	"description": "Paged swipe container for Octane xplat \u2014 web scroll-snap row + @nativescript-community/ui-pager (ViewPager2 / paging UICollectionView)",
 	"keywords": [
 		"android",
 		"carousel",
@@ -70,6 +70,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"octane": "0.11.0",
 		"tsrx-typegen": "workspace:*",

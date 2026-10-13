@@ -2,9 +2,6 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"customConditions": [
-			"web"
-		],
 		"lib": [
 			"ESNext",
 			"DOM",
@@ -17,7 +14,19 @@
 		"outDir": "types/generated",
 		"types": [
 			"node"
-		]
+		],
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
 	"files": [
 		"src/index.ts",

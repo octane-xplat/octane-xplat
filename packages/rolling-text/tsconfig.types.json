@@ -8,7 +8,22 @@
 		"emitDeclarationOnly": true,
 		"noEmitOnError": true,
 		"outDir": "types",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
-	"include": ["src/props.ts", "types/index.d.ts"]
+	"include": [
+		"src/props.ts",
+		"types/index.d.ts"
+	]
 }

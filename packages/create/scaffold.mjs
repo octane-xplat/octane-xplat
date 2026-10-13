@@ -64,7 +64,6 @@ export const targets = {
 		files: [
 			'nativescript.config.ts',
 			'vite.config.native.mts',
-			'tsconfig.envs.json',
 			'references.d.ts',
 			'src/main.ts',
 			// On-device Vitest lane — `ns test` builds src/test.ts under
@@ -386,13 +385,33 @@ function ensurePatchEntries(appRoot, enabledIds) {
 	return true
 }
 
+/**
+ * The tsconfig.json a given target set produces. One program covers every
+ * platform suffix (moduleSuffixes is the fixed precedence order); a web-only
+ * scaffold just drops the native ambient root and entrypoint.
+ */
+export function composeTsconfig(ids) {
+	const resolved = new Set(resolveTargets(ids))
+	const config = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'tsconfig.json'), 'utf8'))
+	if (!resolved.has('native-shared')) {
+		delete config.files
+		config.compilerOptions.types = (config.compilerOptions.types ?? []).filter(
+			(t) => t !== '@nativescript/types',
+		)
+
+		config.exclude = [...new Set([...(config.exclude ?? []), 'src/main.ts'])]
+	}
+
+	return JSON.stringify(config, null, '\t') + '\n'
+}
+
 /** Write a scaffold for `ids` into `dir` (must not exist or be empty). */
 export function composeTargets(ids, dir) {
 	const resolved = new Set(resolveTargets(ids))
 	mkdirSync(dir, { recursive: true })
 
 	for (const rel of walk(TEMPLATE_DIR)) {
-		if (rel === 'package.json' || rel === 'pnpm-workspace.yaml') {
+		if (rel === 'package.json' || rel === 'pnpm-workspace.yaml' || rel === 'tsconfig.json') {
 			continue // generated below
 		}
 
@@ -408,6 +427,7 @@ export function composeTargets(ids, dir) {
 
 	writeFileSync(join(dir, 'package.json'), JSON.stringify(composeManifest(ids), null, '\t') + '\n')
 	writeFileSync(join(dir, 'pnpm-workspace.yaml'), composeWorkspaceYaml(ids))
+	writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
 	return [...resolved]
 }
 
@@ -451,6 +471,33 @@ function copyMissing(rel, appRoot, report) {
 	mkdirSync(dirname(dest), { recursive: true })
 	cpSync(src, dest, { recursive: true })
 	report.copied.push(rel)
+}
+
+/**
+ * Fold a native-capable app's sources into the one tsconfig program: the
+ * manifest (tsconfig.envs.json) is gone — one program covers every platform
+ * suffix — so enabling native means wiring the ambient declaration file and
+ * the entrypoint into the app's own config.
+ */
+function enableNativeInTsconfig(appRoot) {
+	const path = join(appRoot, 'tsconfig.json')
+	const text = existsSync(path) ? readFileSync(path, 'utf8') : ''
+	const config = readJson(path)
+	if (!config || typeof config !== 'object') {
+		return false
+	}
+
+	const indent = text.match(/\n(\s+)"/)?.[1] ?? '\t'
+	config.files = [...new Set(['references.d.ts', ...(config.files ?? [])])]
+	config.exclude = (config.exclude ?? []).filter((e) => e !== 'src/main.ts')
+
+	const types = config.compilerOptions?.types
+	if (config.compilerOptions && Array.isArray(types) && !types.includes('@nativescript/types')) {
+		config.compilerOptions.types = [...types, '@nativescript/types']
+	}
+
+	writeFileSync(path, JSON.stringify(config, null, indent) + '\n')
+	return true
 }
 
 /**
@@ -517,8 +564,15 @@ export function applyTarget(appRoot, id) {
 			}
 		}
 
-		if (tid === 'native-shared' && manifest.main === undefined) {
-			manifest.main = tpl.main
+		if (tid === 'native-shared') {
+			if (manifest.main === undefined) {
+				manifest.main = tpl.main
+			}
+
+			// Native sources join the app's single typecheck program — pull the
+			// ambient declaration entry into the roots and un-exclude the
+			// NativeScript entry that a web-only scaffold skips.
+			report.tsconfigUpdated = enableNativeInTsconfig(appRoot)
 		}
 
 		touched = true

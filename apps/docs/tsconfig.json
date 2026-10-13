@@ -2,15 +2,32 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"moduleSuffixes": [".web", ""],
-		"customConditions": ["web"],
-		"types": ["vite/client"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": [
+			"vite/client"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"paths": {
-			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
-			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+			"@octane-xplat/ui": [
+				"../../packages/ui/src/index.ts"
+			],
+			"@octane-xplat/ui/*": [
+				"../../packages/ui/src/*"
+			]
 		}
 	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "**/*.test.*"]
+	"include": [
+		"src/**/*",
+		"../../packages/*/src/**/*.d.ts"
+	],
+	"exclude": [
+		"node_modules",
+		"**/*.test.*"
+	],
+	"files": [
+		"../../packages/macos-renderer/src/appkit.d.ts"
+	]
 }

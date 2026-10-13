@@ -35,7 +35,7 @@ function sourceUri(source: string): string {
 class SVGView extends View {
 	declare src: string | Promise<string>
 	declare stretch: string
-	nativeViewProtected: any
+	declare nativeViewProtected: any
 	private image: any
 	private pending: any
 	private generation = 0

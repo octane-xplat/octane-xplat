@@ -5,5 +5,8 @@ import { NativeEditor } from '@octane-xplat/richtext/macos-host'
 
 /** AppKit mounts the local editor engine in WKWebView. */
 export function LexicalEditor(props: LexicalEditorProps) {
-	return <NativeEditor {...props} browser={browser} />
+	const { ref, ...rest } = props
+	// ref widens past the shared RichTextEditorProps handle — the host just
+	// forwards it, so the cast is honest.
+	return <NativeEditor {...rest} browser={browser} ref={ref as any} />
 }

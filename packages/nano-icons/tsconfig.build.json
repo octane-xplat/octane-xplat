@@ -11,7 +11,19 @@
 			"ESNext"
 		],
 		"strict": true,
-		"noEmit": true
+		"noEmit": true,
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
 	"files": [
 		"src/build/index.ts",

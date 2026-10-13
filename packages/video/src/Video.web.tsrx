@@ -71,7 +71,7 @@ export function Video(props: VideoProps) @{
 		native: v,
 	});
 
-	useImperativeHandle(props.ref, () => handle(el.current), []);
+	useImperativeHandle(props.ref, () => handle(el.current!), []);
 
 	<div
 		id={props.id}

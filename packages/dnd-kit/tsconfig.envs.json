@@ -13,12 +13,7 @@
 		"web": { "files": ["src/index.ts", "src/index.web.ts"] },
 		"native": { "files": ["src/index.ts"] },
 		"macos": {
-			"files": ["src/index.macos.ts", "examples/sortable.macos.tsx"],
-			"compilerOptions": {
-				"paths": {
-					"@octane-xplat/ui": ["../ui/types/generated/index.macos.d.ts"]
-				}
-			}
+			"files": ["src/index.macos.ts", "examples/sortable.macos.tsx"]
 		}
 	}
 }

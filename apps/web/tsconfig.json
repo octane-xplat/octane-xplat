@@ -2,33 +2,60 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"moduleSuffixes": [".web", ""],
-		"customConditions": ["web"],
-		"types": ["vite/client"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": [
+			"vite/client"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"paths": {
-			"styled-system/*": ["../../packages/app/src/styled-system/*"],
-			"@xplat/app": ["../../packages/app/src/index.ts"],
-			"@xplat/app/*": ["../../packages/app/src/*"],
-			"@octane-xplat/canvas": ["../../packages/canvas/src/index.web.ts"],
-			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
-			"@octane-xplat/gif": ["../../packages/gif/src/index.web.ts"],
-			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
-			"@octane-xplat/image": ["../../packages/image/src/index.web.ts"],
-			"@octane-xplat/image/*": ["../../packages/image/src/*"],
-			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
-			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+			"styled-system/*": [
+				"../../packages/app/src/styled-system/*"
+			],
+			"@xplat/app": [
+				"../../packages/app/src/index.ts"
+			],
+			"@xplat/app/*": [
+				"../../packages/app/src/*"
+			],
+			"@octane-xplat/canvas": [
+				"../../packages/canvas/src/index.ts"
+			],
+			"@octane-xplat/canvas/*": [
+				"../../packages/canvas/src/*"
+			],
+			"@octane-xplat/gif": [
+				"../../packages/gif/src/index.ts"
+			],
+			"@octane-xplat/gif/*": [
+				"../../packages/gif/src/*"
+			],
+			"@octane-xplat/image": [
+				"../../packages/image/src/index.ts"
+			],
+			"@octane-xplat/image/*": [
+				"../../packages/image/src/*"
+			],
+			"@octane-xplat/ui": [
+				"../../packages/ui/src/index.ts"
+			],
+			"@octane-xplat/ui/*": [
+				"../../packages/ui/src/*"
+			]
 		}
 	},
-	// Keep root files to the web app; package imports resolve `.web` before
-	// the unsuffixed native default, which must not be added as a second root.
-	"include": ["src/**/*"],
+	"include": [
+		"src/**/*",
+		"../../packages/*/src/**/*.d.ts"
+	],
 	"exclude": [
 		"**/*.test.*",
 		"../../packages/**/*.test.*",
-		"../../packages/ui/src/ios/**/*",
-		"../../packages/ui/src/android/**/*",
-		"**/node_modules",
-		"../../packages/create/template"
+		"**/node_modules"
+	],
+	"files": [
+		"../../packages/macos-renderer/src/appkit.d.ts"
 	]
 }

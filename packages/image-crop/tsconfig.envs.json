@@ -25,12 +25,7 @@
 				"src/**/*.macos.tsrx",
 				"src/ImageCrop.tsrx",
 				"tests/*.macos.tsrx"
-			],
-			"compilerOptions": {
-				"paths": {
-					"@octane-xplat/ui": ["../ui/types/generated/index.macos.d.ts"]
-				}
-			}
+			]
 		}
 	}
 }

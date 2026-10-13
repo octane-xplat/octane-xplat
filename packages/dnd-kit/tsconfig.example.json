@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"rootDir": "."
 	},
-	"include": ["examples/**/*.tsx"],
-	"exclude": ["examples/**/*.macos.tsx"]
+	"include": [
+		"examples/**/*.tsx"
+	]
 }

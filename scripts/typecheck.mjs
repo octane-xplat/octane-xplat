@@ -1,8 +1,8 @@
-// Package typecheck runner — expands tsconfig.envs.json into one program per
-// declared environment (presets live in packages/cli/src/tsconfig-envs.mjs)
-// and runs tsrx-tsc on each. This replaces per-platform tsconfig.<platform>.json
-// files: the checked surface is declared once, and every environment proves
-// the same API surface compiles under its runtime's resolution rules.
+// Package typecheck runner — expands tsconfig.envs.json into a single program
+// covering every declared environment's files (the shared expansion lives in
+// packages/cli/src/tsconfig-envs.mjs) and runs tsrx-tsc on it. All platform
+// module suffixes resolve under one fixed precedence order, extensionless
+// first; per-file @jsxImportSource pragmas pick the renderer.
 // Run from a package directory via its "typecheck" script.
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'

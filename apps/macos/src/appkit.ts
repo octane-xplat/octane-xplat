@@ -710,7 +710,7 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
 
 				closeOwnedWindows(nativeWindow!)
 				if (kind === 'dialog' && parentWindow) {
-					parentWindow.endSheet(nativeWindow)
+					parentWindow.endSheet(nativeWindow!)
 				} else {
 					nativeWindow!.close()
 				}

@@ -4748,7 +4748,7 @@ export interface TabListProps extends LayoutChildProps {
 	 *  disables overflow handling. The selected tab is scrolled into view. */
 	overflow?: TabListOverflow
 	/** Tab and TabMenu children. */
-	children: any
+	children?: any
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>

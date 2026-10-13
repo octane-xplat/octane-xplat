@@ -2,14 +2,37 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"customConditions": ["web"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
 		"outDir": "types/generated",
-		"types": ["vite/client", "@nativescript/types"]
+		"types": [
+			"vite/client",
+			"@nativescript/types"
+		],
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
-	"files": ["src/index.ts", "src/web/index.web.ts", "src/mobile/index.mobile.ts", "src/macos/index.macos.ts"]
+	"files": [
+		"src/index.ts",
+		"src/web/index.web.ts",
+		"src/mobile/index.mobile.ts",
+		"src/macos/index.macos.ts"
+	]
 }

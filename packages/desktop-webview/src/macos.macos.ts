@@ -6,7 +6,7 @@ interface NativeWebView {
 	loadPackaged(path: string): boolean
 	setBootstrap(serialized: string): boolean
 	setWindowContext(context: { id: string; data: string }): boolean
-	owningWindow(): object | null
+	owningWindow(): NSWindow | null
 	installDispatcher(dispatch: (message: string) => void): void
 	deliver(message: string): void
 	pickFile(options: {
@@ -24,8 +24,13 @@ interface NativeWebView {
 	movieDirectory(): string | null
 	reserveMoviePath(options: { fileUrl?: string; container?: string }): { fileUrl: string } | null
 	writeMovieFile(options: { fileUrl: string; base64: string }): { name: string; uri: string } | null
+	writeMovieFileChunk(options: { fileUrl: string; base64: string; final?: boolean }):
+		| { ok: boolean }
+		| { name: string; uri: string }
+		| null
 	movieFileInfo(uri: string): { exists: boolean; fileUrl?: string; size?: number } | null
 	readMovieFile(uri: string): string | null
+	readMovieFileChunk(options: { fileUrl: string; offset: number; length: number }): string | null
 	deleteMovieFile(uri: string): boolean
 	mediaPermissionStatus(kind: string): string
 	requestMediaPermission(kind: string): string
@@ -41,7 +46,7 @@ export interface MacOSWebView {
 	loadPackaged(path: string): boolean
 	setBootstrap(serialized: string): boolean
 	setWindowContext(id: string, data: string): boolean
-	owningWindow(): object | null
+	owningWindow(): NSWindow | null
 	installDispatcher(dispatch: (message: string) => void): void
 	deliver(message: string): void
 	pickFile(accept: string, startingFolder: string | null): { name: string; uri: string } | null

@@ -69,6 +69,7 @@
 		"@nativescript/vite": "8.0.17",
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"nativescript": "9.1.1",

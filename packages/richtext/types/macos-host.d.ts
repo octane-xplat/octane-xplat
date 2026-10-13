@@ -4,6 +4,9 @@ import type { RichTextEditorProps } from '../src/types'
 export declare const NativeEditor: UniversalComponent<
 	RichTextEditorProps & {
 		browser: string
+		// Lexical/Tiptap forward their own handle refs — the host just passes
+		// the value through, so it accepts any ref shape.
+		ref?: any
 		json?: any
 		onJSONReady?: (ok: boolean) => void
 		onJSONChange?: (doc: any) => void

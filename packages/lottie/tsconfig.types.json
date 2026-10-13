@@ -4,15 +4,29 @@
 		"skipLibCheck": true,
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
-		"lib": ["esnext", "dom"],
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"lib": [
+			"esnext",
+			"dom"
+		],
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "octane",
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
-		"rootDir": "src"
+		"rootDir": "src",
+		"allowImportingTsExtensions": true
 	},
 	"include": [
 		"src/references.d.ts",

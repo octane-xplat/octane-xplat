@@ -205,7 +205,7 @@ function readIosBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
 // the full buffer per the OutputStream contract — no chunked short writes.
 function writeAndroidBytes(uri: string, bytes: Uint8Array): void {
 	const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
-	const out: java.io.OutputStream =
+	const out: java.io.OutputStream | null | undefined =
 		uri.startsWith('content://') || uri.startsWith('file://')
 			? activity?.getContentResolver()?.openOutputStream(android.net.Uri.parse(uri))
 			: new java.io.FileOutputStream(uri)

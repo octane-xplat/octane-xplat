@@ -105,8 +105,9 @@ export function CameraView(props: CameraViewProps) @{
 				playsInline={true}
 				onClick={(event: MouseEvent) => {
 					const onTap = props.onTap
-					if (!onTap) return
-					const rect = event.currentTarget.getBoundingClientRect()
+					const target = event.currentTarget as HTMLElement | null
+					if (!onTap || !target) return
+					const rect = target.getBoundingClientRect()
 					if (!(rect.width > 0) || !(rect.height > 0)) return
 					onTap({
 						x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),

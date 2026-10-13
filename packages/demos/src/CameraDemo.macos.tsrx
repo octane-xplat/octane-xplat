@@ -37,7 +37,7 @@ export function CameraDemo() @{
 				if (outcome.kind === 'clip') {
 					const clip = outcome.clip
 					setStatus(
-						`saved ${clip.durationMs}ms ${clip.width}x${clip.height} — ${clip.output.fileUrl ?? clip.output.resourceId}`,
+						`saved ${clip.durationMs}ms ${clip.width}x${clip.height} — ${clip.output.kind === 'nativeFile' ? clip.output.fileUrl : clip.output.resourceId}`,
 					)
 				} else {
 					setStatus(`failed ${outcome.stage}: ${outcome.error.kind}`)

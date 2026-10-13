@@ -195,26 +195,43 @@ const color = select({ web: '#4f46e5', native: '#4338ca', default: '#4f46e5' })
 
 ## TypeScript
 
-Per-environment programs are synthesized from one shared declaration —
-`tsconfig.envs.json` (`environments.<env>` file sets) expanded by
-`scripts/typecheck.mjs` using the presets in
+One combined program per package/app — `tsconfig.envs.json` declares file
+claims per environment (`environments.<env>.files|include|exclude`) and
+`scripts/typecheck.mjs` expands the manifest into a single `all.json` under
+`node_modules/.cache/xplat-typecheck/` via the shared presets in
 `packages/cli/src/tsconfig-envs.mjs`:
 
 ```jsonc
-// tsconfig.envs.json — one manifest; presets supply the environment options
+// tsconfig.envs.json — environments claim files; the program is shared
 {
 	"extends": "../../tsconfig.base.json",
 	"environments": {
-		"web": { "files": ["src/index.web.ts"] }, // → moduleSuffixes: [".web", ""]
-		"native": { "files": ["src/index.ts"] }, // → moduleSuffixes: [".ios", ".android", ".mobile", ""]
+		"web": { "files": ["src/index.web.ts"] },
+		"native": {
+			"files": ["src/index.ts", "src/index.ios.ts"],
+			"compilerOptions": { "types": ["@nativescript/types"] }, // only allowed per-env option
+		},
 	},
 }
 ```
 
-- Shared files typecheck under **both** programs in CI — that's the point:
-  they must compile against either intrinsic vocabulary (easy, since they only
-  use our components).
-- Leaf files typecheck under their own target's config only.
+- Every program resolves under the same fixed `moduleSuffixes` precedence —
+  `["", ".web", ".ios", ".android", ".mobile", ".native", ".macos",
+".linux", ".windows"]`, extensionless first — so imports bind the shared
+  contract while variant files are still checked as roots.
+- Shared and leaf files typecheck in the **same** program — that's the point:
+  cross-variant drift (a `.ios` leaf importing a shared helper) surfaces at
+  the actual call boundary.
+- Per-file `/** @jsxImportSource … */` pragmas pick the renderer for
+  native/macOS leaves; the program default is `octane` (DOM-flavored, matching
+  shared + `.web` sources).
+- Package boundaries resolve the default/unsuffixed export surface — the
+  combined program carries **no** platform `customConditions`, the boundary
+  analog of extensionless-first.
+- Ambient host-globals (AppKit, NativeScript) load ahead of env files:
+  duplicate global declarations are first-wins in TypeScript, so
+  `packages/macos-renderer/src/appkit.d.ts` must precede
+  `@nativescript/types`' ObjC classes wherever both enter the program.
 - Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain
   `tsc`.
 - **`exports` wildcards don't extension-resolve** (verified): `"./\*":

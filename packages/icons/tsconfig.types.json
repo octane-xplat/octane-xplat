@@ -2,13 +2,32 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"customConditions": ["web"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
-		"outDir": "types/generated"
+		"outDir": "types/generated",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
-	"files": ["src/index.ts", "src/index.web.ts", "src/index.macos.ts"]
+	"files": [
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.macos.ts"
+	]
 }

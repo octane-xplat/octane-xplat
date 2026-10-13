@@ -13,7 +13,11 @@ import sqlite3InitModule from '@sqlite.org/sqlite-wasm'
 import wasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url'
 
 type Sqlite3 = Awaited<ReturnType<typeof sqlite3InitModule>>
-const sqlite3Promise = sqlite3InitModule({ locateFile: () => wasmUrl })
+// sqlite3InitModule is declared () => Promise<…> upstream; the wasm build
+// accepts an options object (locateFile maps the .wasm asset URL).
+const sqlite3Promise = (sqlite3InitModule as (o?: { locateFile(): string }) => Promise<Sqlite3>)({
+	locateFile: () => wasmUrl,
+})
 
 type DatabaseHandle = { db: any; name: string; persistent: boolean }
 const databases = new Map<number, DatabaseHandle>()

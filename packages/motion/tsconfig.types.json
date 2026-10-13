@@ -11,8 +11,22 @@
 		"skipLibCheck": true,
 		"rootDir": "src",
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
-		}
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
 	"include": [
 		"src/types.ts",

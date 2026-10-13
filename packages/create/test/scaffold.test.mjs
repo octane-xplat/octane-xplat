@@ -161,7 +161,11 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	assert.ok(existsSync(join(dir, 'nativescript.config.ts')))
 	assert.ok(existsSync(join(dir, 'App_Resources/iOS/Info.plist')))
 	assert.ok(!existsSync(join(dir, 'App_Resources/Android')))
-	assert.equal(readFileSync(join(dir, 'tsconfig.json'), 'utf8'), '{ "custom": true }\n')
+	// applyTarget patches the app tsconfig (native ambient root + entrypoint)
+	// but preserves unrelated user keys.
+	const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+	assert.equal(tsconfig.custom, true)
+	assert.ok(tsconfig.files.includes('references.d.ts'))
 
 	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 	assert.equal(manifest.main, 'src/main.ts')

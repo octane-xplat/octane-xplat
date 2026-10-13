@@ -8,7 +8,7 @@ import { expandEnvPrograms, loadEnvManifest } from '../tsconfig-envs.mjs'
 
 export const typecheck = command({
 	name: 'typecheck',
-	description: 'tsrx-tsc --noEmit for the app plus every declared environment',
+	description: 'tsrx-tsc --noEmit for the app tsconfig plus the combined environment program',
 	args: {},
 	handler: async () => {
 		const cwd = process.cwd()
@@ -19,9 +19,10 @@ export const typecheck = command({
 			await generateRoutes(cwd, routeDir, undefined, { bake: false })
 		}
 
-		// tsconfig.json is the default program. Environments come from the
-		// shared tsconfig.envs.json manifest; a lone tsconfig.native.json is
-		// the legacy per-platform form kept working for older scaffolds.
+		// tsconfig.json is the default program. The tsconfig.envs.json manifest
+		// expands to one combined program spanning every declared environment;
+		// a lone tsconfig.native.json is the legacy per-platform form kept
+		// working for older scaffolds.
 		const configs = ['tsconfig.json'].filter((f) => existsSync(join(cwd, f)))
 		const manifest = loadEnvManifest(cwd)
 		if (manifest) {

@@ -30,13 +30,27 @@ interface NSRect {
 // Objective-C classes. Instances expose bridged members beyond the declared
 // surface as `any`; the type name is real so parameters and node structs can
 // reference them.
+//
+// `NSObject` must be declared BEFORE any @nativescript/types copy in a
+// combined all-platform program — with duplicate `declare class` globals the
+// first declaration wins, and this one carries the statics (`new`, `extend`,
+// `alloc`) plus the catch-all index signature the AppKit surface needs. The
+// merged iOS declaration adds members but can't remove these.
 declare class NSObject {
 	[key: string]: any
 	static alloc(): any
 	static new(): any
 	static extend(methods: object, options?: object): any
+	// `NSObject.class` is the ObjC metaclass accessor every class inherits;
+	// when this declaration wins the merged NSObject (see note above) iOS
+	// callers like `UITextField.class()` still resolve.
+	static class(): typeof NSObject
 	init(): this
 	isEqual?(other: any): boolean
+}
+
+interface NSObject {
+	[key: string]: any
 }
 
 interface NSAttributedString extends NSObject {}
@@ -244,7 +258,10 @@ interface NSNotificationCenter extends NSObject {
 		name: string,
 		object: any,
 		queue: any,
-		block: () => void,
+		// Must carry the NSNotification param: in combined programs this
+		// signature merges with @nativescript/types' copy and iOS callers
+		// already pass the note argument.
+		block: (notification: NSNotification) => void,
 	): any
 	removeObserver(observer: any): void
 }
@@ -393,7 +410,8 @@ interface NSWindow extends NSObject {
 	effectiveAppearance: any
 	releasedWhenClosed: boolean
 	makeFirstResponder(responder: any): boolean
-	beginSheetCompletionHandler(sheet: NSWindow, handler: () => void): void
+	// The completion handler is optional at runtime — callers pass null.
+	beginSheetCompletionHandler(sheet: NSWindow, handler: (() => void) | null): void
 	endSheet(sheet: NSWindow): void
 	orderOut(sender: any): void
 	center(): void
@@ -483,7 +501,10 @@ declare const console: {
 	[key: string]: any
 }
 
-declare const process: { env: { [key: string]: string | undefined } }
+// The macOS host embeds Node — process.env reads and cwd() are real.
+// Other programs may declare a narrower process ambient; duplicate ambient
+// consts merge loosely under skipLibCheck, so keep both members here.
+declare const process: { env: { [key: string]: string | undefined }; cwd(): string }
 
 declare const NSTextFieldDelegate: any
 declare const NSTextFieldCell: NSClass<any>

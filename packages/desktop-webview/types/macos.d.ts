@@ -6,7 +6,10 @@ export interface MacOSWebView {
 	/** Install a JSON-encoded initial state before the next document load. */
 	setBootstrap(serialized: string): boolean
 	setWindowContext(id: string, data: string): boolean
-	owningWindow(): object | null
+	// Resolves to the ambient AppKit NSWindow in macOS programs (macos-renderer
+	// appkit.d.ts or the app's own AppKit globals); the native host returns the
+	// window object.
+	owningWindow(): NSWindow | null
 	installDispatcher(dispatch: (message: string) => void): void
 	deliver(message: string): void
 	pickFile(accept: string, startingFolder: string | null): { name: string; uri: string } | null

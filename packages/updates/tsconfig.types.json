@@ -5,13 +5,28 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"target": "esnext",
-		"types": ["@nativescript/types"],
+		"types": [
+			"@nativescript/types"
+		],
 		"declaration": true,
 		"allowImportingTsExtensions": true,
 		"emitDeclarationOnly": true,
 		"noEmitOnError": true,
 		"rootDir": "src",
-		"outDir": "types/generated"
+		"outDir": "types/generated",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		]
 	},
-	"include": ["src/**/*.ts"]
+	"include": [
+		"src/**/*.ts"
+	]
 }

@@ -45,7 +45,11 @@ test('xplat add enables a skipped platform and is idempotent', (t) => {
 
 	assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
 	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
-	assert.ok(existsSync(join(dir, 'tsconfig.envs.json')))
+	const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+	assert.ok(tsconfig.files.includes('references.d.ts'))
+	assert.ok(tsconfig.compilerOptions.types.includes('@nativescript/types'))
+	assert.ok(!tsconfig.exclude.includes('src/main.ts'))
+	assert.ok(!existsSync(join(dir, 'tsconfig.envs.json')))
 	assert.ok(!existsSync(join(dir, 'tsconfig.native.json')))
 
 	const second = run(['add', 'ios', '--no-install'], dir)

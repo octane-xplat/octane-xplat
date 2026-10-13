@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/gif",
 	"version": "0.14.0",
-	"description": "Animated images (GIF/animated webp) for Octane xplat — web <img> + @nativescript-community/ui-image",
+	"description": "Animated images (GIF/animated webp) for Octane xplat \u2014 web <img> + @nativescript-community/ui-image",
 	"keywords": [
 		"android",
 		"animated-image",
@@ -80,6 +80,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"octane": "0.11.0",

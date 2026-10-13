@@ -134,7 +134,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 
 		const current = dialog.current
 		const active = current?.ownerDocument.activeElement
-		if (!current?.open || (active !== current && !panel.current?.contains(active))) {
+		if (!current?.open || (active !== current && !panel.current?.contains(active as Node | null))) {
 			return
 		}
 

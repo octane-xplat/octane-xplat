@@ -96,7 +96,7 @@ export function Services() @{
 			</HStack>
 			<Text className="text-sm text-muted">{imageResult}</Text>
 			@if (picked) {
-				<Image src={picked.dataUrl} alt={picked.name} stretch="aspectFit" className="w-32 h-32" />
+				<Image src={picked.dataUrl} alt={picked.name} contentFit="contain" className="w-32 h-32" />
 			}
 		</View>
 		<View className="sink-section">

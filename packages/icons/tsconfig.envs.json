@@ -3,9 +3,6 @@
 	"environments": {
 		"web": { "files": ["src/index.web.ts"] },
 		"native": { "files": ["src/index.ts"] },
-		"macos": {
-			"files": ["src/index.macos.ts"],
-			"compilerOptions": { "jsxImportSource": "@nativescript-community/octane" }
-		}
+		"macos": { "files": ["src/index.macos.ts"] }
 	}
 }

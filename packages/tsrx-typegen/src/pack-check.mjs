@@ -406,6 +406,20 @@ function moduleResolutionOptions(ts) {
 		allowImportingTsExtensions: true,
 		module: ts.ModuleKind.NodeNext,
 		moduleResolution: ts.ModuleResolutionKind.NodeNext,
+		// Same precedence as repository typecheck/typegen programs
+		// (packages/cli tsconfig-envs.mjs PLATFORM_MODULE_SUFFIXES):
+		// extensionless first, then every platform suffix.
+		moduleSuffixes: [
+			'',
+			'.web',
+			'.ios',
+			'.android',
+			'.mobile',
+			'.native',
+			'.macos',
+			'.linux',
+			'.windows',
+		],
 		noEmit: true,
 		skipLibCheck: true,
 		target: ts.ScriptTarget.Latest,

@@ -2,41 +2,63 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"moduleSuffixes": [".linux", ".web", ""],
-		"customConditions": ["linux", "web"],
-		"types": ["vite/client"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": [
+			"vite/client"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"paths": {
-			"styled-system/*": ["../../packages/app/src/styled-system/*"],
-			"@xplat/app": ["../../packages/app/src/index.ts"],
-			"@xplat/app/*": ["../../packages/app/src/*"],
-			"@octane-xplat/canvas": ["../../packages/canvas/src/index.web.ts"],
-			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
-			"@octane-xplat/gif": ["../../packages/gif/src/index.web.ts"],
-			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
-			"@octane-xplat/image": ["../../packages/image/src/index.web.ts"],
-			"@octane-xplat/image/*": ["../../packages/image/src/*"],
-			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
-			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+			"styled-system/*": [
+				"../../packages/app/src/styled-system/*"
+			],
+			"@xplat/app": [
+				"../../packages/app/src/index.ts"
+			],
+			"@xplat/app/*": [
+				"../../packages/app/src/*"
+			],
+			"@octane-xplat/canvas": [
+				"../../packages/canvas/src/index.ts"
+			],
+			"@octane-xplat/canvas/*": [
+				"../../packages/canvas/src/*"
+			],
+			"@octane-xplat/gif": [
+				"../../packages/gif/src/index.ts"
+			],
+			"@octane-xplat/gif/*": [
+				"../../packages/gif/src/*"
+			],
+			"@octane-xplat/image": [
+				"../../packages/image/src/index.ts"
+			],
+			"@octane-xplat/image/*": [
+				"../../packages/image/src/*"
+			],
+			"@octane-xplat/ui": [
+				"../../packages/ui/src/index.ts"
+			],
+			"@octane-xplat/ui/*": [
+				"../../packages/ui/src/*"
+			]
 		}
 	},
-	"include": ["src/**/*"],
+	"include": [
+		"src/**/*",
+		"../../packages/*/src/**/*.d.ts"
+	],
 	"exclude": [
 		"**/*.test.*",
 		"../../packages/**/*.test.*",
-		"../../packages/**/*.native.*",
-		"../../packages/**/*.ios.*",
-		"../../packages/**/*.android.*",
-		"../../packages/**/*.macos.*",
-		"**/*.native.*",
-		"**/*.ios.*",
-		"**/*.android.*",
-		"**/*.macos.*",
-		"../../packages/ui/src/ios/**/*",
-		"../../packages/ui/src/android/**/*",
 		"**/node_modules",
 		"../../packages/*/src/vendor",
 		"../../packages/create/template",
 		"../../packages/lingui/tests"
+	],
+	"files": [
+		"../../packages/macos-renderer/src/appkit.d.ts"
 	]
 }

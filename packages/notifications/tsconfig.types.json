@@ -6,7 +6,21 @@
 		"target": "esnext",
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"outDir": "types/generated"
+		"outDir": "types/generated",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
-	"include": ["src/types.ts"]
+	"include": [
+		"src/types.ts"
+	]
 }

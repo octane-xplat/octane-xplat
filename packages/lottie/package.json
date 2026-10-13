@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lottie",
 	"version": "0.14.0",
-	"description": "Lottie animation leaf for Octane xplat — lottie-web on web, NativeScript on mobile, and Airbnb Lottie on AppKit",
+	"description": "Lottie animation leaf for Octane xplat \u2014 lottie-web on web, NativeScript on mobile, and Airbnb Lottie on AppKit",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/octane-xplat/octane-xplat",
@@ -82,6 +82,7 @@
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
 		"@nativescript/types": "9.1.4",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"octane": "0.11.0",

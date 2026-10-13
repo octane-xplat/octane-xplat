@@ -9,15 +9,31 @@
 		"allowImportingTsExtensions": true,
 		"skipLibCheck": true,
 		"noEmit": false,
-		"customConditions": ["web"],
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
 		},
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"outDir": "types/generated",
-		"rootDir": "src"
+		"rootDir": "src",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		]
 	},
-	"include": ["src/**/*"],
-	"exclude": ["src/**/*.test.*"]
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"src/**/*.test.*"
+	]
 }

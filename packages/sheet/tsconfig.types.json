@@ -4,7 +4,21 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"target": "esnext",
-		"noEmit": true
+		"noEmit": true,
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
-	"include": ["types/**/*.d.ts"]
+	"include": [
+		"types/**/*.d.ts"
+	]
 }

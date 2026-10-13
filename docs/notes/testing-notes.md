@@ -68,9 +68,11 @@ Then lint-level rules for what validation can't express:
 
 ## Typecheck matrix
 
-The starter runs `xplat typecheck`, which typechecks `tsconfig.json` (web)
-plus every environment declared in `tsconfig.envs.json` (native) via
-`tsrx-tsc --noEmit` — shared files must pass under both `jsxImportSource`s.
+The starter runs `xplat typecheck`, which typechecks the app's single
+`tsconfig.json` program — every platform suffix resolves under the fixed
+extensionless-first order, so shared and leaf files are checked together.
+(Older scaffolds may still carry `tsconfig.envs.json`; when present it
+expands into the combined `all` program the same way.)
 This is the single most valuable CI signal for "the seams held."
 
 ```sh

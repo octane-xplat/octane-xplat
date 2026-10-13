@@ -11,7 +11,21 @@
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
-		"customConditions": ["web"]
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true,
+		"types": [
+			"@nativescript/types"
+		]
 	},
 	"include": [
 		"src/apple.ts",

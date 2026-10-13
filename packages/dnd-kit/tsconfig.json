@@ -7,17 +7,33 @@
 		"moduleResolution": "Bundler",
 		"jsx": "react-jsx",
 		"jsxImportSource": "octane",
-		"customConditions": ["web"],
-		"moduleSuffixes": [".web", ""],
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
 		"outDir": "types/generated",
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
-		}
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"allowImportingTsExtensions": true
 	},
-	"include": ["src/index.ts"],
-	"exclude": ["**/*.test.*"]
+	"include": [
+		"src/index.ts"
+	],
+	"exclude": [
+		"**/*.test.*"
+	]
 }

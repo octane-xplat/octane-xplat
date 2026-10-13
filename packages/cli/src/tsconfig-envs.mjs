@@ -2,11 +2,16 @@
 //
 // Every platform is intended to expose the same API surface at the type
 // level, so a package declares its checked surface once in tsconfig.envs.json
-// and this module synthesizes the per-environment programs. The options in
-// TYPECHECK_ENVIRONMENTS are the program-wide half of platform runtime/build
-// selection — moduleSuffixes, customConditions, jsxImportSource and lib must
-// match the vite resolve chain for that target. They select which leaf files
-// fill each specifier; they do not define a divergent type surface.
+// and this module synthesizes ONE program covering all of it. The program
+// lists every platform module suffix in a fixed precedence order
+// (extensionless first) so imports bind the unsuffixed default while each
+// variant file is checked as a program root under that same resolution.
+// Per-file @jsxImportSource pragmas select the renderer; the program default
+// is `octane`, which is what shared and .web/.linux sources already use.
+//
+// TYPECHECK_ENVIRONMENTS keeps the per-platform resolution settings for
+// *consumers* of a packed package (tests/packed-consumer.mjs) — a real
+// consumer app still typechecks one platform's selection.
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -16,10 +21,37 @@ const MODULE_DIR = dirname(fileURLToPath(import.meta.url))
 export const ENV_MANIFEST = 'tsconfig.envs.json'
 
 /**
+ * The one platform-suffix precedence order for repository typecheck and
+ * typegen programs: extensionless first, then every platform suffix. Imports
+ * bind the unsuffixed default; variant files still enter the program as
+ * roots so each is checked against the shared contract.
+ */
+export const PLATFORM_MODULE_SUFFIXES = [
+	'',
+	'.web',
+	'.ios',
+	'.android',
+	'.mobile',
+	'.native',
+	'.macos',
+	'.linux',
+	'.windows',
+]
+
+/**
  * Options one program needs to compile sources for a target. `ambient` lists
  * narrow host-global declaration files (relative to this module) injected
  * into every program for that environment — JS-engine globals the runtime
  * provides but upstream types do not declare.
+ *
+ * These per-platform resolution settings drive consumer-side checks (a packed
+ * package typechecked the way a single-platform app would). The envs-manifest
+ * expansion uses only `lib` and `ambient` from them — merged across the
+ * declared environments — because a manifest expands to one shared program,
+ * not one per platform. `customConditions` is deliberately absent from the
+ * combined program: every package's exports fall back to `types`/`default`,
+ * the unsuffixed surface, which is the package-boundary analog of the
+ * extensionless-first suffix order.
  */
 export const TYPECHECK_ENVIRONMENTS = {
 	web: {
@@ -46,7 +78,11 @@ export const TYPECHECK_ENVIRONMENTS = {
 			customConditions: ['macos'],
 			lib: ['ESNext'],
 		},
-		ambient: ['typecheck-globals/macos.d.ts'],
+		// The renderer's AppKit ambient declares the NS* globals every .macos
+		// source leans on. It must precede any @nativescript/types copy in the
+		// program (duplicate global classes are first-wins) — ambient files are
+		// emitted ahead of all env files for that reason.
+		ambient: ['typecheck-globals/macos.d.ts', '../../macos-renderer/src/appkit.d.ts'],
 	},
 	linux: {
 		compilerOptions: {
@@ -218,7 +254,7 @@ function resolveEnvFiles(dir, entry, label) {
 	return [...files].sort()
 }
 
-/** Map a `src/index[.<suffix>].*` barrel to the environment that must check it. */
+/** Map a `src/index[.<suffix>].*` barrel to the environment that must claim it. */
 function barrelEnv(rel) {
 	const match = /^src\/index(?:\.([A-Za-z]+))?\.(?:ts|tsx|mts|cts)$/.exec(rel)
 	if (!match) {
@@ -233,16 +269,39 @@ function barrelEnv(rel) {
 	return SUFFIX_ENV[suffix] ?? null
 }
 
+const arraysEqual = (a, b) => Array.isArray(a) && a.length === b.length && a.every((v, i) => v === b[i])
+
+/** Fixed-order union: known keys first in `order`, extras appended in insertion order. */
+function orderedUnion(set, order) {
+	return [...order.filter((v) => set.has(v)), ...[...set].filter((v) => !order.includes(v))]
+}
+
+const LIB_ORDER = ['ESNext', 'DOM', 'DOM.Iterable']
+
 /**
- * Expand a tsconfig.envs.json manifest into concrete per-environment
- * programs. Returns [{ env, configPath, files }]; each config extends the
- * manifest (so package compilerOptions and paths keep their directory) and
- * overrides the environment options from the shared preset.
+ * Expand a tsconfig.envs.json manifest into the package's single combined
+ * typecheck program. Returns [{ env: 'all', configPath, files }].
+ *
+ * Environments no longer select programs — each entry declares the slice of
+ * the checked surface it claims (files/include/exclude, plus `types` for
+ * host-global packages that slice needs). The generated program unions every
+ * declared environment's files, merges lib/customConditions/types across
+ * them, and compiles under PLATFORM_MODULE_SUFFIXES. Renderer selection is
+ * per-file via @jsxImportSource pragmas; the program default is `octane`.
+ * Everything else program-wide (paths, target, a different default
+ * jsxImportSource) belongs in the manifest's top-level compilerOptions.
  */
 export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
-	const programs = []
-	const resolved = {}
 	const errors = []
+	const resolved = {}
+	const files = new Set()
+	// Ambient host-globals come FIRST in the program: where ambient and
+	// package-shipped declarations collide (the AppKit globals vs
+	// @nativescript/types' ObjC classes) the earlier declaration wins, and
+	// the ambient copy is the tolerant one.
+	const ambient = new Set()
+	const lib = new Set()
+	const types = new Set()
 
 	for (const [env, entry] of Object.entries(manifest.environments)) {
 		const preset = TYPECHECK_ENVIRONMENTS[env]
@@ -259,25 +318,39 @@ export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
 			continue
 		}
 
+		for (const key of Object.keys(entry.compilerOptions ?? {})) {
+			if (key === 'types') {
+				continue
+			}
+
+			errors.push(
+				`${ENV_MANIFEST}: environment "${env}" sets compilerOptions.${key}, but all environments share one program now — move it to the top-level compilerOptions (or a per-file pragma for jsxImportSource)`,
+			)
+		}
+
 		const label = `${ENV_MANIFEST} environment "${env}"`
-		const files = resolveEnvFiles(dir, entry, label)
-		resolved[env] = files
-		for (const ambient of preset.ambient ?? []) {
-			files.push(resolve(MODULE_DIR, ambient))
+		const envFiles = resolveEnvFiles(dir, entry, label)
+		resolved[env] = envFiles
+		for (const file of envFiles) {
+			files.add(file)
 		}
 
-		const config = {
-			extends: manifestPath,
-			compilerOptions: {
-				...preset.compilerOptions,
-				...entry.compilerOptions,
-			},
-			files,
-			include: [],
-			exclude: [],
+		for (const rel of preset.ambient ?? []) {
+			const abs = resolve(MODULE_DIR, rel)
+			// Consumer installs won't have the repo-relative renderer source —
+			// they get these globals through the package's types instead.
+			if (existsSync(abs)) {
+				ambient.add(abs)
+			}
 		}
 
-		programs.push({ env, config, files })
+		for (const value of preset.compilerOptions.lib ?? []) {
+			lib.add(value)
+		}
+
+		for (const value of entry.compilerOptions?.types ?? []) {
+			types.add(value)
+		}
 	}
 
 	// Every platform barrel must be claimed by a declared environment so a
@@ -307,22 +380,60 @@ export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
 		const claimed = resolved[env]?.some((f) => f.endsWith(abs))
 		if (!claimed) {
 			errors.push(
-				`${ENV_MANIFEST}: ${rel} exists but is not checked by the "${env}" environment`,
+				`${ENV_MANIFEST}: ${rel} exists but is not claimed by the "${env}" environment`,
 			)
 		}
+	}
+
+	const top = manifest.compilerOptions ?? {}
+	if (top.moduleSuffixes !== undefined && !arraysEqual(top.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)) {
+		errors.push(
+			`${ENV_MANIFEST}: compilerOptions.moduleSuffixes is fixed — use the platform precedence order ${JSON.stringify(PLATFORM_MODULE_SUFFIXES)} or omit it (inherited)`,
+		)
+	}
+
+	for (const value of top.lib ?? []) {
+		lib.add(value)
+	}
+
+	for (const value of top.types ?? []) {
+		types.add(value)
 	}
 
 	if (errors.length) {
 		throw new Error(errors.join('\n'))
 	}
 
-	const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
-	mkdirSync(outDir, { recursive: true })
-	for (const program of programs) {
-		program.configPath = join(outDir, `${program.env}.json`)
-		writeFileSync(program.configPath, JSON.stringify(program.config, null, '\t') + '\n')
-		delete program.config
+	const compilerOptions = {
+		jsxImportSource: 'octane',
+		lib: orderedUnion(lib, LIB_ORDER),
+		...top,
+		moduleSuffixes: PLATFORM_MODULE_SUFFIXES,
 	}
 
-	return programs
+	if (types.size) {
+		compilerOptions.types = [...types]
+	}
+
+	const allFiles = [...ambient, ...[...files].sort()]
+
+	const program = {
+		env: 'all',
+		config: {
+			extends: manifestPath,
+			compilerOptions,
+			files: allFiles,
+			include: [],
+			exclude: [],
+		},
+		files: allFiles,
+	}
+
+	const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
+	mkdirSync(outDir, { recursive: true })
+	program.configPath = join(outDir, 'all.json')
+	writeFileSync(program.configPath, JSON.stringify(program.config, null, '\t') + '\n')
+	delete program.config
+
+	return [program]
 }

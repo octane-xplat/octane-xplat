@@ -7,7 +7,22 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmitOnError": true,
-		"outDir": "types"
+		"outDir": "types",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
 	},
-	"include": ["src/types.ts", "types/index.d.ts"]
+	"include": [
+		"src/types.ts",
+		"types/index.d.ts"
+	]
 }
