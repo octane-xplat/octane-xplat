@@ -42,7 +42,17 @@ const ruleConfig = (name) => {
 
 async function collectTsrxFiles(directory) {
 	const files = []
-	for (const entry of await readdir(directory, { withFileTypes: true })) {
+	const entries = await readdir(directory, { withFileTypes: true })
+	// A nested repository carries its own lint config and conventions — stop
+	// at its boundary instead of re-applying this one. `.git` appears as a
+	// directory in a regular clone and as a file in a linked worktree or
+	// submodule checkout; either marks the boundary. The scan root itself
+	// is always scanned.
+	if (directory !== root && entries.some((entry) => entry.name === '.git')) {
+		return files
+	}
+
+	for (const entry of entries) {
 		if (entry.isDirectory()) {
 			if (!ignoredDirectories.has(entry.name)) {
 				files.push(...(await collectTsrxFiles(resolve(directory, entry.name))))
