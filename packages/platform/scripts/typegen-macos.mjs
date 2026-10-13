@@ -36,7 +36,7 @@ const emitted = program.emit(undefined, (file, text) => {
 	writeFileSync(
 		file,
 		text.replace(
-			/(from\s+['"])(\.[^'"]+)(['"])/g,
+			/(from\s+['"]|import\s*\(\s*['"])(\.[^'"]+)(['"])/g,
 			(_match, before, specifier, after) =>
 				`${before}${specifier.endsWith('.js') ? specifier : `${specifier}.js`}${after}`,
 		),
