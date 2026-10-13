@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": { "files": ["src/index.web.ts"] },
+		"native": { "files": ["src/index.ts"] },
+		"macos": {
+			"files": ["src/index.macos.ts"],
+			"compilerOptions": { "jsxImportSource": "@nativescript-community/octane" }
+		}
+	}
+}

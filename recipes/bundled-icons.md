@@ -24,6 +24,6 @@ understand missing names, updates, accessibility, tint, and native SVG limits.
 ## Documentation
 
 - AC1: [Install and register](../packages/icons/README.md#install-and-register), [licenses](../packages/icons/README.md#licenses), and [app-owned probe data](../examples/probes/icons-data.ts).
-- AC2: [Rendering and updates](../packages/icons/README.md#rendering-and-updates), [maintained web/mobile probe](../examples/probes/icons.tsrx), and [AppKit probe](../examples/probes/icons.macos.tsrx).
+- AC2: [Rendering and updates](../packages/icons/README.md#rendering-and-updates), [maintained web/mobile probe](../examples/probes/icons.tsrx), and [AppKit probe](../examples/probes/icons.macos.tsrx). For screens repeating the same icon many times, [`@octane-xplat/nano-icons`](../packages/nano-icons/README.md) offers a same-props `NanoIcon` that shares preparation across instances.
 - AC3: [Rendering and updates](../packages/icons/README.md#rendering-and-updates), [maintained web/mobile probe](../examples/probes/icons.tsrx), and [AppKit probe](../examples/probes/icons.macos.tsrx).
 - AC4: [Rendering and updates](../packages/icons/README.md#rendering-and-updates) and [verification boundaries](../packages/icons/README.md#verification-and-example).

@@ -1,0 +1,5 @@
+export { NanoIcon } from './NanoIcon'
+export { prepareNanoIcon } from './prepare'
+export { materializeNanoIcon } from './materialize'
+export type { NanoIconProps, NanoIconOptions, NanoIconTint, PreparedNanoIcon, IconSvg } from './props'
+export type { IconifyIcon } from '@iconify/types'
