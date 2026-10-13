@@ -1033,7 +1033,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		finalizing = false
 		wantStop = false
 		recordStartedAt = 0
-		clearTimeout(settleDeadline)
+		if (settleDeadline !== undefined) {
+			clearTimeout(settleDeadline)
+		}
+
 		const file = recordFile
 		recordFile = undefined
 		void removeFileQuietly(file)
@@ -1045,7 +1048,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	// finalization starts, a hung native call must still settle the take.
 	let settleDeadline: ReturnType<typeof setTimeout> | undefined
 	const armSettleDeadline = (target: BackendCaptureSink | undefined) => {
-		clearTimeout(settleDeadline)
+		if (settleDeadline !== undefined) {
+			clearTimeout(settleDeadline)
+		}
+
 		if (!target) {
 			return
 		}
@@ -1069,7 +1075,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			return
 		}
 
-		clearTimeout(settleDeadline)
+		if (settleDeadline !== undefined) {
+			clearTimeout(settleDeadline)
+		}
 
 		try {
 			let metadata: Awaited<ReturnType<typeof nativeVideoMetadata>>
@@ -1538,7 +1546,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			released = true
 			generation += 1
 			unbindLifecycle()
-			clearTimeout(settleDeadline)
+			if (settleDeadline !== undefined) {
+				clearTimeout(settleDeadline)
+			}
+
 			sink = undefined
 			request = undefined
 			wantStop = false

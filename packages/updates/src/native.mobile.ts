@@ -1,17 +1,21 @@
 import { File, Folder, Http, Utils, isIOS, path } from '@nativescript/core'
 import type { Environment } from './client'
 
+// `Utils.android` is a {} stub in the pinned Windows core build; callers only
+// reach it under the isIOS guard.
+const androidUtils = Utils.android as any
+
 export function nativeEnvironment(): Environment {
 	const root = isIOS
 		? path.join(NSHomeDirectory(), 'Library', 'Application Support', 'xplat-ota')
-		: path.join(Utils.android.getApplicationContext().getFilesDir().getAbsolutePath(), 'xplat-ota')
+		: path.join(androidUtils.getApplicationContext().getFilesDir().getAbsolutePath(), 'xplat-ota')
 
 	const rawVersion = isIOS
 		? (NSBundle.mainBundle.objectForInfoDictionaryKey('CFBundleShortVersionString') as string)
-		: Utils.android
+		: androidUtils
 				.getApplicationContext()
 				.getPackageManager()
-				.getPackageInfo(Utils.android.getApplicationContext().getPackageName(), 0).versionName
+				.getPackageInfo(androidUtils.getApplicationContext().getPackageName(), 0).versionName
 
 	const nativeVersion = /^\d+(?:\.\d+){0,2}$/.test(rawVersion)
 		? rawVersion.split('.').map(Number).concat([0, 0]).slice(0, 3).join('.')

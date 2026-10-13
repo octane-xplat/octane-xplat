@@ -26,8 +26,12 @@ function apply(enabled: boolean, activity?: any): Promise<boolean> {
 		return Promise.resolve(false)
 	}
 
+	// `Utils.android` is a {} stub in the pinned Windows core build; callers only
+	// reach this under the isAndroid guard.
 	const current =
-		activity ?? Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
+		activity ??
+		(Utils.android as any).getCurrentActivity() ??
+		Application.android.foregroundActivity
 
 	if (enabled && !current) {
 		return Promise.resolve(false)
@@ -111,7 +115,8 @@ const service = createTaggedKeepAwake({
 		// Retain requests made before Android creates its first activity.
 		const applied = await apply(isAndroid || !suspended)
 		const awaitingActivity =
-			isAndroid && !(Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity)
+			isAndroid &&
+			!((Utils.android as any).getCurrentActivity() ?? Application.android.foregroundActivity)
 
 		if (!applied && !awaitingActivity) {
 			tags.delete(tag)
