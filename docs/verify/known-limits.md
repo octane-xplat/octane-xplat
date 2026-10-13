@@ -595,3 +595,26 @@ StarterKit. See [AppKit editing](../app/rich-text.md#macos-appkit-editing) for t
 async snapshot contract, engine-specific format and placeholder gaps, blocked
 link navigation, and verification limits. Real OS keyboard input, selection,
 and hit-testing remain unverified; command dispatch is not evidence for them.
+
+## iOS glass child controls
+
+`LiquidGlass` defaults glass touch tracking off and supplies system material
+blur on iOS 13–25. Explicit interactive glass with child controls has reported
+touch interception on iOS 26+; real OS input acceptance remains unqualified.
+Use the default for toolbars and follow the [device checks](../app/liquid-glass.md#acceptance-on-a-device).
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+import { Pressable, Text } from '@octane-xplat/ui'
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+
+export function Toolbar() {
+	return (
+		<LiquidGlass>
+			<Pressable onPress={() => console.log('Pressed')}>
+				<Text>Action</Text>
+			</Pressable>
+		</LiquidGlass>
+	)
+}
+```

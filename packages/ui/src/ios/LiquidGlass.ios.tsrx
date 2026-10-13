@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { LiquidGlass as NSLiquidGlass } from '@nativescript/core';
+import { LiquidGlassView } from './liquid-glass-view.ios';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import type { LiquidGlassProps, PlatformWidgetProps } from '../props';
@@ -13,15 +14,12 @@ declare module '@nativescript-community/octane/intrinsics' {
 	}
 }
 
-// Core ships the class (a GridLayout whose root is an interactive
-// UIVisualEffectView + UIGlassEffect) but the driver's intrinsic map was
-// generated before it existed — register like any plugin view.
-registerElement('liquidglass', NSLiquidGlass);
+// The driver needs an intrinsic registration for the fallback-aware core view.
+registerElement('liquidglass', LiquidGlassView);
 
-/** LiquidGlass — the element root is the glass surface itself: touch-tracking
- *  UIGlassEffect on iOS 26+, inert GridLayout on older iOS. The effect is
- *  always applied as a config object: the upstream string shorthand rebuilds
- *  the effect without `interactive` on prop updates. */
+/** System material blur before iOS 26; native glass on iOS 26+.
+ *  Glass touch tracking is opt-in to avoid the reported child interception path.
+ *  Explicit interactive glass with children still needs device qualification. */
 export function LiquidGlass(props: PlatformWidgetProps<LiquidGlassProps>) @{
 	<liquidglass
 		id={props.id}
@@ -29,7 +27,7 @@ export function LiquidGlass(props: PlatformWidgetProps<LiquidGlassProps>) @{
 		{...layoutChildProps(props)}
 		iosGlassEffect={{
 			variant: props.variant ?? 'regular',
-			interactive: props.interactive ?? true,
+			interactive: props.interactive ?? false,
 			tint: props.tint,
 			animateChangeDuration: props.animateChangeDuration,
 		}}

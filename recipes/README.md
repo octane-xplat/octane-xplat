@@ -77,6 +77,7 @@ Workflows:
 - [Announce a status without moving focus](accessibility-announcements.md)
 - [Share text and URLs from an app](share-content.md)
 - [Ship native code in a macOS leaf](macos-native-code.md)
+- [Put an iOS material behind interactive content](liquid-glass.md)
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
 - [Display formatted content and status](display-content.md)

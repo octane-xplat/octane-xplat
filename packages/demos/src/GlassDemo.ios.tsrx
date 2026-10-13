@@ -1,9 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { Absolute, HStack, Screen, Text, View } from '@octane-xplat/ui';
+import { Absolute, HStack, Pressable, Screen, Text, View } from '@octane-xplat/ui';
+import { useSignal$ } from 'octane/signals/client';
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios';
 
 /** Liquid Glass probes — iOS 26+ renders real UIGlassEffect material,
- *  iOS<26 renders the inert layouts. Liquid Glass is iOS-authentic: the
+ *  iOS<26 renders system material blur (the merge container stays inert).
+ *  Liquid Glass is iOS-authentic: the
  *  components live in @octane-xplat/ui/ios (this leaf is `.ios.tsrx`; web
  *  and Android resolve the shared `GlassDemo.tsrx` fallback instead).
  *  The colored slab behind each glass view is what the material diffracts —
@@ -11,10 +13,12 @@ import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios';
  *  Sweep reads: 'glass-regular'/'glass-prop' hosts and their native
  *  UIVisualEffectView roots. */
 export function GlassDemo() @{
+	const presses$ = useSignal$(0);
+
 	<Screen className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-semibold">Liquid Glass</Text>
 
-		{/* Interactive glass — the element root IS the effect view. */}
+		{/* Non-interactive glass — child controls do not opt into touch tracking. */}
 		<Absolute style={{ height: 140 }}>
 			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#e91e63' }} />
@@ -22,7 +26,7 @@ export function GlassDemo() @{
 				<View style={{ width: 60, height: 60, backgroundColor: '#3b82f6' }} />
 			</HStack>
 			<LiquidGlass id="glass-regular" style={{ margin: 24, padding: 16, borderRadius: 16 }}>
-				<Text>regular · interactive</Text>
+				<Text>regular · non-interactive</Text>
 			</LiquidGlass>
 		</Absolute>
 
@@ -54,6 +58,17 @@ export function GlassDemo() @{
 				<Text>glass element</Text>
 			</LiquidGlass>
 		</Absolute>
+
+		<LiquidGlass id="glass-controls" className="p-4 rounded-xl">
+			<Pressable onPress={() => presses$.set(presses$.get() + 1)}>
+				<Text>Default glass child: {String(presses$.get())}</Text>
+			</Pressable>
+		</LiquidGlass>
+		<LiquidGlass id="glass-interactive-controls" interactive className="p-4 rounded-xl">
+			<Pressable onPress={() => presses$.set(presses$.get() + 1)}>
+				<Text>Interactive glass child: {String(presses$.get())}</Text>
+			</Pressable>
+		</LiquidGlass>
 
 		{/* Merged-glass region — siblings morph together across spacing.
 		    AbsoluteLayout host: children position via left/top. */}

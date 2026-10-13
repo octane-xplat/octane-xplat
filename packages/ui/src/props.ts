@@ -251,6 +251,8 @@ export interface LiquidGlassProps extends LayoutChildProps {
 	children?: any
 	id?: string
 	variant?: 'regular' | 'clear'
+	/** iOS 26+ glass touch tracking. Default false; child touch behavior with
+	 * explicit true is not device-qualified. Earlier iOS uses system material blur. */
 	interactive?: boolean
 	tint?: string
 	animateChangeDuration?: number
