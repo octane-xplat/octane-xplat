@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -11,12 +11,16 @@ import { hostBundle, hostRoot, validateHostBundle } from '../../cli/src/macos/js
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
+const human = process.argv.includes('--human-reduced-motion')
+const buildOnly = process.argv.includes('--build-only')
+const runName = human ? 'runHumanReducedMotion' : 'runRollingText'
+const fixture = human ? 'human-reduced-motion.macos.tsx' : 'qualification.macos.tsx'
 const directory = await mkdtemp(join(tmpdir(), 'octane-rolling-text-'))
 try {
 	const entry = join(directory, 'entry.ts')
 	await writeFile(
 		entry,
-		`import { runRollingText } from ${JSON.stringify(join(packageRoot, 'tests/qualification.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runRollingText()\n`,
+		`import { ${runName} } from ${JSON.stringify(join(packageRoot, 'tests', fixture))}\nNSApplication.sharedApplication\nvoid ${runName}()\n`,
 	)
 
 	const config = await xplatMacOS('development', {
@@ -35,27 +39,54 @@ try {
 
 	const bundle = join(directory, 'main.cjs')
 	await validateHostBundle(bundle, appRoot)
-	const result = spawnSync(
-		await macOSExecutable(appRoot, 'macos-arm64/host'),
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			bundle,
-			join(hostBundle, 'metadata.nsmd'),
-			join(hostRoot, 'shim.js'),
-		],
-		{
-			cwd: directory,
-			encoding: 'utf8',
-			timeout: 15000,
-			env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
-		},
-	)
+	if (buildOnly) {
+		console.log(
+			'ROLLING_TEXT_BUILD_ONLY_OK ' + (human ? 'human' : 'automatic') + '; no host launched',
+		)
+	} else {
+		const child = spawn(
+			await macOSExecutable(appRoot, 'macos-arm64/host'),
+			[
+				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+				bundle,
+				join(hostBundle, 'metadata.nsmd'),
+				join(hostRoot, 'shim.js'),
+			],
+			{ cwd: directory, env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' } },
+		)
 
-	const output = result.stdout + result.stderr
-	assert.equal(result.status, 0, output)
-	assert.doesNotMatch(output, /ROLLING_TEXT_FAIL|uncaught render error/)
-	assert.match(output, /ROLLING_TEXT_OK/)
-	console.log(output)
+		let output = ''
+		for (const stream of [child.stdout, child.stderr]) {
+			stream.on('data', (chunk) => {
+				output += chunk.toString()
+				process.stdout.write(chunk)
+			})
+		}
+
+		const stop = () => child.kill('SIGTERM')
+		process.on('SIGINT', stop)
+		process.on('SIGTERM', stop)
+		const timer = setTimeout(stop, human ? 540000 : 15000)
+		try {
+			const status = await new Promise((resolve, reject) => {
+				child.once('error', reject)
+				child.once('close', resolve)
+			})
+
+			assert.equal(status, 0, output)
+			assert.doesNotMatch(output, /ROLLING_TEXT_(?:HUMAN_)?FAIL|uncaught render error/)
+			assert.match(output, human ? /ROLLING_TEXT_HUMAN_OK/ : /ROLLING_TEXT_OK/)
+		} finally {
+			clearTimeout(timer)
+			process.off('SIGINT', stop)
+			process.off('SIGTERM', stop)
+			if (human) {
+				console.log(
+					'Restore the exact Reduce Motion setting logged in ROLLING_TEXT_HUMAN_BASELINE, including after failure or interruption.',
+				)
+			}
+		}
+	}
 } finally {
 	await rm(directory, { recursive: true, force: true })
 }

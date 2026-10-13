@@ -86,3 +86,50 @@ cleanup. Posting a notification on the workspace center tests subscription
 lifecycle only. It does not establish OS preference-change delivery.
 Visual appearance, pixel clipping, screen-reader speech, and physical input
 are unverified by these nonvisual checks.
+
+## Human-operated live Reduce Motion gate
+
+An employee must not change this system-wide setting without explicit human
+authorization. This opt-in fixture only reads the setting and native
+notifications. It does not open Settings, toggle controls, post notifications,
+or write preferences. Do not launch this mode until an authorized human is
+ready to operate the setting and restore it.
+
+1. Record the current **Reduce motion** value in System Settings → Accessibility
+   → Motion (or Display on versions that place it there). Keep this original
+   value available after any timeout or interruption.
+2. From the repository root, run the prebuilt-host fixture. On the shared agent
+   host, reserve both `desktop_input:1` and exclusive
+   `macos:rolling-text-qualification` through the resource broker.
+
+   ```sh
+   pnpm --filter @octane-xplat/rolling-text test:macos-runtime -- --human-reduced-motion
+   ```
+
+3. Confirm `ROLLING_TEXT_HUMAN_BASELINE` matches the recorded setting. If the
+   initial value is ON, the first `ROLLING_TEXT_HUMAN_TOGGLE` asks for OFF.
+   Change the actual checkbox yourself only when a marker asks for it.
+4. At `ROLLING_TEXT_HUMAN_QUEUED`, turn ON within two minutes. The fixture holds
+   a ten-minute roll with a newer destination queued. It requires the genuine
+   OS notification and checks that the native text becomes `latest`, alpha
+   becomes 1 and translation becomes 0 within two seconds.
+5. At the next toggle marker, turn OFF. The fixture checks native interpolation
+   resumes. If the original setting was ON, a final marker asks for ON and
+   checks another immediate settle. These steps restore either starting value.
+6. Require `ROLLING_TEXT_HUMAN_OK` with `restored` equal to the baseline and
+   `subviews:0`, plus host exit 0. Verify the checkbox still matches your original
+   value. On failure or Ctrl-C, restore it yourself before retrying; the fixture
+   deliberately cannot restore a system-wide preference for you.
+
+The output streams markers while the process runs. Each requested transition
+times out after two minutes, and the runner stops only its own host after nine
+minutes. Cleanup removes the fixture's tree and observer; earlier automatic
+qualification covers cancellation and repeated unmounts. This human-operated
+mode is prepared, but has not been executed or accepted.
+
+To validate the live fixture's bundle without launching a host or waiting for
+input, use:
+
+```sh
+pnpm --filter @octane-xplat/rolling-text test:macos-runtime -- --human-reduced-motion --build-only
+```
