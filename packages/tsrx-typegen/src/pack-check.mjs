@@ -337,7 +337,21 @@ function compilerExports(ts, program, file, cache = new Map(), pending = new Set
 	// Subtract names whose only export edges are type-only.
 	const typeOnly = new Set()
 	for (const statement of source.statements) {
-		if (!ts.isExportDeclaration(statement) || !statement.isTypeOnly) {
+		if (!ts.isExportDeclaration(statement)) {
+			continue
+		}
+
+		if (statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+			for (const element of statement.exportClause.elements) {
+				if (statement.isTypeOnly || element.isTypeOnly) {
+					typeOnly.add(element.name.text)
+				}
+			}
+
+			continue
+		}
+
+		if (!statement.isTypeOnly) {
 			continue
 		}
 

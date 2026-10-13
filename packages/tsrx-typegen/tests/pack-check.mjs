@@ -111,6 +111,20 @@ try {
 
 	verifyPackedPackage(ts, typeStarExport)
 
+	// A mixed `export { value, type Options }` clause keeps the type element
+	// out of the declared value surface even when `types` points at the `.ts`
+	// source itself (mirrors the workshop ./macos MacOSStageOptions case).
+	const mixedTypeExport = writePackage({
+		'package.json': JSON.stringify({
+			name: '@fixture/mixed-type',
+			exports: { '.': { types: './src/index.ts', default: './src/index.ts' } },
+		}),
+		'src/index.ts': "export { value, type Options } from './runtime.js'\n",
+		'src/runtime.ts': 'export const value = 1\nexport interface Options {}\n',
+	})
+
+	verifyPackedPackage(ts, mixedTypeExport)
+
 	// Control: a real `export *` edge does carry the ambient const into the
 	// declared value surface, so a runtime that lacks it still fails.
 	const valueStarExport = writePackage({
