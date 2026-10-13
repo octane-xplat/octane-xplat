@@ -24,7 +24,14 @@ carried on the package (#62).
    native too (universal signal reads from the canonical octane patch).
    Non-signal module state still needs `useStore` per reader — the universal
    renderer retains unchanged-prop children on parent re-render, so bare
-   reads go stale on native (web re-invokes them; decision #27).
+   reads go stale on native (web re-invokes them; decision #27). Host `on*`
+   props re-commit their handler every render through a stable listener id
+   (no stale closures, no re-subscribe churn); listeners bound by hand in an
+   effect or ref callback (`view.on('pan', fn)`) attach once — read live
+   state through a ref or `useEffectEvent`. Non-event props dropped by a
+   later render keep their last value on the native drivers (updates merge;
+   `undefined` is "not supplied", never a reset) — dropped `on*` handlers do
+   unbind on both drivers.
 8. Shared `@octane-xplat/ui` delivers same props → same pixels. Every
    shared component carries a normalization class (see
    `docs/start/architecture.md`): `self-drawn` (`Switch`, `Slider`,

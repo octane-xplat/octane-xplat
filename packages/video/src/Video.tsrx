@@ -30,10 +30,11 @@ const FILLS: Record<string, any> = {
  *  (`controls={false}` strips AVPlayerViewController/PlayerView chrome) and
  *  the shared `VideoChrome` draws the transport on top. Times are ms —
  *  the plugin's native unit on both platforms. One-time wiring (escape
- *  props, `src`) lands in effects: the driver doesn't diff props, and
- *  `src` must arrive after the flags (the plugin opens the clip when the
- *  src property lands). The plugin emits `finished` even while looping —
- *  `onEnded` suppresses it under `loop` to match the web leaf. */
+ *  props, `src`) lands in effects: escape props are imperative writes the
+ *  host prop bag can't express, and `src` must arrive after the flags (the
+ *  plugin opens the clip when the src property lands). The plugin emits
+ *  `finished` even while looping — `onEnded` suppresses it under `loop` to
+ *  match the web leaf. */
 export function Video(props: VideoProps) @{
 	const host = useRef<any>(null);
 	const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false);
@@ -58,9 +59,9 @@ export function Video(props: VideoProps) @{
 		else v.pause();
 	};
 
-	// src + escape props land in effects: the driver doesn't diff props, and
-	// `src` must arrive after the flags (the plugin opens the clip when the
-	// src property lands).
+	// src + escape props land in effects: escape props are imperative writes
+	// the host prop bag can't express, and `src` must arrive after the flags
+	// (the plugin opens the clip when the src property lands).
 	useEffect(() => {
 		const v = host.current;
 		if (!v) return;

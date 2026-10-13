@@ -3596,6 +3596,21 @@ function clearOnUpdate(type: string): PropBag {
 	return names ? Object.fromEntries(names.map((name) => [name, undefined])) : {}
 }
 
+/** Bound `on*` props dropped by a host update must unbind — the merge
+ *  otherwise leaves the stale closure firing (CLEAR_ON_UPDATE predates this
+ *  sweep and stays for the non-callback sticky props). Only function-valued
+ *  names count: a `onX={undefined}` prop never bound a handler. */
+function staleEventClears(props: PropBag, next: PropBag): PropBag {
+	const clears: PropBag = {}
+	for (const name of Object.keys(props)) {
+		if (name.startsWith('on') && typeof props[name] === 'function' && !(name in next)) {
+			clears[name] = undefined
+		}
+	}
+
+	return clears
+}
+
 function applyProps(node: ElementNode, props: PropBag) {
 	node.props = { ...node.props, ...props }
 	if (node.type === '#text') {
@@ -4502,7 +4517,12 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 					? { horizontalAlignment: undefined, verticalAlignment: undefined }
 					: {}
 
-				applyProps(node, { ...clearOnUpdate(node.type), ...childClears, ...command.props })
+				applyProps(node, {
+					...staleEventClears(node.props, command.props),
+					...clearOnUpdate(node.type),
+					...childClears,
+					...command.props,
+				})
 			} catch (error) {
 				node.props = previousProps
 				throw error

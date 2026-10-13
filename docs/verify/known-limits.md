@@ -332,6 +332,21 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   writes (refs, DOM) and never reads its driving prop compiles to a deps
   array that omits it — declare deps explicitly:
   `useLayoutEffect(fn, [props.value])`. — 0.5.0.
+- **Host `on*` props re-commit every render; hand-bound listeners don't.**
+  An `onTap`/`onPan`/… prop on a native element re-commits its handler each
+  render through a stable listener id, so a re-rendered callback always reads
+  current state on iOS, Android, and macOS — inline closures are safe. A
+  listener you attach yourself (`view.on('pan', fn)` in an effect or ref
+  callback) binds once at mount and keeps the mount-render closure: read
+  live state through a ref, or wrap the handler in octane's `useEffectEvent`
+  so the stable binding dispatches the latest function. — post-0.14.0·desk.
+- **A dropped non-event prop keeps its last value on native.** Host updates
+  merge into the previous prop bag — `undefined` means "not supplied", not
+  "reset" — so a removed prop stays stale on iOS, Android, and macOS. Keep
+  the key present with an explicit neutral value when a prop can toggle
+  (`placeholder={on ? 'x' : ''}`). Dropped `on*` handlers are the exception:
+  both native drivers unbind them (renderer `listener: null` commands on
+  iOS/Android, injected clears on macOS). — post-0.14.0·desk.
 - **Literal `@{` in JSX text** parses as a code block: evaluated and
   discarded on web, a compile error on native. Write `{'@'}{expr}` —
   `<Text>{'@'}{user.handle}</Text>` renders `@handle`. Upstream fix
