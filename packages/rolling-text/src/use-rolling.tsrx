@@ -200,9 +200,9 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 
 	// The system preference flipping mid-roll settles instantly and clears
 	// pending playback.
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (reduced) {
-			settleNow()
+			commitNow(props.value)
 		}
 	}, [reduced])
 

@@ -123,6 +123,18 @@ describe('RollingText (web leaf)', () => {
 		el.remove()
 	})
 
+	it('settles the queued latest value when reduced motion becomes active', () => {
+		const { el, root } = mount({ value: 'a', updatePolicy: 'latest' })
+		act(() => root.render(<RollingText value="b" updatePolicy="latest" />))
+		act(() => root.render(<RollingText value="c" updatePolicy="latest" />))
+		act(() => root.render(<RollingText value="c" updatePolicy="latest" reducedMotion="always" />))
+		expect(commit(el)).toBe('c')
+		act(() => vi.advanceTimersByTime(2000))
+		expect(commit(el)).toBe('c')
+		root.unmount()
+		el.remove()
+	})
+
 	it('accessibilityLabel overrides the semantic text', () => {
 		const { el, root } = mount({ value: '3', accessibilityLabel: '3 items' })
 		expect(semantic(el)).toBe('3 items')

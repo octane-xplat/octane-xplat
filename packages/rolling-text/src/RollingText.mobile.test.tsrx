@@ -88,6 +88,18 @@ describe('RollingText (native leaf, object driver)', () => {
 		root.unmount()
 	})
 
+	it('settles the queued latest value when reduced motion becomes active', () => {
+		const { container, root } = mount({ value: 'a', updatePolicy: 'latest' })
+		flushUniversalSync(() => root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }))
+		flushUniversalSync(() => root.render(RollingText as any, { value: 'c', updatePolicy: 'latest' }))
+		flushUniversalSync(() => root.render(RollingText as any, { value: 'c', updatePolicy: 'latest', reducedMotion: 'always' }))
+		expect(cellTexts(container).join('')).toBe('c')
+		vi.advanceTimersByTime(2000)
+		flushUniversalSync(() => {})
+		expect(cellTexts(container).join('')).toBe('c')
+		root.unmount()
+	})
+
 	it('unmount clears pending timers and tweens', () => {
 		const { container, root } = mount({ value: 'a' })
 		flushUniversalSync(() => root.render(RollingText as any, { value: 'b' }))

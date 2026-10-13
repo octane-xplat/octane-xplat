@@ -8,6 +8,10 @@
 		"native": {
 			"include": ["src/index.ts", "examples/**/*.tsrx"],
 			"exclude": ["**/*.test.*"]
+		},
+		"macos": {
+			"include": ["src/index.ts", "examples/**/*.tsrx"],
+			"exclude": ["**/*.test.*"]
 		}
 	}
 }

@@ -56,3 +56,26 @@ reduced-motion.ts` in this repository — kept local so the package's native
 dependency graph never pulls `@nativescript-community/gesturehandler` (the
 reason this is a standalone leaf rather than an addition to
 `@octane-xplat/motion`).
+
+## macOS qualification
+
+Contributor evidence boundary: run `pnpm --filter @octane-xplat/rolling-text
+ test:macos-runtime` from this repository, reserving `native_builds:1` through
+the resource broker. The fixture mounts the public workspace import in a real
+JavaScriptCore/AppKit host. It reads NSView bounds, CALayer translation,
+alpha, clipping, label text, and accessibility properties; it checks observer
+removal on the actual workspace notification center and repeated disposal.
+It opens no window and changes no system preference.
+
+`test:packed` checks source and publish export maps, Bundler/NodeNext public
+typing, and an object-driver mount. That test supplies no AppKit layout and
+does not establish native presentation. Public prop types stay shared across
+web, native, and macOS; `tsconfig.envs.json` uses the shared environment presets.
+
+Still required for N3 acceptance: toggle the real OS Reduce Motion setting
+while a label has a queued destination, confirm it settles to the latest
+value, restore the user's setting, and confirm the opposite transition and
+cleanup. Posting a notification on the workspace center tests subscription
+lifecycle only. It does not establish OS preference-change delivery.
+Visual appearance, pixel clipping, screen-reader speech, and physical input
+are unverified by these nonvisual checks.

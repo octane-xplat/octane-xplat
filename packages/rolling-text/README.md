@@ -3,7 +3,7 @@
 A single-line label whose text **rolls** when its value changes — like a
 departure-board or slot-machine counter. Characters that stay the same keep
 their place; only the changed ones roll out and in. Works on web, iOS and
-Android.
+Android. macOS has the nonvisual qualification limits below.
 
 ```tsx
 import { RollingText } from '@octane-xplat/rolling-text'
@@ -56,10 +56,24 @@ accessibility tree, so there is never a mix of old and new text. Pass
 - **Very long values** (over 256 units) roll as one whole label.
 - Roll distance is read from the row's current height — the first update
   before initial layout falls back to a fade.
-- macOS has [package-boundary acceptance](../motion/UPSTREAM.md#macos-package-boundary)
-  only: source and published imports are checked, while AppKit clipping,
-  movement, and live OS preferences remain unqualified. Windows/Linux leaves
-  are not implemented yet.
+- macOS uses AppKit views and the system reduced-motion preference. Its
+  [qualification record](./UPSTREAM.md#macos-qualification) separates native
+  property checks from the remaining live OS toggle and visual gates.
+  Windows/Linux leaves are not implemented yet.
 
 Derived from Scritto's survivor matching and slot-text's update policy — see
 [UPSTREAM.md](./UPSTREAM.md) for provenance and licenses.
+
+## macOS text styles
+
+Set the label's font and size through `style`; keep its height large enough for
+one line. AppKit does not inherit text styles from a surrounding stack. A
+layout change affects the distance used by the next roll.
+
+```tsx
+import { RollingText } from '@octane-xplat/rolling-text'
+
+export function LargeCounter({ count }: { count: number }) {
+	return <RollingText value={`${count}`} style={{ fontSize: 32, height: 40 }} />
+}
+```

@@ -59,7 +59,8 @@
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.mjs"
+		"typecheck": "node ../../scripts/typecheck.mjs",
+		"test:macos-runtime": "node tests/macos-runtime.mjs"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

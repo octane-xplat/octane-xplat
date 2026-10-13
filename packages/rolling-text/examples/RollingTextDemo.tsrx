@@ -17,6 +17,7 @@ export function RollingTextDemo() {
 			</HStack>
 			<RollingText
 				value={`${count} seconds`}
+				style={{ height: 24, fontSize: 16 }}
 				rollBy="grapheme"
 				direction="up"
 				updatePolicy="latest"
