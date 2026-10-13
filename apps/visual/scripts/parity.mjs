@@ -129,11 +129,12 @@ export function runParity(directory, commonDirectory = join(root, 'vis/common/sw
 	}
 
 	const report = {
+		...manifest,
+		// Capture metadata cannot qualify targets this comparison did not run.
 		requiredTargets: ['web', 'ios'],
 		scope: 'milestone-3-web-ios-spike',
 		fullSuiteCoverage: 'incomplete',
 		missingProductTargets: ['android', 'macos', 'windows', 'linux'],
-		...manifest,
 		results: results.map(({ diff: _diff, ...result }) => result),
 		status: results.some((r) => r.status !== 'pass') ? 'divergence' : 'pass',
 	}

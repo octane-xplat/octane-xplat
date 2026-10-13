@@ -86,7 +86,7 @@ test('rejects partial, duplicate, stale, mock and incompatible capture cohorts',
 	}
 })
 
-test('CLI divergence names the target, exits nonzero and preserves reference bytes', async () => {
+test('CLI divergence and two-target success preserve honest coverage and reference bytes', async () => {
 	const { mkdtempSync, writeFileSync, rmSync, mkdirSync } = await import('node:fs')
 	const { tmpdir } = await import('node:os')
 	const { join } = await import('node:path')
@@ -96,7 +96,17 @@ test('CLI divergence names the target, exits nonzero and preserves reference byt
 	try {
 		const common = join(directory, 'common')
 		mkdirSync(common)
-		writeFileSync(join(directory, 'manifest.json'), JSON.stringify(expected))
+		writeFileSync(
+			join(directory, 'manifest.json'),
+			JSON.stringify({
+				...expected,
+				requiredTargets: ['web'],
+				scope: 'six-platform-suite',
+				fullSuiteCoverage: 'complete',
+				missingProductTargets: [],
+			}),
+		)
+
 		writeFileSync(join(directory, 'web-0.json'), JSON.stringify(capture('web')))
 		const changed = PNG.sync.read(bytes)
 		changed.data[0] ^= 1
@@ -109,6 +119,10 @@ test('CLI divergence names the target, exits nonzero and preserves reference byt
 		writeFileSync(join(common, 'reference.json'), JSON.stringify(capture('web')))
 		assert.equal(runParity(directory, common), 1)
 		const report = JSON.parse(readFileSync(join(directory, 'parity-report.json')))
+		assert.deepEqual(report.requiredTargets, ['web', 'ios'])
+		assert.equal(report.scope, 'milestone-3-web-ios-spike')
+		assert.equal(report.fullSuiteCoverage, 'incomplete')
+		assert.deepEqual(report.missingProductTargets, ['android', 'macos', 'windows', 'linux'])
 		assert.deepEqual(
 			report.results.map((r) => [r.target, r.status, r.differentPixels]),
 			[
@@ -117,6 +131,15 @@ test('CLI divergence names the target, exits nonzero and preserves reference byt
 			],
 		)
 
+		assert.deepEqual(readFileSync(join(common, 'reference.png')), bytes)
+		writeFileSync(join(directory, 'ios-0.json'), JSON.stringify(capture('ios')))
+		assert.equal(runParity(directory, common), 0)
+		const passingReport = JSON.parse(readFileSync(join(directory, 'parity-report.json')))
+		assert.equal(passingReport.status, 'pass')
+		assert.equal(passingReport.fullSuiteCoverage, 'incomplete')
+		assert.equal(passingReport.scope, 'milestone-3-web-ios-spike')
+		assert.deepEqual(passingReport.requiredTargets, ['web', 'ios'])
+		assert.deepEqual(passingReport.missingProductTargets, ['android', 'macos', 'windows', 'linux'])
 		assert.deepEqual(readFileSync(join(common, 'reference.png')), bytes)
 		const result = spawnSync(
 			process.execPath,
