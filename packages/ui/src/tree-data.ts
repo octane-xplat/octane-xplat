@@ -158,6 +158,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 			const index = siblings.findIndex((node) => node.key === key)
 			return index < 0 ? null : edit(siblings, index)
 		})
+
 		if (next) {
 			commit({ ...snapshot, items: next })
 		}

@@ -27,6 +27,7 @@ export function writeInfoPlist(settings, iconFile = null) {
 	const iconEntry = iconFile
 		? `  <key>CFBundleIconFile</key><string>${xmlEscape(iconFile)}</string>\n`
 		: ''
+
 	const extra = Object.entries(settings.infoPlist ?? {})
 		.map(([key, value]) => plistEntry(key, value))
 		.join('')

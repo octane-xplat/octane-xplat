@@ -200,7 +200,7 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 			if (hasAlpha && a_ac)
 				{for (let cy = 0, j = 0; cy < 5; cy++)
 					{for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 5 - cy; cx++, j++)
-						a += a_ac[j] * fx[cx] * fy2}}
+						{a += a_ac[j] * fx[cx] * fy2}}}
 
 			const b = l - (2 / 3) * p
 			const r = (3 * l - b + q) / 2

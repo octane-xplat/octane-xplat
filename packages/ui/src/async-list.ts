@@ -11,6 +11,7 @@ import {
 	type ListData,
 	type Selection,
 } from './list-data'
+
 import type { ReadableStore } from './props'
 
 export interface SortDescriptor {
@@ -140,6 +141,7 @@ export function createAsyncListData<T, C = string>(
 				cursor: nextCursor,
 				signal: controller.signal,
 			})
+
 			if (mine !== ticket || controller.signal.aborted) {
 				return
 			}
@@ -247,6 +249,7 @@ export function createAsyncListData<T, C = string>(
 						error = e instanceof Error ? e : new Error(String(e))
 						phase('error')
 					})
+
 				return
 			}
 

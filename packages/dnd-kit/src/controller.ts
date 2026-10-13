@@ -47,6 +47,7 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
 			manager.startAutoScroll()
 			await manager.renderer.rendering
 		}
+
 		const handle = async (event: PanEvent) => {
 			if (!bound) {
 				return

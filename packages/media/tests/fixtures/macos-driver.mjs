@@ -45,6 +45,7 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 			if (options.base64Failure) {
 				throw new Error('base64 failure')
 			}
+
 			return Buffer.from(`JPEG:${width}x${height}`).toString('base64')
 		},
 		isEqualToData(other) {
@@ -60,9 +61,11 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 			if (options.writeFailure === writes) {
 				return false
 			}
+
 			if (options.writeThrow === writes) {
 				throw new Error('write threw')
 			}
+
 			return true
 		},
 	})
@@ -100,6 +103,7 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 					if (options.cleanupFailure) {
 						return false
 					}
+
 					return disk.delete(uri)
 				},
 			},
@@ -122,6 +126,7 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 				if (data.invalid) {
 					return null
 				}
+
 				return {
 					pixelsWide: data.width,
 					pixelsHigh: data.height,
@@ -131,9 +136,11 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 						if (data.conversionThrow) {
 							throw new Error('conversion threw')
 						}
+
 						if (data.conversionFailure) {
 							return null
 						}
+
 						return bytes(data.width, data.height)
 					},
 				}
@@ -147,6 +154,7 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 		if (cache.has(path)) {
 			return cache.get(path)
 		}
+
 		const exports = {}
 		cache.set(path, exports)
 		const source = readFileSync(path, 'utf8')

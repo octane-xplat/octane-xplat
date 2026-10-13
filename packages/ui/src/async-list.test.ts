@@ -12,6 +12,7 @@ describe('createAsyncListData', () => {
 			load: async () => ({ items: [{ name: 'a' }, { name: 'b' }] }),
 			getKey: (item: { name: string }) => item.name,
 		})
+
 		list.reload()
 		expect(list.loadingState).toBe('loading')
 		expect(list.isLoading).toBe(true)
@@ -31,6 +32,7 @@ describe('createAsyncListData', () => {
 			},
 			getKey: (item) => item.name,
 		})
+
 		list.reload()
 		await tick()
 		list.loadMore()
@@ -52,6 +54,7 @@ describe('createAsyncListData', () => {
 			},
 			getKey: (item) => item.name,
 		})
+
 		list.reload()
 		await tick()
 		list.setFilterText('abc')
@@ -70,6 +73,7 @@ describe('createAsyncListData', () => {
 			}),
 			getKey: (item) => item.name,
 		})
+
 		list.reload()
 		await tick()
 		list.sort({ column: 'name', direction: 'ascending' })
@@ -82,6 +86,7 @@ describe('createAsyncListData', () => {
 		const load = vi.fn(async ({ sortDescriptor }: { sortDescriptor?: { column: string } }) => ({
 			items: [{ name: String(sortDescriptor?.column ?? 'none') }],
 		}))
+
 		const list = createAsyncListData<{ name: string }>({ load, getKey: (item) => item.name })
 		list.reload()
 		await tick()
@@ -100,6 +105,7 @@ describe('createAsyncListData', () => {
 				throw new Error('nope')
 			},
 		})
+
 		list.reload()
 		await tick()
 		expect(list.loadingState).toBe('error')
@@ -117,6 +123,7 @@ describe('createAsyncListData', () => {
 			},
 			getKey: (item) => item.name,
 		})
+
 		list.reload()
 		list.reload()
 		expect(signals[0].aborted).toBe(true)
@@ -129,6 +136,7 @@ describe('createAsyncListData', () => {
 			load: async () => ({ items: [{ name: 'a' }] }),
 			getKey: (item) => item.name,
 		})
+
 		list.reload()
 		await tick()
 		list.append({ name: 'b' })

@@ -123,6 +123,7 @@ test('invoke → poll → result → outcome, with request-id dedupe', async (t)
 		registryRevision: 1,
 		input: { role: 'admin' },
 	}
+
 	const accepted = await (await call('POST', '/invoke', invoke)).json()
 	assert.equal(accepted.accepted, true)
 
@@ -163,6 +164,7 @@ test('invoke → poll → result → outcome, with request-id dedupe', async (t)
 			.status,
 		404,
 	)
+
 	assert.equal((await call('GET', '/invoke/req_missing')).status, 404)
 })
 

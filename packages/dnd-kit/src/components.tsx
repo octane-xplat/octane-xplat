@@ -228,6 +228,7 @@ function SortableRow<T extends DndId>(props: {
 		disabled: props.list.disabled,
 		activationDistance: props.list.activationDistance,
 	})
+
 	return (
 		<View
 			ref={sortable.ref}

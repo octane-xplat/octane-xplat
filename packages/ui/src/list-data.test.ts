@@ -36,6 +36,7 @@ describe('createListData', () => {
 		const list = data([{ name: 'a' }, { name: 'b' }, { name: 'c' }], {
 			initialSelectedKeys: ['a', 'b'],
 		})
+
 		list.remove('a')
 		expect(names(list)).toEqual(['b', 'c'])
 		expect([...list.selectedKeys as Set<string>]).toEqual(['b'])
@@ -45,6 +46,7 @@ describe('createListData', () => {
 		const list = data([{ name: 'a' }, { name: 'b' }, { name: 'c' }], {
 			initialSelectedKeys: ['a', 'c'],
 		})
+
 		list.removeSelectedItems()
 		expect(names(list)).toEqual(['b'])
 
@@ -75,6 +77,7 @@ describe('createListData', () => {
 		const list = data([{ name: 'apple' }, { name: 'banana' }, { name: 'avocado' }], {
 			filter: (item, text) => item.name.startsWith(text),
 		})
+
 		list.setFilterText('a')
 		expect(names(list)).toEqual(['apple', 'avocado'])
 		expect(list.getItem('banana')).toEqual({ name: 'banana' })

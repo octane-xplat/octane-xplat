@@ -80,10 +80,12 @@ test('availability reasons: platform mismatch and app-reported unready', () => {
 		id: 'a.b',
 		availability: { platforms: ['ios'], ready: false, reason: 'needs mock server' },
 	}
+
 	assert.deepEqual(actionAvailability(action, 'web'), {
 		ready: false,
 		reason: 'not applicable on web',
 	})
+
 	assert.deepEqual(actionAvailability(action, 'ios'), { ready: false, reason: 'needs mock server' })
 	assert.deepEqual(actionAvailability({ id: 'a.b' }, 'web'), { ready: true })
 	assert.equal(
@@ -447,11 +449,13 @@ test('multiple instances never share an invocation target silently', async (t) =
 		actions: [actionDeclaration()],
 		handle: async () => ({}),
 	})
+
 	const b = makeApp(bridge, {
 		instanceId: 'inst_b',
 		actions: [actionDeclaration()],
 		handle: async () => ({}),
 	})
+
 	await a.start()
 	await b.start()
 
@@ -686,6 +690,7 @@ test('an external-effects action requires the explicit grant', async (t) => {
 	const denied = await callTool(client, 'xplat_dev_action_invoke', {
 		actionId: 'fixtures.reset-world',
 	})
+
 	assert.equal(denied.error.code, 'permission_denied')
 	assert.equal(app.state.calls.length, 0)
 
@@ -693,6 +698,7 @@ test('an external-effects action requires the explicit grant', async (t) => {
 	const invoked = await callTool(client, 'xplat_dev_action_invoke', {
 		actionId: 'fixtures.reset-world',
 	})
+
 	assert.equal(invoked.ok, true)
 	const job = await jobDone(client, invoked.data.job.jobId)
 	assert.equal(job.state, 'succeeded')
@@ -772,6 +778,7 @@ test('a vanished bridge marks its instances disconnected, never silently live', 
 		actions: [actionDeclaration()],
 		handle: async () => ({}),
 	})
+
 	await app.start()
 
 	const { client } = await connect(root)

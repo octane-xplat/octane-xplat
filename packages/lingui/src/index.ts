@@ -19,6 +19,7 @@ export {
 	useLocale,
 	createFilter,
 } from './hooks'
+
 export type { FilterMatch } from './hooks'
 export type * from './types'
 export type { I18n, Messages, MessageDescriptor } from '@lingui/core'

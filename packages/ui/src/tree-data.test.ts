@@ -27,6 +27,7 @@ describe('createTreeData', () => {
 			{ name: 'a', items: [{ name: 'a1' }] },
 			{ name: 'b' },
 		])
+
 		expect(outline(tree.items)).toEqual(['a(a1())', 'b()'])
 		expect(tree.getItem('a1')?.parentKey).toBe('a')
 		expect(tree.getChildren('a').map((n) => n.key)).toEqual(['a1'])
@@ -56,6 +57,7 @@ describe('createTreeData', () => {
 			[{ name: 'a', items: [{ name: 'a1', items: [{ name: 'a1x' }] }] }, { name: 'b' }],
 			{ initialSelectedKeys: ['a1x', 'b'] },
 		)
+
 		tree.remove('a1')
 		expect(outline(tree.items)).toEqual(['a()', 'b()'])
 		expect([...tree.selectedKeys as Set<string>]).toEqual(['b'])
@@ -66,6 +68,7 @@ describe('createTreeData', () => {
 			{ name: 'a', items: [{ name: 'a1' }, { name: 'a2' }] },
 			{ name: 'b', items: [{ name: 'b1' }] },
 		])
+
 		tree.move('a1', 'b', 0)
 		expect(outline(tree.items)).toEqual(['a(a2())', 'b(a1(),b1())'])
 		expect(tree.getItem('a1')?.parentKey).toBe('b')
