@@ -81,7 +81,7 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 
 				assertSwitchGeometry({
 					stage: captureRect(native.bounds), track: captureRect(trackRect), thumb: captureRect(thumbRect),
-				}, composed.args.checked, displacement)
+				}, Boolean(composed.args.checked), displacement)
 
 				expect(composed.args.checked).toBe(false)
 				expect(thumbPosition.x).toBe(3)
