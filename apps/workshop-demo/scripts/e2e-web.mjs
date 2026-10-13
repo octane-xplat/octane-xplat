@@ -68,8 +68,8 @@ const stories = await page.$$eval('.xw-story', (els) =>
 	els.map((el) => ({ name: el.textContent?.trim(), disabled: el.disabled })),
 )
 
-check('catalog lists stories', stories.length === 9, `${stories.length} stories`)
-check('ios-only story listed disabled', stories.filter((s) => s.disabled).length === 1)
+check('catalog lists stories', stories.length === 10, `${stories.length} stories`)
+check('foreign leaf stories listed disabled', stories.filter((s) => s.disabled).length === 2)
 
 await page.fill('.xw-search', 'async')
 const found = await page.$$eval('.xw-story', (els) => els.map((el) => el.textContent?.trim()))

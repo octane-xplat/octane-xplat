@@ -47,6 +47,7 @@ export const AsyncFixture = defineStory<Props, CounterState, Fixture>({
 				reject(new Error('fixture cancelled'))
 			})
 		})
+
 		return { account: 'AsyncAccount' }
 	},
 })

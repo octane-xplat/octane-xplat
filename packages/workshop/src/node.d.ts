@@ -42,5 +42,21 @@ export declare function workshopDev(options?: {
 	port?: number
 }): Promise<unknown>
 
+/**
+ * Shared dev-server seam for DOM targets — the caller owns process
+ * lifecycle. Exported so qualification harnesses can boot the exact
+ * production wiring.
+ */
+export declare function startWorkshopServer(options?: {
+	root?: string
+	config?: object
+	target?: string
+	story?: string
+	port?: number
+}): Promise<{ server: unknown; url: string }>
+
+/** Linux host prerequisites as a missing-item list (empty when satisfied). */
+export declare function linuxMissingPrerequisites(): string[]
+
 export declare function findConfigFile(root: string): string | null
 export declare function loadWorkshopConfig(root: string): Promise<{ config: object; file: string | null }>

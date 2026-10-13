@@ -2,6 +2,7 @@
  * Node backend for `xplat workshop …` — the CLI resolves this module from
  * the consumer's installed @octane-xplat/workshop and delegates.
  */
+import { spawn, spawnSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import {
 	existsSync,
@@ -157,12 +158,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 
 	report.targets.windows = windowsPreflight(root)
 
-	report.targets.linux = {
-		backend: 'gtk4/webkitgtk dom host',
-		requirements: {},
-		status: 'unqualified-backend',
-		note: 'the workshop does not yet support this target; Linux runs on the qualified Linux runtime',
-	}
+	report.targets.linux = linuxDoctor(root, webRequirements, configFile)
 
 	if (json) {
 		console.log(JSON.stringify(report, null, 2))
@@ -292,22 +288,82 @@ export async function workshopInit({ cwd, scripts = true } = {}) {
 	return { created, skipped }
 }
 
+// ---------- linux host checks ----------
+
+const gjsProbe = (args) => {
+	try {
+		return spawnSync('gjs', args, { encoding: 'utf8', timeout: 10_000 }).status === 0
+	} catch {
+		return false
+	}
+}
+
+const GJS_TYPELIB_PROBE =
+	'imports.gi.versions.Gtk="4.0";imports.gi.versions.WebKit="6.0";imports.gi.versions.Adw="1";' +
+	'void imports.gi.Gtk;void imports.gi.WebKit;void imports.gi.Adw'
+
+/** Linux host prerequisites as a missing-item list (empty when satisfied). */
+export function linuxMissingPrerequisites() {
+	const missing = []
+	if (!gjsProbe(['--version'])) {
+		missing.push('gjs')
+	} else if (!gjsProbe(['-c', GJS_TYPELIB_PROBE])) {
+		missing.push('GTK4/WebKitGTK/Adwaita typelibs (gir1.2-webkit-6.0, gir1.2-adw-1)')
+	}
+
+	return missing
+}
+
+/** The published `@octane-xplat/ui` map needs a `linux` condition or packed
+ *  consumers silently fall back to the web build, losing openWindow and
+ *  colorScheme host overrides. */
+function uiHasLinuxExport(root) {
+	const manifest = resolveFrom(root, '@octane-xplat/ui/package.json')
+	if (!manifest) {
+		return false
+	}
+
+	try {
+		return Boolean(JSON.parse(readFileSync(manifest, 'utf8')).exports?.['.']?.linux)
+	} catch {
+		return false
+	}
+}
+
+function linuxDoctor(root, sharedRequirements, configFile) {
+	const backend = 'gtk4/webkitgtk dom host (gjs)'
+	if (process.platform !== 'linux') {
+		return {
+			backend,
+			requirements: {},
+			status: 'remote-host-required',
+			note: 'Linux runs on the qualified GTK/WebKitGTK runtime — run `xplat workshop dev --target linux` in that host\'s checkout',
+		}
+	}
+
+	const requirements = {
+		...sharedRequirements,
+		'workshop.config': Boolean(configFile),
+		gjs: gjsProbe(['--version']),
+		'GTK4/WebKitGTK/Adwaita typelibs': gjsProbe(['-c', GJS_TYPELIB_PROBE]),
+		'@octane-xplat/ui linux export': uiHasLinuxExport(root),
+	}
+
+	return {
+		backend,
+		requirements,
+		status: Object.values(requirements).every(Boolean) ? 'available' : 'missing-prerequisites',
+	}
+}
+
 // ---------- dev ----------
 
-export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
-	const root = consumerRoot(cwd)
-	if (target === 'windows') {
-		throw new WorkshopUsageError(windowsLaunchBlocker(windowsPreflight(root)))
-	}
-
-	if (target !== 'web') {
-		throw new WorkshopUsageError(
-			`xplat workshop dev --target ${target}: this workshop release supports the web target only — ` +
-				`run \`xplat workshop doctor\` for per-target status`,
-		)
-	}
-
-	const { config } = await loadWorkshopConfig(root)
+/**
+ * Shared dev-server seam for every DOM target — the caller owns process
+ * lifecycle (signal handlers, host subprocess). Exported so qualification
+ * harnesses can boot the exact production wiring.
+ */
+export async function startWorkshopServer({ root, config, target, story, port } = {}) {
 	const [{ createServer, searchForWorkspaceRoot }, { octane }] = await Promise.all([
 		importFrom(root, 'vite'),
 		importFrom(root, '@octanejs/vite-plugin'),
@@ -325,7 +381,7 @@ export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
 			// can force a full page reload.
 			...xplatWorkshop({ cwd: root, config, target, story }),
 			...octane(),
-			xplatBoundary('web'),
+			xplatBoundary(target),
 			xplatDevBridge(),
 		],
 		define: xplatNodeEnvDefine('development'),
@@ -344,8 +400,32 @@ export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
 	await server.listen()
 	const address = server.httpServer?.address()
 	const resolvedPort = typeof address === 'object' && address ? address.port : port
-	console.log(`WORKSHOP_READY http://localhost:${resolvedPort}/`)
+	const url = `http://localhost:${resolvedPort}/`
+	console.log(`WORKSHOP_READY ${url}`)
 	server.printUrls()
+	return { server, url }
+}
+
+export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
+	const root = consumerRoot(cwd)
+	if (target === 'windows') {
+		throw new WorkshopUsageError(windowsLaunchBlocker(windowsPreflight(root)))
+	}
+
+	if (target !== 'web' && target !== 'linux') {
+		throw new WorkshopUsageError(
+			`xplat workshop dev --target ${target}: this workshop release supports the web and linux targets — ` +
+				`run \`xplat workshop doctor\` for per-target status`,
+		)
+	}
+
+	const gjsHost = target === 'linux' ? checkLinuxHost(root) : null
+	const { config } = await loadWorkshopConfig(root)
+	const { server, url } = await startWorkshopServer({ root, config, target, story, port })
+
+	if (target === 'linux') {
+		return runLinuxHost({ server, url, gjsHost })
+	}
 
 	const shutdown = async () => {
 		await server.close()
@@ -354,5 +434,76 @@ export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
 
 	process.on('SIGINT', shutdown)
 	process.on('SIGTERM', shutdown)
+	return server
+}
+
+/** Gate the Linux launch before the dev server binds: the GTK host runs on
+ *  Linux only, needs gjs + the WebKitGTK/Adwaita typelibs, and launches the
+ *  canonical host shipped in @octane-xplat/cli. Returns the host script path. */
+function checkLinuxHost(root) {
+	if (process.platform !== 'linux') {
+		throw new WorkshopUsageError(
+			'xplat workshop dev --target linux: the GTK4/WebKitGTK host runs on Linux only — ' +
+				'run this command in the Linux host\'s own checkout. `xplat workshop doctor` reports per-target status',
+		)
+	}
+
+	const missing = linuxMissingPrerequisites()
+	if (missing.length) {
+		throw new WorkshopUsageError(
+			`xplat workshop dev --target linux: missing host prerequisites: ${missing.join(', ')} — ` +
+				'on Debian/Ubuntu install: gjs libgtk-4-1 libadwaita-1-0 libwebkitgtk-6.0-4 gir1.2-webkit-6.0 gir1.2-adw-1',
+		)
+	}
+
+	const cliManifest = resolveFrom(root, '@octane-xplat/cli/package.json')
+	const gjsHost = cliManifest
+		? join(dirname(cliManifest), 'src', 'linux', 'host', 'gjs-host.js')
+		: null
+
+	if (!gjsHost || !existsSync(gjsHost)) {
+		throw new WorkshopUsageError(
+			'xplat workshop dev --target linux: cannot find the GJS host in @octane-xplat/cli ' +
+				'(expected cli/src/linux/host/gjs-host.js) — update @octane-xplat/cli',
+		)
+	}
+
+	return gjsHost
+}
+
+/** Launch the canonical GJS/WebKitGTK host at the dev server and own both
+ *  halves' lifecycle: closing the host window stops the server, a dying
+ *  server kills the host, and signals shut both down. */
+async function runLinuxHost({ server, url, gjsHost }) {
+	// A distinct application id keeps workshop media-permission/config state
+	// out of the app under development's directories.
+	const host = spawn('gjs', [gjsHost, url], {
+		stdio: 'inherit',
+		env: { ...process.env, XPLAT_PROBE_APP_ID: 'org.octane.xplat.workshop' },
+	})
+
+	let exiting = false
+	const shutdown = async (code = 0) => {
+		if (exiting) {
+			return
+		}
+
+		exiting = true
+		if (host.exitCode === null && !host.killed) {
+			host.kill()
+		}
+
+		await server.close().catch(() => {})
+		process.exit(code)
+	}
+
+	host.on('exit', (code) => void shutdown(code ?? 0))
+	host.on('error', async (error) => {
+		console.error(`xplat workshop: failed to launch the Linux host — ${error.message}`)
+		await shutdown(1)
+	})
+
+	process.on('SIGINT', () => void shutdown(0))
+	process.on('SIGTERM', () => void shutdown(0))
 	return server
 }

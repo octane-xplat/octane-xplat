@@ -1,12 +1,14 @@
 # @octane-xplat/workshop
 
 Render an app-owned component on its own development page, edit its inputs,
-and Reset to a fresh example. The current preview runs through Octane's real
-browser compiler and DOM renderer. Authoring contract version: **1**.
+and Reset to a fresh example. The current release supports two DOM hosts:
+the **web** browser target, and **Linux** through the real GTK4/WebKitGTK
+webview host on a Linux machine. Authoring contract version: **1**.
 
-This is package A of the six-target workshop. Native hosts remain unqualified.
-Keyboard and browser accessibility semantics have regression coverage; actual
-screen-reader announcements and OS IME input still require qualification.
+iOS, Android, macOS and Windows remain unqualified backends — `xplat workshop
+doctor` reports them honestly. Keyboard and browser accessibility semantics
+have regression coverage; actual screen-reader announcements and OS IME input
+still require qualification on every host.
 
 For Windows prerequisite reporting and the blocked native launch, see
 [Windows workshop setup status](WINDOWS.md). Windows mounting and interaction
@@ -153,6 +155,27 @@ If those cannot recover cleanly, stop and restart the development target.
 pnpm exec xplat workshop dev --target web --story counter/basic
 ```
 
+## Linux host
+
+On a Linux machine the workshop opens inside the real GTK4/WebKitGTK webview,
+not a browser tab. The command starts the same development server, then launches
+the GJS host shipped in `@octane-xplat/cli` at its URL. Closing the window stops
+the server; stopping the command closes the window.
+
+```sh
+pnpm exec xplat workshop dev --target linux
+pnpm exec xplat workshop dev --target linux --story counter/basic
+```
+
+The launch needs `gjs` plus the GTK4, WebKitGTK 6.0 and Adwaita typelibs (on
+Debian/Ubuntu: `gjs libgtk-4-1 libadwaita-1-0 libwebkitgtk-6.0-4
+gir1.2-webkit-6.0 gir1.2-adw-1`). `xplat workshop doctor` probes them without
+opening a window. On any other OS the row reads `remote-host-required` — run
+the same commands in the Linux host's own checkout rather than bridging
+remotely. Linux resolves `.linux` leaves ahead of `.web` and shared modules,
+matching the consumer app's Linux build; a story listing `linux` under
+`targets` mounts, while foreign leaves stay out of the bundle.
+
 ## Platform-leaf filtering
 
 A platform-suffixed declaration has no loader on an incompatible target.
@@ -190,11 +213,13 @@ stage visibly stale; correcting it restores a fresh successful revision.
 pnpm exec xplat workshop dev --target web --story counter/basic
 ```
 
-The web adapter uses the pinned Storybook 10.6.1 `composeStory` subset already
-used by the private visual harness. Octane owns rendering; workshop owns
-cancellation, fixture/provider lifetime and reset. Arbitrary CSF addons are
-outside this supported subset. Native composition imports still need their own
-host qualification.
+The DOM-host adapter uses the pinned Storybook 10.6.1 `composeStory` subset
+already used by the private visual harness. Octane owns rendering; workshop
+owns cancellation, fixture/provider lifetime and reset. Arbitrary CSF addons
+are outside this supported subset. Web and Linux share the same DOM shell and
+save/remount wiring; WebKitGTK input, focus and reload semantics still need
+actual-Linux-host qualification. Other native composition imports need their
+own host qualification.
 
 ## Commands
 
@@ -239,7 +264,12 @@ pnpm --filter @octane-xplat/lib build
 pnpm --filter @octane-xplat/workshop build
 pnpm --filter @octane-xplat/workshop test
 pnpm --filter @octane-xplat/workshop test:packed
+pnpm --filter @octane-xplat/workshop test:packed:linux
 ```
 
-The packed check also requires an existing built UI package, as does normal
-packed-consumer verification. It uses headless Chromium and captures no images.
+The packed checks also require an existing built UI package, as does normal
+packed-consumer verification. They use headless Chromium and capture no images.
+The Linux packed check verifies packed export resolution, catalog applicability,
+the production linux server wiring and production-build exclusion in a plain
+DOM — the GJS window, GTK input/focus and WebKitGTK reload remain actual-host
+gates that no DOM check substitutes for.

@@ -30,6 +30,33 @@ const WEB_EXTENSIONS = [
 	'.json',
 ]
 
+// Per-target resolution for DOM-rendering hosts. Linux renders the same DOM
+// inside the system webview, so its chain mirrors the consumer Linux preset
+// (apps/linux/vite.linux.config.ts): .linux → .web → shared, conditions
+// 'linux' then 'web'.
+const TARGET_RESOLUTION = {
+	web: { conditions: ['web'], extensions: WEB_EXTENSIONS },
+	linux: {
+		conditions: ['linux', 'web'],
+		extensions: [
+			'.linux.tsrx',
+			'.web.tsrx',
+			'.tsrx',
+			'.linux.tsx',
+			'.web.tsx',
+			'.tsx',
+			'.linux.ts',
+			'.web.ts',
+			'.mjs',
+			'.mts',
+			'.ts',
+			'.jsx',
+			'.js',
+			'.json',
+		],
+	},
+}
+
 const fsUrl = (file) => `/@fs/${file.split(sep).join('/')}`
 
 function catalogCode(root, config, target) {
@@ -137,12 +164,13 @@ const WORKSHOP_HTML = `<!doctype html>
  * @param {object} [options]
  * @param {string} options.cwd - consumer project root
  * @param {object} [options.config] - resolved workshop.config.* contents
- * @param {string} [options.target] - launch target ('web' in this release)
+ * @param {string} [options.target] - launch target (DOM hosts: 'web' | 'linux')
  * @param {string} [options.story] - initial stable story id
  */
 export function xplatWorkshop(options = {}) {
 	const target = options.target ?? 'web'
 	const story = options.story ?? null
+	const resolution = TARGET_RESOLUTION[target] ?? TARGET_RESOLUTION.web
 	let root = options.cwd ?? process.cwd()
 	let config = options.config ?? {}
 
@@ -182,23 +210,24 @@ export function xplatWorkshop(options = {}) {
 					include: ['@octane-xplat/workshop > storybook/preview-api'],
 				},
 				resolve: {
-					conditions: ['web'],
+					conditions: [...resolution.conditions],
 				},
 			}
 		},
 		configResolved(resolved) {
 			// The octane plugin's extension list merges first, which would let the
-			// unsuffixed .tsrx leaf shadow .web.tsrx. Environments carry their own
-			// resolved lists — rewrite every one.
-			const apply = (target) => {
-				target.resolve.extensions = [
-					...WEB_EXTENSIONS,
-					...target.resolve.extensions.filter((ext) => !WEB_EXTENSIONS.includes(ext)),
+			// unsuffixed .tsrx leaf shadow the target's leaf. Environments carry
+			// their own resolved lists — rewrite every one.
+			const apply = (scope) => {
+				scope.resolve.extensions = [
+					...resolution.extensions,
+					...scope.resolve.extensions.filter((ext) => !resolution.extensions.includes(ext)),
 				]
 
-				if (!target.resolve.conditions.includes('web')) {
-					target.resolve.conditions.unshift('web')
-				}
+				scope.resolve.conditions = [
+					...resolution.conditions,
+					...scope.resolve.conditions.filter((cond) => !resolution.conditions.includes(cond)),
+				]
 			}
 
 			apply(resolved)

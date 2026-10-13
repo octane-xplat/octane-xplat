@@ -1,6 +1,7 @@
 /**
  * Adaptive workshop shell — catalog, stage, controls, status.
- * DOM vocabulary is correct here: this is the web-only host surface.
+ * DOM vocabulary is correct here: this is the DOM-host surface (browser and
+ * the Linux WebKitGTK webview share it).
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { useStore } from '@octane-xplat/ui'
@@ -102,7 +103,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 						{target}: {currentDefinition(props.runtime)?.targets !== 'all' &&
 							currentDefinition(props.runtime)?.targets &&
 							!currentDefinition(props.runtime)!.targets.includes(target)
-							? 'unsupported by this story' : target === 'web' ? 'available (active host)' : 'unqualified backend'}
+							? 'unsupported by this story' : targetStatus(props.runtime.session.target, target)}
 					</li>)}
 				</ul>
 			</details>
@@ -340,6 +341,23 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
 
 function currentDefinition(runtime: WorkshopRuntime): StoryDefinition<any, any, any> | undefined {
 	return runtime.session.currentStory
+}
+
+/** Honest per-target launch status — `xplat workshop doctor` is the
+ *  authoritative machine check; this is the in-shell summary. */
+function targetStatus(active: string, target: string): string {
+	if (target === active) {
+		return 'available (active host)'
+	}
+
+	switch (target) {
+		case 'web':
+			return 'available'
+		case 'linux':
+			return 'requires a Linux host'
+		default:
+			return 'unqualified backend'
+	}
 }
 
 function ControlField(props: {
