@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"customConditions": ["web"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["vite/client"],
+		"strict": true
+	},
+	"files": ["tests/typing.contract.ts", "src/index.ts"]
+}

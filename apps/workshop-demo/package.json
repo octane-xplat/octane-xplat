@@ -1,0 +1,29 @@
+{
+	"name": "@xplat/workshop-demo",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"workshop": "xplat workshop dev --target web",
+		"workshop:list": "xplat workshop list",
+		"workshop:doctor": "xplat workshop doctor",
+		"typecheck": "node ../../scripts/typecheck.mjs",
+		"test:e2e": "node scripts/e2e-web.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/ui": "workspace:*",
+		"octane": "0.11.0"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.3",
+		"@nativescript/types": "9.1.4",
+		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/workshop": "workspace:*",
+		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"typescript": "5.9.3",
+		"vite": "8.3.0",
+		"playwright": "1.63.0"
+	}
+}

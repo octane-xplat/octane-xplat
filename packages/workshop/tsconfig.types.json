@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"customConditions": ["web"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"types": ["vite/client"]
+	},
+	"files": ["src/index.ts", "src/web/index.web.ts"]
+}

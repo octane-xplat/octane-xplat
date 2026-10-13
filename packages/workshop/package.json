@@ -1,0 +1,102 @@
+{
+	"name": "@octane-xplat/workshop",
+	"version": "0.14.0",
+	"description": "Development-only component workshop for Octane Xplat \u2014 typed stories, metadata discovery, adaptive shell, lifecycle and warm reload",
+	"keywords": [
+		"components",
+		"cross-platform",
+		"dev-tools",
+		"octane",
+		"stories",
+		"storybook",
+		"workshop",
+		"xplat"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/workshop",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/workshop"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./web": {
+			"types": "./types/generated/web/index.web.d.ts",
+			"default": "./dist/web/index.js"
+		},
+		"./vite": {
+			"types": "./src/vite.d.ts",
+			"default": "./src/vite.mjs"
+		},
+		"./node": {
+			"types": "./src/node.d.ts",
+			"default": "./src/node.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./web": {
+				"types": "./types/generated/web/index.web.d.ts",
+				"default": "./dist/web/index.js"
+			},
+			"./vite": {
+				"types": "./src/vite.d.ts",
+				"default": "./src/vite.mjs"
+			},
+			"./node": {
+				"types": "./src/node.d.ts",
+				"default": "./src/node.mjs"
+			},
+			"./package.json": "./package.json"
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && pnpm typegen",
+		"typegen": "tsrx-typegen --target workshop",
+		"typecheck": "node ../../scripts/typecheck.mjs",
+		"test": "vitest run && tsrx-tsc --noEmit -p tsconfig.test.json",
+		"test:e2e": "pnpm --filter @xplat/workshop-demo test:e2e",
+		"test:packed": "node tests/packed-consumer.web.mjs",
+		"pack:check": "tsrx-typegen --pack-check",
+		"test:types": "tsrx-tsc --noEmit -p tsconfig.test.json"
+	},
+	"dependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/ui": "workspace:*",
+		"storybook": "10.6.1",
+		"tinyglobby": "0.2.17"
+	},
+	"devDependencies": {
+		"@octanejs/vite-plugin": "0.1.61",
+		"octane": "0.11.0",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@octanejs/vite-plugin": ">=0.1.61",
+		"octane": ">=0.6.3 <1",
+		"vite": ">=8"
+	},
+	"peerDependenciesMeta": {
+		"vite": {
+			"optional": true
+		}
+	}
+}

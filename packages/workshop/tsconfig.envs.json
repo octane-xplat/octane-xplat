@@ -1,0 +1,22 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true
+	},
+	"environments": {
+		"web": {
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx",
+				"tests/**/*.ts"
+			],
+			"exclude": [
+				"src/**/*.test.*"
+			]
+		}
+	}
+}

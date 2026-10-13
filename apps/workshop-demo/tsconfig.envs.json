@@ -1,0 +1,22 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true
+	},
+	"environments": {
+		"web": {
+			"include": ["src/**/*", "workshop.config.ts"]
+		},
+		"native": {
+			"include": ["src/**/*"],
+			"exclude": ["**/*.web.*"],
+			"compilerOptions": {
+				"types": ["@nativescript/types"]
+			}
+		}
+	}
+}

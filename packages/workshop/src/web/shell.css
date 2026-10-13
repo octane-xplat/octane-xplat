@@ -1,0 +1,426 @@
+/* Workshop shell — static chrome styles. The stage itself stays unstyled:
+   workshop chrome never imposes layout on the component under development. */
+/* xplat-web-only:start */
+.xw-root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	font: 13px/1.45 system-ui, sans-serif;
+	color: #1a1d23;
+	background: #f4f5f7;
+}
+
+.xw-statusbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	background: #ffffff;
+	border-bottom: 1px solid #d8dbe0;
+	flex: none;
+}
+
+.xw-target-chip {
+	font: 600 11px/1 ui-monospace, monospace;
+	padding: 3px 7px;
+	border-radius: 4px;
+	background: #e8ecf3;
+	color: #33415e;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.xw-title {
+	font-weight: 600;
+	max-width: 40ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.xw-phase {
+	font-size: 12px;
+	color: #5a6472;
+}
+
+.xw-phase-failed,
+.xw-phase-restart-required {
+	color: #b3261e;
+	font-weight: 600;
+}
+
+.xw-spacer {
+	flex: 1;
+}
+
+.xw-body {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	position: relative;
+}
+
+.xw-panel {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	background: #ffffff;
+}
+
+.xw-catalog {
+	width: 264px;
+	border-right: 1px solid #d8dbe0;
+}
+
+.xw-controls {
+	width: 300px;
+	border-left: 1px solid #d8dbe0;
+}
+
+.xw-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 30;
+	width: auto;
+	border: none;
+}
+
+.xw-panel-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	border-bottom: 1px solid #e5e8ec;
+	flex: none;
+}
+
+.xw-panel-title {
+	font-weight: 600;
+}
+
+.xw-search {
+	flex: 1;
+	min-width: 0;
+	padding: 5px 8px;
+	border: 1px solid #c9ced6;
+	border-radius: 5px;
+	font: inherit;
+}
+
+.xw-panel-body {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 6px;
+}
+
+.xw-group-head {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	width: 100%;
+	padding: 5px 6px;
+	border: none;
+	background: none;
+	font: inherit;
+	font-weight: 600;
+	color: #3c4657;
+	cursor: pointer;
+	text-align: left;
+}
+
+.xw-group .xw-group {
+	margin-left: 12px;
+}
+
+.xw-story {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	width: 100%;
+	padding: 6px 8px;
+	border: none;
+	border-radius: 5px;
+	background: none;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	color: #1a1d23;
+}
+
+.xw-story:hover:not(:disabled) {
+	background: #eef1f6;
+}
+
+.xw-story-active,
+.xw-story-active:hover:not(:disabled) {
+	background: #dce6fb;
+	color: #1d3fae;
+	font-weight: 600;
+}
+
+.xw-story:disabled {
+	color: #8a93a3;
+	cursor: default;
+}
+
+.xw-story-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.xw-story-badge {
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #8a93a3;
+	flex: none;
+}
+
+.xw-stage-area {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	position: relative;
+	display: flex;
+	overflow: auto;
+}
+
+.xw-stage-slot {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	position: relative;
+}
+
+.xw-stage-host {
+	min-height: 100%;
+}
+
+.xw-stage-mount {
+	min-height: 100%;
+}
+
+.xw-stage-note {
+	position: absolute;
+	top: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	max-width: min(560px, 90%);
+	padding: 10px 14px;
+	background: #ffffff;
+	border: 1px solid #d8dbe0;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+	z-index: 10;
+}
+
+.xw-stage-note.xw-error {
+	border-color: #e2a9a3;
+	background: #fdf6f5;
+	max-height: 80%;
+	overflow: auto;
+}
+
+.xw-error-title {
+	font-weight: 700;
+	margin: 0 0 6px;
+	color: #b3261e;
+}
+
+.xw-error-detail {
+	margin: 6px 0;
+	font: 11px/1.5 ui-monospace, monospace;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.xw-error-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.xw-stale-badge {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	z-index: 10;
+	padding: 3px 8px;
+	border-radius: 4px;
+	background: #fff4d6;
+	border: 1px solid #e2c96e;
+	color: #7a5b00;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.xw-subtle {
+	color: #5a6472;
+	font-size: 12px;
+}
+
+.xw-error {
+	padding: 12px;
+	color: #b3261e;
+}
+
+.xw-empty {
+	padding: 12px;
+	color: #5a6472;
+}
+
+.xw-example {
+	font: 11px/1.5 ui-monospace, monospace;
+	background: #f4f5f7;
+	padding: 10px;
+	border-radius: 6px;
+	overflow-x: auto;
+}
+
+.xw-field {
+	padding: 6px 4px;
+	border-bottom: 1px solid #eef0f3;
+}
+
+.xw-field-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.xw-field-label {
+	flex: none;
+	width: 90px;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.xw-field input[type='text'],
+.xw-field input[type='number'],
+.xw-field select {
+	flex: 1;
+	min-width: 0;
+	padding: 4px 6px;
+	border: 1px solid #c9ced6;
+	border-radius: 5px;
+	font: inherit;
+}
+
+.xw-field-error {
+	margin-top: 4px;
+	font-size: 12px;
+	color: #b3261e;
+}
+
+.xw-btn {
+	padding: 4px 10px;
+	border: 1px solid #c9ced6;
+	border-radius: 5px;
+	background: #ffffff;
+	font: inherit;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.xw-btn:hover:not(:disabled) {
+	background: #eef1f6;
+}
+
+.xw-btn:disabled {
+	color: #9aa2b1;
+	background: #f4f5f7;
+	cursor: default;
+}
+
+.xw-btn[aria-pressed='true'] {
+	background: #dce6fb;
+	border-color: #9db4ea;
+	color: #1d3fae;
+}
+
+.xw-reset {
+	font-weight: 600;
+}
+
+/* keyboard reachability must stay visible */
+.xw-root :focus-visible {
+	outline: 2px solid #3b62d9;
+	outline-offset: 1px;
+}
+
+.xw-stageonly {
+	position: fixed;
+	inset: 0;
+}
+
+.xw-stageonly .xw-stage-area {
+	flex: 1;
+}
+
+.xw-stageonly-bar {
+	position: fixed;
+	bottom: 12px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 8px;
+	z-index: 40;
+	padding: 6px;
+	border-radius: 8px;
+	background: rgb(255 255 255 / 92%);
+	border: 1px solid #d8dbe0;
+	box-shadow: 0 2px 10px rgb(0 0 0 / 12%);
+}
+
+.xw-stage-error-marker {
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(
+		45deg,
+		transparent,
+		transparent 10px,
+		rgb(179 38 30 / 4%) 10px,
+		rgb(179 38 30 / 4%) 20px
+	);
+	pointer-events: none;
+}
+
+.xw-live {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* xplat-web-only:end */
+
+/* xplat-web-only:start */
+.xw-target-menu { position: relative; }
+.xw-target-menu summary { cursor: pointer; }
+.xw-target-menu ul {
+	position: absolute;
+	z-index: 10;
+	background: white;
+	border: 1px solid #d8dbe0;
+	padding: 12px 24px;
+	width: 220px;
+}
+.xw-environment { margin-bottom: 12px; }
+.xw-environment label { display: block; margin: 6px 0; }
+.xw-background-light { background: white; }
+.xw-background-dark { background: #202124; }
+/* xplat-web-only:end */
+
+/* xplat-web-only:start */
+.xw-unset { flex: none; }
+/* xplat-web-only:end */
