@@ -1,0 +1,115 @@
+// Ported from react-native-nano-icons (MIT, © Software Mansion) — see
+// packages/nano-icons/LICENSES.md for full attribution.
+import fs from 'node:fs'
+import path from 'node:path'
+
+import { forceTtfMetrics } from './metrics'
+import { writeFileAtomic } from '../config'
+import svg2ttf from 'svg2ttf'
+import { woff2 } from 'fonteditor-core'
+import { GLYPH_CODEPOINT, XML_AMP, XML_QUOT } from '../svgPatterns'
+import { SVG_NS } from '../flatten/dom'
+
+export type FontGlyph = {
+	codepoint: number
+	advanceWidth: number
+	/** Path data already in font coordinates (Y-up, placement applied). */
+	d: string
+}
+
+function escapeXml(s: string): string {
+	return s.replace(XML_AMP, '&amp;').replace(XML_QUOT, '&quot;')
+}
+
+/**
+ * Build an SVG font XML string from pre-transformed glyph data.
+ */
+function buildSvgFontXml(opts: {
+	fontName: string
+	glyphs: FontGlyph[]
+	upm: number
+	ascent: number
+	descent: number
+}): string {
+	const { fontName, glyphs, upm, ascent, descent } = opts
+
+	const glyphLines = glyphs.map((g) => {
+		const hex = g.codepoint.toString(16)
+		const name = `u${hex.padStart(4, '0')}`
+		return `<glyph glyph-name="${name}" unicode="&#x${hex};" horiz-adv-x="${g.advanceWidth}" d="${escapeXml(g.d)}"/>`
+	})
+
+	return `<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="${SVG_NS}">
+<defs>
+<font id="${escapeXml(fontName)}" horiz-adv-x="${upm}">
+<font-face font-family="${escapeXml(fontName)}" units-per-em="${upm}" ascent="${ascent}" descent="${-Math.abs(descent)}"/>
+<missing-glyph horiz-adv-x="0"/>
+${glyphLines.join('\n')}
+</font>
+</defs>
+</svg>`
+}
+
+export function parseCompileTtfFromGlyphsError(err: unknown, codepointToIcon: Map<number, string>) {
+	const msg = err instanceof Error ? err.message : String(err)
+	const cpMatch = msg.match(GLYPH_CODEPOINT)
+	if (cpMatch) {
+		const cp = parseInt(cpMatch[1]!, 16)
+		const iconName = codepointToIcon.get(cp)
+		const detail = iconName
+			? `icon "${iconName}" (codepoint u${cpMatch[1]})`
+			: `codepoint u${cpMatch[1]}`
+
+		throw new Error(`Font compilation failed for ${detail}: ${msg}`)
+	}
+
+	throw err
+}
+
+/**
+ * Compile a TTF font from pre-transformed glyph data.
+ * Builds SVG font XML directly (no intermediate files), then converts via svg2ttf.
+ */
+export async function compileTtfFromGlyphs(opts: {
+	glyphs: FontGlyph[]
+	outTtfPath: string
+	fontName: string
+	upm: number
+	ascent: number
+	descent: number
+	lineGap?: number
+}): Promise<Buffer> {
+	const { glyphs, outTtfPath, fontName, upm, ascent, descent } = opts
+	const lineGap = opts.lineGap ?? 0
+
+	if (glyphs.length === 0) {
+		throw new Error('No glyphs to compile')
+	}
+
+	const svgFontString = buildSvgFontXml({
+		fontName,
+		glyphs,
+		upm,
+		ascent,
+		descent,
+	})
+
+	const ttfRaw = svg2ttf(svgFontString, { ts: 0 })
+	const rawBuf = Buffer.from(ttfRaw.buffer)
+
+	const fixedBuf = forceTtfMetrics(rawBuf, upm, ascent, descent, lineGap)
+
+	fs.mkdirSync(path.dirname(outTtfPath), { recursive: true })
+	writeFileAtomic(outTtfPath, fixedBuf)
+	return fixedBuf
+}
+
+let woff2Ready: Promise<unknown> | undefined
+
+export async function compileWoff2FromTtf(ttfBuffer: Buffer): Promise<Buffer> {
+	woff2Ready ??= woff2.init()
+	await woff2Ready
+	return Buffer.from(woff2.encode(ttfBuffer))
+}

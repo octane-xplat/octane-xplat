@@ -1,67 +1,60 @@
 import { VStack, createStore, useStore } from '@octane-xplat/ui'
-import { addCollection } from '@octane-xplat/icons'
 import { NanoIcon } from '@octane-xplat/nano-icons'
 import type { ProbeContext } from '../../scripts/probe/context'
-import { iconFixture, otherIconFixture } from './icons-data'
-import { iconSnapshot, instancesShareMarkup } from './nano-icons-host'
+import { XplatProbeIcons, glyphMap } from './nano-icons-font/XplatProbe'
+import { glyphSnapshot, fontReady } from './nano-icons-host'
 
-const selection = createStore({ name: 'probe-icons:wide', color: '#123456', size: 24 })
-addCollection(iconFixture)
-addCollection(otherIconFixture)
+const selection = createStore({ name: 'dot', color: '#123456', size: 24 })
 
 export default function NanoIconsProbe() {
 	const current = useStore(selection)
 	return <VStack>
 		<NanoIcon id="nano-main" {...current} label="Direction" />
-		<NanoIcon id="nano-alias" name="probe-icons:turned" color="#123456" />
-		<NanoIcon id="nano-repeat-a" name="probe-icons:gradient" />
-		<NanoIcon id="nano-repeat-b" name="probe-icons:gradient" />
-		<NanoIcon id="nano-tint-a" name="probe-icons:wide" color="#aa0000" />
-		<NanoIcon id="nano-tint-b" name="probe-icons:wide" color="#00aa00" />
-		<NanoIcon id="nano-late" name="probe-late:new" />
+		<XplatProbeIcons.Icon id="nano-duo" name="bell" size={48} />
+		<NanoIcon id="nano-tint" name="frame" color="#aa0000" size={24} />
+		<NanoIcon id="nano-palette" name="bell" color={['#ff0000', '#00ff00']} tintMode="all" />
+		<NanoIcon id="nano-missing" name="nope" />
 	</VStack>
 }
 
 export async function run(ctx: ProbeContext) {
-	await ctx.waitFor(() => iconSnapshot(ctx.find('nano-main')).body.includes('#123456'))
-	const main = iconSnapshot(ctx.find('nano-main'))
-	ctx.assert('wide icon width', main.width, 48)
-	ctx.assert('icon height', main.height, 24)
+	// The set registered its font on creation; wait for the platform loader.
+	await XplatProbeIcons.ready
+	const ready = await fontReady(glyphMap.m.f)
+	ctx.assert('icon font registered', ready, 'ready')
+
+	// Glyph layers render as text in the generated family — private-use
+	// codepoints are inert to accessibility (container carries the label).
+	const main = glyphSnapshot(ctx.find('nano-main'))
+	ctx.assert('glyph container width', main.width, 24)
+	ctx.assert('glyph container height', main.height, 24)
 	ctx.assert('accessible label', main.label, 'Direction')
-	ctx.assert('labeled icon is accessible', main.decorative, false)
+	ctx.assert('layer count (single-color icon)', main.layers.length, 1)
+	ctx.assert('layer codepoint', main.layers[0]?.codePoint, glyphMap.i.dot[1][0][0])
+	ctx.assert('layer family', main.layers[0]?.fontFamily, glyphMap.m.f)
+	ctx.assert('layer tint', main.layers[0]?.color, 'rgb(18, 52, 86)')
 
-	const repeatA = iconSnapshot(ctx.find('nano-repeat-a')).body
-	const repeatB = iconSnapshot(ctx.find('nano-repeat-b')).body
-	if (instancesShareMarkup) {
-		ctx.assert('equal instances emit identical markup', repeatA === repeatB, true)
-	} else {
-		const first = repeatA.match(/id="(paint[^"]*)"/)?.[1]
-		const second = repeatB.match(/id="(paint[^"]*)"/)?.[1]
-		ctx.assert('gradient definition exists', typeof first, 'string')
-		ctx.assert('live DOM ids stay unique per instance', first !== second, true)
-	}
+	const duo = glyphSnapshot(ctx.find('nano-duo'))
+	ctx.assert('multicolor layer count', duo.layers.length, 2)
+	ctx.assert('duo layer 0 keeps source color', duo.layers[0]?.color, 'rgb(245, 158, 11)')
+	ctx.assert('duo layer 1 keeps source color', duo.layers[1]?.color, 'rgb(29, 78, 216)')
+	ctx.assert('duo width', duo.width, 48)
 
-	// Tint-only variants differ in markup but keep identical geometry.
-	const tintA = iconSnapshot(ctx.find('nano-tint-a'))
-	const tintB = iconSnapshot(ctx.find('nano-tint-b'))
-	ctx.assert('tint variants share width', tintA.width, tintB.width)
-	ctx.assert('tint variants share height', tintA.height, tintB.height)
-	ctx.assert('tint variants differ in markup', tintA.body !== tintB.body, true)
-	ctx.assert('tinted markup carries color', tintA.body.includes('#aa0000'), true)
+	const tint = glyphSnapshot(ctx.find('nano-tint'))
+	ctx.assert('currentColor layer tints', tint.layers[0]?.color, 'rgb(170, 0, 0)')
 
-	ctx.assert('missing icon has no host', !!ctx.find('nano-late'), false)
-	addCollection({ prefix: 'probe-late', icons: { new: { body: '<path d="M0 0h16v16z"/>' } } })
-	await ctx.waitFor(() => ctx.find('nano-late'))
-	ctx.assert('late registration mounts icon', !!ctx.find('nano-late'), true)
+	const palette = glyphSnapshot(ctx.find('nano-palette'))
+	ctx.assert('palette layer 0', palette.layers[0]?.color, 'rgb(255, 0, 0)')
+	ctx.assert('palette layer 1', palette.layers[1]?.color, 'rgb(0, 255, 0)')
 
-	selection.set({ name: 'probe-icons:turned', color: '#00ff00', size: 40 })
-	await ctx.waitFor(() => iconSnapshot(ctx.find('nano-main')).body.includes('#00ff00'))
-	ctx.assert('prop update width', iconSnapshot(ctx.find('nano-main')).width, 20)
-	ctx.assert('prop update height', iconSnapshot(ctx.find('nano-main')).height, 40)
+	ctx.assert('missing icon has no host', !!ctx.find('nano-missing'), false)
 
-	addCollection({ ...iconFixture, icons: { ...iconFixture.icons, wide: { body: '<path fill="currentColor" d="M1 1h30v14H1z"/>' } } })
-	await ctx.waitFor(() => iconSnapshot(ctx.find('nano-main')).body.includes('M1 1h30'))
-	ctx.assert('replacement updates retained child', iconSnapshot(ctx.find('nano-alias')).body.includes('M1 1h30'), true)
+	// Prop updates re-resolve color/size without rebuilding the font.
+	selection.set({ name: 'dot', color: '#00ff00', size: 40 })
+	await ctx.waitFor(() => glyphSnapshot(ctx.find('nano-main')).layers[0]?.color === 'rgb(0, 255, 0)')
+	ctx.assert('updated width', glyphSnapshot(ctx.find('nano-main')).width, 40)
+	ctx.assert('updated height', glyphSnapshot(ctx.find('nano-main')).height, 40)
+
 	ctx.record('host geometry', ctx.inspect('nano-main'))
-	ctx.record('evidence boundary', 'SVG host/source and updates; no visual drawing or OS accessibility traversal claim')
+	ctx.record('evidence boundary', 'font registration + label/span structure + tint resolution; no glyph pixel or raster claim')
 }

@@ -1,31 +1,59 @@
-import type { IconOptions, IconProps, IconSvg } from '@octane-xplat/icons'
+import type { TintMode } from './glyphmap'
+import type { NanoIconSet } from './set'
 
 /**
- * Shared icon inputs that produce one prepared geometry. `color` is excluded:
- * tint is a materialization-time input, so instances that differ only in color
- * share the same prepared body.
+ * Props for `NanoIcon` / a set's bound `Icon`. Same contract as
+ * `@octane-xplat/icons`' `Icon` plus font-pipeline specifics: `name` is an
+ * icon in a generated set (optionally `family:icon`), `color` tints layers,
+ * `tintMode` selects which layers are tinted.
  */
-export type NanoIconOptions = Omit<IconOptions, 'color'>
-
-/** Props for `NanoIcon` — the same contract as `@octane-xplat/icons`' `Icon`. */
-export type NanoIconProps = IconProps
-
-/** Materialization-time input: the concrete tint for `currentColor` slots. */
-export interface NanoIconTint {
-	color?: string
+export interface NanoIconProps {
+	/** Icon name in the set — bare name or `family:icon` for unbound `NanoIcon`. */
+	name: string
+	/** Rendered size in logical px; the glyph's em maps to this height. Default 24. */
+	size?: number
+	/** Tint for layers — a color, or a per-layer palette. Which layers it applies to depends on `tintMode`. */
+	color?: string | string[]
+	/** `'all'` tints every layer; `'currentColor'` (default) only tints `currentColor` layers. */
+	tintMode?: TintMode
+	/** Quarter turns, same as the Iconify `rotate` customization (0–3 → ×90°). */
+	rotate?: number
+	hFlip?: boolean
+	vFlip?: boolean
+	/** Accessible label; omit for decorative icons. */
+	label?: string
+	id?: string
+	className?: any
+	style?: any
+	/** Explicit icon set; when omitted, `NanoIcon` resolves `name` across registered sets. */
+	set?: NanoIconSet
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
 }
 
-/**
- * Immutable prepared icon. `body` is the normalized SVG fragment with the
- * artwork's own definition IDs and literal `currentColor` tint slots retained;
- * `viewBox`/`width`/`height` are the resolved logical-pixel geometry. Prepared
- * values are shared across instances — never mutate them.
- */
-export interface PreparedNanoIcon {
-	readonly body: string
-	readonly viewBox: string
-	readonly width: number
-	readonly height: number
+/** A set-bound `Icon` takes the same props with names typed to the set. */
+export type NanoIconSetProps<Name extends string = string> = Omit<NanoIconProps, 'name' | 'set'> & {
+	name: Name
 }
 
-export type { IconSvg }
+/** Font asset descriptor for `createNanoIconSet` / `registerNanoIconFont`. */
+export interface NanoFontSource {
+	/**
+	 * iOS/Android: file name inside the app's `fonts` directory — must equal
+	 * `<family>.ttf` (NativeScript resolves custom fonts by file name).
+	 * Defaults to `<family>.ttf`.
+	 */
+	fileName?: string
+	/** Web: URL (or `data:` URI) of the `.woff2`/`.ttf`, registered through `FontFace`. */
+	url?: string
+	/**
+	 * Raw font bytes (e.g. a bundled ArrayBuffer), or a base64 string payload —
+	 * portable across JS hosts that can't produce typed arrays from assets.
+	 */
+	data?: ArrayBuffer | Uint8Array | string
+	/** macOS: filesystem path to the `.ttf` file. */
+	path?: string
+}
+
+export type NanoFontStatus = 'ready' | 'missing' | 'unavailable'

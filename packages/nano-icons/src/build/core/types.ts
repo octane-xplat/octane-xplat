@@ -1,0 +1,54 @@
+// Ported from react-native-nano-icons (MIT, © Software Mansion) — see
+// packages/nano-icons/LICENSES.md for full attribution.
+export type NanoLogger = {
+	start: (msg: string) => void
+	update: (msg: string) => void
+	succeed: (msg: string) => void
+	fail: (msg: string) => void
+	/** Only printed when level is 'verbose'. */
+	info: (msg: string) => void
+	warn: (msg: string) => void
+}
+
+export type GlyphLayer = [codepoint: number, color: string]
+export type GlyphEntry = [adv: number, layers: GlyphLayer[]]
+export type IconsMap = Record<string, GlyphEntry>
+
+/**
+ * m - metadata,
+ *   f - font family,
+ *   u - units per em,
+ *   z - safe zone,
+ *   s - start unicode,
+ *   h - hash,
+ *   l - linking mode: 's' (static, bundled — default when absent) or 'd' (dynamic, OTA-delivered),
+ *   w - web output: true when a .woff2 was built alongside the .ttf (absent otherwise),
+ * i - icons,
+ *   adv - advance width,
+ */
+export type NanoGlyphMap = {
+	m: {
+		f: string
+		u: number
+		z: number
+		s: number
+		h?: string
+		l?: 's' | 'd'
+		w?: true
+	}
+	i: IconsMap
+}
+
+/** Accepts JSON-inferred types where arrays aren't tuples. */
+export type NanoGlyphMapInput = {
+	m: {
+		f: string
+		u: number
+		z: number
+		s: number
+		h?: string
+		l?: 's' | 'd' | (string & {})
+		w?: boolean
+	}
+	i: Record<string, readonly unknown[]>
+}

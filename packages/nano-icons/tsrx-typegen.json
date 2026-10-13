@@ -7,11 +7,33 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": ["./dist/web/index.js", "./dist/native/index.js", "./dist/macos/index.js"],
+					"runtime": [
+						"./dist/web/index.js",
+						"./dist/native/index.js",
+						"./dist/macos/index.js"
+					],
 					"types": [
 						"./types/generated/index.d.ts",
 						"./types/generated/index.web.d.ts",
 						"./types/generated/index.macos.d.ts"
+					]
+				},
+				"./build": {
+					"source": "src/build/index.ts",
+					"runtime": [
+						"./dist/build/index.js"
+					],
+					"types": [
+						"./types/generated/build/index.d.ts"
+					]
+				},
+				"./build/cli": {
+					"source": "src/build/cli.ts",
+					"runtime": [
+						"./dist/build/cli.js"
+					],
+					"types": [
+						"./types/generated/build/cli.d.ts"
 					]
 				}
 			}

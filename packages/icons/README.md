@@ -80,8 +80,9 @@ dimensions and alias transforms, or `undefined` for a missing/invalid name.
 `Icon` renders nothing in that case. Alias cycles and missing parents also resolve
 to nothing. No network request is made. The registration store is exported as
 `iconRegistry` (`get`/`subscribe`) for leaf packages that build subscribed
-renderers — `@octane-xplat/nano-icons` uses it for its shared-preparation
-`NanoIcon`.
+renderers. `@octane-xplat/nano-icons` covers the other end of the spectrum:
+fixed icon sets compiled ahead of time into glyph fonts, rendered as stacked
+text layers — reach for it on screens that repeat icons.
 
 ```ts
 import { resolveIcon } from '@octane-xplat/icons'

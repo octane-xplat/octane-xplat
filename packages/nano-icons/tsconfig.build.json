@@ -1,0 +1,21 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"module": "esnext",
+		"target": "ES2022",
+		"moduleResolution": "bundler",
+		"types": [
+			"node"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"strict": true,
+		"noEmit": true
+	},
+	"files": [
+		"src/build/index.ts",
+		"src/build/cli.ts",
+		"src/build/externals.d.ts"
+	]
+}

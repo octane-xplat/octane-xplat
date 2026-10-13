@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, readdir, realpath, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 export const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
@@ -280,6 +280,18 @@ export async function prepare(target, caseFile, extra = [], resources) {
 			join(root, 'vite.host.config.mts'),
 			`import { defineConfig } from 'vite'\nimport { xplatNative } from '@octane-xplat/cli/vite'\nimport { scratchResolver } from ${JSON.stringify(join(directory, 'project.mjs'))}\nexport default defineConfig(({mode}) => xplatNative(mode, {rules: [{include: '**/*.{tsx,tsrx}', renderer: 'nativescript'}], extra: {plugins: [scratchResolver(${JSON.stringify(root)})]}}))\n`,
 		)
+
+		// `<case>.fonts/` beside the case file is installed into the app's
+		// `app/fonts` — NativeScript resolves custom font families there
+		// (iOS registers at startup; Android by `<family>.ttf` file name).
+		const caseFonts = join(
+			dirname(caseFile),
+			basename(caseFile).replace(/\.[cm]?[jt]sx?/, '') + '.fonts',
+		)
+
+		if (existsSync(caseFonts)) {
+			await cp(caseFonts, join(root, 'src', 'fonts'), { recursive: true })
+		}
 	}
 
 	return { root, identity, appId, deps, stamp, resourceRoot }

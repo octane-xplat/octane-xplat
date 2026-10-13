@@ -1,14 +1,26 @@
-/** Inspect the actual inline SVG host without screenshots. */
-export function iconSnapshot(view: any) {
+/** DOM-side inspection: one absolutely-positioned glyph span per color layer. */
+export function glyphSnapshot(view: any) {
+	const layers = [...(view?.children ?? [])]
+		.filter((child: any) => child?.tagName === 'SPAN')
+		.map((child: any) => ({
+			codePoint: child.textContent?.codePointAt(0),
+			fontFamily: child.style?.fontFamily?.replace(/^"|"$/g, ''),
+			color: child.style?.color,
+		}))
 	return {
-		body: view?.outerHTML ?? '',
-		width: Number(view?.getAttribute('width')),
-		height: Number(view?.getAttribute('height')),
-		label: view?.getAttribute('aria-label'),
-		decorative: view?.getAttribute('aria-hidden') === 'true',
+		layers,
+		label: view?.getAttribute?.('aria-label'),
+		width: view?.getBoundingClientRect?.().width,
+		height: view?.getBoundingClientRect?.().height,
 	}
 }
 
-// Inline SVG shares the page's id space, so live instances still receive
-// unique definition IDs — markup differs between equal instances on web.
-export const instancesShareMarkup = false
+/** Verify the family through the document's FontFace registry. */
+export async function fontReady(family: string) {
+	try {
+		await document.fonts.ready
+		return document.fonts.check(`12px "${family}"`) ? 'ready' : 'missing'
+	} catch {
+		return 'unavailable'
+	}
+}

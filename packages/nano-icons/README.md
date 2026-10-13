@@ -1,147 +1,208 @@
 # @octane-xplat/nano-icons
 
-Render bundled Iconify icons on web, iOS, Android, and experimental AppKit macOS with shared
-preparation: equal icon instances reuse one normalized SVG body instead of converting per
-instance. Same artwork, same SVG engines, and same props as
-[`@octane-xplat/icons`](../icons) — reach for this package when a screen repeats icons, such
-as list rows or toolbars.
-
-The approach is adapted from the official
+Compile icon sets to a real font — one glyph per color layer — and render them on web,
+iOS, Android, and experimental AppKit macOS with stacked font-glyph spans/labels. The
+pipeline and runtime model are adapted from
 [react-native-nano-icons](https://github.com/software-mansion-labs/react-native-nano-icons)
-strategy: prepare immutable geometry once, apply tint at materialization time, and keep
-retained data bounded. Octane keeps its existing SVG renderers — this package is a caching
-adapter, not a font renderer; see [Upstream credit](#upstream-credit).
+(MIT, © Software Mansion): a build turns SVG files into a hashed `.ttf` (plus `.woff2` for
+web), a typed glyph map, and a bound icon component — at runtime there is no SVG parsing,
+just text drawing. See [Licenses and upstream credit](#licenses-and-upstream-credit).
 
-## Install and use
+Reach for this package when a screen repeats icons and the artwork is a static, flat
+shape set — the font wins on repeated-instance cost and multicolor layering. For
+arbitrary SVG fidelity (gradients, filters, `<defs>` paint servers) keep using
+[`@octane-xplat/icons`](../icons).
 
-In an Octane-xplat app with `@octane-xplat/ui` already configured:
+## Quick start
+
+Generate a font set from a directory of SVGs:
 
 ```sh
-pnpm add @octane-xplat/nano-icons @octane-xplat/icons @iconify-json/heroicons
+pnpm add @octane-xplat/nano-icons
+
+# writes src/icons-font/MyIcons.ttf/.woff2/.glyphmap.json/MyIcons.ts
+pnpm exec nano-icons build --input assets/icons --out src/icons-font --family MyIcons --web
 ```
 
-Collections register through `@octane-xplat/icons` — `NanoIcon` reads the same registry, so
-both components can share one registered set:
+Every artifact is content-hashed into the family (`MyIcons-<hash>`), so regenerated sets
+never collide with a stale file. The generated `.ts` module registers the set on import —
+drop it into your app and use its bound component or the unbound `NanoIcon`:
 
 ```tsx
-import { icons as heroicons } from '@iconify-json/heroicons'
-import { addCollection } from '@octane-xplat/icons'
-import { NanoIcon } from '@octane-xplat/nano-icons'
-
-addCollection(heroicons)
+import { MyIcons, NanoIcon as MyIcon } from './icons-font/MyIcons'
 
 export function NextAction() {
-	return <NanoIcon name="heroicons:arrow-right" size={24} color="#2563eb" label="Next" />
-}
-```
-
-`NanoIcon` takes the same props as `Icon` (`name`, `size`, `color`, `rotate`, `hFlip`,
-`vFlip`, `id`, `className`, `label`), renders nothing for missing names, and updates in
-place when a collection is re-registered:
-
-```tsx
-import { NanoIcon } from '@octane-xplat/nano-icons'
-
-export function Direction() {
-	return <NanoIcon name="heroicons:arrow-right" color="#2563eb" rotate={1} hFlip label="Continue" />
-}
-```
-
-Registration updates flow through the `iconRegistry` store exported by
-`@octane-xplat/icons`; mounted `NanoIcon`s subscribe to it exactly like `Icon` does.
-
-## How it differs from `Icon`
-
-`Icon` runs the full Iconify-to-SVG conversion for every component instance. `NanoIcon`
-splits that work in two:
-
-- `prepareNanoIcon(icon, options)` normalizes the icon body once per
-  `(icon data, size, rotate, hFlip, vFlip)` and caches it. The result is a frozen
-  `PreparedNanoIcon` — body, `viewBox`, and logical `width`/`height` — shared by every
-  instance with equal inputs.
-- `materializeNanoIcon(prepared, { color })` applies the tint. It is cheap: a string pass
-  over the shared body, so color-only changes never re-run geometry normalization.
-
-```ts
-import { resolveIcon } from '@octane-xplat/icons'
-import { prepareNanoIcon, materializeNanoIcon } from '@octane-xplat/nano-icons'
-
-const icon = resolveIcon('heroicons:arrow-right')
-if (icon) {
-	const prepared = prepareNanoIcon(icon, { size: 24 })
-	const svg = materializeNanoIcon(prepared, { color: '#2563eb' })
-	console.log(svg.viewBox, svg.width, svg.height, svg.markup)
-}
-```
-
-Cache identity is the resolved icon object plus the geometry options; when
-`addCollection` replaces a set, `@octane-xplat/icons` drops its resolved objects and the
-prepared entries release with them. Retention is bounded per icon, so many sizes or
-rotations of one icon cannot grow memory without limit.
-
-Web and native disagree on one detail deliberately. Inline web SVG shares the page's id
-space, so each live `NanoIcon` instance still rewrites definition IDs to unique values —
-the same contract as `iconToSvg`. Native icons render as standalone documents, where ids
-cannot collide, so markup keeps the artwork's ids and equal instances emit byte-identical
-markup — letting source-keyed host caches (for example the AppKit decoded-image cache in
-`@octane-xplat/macos-renderer`) dedupe work across repeats.
-
-```tsx
-import { NanoIcon } from '@octane-xplat/nano-icons'
-
-// Both rows render the same prepared body. On native they also share markup.
-export function Row() {
 	return (
 		<>
-			<NanoIcon name="heroicons:check" size={20} color="#16a34a" />
-			<NanoIcon name="heroicons:check" size={20} color="#16a34a" />
+			<MyIcon name="arrow-right" size={24} color="#2563eb" label="Next" />
+			<MyIcons.Icon name="check" size={20} />
 		</>
 	)
 }
 ```
 
-## Boundaries
+Or keep using the registry-resolving component — after any `createNanoIconSet` ran,
+`NanoIcon` finds names across registered sets:
 
-Rendering still goes through Octane's existing SVG engines — inline `<svg>` on web, the
-vendored ui-svg SVGView on iOS/Android, `NSImage` on AppKit — so feature support, artwork,
-and known limits are identical to `@octane-xplat/icons`, including the SVG subset those
-engines degrade on. Labels and decorative handling follow the same contract. This package
-adds caching; it is not a speed guarantee and makes no measured-performance claim. For
-single-use icons, `Icon` remains a fine default — `NanoIcon`'s benefit appears with
-repetition.
+```tsx
+import { NanoIcon } from '@octane-xplat/nano-icons'
+import './icons-font/MyIcons' // registers on import
 
-`prepareNanoIcon` throws `RangeError` for non-positive or non-finite `size`, matching
-`iconToSvg`. Both helpers are DOM-free and safe to import during SSR; the `NanoIcon`
-component modules resolve their renderer only through the platform condition lanes.
+export function Row() {
+	return <NanoIcon name="bell" size={24} />
+}
+```
 
-## Licenses and upstream credit
+## Wiring the font file per platform
 
-This package is MIT, like the rest of Octane Xplat, and is an independent implementation:
-no upstream code is vendored. The design borrows from
-[react-native-nano-icons](https://github.com/software-mansion-labs/react-native-nano-icons)
-by Software Mansion — specifically its prepare-once/share-geometry, separate-tint, and
-bounded-cache strategy — while deliberately skipping its TTF font pipeline and React
-Native host views, which do not fit Octane's renderer model.
+`createNanoIconSet(glyphMap, { font })` takes a `NanoFontSource`; the generated module
+fills in the defaults so the common path needs no extra work:
 
-- Upstream license: [MIT, © 2026 Software Mansion](https://github.com/software-mansion-labs/react-native-nano-icons/blob/main/LICENSE)
-- Upstream third-party notices (picosvg Apache-2.0 © Google, PathKit BSD-3-Clause): [LICENSES.md](https://github.com/software-mansion-labs/react-native-nano-icons/blob/main/packages/react-native-nano-icons/LICENSES.md)
+| Platform | Source used | What you must do |
+| -------- | ----------- | ---------------- |
+| Web      | `font.url` (→ `FontFace`) | Nothing if you import the generated `.ts` — the `.woff2` beside it is loaded lazily. |
+| iOS      | `font.fileName` | Copy `<family>.ttf` into your app's `app/fonts` (the CLI's `--app-fonts` writes it there). iOS registers it at startup. |
+| Android  | `font.fileName` | Same `app/fonts` copy — Android resolves `app/fonts/<family>.ttf`. The TTF must ship with the app; there is no runtime injection hook. |
+| macOS    | `font.path` or `font.data` | Register bytes or a file path — `registerNanoIconFont` runs `CTFontManagerCreateFontDescriptorsFromURL` + `registerFontFamily`. |
 
-Icon sets retain their own licenses, exactly as with `@octane-xplat/icons`; check each
-set's `info.json` and license files before bundling.
+Web apps that already emit their own `@font-face` can omit `font` entirely —
+`registerNanoIconFont` checks `document.fonts` first and resolves `'ready'`.
+`set.ready` is a `Promise<'ready' | 'missing' | 'unavailable'>` you can await (tests) or
+surface in error reporting; a missing font still renders the container so failures stay
+visible without crashing the tree.
 
-## Verification and example
+## Input sources
 
-The maintained [probe](../../examples/probes/nano-icons.tsrx) exercises repeated
-instances, tint variants, missing names, registration updates, and prop updates; the
-[AppKit probe](../../examples/probes/nano-icons.macos.tsrx) covers the macOS host:
+`buildNanoIconFont` accepts a directory (`inputDir`), explicit `{ name, svg }` inputs, or
+an Iconify collection — names become `<prefix>:<name>`, matching `Icon`/`NanoIcon` naming:
+
+```ts
+import { buildNanoIconFont, iconifyCollectionToSvgs } from '@octane-xplat/nano-icons/build'
+import heroicons from '@iconify-json/heroicons/icons.json' with { type: 'json' }
+
+await buildNanoIconFont({
+	inputs: iconifyCollectionToSvgs(heroicons),
+	outputDir: 'src/icons-font',
+	fontFamily: 'HeroIcons',
+	web: true,
+})
+```
+
+For several sets or repeatable builds, put `.nanoicons.json` at the package root and run
+`nano-icons build` with no flags:
+
+```json
+{ "iconSets": [{ "inputDir": "assets/icons", "fontFamily": "MyIcons", "outputDir": "src/icons-font", "appFontsDir": "app/fonts" }] }
+```
+
+## Colors and sizing
+
+A glyph's layers stack in one layout cell: each entry in
+`name → [advanceWidth, [[codepoint, sourceColor], ...]]` becomes one text element in the
+family, drawn top-to-bottom in source order. `color` tints by `tintMode`:
+
+```tsx
+<MyIcon name="bell" color="#e11d48" />                       // tintMode 'currentColor' (default):
+															// only currentColor layers tint
+<MyIcon name="bell" color="#e11d48" tintMode="all" />        // every layer tinted
+<MyIcon name="bell" color={['#f59e0b', '#1d4ed8']}           // palette applies per
+	tintMode="all" />                                        // tintable-layer position
+```
+
+Without `color`, source fills render as authored; `currentColor` layers fall back to the
+platform text color. `size` sets height; width is `advanceWidth / unitsPerEm × size` (a
+wide icon stays wide). `rotate`, `hFlip`, `vFlip` transform the stacked container, not the
+glyphs — the font is never re-generated for orientation variants.
+
+```tsx
+<NanoIcon name="check" size={20} rotate={1} hFlip label="Done" />
+```
+
+## Unsupported SVG input
+
+Only solid-color painted vector geometry survives font compilation. The build is strict —
+rather than silently rasterizing or dropping artwork it fails or skips with a reason:
+
+- **Rejected (build fails, file named):** paint-server fills/strokes (`url(#…)` —
+  gradients, patterns), malformed path data.
+- **Skipped (warned):** `<mask>`, `<filter>`, `<image>`, empty or fully transparent
+  layers, missing viewBox/geometry.
+- **Flattened in:** transforms and `rotate()`/`scale()`/`translate()`, `<use>`,
+  `<symbol>`, clipping, `stroke` → outline conversion, `fill-rule="evenodd"` holes
+  (converted to nonzero winding), opacity folded into the layer color.
+
+If your set needs gradients or filters, keep those icons in `@octane-xplat/icons` and use
+`Icon` for them — the packages coexist.
+
+## Migration from the SVG adapter
+
+The previous `@octane-xplat/nano-icons` was a caching wrapper over SVG rendering. If you
+used `NanoIcon` with `addCollection` names:
+
+- Names and props survive. `NanoIcon` still takes `name`, `size`, `color`, `rotate`,
+  `hFlip`/`vFlip`, `id`, `className`, `label`, and the per-platform bags — but `name` is
+  now resolved against generated font sets, not Iconify collections. Run the build over
+  the same SVGs and update names if you change the namespace (Iconify sources keep their
+  `prefix:name` shape).
+- `color` now accepts `string | string[]` and there's a new `tintMode`; single-color
+  strings tint exactly as before.
+- `prepareNanoIcon`/`materializeNanoIcon`/`PreparedNanoIcon`/`IconSvg` are gone —
+  geometry is baked into the font, so there is nothing to cache per-instance. The
+  `@octane-xplat/icons` `addCollection`/`resolveIcon` registry is no longer consulted.
+- The TTF/WOFF2 and glyph map are generated assets — commit them like other generated
+  sources, and copy the TTF into `app/fonts` for iOS/Android.
+
+## Programmatic API
+
+```ts
+import {
+	buildNanoIconFont,           // Node: run the pipeline
+	iconifyCollectionToSvgs,     // Node: Iconify collection → svg inputs
+	type NanoIconFontOptions,    // inputDir/inputs, outputDir, fontFamily, web, appFontsDir…
+} from '@octane-xplat/nano-icons/build'
+import {
+	NanoIcon,                    // registry-resolving component
+	createNanoIconSet,           // bind a glyph map (+ font source) to a set
+	registerNanoIconFont,        // platform registration primitive
+	resolveNanoIcon,             // name → { set, entry } lookup
+	type NanoIconProps, NanoIconSet, NanoGlyphMap, NanoFontSource,
+} from '@octane-xplat/nano-icons'
+```
+
+The `./build` subpath is Node-only and kept out of runtime bundles; the platform entries
+contain no Node code. `NanoIcon`'s props contract is unchanged on the shared surface; the
+platform bags (`ios`, `android`, `macos`, `web`) still reach the underlying host view.
+
+## Verification
+
+Package checks:
+
+```sh
+pnpm --filter @octane-xplat/nano-icons build
+pnpm --filter @octane-xplat/nano-icons typecheck
+pnpm --filter @octane-xplat/nano-icons test
+pnpm --filter @octane-xplat/nano-icons pack:check
+```
+
+Maintained probes (nonvisual: font registration, layer structure, sizing, tint):
 
 ```sh
 pnpm probe doctor
-pnpm probe run examples/probes/nano-icons.tsrx --target web --deps @octane-xplat/icons,@octane-xplat/nano-icons
-pnpm probe run examples/probes/nano-icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons,@octane-xplat/nano-icons
-pnpm probe run examples/probes/nano-icons.macos.tsrx --target macos --deps @octane-xplat/icons,@octane-xplat/nano-icons
+pnpm probe run examples/probes/nano-icons.tsrx --target web --deps @octane-xplat/nano-icons
+pnpm probe run examples/probes/nano-icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/nano-icons
+pnpm probe run examples/probes/nano-icons.macos.tsrx --target macos --deps @octane-xplat/nano-icons
 ```
 
-For package checks, run `pnpm --filter @octane-xplat/nano-icons build`, `typecheck`,
-`test`, and `pack:check`. Host/source assertions are not pixel parity or OS accessibility
-traversal evidence; run the probe on each target you ship.
+Host/source assertions are not pixel parity or OS accessibility traversal evidence — run
+the probe on every target you ship.
+
+## Licenses and upstream credit
+
+This package is MIT, like the rest of Octane Xplat. The geometry pipeline in
+`src/build/core` and the glyph-map/runtime model are ported or adapted from
+[react-native-nano-icons](https://github.com/software-mansion-labs/react-native-nano-icons)
+@ `3ffd367` — MIT, © Software Mansion. Third-party engine dependencies carry their own
+licenses; see [LICENSES.md](./LICENSES.md) for the full attribution text.
+
+Icon sets retain their own licenses exactly as with `@octane-xplat/icons`; check each
+set's `info.json` and license files before bundling.

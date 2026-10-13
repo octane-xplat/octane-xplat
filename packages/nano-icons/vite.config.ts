@@ -39,7 +39,37 @@ const WEB_EXTS = [
 export default defineConfig(({ mode }) => {
 	const macos = mode === 'macos'
 	const native = mode === 'native'
+	const node = mode === 'node'
 	const platformNative = native || macos
+
+	if (node) {
+		// Node-only font pipeline (`./build` subpath): plain library build, no
+		// octane plugin — engine deps stay external so consumers run the real
+		// packages.
+		return {
+			build: {
+				lib: {
+					entry: ['src/build/index.ts', 'src/build/cli.ts'],
+					formats: ['es'],
+				},
+				outDir: 'dist/build',
+				emptyOutDir: true,
+				minify: false,
+				rollupOptions: {
+					external: [
+						/^node:/,
+						/^@iconify\//,
+						'@xmldom/xmldom',
+						'cubic2quad',
+						'fonteditor-core',
+						'pathkit-wasm',
+						'svg2ttf',
+					],
+				},
+			},
+		}
+	}
+
 	return {
 		plugins: octane({
 			renderers: platformNative
