@@ -1,0 +1,44 @@
+# Retained Linux GTK evidence audit
+
+This contributor diagnostic reproduces the evidence gaps in the archived
+Rosemary proof reviewed by Rory. It supports repair of plan item 3; it does
+not implement a GTK backend or decide the independent item-4 gate.
+
+Run it from the repository root against the original JSONL files retained in
+Boss deliverable `21b03833-bda7-4b30-b053-65f5d7cfdb93`. The example assumes
+you placed a read-only copy of those files in `research/linux-gtk-proof/evidence/`:
+
+```sh
+node scripts/probe/linux-gtk-evidence.mjs \
+  research/linux-gtk-proof/evidence/run16-proof-log.jsonl \
+  research/linux-gtk-proof/evidence/run16-orchestrator.jsonl
+```
+
+Exit 1 and `status: "insufficient-evidence"` are expected for the retained
+runs. Exit 2 means the inputs could not be read or parsed. There is no exit-0
+certification path. The gap list includes source-review findings specific to
+the archived proof; do not apply this tool to a strengthened proof as its
+acceptance validator. A new run needs its own raw evidence and independent
+review against the approved plan and original item-1 contract.
+
+The tool reads the historical nested `kind` payload, reports sample counts
+and recomputes p95 from the recorded values. Idle and resize arrays are rounded
+in those logs, so their reported p95 is also rounded. It retains the known
+16 ms idle, 100 ms resize-signal/reorder and [40,200] ms timer bounds and the
+100-sample minimum; these figures do not replace the original contract.
+Aggregate lifecycle counts and process exit 0 cannot establish a passing gate.
+
+The parser tests cover malformed evidence, insufficient samples, duplicate
+phases and rejection despite a successful process exit. They run on the host
+without GTK, a VM, screenshots or input injection:
+
+```sh
+node --test scripts/probe/linux-gtk-evidence.test.mjs
+```
+
+Proof repairs must preserve the original evidence and selection-settle/echo
+fixes. New evidence must include paired monotonic timings, direct scheduling
+and stable-identity assertions, per-cycle lifetime ledgers, selection
+interruption cases and retained cause/process/bounded-shutdown results for
+deliberate load, handler and scheduled-work failures. A different employee
+must review it before native implementation begins.
