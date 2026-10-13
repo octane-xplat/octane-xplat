@@ -54,10 +54,10 @@
 			"types": "./src/testing.mobile.ts",
 			"native": "./src/testing.mobile.ts"
 		},
+		"./dev-actions": "./src/dev-actions.ts",
 		"./*": "./src/*"
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"macos": {
@@ -91,6 +91,12 @@
 			"./testing": {
 				"types": "./src/testing.mobile.ts",
 				"native": "./dist/native/testing.mobile.js"
+			},
+			"./dev-actions": {
+				"types": "./src/dev-actions.ts",
+				"linux": "./dist/linux/dev-actions.js",
+				"web": "./dist/web/dev-actions.js",
+				"default": "./dist/native/dev-actions.js"
 			},
 			"./*": {
 				"linux": {
@@ -133,7 +139,8 @@
 				"types": "./src/*.linux.ts",
 				"default": "./dist/linux/*.linux.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"test": "node --test tests/*.test.mjs",
@@ -147,9 +154,9 @@
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
 		"@nativescript/unit-test-runner": "5.0.0",
+		"@octanejs/vite-plugin": "0.1.61",
 		"octane": "0.11.0",
 		"typescript": "5.9.3",
-		"@octanejs/vite-plugin": "0.1.61",
 		"vite": "8.3.0",
 		"vitest": "4.1.11"
 	},

@@ -11,6 +11,7 @@ import { PERMISSION_SCOPES } from './contracts/policy.mjs'
 import { discoverWorkspace } from './discovery.mjs'
 import { registerRuntimeTools } from './runtime/tools.mjs'
 import { registerDocsTools } from './docs.mjs'
+import { registerInspectionTools } from './inspection/service.mjs'
 import {
 	bindApp,
 	buildProjectStatus,
@@ -541,6 +542,7 @@ export function createXplatMcpServer(context) {
 
 	registerRuntimeTools(server, context, respond)
 	registerDocsTools(server, context, respond)
+	registerInspectionTools(server, context, respond)
 
 	return {
 		server,

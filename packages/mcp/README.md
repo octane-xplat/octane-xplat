@@ -181,6 +181,115 @@ Physical iOS devices, Windows attach detection, and non-simulator iOS log
 taps are reported limitations, not silent gaps — the capability matrix
 carries the detail and an alternative.
 
+## Inspect and interact with Chromium
+
+This development package adds `xplat_inspect`, `xplat_interact`, and
+`xplat_screenshot` for the Chromium browser started by `xplat_launch`.
+Select a DOM `id` or shared `testID` explicitly; duplicate names fail.
+Inspection returns bounded text/value/geometry, a document identity, and
+session/build provenance. Main-document DOM hosts are the qualified surface;
+shadow roots, frames, component ownership and signals are excluded.
+
+```json
+{
+	"name": "xplat_inspect",
+	"arguments": {
+		"sessionId": "SESSION_FROM_LAUNCH",
+		"control": { "kind": "testID", "name": "counter.increment" }
+	}
+}
+```
+
+Pass the returned `documentId` when interacting. A `dom-event` interaction
+clicks the control center through CDP. `os-input` sends Space or Enter through
+the macOS event system to the owned headed Chromium process. It requires
+Swift, OS event-posting permission, and a desktop-input reservation. The
+server does not open permission prompts. Inspect the resulting app state
+separately; sending input alone is not an assertion.
+
+```json
+{
+	"name": "xplat_interact",
+	"arguments": {
+		"sessionId": "SESSION_FROM_LAUNCH",
+		"documentId": "DOCUMENT_FROM_INSPECTION",
+		"control": { "kind": "testID", "name": "counter.increment" },
+		"mechanism": "os-input",
+		"key": "Space"
+	}
+}
+```
+
+Screenshot requests require an explicit current-task `visual-capture` grant
+before connecting or sending a capture command. No grant means no capture.
+Password fields, hidden inputs and hosts marked `data-xplat-private` are
+redacted in nonvisual inspection; this does not guarantee complete redaction
+of arbitrary application data.
+
+```json
+{ "name": "xplat_screenshot", "arguments": { "sessionId": "SESSION_FROM_LAUNCH" } }
+```
+
+## Run the consumer acceptance lane
+
+Use a fresh directory outside your existing app. These commands scaffold the
+normal web starter and add one app-owned development action. Framework
+packages link to this checkout because MCP is still private; other dependencies
+install normally. The runner checks docs and current code, build/readiness,
+the counter's `0 → 1` transition, action discovery/invocation, screenshot
+denial, logs, and owned browser/server/profile cleanup. It also checks that
+the fixture declaration and handler are absent from production artifacts.
+
+```sh
+node packages/mcp/tests/prepare-consumer.mjs /tmp/new-xplat-mcp-app
+pnpm --dir /tmp/new-xplat-mcp-app install
+node packages/mcp/tests/consumer-workflow.mjs /tmp/new-xplat-mcp-app
+```
+
+The default run supplies browser-event evidence. On macOS, reserve the full
+resource set and add `--os-input` for a headed Chromium OS keyboard journey.
+Only the owned browser receives the events; the helper attempts to restore the
+previously active application and reports when restoration is unconfirmed.
+The runner captures no images.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"MCP consumer OS keyboard acceptance"}' -- node packages/mcp/tests/consumer-workflow.mjs /tmp/new-xplat-mcp-app --os-input
+```
+
+For an existing consumer, declare actions behind the development build gate.
+Registration automatically starts the bridge when the dev-server endpoint is
+present. The action's contracts and effects appear in `xplat_dev_actions`;
+no action-specific MCP tool definition is needed.
+
+```ts
+if (import.meta.env.DEV) {
+	const { registerDevAction } = await import('@octane-xplat/platform/dev-actions')
+	registerDevAction({
+		id: 'fixture.describe-counter',
+		title: 'Describe the counter',
+		description: 'Identify this test fixture without external effects.',
+		result: { fields: { label: { type: 'string' } } },
+		effects: { summary: 'Read fixture identity.' },
+		run: () => ({ label: 'starter-counter' }),
+	})
+}
+```
+
+## Remaining acceptance
+
+The Chromium lane is an incremental milestone. All six platforms remain
+required by the original plan. Native inspection/input adapters, attached
+Chromium inspection, approved screenshot qualification, and the complete
+platform-by-capability acceptance matrix remain unfinished. Runtime adapters
+and honest unavailable responses do not establish native behavior.
+
+| Target          | Inspection/input qualification boundary                                        |
+| --------------- | ------------------------------------------------------------------------------ |
+| Chromium        | Owned main-document DOM; browser events plus macOS scoped OS keyboard path     |
+| iOS / Android   | Native host inspection and OS-input adapters still required                    |
+| macOS           | AppKit host inspection/input still required; Chromium on macOS is web evidence |
+| Linux / Windows | Target-host adapters and independent consumer qualification still required     |
+
 ## Boundaries
 
 This server complements the agent's editing tools. It is not an autonomous

@@ -19,7 +19,9 @@ export function registerRuntimeTools(server, context, respond) {
 		},
 		async ({ platform }) => {
 			const result = await runtime.listTargets({ platform })
-			return result.error ? respond({ ok: false, error: result.error }) : respond({ ok: true, data: result })
+			return result.error
+				? respond({ ok: false, error: result.error })
+				: respond({ ok: true, data: result })
 		},
 	)
 
@@ -35,7 +37,9 @@ export function registerRuntimeTools(server, context, respond) {
 		},
 		async ({ platform, requestKey }) => {
 			const result = await runtime.build({ platform, requestKey })
-			return result.error ? respond({ ok: false, error: result.error }) : respond({ ok: true, data: result })
+			return result.error
+				? respond({ ok: false, error: result.error })
+				: respond({ ok: true, data: result })
 		},
 	)
 
@@ -51,11 +55,19 @@ export function registerRuntimeTools(server, context, respond) {
 					.optional()
 					.describe('Target from xplat_targets; required when several are available'),
 				requestKey: z.string().optional().describe('Idempotence key for retries'),
+				browserMode: z
+					.enum(['headless', 'headed'])
+					.optional()
+					.describe(
+						'Web only. Headed mode enables scoped OS keyboard input on qualified hosts; reserve desktop input before using it.',
+					),
 			},
 		},
-		async ({ platform, targetId, requestKey }) => {
-			const result = await runtime.launch({ platform, targetId, requestKey })
-			return result.error ? respond({ ok: false, error: result.error }) : respond({ ok: true, data: result })
+		async ({ platform, targetId, requestKey, browserMode }) => {
+			const result = await runtime.launch({ platform, targetId, requestKey, browserMode })
+			return result.error
+				? respond({ ok: false, error: result.error })
+				: respond({ ok: true, data: result })
 		},
 	)
 
@@ -74,7 +86,9 @@ export function registerRuntimeTools(server, context, respond) {
 		},
 		async ({ platform, targetId }) => {
 			const result = await runtime.attach({ platform, targetId })
-			return result.error ? respond({ ok: false, error: result.error }) : respond({ ok: true, data: result })
+			return result.error
+				? respond({ ok: false, error: result.error })
+				: respond({ ok: true, data: result })
 		},
 	)
 
@@ -104,7 +118,9 @@ export function registerRuntimeTools(server, context, respond) {
 			}
 
 			const result = runtime.readLogs({ sessionId, jobId, cursor, limit, stream })
-			return result.error ? respond({ ok: false, error: result.error }) : respond({ ok: true, data: result })
+			return result.error
+				? respond({ ok: false, error: result.error })
+				: respond({ ok: true, data: result })
 		},
 	)
 }

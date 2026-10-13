@@ -25,6 +25,7 @@ Workflows:
 - [Test components on a device with Vitest](on-device-unit-tests.md)
 
 - [Check stable controls with an optional coding-agent tool](agent-ui-checks.md)
+- [Qualify a consumer app through development MCP](mcp-consumer-workflow.md)
 
 - [Probe one platform case](probe-platform-case.md)
 

@@ -1,5 +1,5 @@
 // Web/Chromium adapter. Launch = an owned Vite dev server plus, when a
-// Chromium executable is available, an owned headless browser pointed at it
+// Chromium executable is available, an owned browser pointed at it
 // (Chromium is the web acceptance target; the DevTools endpoint rides along
 // for the inspection adapters). Attach binds an already-running dev server
 // by probing candidate ports — identity is a heuristic and says so.
@@ -45,7 +45,8 @@ export function createWebAdapter() {
 										id: 'chromium',
 										name: 'Chromium browser',
 										status: 'unknown',
-										remedy: 'Install Chromium/Chrome or set XPLAT_MCP_CHROMIUM — web acceptance runs against Chromium.',
+										remedy:
+											'Install Chromium/Chrome or set XPLAT_MCP_CHROMIUM — web acceptance runs against Chromium.',
 									},
 								]),
 					],
@@ -106,10 +107,13 @@ export function createWebAdapter() {
 				})
 			}
 
-			return { summary: 'vite build succeeded', buildIdentity: { revision: gitRevision(app, deps) } }
+			return {
+				summary: 'vite build succeeded',
+				buildIdentity: { revision: gitRevision(app, deps) },
+			}
 		},
 
-		async launch({ app, logs, signal, report, claim, deps }) {
+		async launch({ app, logs, signal, report, claim, deps, browserMode }) {
 			const server = spawnManaged({
 				...pnpmExec(['vite', '--host', '127.0.0.1']),
 				cwd: app.root,
@@ -158,7 +162,7 @@ export function createWebAdapter() {
 			}
 
 			const buildIdentity = { revision: gitRevision(app, deps), label: 'vite dev' }
-			const browser = await launchChromium(url, { logs, claim, deps, signal })
+			const browser = await launchChromium(url, { logs, claim, deps, signal, browserMode })
 			return {
 				detail: `dev server ready at ${url}`,
 				url,
@@ -203,7 +207,7 @@ export function createWebAdapter() {
 }
 
 /** Headless Chromium pointed at the dev URL; reports the DevTools endpoint. */
-async function launchChromium(url, { logs, claim, deps, signal }) {
+async function launchChromium(url, { logs, claim, deps, signal, browserMode = 'headless' }) {
 	const executable = chromiumExecutable(deps)
 	if (!executable) {
 		logs.note('no Chromium executable found — server is up; browser-side checks are unavailable')
@@ -214,7 +218,7 @@ async function launchChromium(url, { logs, claim, deps, signal }) {
 	const browser = spawnManaged({
 		cmd: executable,
 		args: [
-			'--headless=new',
+			...(browserMode === 'headed' ? [] : ['--headless=new']),
 			'--remote-debugging-port=0',
 			'--no-first-run',
 			'--no-default-browser-check',
@@ -252,9 +256,9 @@ async function launchChromium(url, { logs, claim, deps, signal }) {
 
 	logs.note(
 		devtoolsUrl
-			? `chromium launched headless at ${url}; devtools ${devtoolsUrl}`
-			: 'chromium launched headless; DevTools endpoint was not observed',
+			? `chromium launched ${browserMode} at ${url}; devtools ${devtoolsUrl}`
+			: `chromium launched ${browserMode}; DevTools endpoint was not observed`,
 	)
 
-	return { launched: true, headless: true, devtoolsUrl }
+	return { launched: true, headless: browserMode !== 'headed', devtoolsUrl, pid: browser.pid }
 }

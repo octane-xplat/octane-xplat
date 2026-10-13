@@ -170,7 +170,9 @@ test('the app announces its registry; mutations re-announce a new revision', asy
 
 	const seen = await until(async () => {
 		const registry = await bridge.call('GET', '/registry')
-		return registry.instances.length ? registry.instances[0] : null
+		return registry.instances[0]?.revision === 2 && registry.instances[0]?.appLabel === 'test-app'
+			? registry.instances[0]
+			: null
 	})
 
 	assert.equal(seen.platform, 'web')
@@ -191,6 +193,17 @@ test('the app announces its registry; mutations re-announce a new revision', asy
 	})
 
 	assert.equal(reg.actions.length, 2)
+})
+
+test('a declaration alone announces automatically without bridge setup', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+
+	api.registerDevAction(spec())
+	t.after(() => api.startDevActionBridge().stop())
+	const seen = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	assert.equal(seen.actions[0].id, 'auth.login-as-test-admin')
+	assert.equal(seen.revision, 1)
 })
 
 test('invocation runs the handler; invalid input and stale revisions are rejected in-app', async (t) => {
@@ -341,9 +354,11 @@ test('serialized actions run one at a time; cancellation aborts the handler', as
 	const first = await until(
 		async () => (await bridge.call('GET', '/invoke/req_1?wait=500')).outcome,
 	)
+
 	const second = await until(
 		async () => (await bridge.call('GET', '/invoke/req_2?wait=500')).outcome,
 	)
+
 	assert.equal(first.status, 'succeeded')
 	assert.equal(second.status, 'cancelled')
 	// The cancelled serialized action never ran its handler.

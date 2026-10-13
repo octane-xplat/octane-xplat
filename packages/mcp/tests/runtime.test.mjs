@@ -18,7 +18,11 @@ import { makeConsumerApp, makeWorkspace } from './helpers.mjs'
 const boundContext = (options = {}) => {
 	const root = makeWorkspace()
 	makeConsumerApp(root, '.', { name: 'rt-app' })
-	return createWorkspaceContext({ workspaceRoot: root, evidenceRoot: join(root, '.ev'), ...options })
+	return createWorkspaceContext({
+		workspaceRoot: root,
+		evidenceRoot: join(root, '.ev'),
+		...options,
+	})
 }
 
 /** A stub platform adapter — no real toolchain involved. */
@@ -102,7 +106,7 @@ test('log buffer is bounded, cursor-paginated, and reports truncation', () => {
 
 // ---------- managed processes ----------
 
-test('spawnManaged captures output lines and stops the process group', async () => {
+test('spawnManaged captures output lines and stops the process group', async (t) => {
 	const logs = createLogBuffer()
 	const child = spawnManaged({
 		cmd: process.execPath,
@@ -110,8 +114,13 @@ test('spawnManaged captures output lines and stops the process group', async () 
 		logBuffer: logs,
 	})
 
+	t.after(() => child.stop())
 	assert.ok(child.pid)
-	await new Promise((r) => setTimeout(r, 300))
+	const deadline = Date.now() + 5000
+	while (!logs.read().records.some((rec) => rec.line === 'hello') && Date.now() < deadline) {
+		await new Promise((r) => setTimeout(r, 20))
+	}
+
 	assert.ok(logs.read().records.some((rec) => rec.line === 'hello'))
 
 	await child.stop()
@@ -164,7 +173,9 @@ test('iosSimulators reports missing toolchain honestly', () => {
 })
 
 test('androidDevices parses adb output and ignores offline entries', () => {
-	const exec = () => 'List of devices attached\nemulator-5554\tdevice\nab12cd\toffline\npixel-9\tdevice\n'
+	const exec = () =>
+		'List of devices attached\nemulator-5554\tdevice\nab12cd\toffline\npixel-9\tdevice\n'
+
 	const { targets } = androidDevices({ exec })
 	assert.deepEqual(
 		targets.map((t) => [t.targetId, t.kind]),

@@ -26,6 +26,7 @@ import {
 import { registerDevActionProviders } from './actions/capabilities.mjs'
 import { createDevActionsService } from './actions/service.mjs'
 import { createDocsProvider } from './docs.mjs'
+import { createInspectionService } from './inspection/service.mjs'
 
 export const SERVER_NAME = '@octane-xplat/mcp'
 export const SERVER_VERSION = '0.0.0'
@@ -92,6 +93,7 @@ export function createWorkspaceContext(options) {
 	// owns sessions/jobs/logs for build, launch, attach and cleanup.
 	context.runtime = createRuntimeService(context, options.runtime)
 	context.runtime.registerCapabilities()
+	context.inspection = createInspectionService(context, options.inspection)
 
 	if (context.configuredAppSelector) {
 		const matches = selectApp(context.discovery, context.configuredAppSelector)

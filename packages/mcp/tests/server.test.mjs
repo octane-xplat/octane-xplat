@@ -78,7 +78,7 @@ test('capability matrix separates capabilities and explains gaps', async () => {
 	assert.equal(byId.launch.status, 'supported')
 	assert.equal(byId.target_discovery.status, 'supported')
 	assert.equal(byId.screenshot.requiresPermission, 'visual-capture')
-	assert.equal(byId.screenshot.status, 'unavailable')
+	assert.equal(byId.screenshot.status, 'partial')
 })
 
 test('permissions report grant states; screenshots are never baseline-granted', async () => {

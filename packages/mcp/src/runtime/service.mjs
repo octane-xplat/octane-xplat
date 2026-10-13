@@ -133,7 +133,9 @@ export function createRuntimeService(context, options = {}) {
 					released.push(out)
 				}
 			} catch {
-				released.push(`cleanup of ${disposer.describe?.() ?? 'a resource'} failed — inspect the target`)
+				released.push(
+					`cleanup of ${disposer.describe?.() ?? 'a resource'} failed — inspect the target`,
+				)
 			}
 		}
 
@@ -179,6 +181,30 @@ export function createRuntimeService(context, options = {}) {
 	return {
 		adapters,
 		deps,
+
+		/** Inspection only receives endpoint metadata from this session's launch. */
+		observationTarget(sessionId) {
+			const checked = context.sessions.requireUsable(sessionId)
+			if (!checked.usable) {
+				return { error: checked.error }
+			}
+
+			const { app, error } = requireApp()
+			if (error) {
+				return { error }
+			}
+
+			if (checked.session.appId !== app.id) {
+				return {
+					error: contractError(
+						'stale_identity',
+						'This session belongs to a different app. Select its app before observing it.',
+					),
+				}
+			}
+
+			return { session: checked.session, endpoint: runtime.get(sessionId)?.endpoint }
+		},
 
 		/** Register one capability provider per platform into the shared registry. */
 		registerCapabilities() {
@@ -325,7 +351,7 @@ export function createRuntimeService(context, options = {}) {
 		 * job. The job completes at readiness; the process stays owned by the
 		 * session. A failed job ends the session.
 		 */
-		async launch({ platform, targetId, requestKey } = {}) {
+		async launch({ platform, targetId, requestKey, browserMode = 'headless' } = {}) {
 			const { app, error } = requireApp()
 			if (error) {
 				return { error }
@@ -353,17 +379,14 @@ export function createRuntimeService(context, options = {}) {
 				target = targets.find((t) => t.targetId === targetId)
 				if (!target) {
 					return {
-						error: contractError(
-							'invalid_selection',
-							`No ${platform} target "${targetId}".`,
-							{
-								recovery: {
-									action: 'Pick a targetId from xplat_targets.',
-									detail: reason ?? `Available: ${targets.map((t) => t.targetId).join(', ') || 'none'}`,
-								},
-								context: { targets: targets.map((t) => t.targetId) },
+						error: contractError('invalid_selection', `No ${platform} target "${targetId}".`, {
+							recovery: {
+								action: 'Pick a targetId from xplat_targets.',
+								detail:
+									reason ?? `Available: ${targets.map((t) => t.targetId).join(', ') || 'none'}`,
 							},
-						),
+							context: { targets: targets.map((t) => t.targetId) },
+						}),
 					}
 				}
 			} else if (targets.length === 1) {
@@ -434,9 +457,11 @@ export function createRuntimeService(context, options = {}) {
 							signal,
 							report,
 							claim: (disposer) => resources.disposers.push(disposer),
+							browserMode,
 							deps,
 						})
 
+						resources.endpoint = { url: outcome.url, browser: outcome.browser }
 						context.sessions.markReady(session.sessionId, {
 							processKind: outcome.processKind ?? 'fresh',
 							buildIdentity: outcome.buildIdentity,
@@ -500,11 +525,9 @@ export function createRuntimeService(context, options = {}) {
 
 			if (typeof adapter.attachables !== 'function') {
 				return {
-					error: contractError(
-						'unsupported_capability',
-						`${platform} has no attach provider.`,
-						{ recovery: { action: 'Launch an owned session instead.' } },
-					),
+					error: contractError('unsupported_capability', `${platform} has no attach provider.`, {
+						recovery: { action: 'Launch an owned session instead.' },
+					}),
 				}
 			}
 
@@ -533,7 +556,8 @@ export function createRuntimeService(context, options = {}) {
 						`No running ${platform} development sessions were found for "${app.id}".`,
 						{
 							recovery: {
-								action: 'Start the dev session yourself and retry, or launch an owned session with xplat_launch.',
+								action:
+									'Start the dev session yourself and retry, or launch an owned session with xplat_launch.',
 							},
 						},
 					),

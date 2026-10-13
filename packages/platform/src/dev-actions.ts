@@ -249,6 +249,9 @@ export function registerDevAction(spec: DevActionSpec): DevActionHandle {
 
 	state.actions.set(spec.id, spec)
 	state.revision += 1
+	// The app declaration is sufficient setup. Production has no endpoint,
+	// so this remains inert without the dev-server-only bridge token.
+	startDevActionBridge()
 	scheduleAnnounce(state)
 
 	return {
@@ -281,6 +284,11 @@ export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevA
 	const state = registry()
 	if (state.bridge) {
 		const rt = state.bridge
+		if (options.appLabel !== undefined && options.appLabel !== state.appLabel) {
+			state.appLabel = options.appLabel
+			scheduleAnnounce(state)
+		}
+
 		return {
 			instanceId: state.instanceId,
 			get state() {
