@@ -34,7 +34,7 @@ test('project status reports identity, versions, capabilities, and boundaries', 
 	assert.equal(report.identity.selection.state, 'bound')
 	assert.equal(report.identity.selection.reason, 'sole-app')
 	assert.equal(report.identity.framework.packages[0].version, '0.14.0')
-	assert.equal(report.docs.state, 'not_provided')
+	assert.equal(report.docs.state, 'ready')
 	assert.equal(report.codeIndex.state, 'not_provided')
 	assert.ok(Array.isArray(report.capabilities))
 	assert.ok(report.boundaries.length > 0)

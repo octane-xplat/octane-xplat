@@ -86,6 +86,7 @@ export async function remoteTagSha(ctx, repo, tag) {
  * snapshot directory and the commit actually checked out.
  */
 async function acquire(ctx, { repo, tag, packageDir, packageName, version }) {
+	mkdirSync(ctx.cacheDir, { recursive: true })
 	const tmp = mkdtempSync(join(ctx.cacheDir, 'tmp-'))
 	try {
 		await git(ctx, ['init', '-q', tmp])

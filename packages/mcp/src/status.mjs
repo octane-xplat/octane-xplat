@@ -25,6 +25,7 @@ import {
 
 import { registerDevActionProviders } from './actions/capabilities.mjs'
 import { createDevActionsService } from './actions/service.mjs'
+import { createDocsProvider } from './docs.mjs'
 
 export const SERVER_NAME = '@octane-xplat/mcp'
 export const SERVER_VERSION = '0.0.0'
@@ -72,6 +73,9 @@ export function createWorkspaceContext(options) {
 	if (context.code) {
 		context.codeIndexStatus = (app) => context.code.status(app)
 	}
+
+	context.docs = createDocsProvider(context, options.docs)
+	context.docsStatus = (app) => context.docs.status(app)
 
 	// Package G: app-declared development-action registry. The service scans
 	// the bound app's dev-bridge session files on every use — always live,
@@ -186,7 +190,7 @@ export async function buildProjectStatus(context) {
 						),
 					],
 		},
-		docs: context.docsStatus(boundApp),
+		docs: await context.docsStatus(boundApp),
 		codeIndex: context.codeIndexStatus(boundApp),
 		prerequisites: checkPrerequisites(declaredPlatforms),
 		capabilities: await context.capabilities.matrixFor(boundApp, declaredPlatforms),

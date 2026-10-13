@@ -47,17 +47,49 @@ Options: `--workspace` / `XPLAT_MCP_WORKSPACE` (default cwd), `--app` /
 | `xplat_sessions`                        | Bound sessions: owned vs attached user-owned, state, build identity.                                                                                                                                           |
 | `xplat_targets`                         | Launchable targets per platform (simulators, devices, host targets) with availability, missing-toolchain reasons, and busy/ownership state.                                                                    |
 | `xplat_build`                           | Build the bound app for one platform as a job — same commands `xplat build` runs. `requestKey` dedupes retries.                                                                                                |
-| `xplat_launch`                          | Owned dev session on one target as a job; completes at confirmed readiness, session owns the processes until `xplat_session_end`.                                                                             |
-| `xplat_attach`                          | Bind a compatible already-running dev session (user-owned, preserved).                                                                                                                                        |
+| `xplat_launch`                          | Owned dev session on one target as a job; completes at confirmed readiness, session owns the processes until `xplat_session_end`.                                                                              |
+| `xplat_attach`                          | Bind a compatible already-running dev session (user-owned, preserved).                                                                                                                                         |
 | `xplat_logs`                            | Bounded ordered logs for a session or build job: cursor, limit, stream filter, truncation/reset indicators, `historical` flag for dead sessions.                                                               |
-| `xplat_dev_actions`                     | The bound app's live development-action registry: instance identity, revision, declarations (contracts, effects, availability). Empty vs disconnected vs no-bridge are distinct states.                          |
-| `xplat_dev_action_invoke`               | Invoke an action against an exact app instance + registry revision. Pre-validates input, availability, grants and queue bounds; returns a job (`requestKey` dedupes retries).                                    |
-| `xplat_dev_action_status`               | Invocation status/result — same job data restricted to dev-action jobs, with instance/request identity.                                                                                                          |
+| `xplat_dev_actions`                     | The bound app's live development-action registry: instance identity, revision, declarations (contracts, effects, availability). Empty vs disconnected vs no-bridge are distinct states.                        |
+| `xplat_dev_action_invoke`               | Invoke an action against an exact app instance + registry revision. Pre-validates input, availability, grants and queue bounds; returns a job (`requestKey` dedupes retries).                                  |
+| `xplat_dev_action_status`               | Invocation status/result — same job data restricted to dev-action jobs, with instance/request identity.                                                                                                        |
 | `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                               |
 | `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved (our log taps still stop).                                                                                           |
 | `xplat_evidence`                        | `list` / `retain` / `delete` evidence; retain takes an optional ISO expiration.                                                                                                                                |
-| `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters.   |
+| `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters. |
 | `xplat_code_read`                       | Bounded read of current source by search ref (`xplat-code://…`) or explicit corpus + path; results carry freshness markers and continuation offsets.                                                           |
+| `xplat_docs_search` / `xplat_docs_read` | Installed-version docs search and bounded page reads, with snapshot/version provenance and unavailable/conflict results.                                                                                       |
+| `xplat_guidance`                        | Tailored guidance for the selected app's installed packages.                                                                                                                                                   |
+
+## Retrieve the app's documentation
+
+Select your app first. Search defaults to maintained guides for its actual
+installed versions; design notes and recipes require an explicit corpus.
+The provider validates release tags and preserves cached snapshot commits.
+Missing matching docs return an installed-source fallback instead of latest docs.
+
+```json
+{
+	"name": "xplat_docs_search",
+	"arguments": { "query": "testID", "package": "@octane-xplat/ui", "platform": "web" }
+}
+```
+
+Read a result using its `ref`. A ref from an older installation remains tied
+to that version and is labeled outside the installed binding after an upgrade.
+`xplat_project_status` reports provider readiness; each search reports actual
+snapshot availability, so readiness alone is not a successful retrieval.
+
+```json
+{
+	"name": "xplat_docs_read",
+	"arguments": {
+		"package": "@octane-xplat/ui",
+		"path": "docs/verify/test-identifiers.md",
+		"limit": 2000
+	}
+}
+```
 
 Code search reads the bound application's source plus its installed
 `@octane-xplat/*` package sources — corpora stay labeled and distinguishable.
@@ -128,14 +160,14 @@ version. `service.mjs` owns the shared contract behavior: explicit
 app+target binding, `target_busy` contention, job dedupe/cooperative
 cancel, ownership-safe cleanup, bounded logs, and capability-matrix entries.
 
-| Platform | Launch | Attach | Host gate |
-| --- | --- | --- | --- |
-| web / Chromium | `pnpm exec vite` + headless Chromium (devtools endpoint reported) | probe common dev ports — identity heuristic | none |
-| iOS | `ns run ios --device <udid>` | booted sim + app running → `simctl log stream` tap | macOS |
-| Android | `ns run android --device <serial>` | package running → `adb logcat --pid` tap | none (adb) |
-| macOS | `xplat.targets.macos.dev` → CLI dev entry, else `pnpm run dev` | pgrep on app root — no scrollback | macOS |
-| Linux | `pnpm run dev` (app-owned script) | pgrep on app root | Linux |
-| Windows | `ns run windows` | not yet qualified | Windows |
+| Platform       | Launch                                                            | Attach                                             | Host gate  |
+| -------------- | ----------------------------------------------------------------- | -------------------------------------------------- | ---------- |
+| web / Chromium | `pnpm exec vite` + headless Chromium (devtools endpoint reported) | probe common dev ports — identity heuristic        | none       |
+| iOS            | `ns run ios --device <udid>`                                      | booted sim + app running → `simctl log stream` tap | macOS      |
+| Android        | `ns run android --device <serial>`                                | package running → `adb logcat --pid` tap           | none (adb) |
+| macOS          | `xplat.targets.macos.dev` → CLI dev entry, else `pnpm run dev`    | pgrep on app root — no scrollback                  | macOS      |
+| Linux          | `pnpm run dev` (app-owned script)                                 | pgrep on app root                                  | Linux      |
+| Windows        | `ns run windows`                                                  | not yet qualified                                  | Windows    |
 
 Readiness is probe/marker-confirmed (`ready` session state) — HTTP 200 for
 web, the host-start marker for macOS, `Successfully synced application` /

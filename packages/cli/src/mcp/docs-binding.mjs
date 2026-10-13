@@ -6,7 +6,7 @@
 
 import { createHash } from 'node:crypto'
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { releaseMapping } from './release-map.mjs'
 
@@ -80,7 +80,10 @@ function installedEntry(nodeModules, name) {
 		name: pkg.name,
 		version: pkg.version,
 		installPath: dir,
-		linked: lstatSync(dir).isSymbolicLink(),
+		// pnpm registry installs are symlinks too. Only a link outside a
+		// node_modules tree denotes checkout content by location alone.
+		linked:
+			lstatSync(dir).isSymbolicLink() && !realpathSync(dir).split(sep).includes('node_modules'),
 	}
 }
 
