@@ -424,22 +424,36 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 				reason,
 			}
 
-			const dup = byId.get(story.id)
-			if (dup) {
+			// One story id may have platform leaves per target; two declarations
+			// claiming the same id for the same target is a real conflict.
+			const prior = byId.get(story.id) ?? []
+			const conflict = prior.find((prev) => prev.targets.some((t) => meta.targets.includes(t)))
+			if (conflict) {
 				diagnostics.push({
 					file,
 					exportName: story.exportName,
-					message: `duplicate story id "${story.id}" — also declared in ${dup.file} (export "${dup.exportName}")`,
+					message: `duplicate story id "${story.id}" — also declared in ${conflict.file} (export "${conflict.exportName}")`,
 				})
 
 				continue
 			}
 
-			byId.set(story.id, meta)
+			byId.set(story.id, [...prior, meta])
 			entries.push(meta)
 		}
 	}
 
 	entries.sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id))
-	return { entries, diagnostics }
+
+	// One catalog row per story id — platform leaves are variants of one
+	// story, so the row carries the leaf applicable to this target.
+	const byRow = new Map()
+	for (const entry of entries) {
+		const list = byRow.get(entry.id) ?? []
+		list.push(entry)
+		byRow.set(entry.id, list)
+	}
+
+	const merged = [...byRow.values()].map((group) => group.find((e) => e.applicable) ?? group[0])
+	return { entries: merged, diagnostics }
 }

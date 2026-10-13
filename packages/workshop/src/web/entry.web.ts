@@ -135,7 +135,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 				return
 			}
 
-			const entry = entries.find((e) => e.id === current)
+			const entry = pickEntry(entries, current)
 			if (!entry?.load) {
 				store.set((s) => ({ ...s, missingId: current }))
 				void session.dispose()
@@ -196,9 +196,12 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 		try { return decodeURIComponent(raw) || null } catch { return raw || null }
 	}
 
+	const pickEntry = (entries: CatalogEntry[], id: string) =>
+		entries.find((e) => e.id === id && e.load) ?? entries.find((e) => e.id === id)
+
 	const initialId = options.initialStoryId ?? idFromHash()
 	if (initialId) {
-		const entry = options.catalog.find((e) => e.id === initialId)
+		const entry = pickEntry(options.catalog, initialId)
 		if (entry?.load) {
 			store.set((s) => ({ ...s, selectedId: initialId }))
 			void runtime.selectEntry(entry)
@@ -210,7 +213,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 	globalThis.addEventListener?.('hashchange', () => {
 		const id = idFromHash()
 		if (id && id !== store.get().selectedId) {
-			const entry = store.get().catalog.find((e) => e.id === id)
+			const entry = pickEntry(store.get().catalog, id)
 			if (entry?.load) {
 				store.set((s) => ({ ...s, selectedId: id, missingId: null }))
 				void runtime!.selectEntry(entry)

@@ -127,6 +127,28 @@ describe('discoverStories', () => {
 		expect(diagnostics[0].message).toMatch(/a\.stories\.tsrx/)
 	})
 
+	it('allows one story id across disjoint platform leaves', () => {
+		const root = fixture({
+			'src/iso.stories.web.tsrx': STORY.replace("targets: 'all'", "targets: ['web']"),
+			'src/iso.stories.macos.tsrx': STORY.replace("targets: 'all'", "targets: ['macos']"),
+		})
+
+		const { entries, diagnostics } = discoverStories(root, { target: 'macos' })
+		expect(diagnostics).toEqual([])
+		expect(entries).toHaveLength(1)
+		expect(entries[0].applicable).toBe(true)
+	})
+
+	it('still conflicts when leaves claim the same id for the same target', () => {
+		const root = fixture({
+			'src/a.stories.ios.tsrx': STORY,
+			'src/b.stories.ios.tsrx': STORY.replace('export const Basic', 'export const Other'),
+		})
+
+		const { diagnostics } = discoverStories(root, { target: 'ios' })
+		expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
+	})
+
 	it('reports unexported stories during discovery', () => {
 		const root = fixture({
 			'src/a.stories.tsrx': `import { defineStory } from '@octane-xplat/workshop'

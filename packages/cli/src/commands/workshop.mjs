@@ -85,7 +85,7 @@ const dev = command({
 		target: option({
 			long: 'target',
 			type: optional(string),
-			description: 'Launch target — web | linux | ios | android (default web; native hosts unqualified)',
+			description: 'Launch target — web | linux | macos | ios | android (default web; some native hosts unqualified)',
 		}),
 		device: option({
 			long: 'device', type: optional(string),
@@ -124,6 +124,6 @@ const dev = command({
 
 export const workshop = subcommands({
 	name: 'workshop',
-	description: 'Component workshop — isolated stories (web + Linux; mobile hosts unqualified)',
+	description: 'Component workshop — isolated stories (web + Linux + macOS; mobile hosts unqualified)',
 	cmds: { init, doctor, list, dev },
 })

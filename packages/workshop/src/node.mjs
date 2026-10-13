@@ -144,11 +144,26 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 		report.targets[target] = mobilePrerequisites(root, target)
 	}
 
+	const macosRequirements = {
+		'darwin-arm64 host': process.platform === 'darwin' && process.arch === 'arm64',
+		'@octane-xplat/macos-renderer': Boolean(resolveFrom(root, '@octane-xplat/macos-renderer')),
+		'@nativescript/macos-node-api': Boolean(resolveFrom(root, '@nativescript/macos-node-api')),
+		'@octane-xplat/cli': Boolean(resolveFrom(root, '@octane-xplat/cli/macos')),
+		octane: Boolean(resolveFrom(root, 'octane')),
+		'@octanejs/vite-plugin': Boolean(resolveFrom(root, '@octanejs/vite-plugin')),
+		vite: Boolean(resolveFrom(root, 'vite')),
+		'workshop.config': Boolean(configFile),
+	}
+
 	report.targets.macos = {
 		backend: 'appkit/jsc renderer',
-		requirements: {},
-		status: 'unqualified-backend',
-		note: 'the workshop does not yet support this target',
+		requirements: macosRequirements,
+		status: Object.values(macosRequirements).every(Boolean)
+			? 'available'
+			: macosRequirements['darwin-arm64 host']
+				? 'missing-prerequisites'
+				: 'unsupported-host',
+		note: 'the AppKit workshop needs the app\'s own macOS renderer and node-api versions',
 	}
 
 	report.targets.windows = windowsPreflight(root)
@@ -403,6 +418,12 @@ export async function startWorkshopServer({ root, config, target, story, port } 
 
 export async function workshopDev({ cwd, target = 'web', story, port, device } = {}) {
 	const root = consumerRoot(cwd)
+	if (target === 'macos') {
+		const { config } = await loadWorkshopConfig(root)
+		const { workshopMacOSDev } = await import('./macos-node.mjs')
+		return workshopMacOSDev({ root, config, story })
+	}
+
 	if (target === 'ios' || target === 'android') {
 		if (port !== undefined) {
 			throw new WorkshopUsageError('Mobile workshop uses the consumer native Vite server port; configure it in the native Vite config')
@@ -424,7 +445,7 @@ export async function workshopDev({ cwd, target = 'web', story, port, device } =
 
 	if (target !== 'web' && target !== 'linux') {
 		throw new WorkshopUsageError(
-			`xplat workshop dev --target ${target}: this workshop preview provides web, linux, ios and android launch paths — ` +
+			`xplat workshop dev --target ${target}: this workshop preview provides web, linux, macos, ios and android launch paths — ` +
 				`run \`xplat workshop doctor\` for per-target status`,
 		)
 	}

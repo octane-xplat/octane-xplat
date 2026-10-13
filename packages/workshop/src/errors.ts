@@ -32,7 +32,12 @@ export class WorkshopError extends Error {
 
 export function describeCause(cause: unknown): string {
 	if (cause instanceof Error) {
-		return cause.stack?.split('\n').slice(0, 3).join('\n') ?? cause.message
+		// JSC stacks often start directly at a `fn@file:line` frame without the
+		// `Name: message` head — keep the message visible either way.
+		const head = `${cause.name}: ${cause.message}`
+		const tail = cause.stack?.split('\n').slice(0, 3).join('\n')
+		if (!tail) { return head }
+		return tail.startsWith(head) ? tail : `${head}\n${tail}`
 	}
 
 	return String(cause)

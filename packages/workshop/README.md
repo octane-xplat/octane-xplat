@@ -1,15 +1,20 @@
 # @octane-xplat/workshop
 
 Render an app-owned component on its own development page, edit its inputs,
-and Reset to a fresh example. The current release supports two DOM hosts:
-the **web** browser target, and **Linux** through the real GTK4/WebKitGTK
-webview host on a Linux machine. Authoring contract version: **1**.
+and Reset to a fresh example. The current release provides real launch paths
+for three hosts: the **web** browser target, **macOS** through the real AppKit
+renderer on the JavaScriptCore NativeScript host, and **Linux** through the
+real GTK4/WebKitGTK webview host on a Linux machine. Authoring contract
+version: **1**.
 
 [iOS/Android launch setup](MOBILE.md) and native adapters are implemented,
-but iOS, Android, macOS and Windows remain unqualified backends — `xplat workshop
+but iOS, Android and Windows remain unqualified backends — `xplat workshop
 doctor` reports them honestly. Keyboard and browser accessibility semantics
 have regression coverage; actual screen-reader announcements and OS IME input
-still require qualification on every host.
+still require qualification on every host. On macOS, scripted interaction
+dispatches through each view's real recognizer or control action — it is not
+OS-synthesized input or hit-testing. On Linux, the GJS window, GTK input/focus
+and WebKitGTK reload semantics remain actual-Linux-host gates.
 
 For Windows prerequisite reporting and the blocked native launch, see
 [Windows workshop setup status](WINDOWS.md). Windows mounting and interaction
@@ -221,6 +226,24 @@ are outside this supported subset. Web and Linux share the same DOM shell and
 save/remount wiring; WebKitGTK input, focus and reload semantics still need
 actual-Linux-host qualification. Other native composition imports need their
 own host qualification.
+
+## macOS target
+
+The `macos` target runs the same catalog and session in a small AppKit shell on
+the real JavaScriptCore/NativeScript host — the same runtime `xplat dev` uses
+for packaged macOS apps. It needs a macOS arm64 machine and the app's matching
+macOS dependencies (`@octane-xplat/macos-renderer` and
+`@nativescript/macos-node-api`). Story windows and sheets opened through `openWindow` or
+`mountSheet` are workshop-owned and close when the story generation retires.
+
+```sh
+pnpm exec xplat workshop dev --target macos
+```
+
+Set `OCTANE_WORKSHOP_OFFSCREEN=1` to run the window without desktop focus, and
+`OCTANE_MACOS_AUTOMATION=1` to enable the stdin qualification protocol
+(`catalog`, `select`, `control`, `unset`, `press`, `reset`, `query`, `panel`,
+`stage-only`, `status`, `close`).
 
 ## Commands
 

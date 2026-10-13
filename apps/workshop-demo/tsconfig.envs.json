@@ -9,11 +9,18 @@
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*", "workshop.config.ts"]
+			"include": ["src/**/*", "workshop.config.ts"],
+			"exclude": ["**/*.{ios,android,mobile,native,macos,windows,linux}.*"]
 		},
 		"native": {
 			"include": ["src/**/*"],
-			"exclude": ["**/*.web.*"],
+			"exclude": ["**/*.{web,macos,windows,linux}.*"],
+			"compilerOptions": {
+				"types": ["@nativescript/types"]
+			}
+		},
+		"macos": {
+			"include": ["src/**/*.macos.*"],
 			"compilerOptions": {
 				"types": ["@nativescript/types"]
 			}

@@ -13,9 +13,19 @@ import { createMacOSDevBundle } from './dev-bundle.mjs'
 export { runMacOSWebViewDev } from './webview-dev.mjs'
 
 /** Run the configured Vite watcher and native host, restarting after native edits. */
-export async function runMacOSDev(appRoot = process.cwd()) {
+export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 	appRoot = resolve(appRoot)
-	const readManifest = () => JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+	const readManifest = () => {
+		const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+		if (options.target) {
+			manifest.xplat = { ...manifest.xplat, targets: { ...manifest.xplat?.targets,
+				macos: { ...manifest.xplat?.targets?.macos, ...options.target },
+			} }
+		}
+
+		return manifest
+	}
+
 	const target = readManifest().xplat?.targets?.macos
 	if (target?.renderer === 'webview') {
 		const { runMacOSWebViewDev } = await import('./webview-dev.mjs')
@@ -165,7 +175,9 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		let first = true
 		await new Promise((resolve, reject) => {
 			watcher.on('event', (event) => {
-				if (event.code === 'BUNDLE_END') {
+				if (event.code === 'START' && options.workshop && host?.stdin.writable) {
+					host.stdin.write('rebuilding\n')
+				} else if (event.code === 'BUNDLE_END') {
 					if (first) {
 						first = false
 						resolve()
@@ -179,6 +191,10 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 							})
 					}
 				} else if (event.code === 'ERROR') {
+					if (options.workshop && host?.stdin.writable) {
+						host.stdin.write('compile-error ' + String(event.error?.message ?? event.error).replace(/[\r\n]/g, ' ') + '\n')
+					}
+
 					console.error('[macos] JS rebuild failed; preserving the running app', event.error)
 					if (first) {
 						reject(event.error)

@@ -8,7 +8,9 @@
 		"workshop:list": "xplat workshop list",
 		"workshop:doctor": "xplat workshop doctor",
 		"typecheck": "node ../../scripts/typecheck.mjs",
-		"test:e2e": "node scripts/e2e-web.mjs"
+		"test:e2e": "node scripts/e2e-web.mjs",
+		"test:e2e:macos": "node scripts/e2e-macos.mjs",
+		"workshop:macos": "xplat workshop dev --target macos"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
@@ -24,6 +26,8 @@
 		"@tsrx/typescript-plugin": "0.4.11",
 		"typescript": "5.9.3",
 		"vite": "8.3.0",
-		"playwright": "1.63.0"
+		"playwright": "1.63.0",
+		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@octane-xplat/macos-renderer": "workspace:*"
 	}
 }

@@ -34,6 +34,11 @@
 					"source": "src/index.ts",
 					"runtime": ["./src/vite-mobile.mjs"],
 					"types": ["./src/vite-mobile.d.ts"]
+				},
+				"./macos": {
+					"source": "src/macos/index.macos.ts",
+					"runtime": ["./src/macos/index.macos.ts"],
+					"types": ["./src/macos/index.macos.ts"]
 				}
 			}
 		}
