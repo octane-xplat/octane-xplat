@@ -2,7 +2,15 @@
 // No workspace aliases or .tsrx loaders are available in this consumer.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, readFileSync, renameSync } from 'node:fs'
+import {
+	mkdtempSync,
+	readdirSync,
+	rmSync,
+	readFileSync,
+	realpathSync,
+	writeFileSync,
+} from 'node:fs'
+
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -13,15 +21,30 @@ const { build } = createRequire(require.resolve('vite/package.json'))('esbuild')
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-platform-vendor-'))
 const modules = join(temporary, 'node_modules/@octane-xplat')
-mkdirSync(modules, { recursive: true })
 
 try {
 	execFileSync('pnpm', ['pack', '--pack-destination', temporary], { cwd: root, stdio: 'pipe' })
 	const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
-	execFileSync('tar', ['-xzf', join(temporary, tarball), '-C', modules])
-	renameSync(join(modules, 'package'), join(modules, 'platform'))
+	writeFileSync(
+		join(temporary, 'package.json'),
+		JSON.stringify({
+			private: true,
+			dependencies: { '@octane-xplat/platform': `file:${join(temporary, tarball)}` },
+		}),
+	)
+
+	execFileSync('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], {
+		cwd: temporary,
+		stdio: 'pipe',
+	})
+
+	assert.ok(
+		realpathSync(join(modules, 'platform')).startsWith(realpathSync(temporary) + '/'),
+		'consumer uses its installed tarball',
+	)
+
 	for (const target of ['native', 'web', 'linux', 'macos']) {
-		const subpaths = ['', '/host', '/host/web', '/host/services']
+		const subpaths = ['', '/host', '/host/web', '/host/services', '/dev-actions']
 		if (target === 'native') {
 			subpaths.push('/testing')
 		}
@@ -71,7 +94,50 @@ try {
 
 		const manifest = JSON.parse(readFileSync(join(modules, 'platform/package.json'), 'utf8'))
 		assert.ok(manifest.exports['.'])
-		console.log(`platform packed vendor: ${target} root, host and hook entries bundle`)
+		const actionBuild = {
+			stdin: {
+				contents: `if (import.meta.env.DEV) {
+					const { registerDevAction } = await import('@octane-xplat/platform/dev-actions');
+					registerDevAction({
+						id: 'fixture.native-consumer-secret',
+						title: 'Read test identity',
+						description: 'Return an artificial test value.',
+						result: { fields: { value: { type: 'string' } } },
+						effects: { summary: 'Read fixture identity.' },
+						run: () => ({ value: 'FIXTURE_TEST_CREDENTIAL' }),
+					});
+				}`,
+				resolveDir: temporary,
+			},
+			bundle: true,
+			write: false,
+			format: 'esm',
+			platform: 'neutral',
+			conditions: [target, 'import', 'default'],
+			minify: true,
+			external: ['@nativescript/*'],
+		}
+
+		const development = await build({
+			...actionBuild,
+			define: { 'import.meta.env.DEV': 'true' },
+		})
+
+		assert.match(development.outputFiles[0].text, /fixture\.native-consumer-secret/)
+		assert.match(development.outputFiles[0].text, /FIXTURE_TEST_CREDENTIAL/)
+		const production = await build({
+			...actionBuild,
+			define: { 'import.meta.env.DEV': 'false' },
+		})
+
+		assert.doesNotMatch(
+			production.outputFiles[0].text,
+			/fixture\.native-consumer-secret|FIXTURE_TEST_CREDENTIAL|__xplat_dev__|__XPLAT_DEV_BRIDGE__/,
+		)
+
+		console.log(
+			`platform packed vendor: ${target} root, host, hook and dev-action entries bundle; dev-gated production fixture excluded`,
+		)
 	}
 } finally {
 	rmSync(temporary, { recursive: true, force: true })

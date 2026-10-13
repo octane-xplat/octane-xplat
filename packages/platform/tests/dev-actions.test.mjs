@@ -12,7 +12,8 @@ import { xplatDevBridge } from '../../cli/src/mcp/dev-bridge.mjs'
 
 // Compile a src module to CJS and evaluate it with a sibling-file resolver,
 // so dev-actions.ts loads dev-bridge.web.ts + dev-actions-schema.ts the way a
-// web bundle resolves them.
+// web bundle resolves them. Native contract cases mock only Device; they do
+// not establish NativeScript runtime, native fetch or OS-input acceptance.
 const compile = async (file) =>
 	ts.transpile(await readFile(new URL(`../src/${file}.ts`, import.meta.url), 'utf8'), {
 		module: ts.ModuleKind.CommonJS,
@@ -24,7 +25,7 @@ const SOURCES = {}
 async function loadDevActions(globals = {}) {
 	const modules = {
 		'./dev-actions-schema': await compile('dev-actions-schema'),
-		'./dev-bridge': await compile('dev-bridge.web'),
+		'./dev-bridge': await compile(globals.os ? 'dev-bridge' : 'dev-bridge.web'),
 	}
 
 	const sandbox = {
@@ -42,10 +43,15 @@ async function loadDevActions(globals = {}) {
 		fetch,
 		location: { origin: globals.origin },
 		__XPLAT_DEV_BRIDGE__: globals.token ? { token: globals.token } : undefined,
+		__NS_HTTP_ORIGIN__: globals.os ? globals.origin : undefined,
 	}
 
 	sandbox.globalThis = sandbox
 	sandbox.require = (spec) => {
+		if (spec === '@nativescript/core' && globals.os) {
+			return { Device: { os: globals.os } }
+		}
+
 		if (spec === './dev-actions-schema' || spec === './dev-bridge') {
 			const inner = { exports: {}, require: sandbox.require, console }
 			inner.globalThis = sandbox
@@ -204,6 +210,70 @@ test('a declaration alone announces automatically without bridge setup', async (
 	const seen = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
 	assert.equal(seen.actions[0].id, 'auth.login-as-test-admin')
 	assert.equal(seen.revision, 1)
+})
+
+test('native endpoint contract requires both the dev origin and token', async () => {
+	for (const globals of [{ origin: 'http://127.0.0.1:1' }, { token: 'test-token' }]) {
+		const { exports: api } = await loadDevActions({ os: 'iOS', ...globals })
+		assert.equal(api.startDevActionBridge().state, 'unavailable')
+	}
+})
+
+test('iOS action wire contract announces automatically and rechecks availability before execution', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({
+		os: 'iOS',
+		origin: bridge.origin,
+		token: bridge.token,
+	})
+
+	let ready = true
+	let calls = 0
+	const action = api.registerDevAction(
+		spec({
+			availability: { platforms: ['ios'], ready: () => ready },
+			result: { fields: { role: { type: 'string' } } },
+			run: () => {
+				calls++
+				return { role: 'test-admin' }
+			},
+		}),
+	)
+
+	t.after(() => api.startDevActionBridge().stop())
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	assert.ok(instance, 'native declaration must announce without manual bridge setup')
+	assert.equal(instance.platform, 'ios')
+	assert.equal(instance.actions[0].availability.ready, true)
+	const invoke = async (requestId) => {
+		await bridge.call('POST', '/invoke', {
+			requestId,
+			appInstanceId: instance.appInstanceId,
+			actionId: instance.actions[0].id,
+			registryRevision: instance.revision,
+			input: {},
+		})
+
+		return until(async () => (await bridge.call('GET', `/invoke/${requestId}?wait=500`)).outcome)
+	}
+
+	ready = false
+	const unavailable = await invoke('native_unavailable')
+	assert.equal(unavailable.status, 'failed')
+	assert.equal(unavailable.error.code, 'unavailable')
+	assert.equal(calls, 0)
+	ready = true
+	const result = await invoke('native_ready')
+	assert.equal(result.status, 'succeeded')
+	assert.deepEqual(result.result, { role: 'test-admin' })
+	assert.equal(calls, 1)
+	action.dispose()
+	const removed = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.revision === 2 && value.actions.length === 0 ? value : null
+	})
+
+	assert.ok(removed, 'owner disposal must remove the native action from discovery')
 })
 
 test('invocation runs the handler; invalid input and stale revisions are rejected in-app', async (t) => {
