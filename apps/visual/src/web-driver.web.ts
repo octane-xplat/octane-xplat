@@ -1,5 +1,6 @@
 import { page } from 'vitest/browser'
 import { mountStory } from './adapter.web'
+import { assertSwitchGeometry } from './geometry'
 
 declare const __WEB_ALTERED__: boolean
 
@@ -16,9 +17,7 @@ const READINESS_TIMEOUT = 2000
 export async function launchWeb(storyId: string, args?: Record<string, unknown>) {
 	const mounted = mountStory(
 		storyId,
-		__WEB_ALTERED__ && storyId === 'switch--unchecked-light'
-			? { ...args, checked: true }
-			: args,
+		__WEB_ALTERED__ && storyId === 'switch--unchecked-light' ? { ...args, checked: true } : args,
 	)
 
 	try {
@@ -104,10 +103,39 @@ async function waitForReady(mounted: {
 	}
 
 	if (window.devicePixelRatio !== WEB_PROFILE.scale) {
-		throw new Error(
-			`devicePixelRatio ${window.devicePixelRatio} does not match ${WEB_PROFILE.id}`,
-		)
+		throw new Error(`devicePixelRatio ${window.devicePixelRatio} does not match ${WEB_PROFILE.id}`)
 	}
+
+	const track = control!.getBoundingClientRect()
+	const thumb = control!.firstElementChild?.getBoundingClientRect()
+	if (!thumb) {
+		throw new Error(`Switch thumb missing for ${mounted.storyId}`)
+	}
+
+	assertSwitchGeometry(
+		{
+			stage: {
+				x: second.x,
+				y: second.y,
+				width: second.width,
+				height: second.height,
+			},
+			track: {
+				x: track.x - second.x,
+				y: track.y - second.y,
+				width: track.width,
+				height: track.height,
+			},
+			thumb: {
+				x: thumb.x - second.x,
+				y: thumb.y - second.y,
+				width: thumb.width,
+				height: thumb.height,
+			},
+		},
+		Boolean(mounted.args.checked),
+		Number(mounted.args.displacement ?? 0),
+	)
 }
 
 async function captureStage(mounted: { host: HTMLElement; storyId: string }) {

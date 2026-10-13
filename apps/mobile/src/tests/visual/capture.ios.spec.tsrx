@@ -6,6 +6,7 @@ import { Application } from '@nativescript/core'
 import { requestAnimationFrame } from '@nativescript/core/animation-frame'
 import meta, { SwitchStage, UncheckedLight } from './Switch.stories.ios'
 import { CAPTURE_PROFILE } from '../../../../visual/src/scenario'
+import { assertSwitchGeometry } from '../../../../visual/src/geometry'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 
@@ -71,6 +72,17 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 				expect(native.bounds.size.height).toBe(CAPTURE_PROFILE.height)
 				const control = findByTestId(mounted.view, 'visual-switch')! as any
 				const thumbPosition = control.getChildAt(0).getLocationRelativeTo(control)
+				const trackRect = control.ios.convertRectToView(control.ios.bounds, native)
+				const thumb = control.getChildAt(0)
+				const thumbRect = thumb.ios.convertRectToView(thumb.ios.bounds, native)
+				const captureRect = (rect: CGRect) => ({
+					x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height,
+				})
+
+				assertSwitchGeometry({
+					stage: captureRect(native.bounds), track: captureRect(trackRect), thumb: captureRect(thumbRect),
+				}, composed.args.checked, displacement)
+
 				expect(composed.args.checked).toBe(false)
 				expect(thumbPosition.x).toBe(3)
 				expect(thumbPosition.y).toBe(3)

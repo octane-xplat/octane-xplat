@@ -141,6 +141,50 @@ story, mounted window, control presence, and stable native geometry across
 frames. The native screen scale and OS are recorded separately. Native bounds
 and decoded PNG dimensions are checked exactly before comparison. The profile is compatible, but its real pixels differ from web.
 
+Both capture drivers also require exact component geometry before taking pixels:
+the track is 48 × 28 at (24, 18), and the unchecked thumb is 22 × 22 at
+(27, 21), relative to the stage. The checked thumb starts at (47, 21).
+The rendered displacement diagnostic shifts both component positions by exactly
+one pixel while leaving the stage fixed. Fractional geometry, a shifted stage,
+or a resized control fails capture; the driver never rounds or aligns it.
+The shared geometry checks run with the comparator tests:
+
+```sh
+pnpm --filter @xplat/visual test:comparator
+```
+
+### Shared-raster research is not M3 acceptance
+
+The recovered Iris probe (task `14fc6c14-0135-41c3-b89f-9c7bfb4008b6`)
+demonstrates lossless bitmap display: four same-source web/iOS pairs have zero
+decoded differences. Its web composite displayed on iOS also matches the
+unchanged common reference exactly, with nonwhite bounds x=24…71, y=18…45.
+These are historical research captures, not a fresh production qualification.
+
+The exact composite is an opaque 48 × 28 screenshot with white corners. The
+diagnostic test installs it into the native track layer, hides the thumb, and
+captures through an explicit sRGB CALayer bitmap path. The ordinary component
+and UIKit hierarchy capture were restored afterward; their historical unchanged
+captures still differ by 296 pixels. The probe also excluded Swift sources to
+build. Those exclusions are not an accepted build configuration.
+
+A normal-build recapture on October 12, 2026 used the restored sources and
+passed the exact geometry checks, three independent native mounts, iOS
+regression, and both rendered displacement diagnostics. Numerical comparison
+still reports web 0 / iOS 296 differing pixels against the unchanged reference.
+The ordinary parity command separately rejects the common reference's stale
+scenario hash before comparing pixels. Neither result qualifies M3; no
+reference metadata or baseline pixels were promoted.
+
+Do not embed that stage-backed screenshot as a Switch fix: it carries the white
+background and does not establish checked, theme, style, or lifecycle behavior.
+A production rendering solution must retain those behaviors and pass the normal
+capture commands, separate regressions, common-reference parity, repeatability,
+and both one-pixel diagnostics. M3 and the four remaining platform lanes stay
+unqualified until those gates pass.
+
+### Baseline candidates and ordinary checks
+
 Generate reviewable candidates only from a valid unchanged capture. Replace
 `RUN_ID` with the directory printed by the capture command:
 
