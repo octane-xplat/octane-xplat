@@ -62,6 +62,26 @@ export class MobileController {
 		}
 	}
 
+	/**
+	 * One Back/Escape step: dismiss shell chrome before the host treats the key
+	 * as navigation. The active panel closes first; a stage-only session exits
+	 * next; nothing to dismiss returns null so the key keeps its host meaning.
+	 * Story content is untouched — panel/flag changes never mount or dispose.
+	 */
+	dismissOverlay(): 'panel' | 'stage-only' | null {
+		if (this.panel) {
+			this.panel = null
+			return 'panel'
+		}
+
+		if (this.stageOnly) {
+			this.stageOnly = false
+			return 'stage-only'
+		}
+
+		return null
+	}
+
 	control(key: string, value: ControlValueInput): string | undefined {
 		const story = this.session.currentStory
 		if (!story || this.session.state.phase !== 'ready') {return 'Wait for the story to be ready'}

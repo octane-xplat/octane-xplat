@@ -67,9 +67,11 @@ pnpm exec xplat workshop dev --target android --device YOUR_ANDROID_DEVICE_ID --
 
 Select **Workshop / Counter**, then press **Increment**. Open **Controls**, edit
 `step`, and press **Apply step**. Closing the panel returns to the same story.
-**Reset** rebuilds its props, store and fixture from defaults. Save a story or
-component to request a fresh revision. A failed edit keeps the previous stage
-marked **STALE**; correcting the source requests another revision.
+Back or hardware Escape closes an open panel, then exits stage-only view, and
+only then leaves the workshop to the host. **Reset** rebuilds its props, store
+and fixture from defaults. Save a story or component to request a fresh
+revision. A failed edit keeps the previous stage marked **STALE**; correcting
+the source requests another revision.
 
 ```ts
 // Source edit in the story created by init:
@@ -116,9 +118,17 @@ export default defineConfig(async ({ mode }) => withWorkshopMobile(
 The shell keeps a single attached stage while switching phone, compact and wide
 layouts. Controls use explicit Apply actions to avoid applying unfinished text
 composition. NativeScript buttons, text fields and scroll views provide the shell
-surfaces; accessible names and Android panel Back handling are implemented.
-Their actual accessibility, focus return, keyboard visibility, safe areas and
-IME behavior remain unverified. Hardware Escape handling is not implemented yet.
+surfaces; accessible names are implemented. Host Back and hardware Escape share
+one dismissal contract: an open stories/controls panel closes first (with a
+focus-return attempt to its opener), stage-only view exits next, and the key
+otherwise stays with the host or story. Android Back is the activity callback;
+hardware Escape uses the unhandled-key-event listener so a story view or IME
+composition that owns the key keeps it. iOS uses a page key command enabled
+only while a dismissal is available, routed to the accessibility escape hook —
+presented story modals keep priority — and requires the iOS 15 key-command API
+(older hosts keep the toolbar and accessibility-escape paths). Their actual
+accessibility, focus return, keyboard visibility, safe areas, IME and
+key-delivery behavior remain unverified on real hosts.
 
 The native adapter reuses the pinned portable Storybook composition subset and
 the shared session's preparation/disposal core, then mounts compiler-produced

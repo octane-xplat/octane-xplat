@@ -122,6 +122,30 @@ for (const target of ['ios', 'android'] as const) {describe(`${target} controlle
 		expect(x.session.state.storyId).toBe('second')
 	})
 
+	it('dismisses the panel before stage-only and keeps the mounted story untouched', async () => {
+		const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
+		await x.controller.select('mobile/shared')
+		x.controller.panel = 'stories'
+		expect(x.controller.dismissOverlay()).toBe('panel')
+		expect(x.controller.panel).toBeNull()
+		expect(x.mounts).toHaveLength(1)
+		expect(x.unmounts()).toBe(0)
+		expect(x.session.currentProps?.count).toBe(1)
+
+		x.controller.stageOnly = true
+		expect(x.controller.dismissOverlay()).toBe('stage-only')
+		expect(x.controller.stageOnly).toBe(false)
+		expect(x.controller.dismissOverlay()).toBeNull()
+		expect(x.mounts).toHaveLength(1)
+		expect(x.unmounts()).toBe(0)
+
+		x.controller.stageOnly = true
+		x.controller.panel = 'controls'
+		expect(x.controller.dismissOverlay()).toBe('panel')
+		expect(x.controller.dismissOverlay()).toBe('stage-only')
+		expect(x.controller.dismissOverlay()).toBeNull()
+	})
+
 	it('keeps last revision stale on compile failure, then reloads the same ID fresh', async () => {
 		const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
 		await x.controller.select('mobile/shared')
