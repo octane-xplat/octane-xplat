@@ -140,7 +140,9 @@ patchedDependencies:
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
   # listeners. Aligns intrinsic ref types with Octane callback cleanup and nested arrays
   # with optional entries. Advertises the implemented visibility capability so committed
-  # suspense bodies can be retained while pending.
+  # suspense bodies can be retained while pending. Preserves authored Grid row/col/span
+  # metadata independently of NativeScript defaults and computed auto-placement, notifying
+  # Grid when placement props change.
   "@nativescript-community/octane@0.2.4": packages/cli/patches/@nativescript-community__octane@0.2.4.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

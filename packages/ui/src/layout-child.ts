@@ -9,12 +9,15 @@ const FLEX_ALIGN: Record<string, string> = { start: 'flex-start', end: 'flex-end
  *  The flex-container props (justifyContent/alignItems/flexWrap/gap) land on
  *  the host flexboxlayout itself — its own attributes, not child metadata. */
 export function layoutChildProps(props: LayoutChildProps & Partial<FlexContainerProps>) {
-	const result: Record<string, any> = {}
+	// Dynamic prop snapshots retain omitted keys; explicitly clear placement.
+	const result: Record<string, any> = {
+		row: props.row,
+		col: props.col,
+		rowSpan: props.rowSpan,
+		colSpan: props.colSpan,
+	}
+
 	for (const key of [
-		'row',
-		'col',
-		'rowSpan',
-		'colSpan',
 		'dock',
 		'left',
 		'top',

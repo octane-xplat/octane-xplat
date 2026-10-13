@@ -77,6 +77,79 @@ Save the file with the development server running. Press Add one twice and
 check that the text says “Count: 2.” Reloading starts at zero again.
 [Styling](styling.md) explains how to add spacing and button decoration.
 
+### Grid placement
+
+`Grid` puts children in cells. `row` and `col` start at zero; omit them to
+fill the next free cell. `colSpan` and `rowSpan` cover several cells.
+A reusable component must forward these props to its outermost view, as
+`Card` does here. Use child margins for spacing.
+
+```tsx
+import { Grid, Text, View } from '@octane-xplat/ui'
+import type { LayoutChildProps } from '@octane-xplat/ui'
+
+function Card(props: LayoutChildProps) {
+ return <View {...props}><Text>Reserved</Text></View>
+}
+export function GridExample() {
+ return (
+  <Grid columns="*,*,*">
+   <Card row={0} col={0} colSpan={2} />
+   <Text>Next free cell</Text>
+  </Grid>
+ )
+}
+```
+
+For a native component that returns an intrinsic host directly, keep the
+placement keys in its JSX even when a value is `undefined`. Omitting a key
+from a changing prop spread can retain its previous native value. Put this
+component in a `.mobile.tsx` file.
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+import type { LayoutChildProps } from '@octane-xplat/ui'
+
+export function NativeCard(props: LayoutChildProps) {
+ return (
+  <gridlayout row={props.row} col={props.col} rowSpan={props.rowSpan} colSpan={props.colSpan}>
+   <label text="Reserved" />
+  </gridlayout>
+ )
+}
+```
+
+Conditional children can be inserted after mounting. Their owning component
+must use reactive state or a subscribed store so the renderer receives the
+change. On NativeScript, Grid batches placement after child mutations;
+checking native coordinates immediately inside the state setter is too early.
+
+```tsx
+import { useState } from 'octane'
+import { Grid, Pressable, Text, View } from '@octane-xplat/ui'
+
+export function LateGridExample() {
+ const [show, setShow] = useState(false)
+ return (
+  <View>
+   <Pressable onPress={() => setShow(current => !current)}><Text>Toggle extra cell</Text></Pressable>
+   <Grid columns="*,*"><Text>First</Text>{show ? <Text>Extra</Text> : null}</Grid>
+  </View>
+ )
+}
+```
+
+The maintained [Grid driver fixture](../../packages/ui/tests/grid-placement.fixture.mobile.tsrx)
+covers placement, insertion, removal, and reorder. Its Node tests substitute
+native views; phone layout and gesture/overlay timing still need device checks.
+Existing apps need the current framework patches (`xplat patches apply`) and
+a reinstall before relying on the NativeScript placement correction.
+
+```sh
+pnpm exec xplat patches apply
+pnpm install
+```
+
 ### Layout and platform controls
 
 `Stack` arranges its contents in a row or column. `HStack` fixes the direction

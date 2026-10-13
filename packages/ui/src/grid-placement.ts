@@ -25,5 +25,7 @@ export function rememberGridChildPlacement(view: unknown, props: GridChildPlacem
 }
 
 export function gridChildPlacement(view: unknown): GridChildPlacement {
-	return typeof view === 'object' && view !== null ? (placements.get(view) ?? {}) : {}
+	return typeof view === 'object' && view !== null
+		? ((view as any)[Symbol.for('octane-xplat.grid-placement')] ?? placements.get(view) ?? {})
+		: {}
 }

@@ -3,8 +3,7 @@ import { useEffect, useRef } from 'octane';
 import type { GridProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { autoPlaceGridChildren, ensureGridTracks } from './grid-auto-placement';
-import { gridChildPlacement } from './grid-placement';
+import { bindNativeGridPlacement } from './native-grid-placement';
 
 let warnedAboutGap = false;
 
@@ -20,24 +19,7 @@ export function Grid(props: GridProps) @{
 		const host = grid.current;
 		if (!host) return;
 
-		const views: any[] = [];
-		host.eachChildView((child: any) => {
-			views.push(child);
-			return true;
-		});
-
-		const placement = autoPlaceGridChildren(
-			views.map(gridChildPlacement),
-			props.rows,
-			props.columns,
-		);
-
-		host.rows = ensureGridTracks(props.rows, placement.rowCount);
-		host.columns = ensureGridTracks(props.columns, placement.columnCount);
-		for (let index = 0; index < views.length; index++) {
-			views[index].row = placement.cells[index].row;
-			views[index].col = placement.cells[index].col;
-		}
+		return bindNativeGridPlacement(host, props.rows, props.columns);
 	}, [props.children, props.rows, props.columns]);
 
 	<gridlayout
