@@ -72,6 +72,8 @@ export const targets = {
 			// simulator/emulator through the upstream runner.
 			'src/test.ts',
 			'src/app.spec.tsrx',
+			'src/native-runtime.spec.ts',
+			'src/failure-reporting.spec.ts',
 			'vitest.config.mts',
 		],
 		deps: [

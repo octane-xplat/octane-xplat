@@ -20,19 +20,22 @@
 //   sim      --smoke-ios: install + launch the built .app on an iOS sim,
 //            fail on crash or JS error output (debug-simulator artifact —
 //            NOT evidence of signed store distribution)
-//   tests    --test-ios: run the scaffolded on-device suite (`ns test ios`)
+//   tests    --test-android: same suite on VERIFY_ANDROID_DEVICE (must be booted);
+//            owns a disposable app identity and stops it after completion
+//            --test-ios: run the scaffolded on-device suite (`ns test ios`)
 //            on a booted iPhone simulator — exercises the packed cli vite
 //            overlay, the packed platform /testing export, scaffolded
 //            specs, and the app's App_Resources ATS exception end to end
 //
 // Env:
 //   VERIFY_CONSUMER_DIR — reuse a work dir instead of a mkdtemp (kept afterwards)
+//   VERIFY_ANDROID_DEVICE — explicitly selected, already-booted Android host for --test-android
 //   VERIFY_IOS_DEVICE — UDID for --test-ios/--smoke-ios device selection
 //   XPLAT_WEB_BROWSERS — comma-separated Playwright engines for --smoke web
 //   PLAYWRIGHT_REQUIRED=0 — downgrade a missing playwright install to a skip
 //
 // Usage: node scripts/verify-consumer.mjs [--no-build] [--smoke web]
-//        [--native ios,android] [--smoke-ios] [--test-ios] [--keep]
+//        [--native ios,android] [--smoke-ios] [--test-ios] [--test-android] [--keep]
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
@@ -50,6 +53,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { lockstepPackages } from './publishable.mjs'
+import { verifyAndroidTests } from './verify-android-tests.mjs'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
@@ -64,6 +68,11 @@ const smokeTargets = (flagValue('smoke') ?? '').split(',').filter(Boolean)
 const nativeTargets = (flagValue('native') ?? '').split(',').filter(Boolean)
 const smokeIos = flag('smoke-ios')
 const testIos = flag('test-ios')
+const testAndroid = flag('test-android')
+if (testAndroid) {
+	assert.ok(process.env.VERIFY_ANDROID_DEVICE, '--test-android requires VERIFY_ANDROID_DEVICE')
+}
+
 const keep = flag('keep') || Boolean(process.env.VERIFY_CONSUMER_DIR)
 
 const work = process.env.VERIFY_CONSUMER_DIR
@@ -560,6 +569,16 @@ try {
 					.trim()
 
 				return `booted ${sim.name}${summary ? ` — ${summary}` : ''}`
+			},
+		)
+	}
+
+	if (testAndroid) {
+		await gate(
+			'ns test android — scaffolded on-device specs run in the packed app runtime',
+			30 * 60 * 1000,
+			() => {
+				return verifyAndroidTests({ appDir, work, device: process.env.VERIFY_ANDROID_DEVICE, run })
 			},
 		)
 	}

@@ -121,6 +121,13 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   a packed consumer (boots/selects an iPhone sim, `VERIFY_IOS_DEVICE` pins a
   UDID) — exercises the packed cli overlay, packed platform `/testing`, and
   the consumer's App_Resources.
+- `node scripts/verify-consumer.mjs --test-android` requires
+  `VERIFY_ANDROID_DEVICE` naming an already-booted, owned/authorized host and
+  `adb` on PATH. Reserve `native_builds:1`, `resident_devices:1`, and
+  `exclusive:["android:<AVD>"]` around the command. It uses a disposable app
+  identity, resets only that identity on reuse, and verifies its process stops.
+  This is a qualification command; configuration alone does not establish an
+  Android pass. The mandatory all-package build/pack gates remain intact.
 - CI: the `native-ios-tests` job (main pushes, macos-latest) boots an iPhone
   sim and runs the apps/mobile suite inside `with-target-lock ios`; the
   `evidence` job requires it.

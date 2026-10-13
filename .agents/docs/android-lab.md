@@ -172,3 +172,37 @@ API levels, OS touch input, hit-testing, and visual layout were not verified.
 The counter inspection returned zero geometry while confirming text changes;
 this is not layout evidence. Full-workspace postinstall remains blocked by
 the macOS icon type-generation errors above.
+
+## Consumer test qualification gate (2026-10-13)
+
+Android consumer testing remains **unqualified**. The attempted run produced no
+spec summary or completion result before daemon interruption. The subsequent
+standing human directive prohibits emulator/simulator verification; no physical
+device is authorized for this assignment. Build evidence below does not close
+that runtime gate, and no OS input or visual analysis was performed.
+
+The prepared consumer uses packed Xplat 0.14.0 packages, NativeScript runner
+5.0.0, Vitest 4.1.11, core 9.1.3, vite integration 8.0.17, Android runtime
+9.1.1, CLI 9.1.1, Octane 0.11.0, and native renderer 0.2.4. The attempted host
+was API 35 Google APIs arm64 image revision 9, emulator 37.1.11, Temurin
+21.0.12.1, and Gradle 8.14.3. These are candidate versions, not a newly
+qualified supported combination.
+
+The focused packed consumer passed lint, shared web/native typechecking, and
+web build. The all-package build and pack gates failed in unchanged
+`packages/lottie/src/Lottie.tsrx:150` (`TS2322`, `any[]` versus `string`). The
+focused consumer used only its nine-package Xplat dependency closure; it is
+not a release-wide packed-consumer pass.
+
+The maintained qualification gate is `scripts/verify-android-tests.mjs`, called
+by `scripts/verify-consumer.mjs --test-android`. Its host tests cover explicit
+selection, boot readiness, disposable identity reuse, assertion failure, zero
+tests, and process teardown. Scaffold specs now include the native filesystem
+bridge, expected assertion failure, subscription/timer cleanup, and automatic
+cleanup between cases. They remain unexecuted on Android.
+
+Still required on an explicitly authorized real host: the complete component
+and native API suite, an ordinary deliberately failing assertion returning
+nonzero, repeated cleanup, and app/process completion. Report gesture observer
+dispatch separately from OS input. Do not launch a virtual host while the
+standing prohibition remains in force.

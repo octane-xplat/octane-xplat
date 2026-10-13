@@ -127,6 +127,8 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 	// vitest config, starter spec, runner deps — but only the ios script.
 	assert.ok(existsSync(join(dir, 'src', 'test.ts')))
 	assert.ok(existsSync(join(dir, 'src', 'app.spec.tsrx')))
+	assert.ok(existsSync(join(dir, 'src', 'native-runtime.spec.ts')))
+	assert.ok(existsSync(join(dir, 'src', 'failure-reporting.spec.ts')))
 	assert.ok(existsSync(join(dir, 'vitest.config.mts')))
 	assert.equal(manifest.scripts['test:ios'], 'ns test ios')
 	assert.equal(manifest.scripts['test:android'], undefined)
