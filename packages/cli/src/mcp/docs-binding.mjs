@@ -5,7 +5,7 @@
 // installation wins. Linked/workspace deps become development bindings.
 
 import { createHash } from 'node:crypto'
-import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, resolve, sep } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { releaseMapping } from './release-map.mjs'
@@ -62,6 +62,25 @@ function declaredSpecs(projectRoot) {
 	}
 
 	return specs
+}
+
+function isLinkedSpec(projectRoot, spec = '') {
+	if (/^(link|workspace|portal):/.test(spec)) {
+		return true
+	}
+
+	const file = /^file:(.+)$/.exec(spec)?.[1]
+	if (!file) {
+		return false
+	}
+
+	try {
+		return statSync(resolve(projectRoot, file)).isDirectory()
+	} catch {
+		// Removing the archive after installation must not turn an installed
+		// tarball into a checkout. Unresolved directory specs remain linked.
+		return !/\.(?:tgz|tar(?:\.gz)?)$/i.test(file)
+	}
 }
 
 function installedEntry(nodeModules, name) {
@@ -129,10 +148,7 @@ export function resolveInstallations(projectRoot) {
 
 		const entry = installedEntry(nodeModules, name)
 		if (entry) {
-			const kind =
-				entry.linked || /^(link|file|workspace|portal):/.test(specs[name] ?? '')
-					? 'linked'
-					: 'registry'
+			const kind = entry.linked || isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry'
 
 			packages.push({
 				name,
@@ -152,7 +168,7 @@ export function resolveInstallations(projectRoot) {
 			packages.push({
 				name,
 				version: locked[name],
-				kind: /^(link|file|workspace|portal):/.test(specs[name] ?? '') ? 'linked' : 'registry',
+				kind: isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry',
 				installPath: null,
 				source: 'lockfile-provisional',
 			})

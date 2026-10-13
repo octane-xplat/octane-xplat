@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { createDocsService } from '../src/mcp/docs-service.mjs'
+import { resolveInstallations } from '../src/mcp/docs-binding.mjs'
 import { releaseMapping } from '../src/mcp/release-map.mjs'
 
 const GIT_ENV = {
@@ -393,6 +394,60 @@ test('linked packages bind the development checkout, labeled development', async
 	const page = await svc.read({ ref: out.results[0].ref })
 	assert.equal(page.provenance.servedVersion, 'development')
 	assert.match(page.content, /Worktree-only/)
+})
+
+test('file tarball installs bind exact installed release docs even after the archive is removed', async (t) => {
+	const { dir: remote, c1 } = makeRemote(t)
+	const consumer = makeConsumer(t, { '@octane-xplat/ui': '1.0.0' })
+	const archive = join(consumer, 'ui.tgz')
+	writeFileSync(archive, 'archive fixture: binding reads the installed manifest, not archive bytes')
+	writeFileSync(
+		join(consumer, 'package.json'),
+		JSON.stringify({
+			dependencies: { '@octane-xplat/ui': 'file:./ui.tgz' },
+		}),
+	)
+
+	const svc = service(t, consumer, remote)
+	for (const removed of [false, true]) {
+		if (removed) {
+			rmSync(archive)
+		}
+
+		const status = await svc.status()
+		assert.equal(status.identity.packages[0].kind, 'registry')
+		const out = await svc.search({ query: 'capture', platform: 'ios' })
+		assert.equal(out.results[0].provenance.servedVersion, '1.0.0')
+		assert.equal(out.results[0].provenance.commit, c1)
+		assert.equal(out.results[0].provenance.match, 'exact')
+		const page = await svc.read({ ref: out.results[0].ref })
+		assert.match(page.content, /X docs/)
+	}
+})
+
+test('file directory installs keep their development documentation binding', async (t) => {
+	const { dir: remote } = makeRemote(t)
+	const consumer = makeConsumer(t, { '@octane-xplat/ui': '1.0.0' })
+	const checkout = join(consumer, 'checkout')
+	mkdirSync(join(checkout, 'docs'), { recursive: true })
+	writeFileSync(join(checkout, 'pnpm-workspace.yaml'), 'packages: []\n')
+	writeFileSync(join(checkout, 'docs/dev.md'), '# Development\n\nLocal directory guidance.\n')
+	writeFileSync(
+		join(consumer, 'package.json'),
+		JSON.stringify({ dependencies: { '@octane-xplat/ui': 'file:./checkout' } }),
+	)
+
+	// A copied directory install is development content too, even without a
+	// symlink pointing out of node_modules.
+	assert.equal(resolveInstallations(consumer).packages[0].kind, 'linked')
+	rmSync(join(consumer, 'node_modules/@octane-xplat/ui'), { recursive: true })
+	writeFileSync(join(checkout, 'package.json'), '{"name":"@octane-xplat/ui","version":"1.0.0"}')
+	symlinkSync(checkout, join(consumer, 'node_modules/@octane-xplat/ui'))
+
+	const svc = service(t, consumer, remote)
+	const out = await svc.search({ query: 'directory' })
+	assert.equal(out.results[0].provenance.source, 'development-docs')
+	assert.equal(out.results[0].provenance.servedVersion, 'development')
 })
 
 test('status reports identity, revision, git and cache', async (t) => {
