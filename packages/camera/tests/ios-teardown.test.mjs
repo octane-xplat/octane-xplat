@@ -24,10 +24,12 @@ const load = (overrides = {}) => {
 		observer: { availability: (value) => events.push(['availability', value]) },
 		...overrides,
 	})
+
 	context.notify = (phase) => {
 		context.interrupted = phase === 'began'
 		events.push(['interruption', phase])
 	}
+
 	vm.runInContext(compiled, context)
 	return { context, events }
 }
