@@ -12,7 +12,9 @@ const source = stripTypeScriptTypes(
 )
 
 const at = (marker: string, from = 0) => source.indexOf(marker, from)
-const fn = (name: string) => source.slice(at(`function ${name}(`), at('\nfunction ', at(`function ${name}(`) + 1))
+const fn = (name: string) =>
+	source.slice(at(`function ${name}(`), at('\nfunction ', at(`function ${name}(`) + 1))
+
 const constSet = (name: string) =>
 	source.slice(at(`const ${name} = new Set(`), at('\n])', at(`const ${name} = new Set(`)) + 3)
 
@@ -107,7 +109,9 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 	}
 
 	const api = runInNewContext(
-		prefix + slices + '\n;({ makeNode, destroy, validateBatch, applyCommand, validateNodeProps, macOSDriver })',
+		prefix +
+			slices +
+			'\n;({ makeNode, destroy, validateBatch, applyCommand, validateNodeProps, macOSDriver })',
 		sandbox,
 	)
 
@@ -331,4 +335,78 @@ test('recreate rejects a view replacement under a non-container parent', () => {
 	// The original node stays intact — nothing was removed or destroyed.
 	assert.equal(fx.container.nodes.get(9), child)
 	assert.deepEqual(parent.children, [child])
+})
+
+test('stacklayout creates a view and participates in validated parent batches', () => {
+	const fx = fixture()
+	const stack = fx.makeNode(fx.container, 1, 'stacklayout', { orientation: 'horizontal' })
+	assert.ok(stack.view)
+	assert.equal(stack.type, 'stacklayout')
+	assert.doesNotThrow(() =>
+		fx.validateBatch(fx.container, [
+			{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+			{ op: 'create', id: 2, type: 'label', props: { text: 'Child' } },
+			{ op: 'insert', id: 2, parent: 1, before: null },
+		]),
+	)
+})
+
+test('invalid stacklayout orientation rejects before allocating any native host', () => {
+	const fx = fixture()
+	assert.throws(
+		() => fx.makeNode(fx.container, 1, 'stacklayout', { orientation: 'sideways' }),
+		/orientation must/,
+	)
+
+	assert.deepEqual(fx.factoryCalls, [])
+	assert.throws(
+		() =>
+			fx.validateBatch(fx.container, [
+				{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+				{ op: 'update', id: 1, props: { orientation: 'sideways' } },
+			]),
+		/orientation must/,
+	)
+
+	assert.equal(fx.container.nodes.size, 0)
+})
+
+for (const type of ['#text', 'span']) {
+	test(`stacklayout rejects ${type} children during batch validation`, () => {
+		const fx = fixture()
+		assert.throws(
+			() =>
+				fx.validateBatch(fx.container, [
+					{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+					{ op: 'create', id: 2, type, props: {} },
+					{ op: 'insert', id: 2, parent: 1, before: null },
+				]),
+			/cannot contain text-only children/,
+		)
+	})
+}
+
+
+test('destroying stacklayout detaches a retained descendant host', () => {
+	const fx = fixture()
+	const parent = fx.makeNode(fx.container, 1, 'stacklayout', {})
+	const child = fx.makeNode(fx.container, 2, 'stacklayout', {})
+	parent.children.push(child)
+	child.parent = parent
+	fx.destroy(child)
+	assert.equal(child.parent, null)
+	assert.equal(parent.children.length, 0)
+})
+
+
+test('stacklayout validates a recreated text child using parents inserted in the same batch', () => {
+	const fx = fixture()
+	assert.throws(() => fx.validateBatch(fx.container, [
+		{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+		{ op: 'create', id: 2, type: 'label', props: {} },
+		{ op: 'insert', id: 2, parent: 1, before: null },
+		{ op: 'recreate', id: 2, type: 'span', props: {} },
+	]), /cannot contain text-only children/)
+
+	assert.equal(fx.container.nodes.size, 0)
 })

@@ -57,6 +57,8 @@ function view({ orientation } = {}) {
 		trailingAnchor: anchor(),
 		topAnchor: anchor(),
 		bottomAnchor: anchor(),
+		centerXAnchor: anchor(),
+		centerYAnchor: anchor(),
 		widthAnchor: anchor(),
 		heightAnchor: anchor(),
 		subviews: [],
@@ -455,4 +457,51 @@ test('unsupported layout styles on a leaf keep useful diagnostics', () => {
 	assert.equal(warnings.length, 5)
 	assert.ok(warnings.some((message) => message.includes('style.gap on <label>')))
 	assert.ok(warnings.some((message) => message.includes('style.flexWrap')))
+})
+
+test('stacklayout orientation owns its axis and dropped orientation restores vertical', () => {
+	const stack = node('stacklayout', { orientation: 1 })
+	applyProps(stack, { orientation: 'horizontal', style: { flexDirection: 'column', padding: 8 } })
+	assert.equal(stack.view.orientation, 0)
+	assert.deepEqual(insets(stack.view.edgeInsets), { top: 8, right: 8, bottom: 8, left: 8 })
+	applyProps(stack, { orientation: undefined, style: {} })
+	assert.equal(stack.view.orientation, 1)
+	assert.deepEqual(insets(stack.view.edgeInsets), { top: 0, right: 0, bottom: 0, left: 0 })
+})
+
+test('stacklayout child alignment replaces cross-axis constraints on orientation changes', () => {
+	const stack = node('stacklayout', { orientation: 1 })
+	const child = node('label', {
+		parent: stack,
+		props: { horizontalAlignment: 'center', verticalAlignment: 'bottom' },
+	})
+
+	applyProps(stack, {
+		style: { paddingTop: 3, paddingBottom: 7, paddingLeft: 4, paddingRight: 10 },
+	})
+
+	const previous = child.crossAxisConstraint
+	assert.equal(previous.active, true)
+	assert.equal(previous.constant, -3)
+	applyProps(stack, { orientation: 'horizontal' })
+	assert.equal(previous.active, false)
+	assert.equal(child.crossAxisConstraint.constant, -7)
+	assert.equal(child.crossAxisConstraint.active, true)
+})
+
+test('stacklayout stretches unconstrained children inside padding', () => {
+	const stack = node('stacklayout', { orientation: 1 })
+	const child = node('label', { parent: stack })
+	applyProps(stack, { style: { paddingLeft: 4, paddingRight: 10 } })
+	assert.equal(child.crossAxisConstraint.constant, -14)
+	assert.equal(child.crossAxisConstraint.active, true)
+})
+
+
+test('an unstyled stacklayout initializes explicit child alignment without a prop update', () => {
+	const stack = node('stacklayout', { orientation: 1 })
+	applyProps(stack, {})
+	assert.equal(stack.view.alignment, 0)
+	assert.equal(stack.view.orientation, 1)
+	assert.equal(stack.view.spacing, 0)
 })

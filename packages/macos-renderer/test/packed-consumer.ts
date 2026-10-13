@@ -30,6 +30,7 @@ async function pack(root: string) {
 }
 
 const renderer = await pack(packageRoot)
+const jsx = await pack(join(repo, 'packages/jsx'))
 const cli = await pack(join(repo, 'packages/cli'))
 const create = await pack(join(repo, 'packages/create'))
 // Signal-reading fixtures need the patched compiler and oxc parser; mirror the
@@ -46,6 +47,12 @@ for (const file of ['App.macos.tsx', 'main.ts', 'dev-shell.ts', 'types.ts', 'glo
 	await cp(join(fixture, file), join(app, 'src', file))
 }
 
+// Keep the contributor example checked by the same independent consumer.
+const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md'), 'utf8')
+const example = ledger.match(/```tsx\n([\s\S]*?)```/)?.[1]
+assert.ok(example, 'StackLayout ledger must include its checked JSX example')
+await writeFile(join(app, 'src/Example.macos.tsx'), example)
+
 for (const file of ['vite.config.ts', 'vite.dev.config.ts', 'vite.shell.config.ts']) {
 	await cp(join(fixture, file), join(app, file))
 }
@@ -59,6 +66,7 @@ await writeFile(
 			type: 'module',
 			dependencies: {
 				'@octane-xplat/macos-renderer': renderer,
+				'@octane-xplat/jsx': jsx,
 				'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 				octane: octaneVersion,
 			},
@@ -111,7 +119,7 @@ await writeFile(
 				module: 'ESNext',
 				moduleResolution: 'Bundler',
 				jsx: 'react-jsx',
-				jsxImportSource: '@octane-xplat/macos-renderer',
+				jsxImportSource: '@octane-xplat/jsx',
 				customConditions: ['macos'],
 				moduleSuffixes: ['.macos', ''],
 				lib: ['ESNext'],
@@ -159,6 +167,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	const output = result.stdout + result.stderr
 	assert.equal(result.status, 0, output)
 	assert.match(output, /PACKED_RENDERER_OK/)
+	assert.match(output, /PACKED_STACKLAYOUT_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 

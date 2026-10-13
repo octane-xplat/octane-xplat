@@ -43,3 +43,6 @@ declare const console: {
 
 declare const process: { env: { [key: string]: string | undefined } }
 declare function setTimeout(callback: () => void, ms?: number): unknown
+
+declare const NSUserInterfaceLayoutOrientation: { [key: string]: number }
+declare const NSStackViewGravity: { [key: string]: number }

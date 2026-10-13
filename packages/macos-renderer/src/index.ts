@@ -530,7 +530,7 @@ function stackAlignmentAttribute(view: any, value: string) {
 // Container layout follows the same source order as fonts and padding. Resolve
 // whole channels so an axis-specific gap never overrides a higher-source gap.
 function syncStackLayout(node: ElementNode) {
-	if (node.type !== 'flexboxlayout' && node.type !== 'stack') {
+	if (!['flexboxlayout', 'stack', 'stacklayout'].includes(node.type)) {
 		return
 	}
 
@@ -538,14 +538,18 @@ function syncStackLayout(node: ElementNode) {
 	const style = node.styleLayout ?? {}
 	const previousOrientation = stack.orientation
 	stack.orientation =
-		style.flexDirection != null
-			? style.flexDirection === 'row'
+		node.type === 'stacklayout'
+			? node.props.orientation === 'horizontal'
 				? NSUserInterfaceLayoutOrientation.Horizontal
 				: NSUserInterfaceLayoutOrientation.Vertical
-			: (node.classOrientation ??
-				(node.props.flexDirection === 'row'
+			: style.flexDirection != null
+				? style.flexDirection === 'row'
 					? NSUserInterfaceLayoutOrientation.Horizontal
-					: NSUserInterfaceLayoutOrientation.Vertical))
+					: NSUserInterfaceLayoutOrientation.Vertical
+				: (node.classOrientation ??
+					(node.props.flexDirection === 'row'
+						? NSUserInterfaceLayoutOrientation.Horizontal
+						: NSUserInterfaceLayoutOrientation.Vertical))
 
 	const gapKey =
 		stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal ? 'columnGap' : 'rowGap'
@@ -560,13 +564,26 @@ function syncStackLayout(node: ElementNode) {
 			0,
 	)
 
-	stack.alignment = stackAlignmentAttribute(stack, stackAlignItems(node))
+	// StackLayout permits different cross-axis alignment for each child.
+	// Disable AppKit's global alignment pins; explicit per-child pins below
+	// keep the layout determined without fighting a required leading pin.
+	stack.alignment =
+		node.type === 'stacklayout'
+			? (NSLayoutAttribute.NotAnAttribute ?? 0)
+			: stackAlignmentAttribute(stack, stackAlignItems(node))
+
 	const justifyContent = stackJustifyContent(node)
 	if (stack.orientation !== previousOrientation || justifyContent !== node.appliedStackJustify) {
 		moveStackChildren(node)
 	}
 
 	node.appliedStackJustify = justifyContent
+	if (node.type === 'stacklayout') {
+		for (const child of node.children) {
+			setStackChildPriorities(node, child)
+		}
+	}
+
 	updateStackDistribution(node)
 	updateCrossAxisConstraints(node)
 }
@@ -607,6 +624,19 @@ function stackAlignItems(node: ElementNode) {
 }
 
 function stackJustifyContent(node: ElementNode) {
+	if (node.type === 'stacklayout') {
+		const alignment =
+			node.props.orientation === 'horizontal'
+				? node.props.horizontalAlignment
+				: node.props.verticalAlignment
+
+		return alignment === 'center' || alignment === 'middle'
+			? 'center'
+			: alignment === 'right' || alignment === 'bottom'
+				? 'end'
+				: 'start'
+	}
+
 	if (node.styleLayout?.justifyContent != null) {
 		return node.styleLayout.justifyContent
 	}
@@ -660,9 +690,56 @@ function updateCrossAxisConstraints(parent: ElementNode) {
 
 		child.crossAxisConstraint = null
 		const childView = arrangedView(child)
+		let childAlignment =
+			parent.type === 'stacklayout'
+				? (child.props[horizontal ? 'verticalAlignment' : 'horizontalAlignment'] ?? 'stretch')
+				: alignItems
+
+		if (
+			parent.type === 'stacklayout' &&
+			childAlignment === 'stretch' &&
+			child.sizeConstraintSpecs?.[dimension]
+		) {
+			childAlignment = horizontal ? 'middle' : 'center'
+		}
+
+		if (childView && parent.type === 'stacklayout' && childAlignment !== 'stretch') {
+			const centered = childAlignment === 'center' || childAlignment === 'middle'
+			const trailing = childAlignment === 'right' || childAlignment === 'bottom'
+			const anchor = horizontal
+				? centered
+					? 'centerYAnchor'
+					: trailing
+						? 'bottomAnchor'
+						: 'topAnchor'
+				: centered
+					? 'centerXAnchor'
+					: trailing
+						? 'trailingAnchor'
+						: 'leadingAnchor'
+
+			const constant = centered
+				? horizontal
+					? (insets.bottom - insets.top) / 2
+					: (insets.left - insets.right) / 2
+				: trailing
+					? -(horizontal ? insets.bottom : insets.right)
+					: horizontal
+						? insets.top
+						: insets.left
+
+			child.crossAxisConstraint = childView[anchor].constraintEqualToAnchorConstant(
+				stack[anchor],
+				constant,
+			)
+
+			child.crossAxisConstraint.active = true
+			continue
+		}
+
 		if (
 			bothScrollAxes ||
-			alignItems !== 'stretch' ||
+			childAlignment !== 'stretch' ||
 			!childView ||
 			child.sizeConstraintSpecs?.[dimension]
 		) {
@@ -1872,6 +1949,7 @@ function makeImageView(props: PropBag) {
 /** Types whose views arrange child views; mirrors the check in insert(). */
 const VIEW_PARENT_TYPES = new Set([
 	'stack',
+	'stacklayout',
 	'flexboxlayout',
 	'scrollview',
 	'gridlayout',
@@ -1929,6 +2007,14 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		if (['label', 'textfield', 'textview'].includes(type) && style.color != null) {
 			nativeColor(style.color)
 		}
+	}
+
+	if (
+		type === 'stacklayout' &&
+		props?.orientation != null &&
+		!['horizontal', 'vertical'].includes(props.orientation)
+	) {
+		throw new Error('[macos-host] stacklayout orientation must be horizontal or vertical')
 	}
 
 	if (type === 'gridlayout') {
@@ -1993,6 +2079,18 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'stack':
 				node.view = makeStack(props)
 				break
+			case 'stacklayout': {
+				const stack = makeFlexbox({
+					...props,
+					// Keep the recognizer ready for a handler added after creation.
+					onTap: props.onTap ?? props.onClick ?? props.onPress ?? (() => {}),
+					flexDirection: props.orientation === 'horizontal' ? 'row' : 'column',
+				})
+
+				node.view = stack.view
+				node.actionId = stack.actionId
+				break
+			}
 			case 'flexboxlayout': {
 				const flexbox = makeFlexbox(props)
 				node.view = flexbox.view
@@ -2520,10 +2618,10 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'color' && textControl) {
 		node.styleColor = undefined
 		applyThemeColors(node)
-	} else if (name === 'padding' && node.type === 'flexboxlayout') {
+	} else if (name === 'padding' && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
 		node.stylePaddingBox = undefined
 		syncEdgeInsets(node)
-	} else if (EDGE_INSET_PROPS.has(name) && node.type === 'flexboxlayout') {
+	} else if (EDGE_INSET_PROPS.has(name) && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
 		for (const edge of EDGE_INSET_PROPS.get(name)!) {
 			delete node.stylePaddingEdges?.[edge]
 		}
@@ -2585,7 +2683,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	// last apply must reset the native state they installed before the current
 	// values go on — otherwise removed styles linger on the view.
 	const next: PropBag = style ?? {}
-	if (node.type === 'flexboxlayout' || node.type === 'stack') {
+	if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type)) {
 		node.styleLayout = Object.fromEntries(
 			Object.entries(next).filter(([name]) => isStackLayoutInput(name)),
 		)
@@ -2603,7 +2701,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		}
 
-		if ((node.type === 'flexboxlayout' || node.type === 'stack') && isStackLayoutInput(name)) {
+		if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type) && isStackLayoutInput(name)) {
 			// Applied together below, after all style inputs have reconciled.
 			continue
 		} else if (name === 'pointerEvents') {
@@ -2636,10 +2734,10 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'lineHeight' && node.type === 'label') {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
 			continue
-		} else if (name === 'padding' && node.type === 'flexboxlayout') {
+		} else if (name === 'padding' && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
 			node.stylePaddingBox = parseEdgeInsets(value)
 			syncEdgeInsets(node)
-		} else if (EDGE_INSET_PROPS.has(name) && node.type === 'flexboxlayout') {
+		} else if (EDGE_INSET_PROPS.has(name) && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
 			const edges = (node.stylePaddingEdges ??= {})
 			for (const edge of EDGE_INSET_PROPS.get(name)!) {
 				edges[edge] = Number(value) || 0
@@ -2848,6 +2946,7 @@ function applyClassName(node: ElementNode, value: any) {
 
 	if (
 		node.type === 'flexboxlayout' ||
+		node.type === 'stacklayout' ||
 		node.type === 'stack' ||
 		node.type === 'scrollview' ||
 		node.type === 'gridlayout'
@@ -3315,7 +3414,7 @@ function syncTextControlState(node: ElementNode) {
 }
 
 function applyAccessibility(node: ElementNode, name: string, value: any) {
-	if (node.type === 'flexboxlayout' && node.actionId !== undefined) {
+	if (['flexboxlayout', 'stacklayout'].includes(node.type) && node.actionId !== undefined) {
 		const props = stackAccessibilityPropsByView.get(node.view!) ?? {}
 		stackAccessibilityPropsByView.set(node.view!, { ...props, [name]: value })
 		if (name === 'accessibilityLabel') {
@@ -3349,6 +3448,14 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	stacklayout: [
+		'orientation',
+		'horizontalAlignment',
+		'verticalAlignment',
+		'onTap',
+		'onClick',
+		'onPress',
+	],
 	label: ['maxLines', 'whiteSpace', 'textOverflow'],
 	webview: ['html', 'src'],
 	textfield: ['secure', 'returnKeyType', 'placeholderTextColor'],
@@ -3378,6 +3485,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		absolutelayout: ['left', 'top', 'right', 'bottom'],
+		stacklayout: ['horizontalAlignment', 'verticalAlignment'],
 		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
 	}
 
@@ -3386,7 +3494,20 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
-		if ((node.type === 'flexboxlayout' || node.type === 'stack') && isStackLayoutInput(name)) {
+		if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type) && isStackLayoutInput(name)) {
+			continue
+		}
+
+		if (
+			node.type === 'stacklayout' &&
+			['orientation', 'horizontalAlignment', 'verticalAlignment'].includes(name)
+		) {
+			continue
+		}
+
+		// Attached alignment metadata is retained before the batch inserts
+		// the child; its parent consumes it during layout reconciliation.
+		if (!node.parent && ['horizontalAlignment', 'verticalAlignment'].includes(name)) {
 			continue
 		}
 
@@ -3395,7 +3516,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
-		if (['flexboxlayout', 'gridlayout', 'absolutelayout'].includes(node.type)) {
+		if (['flexboxlayout', 'stacklayout', 'gridlayout', 'absolutelayout'].includes(node.type)) {
 			if (['onTouch', 'onLongPress', 'onDoubleTap'].includes(name)) {
 				setPressGesture(node, name)
 				continue
@@ -3431,6 +3552,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
+			case 'stacklayout':
 			case 'flexboxlayout':
 				if (name === 'spacing') {
 					syncStackLayout(node)
@@ -3440,8 +3562,21 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyClassName(node, value)
 				} else if (name === 'id') {
 					continue
-				} else if (name === 'onTap') {
-					setAction(node, value)
+				} else if (
+					name === 'onTap' ||
+					(node.type === 'stacklayout' && ['onClick', 'onPress'].includes(name))
+				) {
+					const handler =
+						node.type === 'stacklayout'
+							? (node.props.onTap ?? node.props.onClick ?? node.props.onPress)
+							: value
+
+					setAction(
+						node,
+						node.type === 'stacklayout' && typeof handler === 'function'
+							? () => handler({ eventName: 'tap', object: node.view })
+							: handler,
+					)
 				} else if (name === 'onPan') {
 					setPanAction(node, value)
 				} else if (name.startsWith('on') && value == null) {
@@ -3710,10 +3845,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
-	if (
-		(node.type === 'flexboxlayout' || node.type === 'stack') &&
-		Object.keys(props).some(isStackLayoutInput)
-	) {
+	if (node.type === 'stacklayout' ||
+		(['flexboxlayout', 'stack'].includes(node.type) && Object.keys(props).some(isStackLayoutInput))) {
 		syncStackLayout(node)
 	}
 
@@ -3768,7 +3901,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	if (node.type === 'gridlayout' || node.type === 'absolutelayout') {
 		queueLayoutReconcile(node.container, node)
-	} else if (node.parent?.type === 'gridlayout' || node.parent?.type === 'absolutelayout') {
+	} else if (
+		node.parent?.type === 'gridlayout' ||
+		node.parent?.type === 'absolutelayout' ||
+		node.parent?.type === 'stacklayout'
+	) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 }
@@ -3857,6 +3994,10 @@ function insert(
 	const parent = (parentId === null ? null : container.nodes.get(parentId)) ?? null
 	if (parentId !== null && !parent) {
 		throw new Error('Unknown AppKit parent ' + parentId)
+	}
+
+	if (parent?.type === 'stacklayout' && !node.view) {
+		throw new Error('AppKit <stacklayout> cannot contain text-only children')
 	}
 
 	if (parent && node.view && !VIEW_PARENT_TYPES.has(parent.type)) {
@@ -3965,6 +4106,12 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	// Removing an ancestor does not detach AppKit's arranged descendants.
+	// A retained host ref must not keep the destroyed stack in that tree.
+	if (node.type === 'stacklayout' && node.view) {
+		detach(node.container, node)
+	}
+
 	disposePressGestures(node)
 	if (node.view) {
 		panHandlersByView.delete(node.view)
@@ -4032,6 +4179,11 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 	// later commands validate against the intended tree.
 	const pending = new Map<number, { type: string; props: PropBag }>()
 	const destroyed = new Set<number>()
+	const parents = new Map<number, number | null>()
+	const parentOf = (id: number) => parents.has(id)
+		? parents.get(id)
+		: container.nodes.get(id)?.parent?.id
+
 	const known = (id: number): { type: string; props: PropBag } | undefined =>
 		pending.get(id) ?? (destroyed.has(id) ? undefined : container.nodes.get(id))
 
@@ -4041,6 +4193,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				assertSupportedType(command.type)
 				validateNodeProps(command.type, command.props)
 				pending.set(command.id, { type: command.type, props: command.props })
+				parents.set(command.id, null)
 				destroyed.delete(command.id)
 				continue
 			case 'recreate': {
@@ -4052,6 +4205,12 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				assertSupportedType(command.type)
 				validateNodeProps(command.type, command.props)
 				const existing = container.nodes.get(command.id)
+				const parentId = parentOf(command.id)
+				const parent = parentId == null ? null : known(parentId)
+				if (parent?.type === 'stacklayout' && !typeHasView(command.type)) {
+					throw new Error('AppKit <stacklayout> cannot contain text-only children')
+				}
+
 				if (
 					existing?.parent &&
 					typeHasView(command.type) &&
@@ -4086,11 +4245,16 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 						throw new Error('Unknown AppKit parent ' + parentId)
 					}
 
+					if (parent.type === 'stacklayout' && !typeHasView(entry.type)) {
+						throw new Error('AppKit <stacklayout> cannot contain text-only children')
+					}
+
 					if (typeHasView(entry.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
 						throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 					}
 				}
 
+				parents.set(command.id, parentId)
 				continue
 			}
 			case 'destroy':
@@ -4098,6 +4262,11 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				destroyed.add(command.id)
 				continue
 			case 'remove':
+				if (parentOf(command.id) === command.parent) {
+					parents.set(command.id, null)
+				}
+
+				continue
 			case 'visibility':
 			case 'ensure-public-instance':
 				continue
@@ -4113,6 +4282,10 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// A retried batch can re-create an id the earlier attempt already
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
+			if (existing?.parent?.type === 'stacklayout' && !typeHasView(command.type)) {
+				throw new Error('AppKit <stacklayout> cannot contain text-only children')
+			}
+
 			if (existing) {
 				detach(container, existing)
 				destroy(existing)
@@ -4187,6 +4360,10 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			}
 
 			const parent = node.parent
+			if (parent?.type === 'stacklayout' && !typeHasView(command.type)) {
+				throw new Error('AppKit <stacklayout> cannot contain text-only children')
+			}
+
 			if (parent && typeHasView(command.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
 				// insert would reject the replacement after the original was
 				// already removed and destroyed — fail while it is intact.
