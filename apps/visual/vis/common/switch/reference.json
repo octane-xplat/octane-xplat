@@ -1,7 +1,7 @@
 {
-  "runId": "4133ca0a-cd31-4e39-b5d6-ca7284976364",
-  "revision": "c75f1b4977f3631408fe468d679c5ae832fc6e84",
-  "scenarioHash": "c4d86806bcbd656d3c41020248f9af06ebcf078686abb82f6df86f0a30739600",
+  "runId": "4f9a5709-a687-4b3d-998c-5dc2e3eb5e3f",
+  "revision": "2572b3c5ad2bf177aaa0fe6f866536e3956b74ae",
+  "scenarioHash": "cc74d72ba63268dcb3d186e3b3807ac47c690e191f6f4d5f1ae7dd10f0018c8a",
   "provenance": "real",
   "storyId": "switch--unchecked-light",
   "target": "web",

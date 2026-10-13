@@ -16,7 +16,8 @@
 		"test:comparator": "node --test scripts/parity.test.mjs scripts/geometry.test.mjs",
 		"test:ios-regression": "VIS_ROOT=vis/ios vitest run ios-regression.test",
 		"update:ios": "VIS_ROOT=vis/ios vitest run ios-regression.test --update",
-		"promote:common": "node scripts/parity.mjs --promote-common"
+		"promote:common": "node scripts/parity.mjs --promote-common",
+		"promote:common:retained": "node scripts/parity.mjs --promote-common --retained"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

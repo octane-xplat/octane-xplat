@@ -2,7 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
-import { assertParity, comparePixels, profile, validateCapture } from './parity.mjs'
+import { sourceIdentity } from './capture-manifest.mjs'
+import { assertParity, comparePixels, profile, promoteCommon, validateCapture } from './parity.mjs'
 
 // Unit fixtures borrow a committed real web PNG; they are not native capture evidence.
 const bytes = readFileSync(
@@ -83,6 +84,69 @@ test('rejects partial, duplicate, stale, mock and incompatible capture cohorts',
 		{ storyId: 'wrong' },
 	]) {
 		assert.throws(() => validateCapture({ ...capture('ios'), ...patch }, expected), /Invalid/)
+	}
+})
+
+test('retained promotion rebinds stale metadata only for byte-identical pixels', async () => {
+	const { mkdtempSync, writeFileSync, rmSync, mkdirSync } = await import('node:fs')
+	const { tmpdir } = await import('node:os')
+	const { join } = await import('node:path')
+	const directory = mkdtempSync(join(tmpdir(), 'xplat-promote-unit-'))
+	try {
+		const common = join(directory, 'common')
+		mkdirSync(common)
+		const run = { runId: 'retained-run', revision: 'retained-revision' }
+		const identity = sourceIdentity()
+		const retainedCapture = {
+			...capture('web'),
+			...run,
+			scenarioHash: identity.scenarioHash,
+		}
+
+		writeFileSync(
+			join(directory, 'manifest.json'),
+			JSON.stringify({ ...run, scenarioHash: identity.scenarioHash }),
+		)
+
+		writeFileSync(join(directory, 'web-0.json'), JSON.stringify(retainedCapture))
+		writeFileSync(join(common, 'reference.png'), bytes)
+		writeFileSync(
+			join(common, 'reference.json'),
+			JSON.stringify({ ...capture('web'), scenarioHash: 'stale' }),
+		)
+
+		promoteCommon(directory, common, { retained: true })
+		const rebound = JSON.parse(readFileSync(join(common, 'reference.json')))
+		assert.equal(rebound.runId, 'retained-run')
+		assert.equal(rebound.revision, 'retained-revision')
+		assert.equal(rebound.scenarioHash, identity.scenarioHash)
+		assert.deepEqual(readFileSync(join(common, 'reference.png')), bytes)
+
+		// Changed pixels are a new appearance, not a metadata refresh.
+		const changed = PNG.sync.read(bytes)
+		changed.data[0] ^= 1
+		writeFileSync(
+			join(directory, 'web-0.json'),
+			JSON.stringify({ ...retainedCapture, pngBase64: PNG.sync.write(changed).toString('base64') }),
+		)
+
+		assert.throws(() => promoteCommon(directory, common, { retained: true }), /byte-identical/)
+
+		// Stale scenario identity and broken run binding both still reject.
+		writeFileSync(
+			join(directory, 'web-0.json'),
+			JSON.stringify({ ...retainedCapture, scenarioHash: 'stale' }),
+		)
+
+		assert.throws(() => promoteCommon(directory, common, { retained: true }), /Invalid/)
+		writeFileSync(
+			join(directory, 'web-0.json'),
+			JSON.stringify({ ...retainedCapture, revision: 'other-revision' }),
+		)
+
+		assert.throws(() => promoteCommon(directory, common, { retained: true }), /Invalid/)
+	} finally {
+		rmSync(directory, { recursive: true, force: true })
 	}
 })
 

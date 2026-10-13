@@ -172,9 +172,12 @@ A normal-build recapture on October 12, 2026 used the restored sources and
 passed the exact geometry checks, three independent native mounts, iOS
 regression, and both rendered displacement diagnostics. Numerical comparison
 still reports web 0 / iOS 296 differing pixels against the unchanged reference.
-The ordinary parity command separately rejects the common reference's stale
-scenario hash before comparing pixels. Neither result qualifies M3; no
-reference metadata or baseline pixels were promoted.
+The common reference's recorded scenario hash had drifted behind the current
+source, so the ordinary parity command rejected it before comparing pixels.
+The retained run's web capture is byte-identical to the committed reference,
+so its provenance was re-bound through the retained-promotion path below;
+approved pixels did not change. Parity now reaches pixel comparison and still
+reports iOS 296. Neither result qualifies M3.
 
 Do not embed that stage-backed screenshot as a Switch fix: it carries the white
 background and does not establish checked, theme, style, or lifecycle behavior.
@@ -198,6 +201,19 @@ promotion separately nominates the real web capture under `vis/common/switch/`.
 Both reject stale source identity, mock captures, wrong stories, incompatible
 profiles, and displaced captures. Review and commit candidates explicitly;
 target baseline updates never approve parity differences.
+
+When unrelated edits drift the scenario hash but the rendered appearance is
+provably unchanged, a retained run can re-bind the reference metadata instead
+of forcing a fresh capture:
+
+```sh
+VIS_CAPTURE_DIR="$PWD/apps/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual promote:common:retained
+```
+
+The retained path requires the capture to match its own run manifest, carry
+the current scenario hash, and decode to bytes identical to the committed
+reference, so only metadata is refreshed — it can never rewrite approved
+pixels. A changed appearance still needs a fresh capture and review.
 
 Once candidates are approved, run the full ordinary check:
 
