@@ -508,6 +508,18 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
 		session.stopRunning()
 		clearObservers()
+		if (interrupted) {
+			// The 'ended' notification can be lost when the session is
+			// torn down mid-interruption — report it so the flag does not
+			// wedge previewReady/startRecording for the next session.
+			notify('ended')
+		}
+
+		// A destroyed session's runtime error must not wedge the next
+		// one — AVCaptureDeviceWasConnected never fires for built-in
+		// cameras, so cameraAvailable would otherwise stay false forever.
+		observer?.availability(true)
+
 		session = undefined
 		videoInput = undefined
 		audioInput = undefined
@@ -1155,6 +1167,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			captureRequest = undefined
 			captureSink = undefined
 			clearObservers()
+			interrupted = false
 			try {
 				session?.stopRunning()
 			} catch {}
