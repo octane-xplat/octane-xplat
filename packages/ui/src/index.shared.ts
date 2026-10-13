@@ -781,6 +781,7 @@ export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './merge-props'
+export { useKeyboardInset } from './use-keyboard-inset.tsrx'
 export { useKeyboard } from './use-keyboard'
 export type { UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
 export { useObjectRef } from './use-object-ref'

@@ -2,7 +2,7 @@
 
 ID: text-entry
 Targets: web, ios, android, macos
-Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoiding, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onSubmit, Sheet, Overlay
+Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoiding, useKeyboardInset, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onSubmit, Sheet, Overlay
 
 ## Starting point
 
@@ -21,6 +21,7 @@ space through form and overlay lifecycles.
 - AC3: Standalone controls have accessible names; `Field` renders and associates a visible label, optional description, and status message with its child control. Enabled actions support browser Tab/Enter/Space; `isDisabled` controls cannot activate and expose disabled state, `isReadOnly` controls stay non-editable, and busy fields report `isLoading` without disabling edits. VoiceOver/TalkBack behavior is verified separately from mappings.
 - AC6: `InputGroup` provides one label/description/status for joined prefix or suffix content and its input; group size/disabled state reaches members, and the web group is named by its visible label.
 - AC4: Focus and blur handles release/restore editing focus, and software-keyboard avoidance keeps the final field reachable, including overlays opened with the keyboard already visible.
+- AC7: A reader can consume a numeric keyboard inset with documented units and platform scope, avoid double-padding an Android resized window, and understand multiple-reader cleanup, resize restoration, and actual-host verification limits.
 - AC5: Modal focus cannot escape into background content; close/restoration and nested modal isolation are covered independently on each target. Exiting Presence content cannot accept input or remain in assistive navigation.
 
 ## Documentation
@@ -30,6 +31,7 @@ space through form and overlay lifecycles.
 - AC3: [Field names](../docs/app/text-entry.md#control-a-field), [reusable rows](../docs/app/primitives.md#reusable-rows), and [Q15](../docs/notes/open-questions.md#later--finer).
 - AC4: [Release and restore focus](../docs/app/text-entry.md#release-and-restore-focus).
 - AC5: [Modal focus](../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../docs/app/text-entry.md#verification-boundaries).
+- AC7: [Read software keyboard space](../docs/app/text-entry.md#read-software-keyboard-space), the maintained [subscription tests](../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../packages/ui/src/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../packages/ui/tests/packed-consumer.mjs).
 - AC6: [Building screens: grouped fields](../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx).
 
 ## macOS verification

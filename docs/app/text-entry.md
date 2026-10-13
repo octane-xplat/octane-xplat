@@ -253,3 +253,60 @@ touch hit-testing, VoiceOver, or TalkBack. Check those on a simulator/device
 with the target lock held, without resetting another session. Current
 runtime evidence and exact remaining cases belong in
 [input readiness notes](../notes/input-readiness-notes.md).
+
+## Read software keyboard space
+
+Use `useKeyboardInset()` when a composer needs a numeric keyboard height,
+for example to choose a sheet's height. The value is in device-independent
+pixels (points on iOS). Mount the reader before opening the keyboard on iOS.
+Web and desktop return zero; this hook does not measure a browser viewport.
+
+```tsx
+import { Text, View, useKeyboardInset } from '@octane-xplat/ui'
+
+export function KeyboardSpace() {
+  const inset = useKeyboardInset()
+  return <View><Text>Keyboard space: {inset}</Text></View>
+}
+```
+
+On Android the hook requests window resizing while at least one reader is
+mounted. The returned number excludes system bars and is zero until window
+insets are available. Without AndroidX inset support, resizing still runs
+but the number stays zero. A resized window already
+avoids the keyboard: do not add this number again as bottom padding. Readers
+share ownership, and the last reader restores the prior `softInputMode` only
+if another owner has not changed it. Mount the reader in the foreground
+Activity and remount it when the Activity changes.
+
+```tsx
+import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
+
+export function MessageForm() {
+  return <KeyboardAvoiding><TextInput placeholder="Message" /></KeyboardAvoiding>
+}
+```
+
+`KeyboardAvoiding` uses the same native subscription. On iOS it adds space
+below its contents; Android lets the window resize. iOS readers and bound
+bottom overlays share the latest frame while at least one stays mounted.
+After all detach, the observer and cached frame are released. Floating
+keyboards and partial screen occlusion need application-specific handling.
+
+```tsx
+import { KeyboardAvoiding, Text, TextInput, useKeyboardInset } from '@octane-xplat/ui'
+
+export function Composer() {
+  const inset = useKeyboardInset()
+  return <KeyboardAvoiding>
+    <Text>Keyboard space: {inset}</Text>
+    <TextInput placeholder="Write a message" />
+  </KeyboardAvoiding>
+}
+```
+
+The maintained subscription tests cover frame changes, hide, multiple readers,
+cleanup, unit conversion, and resize ownership using host doubles. Packed
+consumer checks cover imports and the numeric type. These do not establish
+OS keyboard delivery, floating-keyboard behavior, or dock positioning on a
+real iOS or Android host.

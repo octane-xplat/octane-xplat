@@ -1,50 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useState } from 'octane';
+import { useKeyboardInset } from './use-keyboard-inset.tsrx';
 import { Application } from '@nativescript/core';
 import type { KeyboardAvoidingProps } from './props';
 import { cx } from '@octane-xplat/lib';
 
-function useKeyboardInset() {
-	const [inset, setInset] = useState(0);
-	useEffect(() => {
-		if (!Application.ios) return;
-		const center = NSNotificationCenter.defaultCenter;
-		const token = center.addObserverForNameObjectQueueUsingBlock(
-			UIKeyboardWillChangeFrameNotification,
-			null,
-			NSOperationQueue.mainQueue,
-			(note: any) => {
-				// NSValue-boxed CGRect — `CGRectValue` marshals to a plain
-				// object property on this runtime, not a callable.
-				const raw = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey);
-				const boxed = raw?.CGRectValue;
-				const frame = typeof boxed === 'function' ? raw.CGRectValue() : (boxed ?? raw);
-				const screenHeight = UIScreen.mainScreen.bounds.size.height;
-				setInset(Math.max(0, screenHeight - (frame?.origin?.y ?? screenHeight)));
-			},
-		);
-
-		return () => center.removeObserver(token);
-	}, []);
-
-	return inset;
-}
-
-function useAndroidResize() {
-	useEffect(() => {
-		const nativeWindow = Application.android?.foregroundActivity?.getWindow();
-		if (!nativeWindow) return;
-		const params = android.view.WindowManager.LayoutParams;
-		const previous = nativeWindow.getAttributes().softInputMode;
-		const adjusted = (previous & ~params.SOFT_INPUT_MASK_ADJUST) | params.SOFT_INPUT_ADJUST_RESIZE;
-		nativeWindow.setSoftInputMode(adjusted);
-		return () => nativeWindow.setSoftInputMode(previous);
-	}, []);
-}
-
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	const keyboardInset = useKeyboardInset();
-	useAndroidResize();
 	const platformProps = Application.ios != null ? props.ios : props.android;
 
 	<scrollview
@@ -55,7 +16,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	>
 		<flexboxlayout
 			flexDirection="column"
-			style={keyboardInset ? { paddingBottom: keyboardInset } : undefined}
+			style={Application.ios && keyboardInset ? { paddingBottom: keyboardInset } : undefined}
 		>
 			{props.children}
 		</flexboxlayout>

@@ -166,7 +166,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 
 	let source
 	if (target === 'web') {
-		source = `import { Button, KeyboardAvoiding, View, HoverCard, Tooltip } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, HoverCard, Tooltip } from '@octane-xplat/ui'
 import { HoverCard as WebHoverCard, Tooltip as WebTooltip } from '@octane-xplat/ui/web'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
@@ -174,6 +174,10 @@ const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
+const inset: number = useKeyboardInset()
+// @ts-expect-error inset is a number, not a string
+const invalidInset: string = useKeyboardInset()
+void [inset, invalidInset]
 const keyboardProps: KeyboardAvoidingProps = { id: 'web-form', children: 'Form' }
 const button = <Button {...buttonProps} />
 const keyboard = <KeyboardAvoiding {...keyboardProps} />
@@ -189,7 +193,7 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromDOM, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, bottomSheetHost } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromDOM, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, bottomSheetHost } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
@@ -217,6 +221,10 @@ void calendar
 void code
 void outline
 const viewProps: ViewProps = { id: 'macos-root', gap: 4 }
+const inset: number = useKeyboardInset()
+// @ts-expect-error inset is a number, not a string
+const invalidInset: string = useKeyboardInset()
+void [inset, invalidInset]
 const keyboardProps: KeyboardAvoidingProps = { id: 'macos-form', children: 'Form' }
 const button = <Button {...buttonProps} />
 const keyboard = <KeyboardAvoiding {...keyboardProps} />
@@ -275,7 +283,7 @@ dialogControl.show('Edit', { purpose: 'anything' })
 void [dialog, alert, switcher, lightbox, viewport, dismiss, promise, host, invalidDialog, invalidSheet]
 `
 	} else {
-		source = `import { Button, KeyboardAvoiding, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
 import { UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
@@ -286,6 +294,10 @@ const buttonProps: ButtonProps = { children: 'Save', loading: true }
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'native-root', gap: 6 }
 const itemProps: ListItemProps = { label: 'Profile', description: 'Details', startContent: '•' }
+const inset: number = useKeyboardInset()
+// @ts-expect-error inset is a number, not a string
+const invalidInset: string = useKeyboardInset()
+void [inset, invalidInset]
 const keyboardProps: KeyboardAvoidingProps = { children: 'Form' }
 const row = <List><ListItem {...itemProps} /></List>
 const screen = () => null
@@ -359,6 +371,18 @@ void [selector, base, typeahead, tokenizer, complex, power, invalidSelector, Sel
 	)
 
 	writeFileSync(join(consumerRoot, 'consumer.tsx'), source)
+	const keyboardGuide = readFileSync(join(repoRoot, 'docs/app/text-entry.md'), 'utf8')
+		.split('## Read software keyboard space')[1]
+
+	assert.ok(keyboardGuide, 'keyboard inset guide exists')
+	const keyboardExamples = [...keyboardGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
+	assert.equal(keyboardExamples.length, 3, 'all keyboard inset examples are checked')
+	const exampleFiles = keyboardExamples.map((match, index) => {
+		const name = `keyboard-example-${index}.tsx`
+		writeFileSync(join(consumerRoot, name), match[1])
+		return name
+	})
+
 	const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
 	// Mirrors the create template's per-target tsconfig: suffix typing selects
 	// .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the
@@ -392,7 +416,7 @@ void [selector, base, typeahead, tokenizer, complex, power, invalidSelector, Sel
 					types: target === 'native' ? ['@nativescript/types'] : [],
 					skipLibCheck: true,
 				},
-				files: ['consumer.tsx'],
+				files: ['consumer.tsx', ...exampleFiles],
 			},
 			null,
 			2,
