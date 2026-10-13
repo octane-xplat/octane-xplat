@@ -14,6 +14,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { realpathSync } from 'node:fs'
 import { discoverStories } from './discover.mjs'
+import { windowsPreflight, windowsLaunchBlocker } from './windows/preflight.mjs'
 import { xplatWorkshop } from './vite.mjs'
 import { xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 
@@ -154,12 +155,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 		note: 'the workshop does not yet support this target',
 	}
 
-	report.targets.windows = {
-		backend: 'experimental nativescript/winui',
-		requirements: {},
-		status: 'unqualified-backend',
-		note: 'the workshop does not yet support this target; Windows runs on Windows hosts only',
-	}
+	report.targets.windows = windowsPreflight(root)
 
 	report.targets.linux = {
 		backend: 'gtk4/webkitgtk dom host',
@@ -300,6 +296,10 @@ export async function workshopInit({ cwd, scripts = true } = {}) {
 
 export async function workshopDev({ cwd, target = 'web', story, port } = {}) {
 	const root = consumerRoot(cwd)
+	if (target === 'windows') {
+		throw new WorkshopUsageError(windowsLaunchBlocker(windowsPreflight(root)))
+	}
+
 	if (target !== 'web') {
 		throw new WorkshopUsageError(
 			`xplat workshop dev --target ${target}: this workshop release supports the web target only — ` +

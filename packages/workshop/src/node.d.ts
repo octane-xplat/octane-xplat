@@ -7,7 +7,14 @@ export interface WorkshopDoctorReport {
 	root: string
 	targets: Record<
 		string,
-		{ backend: string; requirements: Record<string, boolean>; status: string; note?: string }
+		{
+			backend: string
+			requirements: Record<string, boolean>
+			status: string
+			note?: string
+			executionHost?: { required: string; current: string; reachable: boolean }
+			qualification?: 'unverified'
+		}
 	>
 }
 

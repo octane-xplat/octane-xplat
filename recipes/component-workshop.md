@@ -27,7 +27,7 @@ explicit inputs, recover from failures, and keep workshop data out of production
 
 ## Documentation
 
-- AC1: [Install and launch](../packages/workshop/README.md#try-it); [commands](../packages/workshop/README.md#commands).
+- AC1: [Install and launch](../packages/workshop/README.md#try-it); [commands](../packages/workshop/README.md#commands); [Windows setup status](../packages/workshop/WINDOWS.md). Gap: Windows prerequisite reporting exists, but native launch and host qualification remain incomplete.
 - AC2: [Declare stories](../packages/workshop/README.md#declaring-stories); [owned fixture resources](../packages/workshop/README.md#owned-fixture-resources).
 - AC3: [Controls and Reset](../packages/workshop/README.md#state-preserving-controls-vs-full-reset); [acceptance catalog](../apps/workshop-demo/src/stories/isolation.stories.web.tsrx).
 - AC4: [Owned fixture resources](../packages/workshop/README.md#owned-fixture-resources); [isolation example](../apps/workshop-demo/src/stories/isolation.stories.web.tsrx).

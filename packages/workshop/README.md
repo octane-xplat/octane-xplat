@@ -8,6 +8,10 @@ This is package A of the six-target workshop. Native hosts remain unqualified.
 Keyboard and browser accessibility semantics have regression coverage; actual
 screen-reader announcements and OS IME input still require qualification.
 
+For Windows prerequisite reporting and the blocked native launch, see
+[Windows workshop setup status](WINDOWS.md). Windows mounting and interaction
+remain incomplete; setup checks do not qualify that host.
+
 ## Try it
 
 Inside an existing Octane Xplat app, install the development tooling. Keep the

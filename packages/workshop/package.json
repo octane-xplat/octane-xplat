@@ -73,6 +73,7 @@
 		"test": "vitest run && tsrx-tsc --noEmit -p tsconfig.test.json",
 		"test:e2e": "pnpm --filter @xplat/workshop-demo test:e2e",
 		"test:packed": "node tests/packed-consumer.web.mjs",
+		"test:packed:windows": "node tests/packed-windows-preflight.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:types": "tsrx-tsc --noEmit -p tsconfig.test.json"
 	},
