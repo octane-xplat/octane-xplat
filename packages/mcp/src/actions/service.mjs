@@ -18,6 +18,7 @@
 //   nothing is ever silently retried
 
 import { randomUUID } from 'node:crypto'
+import { realpathSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
 	DEV_ACTIONS_DEFAULT_TIMEOUT_MS,
@@ -72,8 +73,22 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 	const keyOf = (endpoint, announcement) => `${endpoint.serverId}/${announcement.appInstanceId}`
 
 	// A registry only belongs to the app its bridge session file was written
-	// for — rebinding another app never exposes a foreign instance.
-	const belongsTo = (entry, app) => !app || resolve(entry.endpoint.appRoot) === resolve(app.root)
+	// for — rebinding another app never exposes a foreign instance. The dev
+	// server records a canonical root while discovery may hold a symlinked
+	// path (macOS /tmp, /var), so ownership compares real paths.
+	const samePath = (a, b) => {
+		if (resolve(a) === resolve(b)) {
+			return true
+		}
+
+		try {
+			return realpathSync(a) === realpathSync(b)
+		} catch {
+			return false
+		}
+	}
+
+	const belongsTo = (entry, app) => !app || samePath(entry.endpoint.appRoot, app.root)
 
 	async function refreshEndpoint(endpoint, now) {
 		const registry = await fetchBridgeRegistry(endpoint)

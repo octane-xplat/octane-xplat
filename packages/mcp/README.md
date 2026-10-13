@@ -256,6 +256,24 @@ The runner captures no images.
 goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"MCP consumer OS keyboard acceptance"}' -- node packages/mcp/tests/consumer-workflow.mjs /tmp/new-xplat-mcp-app --os-input
 ```
 
+The packed-artifact lane qualifies the same checks against release-evidence
+packaging: `prepare-packed-consumer.mjs` packs the needed packages, scaffolds
+through the packed `create-octane-xplat` bin, installs `file:` tarballs (no
+registry/latest resolution for framework packages), and tags the framework
+HEAD as `v<installed version>` in a local bare release fixture. The runner
+spawns the consumer's own installed `xplat-mcp` bin over stdin/stdout and
+redirects the canonical release-repo URL to the fixture through a per-process
+`url.insteadOf` (never user git config). Snapshot cache and evidence roots are
+isolated under the work dir. OS keyboard input additionally requires an
+unlocked console — the window server refuses activation while the screen is
+locked, and the run reports that block honestly.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"packed MCP stdio consumer acceptance"}' -- bash -c '
+  node packages/mcp/tests/prepare-packed-consumer.mjs /tmp/xplat-packed-mcp &&
+  node packages/mcp/tests/packed-stdio-consumer.mjs /tmp/xplat-packed-mcp'
+```
+
 For an existing consumer, declare actions behind the development build gate.
 Registration automatically starts the bridge when the dev-server endpoint is
 present. The action's contracts and effects appear in `xplat_dev_actions`;

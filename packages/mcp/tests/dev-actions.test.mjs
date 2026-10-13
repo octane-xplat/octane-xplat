@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict'
 import http from 'node:http'
 import { test } from 'node:test'
+import { realpathSync } from 'node:fs'
 import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
@@ -740,6 +741,26 @@ test('scanBridgeEndpoints reads the session file the dev server wrote', async (t
 	assert.equal(endpoints.length, 1)
 	assert.equal(endpoints[0].url, bridge.origin)
 	assert.equal(endpoints[0].token, bridge.token)
+})
+
+test('a bridge announcing a canonical root still owns its registry under a symlinked workspace', async (t) => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'actions-app' })
+	// The dev server records its canonical root (vite resolves symlinks);
+	// discovery keeps the given spelling — macOS /tmp and /var are links.
+	const bridge = await makeBridge(t, realpathSync(root))
+	const app = makeApp(bridge, {
+		instanceId: 'inst_main',
+		actions: [actionDeclaration()],
+		handle: async () => ({}),
+	})
+
+	await app.start()
+
+	const { client } = await connect(root)
+	const live = await callTool(client, 'xplat_dev_actions')
+	assert.equal(live.data.instances.length, 1)
+	assert.equal(live.data.instances[0].appInstanceId, 'inst_main')
 })
 
 test('a vanished bridge marks its instances disconnected, never silently live', async (t) => {
