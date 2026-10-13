@@ -7,6 +7,7 @@ Start here when you need to understand a framework decision or investigate its i
 ## Find the record you need
 
 - [Animation and gesture notes](animation-notes.md)
+- [AppKit native intrinsics implementation ledger](appkit-native-intrinsics.md)
 - [Native macOS AppKit support for Lottie](lottie-appkit-investigation.md)
 - [Architecture notes](architecture-notes.md)
 - [Charts (@octane-xplat/charts)](charts.md)
