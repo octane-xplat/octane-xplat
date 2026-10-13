@@ -76,3 +76,24 @@ producer-side completeness against the contract — nothing more. Wayland,
 x86_64, assistive technology and the rest of the qualification matrix remain
 separate gaps, and the Linux proof runtime is still held pending VM
 admission, so no new run can exist yet.
+
+## Orchestrator shutdown regression
+
+`linux-gtk-orchestrate.sh` is the maintained derivative of the archived
+`guest-orchestrate.sh` in Boss deliverable
+`21b03833-bda7-4b30-b053-65f5d7cfdb93`. Its header records the archived
+source SHA-256. Keep that evidence archive unchanged. The derivative preserves
+the original 600-second run deadline and the policy's five-second shutdown
+limit; `PROOF_TIMEOUT_SECONDS` may only tighten the run deadline for controlled
+fixtures, and `PROOF_EXECUTABLE` selects a fixture executable in tests.
+
+The maintained regression uses ordinary fake child processes and does not
+launch GJS, GTK, a VM or OS input:
+
+```sh
+node --test scripts/probe/linux-gtk-orchestrate.test.mjs
+```
+
+It checks successful completion, error exit propagation, and timeout cleanup
+when the child ignores `SIGTERM`. Timeout exits with status 124; normal child
+exit status is preserved.
