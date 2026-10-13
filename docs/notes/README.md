@@ -20,6 +20,7 @@ Start here when you need to understand a framework decision or investigate its i
 - [Input and focus readiness evidence](input-readiness-notes.md)
 - [iOS editor backing-surface decision](ios-editor-backing-surface.md)
 - [Linux GTK capability inventory and resolution mapping](linux-gtk-capability-inventory.md)
+- [Linux GTK feasibility gate review](linux-gtk-feasibility-review.md)
 - [Linux WebKit consumer regression baseline](linux-webkit-baseline.md)
 - [Module-resolution notes](module-resolution-notes.md)
 - [Navigation notes](navigation-notes.md)
