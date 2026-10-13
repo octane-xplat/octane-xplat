@@ -30,6 +30,9 @@ interface CameraHost {
 	audioInputAttached(): boolean
 	activeDeviceId(): string | null
 	configure(options: { cameraId?: string; audio?: boolean; rotationAngle?: number }): string | null
+	/** Optional so a host built before the metering leaf shipped degrades
+	 *  to a no-op instead of a selector error. */
+	focusAtPoint?(point: { x: number; y: number }): boolean
 	supportsRotationAngles(): boolean
 	movieDirectory(): string | null
 	startRecording(path: string, maximumDurationMs: number): string | null
@@ -141,6 +144,26 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			return size.width > 0 ? { width: size.width, height: size.height } : undefined
 		} catch {
 			return undefined
+		}
+	}
+
+	/** Point-of-interest metering support on the selected device, read
+	 *  from the same device list `devices()` reports. */
+	const pointOfInterestSupport = (): { focus: boolean; exposure: boolean } => {
+		try {
+			const list = JSON.parse(host.devices()) as {
+				id: string
+				focusPointOfInterest?: boolean
+				exposurePointOfInterest?: boolean
+			}[]
+			const selected = selectedCameraId()
+			const device = list.find((entry) => entry.id === selected) ?? list[0]
+			return {
+				focus: device?.focusPointOfInterest === true,
+				exposure: device?.exposurePointOfInterest === true,
+			}
+		} catch {
+			return { focus: false, exposure: false }
 		}
 	}
 
@@ -350,6 +373,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			const list = devices()
 			const available = list.length > 0
 			const size = previewSize()
+			const pointOfInterest = pointOfInterestSupport()
 			return {
 				supported: available,
 				reason: available ? undefined : 'No camera device is available on this host',
@@ -364,6 +388,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					},
 				],
 				audio: host.audioDeviceAvailable(),
+				focusPointOfInterest: pointOfInterest.focus,
+				exposurePointOfInterest: pointOfInterest.exposure,
 				// AVCaptureConnection rotation angles exist on macOS 14+;
 				// earlier hosts cannot lock a take's orientation.
 				orientations: host.supportsRotationAngles()
@@ -451,6 +477,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			}
 
 			currentConfig = { ...next }
+		},
+		focusAtPoint: (point) => {
+			try {
+				host.focusAtPoint?.({ x: point.x, y: point.y })
+			} catch {
+				// A missed metering pass must not fault the session.
+			}
 		},
 		startCapture: (request, sink) => {
 			if (host.permissionStatus('camera') === 'undeclared') {

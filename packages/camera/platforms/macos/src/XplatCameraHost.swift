@@ -204,7 +204,13 @@ public final class XplatCameraHost: NSObject {
 
 	@objc public func devices() -> NSString {
 		let list: [[String: Any]] = cameraDevices().map {
-			["id": $0.uniqueID, "name": $0.localizedName, "facing": NSNull()]
+			[
+				"id": $0.uniqueID,
+				"name": $0.localizedName,
+				"facing": NSNull(),
+				"focusPointOfInterest": $0.isFocusPointOfInterestSupported,
+				"exposurePointOfInterest": $0.isExposurePointOfInterestSupported,
+			]
 		}
 		guard
 			let data = try? JSONSerialization.data(withJSONObject: list),
@@ -462,6 +468,48 @@ public final class XplatCameraHost: NSObject {
 			photoOutput.capturePhoto(with: settings, delegate: delegate)
 		}
 		return nil
+	}
+
+	/// Meters one autofocus/auto-exposure pass at a normalized preview
+	/// point (0-1, top-left origin as the user sees it). Returns whether
+	/// any metering dimension was applied.
+	@objc public func focusAtPoint(_ options: NSDictionary) -> Bool {
+		guard !disposed, let layer = previewLayer else { return false }
+		let x = (options["x"] as? NSNumber)?.doubleValue ?? 0
+		let y = (options["y"] as? NSNumber)?.doubleValue ?? 0
+		var point = CGPoint(
+			x: min(max(x, 0), 1) * layer.bounds.width,
+			y: min(max(y, 0), 1) * layer.bounds.height
+		)
+		// Unflipped AppKit views are bottom-left origin; the preview
+		// layer's conversion expects the layer's top-left space.
+		if let view = previewView, !view.isFlipped {
+			point.y = layer.bounds.height - point.y
+		}
+		let devicePoint = layer.captureDevicePointConverted(fromLayerPoint: point)
+		var applied = false
+		queue.sync {
+			guard !disposed, let device = videoInput?.device else { return }
+			let focus = device.isFocusPointOfInterestSupported && device.isFocusModeSupported(.autoFocus)
+			let expose = device.isExposurePointOfInterestSupported && device.isExposureModeSupported(.autoExpose)
+			guard focus || expose else { return }
+			do {
+				try device.lockForConfiguration()
+				// Single-shot AF/AE at the point — the AVCam tap-to-focus
+				// convention; the device locks after metering.
+				if focus {
+					device.focusPointOfInterest = devicePoint
+					device.focusMode = .autoFocus
+				}
+				if expose {
+					device.exposurePointOfInterest = devicePoint
+					device.exposureMode = .autoExpose
+				}
+				device.unlockForConfiguration()
+				applied = true
+			} catch {}
+		}
+		return applied
 	}
 
 	@objc public func detachPreview() {

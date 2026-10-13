@@ -236,6 +236,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				cameras: value.cameras,
 				profiles: value.profiles,
 				audio: context().getPackageManager().hasSystemFeature('android.hardware.microphone'),
+				// The bridge only reports metering support once a camera is
+				// bound — absent fields read as unsupported, which is honest
+				// for the current acquisition state.
+				focusPointOfInterest: value.focusPointOfInterest === true,
+				exposurePointOfInterest: value.exposurePointOfInterest === true,
 				orientations: [],
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
@@ -338,6 +343,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			if (host && sourceChanged) {
 				bridge.detach()
 				bridge.attach(host, selected())
+			}
+		},
+		focusAtPoint: (point) => {
+			try {
+				bridge?.focusAtPoint?.(point.x, point.y)
+			} catch {
+				// A missed metering pass must not fault the session.
 			}
 		},
 		startCapture: (request, target) => {

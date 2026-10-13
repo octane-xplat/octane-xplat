@@ -960,6 +960,19 @@ changes, and ready/error state. Browser preview needs a secure context
 (HTTPS or localhost). Native `onReady` means the session started or bound,
 not that a frame has appeared; see [camera limits](../verify/known-limits.md#primitives).
 
+For tap-to-focus, the `onTap` prop reports the tapped point normalized to
+the preview (`0`–`1`, top-left origin) without consuming the gesture, and
+a session's `focusAtPoint` meters autofocus and auto-exposure there on
+iOS, Android, and macOS — check `capabilities().focusPointOfInterest`
+first, since front cameras are often fixed-focus:
+
+```tsx
+<CameraView
+	session={session}
+	onTap={(point) => session.focusAtPoint(point)}
+/>
+```
+
 ```tsx
 import { CameraView } from '@octane-xplat/camera'
 

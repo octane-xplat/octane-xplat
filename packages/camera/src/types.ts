@@ -79,6 +79,16 @@ export class CameraCaptureError extends Error implements CaptureIssue {
 
 export type CameraFacing = 'front' | 'back'
 
+/** A normalized position on the live preview as the user sees it:
+ *  `{x: 0, y: 0}` is the top-left corner and `{x: 1, y: 1}` is
+ *  bottom-right, independent of sensor orientation and front-camera
+ *  mirroring. The `CameraView` `onTap` event and
+ *  `CameraSession.focusAtPoint` share this space. */
+export interface CameraPreviewPoint {
+	x: number
+	y: number
+}
+
 export type CameraOrientation =
 	| 'portrait'
 	| 'portraitUpsideDown'
@@ -130,6 +140,13 @@ export interface CameraSessionCapabilities {
 	profiles: CameraProfileCapability[]
 	/** The session can add an audio track when permission allows. */
 	audio: boolean
+	/** `focusAtPoint` can move autofocus metering on the active camera —
+	 *  false on fixed-focus devices (common for front cameras) and on
+	 *  platforms without point-of-interest metering. */
+	focusPointOfInterest: boolean
+	/** `focusAtPoint` can move auto-exposure metering on the active
+	 *  camera. */
+	exposurePointOfInterest: boolean
 	/** Fixed orientations the source can lock for a take. */
 	orientations: CameraOrientation[]
 	/** `native` enforcement can still overshoot at media boundaries;
@@ -314,6 +331,17 @@ export interface CameraSession {
 	 *  subscribing late — `completion` is authoritative. Listener
 	 *  exceptions do not change capture. */
 	subscribe(listener: (event: CameraSessionEvent) => void): () => void
+	/** Tap-to-focus: meters one autofocus/auto-exposure pass at a
+	 *  normalized preview-space point (see `CameraPreviewPoint`), pairing
+	 *  with the `CameraView` `onTap` event. No-ops while no preview is
+	 *  attached, after `dispose`, and on hosts without point-of-interest
+	 *  metering — `capabilities()` reports `focusPointOfInterest` and
+	 *  `exposurePointOfInterest` separately. Out-of-range coordinates
+	 *  clamp to the preview edge; non-finite coordinates throw
+	 *  `invalidArgument`. Metering is per-device state: a camera swap
+	 *  through `configure` returns focus/exposure to the new device's
+	 *  default. */
+	focusAtPoint(point: CameraPreviewPoint): void
 	/** Replaces configuration while idle. Validates against current
 	 *  capabilities and rejects with `invalidState` during an attempt. */
 	configure(config: Partial<CameraSessionConfig>): Promise<void>

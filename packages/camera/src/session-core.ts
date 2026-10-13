@@ -3,6 +3,7 @@ import type {
 	CameraInterruptionReason,
 	CameraPermissionKind,
 	CameraPermissionStatus,
+	CameraPreviewPoint,
 	CameraSession,
 	CameraSessionCapabilities,
 	CameraSessionConfig,
@@ -86,6 +87,10 @@ export interface CameraSessionBackend {
 	attachPreview(host: unknown, listener?: BackendPreviewListener): () => void
 	/** Replace configuration while idle; throws CameraCaptureError. */
 	configure?(config: CameraSessionConfig): void
+	/** Meter one autofocus/auto-exposure pass at a normalized preview-space
+	 *  point — the tap-to-focus primitive. Absent means the adapter cannot
+	 *  meter at a point; the core turns it into a no-op. */
+	focusAtPoint?(point: CameraPreviewPoint): void
 	/** Synchronous platform-specific admission checks; creates no attempt on failure. */
 	validateStart?(options: StartRecordingOptions): void
 	/** Begin capture for an admitted attempt. Async failures settle via
@@ -322,6 +327,25 @@ export class SharedCameraSession implements CameraSession {
 		const capabilities = await this.backend.getCapabilities()
 		this.lastCapabilities = capabilities
 		return capabilities
+	}
+
+	focusAtPoint(point: CameraPreviewPoint): void {
+		if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) {
+			throw issue(
+				'invalidArgument',
+				'focusAtPoint',
+				'point.x and point.y must be finite numbers',
+			)
+		}
+
+		if (this.disposed || this.disposeRequested) {
+			return
+		}
+
+		this.backend.focusAtPoint?.({
+			x: Math.min(1, Math.max(0, point.x)),
+			y: Math.min(1, Math.max(0, point.y)),
+		})
 	}
 
 	async configure(next: Partial<CameraSessionConfig>): Promise<void> {

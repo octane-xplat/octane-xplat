@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.view.PreviewView;
 import androidx.lifecycle.Lifecycle;
@@ -43,6 +44,14 @@ public final class CameraPreviewView extends FrameLayout implements LifecycleOwn
 
 	public Preview.SurfaceProvider getSurfaceProvider() {
 		return previewView.getSurfaceProvider();
+	}
+
+	/** Converts a normalized view-space point (0-1, top-left origin) into a
+	 *  CameraX metering point. The PreviewView factory accounts for scale
+	 *  type, rotation, and front-camera mirroring. */
+	public MeteringPoint meteringPoint(float x, float y) {
+		return previewView.getMeteringPointFactory().createPoint(
+			x * previewView.getWidth(), y * previewView.getHeight());
 	}
 
 	public androidx.lifecycle.LiveData<PreviewView.StreamState> getStreamState() {

@@ -18,6 +18,9 @@ export function CameraDemo() @{
 			active={active}
 			onReady={() => setStatus('preview live')}
 			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
+			onTap={(point) =>
+				setStatus(`tap ${point.x.toFixed(2)},${point.y.toFixed(2)}`)
+			}
 		/>
 		<HStack className="gap-2 items-center">
 			<SegmentedControl

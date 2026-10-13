@@ -293,6 +293,58 @@ describe('camera session contract', () => {
 		expect(attempts).toBe(2)
 	})
 
+	it('focusAtPoint clamps to the preview edge and reaches the backend', async () => {
+		const focusRequests: { x: number; y: number }[] = []
+		const session = createSyntheticCameraSession({}, { focusRequests })
+		const detach = await ready(session)
+		session.focusAtPoint({ x: 1.4, y: -0.2 })
+		session.focusAtPoint({ x: 0.25, y: 0.75 })
+		expect(focusRequests).toEqual([
+			{ x: 1, y: 0 },
+			{ x: 0.25, y: 0.75 },
+		])
+		detach()
+	})
+
+	it('focusAtPoint rejects non-finite coordinates', () => {
+		const session = createSyntheticCameraSession()
+		for (const point of [
+			{ x: Number.NaN, y: 0.5 },
+			{ x: 0.5, y: Number.POSITIVE_INFINITY },
+		]) {
+			try {
+				session.focusAtPoint(point)
+				expect.unreachable()
+			} catch (error) {
+				expect((error as CameraCaptureError).kind).toBe('invalidArgument')
+			}
+		}
+	})
+
+	it('focusAtPoint no-ops when the adapter cannot meter', () => {
+		const session = createCameraSession()
+		expect(() => session.focusAtPoint({ x: 0.5, y: 0.5 })).not.toThrow()
+	})
+
+	it('focusAtPoint no-ops after dispose', async () => {
+		const focusRequests: { x: number; y: number }[] = []
+		const session = createSyntheticCameraSession({}, { focusRequests })
+		await session.dispose()
+		session.focusAtPoint({ x: 0.5, y: 0.5 })
+		expect(focusRequests).toEqual([])
+	})
+
+	it('capabilities report point-of-interest metering support', async () => {
+		const synthetic = createSyntheticCameraSession()
+		const supported = await synthetic.capabilities()
+		expect(supported.focusPointOfInterest).toBe(true)
+		expect(supported.exposurePointOfInterest).toBe(true)
+
+		const unsupported = await createCameraSession().capabilities()
+		expect(unsupported.focusPointOfInterest).toBe(false)
+		expect(unsupported.exposurePointOfInterest).toBe(false)
+	})
+
 	it('canonicalizePath resolves dot segments before prefix checks', () => {
 		expect(canonicalizePath('/app/data/movies/../clip.mov')).toBe('/app/data/clip.mov')
 		expect(canonicalizePath('/app/data/../../etc/passwd')).toBe('/etc/passwd')
