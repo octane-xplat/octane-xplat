@@ -234,6 +234,7 @@ const preferAutoStabilization = (connection: AVCaptureConnection | undefined | n
 		typeof check === 'function'
 			? Boolean(check.call(connection, videoStabilizationModeAuto))
 			: Boolean(connection.supportsVideoStabilization)
+
 	if (supported) {
 		connection.preferredVideoStabilizationMode = videoStabilizationModeAuto
 	}

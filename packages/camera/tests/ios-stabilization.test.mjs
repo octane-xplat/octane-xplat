@@ -12,6 +12,7 @@ const compiled = ts.transpile('const videoStabilizationModeAuto = -1;\n' + sourc
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,
 })
+
 const context = vm.createContext({})
 vm.runInContext(compiled, context)
 const { prefer } = context
@@ -25,6 +26,7 @@ test('supported connections receive the automatic stabilization preference', () 
 			return true
 		},
 	}
+
 	prefer(connection)
 	assert.equal(connection.preferredVideoStabilizationMode, -1)
 })
@@ -41,6 +43,7 @@ test('older connections use the capability fallback and missing connections no-o
 		prefer(connection)
 		assert.equal(connection.preferredVideoStabilizationMode, supported ? -1 : 0)
 	}
+
 	prefer(null)
 	prefer(undefined)
 })
