@@ -30,6 +30,7 @@ export interface AppKitHostServices {
 	storageGet(key: string): string | null
 	storageSet(key: string, value: string): void
 	storageRemove(key: string): void
+	storageFlush(): boolean
 	consumeInitialUrl(): string | null
 	onAppStateChange(listener: () => void): () => void
 	onWindowResize(listener: (window?: unknown) => void): () => void

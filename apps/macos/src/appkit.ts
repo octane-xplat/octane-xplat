@@ -262,6 +262,7 @@ class AppDelegate extends NSObject {
 
 	applicationWillTerminate() {
 		shared.running = false
+		NSUserDefaults.standardUserDefaults.synchronize()
 		for (const closeHandler of shared.windowCloseHandlers.values()) {
 			closeHandler()
 		}
@@ -418,6 +419,9 @@ function installPlatformServices() {
 		},
 		storageRemove(key: string) {
 			NSUserDefaults.standardUserDefaults.removeObjectForKey(String(key))
+		},
+		storageFlush() {
+			return Boolean(NSUserDefaults.standardUserDefaults.synchronize())
 		},
 		onAppStateChange(listener: () => void) {
 			services.appStateListeners.add(listener)

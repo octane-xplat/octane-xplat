@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'octane'
+import { host } from './appkit-host'
 import type {
 	AppInfo,
 	AppState,
@@ -40,24 +41,6 @@ export type {
 
 export type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
 
-type AppKitHost = {
-	appInfo?: AppInfo
-	appState?: AppState
-	windowSize?: WindowSize
-	announce?: (text: string) => void
-	readClipboard?: () => string | null
-	writeClipboard?: (value: string) => boolean
-	storageGet?: (key: string) => string | null
-	storageSet?: (key: string, value: string) => void
-	storageRemove?: (key: string) => void
-	openUrl?: (url: string) => boolean
-	onWindowResize?: (listener: () => void) => () => void
-	onAppStateChange?: (listener: () => void) => () => void
-	onDeepLink?: (listener: (url: string) => void) => () => void
-	consumeInitialUrl?: () => string | null
-}
-
-const host = (): AppKitHost => (globalThis as any).__xplatAppKit ?? {}
 const unsupported = async (): Promise<PermissionResult> => 'unsupported'
 
 const language = Intl.DateTimeFormat().resolvedOptions().locale
@@ -91,31 +74,7 @@ export const locale: Locale = { tag: language, language: languageTag, region }
 
 export { connectivity } from './connectivity.macos'
 
-const hostStorage = new Map<string, string>()
-
-export const storage = {
-	getString(key: string): string | null {
-		return host().storageGet?.(key) ?? hostStorage.get(key) ?? null
-	},
-	setString(key: string, value: string): void {
-		const set = host().storageSet
-		if (set) {
-			set(key, value)
-			return
-		}
-
-		hostStorage.set(key, value)
-	},
-	remove(key: string): void {
-		const remove = host().storageRemove
-		if (remove) {
-			remove(key)
-			return
-		}
-
-		hostStorage.delete(key)
-	},
-}
+export { storage } from './storage.macos'
 
 export const clipboard = {
 	get canCopy() {

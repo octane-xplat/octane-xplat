@@ -10,10 +10,25 @@ const compiled = ts.transpile(source, {
 	target: ts.ScriptTarget.ES2022,
 })
 
+const hostCompiled = ts.transpile(
+	await readFile(new URL('../src/appkit-host.ts', import.meta.url), 'utf8'),
+	{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+)
+
 function load() {
 	const context = {
 		exports: {},
-		require: () => ({}),
+		require: (id) => {
+			if (id === './appkit-host') {
+				// Evaluate the real module in this context so globalThis reads the
+				// same __xplatAppKit the test mutates.
+				const inner = { exports: {} }
+				vm.runInNewContext(`(function(exports){${hostCompiled}\n})`, context)(inner.exports)
+				return inner.exports
+			}
+
+			return {}
+		},
 		console: { warn: () => assert.fail('announce must not warn') },
 	}
 

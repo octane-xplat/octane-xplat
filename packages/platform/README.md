@@ -17,9 +17,14 @@ import { storage, permissions } from '@octane-xplat/platform'
 
 storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome')
+storage.flush() // block until pending writes are durable
 
 const result = await permissions.ensure('camera')
 ```
+
+`storage` flushes pending writes automatically on suspend/exit — call
+`flush()` after writes that must survive a hard kill; it returns whether the
+platform confirmed durability.
 
 Ask your agent for the user outcome and the fallback: “Attach a photo to a
 trip item and explain when capture is unavailable.” Services cover storage,

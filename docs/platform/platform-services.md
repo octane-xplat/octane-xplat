@@ -63,6 +63,24 @@ storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome') // "true"
 ```
 
+Writes show up in `getString` immediately, but on iOS, Android, and macOS the
+hand-off to the platform's disk layer happens in the background — an app
+killed in between can lose the last write. The leaf flushes pending writes
+automatically when the app suspends or exits. Call `storage.flush()` after a
+write that must survive a hard stop at any moment, like a session token or a
+saved draft. It is synchronous and returns `true` when the platform confirmed
+the write is durable; web storage already commits on every write, so `flush()`
+is a no-op there.
+
+```ts
+import { storage } from '@octane-xplat/platform'
+
+storage.setString('session-token', token)
+if (!storage.flush()) {
+	// The value is readable now but may not survive a hard kill — retry or warn.
+}
+```
+
 Other services cover permissions, clipboard, haptics, files, media
 picking, notifications, safe-area insets, screen size, and app lifecycle.
 A **leaf package** is an add-on installed separately for a feature. Features
@@ -305,8 +323,8 @@ scheme before application code runs. Public platform leaves use this facade or
 the typed client. Clipboard, app info, lifecycle, window size, deep links,
 outbound links, sharing, files, notifications, secure storage, and color scheme
 keep their browser fallbacks outside a desktop host. The synchronous `storage`
-API remains `localStorage` on `.web`; apps needing host persistence can call
-`desktopHost().storage` directly.
+API remains `localStorage` on `.web` — its `flush()` stays a no-op — and apps
+needing host persistence can call `desktopHost().storage` directly.
 
 ```ts
 import { storage } from '@octane-xplat/platform'

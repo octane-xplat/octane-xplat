@@ -7,4 +7,6 @@ export const storage = {
 	remove: (k: string): void => {
 		localStorage.removeItem(k)
 	},
+	/** DOM storage commits each write synchronously — nothing to flush. */
+	flush: (): boolean => true,
 }
