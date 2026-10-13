@@ -30,27 +30,17 @@ const sourceBytes = (size: number) => {
 	return data
 }
 
-const decodeBase64 = (base64: string): Uint8Array => {
-	const binary = atob(base64)
-	const data = new Uint8Array(binary.length)
-	for (let index = 0; index < binary.length; index += 1) {
-		data[index] = binary.charCodeAt(index)
-	}
-
-	return data
-}
+const decodeBase64 = (base64: string): Uint8Array => Buffer.from(base64, 'base64')
 
 describe('host movie transport', () => {
 	it('streams a large movie through writeMovieFileChunk in 4MB slices', async () => {
 		const calls: { method: string; options: any }[] = []
-		const staged: number[] = []
+		const staged: Uint8Array[] = []
 		const host = stubHost(
 			['writeMovieFileChunk', 'readMovieFileChunk'],
 			{
 				writeMovieFileChunk: ({ base64, final }: any) => {
-					for (const byte of decodeBase64(base64)) {
-						staged.push(byte)
-					}
+					staged.push(decodeBase64(base64))
 
 					return {
 						file: final ? { name: 'clip.mp4', uri: 'file:///clips/clip.mp4' } : { ok: true },
@@ -78,7 +68,7 @@ describe('host movie transport', () => {
 
 		expect(calls.map((call) => call.options.final)).toEqual([false, false, true])
 		expect(calls.every((call) => call.options.fileUrl === 'file:///clips/clip.mp4')).toBe(true)
-		expect(staged).toEqual([...input])
+		expect(Buffer.concat(staged).equals(Buffer.from(input))).toBe(true)
 	})
 
 	it('falls back to the single writeMovieFile payload on hosts without the chunked contract', async () => {
@@ -103,12 +93,7 @@ describe('host movie transport', () => {
 				movieFileInfo: () => ({ info: { exists: true, size: stored.length } }),
 				readMovieFileChunk: ({ offset, length }: any) => {
 					const slice = stored.subarray(offset, offset + length)
-					let binary = ''
-					for (const byte of slice) {
-						binary += String.fromCharCode(byte)
-					}
-
-					return { base64: btoa(binary) }
+					return { base64: Buffer.from(slice).toString('base64') }
 				},
 			},
 			calls,
@@ -130,7 +115,43 @@ describe('host movie transport', () => {
 		// The reassembled bytes must match the stored movie exactly.
 		const response = await fetch(handle.url)
 		const data = new Uint8Array(await response.arrayBuffer())
-		expect([...data]).toEqual([...stored])
+		expect(Buffer.from(data).equals(Buffer.from(stored))).toBe(true)
 		handle.release()
 	})
+
+	it.each([null, { ok: false }, { uri: 'file:///unexpected.mp4' }])(
+		'rejects an unacknowledged intermediate chunk (%j) before publishing a file',
+		async (file) => {
+			const calls: { method: string; options: any }[] = []
+			const host = stubHost(
+				['writeMovieFileChunk', 'readMovieFileChunk'],
+				{ writeMovieFileChunk: () => ({ file }) },
+				calls,
+			)
+
+			const pending = commitHostMovie(host, 'file:///c.mp4', new Blob([sourceBytes(CHUNK + 1)]))
+			await expect(pending).rejects.toMatchObject({ kind: 'storageFailed' })
+			expect(calls).toHaveLength(1)
+		},
+	)
+
+	it.each(['', btoa('short'), btoa('too many bytes'), 'invalid base64!'])(
+		'refuses incomplete or invalid movie bytes (%j)',
+		async (base64) => {
+			const host = stubHost(
+				['writeMovieFileChunk', 'readMovieFileChunk'],
+				{
+					movieFileInfo: () => ({ info: { exists: true, size: 8 } }),
+					readMovieFileChunk: () => ({ base64 }),
+				},
+				[],
+			)
+
+			await expect(openHostMovie(host, {
+				kind: 'nativeFile', resourceId: 'file:///c.mp4', fileUrl: 'file:///c.mp4',
+			})).rejects.toMatchObject({ kind: 'unavailable' })
+
+		},
+	)
+
 })

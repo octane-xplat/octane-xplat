@@ -14,6 +14,9 @@
 		"types"
 	],
 	"type": "module",
+	"scripts": {
+		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs"
+	},
 	"exports": {
 		"./macos": {
 			"types": "./types/macos.d.ts",

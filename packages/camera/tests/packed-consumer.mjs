@@ -15,6 +15,7 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { TYPECHECK_ENVIRONMENTS } from '../../cli/src/tsconfig-envs.mjs'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
@@ -52,6 +53,22 @@ const dependencies = [
 	'@nativescript/types',
 ]
 
+const movieConsumer = `
+import { createCameraSession, type CameraSession, type MovieOutput, type MovieOutcome,
+  type MovieTake, type CameraSessionCapabilities } from '@octane-xplat/camera'
+const session: CameraSession = createCameraSession({ camera: 'default', audio: false })
+async function captureAndReopen(output: MovieOutput) {
+  const capabilities: CameraSessionCapabilities = await session.capabilities()
+  const take: MovieTake = session.startRecording({ maximumDurationMs: 1000 })
+  const outcome: MovieOutcome = await take.stop()
+  await session.dispose()
+  const access = await session.openOutput(output)
+  access.release()
+  return { capabilities, outcome }
+}
+void captureAndReopen
+`
+
 const consumers = {
 	web: `import { CameraView, type CameraViewProps } from '@octane-xplat/camera'
 const props: CameraViewProps = { facing: 'front', active: true }
@@ -70,25 +87,30 @@ void badFacing
 `,
 }
 
+consumers.legacyNative = consumers.native
+consumers.native = ''
+consumers.linux = consumers.web
+consumers.macos = ''
+consumers.windows = ''
+
 const extraFiles = {}
 
-// Mirrors the create template's per-target tsconfig: suffix typing selects
-// .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the
-// ambient globals, and skipLibCheck stays on — NativeScript's third-party
-// ambient declarations carry upstream lib conflicts.
-const targetConfig = {
-	web: {
-		jsxImportSource: 'octane',
-		moduleSuffixes: ['.web', ''],
-		customConditions: ['web'],
-		types: [],
-	},
-	native: {
-		jsxImportSource: 'octane',
-		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
-		customConditions: ['native'],
-		types: ['@nativescript/types'],
-	},
+// Use the landed shared environment policy for every consumer. The exact
+// same movie API snippet must compile against the one public declaration.
+const targetConfig = Object.fromEntries(
+	Object.entries(TYPECHECK_ENVIRONMENTS).map(([target, { compilerOptions }]) => [
+		target,
+		{ ...compilerOptions, types: target === 'native' ? ['@nativescript/types'] : [] },
+	]),
+)
+
+// Preserve the existing preview check while the shared JSX initiative owns
+// migration to the NativeScript JSX contract. Movie API types above use the
+// shared native preset directly and do not require renderer-specific JSX.
+targetConfig.legacyNative = {
+	...targetConfig.native,
+	jsxImportSource: 'octane',
+	lib: undefined,
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
@@ -118,7 +140,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 		JSON.stringify({ name: `consumer-${exportMapIndex}-${target}-${mode.name}`, type: 'module' }),
 	)
 
-	writeFileSync(join(consumerRoot, 'consumer.tsx'), consumers[target])
+	writeFileSync(join(consumerRoot, 'consumer.tsx'), consumers[target] + movieConsumer)
 	for (const [name, contents] of Object.entries(extraFiles)) {
 		writeFileSync(join(consumerRoot, name), contents)
 	}
@@ -137,6 +159,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 					target: 'esnext',
 					jsx: 'react-jsx',
 					jsxImportSource: config.jsxImportSource,
+					lib: config.lib,
 					moduleSuffixes: config.moduleSuffixes,
 					customConditions: config.customConditions,
 					types: config.types.filter((name) => {

@@ -206,6 +206,10 @@ export const commitHostMovie = async (
 
 				return { kind: 'nativeFile', resourceId: committed.uri, fileUrl: committed.uri }
 			}
+
+			if (!file || !('ok' in file) || file.ok !== true) {
+				throw error('storageFailed', 'The host could not write a recorded movie chunk')
+			}
 		}
 	}
 
@@ -256,7 +260,17 @@ export const openHostMovie = async (
 				throw error('unavailable', `Movie file could not be read at ${output.fileUrl}`)
 			}
 
-			const decoded = atob(chunk)
+			let decoded: string
+			try {
+				decoded = atob(chunk)
+			} catch {
+				throw error('unavailable', 'The host returned invalid movie bytes')
+			}
+
+			if (decoded.length !== Math.min(MOVIE_CHUNK_BYTES, size - offset)) {
+				throw error('unavailable', 'The stored movie changed or could not be read completely')
+			}
+
 			for (let index = 0; index < decoded.length; index += 1) {
 				data[offset + index] = decoded.charCodeAt(index)
 			}

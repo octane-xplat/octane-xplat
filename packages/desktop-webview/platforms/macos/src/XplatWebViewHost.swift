@@ -253,6 +253,8 @@ public final class XplatWebViewHost: NSObject {
 	private let uiDelegate: XplatWebViewUIDelegate
 	private let keychainService = Bundle.main.bundleIdentifier ?? "org.octane.xplat"
 	private var disposed = false
+	private var stagedMovies: [URL: URL] = [:]
+	private let movieChunkBytes = 4 * 1024 * 1024
 
 	@objc public override init() {
 		let configuration = WKWebViewConfiguration()
@@ -578,42 +580,54 @@ public final class XplatWebViewHost: NSObject {
 		return ["exists": true, "fileUrl": target.absoluteString, "size": size ?? -1]
 	}
 
-	/** Append a base64 chunk to a staged '<name>.part' file inside the
-	 *  app-private root; `final` moves it into place atomically. Keeps the
-	 *  writeMovieFile contract — never overwrites, atomic commit — without
-	 *  requiring the whole movie as one base64 payload. */
+	/** Append bounded chunks to a host-owned staging file. Only final commit
+	 *  publishes the destination; failure/disposal removes unfinished bytes. */
 	@objc public func writeMovieFileChunk(_ options: NSDictionary) -> NSDictionary? {
-		guard
+		guard !disposed,
 			let fileUrlValue = options["fileUrl"] as? String,
-			let url = URL(string: fileUrlValue),
-			url.isFileURL,
-			let target = moviePathInsidePrivateRoot(url),
-			let base64 = options["base64"] as? String,
-			let data = Data(base64Encoded: base64)
+			let url = URL(string: fileUrlValue), url.isFileURL,
+			let target = moviePathInsidePrivateRoot(url)
+		else { return nil }
+
+		guard let base64 = options["base64"] as? String,
+			base64.utf8.count <= ((movieChunkBytes + 2) / 3) * 4,
+			let data = Data(base64Encoded: base64), data.count <= movieChunkBytes,
+			!FileManager.default.fileExists(atPath: target.path)
 		else {
+			discardStagedMovie(target)
 			return nil
 		}
 
-		guard !FileManager.default.fileExists(atPath: target.path) else { return nil }
-		let staged = target.appendingPathExtension("part")
-		if FileManager.default.fileExists(atPath: staged.path) {
-			guard let handle = try? FileHandle(forWritingTo: staged) else { return nil }
-			defer { try? handle.close() }
-			guard (try? handle.seekToEnd()) != nil,
-				(try? handle.write(contentsOf: data)) != nil
-			else {
-				return nil
+		do {
+			let staged: URL
+			if let owned = stagedMovies[target] {
+				staged = owned
+				let handle = try FileHandle(forWritingTo: staged)
+				defer { try? handle.close() }
+				try handle.seekToEnd()
+				try handle.write(contentsOf: data)
+			} else {
+				staged = target.appendingPathExtension("\(UUID().uuidString).part")
+				try data.write(to: staged, options: .withoutOverwriting)
+				stagedMovies[target] = staged
 			}
-		} else {
-			guard (try? data.write(to: staged)) != nil else { return nil }
-		}
 
-		guard (options["final"] as? NSNumber)?.boolValue == true else {
-			return ["ok": true]
-		}
+			guard (options["final"] as? NSNumber)?.boolValue == true else {
+				return ["ok": true]
+			}
 
-		guard (try? FileManager.default.moveItem(at: staged, to: target)) != nil else { return nil }
-		return fileRef(for: target)
+			try FileManager.default.moveItem(at: staged, to: target)
+			stagedMovies.removeValue(forKey: target)
+			return fileRef(for: target)
+		} catch {
+			discardStagedMovie(target)
+			return nil
+		}
+	}
+
+	private func discardStagedMovie(_ target: URL) {
+		guard let staged = stagedMovies.removeValue(forKey: target) else { return }
+		try? FileManager.default.removeItem(at: staged)
 	}
 
 	/** Read a byte range of a stored movie as base64 — 'offset' and 'length'
@@ -630,10 +644,16 @@ public final class XplatWebViewHost: NSObject {
 		}
 
 		defer { try? handle.close() }
-		let offset = max(0, (options["offset"] as? NSNumber)?.int64Value ?? 0)
-		let length = max(0, (options["length"] as? NSNumber)?.int64Value ?? Int64.max)
-		guard (try? handle.seek(toOffset: UInt64(offset))) != nil else { return nil }
-		guard let chunk = try? handle.read(upToCount: Int(min(length, Int64(Int32.max)))) else {
+		guard let offset = options["offset"] as? NSNumber,
+			let length = options["length"] as? NSNumber,
+			offset.doubleValue.isFinite, length.doubleValue.isFinite,
+			offset.doubleValue >= 0, offset.doubleValue < Double(UInt64.max),
+			offset.doubleValue.rounded(.down) == offset.doubleValue,
+			length.doubleValue > 0, length.doubleValue <= Double(movieChunkBytes),
+			length.doubleValue.rounded(.down) == length.doubleValue
+		else { return nil }
+		guard (try? handle.seek(toOffset: offset.uint64Value)) != nil else { return nil }
+		guard let chunk = try? handle.read(upToCount: length.intValue) else {
 			return nil
 		}
 
@@ -662,6 +682,7 @@ public final class XplatWebViewHost: NSObject {
 			return false
 		}
 
+		discardStagedMovie(target)
 		guard FileManager.default.fileExists(atPath: target.path) else { return true }
 		return (try? FileManager.default.removeItem(at: target)) != nil
 	}
@@ -816,6 +837,7 @@ public final class XplatWebViewHost: NSObject {
 	@objc public func dispose() {
 		if disposed { return }
 		disposed = true
+		for target in Array(stagedMovies.keys) { discardStagedMovie(target) }
 		channel.dispatch = nil
 		webView.stopLoading()
 		webView.navigationDelegate = nil
