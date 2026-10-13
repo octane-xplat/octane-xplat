@@ -517,6 +517,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 							]
 						: [],
 				audio: devices.some((device) => device.kind === 'audioinput'),
+				// No point-of-interest metering in the WebKitGTK path.
+				focusPointOfInterest: false,
+				exposurePointOfInterest: false,
 				orientations: [],
 				durationLimit: 'bestEffort',
 				elapsedTime: 'estimated',

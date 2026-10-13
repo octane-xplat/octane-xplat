@@ -1258,6 +1258,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				cameras,
 				profiles: [{ profile: 'standard', ...profile }],
 				audio: (await listAudioDevices()) > 0,
+				// WinUI MediaCapture focus regions are not wired into the
+				// adapter — report honestly rather than fabricate.
+				focusPointOfInterest: false,
+				exposurePointOfInterest: false,
 				orientations:
 					capture && typeof capture.SetRecordRotationAsync === 'function'
 						? ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight']

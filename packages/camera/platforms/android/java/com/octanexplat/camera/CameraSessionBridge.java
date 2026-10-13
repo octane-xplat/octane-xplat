@@ -17,6 +17,8 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.DynamicRange;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -38,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -199,8 +202,36 @@ public final class CameraSessionBridge implements LifecycleOwner {
 				Size size = video.getResolutionInfo().getResolution();
 				profiles.put(new JSONObject().put("profile", "standard").put("width", size.getWidth()).put("height", size.getHeight()).put("frameRate", Math.round(sourceFrameRate * 100.0) / 100.0));
 			}
+			if (camera != null && host != null && host.getWidth() > 0) {
+				MeteringPoint center = host.meteringPoint(0.5f, 0.5f);
+				result.put("focusPointOfInterest", camera.getCameraInfo().isFocusMeteringSupported(
+					new FocusMeteringAction.Builder(center, FocusMeteringAction.FLAG_AF).build()));
+				result.put("exposurePointOfInterest", camera.getCameraInfo().isFocusMeteringSupported(
+					new FocusMeteringAction.Builder(center, FocusMeteringAction.FLAG_AE).build()));
+			}
 			return result.put("cameras", cameras).put("profiles", profiles).toString();
 		} catch (Exception cause) { return "{\"cameras\":[],\"profiles\":[]}"; }
+	}
+	/** Tap-to-focus: one AF+AE metering pass at a normalized preview point
+	 *  (0-1, top-left origin as the user sees it). Metering auto-cancels
+	 *  after three seconds rather than locking. Returns false when no
+	 *  camera is bound or the device cannot meter at a point. */
+	public boolean focusAtPoint(float x, float y) {
+		if (camera == null || host == null || detached || released || host.getWidth() <= 0) {
+			return false;
+		}
+		try {
+			MeteringPoint point = host.meteringPoint(x, y);
+			FocusMeteringAction action = new FocusMeteringAction.Builder(
+				point, FocusMeteringAction.FLAG_AF | FocusMeteringAction.FLAG_AE)
+				.setAutoCancelDuration(3, TimeUnit.SECONDS)
+				.build();
+			if (!camera.getCameraInfo().isFocusMeteringSupported(action)) return false;
+			camera.getCameraControl().startFocusAndMetering(action);
+			return true;
+		} catch (Exception cause) {
+			return false;
+		}
 	}
 	private String orientation() {
 		// Display rotation is not a cardinal camera orientation on every device.

@@ -103,6 +103,16 @@ export function CameraView(props: CameraViewProps) @{
 				muted={true}
 				autoplay={true}
 				playsInline={true}
+				onClick={(event: MouseEvent) => {
+					const onTap = props.onTap
+					if (!onTap) return
+					const rect = event.currentTarget.getBoundingClientRect()
+					if (!(rect.width > 0) || !(rect.height > 0)) return
+					onTap({
+						x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
+						y: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height)),
+					})
+				}}
 				style={{
 					display: 'block',
 					width: '100%',
