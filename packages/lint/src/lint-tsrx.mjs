@@ -25,6 +25,9 @@ const ignoredDirectories = new Set([
 	'dist',
 	'graft',
 	'node_modules',
+	// A nested octane-xplat checkout carries its own lint config and
+	// conventions — the app config must not be re-applied over it.
+	'octane-xplat',
 	'prior-art',
 	'research',
 ])
