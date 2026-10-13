@@ -1,6 +1,7 @@
 {
 	"$schema": "./node_modules/oxlint/configuration_schema.json",
 	"ignorePatterns": [
+		".agents/",
 		"**/*.gen.*",
 		"packages/**/types/generated/**",
 		"packages/*/types/types.d.ts",

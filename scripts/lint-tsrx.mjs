@@ -17,6 +17,7 @@ import { XPLAT_CHECKS } from './xplat-rules.mjs'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const shouldFix = process.argv.includes('--fix')
 const ignoredDirectories = new Set([
+	'.agents',
 	'.git',
 	'.next',
 	'.nx',
