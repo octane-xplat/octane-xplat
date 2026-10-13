@@ -7,6 +7,7 @@ import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
+import { observePreviewTap } from './preview-tap'
 
 class CameraPreview extends View {
 	createNativeView() {
@@ -124,6 +125,8 @@ export function CameraView(props: CameraViewProps) @{
 		if (!view) return
 		applyEscapeProps(view.android, props)
 	}, [props.ref, props.android])
+
+	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
 	<gridlayout
 		id={props.id}

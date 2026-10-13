@@ -12,6 +12,7 @@ export type {
 	CameraOrientation,
 	CameraPermissionKind,
 	CameraPermissionStatus,
+	CameraPreviewPoint,
 	CameraProfileCapability,
 	CameraRecorderState,
 	CameraSelection,

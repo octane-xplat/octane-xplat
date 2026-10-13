@@ -54,6 +54,11 @@ const interruptionVideoDeviceNotAvailableWithMultipleForegroundApps = 4
 const interruptionVideoDeviceNotAvailableDueToSystemPressure = 5
 const avErrorMaximumDurationReached = -11810
 
+// AVCaptureFocusMode/AVCaptureExposureMode numeric values — tap-to-focus
+// uses the single-shot modes, matching the AVCam convention.
+const focusModeAutoFocus = 1
+const exposureModeAutoExpose = 1
+
 const mediaTypeFor = (kind: CameraPermissionKind): string =>
 	kind === 'camera' ? AVMediaTypeVideo : AVMediaTypeAudio
 
@@ -714,6 +719,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				cameras,
 				profiles: [{ profile: 'standard', ...profile }],
 				audio: typeof AVCaptureDevice.defaultDeviceWithMediaType === 'function',
+				focusPointOfInterest: selected?.focusPointOfInterestSupported === true,
+				exposurePointOfInterest: selected?.exposurePointOfInterestSupported === true,
 				orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
@@ -814,6 +821,63 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			}
 
 			target.commitConfiguration()
+		},
+		focusAtPoint: (point) => {
+			const captureDevice = device
+			const layer = previewLayer
+			if (!captureDevice || !layer) {
+				return
+			}
+
+			// Front cameras are commonly fixed-focus — meter only the
+			// dimensions the device actually supports.
+			const focus =
+				captureDevice.focusPointOfInterestSupported === true &&
+				captureDevice.isFocusModeSupported?.(focusModeAutoFocus) !== false
+			const expose =
+				captureDevice.exposurePointOfInterestSupported === true &&
+				captureDevice.isExposureModeSupported?.(exposureModeAutoExpose) !== false
+			if (!focus && !expose) {
+				return
+			}
+
+			// The preview layer converts view space into device space —
+			// aspect-fill cropping, sensor orientation, and the front
+			// camera's mirrored connection are all accounted for. Without
+			// it there is no honest mapping, so bail rather than meter the
+			// wrong point.
+			const bounds = layer.bounds
+			const layerPoint = CGPointMake(
+				point.x * bounds.size.width,
+				point.y * bounds.size.height,
+			)
+			if (typeof layer.captureDevicePointOfInterestForPoint !== 'function') {
+				return
+			}
+
+			const devicePoint = layer.captureDevicePointOfInterestForPoint(layerPoint)
+
+			try {
+				if (captureDevice.lockForConfiguration?.(undefined) !== true) {
+					return
+				}
+
+				// Single-shot AF/AE at the point — the Apple AVCam
+				// tap-to-focus convention; the device locks after metering.
+				if (focus) {
+					captureDevice.focusPointOfInterest = devicePoint
+					captureDevice.focusMode = focusModeAutoFocus
+				}
+
+				if (expose) {
+					captureDevice.exposurePointOfInterest = devicePoint
+					captureDevice.exposureMode = exposureModeAutoExpose
+				}
+
+				captureDevice.unlockForConfiguration()
+			} catch {
+				// A missed metering pass must not fault the session.
+			}
 		},
 		startCapture: (request, sink) => {
 			const target = session

@@ -10,6 +10,7 @@ import type {
 import type {
 	CameraInterruptionReason,
 	CameraPermissionStatus,
+	CameraPreviewPoint,
 	CameraSession,
 	CameraSessionCapabilities,
 	CameraSessionConfig,
@@ -47,6 +48,9 @@ export interface SyntheticCameraScript {
 		reason: CameraInterruptionReason
 		endsAfterMs?: number
 	}
+	/** When set, each `focusAtPoint` call pushes its normalized point
+	 *  here so a spec can observe metering requests. */
+	focusRequests?: CameraPreviewPoint[]
 }
 
 export interface SyntheticCameraStorage {
@@ -92,6 +96,9 @@ const capabilities: CameraSessionCapabilities = {
 	],
 	profiles: [{ profile: 'standard', width: 1280, height: 720, frameRate: 30 }],
 	audio: true,
+	// The seam accepts metering points so tests exercise the supported path.
+	focusPointOfInterest: true,
+	exposurePointOfInterest: true,
 	orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
 	durationLimit: 'native',
 	elapsedTime: 'nativeMedia',
@@ -238,6 +245,9 @@ function createSyntheticBackend(
 			reason: script.available ? undefined : 'Synthetic camera is unavailable',
 		}),
 		previewReady: () => attached && script.available,
+		focusAtPoint: (point) => {
+			script.focusRequests?.push(point)
+		},
 		attachPreview: (_host, listener) => {
 			attached = true
 			queueMicrotask(() => {

@@ -4,6 +4,7 @@ import type { CameraViewProps } from './props'
 import { cameraHardwarePresent, ensureCameraPermission, startCameraPreview } from './camera-session.macos'
 import { attachSessionPreview } from './session'
 import { layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
+import { observePreviewTap } from './preview-tap'
 
 /** Live AppKit preview backed by AVFoundation. With `session`, the preview
  *  attaches to the session-owned AVCaptureSession so movie recording can
@@ -72,6 +73,8 @@ export function CameraView(props: CameraViewProps) @{
 			stopPreview?.()
 		}
 	}, [active, facing, props.session])
+
+	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
 	<gridlayout
 		ref={bindHost}

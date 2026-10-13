@@ -1,5 +1,5 @@
 import type { Octane } from 'octane/jsx-runtime'
-import type { CameraSession } from './types'
+import type { CameraPreviewPoint, CameraSession } from './types'
 
 export type CameraAccessibilityRole =
 	| 'button'
@@ -60,6 +60,13 @@ export interface CameraViewProps {
 	/** Fires after the preview surface starts. */
 	onReady?: () => void
 	onError?: (error: { message?: string }) => void
+	/** Notification-only tap event — fires with the normalized
+	 *  preview-space position (`CameraPreviewPoint`) and never consumes
+	 *  the gesture, so recognizers layered above the preview (double-tap,
+	 *  pan) still run. Pair with `session.focusAtPoint` for tap-to-focus.
+	 *  Delivered on iOS, Android, and web; desktop runtimes do not dispatch
+	 *  it yet. */
+	onTap?: (point: CameraPreviewPoint) => void
 	/** Native preview surface for platform-specific controls. */
 	ref?: Octane.Ref<CameraViewHandle>
 	/** Platform-specific properties applied to the preview surface. */

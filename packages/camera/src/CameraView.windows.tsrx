@@ -8,6 +8,7 @@ import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.windows'
 import { startCameraPreview } from './camera-session.windows'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child.windows'
+import { observePreviewTap } from './preview-tap'
 
 class CameraPreview extends View {
 	createNativeView() {
@@ -102,6 +103,8 @@ export function CameraView(props: CameraViewProps) @{
 		if (!view) return
 		applyEscapeProps(view.nativeViewProtected, props)
 	}, [props.ref, props.windows])
+
+	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
 	<gridlayout
 		id={props.id}

@@ -511,6 +511,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 							]
 						: [],
 				audio: devices.some((device) => device.kind === 'audioinput'),
+				// The `pointsOfInterest` track constraint is not wired into
+				// the adapter — report honestly rather than fabricate.
+				focusPointOfInterest: false,
+				exposurePointOfInterest: false,
 				orientations: [],
 				durationLimit: 'bestEffort',
 				elapsedTime: 'estimated',

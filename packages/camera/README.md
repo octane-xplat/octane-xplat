@@ -49,6 +49,34 @@ export function Preview() {
 }
 ```
 
+## Tap-to-focus
+
+`CameraView` reports where the user tapped as a normalized point —
+`{x: 0, y: 0}` is the top-left corner of the preview, `{x: 1, y: 1}` the
+bottom-right. Hand the point to a session's `focusAtPoint` to meter one
+autofocus and auto-exposure pass there:
+
+```tsx
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+
+const session = createCameraSession()
+
+export function FocusablePreview() {
+	return (
+		<CameraView session={session} onTap={(point) => session.focusAtPoint(point)} />
+	)
+}
+```
+
+`onTap` is a pure notification — it never takes over the gesture, so
+double-tap and pan recognizers layered over the preview keep working.
+`focusAtPoint` needs a session (it drives the camera the preview
+attaches) and quietly does nothing on cameras that cannot meter at a
+point — front cameras are often fixed-focus. Check
+`capabilities().focusPointOfInterest` and `exposurePointOfInterest`
+before showing focus UI. Metering lands on iOS, Android, and macOS; the
+tap event fires on iOS, Android, and web.
+
 ## Movie recording
 
 `createCameraSession` creates a shared camera owner: the same session can
