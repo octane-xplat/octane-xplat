@@ -59,9 +59,16 @@ reason this is a standalone leaf rather than an addition to
 
 ## macOS qualification
 
-Contributor evidence boundary: run `pnpm --filter @octane-xplat/rolling-text
- test:macos-runtime` from this repository, reserving `native_builds:1` through
-the resource broker. The fixture mounts the public workspace import in a real
+Contributor evidence boundary: on a shared agent host, reserve exclusive
+`macos:rolling-text-qualification` through the resource broker. This serializes
+an isolated fixture using the prebuilt host; it performs JavaScript bundling
+and no native compilation. From the repository root, run:
+
+```sh
+pnpm --filter @octane-xplat/rolling-text test:macos-runtime
+```
+
+The fixture mounts the public workspace import in a real
 JavaScriptCore/AppKit host. It reads NSView bounds, CALayer translation,
 alpha, clipping, label text, and accessibility properties; it checks observer
 removal on the actual workspace notification center and repeated disposal.
