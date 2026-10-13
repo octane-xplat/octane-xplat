@@ -6,11 +6,20 @@ capability discovery, and the shared permission / session / evidence contracts
 that every later subsystem (docs, code search, runtime, inspection,
 development actions) plugs into.
 
-Currently `private`: it is not published and carries no supported consumer API
-yet. Publishing requires the one-time npm stub + trusted-publisher setup in
-`.agents/docs/releases.md` before the `private` flag can come off.
+Published as a normal lockstep package on npm. The qualified surface today is
+the Chromium consumer lane (status/docs/code/build/launch/inspection/
+interaction/development actions); native-platform inspection and input
+adapters report honest `unavailable` results until they are qualified — see
+[Remaining acceptance](#remaining-acceptance).
 
-## Run
+## Install and run
+
+Add the server to a consumer app and point the agent's MCP client at the
+installed `xplat-mcp` bin:
+
+```sh
+pnpm add -D @octane-xplat/mcp
+```
 
 ```json
 {
@@ -21,6 +30,12 @@ yet. Publishing requires the one-time npm stub + trusted-publisher setup in
 		}
 	}
 }
+```
+
+A one-off run without a devDependency also works:
+
+```sh
+pnpm dlx @octane-xplat/mcp --workspace /path/to/app-workspace
 ```
 
 For development inside this repository:
@@ -233,8 +248,8 @@ of arbitrary application data.
 ## Run the consumer acceptance lane
 
 Use a fresh directory outside your existing app. These commands scaffold the
-normal web starter and add one app-owned development action. Framework
-packages link to this checkout because MCP is still private; other dependencies
+normal web starter and add one app-owned development action. The in-repo lane
+links framework packages to this checkout; other dependencies
 install normally. The runner checks docs and current code, build/readiness,
 the counter's `0 → 1` transition, action discovery/invocation, screenshot
 denial, logs, and owned browser/server/profile cleanup. It also checks that

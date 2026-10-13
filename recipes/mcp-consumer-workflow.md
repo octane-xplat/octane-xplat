@@ -6,7 +6,7 @@ Related APIs: xplat_project_status, xplat_docs_search, xplat_docs_read, xplat_la
 
 ## Starting point
 
-A framework checkout with the private MCP package, an independently
+A framework checkout with the MCP package, an independently
 scaffolded consumer, and a dedicated Chromium process. Two maintained lanes
 exist: the linked-checkout in-memory lane and the packed-artifact stdio lane
 (packed tarballs, release-tag fixture, installed `xplat-mcp` bin). This

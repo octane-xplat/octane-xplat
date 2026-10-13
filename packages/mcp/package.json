@@ -1,9 +1,13 @@
 {
 	"name": "@octane-xplat/mcp",
 	"version": "0.0.0",
-	"private": true,
 	"description": "MCP server for Octane Xplat consumer apps — project identity, capability discovery, permission and evidence contracts.",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/mcp"
+	},
 	"bin": {
 		"xplat-mcp": "./src/xplat-mcp.mjs"
 	},
@@ -21,6 +25,9 @@
 			"types": "./src/contracts/*.d.ts",
 			"default": "./src/contracts/*.mjs"
 		}
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"start": "node src/xplat-mcp.mjs",
