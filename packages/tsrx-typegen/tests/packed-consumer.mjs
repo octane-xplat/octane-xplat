@@ -142,9 +142,10 @@ void value
 	run('pnpm', ['typegen:check'], packageRoot)
 	run('pnpm', ['exec', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
 
+	const collisionName = `collision-${process.pid}`
 	const collidingSources = [
-		join(packageRoot, 'src/Collision.ts'),
-		join(packageRoot, 'src/Collision.tsrx'),
+		join(packageRoot, `src/${collisionName}.ts`),
+		join(packageRoot, `src/${collisionName}.tsrx`),
 	]
 
 	try {
@@ -214,7 +215,8 @@ void value
 
 	const overrideConfigPath = join(packageRoot, 'tsrx-typegen.json')
 	const originalConfig = readFileSync(overrideConfigPath, 'utf8')
-	const overrideSource = join(packageRoot, 'types/overrides/Collision.d.ts')
+	const overrideDeclaration = `${collisionName}.d.ts`
+	const overrideSource = join(packageRoot, `types/overrides/${overrideDeclaration}`)
 	const overrideText = "export interface CollisionContract { kind: 'override' }\n"
 	try {
 		for (const source of collidingSources) {
@@ -224,7 +226,11 @@ void value
 		mkdirSync(dirname(overrideSource), { recursive: true })
 		writeFileSync(overrideSource, overrideText)
 		const config = JSON.parse(originalConfig)
-		config.overrides = { 'Collision.d.ts': 'types/overrides/Collision.d.ts' }
+		config.overrides = {
+			...(config.overrides ?? {}),
+			[overrideDeclaration]: `types/overrides/${overrideDeclaration}`,
+		}
+
 		writeFileSync(overrideConfigPath, JSON.stringify(config, null, 2) + '\n')
 		run(
 			process.execPath,
@@ -233,7 +239,7 @@ void value
 		)
 
 		assert.equal(
-			readFileSync(join(packageRoot, 'types/generated/Collision.d.ts'), 'utf8'),
+			readFileSync(join(packageRoot, `types/generated/${overrideDeclaration}`), 'utf8'),
 			overrideText,
 		)
 
