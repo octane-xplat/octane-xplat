@@ -19,7 +19,7 @@ const dateFromMillis = source.slice(
 )
 
 const ELEMENTS = { YearMonthDay: 0x00e0, HourMinute: 0x000c }
-const STYLES = { TextField: 0, ClockAndCalendar: 1, Graphical: 2 }
+const STYLES = { TextFieldAndStepper: 0, ClockAndCalendar: 1, TextField: 2 }
 
 function fixture() {
 	const pickers = []
@@ -85,7 +85,8 @@ test('date and time modes pick their element group and style', () => {
 	attach(view, { mode: 'time' }, () => {})
 	assert.equal(pickers[0].datePickerElements, ELEMENTS.YearMonthDay)
 	assert.equal(pickers[0].datePickerStyle, STYLES.TextField)
-	assert.equal(pickers[1].datePickerStyle, STYLES.Graphical)
+	// 'graphical' is the clock-and-calendar picker style.
+	assert.equal(pickers[1].datePickerStyle, STYLES.ClockAndCalendar)
 	assert.equal(pickers[2].datePickerElements, ELEMENTS.HourMinute)
 	assert.equal(pickers[2].datePickerStyle, STYLES.ClockAndCalendar)
 })

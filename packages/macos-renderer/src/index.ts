@@ -37,15 +37,20 @@ interface PanEvent {
 	view: NSView
 }
 
-/** A retained element in the AppKit tree. `view` is null for `#text` and
- *  `span` nodes, whose content folds into the parent's attributed string. */
+/** The AppKit object a node owns. `view` is null for `#text` and `span`
+ *  nodes, whose content folds into the parent's attributed string. Members
+ *  beyond NSView resolve loosely — each node-type code path knows the
+ *  concrete AppKit class its factory created. */
+export type AppKitView = NSView & { [key: string]: any }
+
+/** A retained element in the AppKit tree. */
 export interface ElementNode {
 	id: number
 	type: string
-	view: NSView | null
+	view: AppKitView | null
 	projectedChildren?: ElementNode[]
 	layoutParent?: ElementNode | null
-	childHost?: NSView
+	childHost?: AppKitView
 	props: PropBag
 	parent: ElementNode | null
 	children: ElementNode[]
@@ -275,6 +280,7 @@ class ContentAlignedTextField extends NSSecureTextField {
 
 	// These controls have no bezel or background, so the text area and layout
 	// frame should share the same edges.
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	alignmentRectInsets() {
 		return { top: 0, left: 0, bottom: 0, right: 0 }
 	}
@@ -329,6 +335,7 @@ const inputTransparentViews = new WeakSet<object>()
 class AccessibleStackView extends NSStackView {
 	// Self-drawn AppKit buttons need a responder so modal decisions can use
 	// the keyboard as well as accessibility actions.
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	acceptsFirstResponder() {
 		return typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
 	}
@@ -345,7 +352,7 @@ class AccessibleStackView extends NSStackView {
 		super.keyDown(event)
 	}
 
-	hitTest(point: any) {
+	hitTest(point: any): any {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
 	}
 
@@ -380,6 +387,7 @@ class AccessibleStackView extends NSStackView {
 		return true
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityRole() {
 		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
 		// ARIA 'meter' is AppKit's level indicator — a gauge of a scalar within
@@ -395,10 +403,12 @@ class AccessibleStackView extends NSStackView {
 						: 'AXGroup'
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityLabel() {
 		return accessibilityLabels.get(actionIdsByView.get(this) ?? -1) ?? ''
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityValue() {
 		const props = stackAccessibilityPropsByView.get(this)
 		const role = this.accessibilityRole()
@@ -420,22 +430,26 @@ class AccessibleStackView extends NSStackView {
 		return props?.accessibilityValue ?? ''
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityMinValue() {
 		return NSNumber.numberWithDouble(
 			Number(stackAccessibilityPropsByView.get(this)?.accessibilityMinValue ?? 0),
 		)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityMaxValue() {
 		return NSNumber.numberWithDouble(
 			Number(stackAccessibilityPropsByView.get(this)?.accessibilityMaxValue ?? 100),
 		)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityValueDescription() {
 		return String(stackAccessibilityPropsByView.get(this)?.accessibilityValueDescription ?? '')
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityHelp() {
 		return stackAccessibilityPropsByView.get(this)?.accessibilityHint ?? ''
 	}
@@ -468,6 +482,7 @@ class GridLayoutView extends NSView {
 		NativeClass(this)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityRole() {
 		const node = gridLayoutNodesByView.get(this)
 		const role = node?.props.accessibilityRole
@@ -480,22 +495,26 @@ class GridLayoutView extends NSView {
 					: 'AXGroup'
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityLabel() {
 		return gridLayoutNodesByView.get(this)?.props.accessibilityLabel ?? ''
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityValue() {
 		return NSNumber.numberWithDouble(
 			Number(gridLayoutNodesByView.get(this)?.props.accessibilityValue ?? 0),
 		)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityMinValue() {
 		return NSNumber.numberWithDouble(
 			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMinValue ?? 0),
 		)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityMaxValue() {
 		return NSNumber.numberWithDouble(
 			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMaxValue ?? 100),
@@ -548,6 +567,7 @@ class ContentViewHost extends NSView {
 		NativeClass(this)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	get intrinsicContentSize() {
 		const node = contentViewNodesByView.get(this)
 		const child = node?.projectedChildren ? node.projectedChildren[0] : node?.contentChild
@@ -753,7 +773,7 @@ function syncStackLayout(node: ElementNode) {
 		return
 	}
 
-	const stack = node.view!
+	const stack = node.view! as NSStackView
 	const style = node.styleLayout ?? {}
 	const previousOrientation = stack.orientation
 	stack.orientation =
@@ -885,7 +905,7 @@ function stackJustifyContent(node: ElementNode) {
 }
 
 function updateCrossAxisConstraints(parent: ElementNode) {
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (!stack || stack.orientation == null) {
 		return
 	}
@@ -1037,7 +1057,7 @@ function syncMarginHost(node: ElementNode) {
 		return
 	}
 
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (typeof stack?.addViewInGravity !== 'function') {
 		// Grid children are laid out manually and already honor margins.
 		if (
@@ -1109,7 +1129,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 }
 
 function stackGravity(parent: ElementNode, child: ElementNode) {
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	const horizontal = stack!.orientation === NSUserInterfaceLayoutOrientation.Horizontal
 	const leading = horizontal ? NSStackViewGravity.Leading : NSStackViewGravity.Top
 	const trailing = horizontal ? NSStackViewGravity.Trailing : NSStackViewGravity.Bottom
@@ -1216,7 +1236,7 @@ function syncStackGravityArea(
 }
 
 function moveStackChildren(parent: ElementNode) {
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (typeof stack?.addViewInGravity !== 'function') {
 		return
 	}
@@ -1247,7 +1267,7 @@ function moveStackChildren(parent: ElementNode) {
 }
 
 function updateStackDistribution(parent: ElementNode) {
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (stack?.orientation == null) {
 		return
 	}
@@ -1265,7 +1285,7 @@ function updateStackDistribution(parent: ElementNode) {
 }
 
 function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (stack?.orientation == null || !child.view) {
 		return
 	}
@@ -1292,8 +1312,9 @@ function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 }
 
 function makeFlexbox(props: PropBag) {
-	const stack = makeStack(props, AccessibleStackView)
-	const interactive = typeof props.onTap === 'function' || props.accessibilityRole === 'button'
+	const stack = makeStack(props, AccessibleStackView as unknown as NSClass<NSStackView>)
+	const interactive =
+		typeof props.onTap === 'function' || props.accessibilityRole === 'button'
 
 	// Accessibility props need the AX id too — a 'checkbox'/'link' role or a
 	// bare accessibilityLabel must not drop every accessibility prop.
@@ -1362,14 +1383,14 @@ function makeScrollView() {
 	const content = makeStack({ flexDirection: 'column' })
 	scroll.hasVerticalScroller = true
 	scroll.drawsBackground = false
-	scroll.borderType = NSBorderType.NoBorder
+	scroll.borderType = NSBorderType.No
 	scroll.translatesAutoresizingMaskIntoConstraints = false
 	scroll.documentView = content
 	return { view: scroll, childHost: content }
 }
 
 function setScrollAction(node: ElementNode, handler: ((event: any) => void) | undefined) {
-	const clipView = node.view!.contentView
+	const clipView = (node.view! as NSScrollView).contentView
 	if (typeof handler !== 'function') {
 		scrollHandlers.delete(clipView)
 		return
@@ -1391,7 +1412,7 @@ function setScrollAction(node: ElementNode, handler: ((event: any) => void) | un
 	scrollHandlers.set(clipView, () => {
 		const startedAt = performance.now()
 		const bounds = clipView.bounds
-		const contentHeight = Number(node.view!.documentView?.frame?.size?.height ?? 0)
+		const contentHeight = Number((node.view! as NSScrollView).documentView?.frame?.size?.height ?? 0)
 		const event = {
 			verticalOffset: Number(bounds.origin.y ?? 0),
 			viewportHeight: Number(bounds.size.height ?? 0),
@@ -1513,7 +1534,7 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 function setTextFieldPlaceholder(field: NSTextField, props: PropBag, scheme = 'light') {
 	const placeholder = String(props.placeholder ?? '')
 	if (!placeholder) {
-		field.placeholderAttributedString = null
+		field.placeholderAttributedString = null as unknown as NSAttributedString
 		field.placeholderString = placeholder
 		return
 	}
@@ -1546,25 +1567,24 @@ function makeTextField(props: PropBag, multiline = false) {
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
 	field.textColor = nativeColor('#0a0a0a')
-	if (!multiline) {
-		field.bezeled = false
-		field.drawsBackground = false
-		field.editable = true
-		field.selectable = true
-		field.sendsActionOnEndEditing = false
-		setTextFieldPlaceholder(field as NSTextField, props)
-	} else {
-		field.editable = true
-		field.selectable = true
-		field.drawsBackground = false
-		field.textContainerInset = { width: 0, height: 0 }
-		field.textContainer.lineFragmentPadding = 0
-	}
-
 	if (multiline) {
-		field.string = String(props.value ?? '')
+		const textView = field as InteractionTextView
+		textView.editable = true
+		textView.selectable = true
+		textView.drawsBackground = false
+		textView.textContainerInset = { width: 0, height: 0 }
+		textView.textContainer.lineFragmentPadding = 0
+		textView.string = String(props.value ?? '')
 	} else {
-		field.stringValue = String(props.value ?? '')
+		const textField = field as ContentAlignedTextField
+		textField.bezeled = false
+		textField.drawsBackground = false
+		textField.editable = true
+		const looseField = textField as any
+		looseField.selectable = true
+		looseField.sendsActionOnEndEditing = false
+		setTextFieldPlaceholder(textField as unknown as NSTextField, props)
+		textField.stringValue = String(props.value ?? '')
 	}
 
 	return field
@@ -2608,7 +2628,7 @@ class InputImageView extends NSImageView {
 	static {
 		NativeClass(this)
 	}
-	hitTest(point: any) {
+	hitTest(point: any): any {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
 	}
 }
@@ -2813,7 +2833,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				observeContentGeometry(node)
 				break
 			case 'gridlayout':
-				node.view = makeGridLayout()
+				node.view = makeGridLayout() as unknown as NSView
 				break
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
@@ -2836,10 +2856,10 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			}
 			case 'textfield':
-				node.view = makeTextField(props)
+				node.view = makeTextField(props) as unknown as NSView
 				break
 			case 'textview':
-				node.view = makeTextField(props, true)
+				node.view = makeTextField(props, true) as unknown as NSView
 				break
 			case 'switch': {
 				const control = makeSwitch(props)
@@ -2873,16 +2893,20 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			if (type === 'textfield') {
 				// Per-edit events arrive through controlTextDidChange (delegate);
 				// the target/action is reserved for submission on Return.
-				node.view!.delegate = buttonActionTarget
-				node.view!.target = buttonActionTarget
-				node.view!.action = 'textFieldSubmitted:'
+				const textField = node.view! as NSTextField
+				textField.delegate = buttonActionTarget
+				textField.target = buttonActionTarget
+				textField.action = 'textFieldSubmitted:'
 			} else {
-				node.view!.delegate = buttonActionTarget
+				;(node.view! as NSTextView).delegate = buttonActionTarget
 			}
 		}
 
-		if (['label', 'textfield', 'textview'].includes(type) && node.view!.font) {
-			node.view!.font = fontForFamilyStyle(node.view!.font.pointSize, 400, container.fontFamily)
+		if (['label', 'textfield', 'textview'].includes(type)) {
+			const textControl = node.view! as NSTextField | NSTextView
+			if (textControl.font) {
+				textControl.font = fontForFamilyStyle(textControl.font.pointSize, 400, container.fontFamily)
+			}
 		}
 
 		if (type === 'gridlayout') {
@@ -2898,19 +2922,20 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		}
 
 		if (type === 'textview') {
-			const viewport = NSScrollView.alloc().initWithFrame(node.view!.frame)
+			const textView = node.view! as NSTextView
+			const viewport = NSScrollView.alloc().initWithFrame(textView.frame)
 			viewport.translatesAutoresizingMaskIntoConstraints = false
 			viewport.drawsBackground = false
-			viewport.borderType = NSBorderType.NoBorder
+			viewport.borderType = NSBorderType.No
 			viewport.hasVerticalScroller = true
 			viewport.autohidesScrollers = true
-			node.view!.translatesAutoresizingMaskIntoConstraints = true
-			node.view!.autoresizingMask = NSAutoresizingMaskOptions.ViewWidthSizable
-			node.view!.verticallyResizable = true
-			node.view!.horizontallyResizable = false
-			node.view!.maxSize = { width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER }
-			node.view!.textContainer.widthTracksTextView = true
-			viewport.documentView = node.view!
+			textView.translatesAutoresizingMaskIntoConstraints = true
+			textView.autoresizingMask = NSAutoresizingMaskOptions.WidthSizable
+			textView.verticallyResizable = true
+			textView.horizontallyResizable = false
+			textView.maxSize = { width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER }
+			textView.textContainer.widthTracksTextView = true
+			viewport.documentView = textView
 			node.textViewport = viewport
 			viewport.contentView.postsFrameChangedNotifications = true
 			node.textLayoutObserver =
@@ -3960,7 +3985,7 @@ function syncSecureTextField(node: ElementNode) {
 		'action',
 		'tag',
 	]) {
-		cell[name] = previous[name]
+		;(cell as any)[name] = (previous as any)[name]
 	}
 
 	field.cell = cell
@@ -4152,8 +4177,9 @@ function syncTextControlState(node: ElementNode) {
 		view.enabled = enabled
 	}
 
-	view.editable = editable
-	view.selectable = editable || enabled
+	const textTarget = view as any
+	textTarget.editable = editable
+	textTarget.selectable = editable || enabled
 }
 
 function applyAccessibility(node: ElementNode, name: string, value: any) {
@@ -5165,7 +5191,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
-	const stack = parent.childHost ?? parent.view
+	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (typeof stack?.addViewInGravity !== 'function') {
 		return
 	}
@@ -5296,7 +5322,8 @@ function insert(
 				const gravity = stackGravity(parent, node)
 				const arrangedIndex = gravityInsertIndex(parent, node, gravity)
 
-				parentView.insertViewAtIndexInGravity(arrangedView(node), arrangedIndex, gravity)
+				const stack = parentView as NSStackView
+				stack.insertViewAtIndexInGravity(arrangedView(node), arrangedIndex, gravity)
 				applySizeConstraints(node)
 				queueLayoutReconcile(container, parent)
 			}
@@ -6218,7 +6245,7 @@ const hoverRecordsByArea = new Map<object, { enter?: () => void; exit?: () => vo
 const hoverRecordByView = new WeakMap<object, any>()
 const openPopups = new Set<any>()
 
-const TRACKING_OPTS = typeof NSTrackingAreaOptions === 'undefined' ? {} : NSTrackingAreaOptions
+const TRACKING_OPTS = (typeof NSTrackingAreaOptions === 'undefined' ? {} : NSTrackingAreaOptions) as { [key: string]: number }
 const trackingOpt = (value: number | undefined, fallback: number) =>
 	typeof value === 'number' && Number.isFinite(value) ? value : fallback
 
@@ -6318,20 +6345,20 @@ try {
 // panel above the anchor (its MaxY edge). Numeric NSRectEdge values are the
 // fallback when the bridged enum object is absent.
 function popoverEdge(placement: string | undefined) {
-	const edges = typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
+	const edges = (typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}) as { [key: string]: number }
 	switch (placement) {
 		case 'bottom': {
-			return edges.MinY ?? 1
+			return edges.MinYEdge ?? 1
 		}
 		case 'left': {
-			return edges.MinX ?? 0
+			return edges.MinXEdge ?? 0
 		}
 		case 'right': {
-			return edges.MaxX ?? 2
+			return edges.MaxXEdge ?? 2
 		}
 		case 'top':
 		default: {
-			return edges.MaxY ?? 3
+			return edges.MaxYEdge ?? 3
 		}
 	}
 }
@@ -6459,7 +6486,7 @@ function showAnchoredPopup(options: PopupOptions) {
 
 	const popover = NSPopover.alloc().init()
 	popover.contentViewController = controller
-	const behaviors = typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior
+	const behaviors = (typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior) as { [key: string]: number }
 	// Transient closes on outside interaction — the AppKit-native feel for a
 	// hint layer. An explicit lightDismiss:false keeps the layer open until
 	// the leaf closes it. The leaf still owns close() for hover-intent
@@ -6614,13 +6641,15 @@ function attachContextMenu(
 	}
 }
 
-const DATE_PICKER_STYLES =
+const DATE_PICKER_STYLES = (
 	typeof NSDatePickerStyle === 'object' && NSDatePickerStyle ? NSDatePickerStyle : {}
+) as { [key: string]: number }
 
-const DATE_PICKER_ELEMENTS =
+const DATE_PICKER_ELEMENTS = (
 	typeof NSDatePickerElementFlags === 'object' && NSDatePickerElementFlags
 		? NSDatePickerElementFlags
 		: {}
+) as { [key: string]: number }
 
 function dateFromMillis(millis: number) {
 	if (typeof NSDate !== 'function' || !Number.isFinite(millis)) {
@@ -6656,7 +6685,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 
 	picker.datePickerStyle =
 		!isTime && !isBoth && options?.style === 'graphical'
-			? (DATE_PICKER_STYLES.Graphical ?? 2)
+			? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
 			: isTime
 				? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
 				: (DATE_PICKER_STYLES.TextField ?? 0)
@@ -6664,8 +6693,8 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 	const applyRange = (opts: PropBag | undefined) => {
 		const min = dateFromMillis(opts?.minimumMillis)
 		const max = dateFromMillis(opts?.maximumMillis)
-		picker.minDate = min
-		picker.maxDate = max
+		picker.minDate = min as NSDate
+		picker.maxDate = max as NSDate
 	}
 
 	applyRange(options)
@@ -6715,7 +6744,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 		},
 		detach() {
 			picker.target = null
-			picker.action = null
+			picker.action = null as unknown as string
 			actionHandlers.delete(actionId)
 			picker.removeFromSuperview()
 		},
@@ -6848,8 +6877,14 @@ function presentSheet(view: NSView, options: PropBag) {
 	const width = Math.max(fit?.width ?? 0, options?.minWidth ?? 360)
 	const height = Math.max(fit?.height ?? 0, options?.minHeight ?? 160)
 
-	const SM = typeof NSWindowStyleMask === 'object' && NSWindowStyleMask ? NSWindowStyleMask : {}
-	const BT = typeof NSBackingStoreType === 'object' && NSBackingStoreType ? NSBackingStoreType : {}
+	const SM = (typeof NSWindowStyleMask === 'object' && NSWindowStyleMask ? NSWindowStyleMask : {}) as {
+		[key: string]: number
+	}
+
+	const BT = (typeof NSBackingStoreType === 'object' && NSBackingStoreType ? NSBackingStoreType : {}) as {
+		[key: string]: number
+	}
+
 	const sheet = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 		{ origin: { x: 0, y: 0 }, size: { width, height } },
 		(SM.Titled ?? 1) | (SM.Closable ?? 2),
@@ -7042,7 +7077,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
 
-				const clipView = node.view!.contentView
+				const clipView = (node.view! as NSScrollView).contentView
 				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
 				node.view!.reflectScrolledClipView(clipView)
 				return Number(clipView.bounds.origin.y ?? 0)
@@ -7060,7 +7095,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
 
-				const clipView = node.view!.contentView
+				const clipView = (node.view! as NSScrollView).contentView
 				const doc = node.view!.documentView
 				const docH = Number(doc.frame.size.height)
 				const clipH = Number(clipView.bounds.size.height)
@@ -7087,7 +7122,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
 
-				const clipView = node.view!.contentView
+				const clipView = (node.view! as NSScrollView).contentView
 				const doc = node.view!.documentView
 				const clipH = Number(clipView.bounds.size.height)
 				const docH = Number(doc?.frame?.size?.height ?? 0)
@@ -7140,7 +7175,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 						isContentView: container.hostView.window?.contentView === container.hostView,
 						autoresizingMask: Number(container.hostView.autoresizingMask ?? -1),
 						translatesMask: Boolean(container.hostView.translatesAutoresizingMaskIntoConstraints),
-						subviews: Number(container.hostView.subviews?.length ?? 0),
+						subviews: Number(container.hostView.subviews?.count ?? 0),
 						window: winFrame
 							? {
 									w: Number(winFrame.size.width),

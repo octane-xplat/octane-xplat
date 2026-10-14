@@ -1,32 +1,7 @@
-// Ambient host globals the packaged AppKit runtime injects — the same loose
-// style as apps/macos/src/globals.d.ts and src/appkit.d.ts. Copied into the
-// independent consumer so its `tsc --noEmit` covers main.ts and dev-shell.ts.
-
-type NSClass<T> = {
-	new (...args: any[]): T
-	alloc(): T
-	[key: string]: any
-}
-
-declare class NSObject {
-	[key: string]: any
-	static alloc(): any
-}
-
-interface NSApplication extends NSObject {}
-declare const NSApplication: NSClass<NSApplication>
-
-interface NSFont extends NSObject {}
-declare const NSFont: NSClass<NSFont>
-
-interface NSView extends NSObject {}
-declare const NSView: NSClass<NSView>
-
-interface NSWindow extends NSView {}
-declare const NSWindow: NSClass<NSWindow>
-
-declare const NSApplicationActivationPolicy: { [key: string]: number }
-declare const NSWindowStyleMask: { [key: string]: number }
+// Ambient host globals the packaged AppKit runtime injects, covering the
+// consumer's `tsc --noEmit` over main.ts and dev-shell.ts. The SDK surface
+// comes from the renderer's generated types.
+/// <reference types="@octane-xplat/macos-renderer/types" />
 
 // Host-injected entry points and globals.
 declare function __hostRunFile(path: string): any
@@ -43,6 +18,3 @@ declare const console: {
 
 declare const process: { env: { [key: string]: string | undefined } }
 declare function setTimeout(callback: () => void, ms?: number): unknown
-
-declare const NSUserInterfaceLayoutOrientation: { [key: string]: number }
-declare const NSStackViewGravity: { [key: string]: number }

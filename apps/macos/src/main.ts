@@ -28,9 +28,9 @@ console.log('[macos-bundle] component rendered')
 void windowClosed.then(unmountMainRoot)
 void applicationClosed.then(() => {
 	unmountMainRoot()
-	mainWindow.delegate = null
+	mainWindow.delegate = null as unknown as NSWindowDelegate
 	mainWindow.close()
-	app.delegate = null
+	app.delegate = null as unknown as NSApplicationDelegate
 	appKit.delegate = null
 	const stopHost = (globalThis as { __xplatStopHost?: () => void }).__xplatStopHost
 	stopHost?.()

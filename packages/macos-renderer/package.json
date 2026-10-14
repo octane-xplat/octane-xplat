@@ -10,6 +10,7 @@
 	},
 	"files": [
 		"src",
+		"types",
 		"LICENSE"
 	],
 	"type": "module",
@@ -26,6 +27,12 @@
 		"./jsx-dev-runtime": {
 			"types": "./src/jsx-runtime.d.ts"
 		},
+		"./types": {
+			"types": "./types/index.d.ts"
+		},
+		"./types/*": {
+			"types": "./types/*.d.ts"
+		},
 		"./compat/native-core": "./src/native-core-shim.ts",
 		"./compat/escape-props": "./src/native-escape-props.ts"
 	},
@@ -40,7 +47,8 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
-		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208"
+		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@nativescript/objc-node-api": "1.0.0-alpha.7"
 	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"

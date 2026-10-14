@@ -161,7 +161,7 @@ export function updateWebView(
 			},
 			measure() {
 				const generation = created.generation
-				view.evaluateJavaScriptCompletionHandler(scrollScript(created.props.scrollEnabled), null)
+				view.evaluateJavaScriptCompletionHandler(scrollScript(created.props.scrollEnabled), null as any)
 				if (!created.props.matchContents && !created.props.onLayoutContent) {
 					return
 				}
@@ -228,7 +228,7 @@ export function updateWebView(
 			const url = path.startsWith('/') ? NSURL.fileURLWithPath(path) : NSURL.URLWithString(path)
 			if (!url) {
 				state.emit('onError', { url: src, error: 'Invalid document URL' })
-			} else if (url.isFileURL) {
+			} else if ((url as any).isFileURL) {
 				if (src.startsWith('~/')) {
 					// Bundle-resident sources may reference sibling resources.
 					state.navigation = view.loadFileURLAllowingReadAccessToURL(
@@ -258,6 +258,6 @@ export function updateWebView(
 
 export function disposeWebView(view: WKWebView) {
 	states.delete(view)
-	view.navigationDelegate = null
+	view.navigationDelegate = null as any
 	view.stopLoading()
 }

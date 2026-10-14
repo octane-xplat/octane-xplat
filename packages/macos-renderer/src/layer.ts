@@ -40,8 +40,8 @@ export interface WindowLayerDeps {
 	}
 	fittingSize(view: NSView): NSSize | null | undefined
 	View?: NSClass<NSView>
-	Event?: NSEventClass
-	Center?: NSNotificationCenterClass
+	Event?: typeof NSEvent
+	Center?: typeof NSNotificationCenter
 }
 
 interface NotificationRecord {
@@ -244,7 +244,7 @@ export function showWindowLayer(
 		if (Event?.addLocalMonitorForEventsMatchingMaskHandler) {
 			monitor = Event.addLocalMonitorForEventsMatchingMaskHandler(
 				(1 << 1) | (1 << 3) | (1 << 25),
-				(event) => {
+				(event: NSEvent) => {
 					if (layer.closed || !positioning.lightDismiss || event.window !== anchor.window) {
 						return event
 					}

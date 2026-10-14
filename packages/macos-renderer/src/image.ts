@@ -85,7 +85,7 @@ export function updateImage(view: NSImageView, source: unknown) {
 			return
 		}
 
-		view.image = image
+		view.image = image as NSImage
 	}
 
 	if (!src) {

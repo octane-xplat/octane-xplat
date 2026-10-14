@@ -320,8 +320,8 @@ function installPlatformServices() {
 	Object.assign(bridge, {
 		appInfo: {
 			supported: true,
-			version: info.CFBundleShortVersionString ?? null,
-			build: info.CFBundleVersion ?? null,
+			version: (info as any).CFBundleShortVersionString ?? null,
+			build: (info as any).CFBundleVersion ?? null,
 			bundleId: NSBundle.mainBundle.bundleIdentifier ?? null,
 		},
 		get appState() {
@@ -391,8 +391,11 @@ function installPlatformServices() {
 					size: { width: 0, height: 0 },
 				}
 
-				const edges = typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
-				picker.showRelativeToOfPreferredEdge(rect, anchor, edges.MinY ?? 1)
+				const edges = (typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}) as {
+					[key: string]: number
+				}
+
+				picker.showRelativeToRectOfViewPreferredEdge(rect, anchor, edges.MinYEdge ?? 1)
 				return 'shared'
 			} catch (error) {
 				console.error('[macos] share picker presentation failed', error)
@@ -502,7 +505,7 @@ function resolveParentWindow(
 		throw new TypeError('openWindow parent must be an AppKit window or window controller')
 	}
 
-	if (parentOption?.isClosed) {
+	if ((parentOption as any)?.isClosed) {
 		throw new Error('openWindow cannot use a closed parent window')
 	}
 
@@ -517,7 +520,7 @@ function resolveParentWindow(
 
 	if (
 		kind === 'dialog' &&
-		typeof (parentWindow?.beginSheetCompletionHandler ?? parentWindow?.beginSheet) !== 'function'
+		typeof (parentWindow?.beginSheetCompletionHandler ?? (parentWindow as any)?.beginSheet) !== 'function'
 	) {
 		throw new TypeError('openWindow dialog parent must support AppKit sheets')
 	}
@@ -554,7 +557,7 @@ export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: b
 
 	nativeWindow.center()
 	nativeWindow.delegate = appDelegate()
-	app.delegate = shared.appDelegate
+	app.delegate = shared.appDelegate as unknown as NSApplicationDelegate
 	shared.platformServices.primaryWindow ??= nativeWindow
 
 	const contentView = makeContentView({ width: 640, height: 420 })
@@ -767,8 +770,8 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
 		)
 
 		if (kind === 'dialog') {
-			const beginSheet = parentWindow!.beginSheetCompletionHandler ?? parentWindow!.beginSheet
-			beginSheet.call(parentWindow, nativeWindow, null)
+			const beginSheet = parentWindow!.beginSheetCompletionHandler ?? (parentWindow as any).beginSheet
+			beginSheet.call(parentWindow, nativeWindow, null as any)
 		} else if (kind === 'popup') {
 			parentWindow!.addChildWindowOrdered(nativeWindow, NSWindowOrderingMode?.Above ?? 1)
 			nativeWindow.orderFront(null)
@@ -884,8 +887,8 @@ export function createHostedWindow(options: OpenWindowOptions = {}) {
 	shared.windowCloseHandlers.set(nativeWindow, finalizeClose)
 
 	if (kind === 'dialog' && parentWindow) {
-		const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet
-		beginSheet.call(parentWindow, nativeWindow, null)
+		const beginSheet = parentWindow.beginSheetCompletionHandler ?? (parentWindow as any).beginSheet
+		beginSheet.call(parentWindow, nativeWindow, null as any)
 	} else {
 		nativeWindow.center()
 		nativeWindow.makeKeyAndOrderFront(app)

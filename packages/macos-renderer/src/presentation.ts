@@ -83,18 +83,19 @@ export function installPresentationBridge(
 	fontFamilyForView: (view: NSView | undefined) => string | undefined,
 ) {
 	const entries: SurfaceEntry[] = []
-	const layers = new WeakMap<NSView, SurfaceEntry>()
+	const layers = new WeakMap<PresentationLayer, SurfaceEntry>()
 	class PresentationLayer extends NSView {
 		static {
 			NativeClass(this)
 		}
+		// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 		acceptsFirstResponder() {
 			return true
 		}
-		hitTest(point: NSPoint): NSView | null {
+		hitTest(point: NSPoint): any {
 			const hit = super.hitTest(point)
 			const entry = layers.get(this)
-			return (hit === this || hit?.isEqual?.(this)) && !entry?.options.modal ? null : hit
+			return (hit === (this as unknown as NSView) || hit?.isEqual?.(this)) && !entry?.options.modal ? null : hit
 		}
 		layout() {
 			super.layout()
@@ -187,7 +188,7 @@ export function installPresentationBridge(
 						(owner ? inside(owner, entry.panel) : entry.options.modal),
 				),
 			panel,
-			layer,
+			layer: layer as unknown as NSView,
 			window: nativeWindow,
 			closed: false,
 			observers: [],
@@ -441,7 +442,7 @@ export function installPresentationBridge(
 		layers.set(layer, entry)
 		entries.push(entry)
 		try {
-			host.addSubview(layer)
+			host.addSubview(layer as unknown as NSView)
 			entry.update(initial)
 			entry.observers.push(
 				NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
@@ -580,7 +581,7 @@ export function installPresentationBridge(
 			},
 			closedPromise: entry.closedPromise,
 			panel,
-			layer,
+			layer: layer as unknown as NSView,
 		}
 	}
 }
