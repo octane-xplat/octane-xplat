@@ -1,7 +1,7 @@
 /** NativeScript-side inspection: labels stacked inside the icon container. */
 function rgb(color: any): string | undefined {
-	if (!color) return undefined
-	if (typeof color.r === 'number') return `rgb(${color.r}, ${color.g}, ${color.b})`
+	if (!color) {return undefined}
+	if (typeof color.r === 'number') {return `rgb(${color.r}, ${color.g}, ${color.b})`}
 	return String(color.hex ?? color)
 }
 
@@ -18,6 +18,7 @@ export function glyphSnapshot(view: any) {
 			})
 		}
 	}
+
 	return {
 		layers,
 		label: view?.accessibilityLabel,
@@ -38,9 +39,11 @@ export async function fontReady(family: string) {
 			? 'ready'
 			: 'missing'
 	}
+
 	if (isAndroid) {
 		const exists = File.exists(path.join(knownFolders.currentApp().path, 'fonts', `${family}.ttf`))
 		return exists ? 'ready' : 'missing'
 	}
+
 	return 'unavailable'
 }

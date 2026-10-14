@@ -15,8 +15,9 @@ export function probeFontBytes(): Uint8Array {
 		const d = src[i + 3] === '=' ? -1 : table.indexOf(src[i + 3]);
 		const n = (a << 18) | (b << 12) | ((c < 0 ? 0 : c) << 6) | (d < 0 ? 0 : d);
 		out[o++] = (n >> 16) & 255;
-		if (c >= 0) out[o++] = (n >> 8) & 255;
-		if (d >= 0) out[o++] = n & 255;
+		if (c >= 0) {out[o++] = (n >> 8) & 255;}
+		if (d >= 0) {out[o++] = n & 255;}
 	}
+
 	return out.subarray(0, o);
 }

@@ -7,6 +7,7 @@ export function glyphSnapshot(view: any) {
 			fontFamily: child.style?.fontFamily?.replace(/^"|"$/g, ''),
 			color: child.style?.color,
 		}))
+
 	return {
 		layers,
 		label: view?.getAttribute?.('aria-label'),
