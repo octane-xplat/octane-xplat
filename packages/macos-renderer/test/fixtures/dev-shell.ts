@@ -22,6 +22,7 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedProgress: any
 let retainedList: any
 let retainedDate: any
 let retainedActivity: any
@@ -47,6 +48,7 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedProgress = debug.findId('hmr-progress')
 			retainedList = debug.findId('hmr-list')
 			retainedDate = debug.findId('hmr-date')
 			retainedActivity = debug.findId('hmr-activity')
@@ -68,6 +70,7 @@ function reload() {
 			debug.pressId('increment')
 			setTimeout(() => {
 				if ((Number(retainedActivity.alphaValue) === 0)) {console.error('PACKED_HMR_FAIL: busy signal did not start spinner')}
+				if (Number(retainedProgress.doubleValue) !== 25) {console.error('PACKED_HMR_FAIL: Progress signal did not update bar')}
 				console.log('HMR_CONSUMER_READY')
 			}, 60)
 		}, 60)
@@ -77,6 +80,7 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
 				debug.findId('hmr-list') === retainedList && Number(retainedList.indexOfSelectedItem) === 1 && String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
 				debug.findId('hmr-date') === retainedDate && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
 				debug.findId('hmr-activity') === retainedActivity && (Number(retainedActivity.alphaValue) === 0) &&
@@ -115,6 +119,7 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedProgress.superview ||
 					retainedList.superview || retainedList.target != null || String(retainedList.action) !== '<null selector>' || Number(retainedList.numberOfItems) !== 0 ||
 					retainedDate.superview || retainedDate.target != null || String(retainedDate.action) !== '<null selector>' ||
 					retainedActivity.superview || !(Number(retainedActivity.alphaValue) === 0) ||
@@ -147,6 +152,7 @@ function reload() {
 				console.log('PACKED_SEARCHBAR_HMR_OK')
 				console.log('PACKED_FORMATTEDSTRING_HMR_OK')
 				console.log('PACKED_ACTIVITYINDICATOR_HMR_OK')
+				console.log('PACKED_PROGRESS_HMR_OK')
 				console.log('PACKED_HTMLVIEW_HMR_OK')
 				console.log('PACKED_LISTPICKER_HMR_OK')
 				console.log('PACKED_DATEPICKER_HMR_OK')

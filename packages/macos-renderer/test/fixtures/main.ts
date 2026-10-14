@@ -1,3 +1,4 @@
+import { checkProgressLifecycle } from './progress-lifecycle'
 import { checkListLifecycle } from './list-lifecycle'
 import { checkDateLifecycle } from './date-lifecycle'
 import { checkActivityLifecycle } from './activity-lifecycle'
@@ -199,6 +200,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
 							const listRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkListLifecycle(listRoot, nativeWindow)} finally {listRoot.unmount()}
+
+							const progressRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkProgressLifecycle(progressRoot, nativeWindow)} finally {progressRoot.unmount()}
 
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {

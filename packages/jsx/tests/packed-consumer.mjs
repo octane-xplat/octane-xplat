@@ -65,6 +65,7 @@ const tree = (
 		</contentview>
 		<listpicker items={["First", null, 42]} selectedIndex={1} onSelectedIndexChange={(event) => { const index: number = event.value; void index; void event.object }} ref={(view) => {void view; return () => {}}} />
 		<datepicker date={new Date(2026, 4, 10)} minDate="2026-05-01" maxDate={new Date(2026, 4, 31)} day={10} month={5} year={2026} onDateChange={(event) => { const value: Date = event.value; const old: Date | undefined = event.oldValue; void value; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
+		<progress value={12.5} maxValue={100} ref={(view) => { void view; return () => {} }} />
 		<activityindicator busy={true} ref={(view) => { void view; return () => {} }} />
 		<htmlview html="<b>Hello &amp; world</b>" style={{ fontSize: 18 }} ref={(view) => { void view; return () => {} }} />
 		<searchbar text="query" hint="Find" onTextChange={(event) => { const value: string = event.value; const old: string | undefined = event.oldValue; void value; void old; void event.object }} onSubmit={(event) => { const name: string = event.eventName; void name; void event.object }} ref={(view) => { void view; return () => {} }} />
@@ -107,6 +108,15 @@ void badListMode
 const badDate = <datepicker date={123} />
 // @ts-expect-error AppKit-only props must stay out of shared JSX
 const badDateStyle = <datepicker datePickerStyle={0} />
+// @ts-expect-error Progress value is numeric
+const badProgressValue = <progress value="12" />
+// @ts-expect-error Progress maximum is numeric
+const badProgressMax = <progress maxValue="100" />
+// @ts-expect-error Platform-specific modes stay out of shared JSX
+const badProgressMode = <progress indeterminate={true} />
+void badProgressValue
+void badProgressMax
+void badProgressMode
 // @ts-expect-error busy must stay boolean
 const badActivityBusy = <activityindicator busy="true" />
 // @ts-expect-error AppKit-specific props are not in the shared contract

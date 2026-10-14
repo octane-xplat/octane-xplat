@@ -102,3 +102,16 @@ void invalidListIndex
 // @ts-expect-error AppKit-specific picker mode is outside the shared contract
 const invalidListMode: SharedJSX.IntrinsicElements['listpicker'] = { pullsDown: true }
 void invalidListMode
+
+const progress: SharedJSX.IntrinsicElements['progress'] = {
+	value: 12.5, maxValue: 100,
+	ref: (view) => { void view; return () => {} },
+}
+
+// @ts-expect-error Progress value must be numeric
+const invalidProgress: SharedJSX.IntrinsicElements['progress'] = { value: '12' }
+// @ts-expect-error AppKit-specific modes do not enter the shared contract
+const invalidProgressMode: SharedJSX.IntrinsicElements['progress'] = { indeterminate: true }
+void progress
+void invalidProgress
+void invalidProgressMode

@@ -357,8 +357,11 @@ export interface SliderProps<TElement> {
 	onValueChange?: (event: ValueChangeEvent<TElement, number>) => void;
 }
 
+/** Shared range contract for determinate progress on every native target. */
 export interface ProgressProps {
+	/** Defaults to 0; clamps to [0, maxValue]. Nonpositive maxValue displays 0%. */
 	value?: number;
+	/** Defaults to 100. A nonpositive maximum displays 0%, without division by zero. */
 	maxValue?: number;
 }
 

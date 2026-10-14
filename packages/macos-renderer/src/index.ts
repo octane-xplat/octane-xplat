@@ -1845,6 +1845,33 @@ function syncDatePicker(node: ElementNode, props: PropBag) {
 	notifyDateChange(node, date)
 }
 
+function makeProgress() {
+	const view = NSProgressIndicator.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 16 },
+	})
+
+	view.style = NSProgressIndicatorStyle.Bar
+	view.controlSize = NSControlSize.Regular
+	view.indeterminate = false
+	view.displayedWhenStopped = true
+	view.minValue = 0
+	view.maxValue = 100
+	view.doubleValue = 0
+	view.sizeToFit()
+	view.translatesAutoresizingMaskIntoConstraints = false
+	return view
+}
+
+function syncProgress(node: ElementNode) {
+	const view = node.view! as NSProgressIndicator
+	const maximum = node.props.maxValue ?? 100
+	// A positive native range keeps the degenerate shared case at 0%,
+	// without asking AppKit to divide by zero or accept a negative range.
+	view.maxValue = maximum > 0 ? maximum : 100
+	view.doubleValue = maximum > 0 ? Math.min(Math.max(node.props.value ?? 0, 0), maximum) : 0
+}
+
 function makeActivityIndicator() {
 	const view = NSProgressIndicator.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
@@ -3012,6 +3039,7 @@ const SUPPORTED_TYPES = new Set([
 	'switch',
 	'slider',
 	'activityindicator',
+	'progress',
 	'datepicker',
 	'listpicker',
 	'webview',
@@ -3051,6 +3079,14 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 
 		for (const name of ['year', 'month', 'day']) {
 			if (props?.[name] != null && !Number.isInteger(props[name])) {throw new Error('AppKit datepicker ' + name + ' must be an integer')}
+		}
+	}
+
+	if (type === 'progress') {
+		for (const name of ['value', 'maxValue']) {
+			if (props?.[name] != null && (typeof props[name] !== 'number' || !Number.isFinite(props[name]))) {
+				throw new Error('AppKit progress ' + name + ' must be a finite number')
+			}
 		}
 	}
 
@@ -3229,6 +3265,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.actionId = control.actionId
 				break
 			}
+			case 'progress':
+				node.view = makeProgress()
+				break
 			case 'activityindicator':
 				node.view = makeActivityIndicator()
 				break
@@ -4679,6 +4718,7 @@ const CLEAR_ON_UPDATE: Record<string, string[]> = {
 	listpicker: ['items', 'selectedIndex', 'style', 'className'],
 	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
 	activityindicator: ['busy', 'style', 'className'],
+	progress: ['value', 'maxValue', 'style', 'className'],
 	htmlview: ['html', 'style', 'className'],
 	formattedstring: ['style', 'fontFamily', 'fontSize', 'color', 'backgroundColor'],
 	span: ['text', 'style', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textDecoration', 'color', 'backgroundColor'],
@@ -4946,6 +4986,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
 				else {console.warn('[macos-host] ignored datepicker prop ' + name)}
+
+				break
+			case 'progress':
+				if (['value', 'maxValue', 'id'].includes(name)) {continue}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else {console.warn('[macos-host] ignored progress prop ' + name)}
 
 				break
 			case 'activityindicator':
@@ -5256,6 +5305,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	if (node.type === 'listpicker') {syncListPicker(node)}
 	if (node.type === 'datepicker') {syncDatePicker(node, props)}
 	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
+	if (node.type === 'progress') {syncProgress(node)}
 	if (node.type === 'htmlview') {syncHtmlView(node)}
 
 	if (node.type === 'searchbar') {
@@ -5794,6 +5844,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
 	if (parentType === 'listpicker') {throw new Error('AppKit <listpicker> cannot contain JSX children')}
 	if (parentType === 'datepicker') {throw new Error('AppKit <datepicker> cannot contain JSX children')}
 	if (parentType === 'activityindicator') {

@@ -22,6 +22,7 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<progress id="hmr-progress" value={count$.get() * ("First revision".startsWith("First") ? 25 : 40)} maxValue={100} />
 			<listpicker id="hmr-list" items={["First revision", "Retained"]} selectedIndex={count$.get()} />
 			<datepicker id="hmr-date" date={new Date(2026, 4, count$.get() + ("First revision".startsWith("First") ? 10 : 12), 19)} />
 			<activityindicator id="hmr-activity" busy={count$.get() > 0 && "First revision".startsWith("First")} style={{ width: 24, height: 24 }} />

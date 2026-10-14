@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`                                                                                                    | `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`                                                                                                    | `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 25 core factories and 14 missing core hosts. `span` and
+There are now 26 core factories and 13 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 15 missing core hosts and nine missing raw extension hosts remain required.
+The 13 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -503,3 +503,43 @@ bridge, not OS input. Shared declarations and host-ref policy remain unchanged.
 The inherited common lifecycle/gesture/style/accessibility audit, mobile hardware,
 visual parity and complete native release gates remain open. This core host
 changes no recipe workflow.
+
+
+## Progress host
+
+Progress uses AppKit's regular determinate NSProgressIndicator bar. Value defaults
+to 0 and maximum to 100. Value clamps to the range from 0 through the maximum;
+a nonpositive maximum displays 0%, without division by zero. Removing either
+prop restores its default; updates and keyed moves retain the native ref.
+Supply no JSX children and put the bar alongside other children in a layout.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function ProgressExample() {
+	const value$ = useSignal$(25)
+	return (
+		<stacklayout>
+			<progress value={value$.get()} maxValue={100} style={{ width: 240, height: 16 }} />
+			<button text="Complete" onTap={() => value$.set(100)} />
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and packed public consumer checks cover ranges, fractions,
+clamping, nonpositive maxima, updates, dropped props/style defaults, intrinsic
+and explicit sizing, nesting, keyed order, parent changes, replacement/removal,
+refs and teardown. Retained-root HMR checks host identity, revised progress and
+retained signal state. Authored parent changes recreate hosts and clean the old
+refs; units also exercise physical reparenting. AppKit uses a safe positive
+native range for the shared 0% case. Nonnumeric and nonfinite inputs fail
+explicitly before allocation. No AppKit-only props enter the shared declarations.
+
+The shared range normalization is required on mobile too. Pinned NativeScript
+9.1.2 currently diverges for degenerate maxima; its boundary normalization and
+hardware qualification remain release gates. Inherited common lifecycle,
+gesture, visibility/collapse, complete class/style/accessibility behavior,
+mobile execution, OS input, visual parity and the full native release gates
+remain open. This raw-host unit changes no recipe workflow.
