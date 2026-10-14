@@ -55,6 +55,8 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 	expectRect('dock-bottom', [10, 120, 240, 30])
 	expectRect('dock-left', [10, 35, 50, 85])
 	expectRect('dock-fill', [60, 35, 190, 85])
+	expectRect('percentage-edge', [10, 10, 100, 80])
+	expectRect('percentage-fill', [110, 10, 80, 80])
 	check(
 		Math.abs(Number(debug.findId('natural-dock').frame.size.height) - 60) < 1,
 		'DockLayout natural host height failed',

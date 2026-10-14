@@ -77,6 +77,10 @@ export default function Dock() {
 			<docklayout id="dock-other" style={{ width: 100, height: 80 }}>
 				{phase === 7 ? <Fill /> : null}
 			</docklayout>
+			<docklayout id="percentage-dock" style={{ width: 200, height: 100, padding: 10 }}>
+				<contentview id="percentage-edge" dock="left" style={{ width: '50%' }} />
+				<contentview id="percentage-fill" />
+			</docklayout>
 			<docklayout id="natural-dock" stretchLastChild={false}>
 				<contentview dock="top" style={{ width: 100, height: 10 }} />
 				<contentview dock="left" style={{ width: 30, height: 50 }} />

@@ -2016,7 +2016,7 @@ function layoutAbsoluteChildren(parent: ElementNode | undefined) {
 	}
 }
 
-// Width/height percentages use the parent's available content size, not the
+// Width/height percentages use the parent's full measured size, not the
 // progressively smaller strip. Explicit lengths are capped by the measure slot
 // (NativeScript ViewHelper.getMeasureSpec); margins consume additional space.
 function dockChildSize(
@@ -2120,8 +2120,8 @@ function layoutDockChildren(parent: ElementNode | undefined) {
 			mt = margins.top ?? 0,
 			mb = margins.bottom ?? 0
 
-		const measuredWidth = dockChildSize(child, 'width', remainingWidth, width)
-		const measuredHeight = dockChildSize(child, 'height', remainingHeight, height)
+		const measuredWidth = dockChildSize(child, 'width', remainingWidth, Number(parent.view.bounds.size.width))
+		const measuredHeight = dockChildSize(child, 'height', remainingHeight, Number(parent.view.bounds.size.height))
 		const stretch = index === children.length - 1 && parent.props.stretchLastChild !== false
 		let slotX = x,
 			slotTop = top,

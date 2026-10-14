@@ -79,6 +79,7 @@ function fixture() {
 			'applyCommand',
 			'applyProps',
 			'clearOnUpdate',
+			'staleEventClears',
 		]
 			.map(fn)
 			.join('\n') +
@@ -358,4 +359,12 @@ test('DockLayout geometry observer releases on disposal and ignores late callbac
 	assert.equal(node.dockGeometryObserver, null)
 	callback()
 	assert.deepEqual(queued, [node])
+})
+
+test('percentage dimensions use the full parent measure spec even inside padding', () => {
+	const fx = fixture(), a = fx.child(2, {dock:'left',style:{width:'50%'}}), b = fx.child(3)
+	fx.parent.dockInsets = {left:10,right:10,top:10,bottom:10} as any
+	fx.insert(a); fx.insert(b)
+	assert.deepEqual(rect(a), [10,10,100,80])
+	assert.deepEqual(rect(b), [110,10,80,80])
 })
