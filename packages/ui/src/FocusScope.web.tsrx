@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'octane';
 import { refList } from './ref-list';
-import type { FocusScopeProps } from './props';
+import type { FocusScopeCapabilities, FocusScopeProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
 
@@ -10,6 +10,13 @@ import { applyWebProps } from './platformProps.web';
  *  the previously focused element on unmount (`restoreFocus`). Nested
  *  scopes are not stacked — `contain` owns the whole document while it is
  *  mounted, matching modal-focus's single-owner model. */
+
+/** Which `FocusScope` behavior flags this target honors — all three on web.
+ *  Check before relying on `contain`/`autoFocus`/`restoreFocus`; the native
+ *  leaves report every flag false. */
+export function getFocusScopeCapabilities(): FocusScopeCapabilities {
+	return { contain: true, autoFocus: true, restoreFocus: true };
+}
 
 const TAB_STOP_SELECTOR =
 	'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]';

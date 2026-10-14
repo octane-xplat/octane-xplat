@@ -6626,14 +6626,11 @@ export interface OutlineItem {
 	level: number
 }
 
-/** Options for `useOutlineFromDOM`. `root` accepts a web ParentNode at runtime;
- *  it is `unknown` in the shared contract because NativeScript uses a view ref. */
-export interface OutlineFromDOMOptions {
-	selector?: string
-	root?: unknown
-}
-
-/** Outline — table-of-contents nav with a sliding active indicator. */
+/** Outline — table-of-contents nav with a sliding active indicator. Item
+ *  derivation is split by mechanism: `useOutlineFromMarkdown` and
+ *  `useOutlineFromDoc` are portable; `useOutlineFromDOM` (live DOM
+ *  observation) is web-only under `@octane-xplat/ui/web`; `useOutlineFromView`
+ *  (view-tree snapshot) is the native/macOS form. */
 export interface OutlineProps {
 	className?: any
 	style?: any
@@ -6780,12 +6777,26 @@ export interface VisuallyHiddenProps extends AccessibilityProps {
 	as?: any
 }
 
+/** Per-target support for `FocusScope`'s behavior flags, read through
+ *  `getFocusScopeCapabilities()`. Web honors all three; native and macOS
+ *  leaves render an accessible container only, so every flag is false —
+ *  check the capability before relying on containment. */
+export interface FocusScopeCapabilities {
+	/** Tab/Shift+Tab containment inside the subtree. */
+	contain: boolean
+	/** Focus the first tab stop (or the scope box when empty) on mount. */
+	autoFocus: boolean
+	/** On unmount, refocus the element that held focus at mount. */
+	restoreFocus: boolean
+}
+
 /** `FocusScope` — keyboard focus containment, React Aria's FocusScope. The
  *  web leaf traps Tab inside the subtree (`contain`), can focus the first
  *  tab stop on mount (`autoFocus`), and returns focus to the previously
  *  focused element on unmount (`restoreFocus`). Focus containment is a web
  *  keyboard convention; the native leaf renders a plain accessible
- *  container and the three behavior flags are inert. */
+ *  container and the three behavior flags are inert —
+ *  `getFocusScopeCapabilities()` reports which flags the target honors. */
 export interface FocusScopeProps extends AccessibilityProps {
 	children?: any
 	id?: string
@@ -7011,7 +7022,10 @@ export interface GridListProps<T = any> extends LayoutChildProps, AccessibilityP
 	onAction?: (key: string | number) => void
 	/** 'arrow' (default): single Tab stop + arrow-key navigation.
 	 *  'tab': every row is a Tab stop and arrows are left to content —
-	 *  use when cells contain interactive controls. Web only. */
+	 *  use when cells contain interactive controls. Web only: grid
+	 *  keyboard navigation has no native counterpart (reported by
+	 *  `useGridList().isSupported`); native keeps tap selection and
+	 *  `onAction`. */
 	keyboardNavigationBehavior?: 'arrow' | 'tab'
 	testID?: string
 }

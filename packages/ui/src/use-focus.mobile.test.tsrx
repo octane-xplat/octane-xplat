@@ -8,7 +8,7 @@ import { useFocus, useFocusRing } from './use-focus.tsrx'
 import { useFocusVisible } from './use-focus-visible.tsrx'
 import { useFocusWithin } from './use-focus-within.tsrx'
 import { useLandmark } from './use-landmark.tsrx'
-import { FocusScope } from './FocusScope.tsrx'
+import { FocusScope, getFocusScopeCapabilities } from './FocusScope.tsrx'
 
 // Native lane — modality and landmark cycling are web conventions, so the
 // leaves keep API shape with constant/inert results. Handlers from
@@ -20,9 +20,9 @@ const Probe = (props: any) => @{
 	const { focusProps } = useFocus({ onFocusChange: props.onChange })
 	const ring = useFocusRing()
 	const { isFocusVisible } = useFocusVisible()
-	const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: props.onWithin })
+	const within = useFocusWithin({ onFocusWithinChange: props.onWithin })
 	const { landmarkProps } = useLandmark({ role: 'main', label: 'Content' })
-	captured = { focusProps, ring, isFocusVisible, focusWithinProps, landmarkProps }
+	captured = { focusProps, ring, isFocusVisible, focusWithinProps: within.focusWithinProps, within, landmarkProps }
 
 	<label text="probe" />
 }
@@ -43,6 +43,7 @@ describe('focus hooks (universal renderer)', () => {
 		expect(onChange).toHaveBeenLastCalledWith(true)
 		captured.focusProps.onBlur()
 		expect(onChange).toHaveBeenLastCalledWith(false)
+		expect(captured.within.isSubtreeTrackingSupported).toBe(false)
 		captured.focusWithinProps.onFocus()
 		expect(onWithin).toHaveBeenLastCalledWith(true)
 		captured.focusWithinProps.onBlur()
@@ -54,6 +55,12 @@ describe('focus hooks (universal renderer)', () => {
 	})
 
 	it('FocusScope renders an accessible container; behavior flags are inert', () => {
+		expect(getFocusScopeCapabilities()).toEqual({
+			contain: false,
+			autoFocus: false,
+			restoreFocus: false,
+		})
+
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		root.render(FocusScope as any, {

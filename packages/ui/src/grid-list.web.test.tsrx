@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, createRoot } from 'octane';
 import { GridList } from './GridList';
+import { useGridList } from './use-grid-list';
 
 // GridList web lane — role structure, roving-tabindex 2D arrow navigation,
 // and RA selection semantics (toggle/replace/single/shift-range) on the
@@ -46,6 +47,25 @@ const click = (target: HTMLElement, init: MouseEventInit = {}) =>
 	});
 
 describe('GridList (DOM renderer)', () => {
+	it('useGridList reports keyboard navigation as supported', () => {
+		let captured: any;
+		function Probe() @{
+			captured = useGridList({ columns: 2 });
+
+			<div />
+		}
+
+		const el = document.createElement('div');
+		document.body.appendChild(el);
+		const root = createRoot(el);
+		act(() => root.render(<Probe />));
+		expect(captured.isSupported).toBe(true);
+		expect(typeof captured.gridProps.onKeyDown).toBe('function');
+
+		root.unmount();
+		el.remove();
+	});
+
 	it('renders role=grid > role=row > role=gridcell with a roving tab stop', () => {
 		const { el, root, rows } = render({ accessibilityLabel: 'Cells' });
 		expect(el.querySelector('[role="grid"]')).not.toBeNull();

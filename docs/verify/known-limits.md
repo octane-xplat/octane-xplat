@@ -357,6 +357,18 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   awaits still breaks `ns build`. Drop the keyword. — 0.5.0.
 - **`Grid` `gap` was removed** — use child margins. The leaves keep a
   one-time console warning as a migration hint for one release. — 0.5.0.
+- **`useOutlineFromDOM` moved to `@octane-xplat/ui/web`** — the shared root
+  no longer exports it; live DOM heading discovery is web-only. On
+  iOS/Android and macOS use `useOutlineFromView` for the same job (a
+  view-tree snapshot — no mutation observation). The portable derivations
+  `useOutlineFromMarkdown`/`useOutlineFromDoc` are unchanged. — post-0.14.0·desk.
+- **`FocusScope`, `useGridList`, and `useFocusWithin` report platform
+  support explicitly** — `getFocusScopeCapabilities()`,
+  `useGridList().isSupported`, and `useFocusWithin().isSubtreeTrackingSupported`
+  are `false` on native/macOS where containment, arrow-key grid navigation,
+  and subtree focus tracking don't exist. The props still compile so shared
+  code runs unchanged; check the capability before relying on the
+  behavior. — post-0.14.0·desk.
 - **`console.debug` doesn't exist on device** — use `console.log`. The
   lint ruleset flags it. — 0.5.0.
 - **Deep imports don't extension-resolve** — barrel imports only. — 0.5.0.

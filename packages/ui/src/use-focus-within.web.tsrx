@@ -11,7 +11,17 @@ export interface UseFocusWithinOptions {
 	onFocusWithinChange?: (isFocusWithin: boolean) => void;
 }
 
-export function useFocusWithin(options: UseFocusWithinOptions = {}) {
+export interface UseFocusWithinResult {
+	focusWithinProps: {
+		onFocus: (event?: unknown) => void;
+		onBlur: (event?: unknown) => void;
+	};
+	/** Whether "within" tracks focus moving between subtree descendants —
+	 *  true on web via `relatedTarget` containment. */
+	isSubtreeTrackingSupported: boolean;
+}
+
+export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
 	const latest = useRef(options);
 	latest.current = options;
 	const within = useRef(false);
@@ -44,5 +54,6 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}) {
 				update(false, event);
 			},
 		},
+		isSubtreeTrackingSupported: true,
 	};
 }

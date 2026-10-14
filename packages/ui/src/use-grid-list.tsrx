@@ -14,6 +14,10 @@ export interface UseGridListOptions {
 
 export interface UseGridListResult {
 	gridRef: Octane.Ref<any>
+	/** Whether the grid keyboard-navigation machinery is wired. Arrow-key
+	 *  grid navigation is a web convention — false on native, where the
+	 *  returned `gridProps` stay empty. */
+	isSupported: boolean
 	gridProps: {
 		onKeyDown?: (event: unknown) => void
 		onFocus?: (event: unknown) => void
@@ -21,5 +25,5 @@ export interface UseGridListResult {
 }
 
 export function useGridList(options: UseGridListOptions = {}): UseGridListResult {
-	return { gridRef: useRef(null), gridProps: {} }
+	return { gridRef: useRef(null), isSupported: false, gridProps: {} }
 }

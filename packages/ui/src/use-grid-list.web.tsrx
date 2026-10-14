@@ -18,6 +18,9 @@ export interface UseGridListOptions {
 
 export interface UseGridListResult {
 	gridRef: Octane.Ref<any>;
+	/** Whether the grid keyboard-navigation machinery is wired — true on web;
+	 *  the native leaf reports false and returns an empty `gridProps`. */
+	isSupported: boolean;
 	gridProps: {
 		onKeyDown?: (event: unknown) => void;
 		onFocus?: (event: unknown) => void;
@@ -176,6 +179,7 @@ export function useGridList(options: UseGridListOptions = {}): UseGridListResult
 
 	return {
 		gridRef: ref,
+		isSupported: true,
 		gridProps: { onKeyDown, onFocus },
 	};
 }

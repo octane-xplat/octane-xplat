@@ -167,7 +167,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 	let source
 	if (target === 'web') {
 		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, HoverCard, Tooltip } from '@octane-xplat/ui'
-import { HoverCard as WebHoverCard, Tooltip as WebTooltip } from '@octane-xplat/ui/web'
+import { HoverCard as WebHoverCard, Tooltip as WebTooltip, useOutlineFromDOM } from '@octane-xplat/ui/web'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
@@ -184,6 +184,8 @@ const keyboard = <KeyboardAvoiding {...keyboardProps} />
 const root = <View {...viewProps} />
 const hoverCard: typeof WebHoverCard = HoverCard
 const tooltip: typeof WebTooltip = Tooltip
+const domOutline = useOutlineFromDOM()
+void domOutline
 void invalidButtonProps
 void keyboard
 void button
@@ -193,7 +195,7 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromDOM, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, bottomSheetHost } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromView, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, bottomSheetHost } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
@@ -216,7 +218,7 @@ fixed.ref({})
 fixed.render('Invalid', { x: '10' })
 const calendar = <Calendar value="2026-10-02" />
 const code = <CodeBlock code="const count = 1" />
-const outline = useOutlineFromDOM()
+const outline = useOutlineFromView()
 void calendar
 void code
 void outline

@@ -5,7 +5,7 @@ import { useFocus, useFocusRing } from './use-focus';
 import { isFocusVisible } from './use-focus-visible';
 import { useFocusWithin } from './use-focus-within';
 import { useLandmark } from './use-landmark';
-import { FocusScope } from './FocusScope';
+import { FocusScope, getFocusScopeCapabilities } from './FocusScope';
 
 // Web lane for the React Aria focus family — the octane DOM renderer maps
 // onFocus/onBlur props to focusin/focusout, so hook props spread onto host
@@ -88,7 +88,12 @@ describe('useFocusWithin (DOM renderer)', () => {
 		const onBlurWithin = vi.fn();
 
 		function Reader() @{
-			const { focusWithinProps } = useFocusWithin({ onFocusWithin, onBlurWithin });
+			const { focusWithinProps, isSubtreeTrackingSupported } = useFocusWithin({
+				onFocusWithin,
+				onBlurWithin,
+			});
+
+			expect(isSubtreeTrackingSupported).toBe(true);
 
 			<div {...focusWithinProps} class="scope">
 				<button class="a" />
@@ -168,6 +173,14 @@ describe('useLandmark (DOM renderer)', () => {
 });
 
 describe('FocusScope (DOM renderer)', () => {
+	it('reports all behavior flags as supported capabilities', () => {
+		expect(getFocusScopeCapabilities()).toEqual({
+			contain: true,
+			autoFocus: true,
+			restoreFocus: true,
+		});
+	});
+
 	it('auto-focuses inside, wraps Tab, contains focus, and restores on unmount', () => {
 		const before = document.createElement('button');
 		document.body.appendChild(before);

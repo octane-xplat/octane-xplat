@@ -1,9 +1,21 @@
 // Web leaf — collects headings from a live DOM container and keeps them
 // current through MutationObserver. Only heading elements h1–h6 contribute;
-// `id` falls back to a slug derived from the heading text.
+// `id` falls back to a slug derived from the heading text. DOM discovery is
+// web-only, so this hook ships from `@octane-xplat/ui/web`; the portable
+// derivations (useOutlineFromMarkdown/useOutlineFromDoc) stay on the root
+// barrel and the view-tree form is `useOutlineFromView` on native/macOS.
 import { useEffect, useMemo, useRef, useState } from 'octane'
-import type { OutlineFromDOMOptions, OutlineItem } from './props'
+import type { OutlineItem } from './props'
 import { slugify, uniqueSlug } from './outline-utils'
+
+/** Options for `useOutlineFromDOM`. */
+export interface OutlineFromDOMOptions {
+	/** Selector matching heading elements. Default 'h1, h2, h3, h4, h5, h6'. */
+	selector?: string
+	/** Fallback container when no ref argument resolves — defaults to the
+	 *  document. */
+	root?: ParentNode
+}
 
 /** Read the heading tree from a container (or the document) — each entry
  *  carries the element's id (or a slug of its text) and its tag level. */

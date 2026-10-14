@@ -9,7 +9,7 @@ import { useGridList } from './use-grid-list.tsrx'
 
 // GridList native lane — tap activates onAction and toggles selection via
 // the shared selection mapping; arrow nav/roving tabindex are web-only.
-// useGridList returns an inert prop bag with identical shape.
+// useGridList returns an inert prop bag with isSupported:false — same shape.
 
 const items = [
 	{ id: 'a', name: 'Alpha' },
@@ -78,11 +78,12 @@ describe('GridList (universal renderer)', () => {
 		root.unmount()
 	})
 
-	it('useGridList returns an inert prop bag with identical shape', () => {
+	it('useGridList reports keyboard navigation unsupported with an inert prop bag', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		root.render(Probe as any, { columns: 2 })
 		expect(captured.gridRef).toBeDefined()
+		expect(captured.isSupported).toBe(false)
 		expect(captured.gridProps).toEqual({})
 		root.unmount()
 	})

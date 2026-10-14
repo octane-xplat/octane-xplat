@@ -120,25 +120,52 @@ in upstream Astryx's `Markdown`, narrowed to the local grammar.
 > `markdown-stream.mobile.test.ts` (web + native-rendered suites). The fade
 > animation itself is web CSS and unverified on native targets.
 
-## Outline from Markdown or views
+## Outline from Markdown or a rendered tree
 
-`useOutlineFromDOM` is platform-specific under one portable function name. On
-web it reads h1–h6 elements and tracks subtree changes with
-`MutationObserver`. On NativeScript, pass a ref to the containing view; it
-collects views with the `heading` accessibility role after mount. That native
-view-tree snapshot does not observe later tree changes, so pass explicit items
-or derive them from Markdown when headings change. The experimental macOS
-renderer can display and activate outline items, but has no scroll-position or
-scroll-to-heading bridge; `hasScrollOnClick` and scroll spy therefore have no
-effect there.
+The portable derivations work on every target: `useOutlineFromMarkdown` and
+`useOutlineFromDoc` from the root barrel. Tree discovery is platform-specific
+and split into two hooks, one per mechanism. On web, `useOutlineFromDOM` —
+imported from `@octane-xplat/ui/web`, not the root — reads h1–h6 elements
+inside a container and keeps the item list current with `MutationObserver`:
 
 ```tsx
-import { View, Heading, Outline, useOutlineFromDOM } from '@octane-xplat/ui'
+import { View, Heading, Outline } from '@octane-xplat/ui'
+import { useOutlineFromDOM } from '@octane-xplat/ui/web'
+import { useRef } from 'octane'
+
+export function WebExample() {
+	const root = useRef(null)
+	const items = useOutlineFromDOM(root)
+	return (
+		<>
+			<View
+				ref={(el) => {
+					root.current = el
+				}}
+			>
+				<Heading id="summary" level={2}>
+					Summary
+				</Heading>
+			</View>
+			<Outline items={items} />
+		</>
+	)
+}
+```
+
+On iOS/Android and macOS, `useOutlineFromView` walks the bound view tree
+once after mount (and again when the container view instance changes) and
+collects views with the `header` accessibility role — `Heading` sets it.
+That snapshot does not observe later tree changes, so pass explicit `items`
+or derive them from Markdown when headings change:
+
+```tsx
+import { View, Heading, Outline, useOutlineFromView } from '@octane-xplat/ui'
 import { useRef } from 'octane'
 
 export function Example() {
 	const root = useRef(null)
-	const items = useOutlineFromDOM(root)
+	const items = useOutlineFromView(root)
 	return (
 		<>
 			<View
@@ -155,6 +182,10 @@ export function Example() {
 	)
 }
 ```
+
+The experimental macOS renderer can display and activate outline items, but
+has no scroll-position or scroll-to-heading bridge; `hasScrollOnClick` and
+scroll spy therefore have no effect there.
 
 ## Code highlighting and copy
 

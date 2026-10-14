@@ -1,4 +1,4 @@
-// Duck-typed native/AppKit view-tree walk for `useOutlineFromDOM` — views
+// Duck-typed native/AppKit view-tree walk for `useOutlineFromView` — views
 // with accessibilityRole 'header' contribute outline items. No DOM, no
 // platform imports: NS LayoutBase exposes `eachChildView`, ScrollView-style
 // hosts expose `.content`, and both renderers keep `children`/subviews

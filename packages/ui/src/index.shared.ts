@@ -14,8 +14,9 @@ export { Center } from './Center'
 export { Section } from './Section'
 export { AspectRatio } from './AspectRatio'
 export { VisuallyHidden } from './VisuallyHidden'
-/** Keyboard focus containment — React Aria's FocusScope. */
-export { FocusScope } from './FocusScope'
+/** Keyboard focus containment — React Aria's FocusScope. Check
+ *  `getFocusScopeCapabilities()` before relying on the behavior flags. */
+export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
 export { Absolute } from './Absolute'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate'
@@ -775,7 +776,7 @@ export { useFocus, useFocusRing } from './use-focus'
 export type { UseFocusOptions, UseFocusRingResult } from './use-focus'
 export { useFocusVisible, isFocusVisible } from './use-focus-visible'
 export { useFocusWithin } from './use-focus-within'
-export type { UseFocusWithinOptions } from './use-focus-within'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within'
 export { useLandmark } from './use-landmark'
 export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 
@@ -876,6 +877,7 @@ export type {
 	StackWrap,
 	VisuallyHiddenProps,
 	FocusScopeProps,
+	FocusScopeCapabilities,
 	CheckboxInputProps,
 	CheckboxListProps,
 	RadioListProps,
@@ -930,7 +932,6 @@ export { Timer } from './Timer'
 export { Citation } from './Citation'
 export { Outline } from './Outline'
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
-export { useOutlineFromDOM } from './outline-dom'
 export {
 	parseOutlineFromMarkdown,
 	outlineFromDoc,
@@ -984,7 +985,6 @@ export type {
 	CitationSource,
 	OutlineProps,
 	OutlineItem,
-	OutlineFromDOMOptions,
 	TextType,
 	TextSize,
 	TextColor,

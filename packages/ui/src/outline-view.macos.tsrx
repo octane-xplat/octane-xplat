@@ -3,10 +3,13 @@
 // host exposes `children`/`subviews` on its view wrappers). No mutation
 // observation: collected on mount and when the container view changes.
 import { useEffect, useState } from 'octane'
-import type { OutlineFromDOMOptions, OutlineItem } from './props'
+import type { OutlineItem } from './props'
 import { outlineItemsFromViewTree } from './outline-view-tree'
 
-export function useOutlineFromDOM(containerRef?: unknown, _options?: OutlineFromDOMOptions): OutlineItem[] {
+/** `useOutlineFromView` — outline items from an AppKit view subtree. Pass a
+ *  `ref`-style object (`{current}`) or the view itself. Snapshot only — the
+ *  tree is walked on mount and when the container view instance changes. */
+export function useOutlineFromView(containerRef?: unknown): OutlineItem[] {
 	const [items, setItems] = useState<OutlineItem[]>([])
 
 	useEffect(() => {

@@ -14,7 +14,19 @@ export interface UseFocusWithinOptions {
 	onFocusWithinChange?: (isFocusWithin: boolean) => void
 }
 
-export function useFocusWithin(options: UseFocusWithinOptions = {}) {
+export interface UseFocusWithinResult {
+	focusWithinProps: {
+		onFocus: (event?: unknown) => void
+		onBlur: (event?: unknown) => void
+	}
+	/** Whether "within" tracks focus moving between subtree descendants.
+	 *  Native has no subtree focus model — handlers attached to a focusable
+	 *  element report that element's own focus (equivalent to `useFocus`),
+	 *  so the leaf reports false. */
+	isSubtreeTrackingSupported: boolean
+}
+
+export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
 	const latest = useRef(options);
 	latest.current = options;
 	const within = useRef(false);
@@ -38,5 +50,6 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}) {
 			onFocus: (event?: unknown) => update(true, event),
 			onBlur: (event?: unknown) => update(false, event),
 		},
+		isSubtreeTrackingSupported: false,
 	};
 }

@@ -8,4 +8,11 @@
 export { HoverCard } from '../HoverCard.web.tsrx'
 export { Tooltip } from '../Tooltip.web.tsrx'
 
+// DOM-specific discovery — heading outline from a live DOM subtree with
+// MutationObserver tracking. The portable derivations
+// (useOutlineFromMarkdown/useOutlineFromDoc) stay on the root barrel; the
+// native view-tree form is `useOutlineFromView` on the native/macOS root.
+export { useOutlineFromDOM, outlineItemsFromDOM } from '../outline-dom.web.tsrx'
+export type { OutlineFromDOMOptions } from '../outline-dom.web.tsrx'
+
 export type { HoverCardProps, TooltipProps } from '../props'

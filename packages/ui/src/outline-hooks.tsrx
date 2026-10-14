@@ -1,7 +1,8 @@
 // Portable outline hooks — shared across web and native leaves.
-// `useOutlineFromMarkdown` is identical on every target (pure parse); the
-// `useOutlineFromDOM` halves live in outline-dom.web.tsrx / outline-dom.tsrx
-// because only the web can observe a live DOM.
+// `useOutlineFromMarkdown` is identical on every target (pure parse); tree
+// discovery is platform-specific: `useOutlineFromDOM` (live DOM observation)
+// ships under `@octane-xplat/ui/web`, and `useOutlineFromView` (view-tree
+// snapshot) lives in outline-view.tsrx / outline-view.macos.tsrx.
 import { useMemo } from 'octane'
 import { outlineFromDoc, parseOutlineFromMarkdown } from './outline-utils'
 import type { MdDoc } from './Markdown'

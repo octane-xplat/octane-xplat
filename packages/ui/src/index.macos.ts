@@ -11,8 +11,9 @@ export { Center } from './Center.macos.tsrx'
 export { Section } from './Section.macos.tsrx'
 export { AspectRatio } from './AspectRatio.macos.tsrx'
 export { VisuallyHidden } from './VisuallyHidden.macos.tsrx'
-/** Keyboard focus containment — web convention; native leaf is an inert container. */
-export { FocusScope } from './FocusScope.macos.tsrx'
+/** Keyboard focus containment — web convention; the macOS leaf is an inert
+ *  container. Check `getFocusScopeCapabilities()` before relying on flags. */
+export { FocusScope, getFocusScopeCapabilities } from './FocusScope.macos.tsrx'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate.macos'
 export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
@@ -117,6 +118,7 @@ export type {
 	VStackProps,
 	VisuallyHiddenProps,
 	FocusScopeProps,
+	FocusScopeCapabilities,
 } from './props'
 
 /** Bounded numeric entry, exported under Astryx's component name. */
@@ -353,7 +355,7 @@ export { useFocus, useFocusRing } from './use-focus'
 export type { UseFocusOptions, UseFocusRingResult } from './use-focus'
 export { useFocusVisible, isFocusVisible } from './use-focus-visible'
 export { useFocusWithin } from './use-focus-within'
-export type { UseFocusWithinOptions } from './use-focus-within'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within'
 export { useLandmark } from './use-landmark'
 export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 
@@ -401,7 +403,8 @@ export { Timer } from './Timer.macos.tsrx'
 export { Citation } from './Citation.macos.tsrx'
 export { Outline } from './Outline.macos.tsrx'
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
-export { useOutlineFromDOM } from './outline-dom.macos.tsrx'
+// AppKit view-tree outline discovery — the DOM form lives under `@octane-xplat/ui/web`.
+export { useOutlineFromView } from './outline-view.macos.tsrx'
 export {
 	parseOutlineFromMarkdown,
 	outlineFromDoc,
