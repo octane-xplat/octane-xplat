@@ -62,6 +62,7 @@ const tree = (
 			ref={(view) => { void view; return () => {} }}>
 			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
 		</contentview>
+		<searchbar text="query" hint="Find" onTextChange={(event) => { const value: string = event.value; const old: string | undefined = event.oldValue; void value; void old; void event.object }} onSubmit={(event) => { const name: string = event.eventName; void name; void event.object }} ref={(view) => { void view; return () => {} }} />
 		<textfield hint="name" onTextChange={(event) => void event.value} />
 		<listview items={[1, 2]} renderItem={(item) => <label text={String(item)} />} />
 		<svgview src="<svg />" stretch="aspectFit" />
@@ -91,6 +92,15 @@ void badContent
 // @ts-expect-error RootLayout has no new track configuration prop
 const badRoot = <rootlayout rows="20" />
 void badRoot
+// @ts-expect-error SearchBar text is a string
+const badSearchText = <searchbar text={123} />
+// @ts-expect-error SearchBar preserves the canonical hint name
+const badSearchPlaceholder = <searchbar placeholder="Find" />
+// @ts-expect-error SearchBar changes carry an event, not a bare string
+const badSearchHandler = <searchbar onTextChange={(value: string) => { void value }} />
+void badSearchText
+void badSearchPlaceholder
+void badSearchHandler
 // @ts-expect-error WrapLayout item size is numeric
 const badWrapSize = <wraplayout itemWidth="30" />
 // @ts-expect-error WrapLayout orientation is closed

@@ -50,6 +50,8 @@ for (const file of [
 	'Wrap.macos.tsx',
 	'Proxy.macos.tsx',
 	'Root.macos.tsx',
+	'Search.macos.tsx',
+	'search-lifecycle.ts',
 	'root-lifecycle.ts',
 	'proxy-lifecycle.ts',
 	'wrap-lifecycle.ts',
@@ -68,8 +70,8 @@ const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	6,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer and RootLayout examples',
+	7,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout and SearchBar examples',
 )
 
 for (const [index, example] of examples.entries()) {
@@ -201,6 +203,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_WRAPLAYOUT_OK/)
 	assert.match(output, /PACKED_PROXYVIEWCONTAINER_OK/)
 	assert.match(output, /PACKED_ROOTLAYOUT_OK/)
+	assert.match(output, /PACKED_SEARCHBAR_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -254,6 +257,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(devOutput, /PACKED_PROXYVIEWCONTAINER_HMR_OK/)
 		assert.match(devOutput, /PACKED_CONTENTVIEW_HMR_OK/)
 		assert.match(devOutput, /PACKED_ROOTLAYOUT_HMR_OK/)
+		assert.match(devOutput, /PACKED_SEARCHBAR_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)

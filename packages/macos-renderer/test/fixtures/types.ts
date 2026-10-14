@@ -50,3 +50,26 @@ void rootLayout
 // @ts-expect-error RootLayout has no invented popup JSX props
 const invalidRoot: SharedJSX.IntrinsicElements['rootlayout'] = { open: true }
 void invalidRoot
+
+const searchBar: SharedJSX.IntrinsicElements['searchbar'] = {
+	text: 'query',
+	hint: 'Find',
+	onTextChange: (event) => {
+		const value: string = event.value
+		void value
+		void event.object
+	},
+	onSubmit: (event) => {
+		void event.eventName
+		void event.object
+	},
+	ref: (view) => {
+		void view
+		return () => {}
+	},
+}
+
+void searchBar
+// @ts-expect-error SearchBar text must stay a string
+const invalidSearchBar: SharedJSX.IntrinsicElements['searchbar'] = { text: 123 }
+void invalidSearchBar

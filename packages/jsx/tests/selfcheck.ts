@@ -166,3 +166,26 @@ void macRoot
 // @ts-expect-error RootLayout shares common props, with no track configuration
 const invalidRoot: NativeElements<HostElement>['rootlayout'] = { rows: '20' }
 void invalidRoot
+
+const searchBar: MacJSX.IntrinsicElements['searchbar'] = {
+	text: 'query',
+	hint: 'Find',
+	onTextChange: (event) => {
+		const value: string = event.value
+		void value
+		void event.object
+	},
+	onSubmit: (event) => {
+		void event.eventName
+		void event.object
+	},
+	ref: (view) => {
+		void view
+		return () => {}
+	},
+}
+
+void searchBar
+// @ts-expect-error SearchBar text must stay a string
+const invalidSearchBar: MacJSX.IntrinsicElements['searchbar'] = { text: 123 }
+void invalidSearchBar

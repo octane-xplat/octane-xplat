@@ -31,6 +31,7 @@ let retainedWrap: any
 let retainedWrapChild: any
 let retainedProxy: any
 let retainedProxyChild: any
+let retainedSearch: any
 let retainedRoot: any
 let retainedRootChild: any
 let reloaded = false
@@ -40,6 +41,7 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedSearch = debug.findId('hmr-search')
 			retainedRoot = debug.findId('hmr-root')
 			retainedRootChild = debug.findId('root-revision')
 			retainedLabel = debug.findId('count')
@@ -60,6 +62,9 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-search') === retainedSearch &&
+				String(retainedSearch.stringValue) === 'Second revision' &&
+				String(retainedSearch.placeholderString) === '1' &&
 				debug.findId('hmr-root') === retainedRoot &&
 				debug.findId('root-revision') === retainedRootChild &&
 				retainedRootChild.superview === retainedRoot &&
@@ -86,6 +91,9 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedSearch.superview ||
+					retainedSearch.delegate != null ||
+					retainedSearch.target != null ||
 					retainedRoot.superview ||
 					retainedRootChild.superview ||
 					retainedProxyChild.superview ||
@@ -106,6 +114,7 @@ function reload() {
 				console.log('PACKED_WRAPLAYOUT_HMR_OK')
 				console.log('PACKED_PROXYVIEWCONTAINER_HMR_OK')
 				console.log('PACKED_ROOTLAYOUT_HMR_OK')
+				console.log('PACKED_SEARCHBAR_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

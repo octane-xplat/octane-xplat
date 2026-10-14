@@ -20,14 +20,14 @@ All conditioned native declarations derive from that same map.
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`                                                                                                                 | `formattedstring`, `htmlview`                                                                                                          |
-| Text input        | `textfield`, `textview`                                                                                                         | `searchbar`                                                                                                                            |
+| Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
 | Controls          | `button`, `switch`, `slider`                                                                                                    | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 19 core factories and 20 missing core hosts. `span` is viewless;
+There are now 20 core factories and 19 missing core hosts. `span` is viewless;
 its factory presence does not establish formatted-text behavior. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 20 missing core hosts and nine missing raw extension hosts remain required.
+The 19 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -289,3 +289,41 @@ the fixture checks its ownership and explicit cleanup. These checks do not
 qualify NativeScript's imperative popup methods, OS input, mobile overlays,
 visual parity or the inherited common event/style contract. All remaining
 native hosts and release gates still apply.
+
+## SearchBar host
+
+SearchBar uses NSSearchField. Text and hint default to empty strings; removing
+these props restores the defaults without replacing the field. Text changes
+carry `eventName`, `object`, `value` and `oldValue`; unchanged strings emit no
+change event. Return emits `submit` with the host object. Clearing the field
+changes text without submitting. SearchBar is a leaf: put it inside a layout,
+rather than nesting child views inside it.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function SearchExample() {
+	const query$ = useSignal$('')
+	return (
+		<stacklayout>
+			<searchbar
+				text={query$.get()}
+				hint="Find items"
+				onTextChange={(event) => query$.set(event.value)}
+				onSubmit={() => console.log(query$.get())}
+				style={{ width: 240, height: 28 }}
+			/>
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and packed AppKit checks cover text/hint updates and defaults,
+change/submit payloads, unchanged-value suppression, handler removal, layout,
+keyed ordering, parent changes, replacement, refs and disposal. Retained-root
+HMR checks the field identity, revised text, retained signal state and teardown.
+Delegate dispatch is runtime evidence for the event bridge, not OS keyboard or
+hit-testing evidence. Inherited common gesture, lifecycle, visibility and style
+coverage still needs the common-contract audit. No mobile execution, visual
+parity or full native release acceptance is claimed.

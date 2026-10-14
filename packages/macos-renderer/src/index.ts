@@ -179,7 +179,11 @@ class ButtonActionTarget extends NSObject {
 	// field is being edited — the per-edit source for onTextChange.
 	controlTextDidChange(notification: NSNotification) {
 		const node = textNodesByView.get(notification.object)
-		invokeAction(node?.actionId ?? actionIdsByView.get(notification.object))
+		if (node?.type === 'searchbar') {
+			notifySearchTextChange(node)
+		} else {
+			invokeAction(node?.actionId ?? actionIdsByView.get(notification.object))
+		}
 	}
 
 	// Single-line fields keep target/action for submission (Return). The
@@ -241,6 +245,18 @@ class ButtonActionTarget extends NSObject {
 
 	textDidEndEditing(notification: NSNotification) {
 		this.controlTextDidEndEditing(notification)
+	}
+
+	// NSSearchField's search action also fires for its cancel button. Consume
+	// Return in the field-editor delegate so clearing cannot emit submit.
+	controlTextViewDoCommandBySelector(control: NSControl, _editor: NSTextView, selector: string) {
+		const node = textNodesByView.get(control)
+		if (node?.type !== 'searchbar' || String(selector) !== 'insertNewline:') {
+			return false
+		}
+
+		node.submitHandler?.()
+		return true
 	}
 
 	textViewDoCommandBySelector(view: NSTextView, selector: string) {
@@ -1637,6 +1653,57 @@ function makeTextField(props: PropBag, multiline = false) {
 	return field
 }
 
+function makeSearchBar() {
+	const field = NSSearchField.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 320, height: 28 },
+	})
+
+	field.translatesAutoresizingMaskIntoConstraints = false
+	field.stringValue = ''
+	field.placeholderString = ''
+	// Per-edit changes use the delegate; Return uses its field-editor command.
+	// Suppress delayed search and end-editing actions, including cancellation.
+	field.sendsSearchStringImmediately = false
+	field.sendsWholeSearchString = true
+	field.cell.sendsActionOnEndEditing = false
+	return field
+}
+
+/** Match NativeScript property changes, including programmatic writes and
+ * clearing, without emitting an event for an unchanged string. */
+function notifySearchTextChange(node: ElementNode) {
+	const value = String(node.view!.stringValue ?? '')
+	const oldValue = node.text
+	if (value === oldValue) {
+		return
+	}
+
+	node.text = value
+	const handler = node.props.onTextChange
+	if (typeof handler === 'function') {
+		setControlAction(node, handler, () => ({
+			eventName: 'textChange',
+			object: node.view,
+			value,
+			oldValue,
+		}))
+
+		invokeAction(node.actionId)
+	}
+}
+
+function syncSearchBar(node: ElementNode, props: PropBag) {
+	if ('hint' in props) {
+		node.view!.placeholderString = String(node.props.hint ?? '')
+	}
+
+	if ('text' in props) {
+		node.view!.stringValue = String(node.props.text ?? '')
+		notifySearchTextChange(node)
+	}
+}
+
 function makeSwitch(props: PropBag) {
 	const button = NSButton.buttonWithTitleTargetAction('', buttonActionTarget, 'controlChanged:')
 	button.setButtonType(NSButtonType.Switch)
@@ -2600,7 +2667,10 @@ function rootNaturalSize(parent: ElementNode | undefined) {
 		height = 0
 
 	for (const child of parent?.projectedChildren ?? parent?.children ?? []) {
-		if (!child.view) {continue}
+		if (!child.view) {
+			continue
+		}
+
 		const margins = child.marginInsets ?? {}
 		width = Math.max(
 			width,
@@ -2625,12 +2695,18 @@ function rootNaturalSize(parent: ElementNode | undefined) {
 }
 
 function layoutRootChildren(parent: ElementNode | undefined) {
-	if (!parent?.view) {return}
+	if (!parent?.view) {
+		return
+	}
+
 	// Each child receives the whole padded cell. Reuse the established
 	// NativeScript measure/alignment implementation for a final stretching
 	// slot, independently for every child; attached dock metadata has no effect.
 	for (const child of parent.projectedChildren ?? parent.children) {
-		if (!child.view) {continue}
+		if (!child.view) {
+			continue
+		}
+
 		layoutDockChildren({ ...parent, props: {}, projectedChildren: [child] })
 	}
 
@@ -2773,6 +2849,7 @@ const SUPPORTED_TYPES = new Set([
 	'button',
 	'textfield',
 	'textview',
+	'searchbar',
 	'switch',
 	'slider',
 	'webview',
@@ -2813,7 +2890,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 			nativeColor(style.borderColor)
 		}
 
-		if (['label', 'textfield', 'textview'].includes(type) && style.color != null) {
+		if (['label', 'textfield', 'textview', 'searchbar'].includes(type) && style.color != null) {
 			nativeColor(style.color)
 		}
 	}
@@ -2964,6 +3041,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.childHost = scroll.childHost
 				break
 			}
+			case 'searchbar':
+				node.view = makeSearchBar()
+				break
 			case 'textfield':
 				node.view = makeTextField(props) as unknown as NSView
 				break
@@ -2995,23 +3075,27 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				throw new Error('AppKit spike does not support <' + type + '>')
 		}
 
-		if (type === 'textfield' || type === 'textview') {
+		if (type === 'textfield' || type === 'textview' || type === 'searchbar') {
 			node.actionId = nextActionId++
 			actionIdsByView.set(node.view!, node.actionId)
 			actionHandlers.set(node.actionId, null)
-			if (type === 'textfield') {
+			if (type !== 'textview') {
 				// Per-edit events arrive through controlTextDidChange (delegate);
 				// the target/action is reserved for submission on Return.
 				const textField = node.view! as NSTextField
 				textField.delegate = buttonActionTarget
 				textField.target = buttonActionTarget
-				textField.action = 'textFieldSubmitted:'
+				if (type === 'searchbar') {
+					textField.action = null
+				} else {
+					textField.action = 'textFieldSubmitted:'
+				}
 			} else {
 				;(node.view! as NSTextView).delegate = buttonActionTarget
 			}
 		}
 
-		if (['label', 'textfield', 'textview'].includes(type)) {
+		if (['label', 'textfield', 'textview', 'searchbar'].includes(type)) {
 			const textControl = node.view! as NSTextField | NSTextView
 			if (textControl.font) {
 				textControl.font = fontForFamilyStyle(textControl.font.pointSize, 400, container.fontFamily)
@@ -3026,7 +3110,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			absoluteLayoutNodesByView.set(node.view!, node)
 		}
 
-		if (type === 'textfield') {
+		if (type === 'textfield' || type === 'searchbar') {
 			textNodesByView.set(node.view!, node)
 		}
 
@@ -3210,7 +3294,7 @@ function applyThemeColors(node: ElementNode) {
 
 	node.scheme = nodeScheme(node)
 	const colors = SCHEME_COLORS[node.scheme]
-	if (node.type === 'label' || node.type === 'textfield' || node.type === 'textview') {
+	if (['label', 'textfield', 'textview', 'searchbar'].includes(node.type)) {
 		view.textColor = nativeColor(node.styleColor ?? colors[node.colorSlot ?? 'text'])
 		if (node.type === 'label') {
 			setLabelText(node, String(view.stringValue ?? ''))
@@ -3463,7 +3547,7 @@ function resetStyle(node: ElementNode, name: string) {
 		return
 	}
 
-	const textControl = ['label', 'textfield', 'textview'].includes(node.type)
+	const textControl = ['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
 	if (name === 'pointerEvents') {
 		inputTransparentViews.delete(view)
 	} else if (name === 'objectFit' && node.type === 'image') {
@@ -3591,13 +3675,22 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			}
 
 			node.view!.imageScaling = imageScaling[String(value)] ?? 0
-		} else if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
+		} else if (
+			name === 'fontSize' &&
+			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+		) {
 			node.styleFontSize = value
 			syncNodeFont(node)
-		} else if (name === 'fontFamily' && ['label', 'textfield', 'textview'].includes(node.type)) {
+		} else if (
+			name === 'fontFamily' &&
+			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+		) {
 			node.styleFontFamily = String(value)
 			syncNodeFont(node)
-		} else if (name === 'color' && ['label', 'textfield', 'textview'].includes(node.type)) {
+		} else if (
+			name === 'color' &&
+			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+		) {
 			node.styleColor = String(value)
 			node.view!.textColor = nativeColor(value)
 		} else if (name === 'lineHeight' && node.type === 'label') {
@@ -3649,7 +3742,10 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			}
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
-		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
+		} else if (
+			name === 'fontWeight' &&
+			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+		) {
 			node.styleFontWeight = String(value)
 			syncNodeFont(node)
 		} else if (name === 'textAlign' && node.type === 'label') {
@@ -4308,7 +4404,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		node.view!.setAccessibilityLabel?.(String(value ?? ''))
 	}
 
-	if (node.type === 'textfield' || node.type === 'textview') {
+	if (['textfield', 'textview', 'searchbar'].includes(node.type)) {
 		if (name === 'accessibilityLabel') {
 			node.view!.setAccessibilityLabel?.(String(value ?? ''))
 		} else if (name === 'accessibilityHint') {
@@ -4341,6 +4437,7 @@ const CLEAR_ON_UPDATE: Record<string, string[]> = {
 	webview: ['html', 'src'],
 	textfield: ['secure', 'returnKeyType', 'placeholderTextColor'],
 	textview: ['returnKeyType'],
+	searchbar: ['text', 'hint'],
 	scrollview: ['orientation', 'horizontal', 'scrollBarIndicatorVisible'],
 }
 
@@ -4650,6 +4747,31 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
+			case 'searchbar':
+				if (name === 'text' || name === 'hint' || name === 'onTextChange') {
+					continue // reconciled after binding the entire next prop bag
+				} else if (name === 'onSubmit') {
+					setTextSubmitAction(
+						node,
+						typeof value === 'function'
+							? () => value({ eventName: 'submit', object: node.view })
+							: null,
+					)
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
+					continue
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else {
+					console.warn('[macos-host] ignored searchbar prop ' + name)
+				}
+
+				break
 			case 'textfield':
 			case 'textview':
 				if (name === 'value') {
@@ -4818,6 +4940,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 			setSizeConstraint(node, 'height', height)
 		}
+	}
+
+	if (node.type === 'searchbar') {
+		syncSearchBar(node, props)
 	}
 
 	if (node.type === 'textview') {
@@ -5370,6 +5496,7 @@ function insert(
 			'wraplayout',
 			'rootlayout',
 			'proxyviewcontainer',
+			'searchbar',
 		].includes(parent?.type ?? '') &&
 		!node.view &&
 		node.type !== 'proxyviewcontainer'
@@ -5634,10 +5761,15 @@ function destroy(node: ElementNode) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.textLayoutObserver)
 	}
 
-	if ((node.type === 'textfield' || node.type === 'textview') && node.view) {
+	if (['textfield', 'textview', 'searchbar'].includes(node.type) && node.view) {
 		textNodesByView.delete(node.view)
 		actionIdsByView.delete(node.view)
 		node.view.delegate = null
+		if (node.type === 'searchbar') {
+			node.view.target = null
+			node.view.action = null
+			node.submitHandler = null
+		}
 	}
 
 	// Nodes destroyed by a failed makeNode may have a null view — every
@@ -5760,6 +5892,10 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const parentId = command.parent as number | null
 				if (parentId !== null) {
 					const parent = known(parentId)
+					if (parent?.type === 'searchbar') {
+						throw new Error('AppKit <searchbar> cannot contain children')
+					}
+
 					if (!parent) {
 						throw new Error('Unknown AppKit parent ' + parentId)
 					}
@@ -5823,9 +5959,14 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
 			if (
-				['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-					existing?.parent?.type ?? '',
-				) &&
+				[
+					'stacklayout',
+					'contentview',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+					'searchbar',
+				].includes(existing?.parent?.type ?? '') &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
@@ -6670,7 +6811,10 @@ function showAnchoredPopup(options: PopupOptions) {
 
 	const popover = NSPopover.alloc().init()
 	popover.contentViewController = controller
-	const behaviors = (typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior) as { [key: string]: number }
+	const behaviors = (typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior) as {
+		[key: string]: number
+	}
+
 	// Transient closes on outside interaction — the AppKit-native feel for a
 	// hint layer. An explicit lightDismiss:false keeps the layer open until
 	// the leaf closes it. The leaf still owns close() for hover-intent
