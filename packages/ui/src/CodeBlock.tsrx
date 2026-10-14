@@ -141,7 +141,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 			collapsed && 'vx-codeblock--collapsed',
 			props.className,
 		)}
-		style={{ flexDirection: 'column', ...props.style }}
+		style={{ flexDirection: 'column', ...(props.style as any) }}
 		flexDirection="column"
 	>
 		{hasHeader ? (

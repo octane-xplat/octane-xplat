@@ -80,7 +80,7 @@ export function SideNav(props: SideNavProps) @{
 			flexDirection="row"
 			alignItems="center"
 			className={cx('vx-sidenav', 'vx-sidenav--topbar', props.className)}
-			style={props.style}
+			style={props.style as any}
 		>
 			{props.header}
 			<flexboxlayout className="vx-sidenav-topbar-icons" flexDirection="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
@@ -119,7 +119,7 @@ export function SideNav(props: SideNavProps) @{
 							id={props.id}
 							flexDirection="column"
 							className={cx('vx-sidenav', collapsed && 'vx-sidenav--collapsed', props.className)}
-							style={props.style}
+							style={props.style as any}
 							accessibilityLabel={props.label ?? 'Side navigation'}
 						>
 							{props.header != null || props.topContent != null ? (
@@ -159,7 +159,7 @@ export function SideNav(props: SideNavProps) @{
 
 /** SideNavSection — titled group of items inside the scrollable area. */
 export function SideNavSection(props: SideNavSectionProps) @{
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="column" className={cx('vx-sidenav-section', props.className)} style={props.style}>
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="column" className={cx('vx-sidenav-section', props.className)} style={props.style as any}>
 		<flexboxlayout className={cx('vx-sidenav-section-head', props.isHeaderHidden && 'vx-visually-hidden')} flexDirection="row" alignItems="center" justifyContent="space-between">
 			<flexboxlayout className="vx-sidenav-section-title-group" flexDirection="column">
 				<Text className="vx-sidenav-section-title">{props.title}</Text>
@@ -193,7 +193,7 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 		flexDirection="row"
 		alignItems="center"
 		className={cx('vx-sidenav-heading', headerIsTrigger && 'vx-sidenav-heading--button', collapsed && 'vx-sidenav-heading--collapsed', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{headerIsTrigger ? (
 			<Pressable
@@ -292,7 +292,7 @@ export function SideNavItem(props: SideNavItemProps) @{
 		activate();
 	};
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="column" className={cx('vx-sidenav-item', props.className)} style={props.style}>
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="column" className={cx('vx-sidenav-item', props.className)} style={props.style as any}>
 		<flexboxlayout className="vx-sidenav-item-row" flexDirection="row" alignItems="center" ref={(v: any) => { if (railCollapsed) anchor.current = v; }}>
 			<Pressable
 				className={cx('vx-sidenav-item-main', 'vx-sidenav-item--' + size, props.isSelected && 'vx-sidenav-item--selected', isDisabled && 'vx-sidenav-item--disabled', railCollapsed && 'vx-sidenav-item--rail')}

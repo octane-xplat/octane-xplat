@@ -1297,6 +1297,12 @@ render does not detach and attach them again. Forward a ref through your own
 component as a normal prop, or use Octane's `useImperativeHandle` to expose a
 custom handle.
 
+A primitive's `ref` delivers `HostElement` — an opaque platform host: a DOM
+element on web, a NativeScript view on iOS/Android, an AppKit view on macOS.
+Cast it to the platform type before calling host APIs, inside a platform file
+(for web, `(view as HTMLElement)`). The same applies to the `ios:`/`android:`/
+`web:` escape bags, typed `PlatformProps` as attribute key/value pairs.
+
 ### Migrate from bind
 
 Upgrade the framework packages and their [managed patches](../start/toolchain.md#agent-context-and-versions)

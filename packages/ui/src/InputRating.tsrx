@@ -27,7 +27,7 @@ export function InputRating(inputProps: InputRatingProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-rating', props.isDisabled && 'vx-rating--disabled', props.isReadOnly && 'vx-rating--readonly', props.isLoading && 'vx-rating--loading', props.status && `vx-rating--status-${props.status.type}`, props.size && `vx-rating--size-${props.size}`, props.className)}
-		style={props.style}
+		style={props.style as any}
 	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}

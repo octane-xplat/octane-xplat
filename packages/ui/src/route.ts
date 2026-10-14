@@ -99,7 +99,7 @@ export function screenFor(name: string): ScreenTable[string] | undefined {
 
 /** The route's declared `ErrorBoundary` export, if any — outlets wrap the
  *  resolved screen in `RouteBoundary` with it. */
-export function errorBoundaryFor(name: string): any {
+export function errorBoundaryFor(name: string): RouteMeta['errorBoundary'] {
 	return metaFor(name)?.errorBoundary
 }
 

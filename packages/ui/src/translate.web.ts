@@ -10,6 +10,6 @@ export const setTranslate: SetTranslate = (el, x = 0, y = 0) => {
 		return
 	}
 
-	writeTransformProp(el, 'translateX', x)
-	writeTransformProp(el, 'translateY', y)
+	writeTransformProp(el as HTMLElement, 'translateX', x)
+	writeTransformProp(el as HTMLElement, 'translateY', y)
 }

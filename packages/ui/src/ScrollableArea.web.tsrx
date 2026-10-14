@@ -95,7 +95,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				applyEscapeProps(el, props);
 			}, viewportRef, props.ref], [props.ref, props.ios, props.android, props.web, viewportRef]);
 
-	<div {...layoutChildProps(props, { ...props.style })} className={['vx-refresh-wrap', props.className]}>
+	<div {...layoutChildProps(props, { ...(props.style as any) })} className={['vx-refresh-wrap', props.className]}>
 		<div
 			ref={(el: any) => {
 				indicator.current = el;
@@ -153,7 +153,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 
 	const { ref: viewportRef, ...viewport } = area.getViewportProps();
 	const { ref: contentRef, ...content } = area.getContentProps();
-	const outer = layoutChildProps(props, { ...props.style });
+	const outer = layoutChildProps(props, { ...(props.style as any) });
 
 	const forwardedRef = useMemo(() => refList((el: any) => applyEscapeProps(el, props), viewportRef, props.ref), [props.ref, props.ios, props.android, props.web, viewportRef]);
 

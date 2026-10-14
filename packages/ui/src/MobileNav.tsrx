@@ -52,7 +52,7 @@ export function MobileNav(props: MobileNavProps) @{
 			ref={(v: any) => applyEscapeProps(v, props)}
 			id={id}
 			className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)}
-			style={props.style}
+			style={props.style as any}
 			accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}
 		>
 			<flexboxlayout className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} />

@@ -21,7 +21,7 @@ export function StackItem(props: StackItemProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
-			style={{ ...itemStyle, ...props.style }}
+			style={{ ...(itemStyle as any), ...(props.style as any) }}
 			orientation="vertical"
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -40,7 +40,7 @@ export function StackItem(props: StackItemProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
-			style={{ ...itemStyle, ...props.style }}
+			style={{ ...(itemStyle as any), ...(props.style as any) }}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

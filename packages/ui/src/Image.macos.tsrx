@@ -12,7 +12,7 @@ export function Image(props: ImageProps) @{
 	// `decoding` is ignored — AppKit image loads are synchronous.
 	const style = {
 		objectFit: props.contentFit ?? 'cover',
-		...props.style,
+		...(props.style as any),
 	}
 
 	<image

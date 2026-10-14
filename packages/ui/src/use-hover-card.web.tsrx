@@ -178,7 +178,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 	);
 
 	const interactionRef = useCallback(
-		(el: HTMLElement | null) => {
+		(el: any) => {
 			const prev = interactionEl.current;
 			if (prev) {
 				prev.removeEventListener('mouseenter', onMouseEnter);
@@ -213,13 +213,13 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 
 	const id = layer.id;
 
-	const positionRef = useCallback((el: HTMLElement | null) => {
+	const positionRef = useCallback((el: any) => {
 		positionEl.current = el;
 		layer.ref(el);
 	}, [layer.ref]);
 
 	const ref = useCallback(
-		(el: HTMLElement | null) => {
+		(el: any) => {
 			positionRef(el);
 			interactionRef(el);
 		},

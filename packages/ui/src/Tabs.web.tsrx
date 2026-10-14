@@ -97,7 +97,7 @@ export function Tabs(props: TabsProps) @{
 		</PresentedStacks>
 	}
 	@else {
-	<div id={props.id} className={['vx-tabs', props.className]} style={{ ...(props.style?.height != null ? { flex: 'none' } : {}), ...props.style }}>
+	<div id={props.id} className={['vx-tabs', props.className]} style={{ ...((props.style as any)?.height != null ? { flex: 'none' } : {}), ...(props.style as any) }}>
 		<TabList
 			className="vx-tabbar"
 			role="tablist"

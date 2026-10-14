@@ -38,7 +38,7 @@ export function SearchInput(props: SearchInputProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-search', props.isDisabled && 'vx-search--disabled', props.isReadOnly && 'vx-search--readonly', props.isLoading && 'vx-search--loading', props.status && `vx-search--status-${props.status.type}`, props.size && `vx-search--size-${props.size}`, props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
 	>

@@ -61,7 +61,7 @@ export function Slider(props: SliderProps) @{
 	<absolutelayout
 		id={props.id}
 		className={cx('vx-slider', props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityRole={nativeAccessibilityRole('adjustable') as any}
 		onPan={onPan}
 		ref={bindHost}

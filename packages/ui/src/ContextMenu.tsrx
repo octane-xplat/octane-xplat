@@ -27,7 +27,7 @@ export function ContextMenu(props: ContextMenuProps) @{
 		ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }}
 		id={props.id}
 		className={cx('vx-contextmenu', props.className)}
-		style={props.style}
+		style={props.style as any}
 		onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}
 	>
 		{props.children}

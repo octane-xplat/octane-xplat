@@ -12,7 +12,7 @@ export function Blockquote(props: BlockquoteProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-blockquote', props.className)}
-		style={props.style}
+		style={props.style as any}
 		flexDirection="column"
 	>
 		<TextSlot className="vx-blockquote-text">{props.children}</TextSlot>

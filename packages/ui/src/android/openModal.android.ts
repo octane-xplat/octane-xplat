@@ -47,7 +47,7 @@ export const openModal: OpenModal = (Component, params, options = {}) => {
 			}
 		}
 
-		root.render(Component as UniversalComponent, { params, close })
+		root.render(Component as unknown as UniversalComponent, { params, close })
 
 		const fullscreen = options.presentation
 			? options.presentation === 'fullscreen'

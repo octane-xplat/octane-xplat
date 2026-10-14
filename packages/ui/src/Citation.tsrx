@@ -68,7 +68,7 @@ export function Citation(props: CitationProps) @{
 			ref={(v: any) => applyEscapeProps(v, props)}
 			id={props.id}
 			className={cls}
-			style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...props.style }}
+			style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) }}
 			accessibilityRole="link"
 			accessibilityLabel={
 				variant === 'number' ? `Citation ${props.number}` : `${source.title ?? 'Citation'} ${props.number}`
@@ -86,7 +86,7 @@ export function Citation(props: CitationProps) @{
 			ref={(v: any) => applyEscapeProps(v, props)}
 			id={props.id}
 			className={cls}
-			style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...props.style }}
+			style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) }}
 			flexDirection="row"
 			alignItems="center"
 			accessibilityLabel={

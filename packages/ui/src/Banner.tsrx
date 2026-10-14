@@ -11,7 +11,7 @@ export function Banner(props: BannerProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-banner', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{props.icon ? <Icon name={props.icon} className="vx-banner-icon" /> : null}
 		<flexboxlayout className="vx-banner-body">{props.children}</flexboxlayout>

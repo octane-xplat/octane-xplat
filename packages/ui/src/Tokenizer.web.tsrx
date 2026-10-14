@@ -1,5 +1,6 @@
 import { useImperativeHandle, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
+import type { TypeaheadQueryEntries } from './internal-props';
 import { applyEscapeProps } from "./escape-props";
 import { FormField } from './FormField.web.tsrx';
 import { BaseTypeahead } from './BaseTypeahead.web.tsrx';
@@ -93,6 +94,8 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			auxiliaryData: { __createdValue: trimmed },
 		} as unknown as T];
 	};
+
+	const queryEntries: TypeaheadQueryEntries<T> = { __queryEntries: createEntries };
 
 	const handleAdd = (item: T | null) => {
 		if (!item || isAtMax) return;
@@ -270,7 +273,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				id={inputId}
 				onChangeQuery={handleQueryChange}
 				onKeyDown={handleKeyDown}
-				__queryEntries={createEntries}
+				{...queryEntries}
 				debounceMs={props.debounceMs}
 				anchorRef={{ current: wrapperRef.current }}
 				size={size}
@@ -363,7 +366,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 		web={props.web}
 	>
 		<>

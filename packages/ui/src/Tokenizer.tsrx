@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
+import type { TypeaheadQueryEntries } from './internal-props';
 import { cx } from "@octane-xplat/lib";
 import { FormField } from './FormField';
 import { BaseTypeahead } from './BaseTypeahead';
@@ -96,6 +97,8 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			auxiliaryData: { __createdValue: trimmed },
 		} as unknown as T];
 	};
+
+	const queryEntries: TypeaheadQueryEntries<T> = { __queryEntries: createEntries };
 
 	const handleAdd = (item: T | null) => {
 		if (!item || isAtMax) return;
@@ -228,7 +231,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				isDisabled={props.isDisabled}
 				hasAutoFocus={props.hasAutoFocus}
 				onChangeQuery={props.onChangeQuery}
-				__queryEntries={createEntries}
+				{...queryEntries}
 				debounceMs={props.debounceMs}
 					anchorRef={{ current: wrapperRef.current }}
 				size={size}
@@ -333,7 +336,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 	>
 		{content}
 	</FormField>

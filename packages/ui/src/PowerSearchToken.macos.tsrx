@@ -4,9 +4,7 @@ import { resolveOperatorLabel, formatFilterValue, createInternalConfig } from '.
 import { Pressable } from './Pressable.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
 
-type InternalTokenProps = PowerSearchTokenProps & { timezoneID?: string }
-
-export function PowerSearchToken(props: InternalTokenProps) @{
+export function PowerSearchToken(props: PowerSearchTokenProps) @{
 	const value = formatFilterValue(createInternalConfig(props.config), props.operator.value, props.filter.value, props.maxLength, undefined, undefined, props.timezoneID)
 	const labelText = `${props.field.label} ${resolveOperatorLabel(props.operator)}${value ? ` ${value}` : ''}`
 

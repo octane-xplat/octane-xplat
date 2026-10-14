@@ -63,13 +63,13 @@ export function useChatStreamScroll({
 		(locked: boolean) => {
 			lockedRef.current = locked;
 			setIsLocked(locked);
-			scrollRef.current?.toggleAttribute?.(FOLLOWING_ATTR, locked);
+			(scrollRef.current as HTMLElement | null)?.toggleAttribute?.(FOLLOWING_ATTR, locked);
 		},
 		[scrollRef],
 	);
 
 	const animate = useCallback(() => {
-		const el = scrollRef.current;
+		const el = scrollRef.current as HTMLElement;
 		if (!el || !lockedRef.current) {
 			animatingRef.current = false;
 			lastTickRef.current = undefined;
@@ -105,7 +105,7 @@ export function useChatStreamScroll({
 	}, [scrollRef, damping, stiffness, mass]);
 
 	const jumpToBottom = useCallback(() => {
-		const el = scrollRef.current;
+		const el = scrollRef.current as HTMLElement;
 		if (!el) return;
 		cancelAnimationFrame(rafRef.current);
 		animatingRef.current = false;
@@ -146,7 +146,7 @@ export function useChatStreamScroll({
 
 	const scrollToMessage = useCallback(
 		(el: any) => {
-			const container = scrollRef.current;
+			const container = scrollRef.current as HTMLElement | null | undefined;
 			if (!container) return;
 			const containerRect = container.getBoundingClientRect();
 			const elRect = el.getBoundingClientRect();
@@ -158,7 +158,7 @@ export function useChatStreamScroll({
 	);
 
 	const scrollToLastMessage = useCallback(() => {
-		const container = scrollRef.current;
+		const container = scrollRef.current as HTMLElement | null | undefined;
 		if (!container) return;
 		const messages = container.getElementsByClassName('vx-chatmsg');
 		const last = messages[messages.length - 1];
@@ -178,7 +178,7 @@ export function useChatStreamScroll({
 
 	const scrollIfLocked = useCallback(() => {
 		if (!enabled || !lockedRef.current) return;
-		const el = scrollRef.current;
+		const el = scrollRef.current as HTMLElement;
 		// First fill jumps — later growth springs.
 		if (initialFillPendingRef.current && el && el.scrollHeight > el.clientHeight) {
 			initialFillPendingRef.current = false;
@@ -190,7 +190,7 @@ export function useChatStreamScroll({
 	}, [enabled, startAnimation, jumpToBottom, scrollRef]);
 
 	useEffect(() => {
-		const el = scrollRef.current;
+		const el = scrollRef.current as HTMLElement;
 		if (!el || !enabled) return;
 
 		lastScrollTopRef.current = el.scrollTop;

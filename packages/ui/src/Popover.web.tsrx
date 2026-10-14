@@ -2,13 +2,14 @@ import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { createPortal, useEffect, useRef, useState } from 'octane';
 import { useThemeScheme } from './theme/theme-scheme';
 import type { PopoverProps } from './props';
+import type { PopoverInternalProps } from './internal-props';
 import { cx } from '@octane-xplat/lib';
 import { resolveCSSLayerOffset } from './layer-position.web';
 import { positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position';
 
 type Position = { left: number; top: number };
 
-function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
+function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 	const dark = useThemeScheme() === 'dark';
 	const panelRef = useRef<any>(null);
 	const focusedInside = useRef(false);
@@ -93,14 +94,14 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 				ref={panelRef}
 				className={cx('vx-popover', props.className)}
 				style={{
-					...props.style,
+					...(props.style as any),
 					position: 'fixed',
 					top: position.top,
 					left: position.left,
 					zIndex: 1,
 					pointerEvents: 'auto',
 				}}
-				{...{ ...props.web, onFocusIn: (event: FocusEvent) => { focusedInside.current = true; props.web?.onFocusIn?.(event); } }}
+				{...{ ...props.web, onFocusIn: (event: FocusEvent) => { focusedInside.current = true; (props.web?.onFocusIn as any)?.(event); } }}
 			>
 				<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
 			</div>

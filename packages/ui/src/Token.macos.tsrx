@@ -77,7 +77,7 @@ export function Token(props: TokenProps) @{
 		paddingLeft: 8,
 		paddingRight: 8,
 		opacity: props.isDisabled ? 0.5 : 1,
-		...props.style,
+		...(props.style as any),
 	};
 
 	if (interactive) {

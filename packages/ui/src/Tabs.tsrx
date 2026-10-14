@@ -27,7 +27,7 @@ export function Tabs(props: TabsProps) @{
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
 
-	<gridlayout rows="auto,*" id={props.id} className={cx(props.className)} style={props.style}>
+	<gridlayout rows="auto,*" id={props.id} className={cx(props.className)} style={props.style as any}>
 		<TabList
 			row={0}
 			className="vx-tabbar"

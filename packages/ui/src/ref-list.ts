@@ -2,15 +2,15 @@ import type { Octane } from 'octane/jsx-runtime'
 
 type FlatRef<T> = ((instance: T | null) => void) | { current: T | null }
 
-export function refList<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<T>[] {
-	const list: FlatRef<T>[] = []
+export function refList<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<any>[] {
+	const list: FlatRef<any>[] = []
 	const collect = (ref: Octane.Ref<T> | undefined) => {
 		if (Array.isArray(ref)) {
 			for (const nested of ref) {
 				collect(nested)
 			}
 		} else if (ref != null) {
-			list.push(ref as FlatRef<T>)
+			list.push(ref as FlatRef<any>)
 		}
 	}
 
@@ -21,7 +21,7 @@ export function refList<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<T>[]
 	return list
 }
 
-export function mergedRef<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<T> {
+export function mergedRef<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<any> {
 	const list = refList(...refs)
 	return (instance: T | null) => {
 		for (const ref of list) {

@@ -23,7 +23,7 @@ export function Grid(props: GridProps) @{
 		id={props.id}
 		className={['vx-grid', props.className]}
 		style={{
-			...props.style,
+			...(props.style as any),
 			...(props.rows ? { gridTemplateRows: parseTracks(props.rows) } : {}),
 			...(props.columns ? { gridTemplateColumns: parseTracks(props.columns) } : {}),
 		}}

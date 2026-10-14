@@ -8,7 +8,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		id={props.id}
 		flexDirection="column"
 		className={cx('vx-keyboard-avoiding', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{props.children}
 	</flexboxlayout>

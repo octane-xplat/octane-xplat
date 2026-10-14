@@ -14,12 +14,17 @@ import type {
 } from './props';
 
 import { Popover } from './Popover';
+import type { PopoverInternalProps } from './internal-props';
 import { applyNativeProps } from './platformProps';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { cx } from '@octane-xplat/lib';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
 import { layerOffset } from './popover-position';
+
+/** Popover accepts useLayer's internal geometry adapter — public props
+ *  stay clean; the cast carries the internal field. */
+const PopoverWithLayerPosition = Popover as unknown as (props: PopoverInternalProps) => unknown;
 
 interface FixedSurfaceProps {
 	layerDepth?: number
@@ -199,7 +204,7 @@ export function useLayer<O extends LayerOptions>(
 			}
 
 			return (
-				<Popover
+				<PopoverWithLayerPosition
 					open={isOpen}
 					layerPosition={p}
 					anchor={anchor.current}
@@ -214,7 +219,7 @@ export function useLayer<O extends LayerOptions>(
 					android={{ accessibilityLabel: p.accessibilityLabel, ...p.android }}
 				>
 					{children}
-				</Popover>
+				</PopoverWithLayerPosition>
 			);
 		},
 		[fixed, isOpen, options.lightDismiss, options.dismissOnEscape, hide],

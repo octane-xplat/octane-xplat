@@ -126,7 +126,7 @@ function createWindowContent(): Frame {
 	page.actionBarHidden = true
 	console.log('[harness] createWindowContent')
 	try {
-		const rootComponent = VIRTUAL_LIST_BENCH_MODE
+		const rootComponent: (props: any) => unknown = VIRTUAL_LIST_BENCH_MODE
 			? VIRTUAL_LIST_BENCH_DEMO_MODE
 				? VirtualListDemo
 				: VIRTUAL_LIST_BENCH_FIXED_MODE

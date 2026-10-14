@@ -77,7 +77,7 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 		].filter(Boolean).join(' ')}
 		style={{
 			...(props.columns ? { gridTemplateColumns: `repeat(${props.columns}, minmax(0, 1fr))` } : {}),
-			...props.style,
+			...(props.style as any),
 		}}
 		role="grid"
 		aria-label={props.accessibilityLabel}

@@ -25,7 +25,7 @@ function TextScope(props: { children?: any }) {
 
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
-	const fontWeightValue = String(props.style?.fontWeight ?? '').toLowerCase();
+	const fontWeightValue = String((props.style as any)?.fontWeight ?? '').toLowerCase();
 	const namedWeights: Record<string, number> = {
 		normal: 400,
 		bold: 700,
@@ -42,21 +42,21 @@ export function Text(props: TextProps) @{
 		? Number(fontWeightValue)
 		: namedWeights[fontWeightValue];
 
-	const lineHeight = props.style?.lineHeight;
+	const lineHeight = (props.style as any)?.lineHeight;
 	// UIFontDescriptor resolves variable fonts to the regular axis default on
 	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
 	const textStyle = {
-		...props.style,
+		...(props.style as any),
 		...((Application.ios || Application.android) &&
 		typeof lineHeight === 'number' &&
 		Number.isFinite(lineHeight) &&
 		lineHeight > 0 &&
-		props.style?.height == null &&
-		props.style?.minHeight == null
+		(props.style as any)?.height == null &&
+		(props.style as any)?.minHeight == null
 			? { minHeight: lineHeight }
 			: {}),
 		...(Application.ios &&
-		props.style?.fontVariationSettings == null &&
+		(props.style as any)?.fontVariationSettings == null &&
 		fontWeight !== undefined &&
 		fontWeight >= 100 &&
 		fontWeight <= 900

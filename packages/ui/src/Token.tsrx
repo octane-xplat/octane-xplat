@@ -79,7 +79,7 @@ export function Token(props: TokenProps) @{
 		ref={forwardedRef}
 		id={props.id}
 		className={classes}
-		style={props.style}
+		style={props.style as any}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
 		accessibilityHint={props.description}
 		accessibilityState={a11yState}

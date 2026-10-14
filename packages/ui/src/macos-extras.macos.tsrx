@@ -21,7 +21,7 @@ export function Meter(props: MeterProps) @{
 			borderWidth: strokeWidth,
 			borderColor: props.trackColor ?? '#e1ecf7',
 			borderRadius: size / 2,
-			...props.style,
+			...(props.style as any),
 		}}
 		accessibilityRole="meter"
 		accessibilityLabel={props.accessibilityLabel}
@@ -40,7 +40,7 @@ export function Heading(props: HeadingProps) @{
 	<label
 		id={props.id}
 		className={cx('vx-heading', `vx-h${level}`, props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityRole="heading"
 	>
 		{props.children}

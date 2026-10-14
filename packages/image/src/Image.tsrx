@@ -260,8 +260,8 @@ export function Image(props: ImageProps) @{
 				}
 			}}
 			id={props.id}
-			className={props.className}
-			style={props.style}
+			className={props.className as any}
+			style={props.style as any}
 			{...layoutChildAttrs(props)}
 		>
 			<cachedimage
@@ -289,8 +289,8 @@ export function Image(props: ImageProps) @{
 				}
 			}}
 			id={props.id}
-			className={props.className}
-			style={props.style}
+			className={props.className as any}
+			style={props.style as any}
 			{...layoutChildAttrs(props)}
 			stretch={contentFitToStretch(fit)}
 			failureImageUri={props.failureImage}

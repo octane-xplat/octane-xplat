@@ -77,7 +77,7 @@ export function WebView(props: WebViewProps) @{
 		id={props.id}
 		{...layoutChildProps(props)}
 		className={cx('vx-webview', props.className)}
-		style={props.style}
+		style={props.style as any}
 		src={props.html !== undefined ? props.html : props.src}
 		onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)}
 		onLoadFinished={(e: any) => {

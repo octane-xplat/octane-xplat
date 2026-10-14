@@ -75,7 +75,7 @@ export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>)
 		props.onAction?.(node.key);
 	};
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={props.style}>
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={props.style as any}>
 		{props.nodes.map((node: T) => (
 			<TreeRow node={node} depth={0} open={open} selected={selected}
 				selectionMode={selectionMode} toggle={toggle} press={press} />

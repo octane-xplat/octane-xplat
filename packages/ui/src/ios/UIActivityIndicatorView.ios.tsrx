@@ -11,7 +11,7 @@ export function UIActivityIndicatorView(props: UIActivityIndicatorViewProps) @{
 	<activityindicator
 		id={props.id}
 		className={cx(props.className)}
-		style={props.style}
+		style={props.style as any}
 		busy={props.busy ?? true}
 		ref={(el: any) => applyNativeProps(el, props)}
 	/>

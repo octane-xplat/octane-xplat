@@ -20,7 +20,7 @@ export function Drawer(props: DrawerProps) @{
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}
 		className={cx('vx-drawer', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		<gridlayout className="vx-drawer-main">{props.main}</gridlayout>
 		@if (open) {

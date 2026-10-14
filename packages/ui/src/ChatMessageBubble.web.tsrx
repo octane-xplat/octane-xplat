@@ -38,7 +38,7 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 				...(props.width != null
 					? { width: props.width, maxWidth: 'none' }
 					: {}),
-				...props.style,
+				...(props.style as any),
 			}}
 		>
 			{props.children}

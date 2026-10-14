@@ -123,7 +123,7 @@ function OverflowListImpl(props: OverflowListProps) @{
 			ref={(el: HTMLElement | null) => { containerEl.current = el; if (el) applyEscapeProps(el, props); }}
 			id={props.id}
 			className={['vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', observeParent && hasOverflow && 'vx-overflowlist--fill-parent', props.className]}
-			style={{ gap, maxHeight: containerHeight, ...props.style }}
+			style={{ gap, maxHeight: containerHeight, ...(props.style as any) }}
 			data-rows={isMultiRow ? rows : undefined}
 		>
 			{collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}

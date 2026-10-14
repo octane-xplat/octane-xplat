@@ -11,7 +11,7 @@ export function Image(props: ImageProps) @{
 	const src = (Array.isArray(props.src) ? props.src[0]?.uri : props.src) ?? ''
 	const style = {
 		objectFit: props.contentFit ?? 'cover',
-		...props.style,
+		...(typeof props.style === 'object' ? props.style : null),
 	}
 
 	<image

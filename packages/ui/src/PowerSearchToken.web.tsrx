@@ -2,9 +2,7 @@ import type { PowerSearchTokenProps } from './props'
 import { resolveOperatorLabel, formatFilterValue, createInternalConfig } from './power-search-config'
 import { Button } from './Button.web.tsrx'
 
-type InternalTokenProps = PowerSearchTokenProps & { timezoneID?: string }
-
-export function PowerSearchToken(props: InternalTokenProps) @{
+export function PowerSearchToken(props: PowerSearchTokenProps) @{
 	const value = formatFilterValue(createInternalConfig(props.config), props.operator.value, props.filter.value, props.maxLength, undefined, undefined, props.timezoneID)
 	const label = `${props.field.label} ${resolveOperatorLabel(props.operator)}${value ? ` ${value}` : ''}`
 

@@ -133,7 +133,7 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 					overflowY: axis === 'block' || axis === 'both' ? 'auto' : 'clip',
 					overscrollBehaviorX: overscroll === 'contain' ? 'contain' : undefined,
 					overscrollBehaviorY: overscroll === 'contain' ? 'contain' : undefined,
-					...props.style,
+					...(props.style as any),
 				},
 				'data-scrollable-x': state.inline.isScrollable || undefined,
 				'data-scrollable-y': state.block.isScrollable || undefined,

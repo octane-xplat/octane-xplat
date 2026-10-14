@@ -27,7 +27,7 @@ export function ListItem(props: ListItemProps) @{
 		}
 
 		if (props.delegateRef?.current != null) {
-			const target = props.delegateRef.current;
+			const target = props.delegateRef.current as any;
 			target.notify?.({ eventName: 'tap', object: target });
 			target.click?.();
 			target.focus?.();
@@ -63,7 +63,7 @@ export function ListItem(props: ListItemProps) @{
 			props.isSelected && 'vx-listitem--selected',
 			props.className,
 		)}
-		style={props.style}
+		style={props.style as any}
 		onTap={interactive && !props.isDisabled ? activate : undefined}
 		accessible={props.accessible ?? (interactive ? true : undefined)}
 		accessibilityLabel={props.accessibilityLabel}

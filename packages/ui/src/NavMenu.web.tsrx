@@ -74,7 +74,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 		[closeMenu, size],
 	);
 
-	const inlineStyle = props.minWidth != null ? { ...props.style, minWidth: props.minWidth } : props.style;
+	const inlineStyle = props.minWidth != null ? { ...(props.style as any), minWidth: props.minWidth } : props.style;
 
 	<NavHeadingMenuProvider value={ctx}>
 		<div

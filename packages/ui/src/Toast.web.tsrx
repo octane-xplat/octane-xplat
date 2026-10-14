@@ -111,7 +111,7 @@ export function Toast(props: ToastProps) @{
 			}}
 			id={props.id}
 			className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)}
-			style={{ touchAction: 'pan-y', ...props.style }}
+			style={{ touchAction: 'pan-y', ...(props.style as any) }}
 			role={role}
 			aria-live={type === 'error' ? 'assertive' : 'polite'}
 			tabIndex={0}

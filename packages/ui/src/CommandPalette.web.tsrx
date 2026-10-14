@@ -28,7 +28,7 @@ export function CommandPalette<T extends CommandPaletteItem>(props: CommandPalet
 	<Overlay accessibilityLabel={props.label ?? 'Command palette'} open={state.open} shadeCover={true} onDismiss={controller.close} className="vx-cmdk-layer">
 		<div
 			className={['vx-commandpalette', props.className]}
-			style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+			style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 			id={props.id}
 			role="group"
 			aria-label={props.label ?? 'Command palette'}

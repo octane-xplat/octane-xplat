@@ -112,7 +112,7 @@ export function OverflowList(props: OverflowListProps) @{
 			ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }}
 			id={props.id}
 			className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)}
-			style={{ ...props.style, height: containerHeight }}
+			style={{ ...(props.style as any), height: containerHeight }}
 			flexDirection="row"
 			flexWrap={isMultiRow ? 'wrap' : 'nowrap'}
 			alignItems="flex-start"

@@ -85,7 +85,7 @@ export function Timestamp(props: TimestampProps) @{
 		<label
 			id={props.id}
 			className={cx('vx-timestamp', roleClasses, props.className)}
-			style={props.style}
+			style={props.style as any}
 			text={text}
 			accessibilityLabel={relative ? absoluteLabel : undefined}
 		/>

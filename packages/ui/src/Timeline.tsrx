@@ -6,7 +6,7 @@ import { Icon } from './Icon';
 
 /** Timeline — vertical event list: dot + connector + content per item. */
 export function Timeline(props: TimelineProps) @{
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-timeline', props.className)} style={props.style}>
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-timeline', props.className)} style={props.style as any}>
 		@for (const e of props.items.map((item, i) => ({ item, i })); key e.item.key) {
 			<flexboxlayout className="vx-timeline-item">
 				<flexboxlayout className="vx-timeline-rail">

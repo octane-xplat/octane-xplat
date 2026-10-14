@@ -17,7 +17,7 @@ export function NavigationMenu(props: NavigationMenuProps) @{
 		id={props.id}
 		flexDirection={isHorizontal ? 'row' : 'column'}
 		className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		@for (const item of props.items; key item.key) {

@@ -109,7 +109,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 
 	const forwardedRef = useMemo(() => [(h: TypeaheadInputHandle | null) => {
 							inputHandle.current = h;
-							inputRef.current = h?.native ?? null;
+							inputRef.current = h?.native as HTMLInputElement | null ?? null;
 						}, props.ref], [props.ref, props.ios, props.android, props.web]);
 
 	const wrapper = (
@@ -192,7 +192,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 		web={props.web}
 	>
 		{showsDisabledMessage

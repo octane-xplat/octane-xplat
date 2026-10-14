@@ -147,7 +147,7 @@ export function Tooltip(props: TooltipProps) @{
 			alignment: 'start',
 			offset: 8,
 			className: cx('vx-tooltip', props.contentClassName),
-			style: { pointerEvents: 'none', ...props.contentStyle },
+			style: { pointerEvents: 'none', ...(props.contentStyle as any) },
 			accessibilityRole: 'tooltip',
 		})}
 	</View>

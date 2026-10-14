@@ -387,6 +387,8 @@ export type {
 	QueryStorageAdapter,
 	QueryPersistence,
 	CachedQueryOptions,
+	InvalidateQueriesOptions,
+	ClearQueryCacheOptions,
 } from './query-cache'
 
 export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service.macos'

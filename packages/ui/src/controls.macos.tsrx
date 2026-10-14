@@ -70,7 +70,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		alignItems="center"
 		gap={props.label == null ? 0 : 8}
 		className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)}
-		style={{ opacity: props.isDisabled ? 0.5 : 1, ...props.style }}
+		style={{ opacity: props.isDisabled ? 0.5 : 1, ...(props.style as any) }}
 		accessibilityRole="checkbox"
 		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
@@ -120,7 +120,7 @@ export function Switch(inputProps: SwitchProps) @{
 			padding: 3,
 			borderRadius: 14,
 			backgroundColor: checked ? colors.primary : colors.border,
-			...props.style,
+			...(props.style as any),
 		}}
 		accessibilityRole="switch"
 		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
@@ -149,7 +149,7 @@ export function Slider(props: SliderProps) @{
 			return
 		}
 
-		const width = Number(event.target?.bounds?.size?.width ?? event.target?.frame?.size?.width ?? 0)
+		const width = Number((event.target as any)?.bounds?.size?.width ?? (event.target as any)?.frame?.size?.width ?? 0)
 		if (!drag.current || !width) {return}
 		if (event.state === 'moved') {
 			const next = Math.min(max, Math.max(min, drag.current.value0 + (event.dx / width) * (max - min)))
@@ -172,7 +172,7 @@ export function Slider(props: SliderProps) @{
 		id={props.id}
 		disabled={props.disabled}
 		className={cx('vx-slider', props.className)}
-		style={{ height: 28, ...props.style }}
+		style={{ height: 28, ...(props.style as any) }}
 		accessibilityRole={nativeAccessibilityRole('adjustable') as any}
 		accessibilityValue={value}
 		accessibilityMinValue={min}
@@ -226,7 +226,7 @@ export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-spinner', props.className)}
-		style={{ borderWidth: 2, borderTopColor: '#666666', borderColor: '#666666', borderRadius: 12, width: 24, height: 24, ...props.style }}
+		style={{ borderWidth: 2, borderTopColor: '#666666', borderColor: '#666666', borderRadius: 12, width: 24, height: 24, ...(props.style as any) }}
 		accessibilityRole="progressbar"
 	/>
 }

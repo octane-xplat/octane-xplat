@@ -29,7 +29,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 
 	const fit = (v: any) => {
 		if (!v) return;
-		if (props.style?.height != null) return; // explicit height wins
+		if ((props.style as any)?.height != null) return; // explicit height wins
 		const line = lineDip(v);
 		const rows = props.rows ?? (props.autoGrow ? 1 : 3);
 		v.style.minHeight = rows * line;
@@ -61,7 +61,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 			applyEscapeProps(v, props);
 		}}
 		className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
-		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
+		style={{ ...(props.style as any), ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 		hint={props.placeholder}
 	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}

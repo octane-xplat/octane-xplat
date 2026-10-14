@@ -12,7 +12,7 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
 	const text = props.children ?? '';
 	if (!text || !props.tokens || props.tokens.length === 0) {
 		return (
-			<flexboxlayout id={props.id} className={cx('vx-chattext', props.className)} style={props.style} flexDirection="row" flexWrap="wrap">
+			<flexboxlayout id={props.id} className={cx('vx-chattext', props.className)} style={props.style as any} flexDirection="row" flexWrap="wrap">
 				<label text={text} />
 			</flexboxlayout>
 		);
@@ -21,7 +21,7 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-chattext', props.className)}
-		style={props.style}
+		style={props.style as any}
 		flexDirection="row"
 		flexWrap="wrap"
 		alignItems="center"

@@ -55,7 +55,7 @@ export function TopNav(props: TopNavProps) @{
 			flexDirection="row"
 			alignItems="center"
 			className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)}
-			style={props.style}
+			style={props.style as any}
 			accessibilityLabel={label}
 		>
 			{props.heading}
@@ -80,7 +80,7 @@ export function TopNav(props: TopNavProps) @{
 					ref={(v: any) => applyEscapeProps(v, props)}
 					id={props.id}
 					className={cx('vx-topnav', 'vx-topnav--grid', props.className)}
-					style={props.style}
+					style={props.style as any}
 					accessibilityLabel={label}
 				>
 					<TopNavSlotProvider value="start">
@@ -107,7 +107,7 @@ export function TopNav(props: TopNavProps) @{
 					flexDirection="row"
 					alignItems="center"
 					className={cx('vx-topnav', props.className)}
-					style={props.style}
+					style={props.style as any}
 					accessibilityLabel={label}
 				>
 					<TopNavSlotProvider value="start">
@@ -174,7 +174,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 		flexDirection="row"
 		alignItems="center"
 		className={cx('vx-topnav-heading', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{headerIsTrigger ? (
 			<Pressable
@@ -355,7 +355,7 @@ export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProp
 		id={props.id}
 		flexDirection="column"
 		className={cx('vx-topnavmegamenu-card', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{props.image != null ? <Image src={props.image} className="vx-topnavmegamenu-card-image" /> : null}
 		<flexboxlayout flexDirection="column" className="vx-topnavmegamenu-card-body">

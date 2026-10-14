@@ -25,7 +25,7 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 		ref={forwardedRef}
 		id={props.id}
 		className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)}
-		style={props.style}
+		style={props.style as any}
 		flexDirection="row"
 		alignItems="center"
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}

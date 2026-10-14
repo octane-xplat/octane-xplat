@@ -33,7 +33,7 @@ export function useChatComposerTokens({
 
 	const insertToken = useCallback(
 		(token: any): string | undefined => {
-			const editable = editableRef.current;
+			const editable = editableRef.current as HTMLElement | null | undefined;
 			if (!editable) return;
 
 			const selection = ensureCaretInside(editable);
@@ -115,7 +115,7 @@ export function useChatComposerTokens({
 
 	const handlePaste = useCallback(
 		(e: any): boolean => {
-			const editable = editableRef.current;
+			const editable = editableRef.current as HTMLElement | null | undefined;
 			if (!editable) return false;
 
 			const selection = ensureCaretInside(editable);
@@ -150,12 +150,12 @@ export function useChatComposerTokens({
 
 	const expandToken = useCallback(
 		(id: string) => {
-			const editable = editableRef.current;
+			const editable = editableRef.current as HTMLElement | null | undefined;
 			if (!editable) return;
 			const portal = tokenPortals.find((p) => p.id === id);
 			if (!portal) return;
 
-			const { span } = portal;
+			const span = portal.span as HTMLElement;
 			const value = span.getAttribute(TOKEN_VALUE_ATTR) ?? '';
 			const textNode = document.createTextNode(value);
 
@@ -182,7 +182,7 @@ export function useChatComposerTokens({
 	);
 
 	const cleanupPortals = useCallback(() => {
-		setTokenPortals((prev) => prev.filter((p) => editableRef.current?.contains(p.span)));
+		setTokenPortals((prev) => prev.filter((p) => (editableRef.current as HTMLElement | null | undefined)?.contains(p.span as Node)));
 	}, [editableRef]);
 
 	return {

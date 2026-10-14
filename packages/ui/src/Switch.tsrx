@@ -24,7 +24,7 @@ export function Switch(inputProps: SwitchProps) @{
 		id={props.id}
 		testID={props.testID ?? ''}
 		className={cx('vx-switch', checked ? 'vx-switch--on' : undefined, props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityRole={nativeAccessibilityRole('switch') as any}
 		accessibilityLabel={props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}

@@ -27,7 +27,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 		announceCommandPalette(statusView.current, message);
 	}, [state.status, state.query, state.results]);
 
-	<flexboxlayout flexDirection="column" className={cx('vx-commandpalette', props.options.className)} style={{ width: props.options.width ?? Screen.mainScreen.widthDIPs * 0.9, ...props.options.style }} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
+	<flexboxlayout flexDirection="column" className={cx('vx-commandpalette', props.options.className)} style={{ width: props.options.width ?? Screen.mainScreen.widthDIPs * 0.9, ...(props.options.style as any) }} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
 		<flexboxlayout flexDirection="row" className="vx-cmdk-input-row">
 			<TextInput id={`${props.options.id ?? 'command-palette'}-query`} className="vx-cmdk-search" label={props.options.label ?? 'Command palette'} accessibilityLabel={props.options.label ?? 'Command palette'} placeholder={props.options.placeholder ?? 'Search commands…'} value={state.query} onChange={props.controller.search} onSubmit={() => props.controller.search(state.query)} returnKeyType="search" hasClear={false} />
 			<button id={`${props.options.id ?? 'command-palette'}-clear`} text="Clear" onTap={() => props.controller.search('')} accessibilityLabel="Clear search" />

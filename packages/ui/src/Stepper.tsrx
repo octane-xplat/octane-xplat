@@ -13,7 +13,7 @@ export function Stepper(props: StepperProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-stepper', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		@for (const e of props.steps.map((step, i) => ({ step, i })); key e.step.key) {
 			<flexboxlayout className="vx-stepper-cell">

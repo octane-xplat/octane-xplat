@@ -35,7 +35,7 @@ export function Stack(props: StackProps) @{
 			testID={props.testID ?? ''}
 			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
-			style={{ ...sizingStyle, ...props.style }}
+			style={{ ...(sizingStyle as any), ...(props.style as any) }}
 			orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -68,7 +68,7 @@ export function Stack(props: StackProps) @{
 			flexWrap={layout.flexWrap as any}
 			gap={layout.gap as any}
 			className={cx('vx-stack', props.className)}
-			style={{ ...sizingStyle, ...props.style }}
+			style={{ ...(sizingStyle as any), ...(props.style as any) }}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

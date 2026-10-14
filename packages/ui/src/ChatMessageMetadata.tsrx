@@ -41,7 +41,7 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)}
-		style={props.style}
+		style={props.style as any}
 		flexDirection="row"
 		alignItems="center"
 		justifyContent={isUser ? 'flex-end' : 'flex-start'}

@@ -26,7 +26,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 	<stacklayout
 		id={props.id}
 		className={cx('vx-chatdict', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{isListening ? (
 			<flexboxlayout

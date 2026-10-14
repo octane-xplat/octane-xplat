@@ -20,7 +20,7 @@ export function Table<T extends object = Record<string, any>>(props: TableProps<
 		...(col.align ? { textAlignment: col.align } : {}),
 	});
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={props.style}>
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={props.style as any}>
 		<flexboxlayout className="vx-table-head">
 			@for (const col of props.columns; key col.key) {
 				<flexboxlayout className="vx-table-cell vx-table-th" style={cellStyle(col)}>

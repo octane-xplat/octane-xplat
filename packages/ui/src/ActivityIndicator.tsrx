@@ -13,7 +13,7 @@ export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-spinner', props.className)}
-		style={props.style}
+		style={props.style as any}
 		ref={(el: any) => {
 			if (!el) return;
 			applyNativeProps(el, props);

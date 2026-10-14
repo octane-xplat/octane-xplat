@@ -65,8 +65,8 @@ export function useLayer<O extends LayerOptions>(
 		const p = (surface ?? {}) as ContextRenderProps;
 		if (fixed || p.positioning === 'custom') {
 			const fx = surface as FixedRenderProps | undefined;
-			const x = fixed ? fx?.x ?? 0 : p.style?.left ?? 0;
-			const y = fixed ? fx?.y ?? 0 : p.style?.top ?? 0;
+			const x = fixed ? fx?.x ?? 0 : (p.style as any)?.left ?? 0;
+			const y = fixed ? fx?.y ?? 0 : (p.style as any)?.top ?? 0;
 			if (!Number.isFinite(x) || !Number.isFinite(y)) throw new TypeError('macOS custom layer left/top require finite window points');
 			return { left: x, top: y };
 		}

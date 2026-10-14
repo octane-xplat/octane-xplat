@@ -118,7 +118,7 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 			finish()
 		})
 
-		root.render(Component as UniversalComponent, { params, close: finish })
+		root.render(Component as unknown as UniversalComponent, { params, close: finish })
 		active.add(entry)
 
 		const openOptions =

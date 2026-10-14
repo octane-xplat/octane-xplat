@@ -47,7 +47,7 @@ export function UIModal(props: UIModalProps) @{
 			const root = createNativeScriptRoot(host);
 			shown.current = { host, root, unbindTheme };
 			if (props.component) {
-				root.render(props.component as UniversalComponent, props.params ?? {});
+				root.render(props.component as unknown as UniversalComponent, props.params ?? {});
 			} else {
 				root.render(Panel as unknown as UniversalComponent, { children: props.children });
 			}

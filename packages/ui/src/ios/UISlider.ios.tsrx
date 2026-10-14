@@ -9,7 +9,7 @@ export function UISlider(props: UISliderProps) @{
 	<slider
 		id={props.id}
 		className={cx(props.className)}
-		style={props.style}
+		style={props.style as any}
 		value={props.value}
 		minValue={props.minValue ?? 0}
 		maxValue={props.maxValue ?? 100}

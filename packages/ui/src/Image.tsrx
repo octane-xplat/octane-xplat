@@ -184,7 +184,7 @@ export function Image(props: ImageProps) @{
 			id={props.id}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
-			style={props.style}
+			style={props.style as any}
 			src={svg}
 			stretch={fit === 'none' ? 'none' : contentFitToStretch(fit === 'scale-down' ? 'contain' : fit)}
 			accessibilityLabel={props.alt}
@@ -201,7 +201,7 @@ export function Image(props: ImageProps) @{
 			id={props.id}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
-			style={props.style}
+			style={props.style as any}
 		>
 			<image
 				ref={(v: any) => {
@@ -228,7 +228,7 @@ export function Image(props: ImageProps) @{
 			id={props.id}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
-			style={props.style}
+			style={props.style as any}
 			stretch={contentFitToStretch(fit)}
 			loadMode={props.decoding ?? 'async'}
 			accessibilityLabel={props.alt}

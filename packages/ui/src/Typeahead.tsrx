@@ -94,7 +94,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 		ios={props.ios}
 		android={props.android}
 	>

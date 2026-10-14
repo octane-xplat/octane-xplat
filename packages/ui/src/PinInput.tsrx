@@ -46,7 +46,7 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, fieldProps)} id={fieldProps.id} flexDirection="row" className={cx('vx-pininput', fieldProps.isDisabled && 'vx-pininput--disabled', fieldProps.isReadOnly && 'vx-pininput--readonly', fieldProps.isLoading && 'vx-pininput--loading', fieldProps.status && `vx-pininput--status-${fieldProps.status.type}`, fieldProps.size && `vx-pininput--size-${fieldProps.size}`, fieldProps.className)} style={fieldProps.style} accessibilityLabel={fieldProps.ariaLabel ?? fieldProps.fieldLabel} accessibilityHint={fieldProps.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: fieldProps.isDisabled }) as any}>
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, fieldProps)} id={fieldProps.id} flexDirection="row" className={cx('vx-pininput', fieldProps.isDisabled && 'vx-pininput--disabled', fieldProps.isReadOnly && 'vx-pininput--readonly', fieldProps.isLoading && 'vx-pininput--loading', fieldProps.status && `vx-pininput--status-${fieldProps.status.type}`, fieldProps.size && `vx-pininput--size-${fieldProps.size}`, fieldProps.className)} style={fieldProps.style as any} accessibilityLabel={fieldProps.ariaLabel ?? fieldProps.fieldLabel} accessibilityHint={fieldProps.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: fieldProps.isDisabled }) as any}>
 		<FieldProvider value={null}>@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
 				label={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}

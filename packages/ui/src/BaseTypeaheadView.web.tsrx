@@ -90,7 +90,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			type="text"
 			role="combobox"
 			className={['vx-typeahead-input', `vx-typeahead-input--size-${props.size}`, props.isDisabled ? 'vx-typeahead-input--disabled' : undefined, props.inputClassName, props.className]}
-			style={{ ...props.style, ...props.inputStyle }}
+			style={{ ...(props.style as any), ...(props.inputStyle as any) }}
 			aria-expanded={props.open}
 			aria-controls={props.listboxId}
 			aria-activedescendant={props.open && activeIndex >= 0 ? itemId(activeIndex) : undefined}

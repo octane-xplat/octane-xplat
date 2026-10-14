@@ -37,7 +37,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 			id={props.id}
 			flexDirection="column"
 			className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)}
-			style={{ ...props.style, minWidth }}
+			style={{ ...(props.style as any), minWidth }}
 		>
 			{props.children}
 		</flexboxlayout>

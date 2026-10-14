@@ -19,7 +19,7 @@ export function Pressable(props: PressableProps) @{
 		testID={props.testID ?? ''}
 		{...layoutChildProps(props)}
 		className={cx('vx-pressable', props.className)}
-		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
+		style={{ ...(props.style as any), ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

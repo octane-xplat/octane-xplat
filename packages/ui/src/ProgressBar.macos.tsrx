@@ -31,7 +31,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 		ref={props.ref}
 		id={props.id}
 		className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)}
-		style={{ flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...props.style }}
+		style={{ flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) }}
 		flexDirection="column"
 		accessibilityRole="progressbar"
 		accessibilityLabel={props.accessibilityLabel ?? props.label}

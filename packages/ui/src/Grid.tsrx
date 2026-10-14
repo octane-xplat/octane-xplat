@@ -31,7 +31,7 @@ export function Grid(props: GridProps) @{
 		rows={props.rows}
 		columns={props.columns}
 		className={cx('vx-grid', props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

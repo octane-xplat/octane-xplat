@@ -53,6 +53,14 @@ The title should be larger than ordinary text, with space around it.
   size.
 - Shared styles must use properties supported by both targets.
 
+Both props have public types you can reuse on your own components:
+`className` is a `ClassName` (a string or a clsx-style mix of arrays and
+keyed objects) and `style` is a `StyleProp` (a camelCase CSS property object
+or an inline CSS string). Import them with `import type { ClassName,
+StyleProp } from '@octane-xplat/ui'`. If a screen that compiled before now
+reports a style type error, the value was outside this contract — move
+stable styling to `className` or cast at the boundary.
+
 ## Required structure and optional chrome
 
 Xplat has two stylesheets. `tokens.css` provides layout rules the components

@@ -45,7 +45,7 @@ export function MetadataList(props: MetadataListProps) @{
 		<flexboxlayout
 			id={props.id}
 			className={cx('vx-metadatalist', props.className)}
-			style={{ flexDirection: 'column', ...props.style }}
+			style={{ flexDirection: 'column', ...(props.style as any) }}
 			flexDirection="column"
 		>
 			{props.title != null ? (

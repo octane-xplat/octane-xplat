@@ -1,8 +1,4 @@
-type RouteBoundaryProps = {
-	boundary?: any
-	route?: any
-	children?: any
-}
+import type { RouteBoundaryProps } from './props'
 
 /** Route-level error-boundary host — web twin of RouteBoundary. */
 export function RouteBoundary(props: RouteBoundaryProps) @{

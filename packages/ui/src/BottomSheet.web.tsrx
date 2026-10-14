@@ -116,7 +116,7 @@ function BottomSheetLayer(props: {
 			aria-modal={hasScrim ? true : undefined}
 			aria-label={sheet.label}
 			style={{
-				...sheet.style,
+				...(sheet as any).style,
 				...sheetHeightStyle(sheet.height, snapPoints.length),
 				// Parked below the viewport until the gesture controller slides
 				// the panel in (attachSheetDetents owns transform from then on).

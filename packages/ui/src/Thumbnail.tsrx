@@ -116,7 +116,7 @@ export function Thumbnail(props: ThumbnailProps) @{
 			className={cx('vx-thumbnail', props.className)}
 			width={SIZE}
 			height={SIZE}
-			style={props.style}
+			style={props.style as any}
 			accessible={true}
 			accessibilityLabel={label}
 			accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image') as any}

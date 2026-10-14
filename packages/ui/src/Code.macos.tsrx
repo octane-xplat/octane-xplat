@@ -9,7 +9,7 @@ export function Code(props: CodeProps) @{
 	<Text
 		id={props.id}
 		className={cx('vx-code', props.color === 'secondary' && 'text-muted', props.className)}
-		style={{ fontFamily: 'ui-monospace', ...props.style }}
+		style={{ fontFamily: 'ui-monospace', ...(props.style as any) }}
 	>
 		{props.children}
 	</Text>

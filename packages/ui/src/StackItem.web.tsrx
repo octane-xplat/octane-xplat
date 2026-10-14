@@ -23,8 +23,8 @@ export function StackItem(props: StackItemProps) @{
 		style={{
 			minWidth: 0,
 			minHeight: 0,
-			...stackItemStyle(props),
-			...props.style,
+			...(stackItemStyle as any)(props),
+			...(props.style as any),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

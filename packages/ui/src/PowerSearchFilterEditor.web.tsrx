@@ -1,5 +1,5 @@
 import { useState } from 'octane'
-import type { PowerSearchEditorProps, FilterValue } from './props'
+import type { PowerSearchFilterEditorProps, FilterValue } from './props'
 import { Button } from './Button.web.tsrx'
 import { TextInput } from './TextInput.web.tsrx'
 import { resolveOperatorLabel } from './power-search-config'
@@ -11,7 +11,7 @@ function editorText(value:any):string {
 	return Array.isArray(value.value)?value.value.join(', '):String(value.value)
 }
 
-export function PowerSearchFilterEditor(props: PowerSearchEditorProps) @{
+export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 	const field = props.config.fields.find(x=>x.key===props.filter.field) ?? props.config.fields[0]
 	const operator = field?.operators.find(x=>x.key===props.filter.operator) ?? field?.operators[0]
 	const initial = editorText(props.filter.value)

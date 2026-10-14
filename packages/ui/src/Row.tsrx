@@ -15,7 +15,7 @@ export function Row(props: RowProps) @{
 		ref={forwardedRef}
 		flexDirection="row"
 		className={cx(props.className)}
-		style={props.style}
+		style={props.style as any}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}

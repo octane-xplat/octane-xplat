@@ -11,8 +11,13 @@ import type {
 
 import { useThemeScheme } from './theme/theme-scheme';
 import { Popover } from './Popover';
+import type { PopoverInternalProps } from './internal-props';
 import { cx } from '@octane-xplat/lib';
 import { ownAnchorName } from './layer-position.web';
+
+/** Popover accepts useLayer's internal geometry adapter — public props
+ *  stay clean; the cast carries the internal field. */
+const PopoverWithLayerPosition = Popover as unknown as (props: PopoverInternalProps) => unknown;
 
 interface FloatingLayerProps {
 	open?: boolean
@@ -61,7 +66,7 @@ function FloatingLayer(props: FloatingLayerProps) @{
 						...(props.x != null && { left: props.x }),
 						zIndex: 1,
 						pointerEvents: 'auto',
-						...props.style,
+						...(props.style as any),
 					}}
 					{...props.web}
 				>
@@ -162,7 +167,7 @@ export function useLayer<O extends LayerOptions>(
 						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
-						style={{ positionAnchor: anchorId, ...p.style }}
+						style={{ positionAnchor: anchorId, ...(p.style as any) }}
 						web={web}
 					>
 						{children}
@@ -171,7 +176,7 @@ export function useLayer<O extends LayerOptions>(
 			}
 
 			return (
-				<Popover
+				<PopoverWithLayerPosition
 					open={isOpen}
 					layerPosition={p}
 					anchor={anchor.current}
@@ -185,7 +190,7 @@ export function useLayer<O extends LayerOptions>(
 					web={web}
 				>
 					{children}
-				</Popover>
+				</PopoverWithLayerPosition>
 			);
 		},
 		[fixed, isOpen, options.lightDismiss, options.dismissOnEscape, id, hide],

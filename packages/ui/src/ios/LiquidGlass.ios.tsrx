@@ -32,7 +32,7 @@ export function LiquidGlass(props: LiquidGlassProps) @{
 			animateChangeDuration: props.animateChangeDuration,
 		}}
 		className={cx('vx-glass', props.variant === 'clear' ? 'vx-glass--clear' : undefined, props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{props.children}
 	</liquidglass>

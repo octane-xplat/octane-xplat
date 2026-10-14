@@ -25,7 +25,7 @@ export function Overlay(props: OverlayProps) @{
 
 	@if (open) {
 		<>{createPortal(
-			<div ref={layer} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...props.style, position: 'fixed', inset: 0 }} {...props.web}>
+			<div ref={layer} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...(props.style as any), position: 'fixed', inset: 0 }} {...(props.web as any)}>
 				@if (props.shadeCover) {
 					<div className="vx-overlay-shade" onClick={requestDismiss} />
 				}

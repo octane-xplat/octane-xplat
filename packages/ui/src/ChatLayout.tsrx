@@ -57,7 +57,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 		<gridlayout
 			id={props.id}
 			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
-			style={props.style}
+			style={props.style as any}
 			flexGrow={1}
 		>
 			<scrollview

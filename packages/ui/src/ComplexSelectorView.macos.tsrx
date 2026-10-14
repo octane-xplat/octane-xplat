@@ -27,7 +27,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 	>
 		{typeof props.startIcon === 'string' ? <Icon name={props.startIcon} size={16} /> : props.startIcon}
 		<label className={cx('vx-complex-selector-value', props.triggerLabel == null && props.value == null && 'vx-complex-selector-placeholder')}
-			text={props.triggerLabel ?? (props.value == null ? props.placeholder ?? '' : String(props.value))} />
+			text={(props.triggerLabel as any) ?? (props.value == null ? (props.placeholder as any) ?? '' : String(props.value))} />
 		{props.isLoading || pending ? <ActivityIndicator busy={true} /> : null}
 	</Pressable>;
 
@@ -39,7 +39,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 		>
 			{trigger}
 		</flexboxlayout>}
-		<Popover anchor={anchor} open={open} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentXstyle}>
+		<Popover anchor={anchor} open={open} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentStyle}>
 			<gridlayout id={contentId} accessibilityRole={"dialog" as any}>{content}</gridlayout>
 		</Popover>
 	</>;
@@ -61,7 +61,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 		labelTooltip={props.labelTooltip}
 		size={props.size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 	>
 		{body}
 	</FormField>

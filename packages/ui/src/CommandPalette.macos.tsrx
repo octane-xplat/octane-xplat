@@ -47,7 +47,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 	}, [state.results]);
 
 	<LayerDepthProvider value={props.depth}>
-	<flexboxlayout flexDirection="column" className={cx('vx-commandpalette', props.options.className)} style={{ ...(options.width != null ? { width: options.width } : {}), ...options.style }} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
+	<flexboxlayout flexDirection="column" className={cx('vx-commandpalette', props.options.className)} style={{ ...(options.width != null ? { width: options.width } : {}), ...(options.style as any) }} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
 		<flexboxlayout flexDirection="row" className="vx-cmdk-input-row">
 			<textfield ref={(view: any) => { input.current = view; }} id={`${options.id ?? 'command-palette'}-query`} className="vx-cmdk-search" accessibilityLabel={options.label ?? 'Command palette'} placeholder={options.placeholder ?? 'Search commands…'} value={state.query} onTextChange={controller.search} />
 			<Pressable id={`${props.options.id ?? 'command-palette'}-clear`} onPress={() => props.controller.search('')} accessibilityLabel="Clear search"><label text="Clear" /></Pressable>

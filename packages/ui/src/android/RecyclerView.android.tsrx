@@ -169,7 +169,7 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
  *  the indicator is self-drawn (vx-spinner) and the list is translated
  *  inside a clipped wrapper while the drag accumulates — no
  *  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
-export function RecyclerView(props: RecyclerViewProps) @{
+export function RecyclerView<T>(props: RecyclerViewProps<T>) @{
 	const runtime = useRef<PlatformListRuntime>({
 		list: { current: null },
 		items: { current: props.items },
@@ -207,7 +207,7 @@ export function RecyclerView(props: RecyclerViewProps) @{
 
 	@if (props.items.length > 0) {
 		@if (refreshCapable) {
-			<gridlayout className={cx('vx-refresh-wrap', props.className)} style={props.style}>
+			<gridlayout className={cx('vx-refresh-wrap', props.className)} style={props.style as any}>
 				<MemoListView
 					id={props.id}
 					items={props.items}

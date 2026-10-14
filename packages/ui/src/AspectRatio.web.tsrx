@@ -22,7 +22,7 @@ export function AspectRatio(props: AspectRatioProps) @{
 			ellipse ? 'vx-aspectratio--ellipse' : undefined,
 			props.className,
 		]}
-		style={{ aspectRatio: props.ratio, ...props.style }}
+		style={{ aspectRatio: props.ratio, ...(props.style as any) }}
 		data-vx-aspectratio-fit={fit}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

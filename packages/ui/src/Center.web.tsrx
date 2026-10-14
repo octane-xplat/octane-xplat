@@ -35,7 +35,7 @@ export function Center(props: CenterProps) @{
 			...(props.height != null ? { height: props.height } : {}),
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...props.style,
+			...(props.style as any),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

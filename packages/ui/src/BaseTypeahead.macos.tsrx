@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useContext, useEffect, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
+import type { BaseTypeaheadInternalProps } from './internal-props';
 import { useFieldControlProps } from './field-context';
 import { BusyLaneContext } from './busy-lane';
 import { characterCount } from './typeahead-source';
@@ -122,7 +123,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 			if (searchGenRef.current !== gen) return;
 			resultsGenRef.current = gen;
 			const fetched = searchResults.slice(0, maxMenuItems);
-			const shown = [...fetched, ...(props.__queryEntries?.(searchQuery, fetched) ?? [])];
+			const shown = [...fetched, ...((props as BaseTypeaheadInternalProps<T>).__queryEntries?.(searchQuery, fetched) ?? [])];
 			setResults(shown);
 			setHighlightedIndex(shown.length > 0 ? 0 : -1);
 			if (searchResults.length > 0 || searchQuery.length > 0) showLayer();
@@ -144,7 +145,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		if ((newQuery.length === 0 && !hasEntriesOnFocus) || isBelowMinQueryLength(newQuery, minQueryLength)) {
 			searchGenRef.current++;
 			searchSource.cancel?.();
-			const derived = props.__queryEntries?.(newQuery, []) ?? [];
+			const derived = (props as BaseTypeaheadInternalProps<T>).__queryEntries?.(newQuery, []) ?? [];
 			setResults(derived);
 			setHighlightedIndex(derived.length > 0 ? 0 : -1);
 			setHasSearched(false);

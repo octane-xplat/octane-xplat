@@ -18,7 +18,7 @@ export function Breadcrumb(props: BreadcrumbProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-breadcrumb', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		@for (const e of visible.map((item, i) => ({ item, i })); key e.i) {
 			<flexboxlayout className="vx-breadcrumb-item">

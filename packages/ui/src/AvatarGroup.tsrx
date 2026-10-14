@@ -20,7 +20,7 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-avatar-group', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{mapChildren(shown, (child: any, i: number) => (
 			<flexboxlayout className="vx-avatar-group-item" style={itemStyle(i)}>{child}</flexboxlayout>

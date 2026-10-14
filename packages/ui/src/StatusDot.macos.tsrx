@@ -54,7 +54,7 @@ export function StatusDot(props: StatusDotProps) @{
 			backgroundColor: statusDotColor(props.variant, scheme),
 			justifyContent: 'center',
 			alignItems: 'center',
-			...props.style,
+			...(props.style as any),
 		}}
 		accessible={true}
 		accessibilityRole="image"

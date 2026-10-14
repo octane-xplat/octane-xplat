@@ -26,7 +26,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-checkbox-row', indicatorScope, checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityRole={nativeAccessibilityRole('checkbox') as any}
 	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 	accessibilityHint={props.accessibilityHint}

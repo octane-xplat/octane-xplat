@@ -53,7 +53,7 @@ export function FormField(props: FormFieldProps) @{
 		: null
 
 	const rootClass = ['vx-field', status ? `vx-field--${status.type}` : undefined, `vx-field--status-${statusVariant}`, props.isDisabled ? 'vx-field--disabled' : undefined, props.isReadOnly ? 'vx-field--readonly' : undefined, props.isLoading ? 'vx-field--loading' : undefined, props.size ? `vx-field--size-${props.size}` : undefined, props.className]
-	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...props.style }
+	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }
 
 	@if (isHorizontalLabels) {
 		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={[...rootClass, 'vx-field--hl']} style={fieldStyle}>

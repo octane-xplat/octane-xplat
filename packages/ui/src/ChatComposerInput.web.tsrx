@@ -460,7 +460,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		/>
 		{triggerMenu.renderMenu()}
 		{tokens.tokenPortals
-			.filter(({ span }) => span.isConnected)
+			.filter(({ span }) => (span as HTMLElement).isConnected)
 			.map(({ id, span, token }) =>
 				createPortal(
 					isCustomToken(token) ? (
@@ -470,7 +470,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 					) : (
 						<ChatTokenChip key={id} token={token} />
 					),
-					span,
+					span as HTMLElement,
 				),
 			)}
 	</div>

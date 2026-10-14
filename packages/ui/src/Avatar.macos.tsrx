@@ -15,7 +15,7 @@ export function Avatar(props: AvatarProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-avatar', props.className)}
-		style={{ ...props.style, ...box }}
+		style={{ ...(props.style as any), ...(box as any) }}
 		accessibilityLabel={props.alt}
 	>
 		{props.src

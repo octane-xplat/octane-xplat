@@ -12,7 +12,7 @@ function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }
 		<DialogProvider value={{ titleId: '', isModal: !props.isInline, requestClose: props.onOpenChange }}>
 		<flexboxlayout flexDirection="column" id={props.id}
 			className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)}
-			style={{ padding: (props.padding ?? 5) * 4, ...props.style }}>
+			style={{ padding: (props.padding ?? 5) * 4, ...(props.style as any) }}>
 			{props.children}
 		</flexboxlayout>
 		</DialogProvider>

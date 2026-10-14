@@ -10,6 +10,6 @@ export function Skeleton(props: SkeletonProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-skeleton', props.className)}
-		style={{ ...props.style, width: props.width, height: props.height }}
+		style={{ ...(props.style as any), width: props.width, height: props.height }}
 	/>
 }

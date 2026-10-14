@@ -27,7 +27,7 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
 			props.isDisabled && 'vx-ind-radio--disabled',
 			props.className,
 		)}
-		style={props.style}
+		style={props.style as any}
 		alignItems="center"
 		justifyContent="center"
 	>

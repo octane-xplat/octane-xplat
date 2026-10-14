@@ -235,7 +235,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
 			)}
-			style={props.style}
+			style={props.style as any}
 		>
 			{surface === 'sheet' ? (
 				<>

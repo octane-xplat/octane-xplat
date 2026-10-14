@@ -1,10 +1,58 @@
-import type { Octane } from 'octane/jsx-runtime'
+import type { ClassValue, CSSProperties, Octane } from 'octane/jsx-runtime'
 
 /** Shared prop/type contract — the single source of truth for the public
  *  API surface. Platform leaves import these types so prop shapes cannot
  *  drift across .web/native-default, and `tsrx-typegen` emits the package's
  *  declarations from its public entrypoints and component leaves. The Octane
  *  import is type-only; shared contracts stay platform-agnostic. */
+
+/** Space-separated class names or a clsx-style class value (strings, arrays,
+ *  keyed objects) applied to the host — Octane's ClassValue contract. */
+export type ClassName = ClassValue
+
+/** Dynamic inline styles — a camelCase CSS property object (numbers are dips)
+ *  or an inline CSS string. Static styles belong in `className`. */
+export type StyleProp = string | CSSProperties
+
+/** Any value Octane can render — the React `ReactNode` analogue (elements,
+ *  text, lists, conditionally omitted content). Opaque to consumers. */
+export type Renderable = unknown
+
+/** The platform host delivered through `ref` and escape props — a DOM
+ *  element on web, a NativeScript view on iOS/Android, an AppKit view on
+ *  macOS. Cast to the platform type for host-specific access. */
+export type HostElement = unknown
+
+/** Per-platform escape bag of host attributes, applied after shared props. */
+export type PlatformProps = Record<string, unknown>
+
+/** A component reference — a function component or (web) an intrinsic tag
+ *  name. The contract for `as`-style customization slots. */
+export type ElementType = string | ((props: any) => any)
+
+/** A function component usable from JSX — `P` plus Octane's JSX attributes
+ *  (`key`). The contract for `components`-style override slots. */
+export type ElementComponent<P> = (props: P & Octane.Attributes) => any
+
+/** Props delivered to components mounted imperatively by `openModal` /
+ *  `openBottomSheet`, or by `Modal`'s `component` prop: `params` plus a
+ *  `close` that resolves the host with an optional result. `params` is
+ *  whatever the caller passed — the mounted component declares its own
+ *  shape. */
+export interface HostedComponentProps {
+	params: any
+	close(result?: unknown): void
+}
+
+/** A component mounted on a dedicated root — `openModal`/`openBottomSheet`
+ *  arguments and `Modal`'s `component` prop. */
+export type HostedComponent = (props: HostedComponentProps) => any
+
+/** A route screen component — receives the route's params as props. */
+export type ScreenComponent = (props: any) => any
+
+/** A route layout component — renders the route subtree through `children`. */
+export type LayoutComponent = (props: { children?: Renderable }) => any
 
 // ---------- gestures ----------
 
@@ -16,7 +64,7 @@ export interface PanEvent {
 	vx: number
 	vy: number
 	state: string
-	target: any
+	target: HostElement
 }
 
 export interface SwipeEvent {
@@ -27,7 +75,7 @@ export interface SwipeEvent {
  *  bound view (a leaf's `ref` target). Web composes into the element's
  *  `transform`; native sets the view's translateX/translateY props.
  *  Both axes default to 0, so `setTranslate(el)` resets. */
-export type SetTranslate = (el: any, x?: number, y?: number) => void
+export type SetTranslate = (el: HostElement, x?: number, y?: number) => void
 
 // ---------- primitives ----------
 
@@ -104,14 +152,14 @@ export interface GlassConfig {
 }
 
 export interface GridProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	rows?: string
 	columns?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 }
 
@@ -167,15 +215,15 @@ export interface StackSizeProps {
  *  container (no semantic HTML exists there). `isScrollable` wraps content
  *  in a ScrollView on native and overflow:auto on web. */
 export interface StackProps extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** @default 'vertical' */
 	direction?: StackDirection
 	hAlign?: StackAlignment
@@ -185,7 +233,7 @@ export interface StackProps extends StackPaddingProps, StackSizeProps, Accessibi
 	gap?: SpacingStep
 	wrap?: StackWrap
 	isScrollable?: boolean
-	as?: any
+	as?: ElementType
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 }
@@ -198,21 +246,21 @@ export type StackItemSize = 'static' | 'fill'
  *  carries the flex `min-width/min-height: 0` reset so a fill child can
  *  become a scroll region; native flex children already shrink to zero. */
 export interface StackItemProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** Cross-axis self alignment, overriding the stack's cross alignment. */
 	crossAlignSelf?: StackItemCrossAlignSelf
 	/** @default 'static' */
 	size?: StackItemSize
 	/** overflow:auto on web; wraps in a ScrollView on native. */
 	isScrollable?: boolean
-	as?: any
+	as?: ElementType
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 }
@@ -232,12 +280,12 @@ export interface VStackProps extends Omit<StackProps, 'direction' | 'hAlign' | '
 }
 
 export interface AbsoluteProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 }
 
@@ -246,9 +294,9 @@ export interface AbsoluteProps extends AccessibilityProps {
  *  Real material on iOS 26+; inert layout on Android and older iOS;
  *  backdrop-filter approximation on web. */
 export interface LiquidGlassProps extends LayoutChildProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	variant?: 'regular' | 'clear'
 	/** iOS 26+ glass touch tracking. Default false; child touch behavior with
@@ -257,32 +305,32 @@ export interface LiquidGlassProps extends LayoutChildProps {
 	tint?: string
 	animateChangeDuration?: number
 	modifiers?: readonly NativeModifier[]
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Merged-glass region — sibling glass elements inside morph together
  *  across `spacing` dips (NS `LiquidGlassContainer`, an AbsoluteLayout:
  *  children position via left/top). */
 export interface LiquidGlassContainerProps extends LayoutChildProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	spacing?: number
 	modifiers?: readonly NativeModifier[]
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface SpacerProps {
-	className?: any
-	style?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 }
 
@@ -318,33 +366,33 @@ export interface AccessibilityProps {
 }
 
 export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Shared accessibility roles. The native leaf maps the ARIA spellings that
@@ -373,9 +421,9 @@ export type Role =
 	| 'meter'
 
 export interface TextProps extends LayoutChildProps, TestIDProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	numberOfLines?: number
 	ellipsize?: boolean
@@ -394,48 +442,48 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Inline rich text container. Children should be RichTextSpan components so
  * the native leaf can preserve each run as a NativeScript Span. */
 export interface RichTextProps extends LayoutChildProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	/** Optional explicit accessible name override for the text block. */
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One styled or tappable inline run inside RichText. `text` is an explicit
  * native-safe escape hatch; a single string child is also accepted. */
 export interface RichTextSpanProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	text?: string
 	onPress?: () => void
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface PressableProps extends LayoutChildProps, FlexContainerProps, TestIDProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	disabled?: boolean
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	onPress?: () => void
@@ -460,15 +508,15 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TextInputHandle {
 	focus(): void
 	blur(): void
-	native: any
+	native: HostElement
 }
 
 export type FieldStatusType = 'warning' | 'error' | 'success'
@@ -518,8 +566,8 @@ export interface FieldControlProps {
 }
 
 export interface TextInputProps extends FieldControlProps, TestIDProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Controlled text — pair with `onChange`. */
 	value?: string
@@ -544,9 +592,9 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	onClear?: () => void
 	placeholderTextColor?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClear'> {
@@ -574,8 +622,8 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
  *  gets), the native leaf is a styled TextField with `returnKeyType`
  *  `'search'`. Not UISearchBar — OS search chrome is deliberately absent. */
 export interface SearchInputProps extends FieldControlProps, TestIDProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Controlled text — pair with `onChange`. */
 	value?: string
@@ -598,9 +646,9 @@ export interface SearchInputProps extends FieldControlProps, TestIDProps {
 	ref?: Octane.Ref<TextInputHandle>
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- date / time / file entry (Astryx parity) ----------
@@ -708,8 +756,8 @@ export interface DateLocaleProps {
 }
 
 interface CalendarBaseProps extends DateLocaleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Receives `{ navigateTo }` for imperative month navigation. */
 	ref?: Octane.Ref<CalendarHandle>
@@ -739,9 +787,9 @@ interface CalendarBaseProps extends DateLocaleProps {
 	/** First column of the week grid — number (0=Sun) or three-letter day
 	 *  name. @default 0 */
 	weekStartsOn?: DayOfWeek | DayOfWeekName
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface CalendarSingleProps extends CalendarBaseProps {
@@ -793,8 +841,8 @@ export type DateRangeInputStatusType = FieldStatusType
  *  coarse pointers the platform picker (web) or the self-drawn sheet
  *  (native). */
 export interface DateInputProps extends FieldControlProps, DateLocaleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -822,14 +870,14 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	 *  @default 1 */
 	numberOfMonths?: 1 | 2
 	weekStartsOn?: DayOfWeek | DayOfWeekName
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -855,16 +903,16 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	nativePicker?: TimeInputNativePicker
 	placeholder?: string
 	ref?: Octane.Ref<TextInputHandle>
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Date and time under one label — a date segment and a time segment whose
  *  commits combine into the ISODateTimeString value. */
 export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -902,16 +950,16 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	/** Calendar pane count on the popover/sheet surface. @default 1 */
 	numberOfMonths?: 1 | 2
 	weekStartsOn?: DayOfWeek | DayOfWeekName
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Trigger + range calendar. Always controlled: `value` is the committed
  *  range or null, `onChange` reports commits and clears. */
 export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -935,9 +983,9 @@ export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps 
 	numberOfMonths?: 1 | 2
 	weekStartsOn?: DayOfWeek | DayOfWeekName
 	ref?: Octane.Ref<TextInputHandle>
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Pull-to-refresh contract — shared by `ScrollableArea` and the platform
@@ -960,19 +1008,19 @@ export interface RefreshProps {
 }
 
 /** A logical row reported by a platform list's viewability callback. */
-export interface ListVisibleItem<T = any> {
+export interface ListVisibleItem<T = unknown> {
 	item: T
 	index: number
 }
 
 /** A change to the set of rows that meet the configured viewability rules. */
-export interface ListViewabilityChange<T = any> extends ListVisibleItem<T> {
+export interface ListViewabilityChange<T = unknown> extends ListVisibleItem<T> {
 	isViewable: boolean
 }
 
 /** Current viewable rows and the rows that entered or left in this update.
  *  Both arrays are ordered by data index. */
-export interface ListViewabilityInfo<T = any> {
+export interface ListViewabilityInfo<T = unknown> {
 	viewableItems: readonly ListVisibleItem<T>[]
 	changed: readonly ListViewabilityChange<T>[]
 }
@@ -993,13 +1041,13 @@ export interface PlatformListHandle {
 
 /** Props for platform-authentic list widgets (`UITableView`/`RecyclerView`).
  *  Shared content `List` has its own `ListProps` below. */
-export interface PlatformListProps<T = any> extends RefreshProps {
-	className?: any
-	style?: any
+export interface PlatformListProps<T = unknown> extends RefreshProps {
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: T[]
-	renderItem: (item: T, index: number) => any
-	renderEmpty?: () => any
+	renderItem: (item: T, index: number) => Renderable
+	renderEmpty?: () => Renderable
 	/** Ref to a platform-neutral list handle. It is cleared on unmount. */
 	ref?: Octane.Ref<PlatformListHandle>
 	/** Initial row to scroll to after the list mounts. Invalid indexes are
@@ -1014,9 +1062,9 @@ export interface PlatformListProps<T = any> extends RefreshProps {
 	/** Called when the list approaches its end. */
 	onEndReached?: () => void
 	/** Platform escape hatches, applied after the shared props. */
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props accepted by `UITableView` (`@octane-xplat/ui/ios`). */
@@ -1078,9 +1126,9 @@ export interface UseScrollableAreaOptions {
 export interface UseScrollableAreaResult {
 	/** Merges behavior-owned props (ref/role/tabIndex/overflow/data attrs)
 	 *  into caller props for the viewport element or native scroll view. */
-	getViewportProps(props?: Record<string, any>): Record<string, any>
+	getViewportProps(props?: Record<string, unknown>): Record<string, any>
 	/** Merges the observed-content marker + ref into the content box props. */
-	getContentProps(props?: Record<string, any>): Record<string, any>
+	getContentProps(props?: Record<string, unknown>): Record<string, any>
 	/** Live per-axis overflow/edge state. */
 	state: ScrollableAreaState
 }
@@ -1092,8 +1140,8 @@ export interface UseScrollableAreaResult {
  *  they only apply on the block axis on web/iOS/Android. macOS does not
  *  support pull-to-refresh; use an app-owned refresh action. */
 export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Logical axis or axes where scrolling is allowed. @default 'block' */
 	axis?: ScrollAxis
@@ -1122,12 +1170,12 @@ export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProp
 	 *  edges via negative margins. Inert on native. @default false */
 	isFullBleed?: boolean
 	/** Receives the scroll viewport element/view. */
-	ref?: Octane.Ref<any>
-	children?: any
+	ref?: Octane.Ref<HostElement>
+	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Options accepted by the `VirtualList` key/index seeks. */
@@ -1159,9 +1207,9 @@ export interface VirtualListHandle {
 /** Shared virtualized vertical list. Item keys must be unique and stable
  *  across inserts and reorders. Rows outside the rendered window unmount;
  *  keep durable row state keyed by item identity outside the row component. */
-export interface VirtualListProps<T = any> extends LayoutChildProps, AccessibilityProps, TestIDProps {
-	className?: any
-	style?: any
+export interface VirtualListProps<T = unknown> extends LayoutChildProps, AccessibilityProps, TestIDProps {
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Ref to a platform-neutral scroll handle. It is cleared on unmount. */
 	ref?: Octane.Ref<VirtualListHandle>
@@ -1171,15 +1219,15 @@ export interface VirtualListProps<T = any> extends LayoutChildProps, Accessibili
 	 *  items without either throw instead of guessing a positional key. */
 	keyExtractor?: (item: T, index: number) => Key
 	getItemType?: (item: T, index: number) => Key
-	renderItem: (item: T, index: number) => any
-	renderEmpty?: () => any
-	renderHeader?: () => any
-	renderFooter?: () => any
-	renderSeparator?: () => any
+	renderItem: (item: T, index: number) => Renderable
+	renderEmpty?: () => Renderable
+	renderHeader?: () => Renderable
+	renderFooter?: () => Renderable
+	renderSeparator?: () => Renderable
 	/** Platform-specific properties are applied after shared props. */
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface WebViewHandle {
@@ -1190,7 +1238,7 @@ export interface WebViewHandle {
 	goForward(): void
 	stopLoading(): void
 	/** The platform view (`HTMLIFrameElement` / NS `WebView` / AppKit `WKWebView`). */
-	native: any
+	native: HostElement
 }
 
 export interface WebViewLoadEvent {
@@ -1207,8 +1255,8 @@ export interface WebViewContentSize {
 }
 
 interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** After each successful document load (web `load`; native
 	 *  `loadFinished` without an error). */
@@ -1240,9 +1288,9 @@ interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
 	 *  anything the shared props don't cover. */
 	ref?: Octane.Ref<WebViewHandle>
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Embedded web document — hosted bucket: web renders a sandboxed
@@ -1333,8 +1381,8 @@ export type ImageContentPosition = ImageContentPositionObject | ImageContentPosi
 export type ImageDecoding = 'async' | 'sync'
 
 export interface ImageProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** A single source — `res://name`, `~/bundle-path`, file path, remote
 	 *  URL, or data:/inline-SVG URI — or a resolution-qualified array
@@ -1375,53 +1423,53 @@ export interface ImageProps extends LayoutChildProps {
 	 *  loads are synchronous. */
 	decoding?: ImageDecoding
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface ScreenProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 }
 
 // ---------- device seams ----------
 
 export interface SafeAreaProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	/** Do not inset the child away from the system's safe area. */
 	ignoreSafeArea?: boolean
 	/** NativeScript props applied to the host after shared props. */
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 }
 
 export interface KeyboardAvoidingProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
 }
 
 export interface DrawerProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	main?: any
-	drawer?: any
+	main?: Renderable
+	drawer?: Renderable
 	/** Controlled visibility — pair with `onDismiss`. */
 	open?: boolean
 	/** Initial visibility for uncontrolled use; `open` wins when both are
@@ -1429,9 +1477,9 @@ export interface DrawerProps {
 	defaultOpen?: boolean
 	/** Backdrop tap — the self-drawn leaf fires it on both platforms. */
 	onDismiss?: () => void
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props accepted by `SideDrawer` (`@octane-xplat/ui/ios`). */
@@ -1440,8 +1488,8 @@ export type SideDrawerProps = PlatformWidgetProps<DrawerProps>
 export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
 
 export interface SwitchProps extends FieldControlProps, TestIDProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Optional explicit accessible name override for the switch. */
 	accessibilityLabel?: string
@@ -1453,9 +1501,9 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	/** Called with the requested next state when the user toggles. */
 	onCheckedChange?: (checked: boolean) => void
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props for the platform-authentic switches — `UISwitch` (`ui/ios`) and
@@ -1468,8 +1516,8 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
  *  context. Visible label, status, sizing, and validation chrome live on
  *  `Field`, not on the widget itself. */
 export interface PlatformSwitchProps extends TestIDProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Controlled checked state — pair with `onCheckedChange`. */
 	checked?: boolean
@@ -1489,9 +1537,9 @@ export interface PlatformSwitchProps extends TestIDProps {
 	accessibilityLabel?: string
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props accepted by `UISwitch` (`@octane-xplat/ui/ios`). */
@@ -1500,13 +1548,13 @@ export type UISwitchProps = PlatformWidgetProps<PlatformSwitchProps>
 export type MaterialSwitchProps = PlatformWidgetProps<PlatformSwitchProps>
 
 export interface ActivityIndicatorProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	busy?: boolean
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props accepted by `UIActivityIndicatorView` (`@octane-xplat/ui/ios`). */
@@ -1521,10 +1569,10 @@ export type CircularProgressIndicatorProps = PlatformWidgetProps<ActivityIndicat
  *  meter so `progressBar` is the platform fallback, AppKit reports
  *  AXLevelIndicator). */
 export interface MeterProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Current quantity, clamped to the [minValue, maxValue] range. */
 	value: number
 	/** Lower bound of the measured range. @default 0 */
@@ -1544,17 +1592,17 @@ export interface MeterProps {
 }
 
 export interface SliderProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	value: number
 	minValue?: number
 	maxValue?: number
 	disabled?: boolean
 	onValueChange?: (value: number) => void
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props accepted by `UISlider` (`@octane-xplat/ui/ios`). */
@@ -1563,14 +1611,14 @@ export type UISliderProps = PlatformWidgetProps<SliderProps>
 export type SeekBarProps = PlatformWidgetProps<SliderProps>
 
 export interface IconProps {
-	className?: any
+	className?: ClassName
 	id?: string
 	name: string
 	size?: number
 	color?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One registered icon representation. `svg` contains path `d` data;
@@ -1591,14 +1639,14 @@ export interface IconGlyph {
 }
 
 export interface HeadingProps {
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 	id?: string
 	level?: 1 | 2 | 3 | 4 | 5 | 6
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- overlays ----------
@@ -1615,12 +1663,12 @@ export interface OverlayProps extends TestIDProps {
 	onDismiss?: () => void
 	/** Enables a RootLayout shade that dismisses when tapped. */
 	shadeCover?: boolean
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right'
@@ -1634,8 +1682,6 @@ export interface PopoverAnchorRef {
 }
 
 export interface PopoverProps {
-	/** @internal Logical geometry adapter used by useLayer. */
-	layerPosition?: Pick<ContextRenderProps, 'placement' | 'alignment'>
 	/** Ref to a native view or web element, commonly populated by `ref`. */
 	anchor: PopoverAnchorRef
 	/** Controlled visibility — pair with `onDismiss`. */
@@ -1654,14 +1700,14 @@ export interface PopoverProps {
 	dismissOnEscape?: boolean
 	/** Return target when popover content received focus (web), or an explicit
 	 *  native focus target. Defaults to the anchor on web. */
-	finalFocusRef?: { current: any }
+	finalFocusRef?: { current: HostElement | null }
 	onDismiss?: () => void
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- useLayer (Astryx `useLayer`) ----------
@@ -1707,7 +1753,7 @@ export type LayerOptions = ContextLayerOptions | FixedLayerOptions
 /** Render props for `useLayer` context mode — `render(children, props)`. */
 export interface ContextRenderProps {
 	/** Focus return target; defaults to the anchor on web. */
-	finalFocusRef?: { current: any }
+	finalFocusRef?: { current: HostElement | null }
 	/** 'anchor' (default) derives the position from `placement`/`alignment`/
 	 *  `offset`. 'custom' authors the position via `style` (web: e.g. CSS
 	 *  `anchor()` insets against the returned `anchorId`; native: `left`/`top`
@@ -1724,11 +1770,11 @@ export interface ContextRenderProps {
 	accessibilityLabel?: string
 	/** ARIA role on web (e.g. 'tooltip', 'dialog'). */
 	accessibilityRole?: string
-	className?: any
-	style?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Render props for `useLayer` fixed mode — `render(children, {x, y})`.
@@ -1739,11 +1785,11 @@ export interface FixedRenderProps {
 	y: number
 	accessibilityLabel?: string
 	accessibilityRole?: string
-	className?: any
-	style?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 interface LayerReturnBase {
@@ -1761,12 +1807,12 @@ interface LayerReturnBase {
 export interface ContextLayerReturn extends LayerReturnBase {
 	/** Bind callback for the anchor/trigger element or view. On web it also
 	 *  stamps `anchor-name` so 'custom' positioning can use CSS anchor(). */
-	ref: (el: any) => void
+	ref: (el: HostElement) => void
 	/** Positioning token identifying the anchor (web: the `anchor-name` CSS
 	 *  value applied by `ref`; kept for upstream parity elsewhere). */
 	anchorId: string
 	/** Render layer content into the anchored surface. */
-	render: (children: any, props?: ContextRenderProps) => any
+	render: (children: Renderable, props?: ContextRenderProps) => Renderable
 }
 
 /** `useLayer` return for fixed mode. */
@@ -1774,7 +1820,7 @@ export interface FixedLayerReturn extends LayerReturnBase {
 	/** No anchor binding in fixed mode. */
 	ref: undefined
 	/** Render layer content at fixed coordinates. */
-	render: (children: any, props: FixedRenderProps) => any
+	render: (children: Renderable, props: FixedRenderProps) => Renderable
 }
 
 export type LayerReturn = ContextLayerReturn | FixedLayerReturn
@@ -1786,9 +1832,9 @@ export type LayerReturn = ContextLayerReturn | FixedLayerReturn
 export interface HoverCardProps {
 	id?: string
 	/** Trigger content. */
-	children?: any
+	children?: Renderable
 	/** Card body shown while open. Required for the card to appear. */
-	content?: any
+	content?: Renderable
 	/** Side of the trigger the card opens on. 'above'/'below' map to
 	 *  top/bottom; 'start'/'end' are logical and mirror under RTL on web.
 	 *  @default 'above' */
@@ -1822,11 +1868,11 @@ export interface HoverCardProps {
 	isOpen?: boolean
 	/** Show on mount (still dismissible). */
 	isDefaultOpen?: boolean
-	className?: any
-	style?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type HoverCardPlacement = 'above' | 'below' | 'start' | 'end'
@@ -1854,11 +1900,11 @@ export interface HoverCardOptions {
  *  returns the anchored card node (render in the tree). */
 export interface HoverCardReturn {
 	/** Combined ref callback — position anchor + hover/focus listeners. */
-	ref: (el: any) => void
+	ref: (el: HostElement) => void
 	/** Bind callback for the positioning anchor only. */
-	positionRef: (el: any) => void
+	positionRef: (el: HostElement) => void
 	/** Bind callback for the interaction (hover/focus/tap) element only. */
-	interactionRef: (el: any) => void
+	interactionRef: (el: HostElement) => void
 	/** Stable id identifying the open card (web: element id for
 	 *  aria-controls/aria-describedby composition). */
 	id: string
@@ -1869,7 +1915,7 @@ export interface HoverCardReturn {
 	anchorId: string
 	isOpen: boolean
 	/** Render the card content into the anchored layer. */
-	renderHoverCard: (children: any, props?: Record<string, any>) => any
+	renderHoverCard: (children: Renderable, props?: Record<string, unknown>) => Renderable
 	/** Imperatively show/hide, bypassing the delays. */
 	show: () => void
 	hide: () => void
@@ -1882,20 +1928,20 @@ export interface HoverCardReturn {
  *  keep essential information out of `content`. */
 export interface TooltipProps {
 	id?: string
-	trigger: any
-	content: any
+	trigger: Renderable
+	content: Renderable
 	/** Styling for the tooltip panel inside the popover. */
-	contentClassName?: any
-	contentStyle?: any
+	contentClassName?: ClassName
+	contentStyle?: StyleProp
 	openDelay?: number
 	closeDelay?: number
 	placement?: PopoverPlacement
 	disabled?: boolean
-	className?: any
-	style?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Toast status type — controls the surface tone and live-region urgency
@@ -1911,7 +1957,7 @@ export type ToastCollisionBehavior = 'overwrite' | 'ignore'
 
 export interface ToastOptions {
 	/** Toast body — text or rendered nodes. */
-	body?: any
+	body?: Renderable
 	/** @default 'info' */
 	type?: ToastType
 	/** Auto-dismiss after `autoHideDuration`. Defaults true for 'info',
@@ -1920,7 +1966,7 @@ export interface ToastOptions {
 	/** Auto-dismiss delay in ms. @default 5000 */
 	autoHideDuration?: number
 	/** Optional interactive content at the toast's end edge. */
-	endContent?: any
+	endContent?: Renderable
 	/** Replaces the default surface layout; receives the toast's resolved
 	 *  settings and dismiss function (Astryx `renderContent`). */
 	renderContent?: ToastContentRenderFn
@@ -1943,9 +1989,9 @@ export interface ToastOptions {
 	/** Placement used with `anchor`; `position` supplies the
 	 *  above/below default. */
 	placement?: PopoverPlacement
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Programmatic toast dismissal (Astryx `ToastDismissFn`). */
@@ -1955,9 +2001,9 @@ export type ToastDismissFn = () => void
  *  `ToastOptions.renderContent`. */
 export interface ToastContentRenderProps {
 	/** Primary message content, as passed to the toast call. */
-	body: any
+	body: Renderable
 	/** Trailing content, as passed to the toast call. Place it in your layout. */
-	endContent?: any
+	endContent?: Renderable
 	/** Resolved toast type — `'error'` also makes the live region assertive. */
 	type: ToastType
 	/** Whether this toast will dismiss itself. */
@@ -1969,7 +2015,7 @@ export interface ToastContentRenderProps {
 }
 
 /** Renders the content of one toast inside the toast surface. */
-export type ToastContentRenderFn = (toast: ToastContentRenderProps) => any
+export type ToastContentRenderFn = (toast: ToastContentRenderProps) => Renderable
 
 /** Owning handle for one toast shown through `useToast()`/`showToast`.
  *  The toast's identity, dismissal, and option updates are scoped to this
@@ -2014,13 +2060,13 @@ export interface ToastViewportProps {
 	/** Web only: promote the viewport into the CSS top layer (above modal
 	 *  dialogs). Set false when rendering inside a dialog. @default true */
 	isTopLayer?: boolean
-	children?: any
-	className?: any
-	style?: any
+	children?: Renderable
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Inline toast card — the same surface ToastViewport renders. Useful for
@@ -2028,8 +2074,8 @@ export interface ToastViewportProps {
 export interface ToastProps {
 	/** @default 'info' */
 	type?: ToastType
-	body?: any
-	endContent?: any
+	body?: Renderable
+	endContent?: Renderable
 	isAutoHide?: boolean
 	autoHideDuration?: number
 	/** Exiting presentation (collapsed/sliding). Managed by the viewport. */
@@ -2037,12 +2083,12 @@ export interface ToastProps {
 	/** Called with the reason when the toast requests dismissal. */
 	onDismiss?: (reason: ToastDismissReason) => void
 	renderContent?: ToastContentRenderFn
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- measurement ----------
@@ -2061,7 +2107,7 @@ export interface UseMeasureOptions {
 
 export interface MeasureResult {
 	/** Pass to a View's `ref` prop. */
-	ref: (element: any) => void
+	ref: (element: HostElement) => void
 	bounds: MeasureBounds | null
 }
 
@@ -2080,10 +2126,10 @@ export interface ModalProps {
 	presentation?: 'sheet' | 'fullscreen' | 'dialog'
 	/** Component reference rendered inside the modal's separate root. When
 	 *  both component and children are set, component takes precedence. */
-	component?: any
+	component?: HostedComponent
 	/** Props passed to component. Context and theme do not cross modal roots. */
-	params?: any
-	children?: any
+	params?: Record<string, unknown>
+	children?: Renderable
 }
 
 /** Props accepted by `UIModal` (`@octane-xplat/ui/ios`). */
@@ -2115,8 +2161,8 @@ export interface ModalHandle extends Promise<ModalOpenResult> {
 
 /** Public function shape of the imperative modal service. */
 export type OpenModal = (
-	component: any,
-	params?: any,
+	component: HostedComponent,
+	params?: Record<string, unknown>,
 	options?: ModalOpenOptions,
 ) => ModalHandle
 
@@ -2151,7 +2197,7 @@ export interface BottomSheetProps {
 	 *  Escape, swipe-down, or hardware back — not on programmatic
 	 *  `isOpen`→false transitions. */
 	onOpenChange?: (isOpen: boolean) => void
-	children?: any
+	children?: Renderable
 	/** Height budget: 'hug' sizes to content (≤92% of the window), 'capped'
 	 *  at 62%, 'tall' at 92%; a number is px/dips and a string is a CSS/web
 	 *  size or percent (percent resolves against the window). @default
@@ -2172,13 +2218,13 @@ export interface BottomSheetProps {
 	sheetId?: string
 	/** Element to focus when the sheet closes (web focus semantics —
 	 *  `{current}`-style object; native ignores). */
-	finalFocusRef?: { current: any }
-	className?: any
-	style?: any
+	finalFocusRef?: { current: HostElement | null }
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Shared host for a group of `BottomSheet` panels — exactly one child
@@ -2198,13 +2244,13 @@ export interface BottomSheetSwitcherProps {
 	/** Scrim behavior for the whole switcher. @default true */
 	hasScrim?: boolean
 	/** The `BottomSheet` children, each with a `sheetId`. */
-	children?: any
-	className?: any
-	style?: any
+	children?: Renderable
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Options for the imperative `openBottomSheet` service. */
@@ -2231,8 +2277,8 @@ export interface BottomSheetHandle extends Promise<ModalOpenResult> {
  *  sheet and returns its handle — awaiting it resolves with the value
  *  passed to `close(result)`. The component receives `{ params, close }`. */
 export type OpenBottomSheet = (
-	component: any,
-	params?: any,
+	component: HostedComponent,
+	params?: Record<string, unknown>,
 	options?: BottomSheetOpenOptions,
 ) => BottomSheetHandle
 
@@ -2275,7 +2321,7 @@ export interface DialogProps extends AccessibilityProps {
 	 *  path (backdrop, Escape, purpose permitting) — and with true only from
 	 *  `DialogHeader`'s close affordance contract. */
 	onOpenChange?: (isOpen: boolean) => void
-	children?: any
+	children?: Renderable
 	/** Panel width (px on web, dips on native). @default 400 */
 	width?: number | string
 	/** Panel max height. @default '75dvh' on web / 75% of the screen on
@@ -2293,13 +2339,13 @@ export interface DialogProps extends AccessibilityProps {
 	/** Element to focus on close; defaults to the element focused when the
 	 *  dialog opened on web/AppKit. `{current}`-style ref; touch targets call
 	 *  its focus method when available. */
-	finalFocusRef?: { current: any }
-	className?: any
-	style?: any
+	finalFocusRef?: { current: HostElement | null }
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** The Dialog/AlertDialog title row. Renders a close affordance when
@@ -2308,25 +2354,25 @@ export interface DialogProps extends AccessibilityProps {
  *  in-dialog control is marked; `aria-labelledby` points at it when no
  *  explicit accessible name is given. */
 export interface DialogHeaderProps {
-	title?: any
-	subtitle?: any
+	title?: Renderable
+	subtitle?: Renderable
 	/** Supplies the close affordance; called `onOpenChange(false)`. */
 	onOpenChange?: (isOpen: boolean) => void
 	/** Content before the title. */
-	startContent?: any
+	startContent?: Renderable
 	/** Content at the end edge (before the close button). */
-	endContent?: any
+	endContent?: Renderable
 	/** Pull the end content into the panel's padding so icon buttons align
 	 *  flush. `inline` shifts both. Web-style cosmetic. */
 	endContentEdgeCompensation?: 'inline' | 'block' | 'all'
 	/** Hairline under the header. @default true */
 	hasDivider?: boolean
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Options accepted by `useImperativeDialog().show()`. */
@@ -2334,11 +2380,11 @@ export type DialogOptions = Omit<DialogProps, 'isOpen' | 'defaultOpen' | 'onOpen
 
 export interface ImperativeDialogReturn {
 	/** Opens the dialog with arbitrary content. */
-	show: (children: any, options?: DialogOptions) => void
+	show: (children: Renderable, options?: DialogOptions) => void
 	hide: () => void
 	isOpen: boolean
 	/** Rendered anywhere in the tree — the dialog itself. */
-	element: any
+	element: Renderable
 }
 
 /** Confirmation dialog (Astryx `AlertDialog`) — a dialog whose action is
@@ -2354,14 +2400,14 @@ export interface AlertDialogProps {
 	/** Called with the requested next state: false on Cancel or user
 	 *  dismissal paths. */
 	onOpenChange?: (isOpen: boolean) => void
-	title: any
-	description?: any
-	actionLabel: any
+	title: Renderable
+	description?: Renderable
+	actionLabel: Renderable
 	/** Called when the action button is pressed; the caller closes the
 	 *  dialog or marks `isActionLoading`. */
 	onAction: () => void
 	/** @default 'Cancel' */
-	cancelLabel?: any
+	cancelLabel?: Renderable
 	/** @default 'destructive' */
 	actionVariant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
 	/** Shows a spinner on the action button and blocks presses. */
@@ -2371,13 +2417,13 @@ export interface AlertDialogProps {
 	/** Same as Dialog.isInline — render without overlay/modal behavior. */
 	isInline?: boolean
 	/** Element to focus on close. `{current}`-style ref; web semantics. */
-	finalFocusRef?: { current: any }
-	className?: any
-	style?: any
+	finalFocusRef?: { current: HostElement | null }
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface ImperativeAlertDialogReturn {
@@ -2386,7 +2432,7 @@ export interface ImperativeAlertDialogReturn {
 	hide: () => void
 	isOpen: boolean
 	/** Rendered anywhere in the tree — the dialog itself. */
-	element: any
+	element: Renderable
 }
 
 // ---------- carousel ----------
@@ -2409,7 +2455,7 @@ export interface CarouselProps extends AccessibilityProps {
 	/** Accessible name for the region (web `aria-label` on
 	 *  `aria-roledescription="carousel"`; native `accessibilityLabel`). */
 	label?: string
-	children?: any
+	children?: Renderable
 	/** Space between slides, spacing steps (1 step = 4px/dip). @default 2 */
 	gap?: number
 	/** Slide-size variant. 'dynamic' sizes each slide to its content;
@@ -2430,12 +2476,12 @@ export interface CarouselProps extends AccessibilityProps {
 	hasSnap?: boolean
 	/** Receives the imperative handle. */
 	ref?: Octane.Ref<CarouselHandle>
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- lightbox ----------
@@ -2446,7 +2492,7 @@ export interface LightboxMedia {
 	src: string
 	/** Accessible description of the media (web `alt`). */
 	alt: string
-	caption?: any
+	caption?: Renderable
 	/** @default 'image' */
 	type?: LightboxMediaType
 }
@@ -2470,13 +2516,13 @@ export interface LightboxProps {
 	hasAutoPlay?: boolean
 	/** Element to focus on close; defaults to the element focused when the
 	 *  lightbox opened. `{current}`-style ref; web semantics. */
-	finalFocusRef?: { current: any }
-	className?: any
-	style?: any
+	finalFocusRef?: { current: HostElement | null }
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Props spread onto a media element that should open the lightbox on
@@ -2484,7 +2530,7 @@ export interface LightboxProps {
 export interface LightboxTriggerProps {
 	onPress?: () => void
 	/** Web cursor hint + native accessibility hint. */
-	web?: Record<string, any>
+	web?: PlatformProps
 }
 
 export interface UseLightboxOptions {
@@ -2494,7 +2540,7 @@ export interface UseLightboxOptions {
 	onIndexChange?: (index: number) => void
 	hasZoom?: boolean
 	hasAutoPlay?: boolean
-	finalFocusRef?: { current: any }
+	finalFocusRef?: { current: HostElement | null }
 }
 
 export interface UseLightboxReturn {
@@ -2504,7 +2550,7 @@ export interface UseLightboxReturn {
 	isOpen: boolean
 	index: number
 	/** The lightbox node — render it once in the tree. */
-	element: any
+	element: Renderable
 	/** Props for a plain trigger element that opens index 0. */
 	triggerProps: LightboxTriggerProps
 	/** Props for a trigger bound to a specific media index. */
@@ -2525,7 +2571,7 @@ export interface TabSpec {
 	 *  path) or `font`/`text` representation; `svg`/`markup`-only glyphs
 	 *  warn and render title-only there. */
 	icon?: string
-	render: () => any
+	render: () => Renderable
 	/** Named parallel stack — the pane is the route outlet for `stack`
 	 *  (pushed screens render in place). The platform tab bars host a real
 	 *  Frame per such pane. */
@@ -2533,8 +2579,8 @@ export interface TabSpec {
 }
 
 export interface TabsProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	tabs: readonly TabSpec[]
 	/** Controlled selection by tab `key` — React Aria `selectedKey`. Wins
@@ -2553,7 +2599,7 @@ export interface TabsProps {
 	onSelectedIndexChanged?: (index: number) => void
 	/** Renders a pushed route's screen by name (the app owns the table).
 	 *  Web: route outlet. Native: pushes render inside the pane's Frame. */
-	resolveScreen?: (name: string, params: Record<string, unknown>) => any
+	resolveScreen?: (name: string, params: Record<string, unknown>) => Renderable
 }
 
 /** Platform tab-bar item shape. `icon` may be a registered name or a native
@@ -2564,8 +2610,8 @@ export type PlatformTabSpec = Omit<TabSpec, 'icon'> & {
 
 export type PlatformTabsProps = Omit<TabsProps, 'tabs'> & {
 	tabs: readonly PlatformTabSpec[]
-	ios?: Record<string, any>
-	android?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
 }
 
 /** Props accepted by `UITabBar` (`@octane-xplat/ui/ios`). */
@@ -2637,27 +2683,38 @@ export interface RouteErrorBoundaryProps {
 	route: Route
 }
 
+/** Props for `RouteBoundary` — the framework host that wraps a route's
+ *  rendered subtree in its declared `ErrorBoundary`. `boundary` is the
+ *  route's declared boundary component (receives
+ *  `RouteErrorBoundaryProps`); `route` is the committed Route passed
+ *  through to it. */
+export interface RouteBoundaryProps {
+	boundary?: (props: RouteErrorBoundaryProps) => Renderable
+	route: Route
+	children?: Renderable
+}
+
 export interface LinkProps {
 	href: string
 	target?: string
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 }
 
 export interface NavLinkProps {
 	route: Route
 	activeClassName?: string
-	className?: any
-	style?: any
-	children?: any
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
 }
 
 /** name → screen component table for `registerScreens` — the app owns the
  *  route table; native `pushRoute` resolves `route.name` through it and
  *  web outlets fall back to it via `screenFor`. Values are component
  *  functions (`() => Element` / UniversalComponent shapes both fit). */
-export type ScreenTable = Record<string, any>
+export type ScreenTable = Record<string, ScreenComponent>
 
 /** One route file's entry in the derived manifest. `name` is the file
  *  path under the route dir with `[param]` segments normalized to
@@ -2688,7 +2745,7 @@ export interface RouteMeta {
 	 *  boundary covers render failures, including a screen that crashes
 	 *  while handling `error`. Absent a declaration, render errors
 	 *  propagate as they always have. */
-	errorBoundary?: any
+	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
 	/** Data provenance: 'live' (default) runs `loader` at navigation;
 	 *  'baked' reads build-time output from the manifest's `baked` map —
 	 *  for file routes the loader lives in a `<route>.loader.ts` sibling
@@ -2711,7 +2768,7 @@ export type RouteDataMode = 'live' | 'baked'
 export interface RouteManifest {
 	screens: ScreenTable
 	routes: RouteMeta[]
-	layouts: Record<string, any>
+	layouts: Record<string, LayoutComponent>
 	loaders?: Record<string, (params: Record<string, unknown>) => unknown | Promise<unknown>>
 	/** Build-time loader output for `dataMode: 'baked'` routes — the
 	 *  generated `routes.gen.*` glue assigns it from `routes.gen.data`;
@@ -2725,7 +2782,7 @@ export interface RouteManifest {
  *  for the root route. `screen` is the component itself — not a module. */
 export interface RouteSpec {
 	path: string
-	screen: any
+	screen: ScreenComponent
 	/** Default presentation, like a `+modal`/`+fade` filename suffix. */
 	presentation?: 'push' | 'modal' | 'fade'
 	loader?: RouteMeta['loader']
@@ -2734,7 +2791,7 @@ export interface RouteSpec {
 	head?: RouteHeadExport
 	/** Component receiving `RouteErrorBoundaryProps` — the spec form of a
 	 *  route file's `ErrorBoundary` export. */
-	errorBoundary?: any
+	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
 	/** Diagnostics label recorded on `RouteMeta.file` (warn strings). */
 	source?: string
 }
@@ -2746,7 +2803,7 @@ export interface RouteSpec {
  *  build step) and ships it in the manifest. */
 export interface RouteSpecSet {
 	routes: readonly RouteSpec[]
-	layouts?: Record<string, any>
+	layouts?: Record<string, LayoutComponent>
 	baked?: Record<string, unknown>
 }
 
@@ -3001,7 +3058,7 @@ export interface WindowHandle {
  */
 export interface AnimatedValue {
 	readonly value: number
-	ref(el: any): void
+	ref(el: HostElement): void
 	to(target: number, opts?: { duration?: number }): void
 	spring(target: number, opts?: { damping?: number; stiffness?: number }): void
 	stop(): void
@@ -3043,11 +3100,11 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
 	 *  errors rather than being silently swallowed. */
 	onActionError?: (error: unknown) => void
 	/** Leading icon — a node (e.g. `<Icon />`) or a registered icon name. */
-	icon?: any
+	icon?: Renderable
 	/** Square icon-only button; `label` becomes the accessible name. */
 	isIconOnly?: boolean
 	/** Trailing content slot. */
-	endContent?: any
+	endContent?: Renderable
 	/** Resting elevation — floating-button shadow. @default 'none' */
 	elevation?: Elevation
 	/** Hover/focus hint on pointer targets (web/macOS); no touch semantic. */
@@ -3062,34 +3119,34 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
 /** Collapsible shows/hides `children` behind a `trigger`. Controlled via
  *  `open`/`onOpenChange` or uncontrolled via `defaultOpen`. */
 export interface CollapsibleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	trigger?: any
-	children?: any
+	trigger?: Renderable
+	children?: Renderable
 	open?: boolean
 	defaultOpen?: boolean
 	disabled?: boolean
 	onOpenChange?: (open: boolean) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface AccordionItemSpec {
 	key: string
-	header?: any
-	content?: any
+	header?: Renderable
+	content?: Renderable
 	disabled?: boolean
 }
 
 /** Accordion — a list of Collapsibles. `open` is the open key (or keys with
  *  `multiple`); omit it for uncontrolled via `defaultOpen`. */
 export interface AccordionProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: AccordionItemSpec[]
 	multiple?: boolean
@@ -3097,15 +3154,15 @@ export interface AccordionProps {
 	defaultOpen?: string | string[]
 	onOpenChange?: (open: string | string[]) => void
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Self-drawn checkbox — box + check mark, identical pixels across targets. */
 export interface CheckboxProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Controlled checked state — pair with `onCheckedChange`. */
 	checked?: boolean
@@ -3123,9 +3180,9 @@ export interface CheckboxProps extends FieldControlProps {
 	accessibilityLabel?: string
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface RadioOption {
@@ -3136,8 +3193,8 @@ export interface RadioOption {
 
 /** Self-drawn radio group — dot options in a column/row. */
 export interface RadioGroupProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	options: RadioOption[]
 	/** Controlled selected option — pair with `onValueChange`. */
@@ -3150,9 +3207,9 @@ export interface RadioGroupProps extends FieldControlProps {
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Self-drawn segmented control — a row of equal-width segments in a track,
@@ -3161,8 +3218,8 @@ export interface RadioGroupProps extends FieldControlProps {
  *  uncontrolled; `disabled` on the group or per-option. Sizes come from
  *  className, matching the Button family. */
 export interface SegmentedControlProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	options: RadioOption[]
 	/** Controlled selected segment — pair with `onValueChange`. */
@@ -3174,9 +3231,9 @@ export interface SegmentedControlProps extends FieldControlProps {
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Data-driven menu row fields shared by the menu families. */
@@ -3224,18 +3281,18 @@ export interface MenuItem extends MenuItemData {
 	items?: MenuItem[]
 	value?: boolean | string
 	/** Legacy rows can represent either kind of choice. Compound props are strictly typed. */
-	onValueChange?: (value: any) => void
+	onValueChange?: (value: boolean | string) => void
 }
 
 export interface MenuItemProps {
 	id?: string
-	ref?: Octane.Ref<any>
-	className?: any
-	style?: any
-	label: any
+	ref?: Octane.Ref<HostElement>
+	className?: ClassName
+	style?: StyleProp
+	label: Renderable
 	icon?: string
 	description?: string
-	endContent?: any
+	endContent?: Renderable
 	isDisabled?: boolean
 	onSelect?: () => void
 	hasCloseOnSelect?: boolean
@@ -3259,17 +3316,17 @@ export interface MenuRadioGroupProps {
 	onValueChange?: (value: string) => void
 	isDisabled?: boolean
 	hasCloseOnSelect?: boolean
-	children?: any
+	children?: Renderable
 }
 
 export interface MenuDividerProps {
 	id?: string
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 }
 
 export interface MenuSubMenuProps extends MenuItemProps {
-	children?: any
+	children?: Renderable
 	items?: MenuItem[]
 	isOpen?: boolean
 	defaultOpen?: boolean
@@ -3284,7 +3341,7 @@ export interface MenuContextValue {
 /** Internal surface contract shared by every renderer. */
 export interface MenuSurfaceProps {
 	items?: MenuItem[]
-	children?: any
+	children?: Renderable
 	closeMenu(): void
 	closeLevel?: () => void
 	initialFocus?: 'first' | 'last' | 'container'
@@ -3298,19 +3355,19 @@ export interface MenuSurfaceProps {
 
 /** Both data rows and compound children use the same menu contracts. */
 export interface DropdownMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Anchor content rendered inside the trigger Pressable. */
-	trigger?: any
+	trigger?: Renderable
 	/** Accessible trigger name when there is no visible text. */
 	accessibilityLabel?: string
 	/** Additional trigger chrome (for example a button class). */
-	triggerClassName?: any
+	triggerClassName?: ClassName
 	/** Additional class for the inherited Popover surface. */
-	menuClassName?: any
+	menuClassName?: ClassName
 	items?: MenuItem[]
-	children?: any
+	children?: Renderable
 	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
 	isOpen?: boolean
 	defaultOpen?: boolean
@@ -3318,59 +3375,59 @@ export interface DropdownMenuProps {
 	placement?: PopoverPlacement
 	alignment?: PopoverAlignment
 	isDisabled?: boolean
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Long press/right click, with an optional visible trigger for touch access. */
 export interface ContextMenuProps extends Omit<DropdownMenuProps, 'children'> {
-	children?: any
+	children?: Renderable
 	/** Compound menu content (children remain the context target). */
-	menu?: any
+	menu?: Renderable
 }
 
 /** Badge — inline label chip. Pure composition, unstyled beyond layout. */
 export interface BadgeProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Hairline rule between content. */
 export interface SeparatorProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	orientation?: 'horizontal' | 'vertical'
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Skeleton — placeholder block shown while content loads. */
 export interface SkeletonProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	width?: number
 	height?: number
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Avatar — circular image with a text fallback. */
 export interface AvatarProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	src?: string
 	alt?: string
@@ -3378,24 +3435,24 @@ export interface AvatarProps {
 	fallback?: string
 	size?: number
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** AvatarGroup — overlapping row of avatars with an optional `+N` overflow. */
 export interface AvatarGroupProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Max avatars rendered; the rest collapse into a `+N` avatar. */
 	max?: number
 	size?: number
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- form field layer (Phase 2) ----------
@@ -3403,8 +3460,8 @@ export interface AvatarGroupProps {
 /** FormField wraps a control with a label, description, and validation status.
  *  Children is the control element. */
 export interface FormFieldProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** ID of the single control associated with this field's label. */
 	inputID?: string
@@ -3420,22 +3477,22 @@ export interface FormFieldProps extends FieldControlProps {
 	isGroupLabel?: boolean
 	/** Tooltip text shown via an info affordance at the end of the label. */
 	labelTooltip?: string
-	children?: any
-	ios?: any
-	android?: any
-	web?: any
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** FieldGroup — labeled group of related fields (role=group). */
 export interface FieldGroupProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	label?: string
-	children?: any
-	ios?: any
-	android?: any
-	web?: any
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Shared settings/navigation row, exported as `Item`. Use the four
@@ -3445,21 +3502,21 @@ export interface FieldGroupProps {
  *  (label/description/startContent/endContent) is a separate family's
  *  migration — `ListItem` inside `List` carries its own row layout. */
 export interface ItemProps extends AccessibilityProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	title?: any
-	supportingText?: any
-	leading?: any
-	trailing?: any
+	title?: Renderable
+	supportingText?: Renderable
+	leading?: Renderable
+	trailing?: Renderable
 	onPress?: () => void
 	disabled?: boolean
-	children?: any
+	children?: Renderable
 }
 
 export interface ItemSlotProps {
-	className?: any
-	children?: any
+	className?: ClassName
+	children?: Renderable
 }
 
 export interface ItemComponent {
@@ -3474,8 +3531,8 @@ export interface ItemComponent {
  *  steppers. `value`/`onValueChange` for controlled, `defaultValue` for
  *  uncontrolled. `step` defaults to 1; `min`/`max` clamp. */
 export interface InputNumberProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	value?: number
 	defaultValue?: number
@@ -3484,25 +3541,25 @@ export interface InputNumberProps extends FieldControlProps {
 	step?: number
 	placeholder?: string
 	onValueChange?: (value: number) => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when all `length` cells are filled. */
 export interface PinInputProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	length?: number
 	value?: string
 	onValueChange?: (value: string) => void
 	onComplete?: (value: string) => void
 	secure?: boolean
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface SelectOption {
@@ -3519,8 +3576,8 @@ export interface SelectOption {
  *  `multiple` keeps the listbox open and reports string[]; `searchable`
  *  puts a normalized TextInput filter at the top of the listbox. */
 export interface SelectProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	options: SelectOption[]
 	value?: string | string[] | null
@@ -3555,9 +3612,9 @@ export interface SelectProps extends FieldControlProps {
 	hasClear?: boolean
 	placement?: PopoverPlacement
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- Astryx parity: typeahead + token selection ----------
@@ -3566,10 +3623,10 @@ export interface SelectProps extends FieldControlProps {
  *  `element` is a pre-rendered node that takes priority over `renderItem` and
  *  the default TypeaheadItem row; a string `auxiliaryData.group` groups
  *  results under a shared heading. */
-export interface SearchableItem<TAuxData = any> {
+export interface SearchableItem<TAuxData = unknown> {
 	id: string
 	label: string
-	element?: any
+	element?: Renderable
 	auxiliaryData?: TAuxData
 }
 
@@ -3595,7 +3652,7 @@ export interface TypeaheadInputHandle {
 	focus(): void
 	blur(): void
 	setQuery(query: string): void
-	native: any
+	native: HostElement
 }
 
 /** Keydown notification on the typeahead input. Fires with the DOM
@@ -3603,7 +3660,17 @@ export interface TypeaheadInputHandle {
  *  to suppress it). Never fires on iOS/Android — native text fields emit
  *  no key events — so behavior gated on it (e.g. Tokenizer's
  *  Backspace-removes-last-token) is pointer-platform only. */
-export type TypeaheadKeyDownHandler = (event: any) => void
+/** Portable key event for the typeahead input's `onKeyDown` — the DOM
+ *  KeyboardEvent satisfies it on web; other hosts may fire a subset. */
+export interface TypeaheadKeyEvent {
+	key: string
+	isComposing?: boolean
+	keyCode?: number
+	defaultPrevented?: boolean
+	preventDefault(): void
+}
+
+export type TypeaheadKeyDownHandler = (event: TypeaheadKeyEvent) => void
 
 /** BaseTypeahead — the unstyled combobox engine under Typeahead and
  *  Tokenizer: bare input + search/bootstrap + keyboard navigation + an
@@ -3612,8 +3679,8 @@ export type TypeaheadKeyDownHandler = (event: any) => void
 export interface BaseTypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	/** Element id applied to the input itself. */
 	id?: string
 	searchSource: SearchSource<T>
@@ -3623,7 +3690,7 @@ export interface BaseTypeaheadProps<
 	onChange: (item: T | null) => void
 	/** Custom option content inside the stable result row. Default:
 	 *  TypeaheadItem. `item.element` takes precedence over this. */
-	renderItem?: (item: T) => any
+	renderItem?: (item: T) => Renderable
 	placeholder?: string
 	/** Offer `bootstrap()` results on focus before typing. */
 	hasEntriesOnFocus?: boolean
@@ -3659,15 +3726,12 @@ export interface BaseTypeaheadProps<
 	onBlur?: () => void
 	ref?: Octane.Ref<TypeaheadInputHandle>
 	/** Class/style applied to the input element only. */
-	inputClassName?: any
-	inputStyle?: any
+	inputClassName?: ClassName
+	inputStyle?: StyleProp
 	accessibilityLabel?: string
-	/** @internal — entries derived from the query text, appended to search
-	 *  results and exempt from minQueryLength (Tokenizer's "Create …"). */
-	__queryEntries?: (query: string, results: T[]) => T[]
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Typeahead — single-selection search-as-you-type field. Renders its Field
@@ -3677,8 +3741,8 @@ export interface BaseTypeaheadProps<
 export interface TypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Accessible label — required by Astryx; kept required here. */
 	label: string
@@ -3686,7 +3750,7 @@ export interface TypeaheadProps<
 	searchSource: SearchSource<T>
 	value: T | null
 	onChange: (item: T | null) => void
-	renderItem?: (item: T) => any
+	renderItem?: (item: T) => Renderable
 	placeholder?: string
 	hasEntriesOnFocus?: boolean
 	maxMenuItems?: number
@@ -3702,33 +3766,33 @@ export interface TypeaheadProps<
 	onChangeQuery?: (query: string) => void
 	onOpenChange?: (open: boolean) => void
 	/** Leading glyph — a registered Icon name or a node. */
-	startIcon?: any
+	startIcon?: Renderable
 	/** Field width; numbers are px/dip, strings pass through. */
 	width?: number | string
 	ref?: Octane.Ref<TypeaheadInputHandle>
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	labelTooltip?: string
 }
 
 export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	item: T
 	/** Leading node — icon, avatar, etc. */
-	icon?: any
+	icon?: Renderable
 	/** Supporting text under the label. */
 	description?: string
 	isDisabled?: boolean
 	/** Group label; presentational only — grouping itself is driven by
 	 *  `item.auxiliaryData.group`. */
 	group?: string
-	ref?: Octane.Ref<any>
-	ios?: any
-	android?: any
-	web?: any
+	ref?: Octane.Ref<HostElement>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Token color — the Astryx palette names. */
@@ -3753,14 +3817,14 @@ export type TokenSize = FieldControlSize
  *  `href` and `onRemove` the link and the remove button render as siblings
  *  and the rest of the chip surface activates the link. */
 export interface TokenProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	label: string
 	size?: TokenSize
 	color?: TokenColor
 	/** Leading node — icon, avatar, etc. */
-	icon?: any
+	icon?: Renderable
 	isDisabled?: boolean
 	/** Remove affordance — renders the ✕ button. (Astryx `onRemove`.) */
 	onRemove?: () => void
@@ -3772,13 +3836,13 @@ export interface TokenProps {
 	 *  accessibilityHint). */
 	description?: string
 	/** Content rendered after the label, before the remove button. */
-	endContent?: any
+	endContent?: Renderable
 	/** Hide the label visually; it stays the accessible name. */
 	isLabelHidden?: boolean
-	ref?: Octane.Ref<any>
-	ios?: any
-	android?: any
-	web?: any
+	ref?: Octane.Ref<HostElement>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Change metadata passed to Tokenizer's `onChange`. */
@@ -3801,7 +3865,7 @@ export interface TokenizerHandle {
 	focus(): void
 	blur(): void
 	/** The root field element/view. */
-	native: any
+	native: HostElement
 }
 
 /** Tokenizer — multi-select field: Token chips + a BaseTypeahead input.
@@ -3811,18 +3875,18 @@ export interface TokenizerHandle {
 export interface TokenizerProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	label: string
 	searchSource: SearchSource<T>
 	/** Selected items. Controlled. */
 	value: T[]
 	onChange: (items: T[], change: TokenizerChange<T>) => void
-	renderItem?: (item: T) => any
+	renderItem?: (item: T) => Renderable
 	/** Custom token renderer — receives the item and its remove callback.
 	 *  Default: Token with label + ✕. */
-	renderToken?: (item: T, onRemove: () => void) => any
+	renderToken?: (item: T, onRemove: () => void) => Renderable
 	/** Cap on selections; the input collapses at the cap. */
 	maxEntries?: number
 	placeholder?: string
@@ -3837,7 +3901,7 @@ export interface TokenizerProps<
 	/** Show a clear-all button while tokens exist. Default false. */
 	hasClear?: boolean
 	/** Content in the field's inline-end lane (with the spinner/clear). */
-	endContent?: any
+	endContent?: Renderable
 	hasAutoFocus?: boolean
 	tokenOverflowBehavior?: TokenizerOverflowBehavior
 	debounceMs?: number
@@ -3850,13 +3914,13 @@ export interface TokenizerProps<
 	/** Focus enters/leaves the field (no event object — portable). */
 	onFocus?: () => void
 	onBlur?: () => void
-	startIcon?: any
+	startIcon?: Renderable
 	width?: number | string
 	labelTooltip?: string
 	ref?: Octane.Ref<TokenizerHandle>
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type ComplexSelectorVariant = 'input' | 'ghost'
@@ -3887,8 +3951,8 @@ export interface ComplexSelectorHandle {
  *  component owns the trigger, popover, focus restore, and async
  *  `changeAction` flow. */
 export interface ComplexSelectorProps<Value> extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	label: string
 	value: Value
@@ -3901,33 +3965,33 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
 		onChange: (value: Value) => void,
 		close: () => void,
 		state: ComplexSelectorRenderState,
-	) => any
+	) => Renderable
 	/** Trigger content while closed; falls back to `placeholder`. */
-	triggerLabel?: any
-	placeholder?: any
+	triggerLabel?: Renderable
+	placeholder?: Renderable
 	/** Loading/busy state on the trigger. */
 	isLoading?: boolean
 	/** 'input' (default) draws the field chrome; 'ghost' a flat
 	 *  toolbar-style button. */
 	variant?: ComplexSelectorVariant
-	startIcon?: any
+	startIcon?: Renderable
 	width?: number | string
 	labelTooltip?: string
 	placement?: PopoverPlacement
 	alignment?: 'start' | 'center' | 'end'
 	ref?: Octane.Ref<ComplexSelectorHandle>
 	onOpenChange?: (open: boolean) => void
-	contentClassName?: any
-	contentXstyle?: any
-	ios?: any
-	android?: any
-	web?: any
+	contentClassName?: ClassName
+	contentStyle?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. */
 export interface InputRatingProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	value?: number
 	defaultValue?: number
@@ -3936,15 +4000,15 @@ export interface InputRatingProps extends FieldControlProps {
 	icon?: string
 	onValueChange?: (value: number) => void
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. */
 export interface CheckboxGroupProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	options: RadioOption[]
 	/** Controlled checked values — pair with `onValueChange`. */
@@ -3957,9 +4021,9 @@ export interface CheckboxGroupProps extends FieldControlProps {
 	onValueChange?: (values: string[]) => void
 	horizontal?: boolean
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- navigation & wayfinding (Phase 3) ----------
@@ -3972,26 +4036,26 @@ export interface BreadcrumbItem {
 /** Breadcrumb — ancestor trail. Items render as pressable links separated
  *  by `separator` (default /). */
 export interface BreadcrumbProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: BreadcrumbItem[]
 	/** Maximum visible trail items, at least two; hidden ancestors use a menu. */
 	maxVisibleItems?: number
 	/** Additional overflow actions use the same compound menu parts. */
-	overflowMenu?: any
+	overflowMenu?: Renderable
 	overflowLabel?: string
 	separator?: string
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Pagination — prev/next + a windowed run of page buttons around `page`. */
 export interface PaginationProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	page: number
 	pageCount: number
@@ -4000,9 +4064,9 @@ export interface PaginationProps {
 	onPageChange?: (page: number) => void
 	disabled?: boolean
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface StepperStep {
@@ -4015,16 +4079,16 @@ export interface StepperStep {
 /** Stepper — numbered step row. Steps before `current` show a done mark;
  *  tapping a non-disabled step calls `onStepChange`. */
 export interface StepperProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	steps: StepperStep[]
 	current?: number
 	onStepChange?: (index: number) => void
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface NavigationMenuItem {
@@ -4042,15 +4106,15 @@ export interface NavigationMenuItem {
 /** NavigationMenu — row (or column) of nav items; mostly a desktop/web
  *  idiom — the mobile equivalent is Tabs/Drawer. */
 export interface NavigationMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: NavigationMenuItem[]
 	horizontal?: boolean
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Static command entry; existing MenuItem callsites remain valid. */
@@ -4074,8 +4138,8 @@ export interface CommandPaletteItem extends SearchableItem {
  * mobile Search submits the query and taps activate rows. Sources own ranking
  * and bootstrap entries. Closing invalidates pending work and resets the query. */
 export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPaletteItem> {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Controlled visibility. Defaults to false. */
 	open?: boolean
@@ -4092,18 +4156,18 @@ export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPalet
 	value?: string
 	onValueChange?: (value: string) => void
 	/** Inner row content; selection/disabled semantics remain palette-owned. */
-	renderItem?: (item: T, isSelected: boolean) => any
+	renderItem?: (item: T, isSelected: boolean) => Renderable
 	emptySearchText?: string
 	emptyBootstrapText?: string
 	loadingText?: string
 	errorText?: string
 	/** Custom footer content; false hides it. Mobile has no default key hints. */
-	footer?: any
+	footer?: Renderable
 	width?: number | string
 	maxHeight?: number
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- data display (Phase 4) ----------
@@ -4121,24 +4185,24 @@ export interface TableColumn {
  *  subpaths, not this component. The row generic flows through
  *  `renderCell`, `idKey`, and `onRowPress`, so rows keep their
  *  element type; `rowIndex` arguments are positional, not identity. */
-export interface TableProps<T extends object = Record<string, any>> {
-	className?: any
-	style?: any
+export interface TableProps<T extends object = Record<string, unknown>> {
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	columns: TableColumn[]
 	rows: readonly T[]
 	/** Cell override — default renders `row[col.key]` as text. */
-	renderCell?: (row: T, column: TableColumn, rowIndex: number) => any
+	renderCell?: (row: T, column: TableColumn, rowIndex: number) => Renderable
 	/** Stable row `Key` — a row field name or an extractor (Astryx `idKey`).
 	 *  Defaults to the row's `id` or `key` property, then its index. The
 	 *  index fallback is positional — supply `idKey` or an `id`/`key` field
 	 *  when rows can be reordered. */
 	idKey?: keyof T | ((row: T, rowIndex: number) => Key)
 	onRowPress?: (row: T, rowIndex: number) => void
-	empty?: any
-	ios?: any
-	android?: any
-	web?: any
+	empty?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TimelineItem {
@@ -4151,13 +4215,13 @@ export interface TimelineItem {
 
 /** Timeline — vertical list of events with dot + connector. */
 export interface TimelineProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: TimelineItem[]
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One visual `TreeList` node — the rendered row descriptor, distinct from
@@ -4177,8 +4241,8 @@ export interface TreeListNode {
  *  Leaf rows can hold a keyed selection under `selectionMode`, matching
  *  `GridList`; `onAction` fires on leaf activation either way. */
 export interface TreeProps<T extends TreeListNode = TreeListNode> {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	nodes: readonly T[]
 	/** Controlled expanded keys — pair with `onExpandedChange`. */
@@ -4200,24 +4264,24 @@ export interface TreeProps<T extends TreeListNode = TreeListNode> {
 	/** Fires when a leaf row is activated (click/Enter on web, tap on
 	 *  native), independent of selection. */
 	onAction?: (key: Key) => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Alert — status callout. `tone` maps to a class modifier; error tone
  *  gets role=alert on web, others role=status. */
 export interface AlertProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	tone?: 'info' | 'success' | 'warning' | 'error'
 	icon?: string
 	title?: string
-	children?: any
-	ios?: any
-	android?: any
-	web?: any
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Card — container with optional header/footer slots, padding scale, and
@@ -4226,12 +4290,12 @@ export interface AlertProps {
  *  (blue/cyan/gray/green/orange/pink/purple/red/teal/yellow) ship in
  *  chrome.css; custom variant names still produce a class an app can skin. */
 export interface CardProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	header?: any
-	footer?: any
-	children?: any
+	header?: Renderable
+	footer?: Renderable
+	children?: Renderable
 	/** Internal padding in 4px spacing steps. @default 4 */
 	padding?: number
 	variant?: string
@@ -4239,70 +4303,70 @@ export interface CardProps {
 	width?: number | string
 	height?: number | string
 	maxWidth?: number | string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Chip — small action/filter element: pressable, optional selected state,
  *  optional ✕ remove affordance. */
 export interface ChipProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	selected?: boolean
 	disabled?: boolean
 	onSelect?: () => void
 	onRemove?: () => void
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Kbd — keyboard key glyph (⌘K styling hook). */
 export interface KbdProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
-	ios?: any
-	android?: any
-	web?: any
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Empty — empty-state block: icon + title + description + actions. */
 export interface EmptyProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	icon?: string
 	title?: string
 	description?: string
-	children?: any
-	ios?: any
-	android?: any
-	web?: any
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Banner — inline notice strip with optional dismiss. */
 export interface BannerProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	icon?: string
-	children?: any
+	children?: Renderable
 	onDismiss?: () => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** User — avatar + name/description row. */
 export interface UserProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	name?: string
 	description?: string
@@ -4310,20 +4374,20 @@ export interface UserProps {
 	fallback?: string
 	size?: number
 	onSelect?: () => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** ProgressGroup — stacked labeled Meter rows. */
 export interface ProgressGroupProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: { key: string; label?: string; value: number; max?: number }[]
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- chat ----------
@@ -4345,24 +4409,24 @@ export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'err
 /** Sender context wrapper for one message. Renders the optional avatar, name,
  *  children (usually ChatMessageBubble), and trailing metadata column. */
 export interface ChatMessageProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	sender: ChatMessageSender
-	children?: any
-	avatar?: any
+	children?: Renderable
+	avatar?: Renderable
 	/** Sender name above the body — prefer the bubble's `name` when the first
 	 *  child is a ChatMessageBubble. */
-	name?: any
+	name?: Renderable
 	/** Footer content below the body — prefer the bubble's `metadata` when the
 	 *  last child is a ChatMessageBubble. */
-	metadata?: any
+	metadata?: Renderable
 	/** Defaults to the enclosing ChatMessageList density, then 'balanced'. */
 	density?: ChatDensity
 	accessibilityLabel?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type ChatMessageBubbleVariant = 'filled' | 'ghost'
@@ -4371,36 +4435,36 @@ export type ChatMessageBubbleVariant = 'filled' | 'ghost'
  *  enclosing ChatMessage. `group` tightens sender-side corners for
  *  consecutive bubbles; `width` replaces the default max-width cap. */
 export interface ChatMessageBubbleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	variant?: ChatMessageBubbleVariant
 	/** Sender name row above the bubble, aligned to its text column. */
-	name?: any
+	name?: Renderable
 	/** Metadata row below the bubble, aligned to its text column. */
-	metadata?: any
+	metadata?: Renderable
 	group?: 'first' | 'middle' | 'last'
 	/** Bubble width — number (px/dip) or CSS string ('100%'). Replaces the
 	 *  default max-width cap when set. */
 	width?: number | string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Composable metadata row: timestamp · footer · status. Renders nothing
  *  when all three are absent. */
 export interface ChatMessageMetadataProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	timestamp?: any
-	footer?: any
+	timestamp?: Renderable
+	footer?: Renderable
 	status?: ChatMessageStatus
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type ChatSystemMessageVariant = 'default' | 'divider'
@@ -4408,15 +4472,15 @@ export type ChatSystemMessageVariant = 'default' | 'divider'
 /** Centered system/notice row — date separators, "conversation started".
  *  `divider` draws hairlines on both sides of the text. */
 export interface ChatSystemMessageProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	variant?: ChatSystemMessageVariant
-	icon?: any
-	ios?: any
-	android?: any
-	web?: any
+	icon?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Presentational message container. Density flows to children via context;
@@ -4425,11 +4489,11 @@ export interface ChatSystemMessageProps {
  *  `isStreaming` marks the region busy for assistive tech. Auto-scroll and
  *  the scroll-to-bottom button are owned by ChatLayout or useChatStreamScroll. */
 export interface ChatMessageListProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
-	emptyState?: any
+	children?: Renderable
+	emptyState?: Renderable
 	/** Called when the user scrolls to the top — load older messages. Calls are
 	 *  serialized while a returned promise is pending. */
 	scrollToTopAction?: () => void | Promise<void>
@@ -4439,9 +4503,9 @@ export interface ChatMessageListProps {
 	gap?: number
 	align?: 'top' | 'bottom'
 	isStreaming?: boolean
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type ChatToolCallStatus = 'pending' | 'running' | 'complete' | 'error'
@@ -4454,11 +4518,11 @@ interface ChatToolCallItemBase {
 	additions?: number
 	deletions?: number
 	/** Custom stats content replacing/augmenting additions+deletions. */
-	stats?: any
+	stats?: Renderable
 	key?: string
 	data?: unknown
 	/** Expandable detail content (diff, code block, arguments). */
-	resultDetail?: any
+	resultDetail?: Renderable
 }
 
 /** One tool/function call in a ChatToolCalls list — mirrors the shape LLM
@@ -4485,8 +4549,8 @@ export type ChatToolCallItem = ChatToolCallItemBase &
 /** Tool-call list — one call renders inline; several collapse behind a
  *  summary header showing the latest call and the count. */
 export interface ChatToolCallsProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	calls: ChatToolCallItem[]
 	/** Expanded-state summary label (defaults to "N tool calls"). */
@@ -4494,9 +4558,9 @@ export interface ChatToolCallsProps {
 	isExpanded?: boolean
 	defaultIsExpanded?: boolean
 	onExpandedChange?: (isExpanded: boolean) => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // --- composer ---
@@ -4515,7 +4579,7 @@ export interface ChatComposerKeyEvent {
 	isComposing: boolean
 	defaultPrevented: boolean
 	preventDefault(): void
-	native?: any
+	native?: unknown
 }
 
 /** A pasted/dropped file. On web `native` is the browser `File`; native
@@ -4526,14 +4590,14 @@ export interface ChatComposerFile {
 	/** MIME type ('' when unknown). */
 	type: string
 	size: number
-	native?: any
+	native?: unknown
 }
 
 /** Portable paste event handed to ChatComposerInput.onPaste. */
 export interface ChatComposerPasteEvent {
 	preventDefault(): void
 	/** The platform event (ClipboardEvent on web; undefined on native). */
-	native?: any
+	native?: unknown
 }
 
 export type ChatComposerTokenVariant =
@@ -4556,7 +4620,7 @@ export type ChatComposerTokenVariant =
  *  serializes into the submitted string. */
 export interface ChatComposerTokenBadge {
 	value: string
-	label?: any
+	label?: Renderable
 	variant?: ChatComposerTokenVariant
 	/** Registered icon name (see registerIcon). */
 	icon?: string
@@ -4565,7 +4629,7 @@ export interface ChatComposerTokenBadge {
 /** Custom-rendered token — full control over the chip's content. */
 export interface ChatComposerTokenCustom {
 	value: string
-	render: () => any
+	render: () => Renderable
 }
 
 /** A token (mention, pasted blob, command argument) embedded in the
@@ -4579,7 +4643,7 @@ export interface ChatComposerTriggerItem<TAuxData = unknown> {
 	id: string
 	label: string
 	/** Pre-rendered item content — takes priority over renderItem/label. */
-	element?: any
+	element?: Renderable
 	auxiliaryData?: TAuxData
 }
 
@@ -4597,7 +4661,7 @@ export interface ChatComposerTrigger {
 	/** Character that activates the menu (e.g. '@', '/'). */
 	character: string
 	searchSource: ChatComposerSearchSource
-	renderItem?: (item: ChatComposerTriggerItem) => any
+	renderItem?: (item: ChatComposerTriggerItem) => Renderable
 	/** What to insert on selection — plain text or a token chip. */
 	onSelect: (item: ChatComposerTriggerItem) => string | ChatComposerToken
 	/** Parse a serialized token back when loading a draft for editing. */
@@ -4645,8 +4709,8 @@ export interface ChatComposerContextValue {
  *  for inserted tokens; serialization matches, mid-text token positions are
  *  approximated by recorded insertion offsets. */
 export interface ChatComposerInputProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Exposes the imperative handle through a standard Octane ref. */
 	ref?: Octane.Ref<ChatComposerInputHandle>
@@ -4673,65 +4737,65 @@ export interface ChatComposerInputProps {
 	/** Runs before built-in Enter/recall handling; preventDefault() to own
 	 *  the keystroke. IME composition always suppresses submit. */
 	onKeyDown?: (event: ChatComposerKeyEvent) => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface ChatComposerTokenElementProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	token: ChatComposerToken
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Collapsible drawer above the composer input — attachments/context chips.
  *  With `count`, a collapse toggle renders the badge+label summary. */
 export interface ChatComposerDrawerProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	count?: number
 	label?: string
-	collapsedSummary?: any
+	collapsedSummary?: Renderable
 	isCollapsed?: boolean
 	defaultIsCollapsed?: boolean
 	onCollapsedChange?: (isCollapsed: boolean) => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Circular send/stop toggle. Reads ChatComposerContext by default; every
  *  context-derived value is prop-overridable for standalone use. */
 export interface ChatSendButtonProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	isStopShown?: boolean
 	isDisabled?: boolean
 	onSend?: () => void
 	onStop?: () => void
 	/** Custom send-state icon content (default: registered arrow-up glyph). */
-	sendIcon?: any
-	stopIcon?: any
+	sendIcon?: Renderable
+	stopIcon?: Renderable
 	size?: 'sm' | 'md'
 	/** Composes after the send/stop action. */
 	onPress?: () => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Composer layout shell — slots for drawer, header actions/context, input,
  *  footer actions, send actions/button, and an error/warning status strip. */
 export interface ChatComposerProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	onSubmit: (value: string) => void
 	onStop?: () => void
@@ -4743,32 +4807,32 @@ export interface ChatComposerProps {
 	density?: ChatComposerDensity
 	/** 'low' (default) is the raised surface; 'none' is flat with a border. */
 	elevation?: 'none' | 'low'
-	drawer?: any
-	headerActions?: any
-	headerContext?: any
+	drawer?: Renderable
+	headerActions?: Renderable
+	headerContext?: Renderable
 	/** Custom input element — replaces the default ChatComposerInput. */
-	input?: any
-	footerActions?: any
-	sendActions?: any
-	sendButton?: any
+	input?: Renderable
+	footerActions?: Renderable
+	sendActions?: Renderable
+	sendButton?: Renderable
 	status?: ChatComposerStatus
 	statusPosition?: 'top' | 'bottom'
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Renders serialized message text with token values replaced by their
  *  chips — share one token table between input and display. */
 export interface ChatTokenizedTextProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	children?: string
 	tokens?: ChatComposerToken[]
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // --- chat layout & scrolling ---
@@ -4782,35 +4846,35 @@ export interface ChatTokenizedTextProps {
  *  backdrop-filter), and `scrollRef` attaches to the layout's own ScrollView
  *  (it is populated by the layout, so callers can hand it to the hooks). */
 export interface ChatLayoutProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Composer element docked at the bottom — typically ChatComposer. */
-	composer?: any
-	emptyState?: any
+	composer?: Renderable
+	emptyState?: Renderable
 	/** Custom scroll-to-bottom control, or null to hide. Defaults to
 	 *  ChatLayoutScrollButton wired to the layout's scroll state. */
-	scrollButton?: any
+	scrollButton?: Renderable
 	/** External scroll container — { current: HTMLElement | NSView }. */
-	scrollRef?: { current?: any }
+	scrollRef?: { current?: HostElement | null }
 	density?: ChatDensity
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface ChatLayoutScrollButtonProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	isVisible: boolean
 	/** Optional pill label (e.g. "New messages") — expands the button. */
 	label?: string
 	onPress?: () => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface ChatScrollToBottomOptions {
@@ -4822,7 +4886,7 @@ export interface ChatScrollToBottomOptions {
 /** Owns a scroll container's follow-the-stream behavior. `scrollRef` points
  *  at the DOM scroller on web or the bound NS ScrollView on native. */
 export interface UseChatStreamScrollOptions {
-	scrollRef: { current?: any }
+	scrollRef: { current?: HostElement | null }
 	enabled?: boolean
 	/** Distance from bottom within which scroll-end re-locks (default 10). */
 	lockThreshold?: number
@@ -4839,7 +4903,7 @@ export interface UseChatStreamScrollReturn {
 	isLocked: boolean
 	scrollToBottom(options?: ChatScrollToBottomOptions): void
 	/** Scroll so the given message element/view tops the visible area. */
-	scrollToMessage(el: any): void
+	scrollToMessage(el: HostElement): void
 	lock(): void
 	unlock(): void
 	/** Follow growth only while locked — call on content resize. */
@@ -4860,7 +4924,7 @@ export interface UseChatNewMessagesReturn {
 	dismiss(): void
 	/** Attach to the message-list content element — ResizeObserver on web,
 	 *  layoutChanged on native. */
-	contentRef(el: any): void
+	contentRef(el: HostElement): void
 }
 
 /** Converts long pastes into token chips. `inputRef` carries the input
@@ -4881,14 +4945,14 @@ export interface UseChatPasteAsTokenReturn {
 /** Token bookkeeping inside a composer input. `editableRef` is the editable
  *  div on web; on native it's the host object the native input installs. */
 export interface UseChatComposerTokensOptions {
-	editableRef: { current?: any }
+	editableRef: { current?: HostElement | null }
 	onEmitChange(): void
 }
 
 export interface TokenPortal {
 	id: string
 	/** The non-editable span web portals render into (DOM element). */
-	span: any
+	span: HostElement
 	token: ChatComposerToken
 }
 
@@ -4897,9 +4961,9 @@ export interface UseChatComposerTokensReturn {
 	expandToken(id: string): void
 	insertToken(token: ChatComposerToken): string | undefined
 	/** Backspace-near-token interception (web KeyboardEvent). */
-	handleKeyDown(e: any): boolean
+	handleKeyDown(e: unknown): boolean
 	/** Paste-near-token interception (web ClipboardEvent). */
-	handlePaste(e: any): boolean
+	handlePaste(e: unknown): boolean
 	cleanupPortals(): void
 }
 
@@ -4909,7 +4973,7 @@ export interface UseSpeechRecognitionOptions {
 	lang?: string
 	continuous?: boolean
 	interimResults?: boolean
-	audioContext?: any
+	audioContext?: unknown
 	transformTranscript?: (text: string) => string
 	onTranscript?: (transcript: string, isFinal: boolean) => void
 	onResult?: (transcript: string) => void
@@ -4944,17 +5008,17 @@ export interface UseChatDictationReturn extends UseSpeechRecognitionReturn {}
 
 /** Mic button bound to a useChatDictation/useSpeechRecognition result. */
 export interface ChatDictationButtonProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	dictation: UseSpeechRecognitionReturn
 	size?: 'sm' | 'md'
 	/** Hide entirely when unsupported (default true) — else show disabled. */
 	isHiddenWhenUnsupported?: boolean
 	label?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Values flowing from ChatMessageList/ChatLayout to their children. */
@@ -4969,15 +5033,15 @@ export interface ChatListContextValue {
 
 export interface ChatLayoutContextValue {
 	/** The scrollable container — DOM element on web, NS ScrollView natively. */
-	scrollContainerRef: { current?: any }
+	scrollContainerRef: { current?: HostElement | null }
 	/** Message-list content element for size observation. */
-	contentRef(el: any): void
+	contentRef(el: HostElement): void
 }
 
 // ---------- Astryx navigation family (parity port) ----------
 //
 // Prop names and semantics track @astryxdesign/core. `ReactNode` positions are
-// `any`; DOM `ref` positions are the leaf's `ref`; React `onClick` item
+// `Renderable`; DOM `ref` positions are the leaf's `ref`; React `onClick` item
 // callbacks fire on press/tap on native. Anchor-only attributes (`target`,
 // `rel`, `download`, `referrerPolicy`) apply on web; native `href` activates
 // through the route table (deep link) and falls back to the platform opener
@@ -4990,20 +5054,20 @@ export type NavElementSize = 'sm' | 'md' | 'lg'
  *  Astryx `as` escape hatch). Receives the item's portable props
  *  (`href`, `className`, `style`, children) on web; ignored on native, where
  *  activation goes through `followHref`. */
-export type NavLinkComponentType = any
+export type NavLinkComponentType = ElementType
 
 // ----- NavIcon -----
 
 export interface NavIconProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Icon content inside the circular container — an element or a
 	 *  registered icon name (rendered through `Icon`). */
-	icon: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	icon: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- Toolbar -----
@@ -5016,16 +5080,16 @@ export type ToolbarSize = NavElementSize
 export type ToolbarVariant = 'transparent' | 'section' | 'muted'
 
 export interface ToolbarProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Content aligned to the start (left in LTR). */
-	startContent?: any
+	startContent?: Renderable
 	/** Content centered between start and end; switches the row to a
 	 *  three-column layout. */
-	centerContent?: any
+	centerContent?: Renderable
 	/** Content aligned to the end (right in LTR). */
-	endContent?: any
+	endContent?: Renderable
 	/** Accessible label for the toolbar (aria-label on web). Required —
 	 *  matches upstream's mandatory `label`. */
 	label: string
@@ -5042,9 +5106,9 @@ export interface ToolbarProps extends LayoutChildProps {
 	variant?: ToolbarVariant
 	/** Divider edges painted on the outer chrome. */
 	dividers?: ('top' | 'bottom' | 'start' | 'end')[]
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- TabList / Tab / TabMenu -----
@@ -5066,8 +5130,8 @@ export interface TabListContextValue {
 }
 
 export interface TabListProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** The currently selected tab value. */
 	value: string
@@ -5092,15 +5156,15 @@ export interface TabListProps extends LayoutChildProps {
 	 *  disables overflow handling. The selected tab is scrolled into view. */
 	overflow?: TabListOverflow
 	/** Tab and TabMenu children. */
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TabProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Unique value matched against TabList `value`. */
 	value: string
@@ -5120,37 +5184,37 @@ export interface TabProps {
 	/** Custom link component (Astryx `as`) — web only. */
 	as?: NavLinkComponentType
 	/** Icon content or registered icon name shown when not selected. */
-	icon?: any
+	icon?: Renderable
 	/** Icon shown when selected; falls back to `icon`. */
-	selectedIcon?: any
+	selectedIcon?: Renderable
 	/** Content after the label (badge, status dot). */
-	endContent?: any
+	endContent?: Renderable
 	/** Extra press callback run before selection reports to the list. */
 	onPress?: () => void
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TabMenuOption {
 	value: string
 	label: string
 	/** Icon content or registered icon name shown before the label. */
-	icon?: any
+	icon?: Renderable
 }
 
 /** Overflow menu trigger inside a TabList — opens a dropdown of extra
  *  options; the selected option's label becomes the trigger text. */
 export interface TabMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Trigger label when no option is selected + the dropdown heading. */
 	label: string
 	options: TabMenuOption[]
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- AppShell -----
@@ -5175,7 +5239,7 @@ export interface MobileNavConfig {
 	 *  element or raw children. Renders below the breakpoint inside the
 	 *  managed drawer; the auto toggle stays on unless `hasToggle` is
 	 *  false. */
-	content?: any
+	content?: Renderable
 	/** Width point below which mobile nav activates (default `md`;
 	 *  `none` disables automatic mobile mode). */
 	breakpoint?: AppShellBreakpoint
@@ -5196,14 +5260,14 @@ export interface AppShellMobileContextValue {
 }
 
 export interface AppShellProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	variant?: AppShellVariant
 	/** Banner slot above the top nav. */
-	banner?: any
+	banner?: Renderable
 	/** Main content area. */
-	children?: any
+	children?: Renderable
 	/** Main content padding on the spacing scale. */
 	contentPadding?: SpacingStep
 	/** `fill`: shell fills viewport and content scrolls internally;
@@ -5216,12 +5280,12 @@ export interface AppShellProps extends LayoutChildProps {
 	 *  element. */
 	mobileNav?: false | MobileNavConfig
 	/** Side navigation — typically a `SideNav`. */
-	sideNav?: any
+	sideNav?: Renderable
 	/** Top navigation — typically a `TopNav`. */
-	topNav?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	topNav?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- TopNav -----
@@ -5230,32 +5294,32 @@ export type TopNavRenderMode = 'default' | 'mobile-bar' | 'drawer'
 export type TopNavSlot = 'start' | 'center' | 'end'
 
 export interface TopNavProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Heading slot — typically `TopNavHeading`. */
-	heading?: any
+	heading?: Renderable
 	/** Start slot — navigation items after the heading. */
-	startContent?: any
+	startContent?: Renderable
 	/** Alias for `startContent` (startContent wins when both are set). */
-	children?: any
+	children?: Renderable
 	/** Center slot — switches the bar to a three-column layout. */
-	centerContent?: any
+	centerContent?: Renderable
 	/** End slot — search, icons, user profile. */
-	endContent?: any
+	endContent?: Renderable
 	/** Accessible label for the navigation landmark (default 'Top navigation'). */
 	label?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TopNavHeadingProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Logo element before the heading (e.g. `NavIcon`). */
-	logo?: any
+	logo?: Renderable
 	/** Accessible name for a linked logo-only heading. */
 	logoLabel?: string
 	heading?: string
@@ -5264,19 +5328,19 @@ export interface TopNavHeadingProps {
 	superheadingHref?: string
 	subheading?: string
 	subheadingHref?: string
-	headerEndContent?: any
+	headerEndContent?: Renderable
 	/** Menu content shown in a popover from the heading — typically a
 	 *  `NavHeadingMenu`. A chevron affordance is added automatically. */
-	menu?: any
+	menu?: Renderable
 	as?: NavLinkComponentType
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TopNavItemProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	href?: string
 	/** Web anchor attributes; no-op on native. */
@@ -5294,21 +5358,21 @@ export interface TopNavItemProps {
 	/** Square icon-only element; requires `icon`. */
 	isIconOnly?: boolean
 	/** Icon content or registered icon name before the label. */
-	icon?: any
+	icon?: Renderable
 	/** Content rendered instead of the label text. */
-	children?: any
+	children?: Renderable
 	/** Size variant — controls drawer-mode height/padding. */
 	size?: NavElementSize
 	onClick?: () => void
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TopNavMenuItemData {
 	title: string
 	description?: string
-	icon?: any
+	icon?: Renderable
 	href?: string
 	onClick?: () => void
 }
@@ -5316,8 +5380,8 @@ export interface TopNavMenuItemData {
 /** Trigger that opens a menu popover on hover (pointer platforms) or
  *  press. */
 export interface TopNavMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	label: string
 	items: TopNavMenuItemData[]
@@ -5325,47 +5389,47 @@ export interface TopNavMenuProps {
 	delay?: number
 	/** Hover-close delay in ms (pointer platforms). */
 	hideDelay?: number
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TopNavMegaMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	label: string
 	/** Menu items slot — `TopNavMegaMenuItem` children or custom content. */
-	items?: any
+	items?: Renderable
 	/** Featured panel content (right side on wide layouts, below items in
 	 *  the drawer). */
-	featured?: any
+	featured?: Renderable
 	delay?: number
 	hideDelay?: number
 	onOpenChange?: (isOpen: boolean) => void
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TopNavMegaMenuItemProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	title: string
 	description?: string
-	icon?: any
+	icon?: Renderable
 	href?: string
 	onClick?: () => void
 	as?: NavLinkComponentType
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface TopNavMegaMenuFeaturedCardProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	title: string
 	description?: string
@@ -5375,10 +5439,10 @@ export interface TopNavMegaMenuFeaturedCardProps {
 	imageAlt?: string
 	linkLabel?: string
 	linkHref?: string
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- SideNav -----
@@ -5414,19 +5478,19 @@ export interface SideNavImperativeCollapseHandle {
 }
 
 export interface SideNavProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Header area (typically `SideNavHeading`) — sticky at top. */
-	header?: any
+	header?: Renderable
 	/** Content pinned below the header — sticky. */
-	topContent?: any
+	topContent?: Renderable
 	/** Navigation sections and items — scrollable. */
-	children?: any
+	children?: Renderable
 	/** Footer area above the icon bar. */
-	footer?: any
+	footer?: Renderable
 	/** Footer icon bar (help, notifications, avatar, collapse button). */
-	footerIcons?: any
+	footerIcons?: Renderable
 	/** Collapse to an icon-only rail: `true` for defaults, or a config
 	 *  object (`defaultIsCollapsed`, controlled `isCollapsed` +
 	 *  `onCollapsedChange`, `hasButton`, `buttonLabel`). */
@@ -5438,33 +5502,33 @@ export interface SideNavProps extends LayoutChildProps {
 	handleRef?: { current: SideNavImperativeCollapseHandle | null }
 	/** Landmark label (default 'Side navigation'). */
 	label?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface SideNavSectionProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	title: string
 	subtitle?: string
-	children?: any
+	children?: Renderable
 	/** Trailing content in the section header. */
-	endContent?: any
+	endContent?: Renderable
 	/** Visually hide the header (title stays accessible). */
 	isHeaderHidden?: boolean
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface SideNavHeadingProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Product/app icon (e.g. `NavIcon`). */
-	icon?: any
+	icon?: Renderable
 	as?: NavLinkComponentType
 	heading: string
 	headingHref?: string
@@ -5472,38 +5536,38 @@ export interface SideNavHeadingProps {
 	superheadingHref?: string
 	subheading?: string
 	subheadingHref?: string
-	headerEndContent?: any
+	headerEndContent?: Renderable
 	/** Menu popover content (typically `NavHeadingMenu`) — shows a chevron
 	 *  affordance. Without hrefs the whole header is the trigger; with hrefs
 	 *  the chevron area is. */
-	menu?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	menu?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface SideNavItemProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	as?: NavLinkComponentType
 	label: string
 	/** Icon (element or registered name) shown when not selected. */
-	icon?: any
+	icon?: Renderable
 	/** Icon shown when selected; falls back to `icon`. */
-	selectedIcon?: any
+	selectedIcon?: Renderable
 	isSelected?: boolean
 	isDisabled?: boolean
 	href?: string
 	onClick?: () => void
 	/** Passive trailing content (badges, counts) inside the primary
 	 *  element. */
-	endContent?: any
+	endContent?: Renderable
 	/** Row-level secondary controls rendered as siblings at the trailing
 	 *  edge; hidden while the rail is collapsed. */
-	actions?: any
+	actions?: Renderable
 	/** Sub-items for nesting. */
-	children?: any
+	children?: Renderable
 	/** Collapse behavior for items with children — `true` (starts expanded)
 	 *  or `{ defaultIsCollapsed?, isCollapsed?, onCollapsedChange? }`. */
 	collapsible?:
@@ -5514,14 +5578,14 @@ export interface SideNavItemProps {
 				onCollapsedChange?: (isCollapsed: boolean) => void
 		  }
 	size?: NavItemSize
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface SideNavCollapseButtonProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** The same controlled config given to SideNav — needed only when the
 	 *  button renders outside this SideNav. */
@@ -5531,25 +5595,25 @@ export interface SideNavCollapseButtonProps {
 	/** Text label — renders a text+chevron button instead of icon-only. */
 	label?: string
 	size?: NavElementSize
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- MobileNav -----
 
 export interface MobileNavProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Drawer open state — inside `AppShell` it is managed by context. */
 	isOpen?: boolean
 	onOpenChange?: (isOpen: boolean) => void
-	children?: any
+	children?: Renderable
 	/** Drawer header — a string renders as a heading; an element for custom
 	 *  content (logo, `SideNavHeading`, search). */
-	header?: any
+	header?: Renderable
 	/** Drawer width in dips/px. */
 	width?: number
 	/** Edge the drawer slides from — `auto` resolves from the toggle's
@@ -5558,22 +5622,22 @@ export interface MobileNavProps extends LayoutChildProps {
 	/** Accessible label (falls back to a string `header`, then
 	 *  'Navigation'). */
 	label?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface MobileNavToggleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Custom content replacing the default hamburger glyph. */
-	children?: any
+	children?: Renderable
 	/** Accessible label (default 'Open navigation'). */
 	label?: string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- NavHeadingMenu (upstream NavMenu module) -----
@@ -5591,40 +5655,40 @@ export interface NavHeadingCloseContextValue {
 }
 
 export interface NavHeadingMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** `NavHeadingMenuItem` children, separators, or custom content. */
-	children?: any
+	children?: Renderable
 	size?: NavHeadingMenuSize
 	/** Minimum width override (dips/px) — takes precedence over the
 	 *  size-based default. */
 	minWidth?: number | string
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export interface NavHeadingMenuItemProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	icon?: any
-	label: any
-	description?: any
+	icon?: Renderable
+	label: Renderable
+	description?: Renderable
 	href?: string
 	onClick?: () => void
 	isDisabled?: boolean
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- OverflowList -----
 
 export interface OverflowItem {
 	/** The caller-supplied element for this item. */
-	child: any
+	child: Renderable
 	/** Index in the original children list. */
 	index: number
 }
@@ -5632,11 +5696,11 @@ export interface OverflowItem {
 /** Renders a measured subset of `children`; items that exceed the row (or a
  *  configured count cap) collapse into the `overflowRenderer` indicator. */
 export interface OverflowListProps extends LayoutChildProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** One element per item. */
-	children?: any
+	children?: Renderable
 	/** Gap between items, spacing-scale step (default 2). */
 	gap?: SpacingStep
 	minVisibleItems?: number
@@ -5648,14 +5712,14 @@ export interface OverflowListProps extends LayoutChildProps {
 	 *  measures the parent's content width instead. */
 	behavior?: 'observeParent' | 'observeSelf'
 	/** Renders the overflow indicator for the collapsed items. */
-	overflowRenderer?: (overflowItems: OverflowItem[]) => any
+	overflowRenderer?: (overflowItems: OverflowItem[]) => Renderable
 	/** Called with the collapsed items whenever that set changes; silent
 	 *  while nothing overflows (including mount), and again with `[]` when
 	 *  everything fits after having overflowed. */
 	onOverflowChange?: (overflowItems: OverflowItem[]) => void
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ----- Resizable -----
@@ -5727,7 +5791,7 @@ export interface ResizableConfig {
 
 export interface UseResizableSingleOptions {
 	/** Element/view a percentage resolves against — `{ current }` shaped. */
-	containerRef?: { current: any }
+	containerRef?: { current: HostElement | null }
 	/** Axis this region resizes along; must match `ResizeHandle.direction`. */
 	direction?: ResizableDirection
 	autoSaveId?: string
@@ -5741,7 +5805,7 @@ export type UseResizableSingleConfig = ResizableRegionConfig & UseResizableSingl
 
 export interface UseResizableMultiConfig {
 	direction?: ResizableDirection
-	containerRef?: { current: any }
+	containerRef?: { current: HostElement | null }
 	regions: Record<string, ResizableRegionConfig>
 	autoSaveId?: string
 }
@@ -5780,8 +5844,8 @@ export interface ResizableRegion {
 }
 
 export interface ResizeHandleProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Layout direction — determines cursor and indicator orientation
 	 *  (default 'horizontal'). */
@@ -5805,10 +5869,10 @@ export interface ResizeHandleProps {
 	/** Region props from `useResizable`. */
 	resizable?: ResizableProps
 	/** Custom handle content replacing the default pill. */
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- actions & interactive cards (Astryx parity) ----------
@@ -5820,7 +5884,7 @@ export interface IconButtonProps extends Omit<
 	ButtonProps,
 	'children' | 'endContent' | 'isIconOnly' | 'label'
 > {
-	icon: any
+	icon: Renderable
 	label: string
 }
 
@@ -5838,10 +5902,10 @@ export interface ButtonGroupContextValue {
  *  stop with arrow-key navigation on web. Children are Buttons/IconButtons/
  *  ToggleButtons or a DropdownMenu trigger member. */
 export interface ButtonGroupProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Accessible label for the group (role="group" aria-label). */
 	label: string
 	/** @default 'horizontal' */
@@ -5851,9 +5915,9 @@ export interface ButtonGroupProps {
 	/** Resting elevation for the shared surface. @default 'none' */
 	elevation?: Elevation
 	isDisabled?: boolean
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Toggle button — pressed state with `isPressed`/`onPressedChange`, an
@@ -5870,24 +5934,24 @@ export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'
 	 *  Failures report through `onActionError`. */
 	pressedChangeAction?: (isPressed: boolean) => void | Promise<void>
 	/** Icon shown while pressed (e.g. filled variant); falls back to `icon`. */
-	pressedIcon?: any
+	pressedIcon?: Renderable
 	/** Member key inside a ToggleButtonGroup. */
 	value?: string
 }
 
 interface ToggleButtonGroupBaseProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Accessible label for the group (role="group" aria-label). */
 	label: string
 	orientation?: ButtonGroupOrientation
 	size?: FieldControlSize
 	isDisabled?: boolean
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Single-select toggle group — clicking the active button deselects. */
@@ -5912,8 +5976,8 @@ export type ToggleButtonGroupProps = ToggleButtonGroupSingleProps | ToggleButton
  *  middle clicks open a new tab; unsafe URL schemes are refused) and opens
  *  the platform browser on native. */
 export interface ClickableCardProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Accessible name for the card's action. */
 	label: string
@@ -5921,7 +5985,7 @@ export interface ClickableCardProps {
 	href?: string
 	target?: string
 	isDisabled?: boolean
-	children?: any
+	children?: Renderable
 	/** Internal padding in 4px spacing steps. @default 4 */
 	padding?: number
 	/** @default 'default' */
@@ -5931,16 +5995,16 @@ export interface ClickableCardProps {
 	width?: number | string
 	height?: number | string
 	maxWidth?: number | string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Toggle-selection card — same surface contract as ClickableCard with a
  *  checked/selected semantic instead of an action. */
 export interface SelectableCardProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Accessible name for the selectable card. */
 	label: string
@@ -5949,16 +6013,16 @@ export interface SelectableCardProps {
 	onChange: (isSelected: boolean) => void
 	/** Disabled cards stay focusable with a disabled state announced. */
 	isDisabled?: boolean
-	children?: any
+	children?: Renderable
 	padding?: number
 	variant?: string
 	elevation?: Elevation
 	width?: number | string
 	height?: number | string
 	maxWidth?: number | string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 export type MoreMenuPlacement =
@@ -5978,8 +6042,8 @@ export type MoreMenuPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
 
 /** Overflow menu — icon-only three-dot trigger feeding a DropdownMenu. */
 export interface MoreMenuProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	items: MenuItem[]
 	/** Accessible label for the trigger. @default 'More options' */
@@ -5989,7 +6053,7 @@ export interface MoreMenuProps {
 	/** Trigger button size. @default 'md' */
 	size?: FieldControlSize
 	/** Trigger icon override — node or registered name. @default three dots */
-	icon?: any
+	icon?: Renderable
 	isDisabled?: boolean
 	/** Menu side of the trigger. @default 'below' */
 	placement?: MoreMenuPlacement
@@ -6000,9 +6064,9 @@ export interface MoreMenuProps {
 	/** Controlled open state. */
 	isMenuOpen?: boolean
 	onOpenChange?: (isOpen: boolean) => void
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- PowerSearch (Astryx parity) ----------
@@ -6070,7 +6134,7 @@ export interface DateRangeOperatorValue {
 export interface EnumItem {
 	readonly value: string
 	readonly label: string
-	readonly icon?: any
+	readonly icon?: Renderable
 }
 
 export interface EnumOperatorValue {
@@ -6088,13 +6152,22 @@ export interface EntityListOperatorValue {
 	readonly searchSource?: SearchSource
 	readonly isArbitraryStringAllowed?: boolean
 	readonly tokenization?: OperatorTokenizationConfig
-	readonly renderItem?: (item: SearchableItem) => any
+	readonly renderItem?: (item: SearchableItem) => Renderable
+}
+
+/** Props for a caller-supplied `CustomOperatorValue.Editor` — the JSON value
+ *  string and its change sink inside the filter editor. */
+export interface CustomOperatorEditorProps {
+	value: string
+	onChange(value: string): void
+	placeholder?: string
+	isDisabled?: boolean
 }
 
 export interface CustomOperatorValue {
 	readonly type: 'custom'
 	/** Caller editor component: `{value, onChange, placeholder, isDisabled}`. */
-	readonly Editor: any
+	readonly Editor: ElementComponent<CustomOperatorEditorProps>
 	/** JSON value → display string for the token. */
 	readonly getString: (value: string) => string
 }
@@ -6269,7 +6342,7 @@ export interface PowerSearchField {
 	readonly key: string
 	readonly label: string
 	readonly operators: ReadonlyArray<PowerSearchOperator>
-	readonly icon?: any
+	readonly icon?: Renderable
 	/** Default operator key when the field is picked. */
 	readonly defaultOperator?: string
 	/** Group label organizing fields in the browse menu. */
@@ -6335,6 +6408,7 @@ export interface PowerSearchTokenProps {
 	readonly onPress?: () => void
 	readonly onRemove?: () => void
 	readonly isDisabled?: boolean
+	readonly timezoneID?: string
 }
 
 /** Props for a custom filter editor (`components[type].Editor`). */
@@ -6349,9 +6423,13 @@ export interface PowerSearchEditorProps {
 	readonly timezoneID?: string
 }
 
+/** Props for `PowerSearchFilterEditor` — the default filter editor and the
+ *  same contract `components[type].Editor` overrides receive. */
+export type PowerSearchFilterEditorProps = PowerSearchEditorProps
+
 export interface PowerSearchComponentOverride {
-	readonly Token?: any
-	readonly Editor?: any
+	readonly Token?: ElementComponent<PowerSearchTokenProps>
+	readonly Editor?: ElementComponent<PowerSearchEditorProps>
 }
 
 export type PowerSearchComponents = Partial<
@@ -6361,8 +6439,8 @@ export type PowerSearchComponents = Partial<
 /** Structured filter bar — pick a field, then operator and value in the
  *  editor popover; committed filters render as removable, editable tokens. */
 export interface PowerSearchProps extends FieldControlProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Status layout: overlaps the field below it or occupies its own row. */
 	statusVariant?: 'attached' | 'detached'
@@ -6385,7 +6463,7 @@ export interface PowerSearchProps extends FieldControlProps {
 	/** Explains the disabled state; shown via the platform hint channel. */
 	disabledMessage?: string
 	/** Leading icon — node or registered icon name. */
-	startIcon?: any
+	startIcon?: Renderable
 	/** Exact pixel width of the field/suggestion menu. */
 	menuWidth?: number
 	/** Max display length for token values. @default 40 */
@@ -6399,7 +6477,7 @@ export interface PowerSearchProps extends FieldControlProps {
 	/** IANA timezone for absolute-date formatting. */
 	timezoneID?: string
 	/** Trailing content on the input row. */
-	endContent?: any
+	endContent?: Renderable
 	/** Match count shown at the end of the bar and announced politely. */
 	resultCount?: number | string
 	/** Callback adaptation of Astryx's imperative handle ref. */
@@ -6408,9 +6486,9 @@ export interface PowerSearchProps extends FieldControlProps {
 	onBlur?: () => void
 	/** Per-operator-value-type Token/Editor component overrides. */
 	components?: PowerSearchComponents
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Simplified field definitions → `createPowerSearchConfig`. */
@@ -6574,16 +6652,16 @@ export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
 
 /** Blockquote — styled quotation with optional `cite` attribution. */
 export interface BlockquoteProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Attribution rendered after the quoted content (`<cite>` on web). */
-	cite?: any
+	cite?: Renderable
 	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Text color for `Code`, mirroring the primary/secondary/inherit subset. */
@@ -6595,17 +6673,17 @@ export type CodeSize = 'inherit'
 /** Code — inline monospace run. Standalone renders a mono chip; nested
  *  inside `Text`/`RichText` it stays an inline run on every target. */
 export interface CodeProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** @default 'primary' */
 	color?: CodeColor
 	/** `'inherit'` adopts the surrounding text's font-size and line-height. */
 	size?: CodeSize
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One syntax token with line-relative offsets (0 = start of line). */
@@ -6640,8 +6718,8 @@ export interface SyntaxThemeOverride {
 
 /** CodeBlock — read-only syntax-highlighted code display. */
 export interface CodeBlockProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** The source code to display. */
 	code: string
@@ -6690,9 +6768,9 @@ export interface CodeBlockProps {
 	highlightMode?: 'auto' | 'ranges' | 'spans'
 	/** Per-instance syntax theme override (see `SyntaxThemeOverride`). */
 	syntaxTheme?: SyntaxThemeOverride
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** A fixed target mark drawn on a `ProgressBar` track. */
@@ -6717,8 +6795,8 @@ export type ProgressBarVariant = keyof ProgressBarVariantMap
 /** ProgressBar — linear determinate or indeterminate progress. `Meter` stays
  *  the ring form; this is the bar. */
 export interface ProgressBarProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Current value. Ignored when `isIndeterminate` is true. @default 0 */
 	value?: number
@@ -6742,14 +6820,14 @@ export interface ProgressBarProps {
 	/** Visually disabled (canceled/inactive operations). @default false */
 	isDisabled?: boolean
 	/** `ref` receives the host element (web) / native view. */
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	accessible?: boolean
 	accessibilityLabel?: string
 	accessibilityHint?: string
 	accessibilityValue?: string
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** StatusDot variant names — extendable via module augmentation. */
@@ -6765,8 +6843,8 @@ export type StatusDotVariant = keyof StatusDotVariantMap
 
 /** StatusDot — small colored status signal. */
 export interface StatusDotProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Semantic color variant (required). */
 	variant: StatusDotVariant
@@ -6779,10 +6857,10 @@ export interface StatusDotProps {
 	 *  touch targets — keep essential information out of it. */
 	tooltip?: string
 	/** Optional icon node painted in the dot's ink color (8px field). */
-	icon?: any
-	ios?: any
-	android?: any
-	web?: any
+	icon?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Every absolute `Timestamp` display format. */
@@ -6824,8 +6902,8 @@ export interface TimestampTooltipEntry {
 
 /** Timestamp — human-readable instant with relative/absolute formats. */
 export interface TimestampProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** The instant to display: Unix seconds (or ms > 1e12) or an ISO 8601 string. */
 	value: string | number
@@ -6859,9 +6937,9 @@ export interface TimestampProps {
 	color?: TextColor
 	/** Font weight override. */
 	weight?: TextWeight
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Timer duration text modes: 'elapsed' = "4m 05s" / 'clock' = "4:05". */
@@ -6869,8 +6947,8 @@ export type TimerFormat = 'elapsed' | 'clock'
 
 /** Timer — live elapsed duration since `startTime` (or mount). */
 export interface TimerProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Unix time in milliseconds when the measured operation began. Omit to
 	 *  count from this Timer's mount. */
@@ -6885,9 +6963,9 @@ export interface TimerProps {
 	color?: TextColor
 	/** Font weight override. */
 	weight?: TextWeight
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One cited source for `Citation`. */
@@ -6901,21 +6979,21 @@ export interface CitationSource {
 	src?: string
 	/** Icon node rendered before the label text (label variant). A bare string
 	 *  is treated as an image URL (favicon back-compat), not an icon name. */
-	icon?: any
+	icon?: Renderable
 }
 
 /** Citation — a superscript number or labelled chip referencing a source. */
 export interface CitationProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	source: CitationSource
 	number: number
 	/** 'label' (icon + title chip, default) or 'number' (accent pill). */
 	variant?: 'label' | 'number'
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** How `MetadataList` places each item's label. */
@@ -6930,11 +7008,11 @@ export type MetadataListColumns = 'multi' | 'single' | number
 
 /** MetadataList — read-only labeled key/value list (definition list). */
 export interface MetadataListProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** MetadataListItem children. */
-	children?: any
+	children?: Renderable
 	/** 'single' (default), 'multi' (auto-fill), or a fixed column count. */
 	columns?: MetadataListColumns
 	/** Label position/width. Defaults to 'top' for multi-column and
@@ -6948,31 +7026,31 @@ export interface MetadataListProps {
 	 *  `maxNumOfItems` are ignored in horizontal mode. */
 	orientation?: 'vertical' | 'horizontal'
 	/** Optional title rendered above the list. */
-	title?: any
-	ios?: any
-	android?: any
-	web?: any
+	title?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One label/value row inside a `MetadataList`. */
 export interface MetadataListItemProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	children?: any
+	children?: Renderable
 	/** Label text for this item. */
 	label: string
 	/** Icon node rendered before the label text. */
-	icon?: any
-	ios?: any
-	android?: any
-	web?: any
+	icon?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** Thumbnail — square image preview with loading/error/remove states. */
 export interface ThumbnailProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Image source (any `Image` src grammar). Shows the placeholder when
 	 *  absent or after a failed load. */
@@ -6997,9 +7075,9 @@ export interface ThumbnailProps {
 	 *  touch targets always show it (same rule upstream uses for coarse
 	 *  pointers). 'always' always shows it. */
 	showRemoveOn?: 'always' | 'hover'
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 /** One entry in an `Outline` — a heading link. */
@@ -7019,8 +7097,8 @@ export interface OutlineItem {
  *  (view-tree snapshot) ships under `@octane-xplat/ui/nativescript` and
  *  `@octane-xplat/ui/macos`. */
 export interface OutlineProps {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
 	/** Ordered heading items to render. */
 	items: readonly OutlineItem[]
@@ -7044,14 +7122,14 @@ export interface OutlineProps {
 	/** Scroll container ref (callback or ref object). Default: the nearest
 	 *  scrollable ancestor on web / the nearest enclosing ScrollView on
 	 *  native, else the viewport/screen. */
-	scrollContainerRef?: { current?: any }
+	scrollContainerRef?: { current?: HostElement | null }
 	/** Whether activating an item smooth-scrolls to it. Set false to own
 	 *  scrolling yourself — activation still updates the active item, the
 	 *  URL fragment (web), and the navigate callbacks. @default true */
 	hasScrollOnClick?: boolean
-	ios?: any
-	android?: any
-	web?: any
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }
 
 // ---------- markdown ----------
@@ -7115,6 +7193,14 @@ export interface MarkdownTextProps {
  *  runtime). */
 export type MarkdownProps = MarkdownDataProps | MarkdownTextProps
 
+/** `MarkdownScreen` — the route screen codegen mounts for `.md` route
+ *  files; `data` is the route's baked doc (like any route loader result)
+ *  and `error` a load failure surfaced to the screen. */
+export interface MarkdownScreenProps {
+	data?: MdDoc
+	error?: unknown
+}
+
 // ---------- Astryx parity: layout containers ----------
 
 /** `Center` — flex centering on the main axis (`horizontal` → justify),
@@ -7124,14 +7210,14 @@ export type MarkdownProps = MarkdownDataProps | MarkdownTextProps
 export type CenterAxis = 'both' | 'horizontal' | 'vertical'
 
 export interface CenterProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** @default 'both' */
 	axis?: CenterAxis
 	isInline?: boolean
@@ -7143,14 +7229,14 @@ export type SectionVariant = 'section' | 'transparent' | 'muted'
 export type SectionDividerSide = 'top' | 'bottom' | 'start' | 'end'
 
 export interface SectionProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** @default 'section' */
 	variant?: SectionVariant
 	/** 'start'/'end' are logical edges — on native they map to left/right. */
@@ -7164,15 +7250,15 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
  *  native there is no offscreen-a11y primitive; the leaf renders a 1dip,
  *  opacity-0 container (screen-reader exposure is best-effort). */
 export interface VisuallyHiddenProps extends AccessibilityProps {
-	children?: any
+	children?: Renderable
 	id?: string
-	ref?: Octane.Ref<any>
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ref?: Octane.Ref<HostElement>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	/** Web element tag — 'span' (default) for inline labels, 'div' for block
 	 *  content / live regions. Native ignores it. */
-	as?: any
+	as?: ElementType
 }
 
 /** Per-target support for `FocusScope`'s behavior flags, read through
@@ -7196,14 +7282,14 @@ export interface FocusScopeCapabilities {
  *  container and the three behavior flags are inert —
  *  `getFocusScopeCapabilities()` reports which flags the target honors. */
 export interface FocusScopeProps extends AccessibilityProps {
-	children?: any
+	children?: Renderable
 	id?: string
-	ref?: Octane.Ref<any>
-	className?: any
-	style?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ref?: Octane.Ref<HostElement>
+	className?: ClassName
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	/** Trap Tab/Shift+Tab inside the scope and pull outside focus back in. */
 	contain?: boolean
 	/** On unmount, focus the element that held focus when the scope mounted. */
@@ -7222,14 +7308,14 @@ export type AspectRatioShape = 'rectangle' | 'ellipse'
 export type AspectRatioFit = 'cover' | 'contain' | 'center'
 
 export interface AspectRatioProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** width / height — e.g. 16/9 ≈ 1.777. Required. */
 	ratio: number
 	/** @default 'rectangle' */
@@ -7255,14 +7341,14 @@ export type FormOptionality = 'optional' | 'required'
  *  (a per-field row on native — the web grid's shared label column and
  *  480px collapse have no native analog). */
 export interface FormLayoutProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** @default 'vertical' */
 	direction?: FormLayoutDirection
 	defaultOptionality?: FormOptionality
@@ -7275,14 +7361,14 @@ export type InputGroupSize = 'sm' | 'md' | 'lg'
  *  `role="group"` row (web) / grouped row (native). Member inputs pick up
  *  group styling through `useInputGroup()`. */
 export interface InputGroupProps extends FieldControlProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** Group label — required for accessibility. */
 	label: string
 	/** Tooltip text shown via an info affordance at the end of the label. */
@@ -7293,14 +7379,14 @@ export interface InputGroupProps extends FieldControlProps {
 /** `InputGroupText` — a prefix/suffix text or icon segment inside
  *  `InputGroup` ('$', 'https://', units). */
 export interface InputGroupTextProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 }
 
 // ---------- Astryx parity: content lists ----------
@@ -7316,14 +7402,14 @@ export type ListStyle = ListMarkerStyle
  *  web; a column container on native (NativeScript has no list role —
  *  marker/divider visuals are drawn by the leaf instead). */
 export interface ListProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** @default 'balanced' */
 	density?: ListDensity
 	hasDividers?: boolean
@@ -7333,7 +7419,7 @@ export interface ListProps extends AccessibilityProps {
 	 *  properties; inert where no container padding is declared. Web only. */
 	edgeCompensation?: 'inline'
 	/** Header content rendered above the list (aria-labelledby on web). */
-	header?: any
+	header?: Renderable
 	/** @default 'none' */
 	listStyle?: ListMarkerStyle
 	/** Starting number for 'decimal' lists. @default 1 */
@@ -7348,22 +7434,22 @@ export interface ListProps extends AccessibilityProps {
  *  the action — the row forwards surface presses to it and adds no second
  *  stop (upstream `interactiveRef`). */
 export interface ListItemProps extends AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	/** Primary text (string truncates to one line) or rich content. */
-	label: any
-	description?: any
-	startContent?: any
-	endContent?: any
+	label: Renderable
+	description?: Renderable
+	startContent?: Renderable
+	endContent?: Renderable
 	onPress?: () => void
 	/** Extra app content rendered inside the row's label area. */
-	delegateRef?: { current: any }
+	delegateRef?: { current: HostElement | null }
 	/** Link target: web renders a real anchor; native navigates via the
 	 *  registered deep-link table, falling back to opening the URL. */
 	href?: string
@@ -7381,23 +7467,23 @@ export interface ListItemProps extends AccessibilityProps {
  *  Selection mirrors RA: `selectionMode` gates it, `selectedKeys` is the
  *  controlled form (`'all' | Iterable<Key>`), `onAction` fires on
  *  activation whether or not selection is enabled. */
-export interface GridListProps<T = any> extends LayoutChildProps, AccessibilityProps {
-	className?: any
-	style?: any
-	children?: any
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+export interface GridListProps<T = unknown> extends LayoutChildProps, AccessibilityProps {
+	className?: ClassName
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<any>
+	ref?: Octane.Ref<HostElement>
 	items: readonly T[]
 	/** Returns each item's stable `Key`; must be unique and survive reorder.
 	 *  Defaults to `defaultItemKey` — the item's `id` or `key` property;
 	 *  items without either throw instead of guessing a positional key. */
 	keyExtractor?: (item: T, index: number) => Key
-	renderItem: (item: T, index: number) => any
+	renderItem: (item: T, index: number) => Renderable
 	/** Content rendered when `items` is empty (RA `renderEmptyState`). */
-	renderEmpty?: () => any
+	renderEmpty?: () => Renderable
 	/** 'grid' (default) lays items out by columns; 'stack' is a
 	 *  single-column list layout — RA's `layout` prop. */
 	layout?: 'grid' | 'stack'
@@ -7454,23 +7540,23 @@ export type IndicatorPosition = 'start' | 'end'
  *  web and draws the picture for `state`. `children` replaces the state
  *  mark inside the indicator chrome (busy spinners). */
 export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
-	className?: any
-	style?: any
+	className?: ClassName
+	style?: StyleProp
 	id?: string
-	ref?: Octane.Ref<any>
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
+	ref?: Octane.Ref<HostElement>
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	state: IndicatorState<F>
 	/** @default 'md' */
 	size?: IndicatorSize
 	isDisabled?: boolean
-	children?: any
+	children?: Renderable
 }
 
 export type IndicatorComponent<F extends IndicatorFamily = IndicatorFamily> = (
 	props: IndicatorProps<F>,
-) => any
+) => Renderable
 
 /** The named indicators an app can replace, mapped to their family. */
 export interface IndicatorMap {

@@ -21,7 +21,7 @@ function unmountMainRoot() {
 	}
 }
 
-root.render(App, { parentWindow: mainWindow })
+root.render(App as any, { parentWindow: mainWindow })
 fitWindowToContent(mainWindow)
 console.log('[macos-bundle] component rendered')
 

@@ -30,7 +30,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 	// Scroll-to-top: the scroller's 'scroll' event replaces the web
 	// sentinel's IntersectionObserver.
 	useEffect(() => {
-		const scroller = layoutContext?.scrollContainerRef?.current;
+		const scroller = layoutContext?.scrollContainerRef?.current as any;
 		const action = props.scrollToTopAction;
 		if (!action || !scroller?.on) return;
 		const onScroll = () => {
@@ -60,7 +60,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 		<flexboxlayout
 			id={props.id}
 			className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)}
-			style={props.style}
+			style={props.style as any}
 			flexDirection="column"
 			accessibilityLiveRegion={"polite" as any}
 		>

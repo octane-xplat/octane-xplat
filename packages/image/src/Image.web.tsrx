@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'octane';
+import type { CSSProperties } from 'octane/jsx-runtime';
 import type { ImageProps, ImageSourceLike } from './props';
 import {
 	imageSrcSet,
@@ -138,7 +139,7 @@ export function Image(props: ImageProps) @{
 		};
 	}, [props.src, props.placeholder]);
 
-	const style = {
+	const style: CSSProperties = {
 		objectFit: 'cover',
 		objectPosition: '50% 50%',
 		...layoutChildStyle(props),

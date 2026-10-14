@@ -29,12 +29,12 @@ export function useChatStreamScroll({
 	}, []);
 
 	const bottomOffset = useCallback(() => {
-		const el = scrollRef.current;
+		const el = scrollRef.current as any;
 		return el ? Math.max(0, (el.scrollableHeight ?? 0)) : 0;
 	}, [scrollRef]);
 
 	const jumpToBottom = useCallback(() => {
-		const el = scrollRef.current;
+		const el = scrollRef.current as any;
 		if (!el?.scrollToVerticalOffset) return;
 		const target = bottomOffset();
 		el.scrollToVerticalOffset(target, false);
@@ -46,7 +46,7 @@ export function useChatStreamScroll({
 			setLocked(true);
 			setIsScrolledUp(false);
 			initialFillPendingRef.current = false;
-			const el = scrollRef.current;
+			const el = scrollRef.current as any;
 			if (!el?.scrollToVerticalOffset) return;
 			const target = bottomOffset();
 			el.scrollToVerticalOffset(target, options?.behavior !== 'instant');
@@ -57,7 +57,7 @@ export function useChatStreamScroll({
 
 	const scrollToMessage = useCallback(
 		(el: any) => {
-			const container = scrollRef.current;
+			const container = scrollRef.current as any;
 			if (!container?.scrollToVerticalOffset || !el?.getLocationRelativeTo) return;
 			const point = el.getLocationRelativeTo(container);
 			if (!point) return;
@@ -69,7 +69,7 @@ export function useChatStreamScroll({
 	);
 
 	const scrollToLastMessage = useCallback(() => {
-		const container = scrollRef.current;
+		const container = scrollRef.current as any;
 		const content = container?.getChildAt ? container.getChildAt(0) : null;
 		if (!content?.getChildrenCount) return;
 		const count = content.getChildrenCount();
@@ -89,7 +89,7 @@ export function useChatStreamScroll({
 
 	const scrollIfLocked = useCallback(() => {
 		if (!enabled || !lockedRef.current) return;
-		const el = scrollRef.current;
+		const el = scrollRef.current as any;
 		if (!el?.scrollToVerticalOffset) return;
 		if (initialFillPendingRef.current && el.scrollableHeight > 0) {
 			initialFillPendingRef.current = false;
@@ -101,7 +101,7 @@ export function useChatStreamScroll({
 	}, [enabled, scrollRef, jumpToBottom, bottomOffset]);
 
 	useEffect(() => {
-		const el = scrollRef.current;
+		const el = scrollRef.current as any;
 		if (!el?.on || !enabled) return;
 
 		lastOffsetRef.current = el.verticalOffset ?? 0;

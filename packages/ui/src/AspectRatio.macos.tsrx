@@ -25,7 +25,7 @@ export function AspectRatio(props: AspectRatioProps) @{
 			width: '100%',
 			...(derivedHeight !== undefined ? { height: derivedHeight } : {}),
 			...(ellipse ? { borderRadius: '50%' as any } : {}),
-			...props.style,
+			...(props.style as any),
 		}}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole}

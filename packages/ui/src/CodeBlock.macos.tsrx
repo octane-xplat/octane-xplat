@@ -78,7 +78,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)}
-		style={{ flexDirection: 'column', ...props.style }}
+		style={{ flexDirection: 'column', ...(props.style as any) }}
 		flexDirection="column"
 	>
 		{hasHeader ? (

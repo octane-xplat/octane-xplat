@@ -37,7 +37,7 @@ export function Section(props: SectionProps) @{
 			...(props.height != null ? { height: props.height } : {}),
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...props.style,
+			...(props.style as any),
 		}}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole}

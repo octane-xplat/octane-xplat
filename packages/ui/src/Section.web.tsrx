@@ -30,7 +30,7 @@ export function Section(props: SectionProps) @{
 		style={{
 			marginInlineStart: 'calc(-1 * var(--vx-container-padding-inline-start, 0px))',
 			marginInlineEnd: 'calc(-1 * var(--vx-container-padding-inline-end, 0px))',
-			...props.style,
+			...(props.style as any),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

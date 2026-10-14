@@ -36,7 +36,7 @@ export function List(props: ListProps) @{
 			ref={forwardedRef}
 			flexDirection="column"
 			className={cx('vx-list', `vx-list--density-${density}`, props.hasDividers && 'vx-list--dividers', props.className)}
-			style={props.style}
+			style={props.style as any}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

@@ -30,7 +30,7 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 			props.isDisabled && 'vx-ind-checkbox--disabled',
 			props.className,
 		)}
-		style={props.style}
+		style={props.style as any}
 		alignItems="center"
 		justifyContent="center"
 	>

@@ -10,7 +10,7 @@ export function openBottomSheet(
 	Component: unknown = SheetPanel,
 	props: Record<string, unknown> = {},
 ): void {
-	openSheetUI(Component, props).catch((error: Error) => {
+	openSheetUI(Component as any, props).catch((error: Error) => {
 		console.log('[probe] sheet unsupported: ' + error.message)
 	})
 }

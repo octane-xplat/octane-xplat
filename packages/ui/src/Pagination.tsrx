@@ -32,7 +32,7 @@ export function Pagination(props: PaginationProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		<flexboxlayout className="vx-page-btn" onTap={() => go(current - 1)}><label text="‹" /></flexboxlayout>
 		@for (const e of pages; key e.key) {

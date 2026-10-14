@@ -35,7 +35,7 @@ export function List(props: ListProps) @{
 			className={listClass}
 			style={{
 				...(isOrdered ? { counterReset: `vx-list ${start - 1}` } : {}),
-				...props.style,
+				...(props.style as any),
 			}}
 			start={isOrdered && start !== 1 ? start : undefined}
 			role="list"

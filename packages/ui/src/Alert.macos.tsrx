@@ -30,7 +30,7 @@ export function Alert(props: AlertProps) @{
 			borderTopColor: toneColor,
 			borderRadius: 6,
 			borderTopLeftRadius: 6,
-			...props.style,
+			...(props.style as any),
 		}}
 	>
 		{props.icon ? <Icon name={props.icon} className="vx-alert-icon" /> : null}

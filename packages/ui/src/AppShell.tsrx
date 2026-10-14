@@ -111,7 +111,7 @@ export function AppShell(props: AppShellProps) @{
 			id={props.id}
 			rows="auto,*"
 			className={cx('vx-appshell', 'vx-appshell--' + variant, isFill ? 'vx-appshell--fill' : 'vx-appshell--auto', props.className)}
-			style={props.style}
+			style={props.style as any}
 			onLayoutChanged={onShellLayout}
 		>
 			<flexboxlayout row={0} flexDirection="column" className="vx-appshell-header">

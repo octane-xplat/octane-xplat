@@ -24,7 +24,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 		? props.components?.[internal.getOperator(editing.filter.field, editing.filter.operator ?? '')?.value.type ?? 'string']?.Editor ?? PowerSearchFilterEditor
 		: PowerSearchFilterEditor
 
-	<flexboxlayout id={props.id} className={cx('vx-power-search', `vx-power-search--size-${props.size ?? 'md'}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style} ref={(v:any)=>{anchor.current=v}}>
+	<flexboxlayout id={props.id} className={cx('vx-power-search', `vx-power-search--size-${props.size ?? 'md'}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style as any} ref={(v:any)=>{anchor.current=v}}>
 		<flexboxlayout className="vx-power-search-row">
 			{props.startIcon ? typeof props.startIcon === 'string' ? <Icon className="vx-power-search-start-icon" name={props.startIcon} /> : props.startIcon : null}
 			{props.filters.map((filter, index) => {

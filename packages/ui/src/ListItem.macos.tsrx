@@ -18,7 +18,7 @@ export function ListItem(props: ListItemProps) @{
 		if (props.isDisabled) { return }
 		if (props.onPress != null) { props.onPress(); return }
 		if (props.delegateRef?.current != null) {
-			const target = props.delegateRef.current
+			const target = props.delegateRef.current as any
 			target.notify?.({ eventName: 'tap', object: target })
 			target.click?.()
 			target.focus?.()

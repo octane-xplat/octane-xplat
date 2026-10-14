@@ -12,6 +12,6 @@ export function Separator(props: SeparatorProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-separator', vertical ? 'vx-separator--v' : 'vx-separator--h', props.className)}
-		style={props.style}
+		style={props.style as any}
 	/>
 }

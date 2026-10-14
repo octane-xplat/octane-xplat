@@ -18,7 +18,7 @@ export function useChatComposerTokens({
 
 	const insertToken = useCallback(
 		(token: any): string | undefined => {
-			const host = editableRef.current;
+			const host = editableRef.current as any;
 			const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 			const record = { id, span: null, token };
 			setTokenPortals((prev) => [...prev, record]);
@@ -32,7 +32,7 @@ export function useChatComposerTokens({
 		(id: string) => {
 			const portal = tokenPortals.find((p) => p.id === id);
 			if (!portal) return;
-			editableRef.current?.expandTokenToText?.(portal.token);
+			(editableRef.current as any)?.expandTokenToText?.(portal.token);
 			setTokenPortals((prev) => prev.filter((p) => p.id !== id));
 			onEmitChange();
 		},
@@ -46,7 +46,7 @@ export function useChatComposerTokens({
 
 	const cleanupPortals = useCallback(() => {
 		setTokenPortals((prev) =>
-			prev.filter((p) => editableRef.current?.hasToken?.(p.id) ?? true),
+			prev.filter((p) => (editableRef.current as any)?.hasToken?.(p.id) ?? true),
 		);
 	}, [editableRef]);
 

@@ -37,7 +37,7 @@ export function Pressable(props: PressableProps) @{
 		id={props.id}
 		data-testid={props.testID}
 		className={['vx-pressable', props.className]}
-		{...layoutChildProps(props, { ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
+		{...layoutChildProps(props, { ...(props.style as any), ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
 		role={props.accessibilityRole ?? 'button'}
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}

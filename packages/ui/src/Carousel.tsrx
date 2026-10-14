@@ -147,7 +147,7 @@ export function Carousel(props: CarouselProps) @{
 
 	<gridlayout
 		className={cx('vx-carousel', props.className)}
-		style={props.style}
+		style={props.style as any}
 		id={props.id}
 		rows="*"
 		columns="*"

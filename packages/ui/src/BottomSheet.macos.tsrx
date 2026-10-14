@@ -119,7 +119,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 			const sheet = active?.props
 			return {
 				isOpen: active != null,
-				panelProps: { ...sheet, layerDepth: dismissal.depth, className: cx(props.className, sheet?.className), style: { ...props.style, ...sheet?.style }, id: props.id ?? sheet?.id },
+				panelProps: { ...(sheet as any), layerDepth: dismissal.depth, className: cx(props.className, sheet?.className), style: { ...(props.style as any), ...(sheet?.style as any) }, id: props.id ?? sheet?.id },
 				options: {
 					kind: 'sheet', modal: props.hasScrim ?? true, purpose: sheet?.purpose,
 					transitionKey: active?.sheetId, height: sheet?.height, snapPoints: sheet?.snapPoints,

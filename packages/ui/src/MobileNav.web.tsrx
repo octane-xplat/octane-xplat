@@ -124,7 +124,7 @@ export function MobileNav(props: MobileNavProps) @{
 		ref={(el: HTMLDialogElement | null) => { dialogRef.current = el; if (el) applyEscapeProps(el, props); }}
 		id={id}
 		className={['vx-mobilenav', 'vx-mobilenav--' + resolvedSide, isOpen && 'vx-mobilenav--open', props.className]}
-		style={{ width: props.width ?? 320, ...props.style }}
+		style={{ width: props.width ?? 320, ...(props.style as any) }}
 		aria-label={ariaLabel}
 		onClick={handleDialogClick}
 		onCancel={handleCancel}

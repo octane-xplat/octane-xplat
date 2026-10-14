@@ -14,7 +14,7 @@ import {
 	type MarkdownIncrementalState,
 } from './markdown-stream';
 
-import type { MarkdownProps, MdDoc, MdInline, MdNode } from './props';
+import type { MarkdownProps, MarkdownScreenProps, MdInline, MdNode } from './props';
 
 export type { MdDoc, MdInline, MdNode } from './props';
 
@@ -228,7 +228,7 @@ export function Markdown(props: MarkdownProps) @{
 /** Route screen for `.md` files — the codegen emits specs with this as
  *  `screen`, so a markdown file in the route dir is a route end-to-end.
  *  Receives baked data like any route (`props.data`). */
-export function MarkdownScreen(props: { data?: MdDoc; error?: unknown }) @{
+export function MarkdownScreen(props: MarkdownScreenProps) @{
 	<Screen className="vx-app">
 		<ScrollableArea padding={4}>
 			{props.data != null ? <Markdown data={props.data} /> : null}

@@ -31,7 +31,7 @@ export function DrawerLayout(props: DrawerLayoutProps) @{
 		id={props.id}
 		ref={(d: any) => { host.current = d; applyEscapeProps(d, props); }}
 		className={cx('vx-drawer', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		<gridlayout hostSlot="mainContent">{props.main}</gridlayout>
 		@if (props.drawer != null) {

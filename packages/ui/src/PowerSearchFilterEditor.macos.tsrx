@@ -1,21 +1,10 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
-import type { PowerSearchConfig, PartialFilter, PowerSearchFilter, FilterValue } from './props'
+import type { PowerSearchFilterEditorProps, FilterValue } from './props'
 import { TextInput } from './text-controls.macos.tsrx'
 import { Button } from './controls.macos.tsrx'
 import { resolveOperatorLabel } from './power-search-config'
 import { powerSearchTranslate } from './power-search-strings'
-
-export interface PowerSearchFilterEditorProps {
-	config: PowerSearchConfig
-	filter: PartialFilter
-	mode: 'create' | 'edit'
-	onSave: (filter: PowerSearchFilter | null) => void
-	onCancel: () => void
-	saveButtonLabel?: string
-	isReadOnly?: boolean
-	timezoneID?: string
-}
 
 function initialValue(type: FilterValue['type']): FilterValue {
 	switch (type) {

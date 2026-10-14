@@ -35,7 +35,7 @@ export function Stack(props: StackProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
-			style={{ ...sizingStyle, ...props.style }}
+			style={{ ...(sizingStyle as any), ...(props.style as any) }}
 			orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -65,7 +65,7 @@ export function Stack(props: StackProps) @{
 			flexWrap={layout.flexWrap}
 			gap={layout.gap}
 			className={cx('vx-stack', props.className)}
-			style={{ ...sizingStyle, ...props.style }}
+			style={{ ...(sizingStyle as any), ...(props.style as any) }}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={props.accessibilityRole}
@@ -89,7 +89,7 @@ export function StackItem(props: StackItemProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
-			style={{ ...itemStyle, ...props.style }}
+			style={{ ...(itemStyle as any), ...(props.style as any) }}
 			orientation="vertical"
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -106,7 +106,7 @@ export function StackItem(props: StackItemProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
-			style={{ ...itemStyle, ...props.style }}
+			style={{ ...(itemStyle as any), ...(props.style as any) }}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={props.accessibilityRole}

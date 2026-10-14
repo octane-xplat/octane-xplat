@@ -20,11 +20,27 @@ export { VisuallyHidden } from './VisuallyHidden'
 export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
 export { Absolute } from './Absolute'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
+export type {
+	ClassName,
+	StyleProp,
+	Renderable,
+	HostElement,
+	PlatformProps,
+	ElementType,
+	ElementComponent,
+	HostedComponent,
+	HostedComponentProps,
+	ScreenComponent,
+	LayoutComponent,
+	TypeaheadKeyEvent,
+	CustomOperatorEditorProps,
+} from './props'
+
 export { setTranslate } from './translate.web'
 export { Spacer } from './Spacer'
 export { Text } from './Text'
 export { Markdown, MarkdownScreen } from './Markdown'
-export type { MdDoc, MdNode, MdInline, MarkdownProps, MarkdownDataProps, MarkdownTextProps } from './props'
+export type { MdDoc, MdNode, MdInline, MarkdownProps, MarkdownDataProps, MarkdownTextProps, MarkdownScreenProps } from './props'
 export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
 export {
 	createMarkdownIncrementalState,
@@ -91,6 +107,7 @@ export type {
 	PowerSearchSize,
 	PowerSearchTokenProps,
 	PowerSearchEditorProps,
+	PowerSearchFilterEditorProps,
 	PowerSearchComponentOverride,
 	PowerSearchComponents,
 	PowerSearchHandle,
@@ -512,6 +529,7 @@ export type {
 	ChatMessageSender,
 	ChatMessageStatus,
 	ChatScrollToBottomOptions,
+	ChatSendButtonProps,
 	ChatSystemMessageProps,
 	ChatSystemMessageVariant,
 	ChatTokenizedTextProps,
@@ -618,6 +636,8 @@ export type {
 	UseScrollableAreaResult,
 	ShowToastFn,
 	ToastCollisionBehavior,
+	ToastContentRenderFn,
+	ToastContentRenderProps,
 	ToastDismissFn,
 	ToastDismissReason,
 	ToastHandle,
@@ -718,8 +738,10 @@ export type {
 	BeforeLoad,
 	BeforeLoadArgs,
 	LinkProps,
+	NavLinkComponentType,
 	NavLinkProps,
 	Route,
+	RouteBoundaryProps,
 	RouteContext,
 	RouteErrorBoundaryProps,
 	RouteHead,
@@ -811,6 +833,8 @@ export type {
 	QueryStorageAdapter,
 	QueryPersistence,
 	CachedQueryOptions,
+	InvalidateQueriesOptions,
+	ClearQueryCacheOptions,
 } from './query-cache'
 
 export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
@@ -850,13 +874,17 @@ export type {
 } from './props'
 
 export type {
+	AccessibilityProps,
 	AbsoluteProps,
 	AspectRatioFit,
 	AspectRatioProps,
 	AspectRatioShape,
+	ButtonVariant,
 	CenterAxis,
 	CenterProps,
 	DividerProps,
+	Elevation,
+	FlexContainerProps,
 	FormLayoutDirection,
 	FormOptionality,
 	HStackProps,
@@ -907,17 +935,21 @@ export type {
 	ImageSourceLike,
 	KeyboardAvoidingProps,
 	LayoutChildProps,
+	PlainDate,
 	PressableProps,
 	RichTextProps,
 	RichTextSpanProps,
+	Role,
 	RowProps,
 	ScreenProps,
 	SafeAreaProps,
+	SharedDateFormat,
 	SpacerProps,
 	StackProps,
 	SwitchProps,
 	TabsProps,
 	TextAreaProps,
+	TextInputHandle,
 	TextInputProps,
 	TextProps,
 	TestIDProps,

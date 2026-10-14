@@ -1,16 +1,16 @@
 /** @jsxImportSource @nativescript-community/octane */
 
-import type { Route } from './props';
+import type { LayoutComponent, Route, RouteBoundaryProps, ScreenComponent } from './props';
 import { RouteBoundary } from './RouteBoundary.tsrx';
 
 type RouteHostProps = {
-	screen: any;
-	layouts: any[];
+	screen: ScreenComponent;
+	layouts: LayoutComponent[];
 	params: Record<string, unknown>;
 	/** The route's declared ErrorBoundary export, if any. */
-	boundary?: any;
+	boundary?: RouteBoundaryProps['boundary'];
 	/** The committed route being rendered — passed to the boundary. */
-	route?: Route;
+	route: Route;
 };
 
 /** Props a pushed screen receives inside a swap-pane host — the same shape

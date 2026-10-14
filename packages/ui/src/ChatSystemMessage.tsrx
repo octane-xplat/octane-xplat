@@ -11,7 +11,7 @@ export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 		<flexboxlayout
 			id={props.id}
 			className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)}
-			style={props.style}
+			style={props.style as any}
 			flexDirection="row"
 			alignItems="center"
 			justifyContent="center"
@@ -27,7 +27,7 @@ export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 		<flexboxlayout
 			id={props.id}
 			className={cx('vx-chatsys', props.className)}
-			style={props.style}
+			style={props.style as any}
 			flexDirection="row"
 			alignItems="center"
 			justifyContent="center"

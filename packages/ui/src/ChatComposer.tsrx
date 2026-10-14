@@ -77,7 +77,7 @@ export function ChatComposer(props: ChatComposerProps) @{
 		<flexboxlayout
 			id={props.id}
 			className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)}
-			style={props.style}
+			style={props.style as any}
 			flexDirection="column"
 		>
 			{statusPosition === 'top' ? statusEl : null}

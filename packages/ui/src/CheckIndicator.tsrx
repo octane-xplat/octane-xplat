@@ -19,7 +19,7 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className)}
-			style={props.style}
+			style={props.style as any}
 			alignItems="center"
 			justifyContent="center"
 		>
@@ -30,7 +30,7 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-ind-check', `vx-ind-check--${size}`, props.isDisabled && 'vx-ind-check--disabled', props.className)}
-			style={props.style}
+			style={props.style as any}
 			text="✓"
 		/>
 	} @else {

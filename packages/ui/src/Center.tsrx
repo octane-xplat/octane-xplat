@@ -30,7 +30,7 @@ export function Center(props: CenterProps) @{
 			...(props.height != null ? { height: props.height } : {}),
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...props.style,
+			...(props.style as any),
 		}}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}

@@ -26,7 +26,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-segmented', props.isDisabled && 'vx-segmented--disabled', props.isReadOnly && 'vx-segmented--readonly', props.isLoading && 'vx-segmented--loading', props.status && `vx-segmented--status-${props.status.type}`, props.size && `vx-segmented--size-${props.size}`, props.className)}
-		style={props.style}
+		style={props.style as any}
 	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}

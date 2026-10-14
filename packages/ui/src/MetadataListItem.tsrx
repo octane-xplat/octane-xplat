@@ -41,7 +41,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 				ref={(v: any) => applyEscapeProps(v, props)}
 				id={props.id}
 				className={cx('vx-metadatalist-item', props.className)}
-				style={{ flexDirection: 'column', marginBottom: 8, ...props.style }}
+				style={{ flexDirection: 'column', marginBottom: 8, ...(props.style as any) }}
 				flexDirection="column"
 			>
 				{labelRow}

@@ -53,7 +53,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 				marginRight: typeof pos?.end === 'number' ? pos.end : undefined,
 				marginTop: typeof pos?.top === 'number' ? pos.top : undefined,
 				marginBottom: typeof pos?.bottom === 'number' ? pos.bottom : undefined,
-				...props.style,
+				...(props.style as any),
 			}}
 			verticalAlignment={
 				isFullscreen
@@ -94,7 +94,7 @@ function DialogInline(props: DialogProps) @{
 	<flexboxlayout
 		flexDirection="column"
 		className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
-		style={{ padding, width: typeof props.width === 'number' ? props.width : undefined, ...props.style }}
+		style={{ padding, width: typeof props.width === 'number' ? props.width : undefined, ...(props.style as any) }}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
@@ -197,7 +197,7 @@ export function DialogHeader(props: DialogHeaderProps) @{
 	const ctx = useContext(DialogContext); // provider membership supplies the title id on web and the shared close request.
 	const requestClose = props.onOpenChange ?? ctx?.requestClose;
 
-	<flexboxlayout flexDirection="column" className={cx('vx-dialog-header', props.className)} style={props.style} id={props.id}>
+	<flexboxlayout flexDirection="column" className={cx('vx-dialog-header', props.className)} style={props.style as any} id={props.id}>
 		<flexboxlayout flexDirection="row" alignItems="center">
 			{props.startContent != null && <flexboxlayout className="vx-dialog-header-start">{props.startContent}</flexboxlayout>}
 			<flexboxlayout flexDirection="column" flexGrow={1} className="vx-dialog-header-text">

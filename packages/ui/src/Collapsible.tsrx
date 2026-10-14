@@ -24,7 +24,7 @@ export function Collapsible(props: CollapsibleProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		<Pressable
 			className="vx-collapsible-trigger"

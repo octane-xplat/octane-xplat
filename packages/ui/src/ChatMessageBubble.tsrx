@@ -39,7 +39,7 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 				props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
 				props.className,
 			)}
-			style={{ ...(props.width != null ? { width: props.width } : {}), ...props.style }}
+			style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
 			flexDirection="column"
 		>
 			{props.children}

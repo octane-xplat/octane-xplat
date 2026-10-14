@@ -38,7 +38,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 				setIsLoadingTop(true);
 				Promise.resolve(actionRef.current?.()).finally(() => setIsLoadingTop(false));
 			},
-			{ root: layoutContext?.scrollContainerRef?.current ?? null, threshold: 0 },
+			{ root: (layoutContext?.scrollContainerRef?.current as Element | null) ?? null, threshold: 0 },
 		);
 
 		observer.observe(sentinel);

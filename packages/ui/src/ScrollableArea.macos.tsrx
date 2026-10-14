@@ -21,7 +21,7 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 			height: props.height,
 			maxWidth: props.maxWidth,
 			minHeight: props.minHeight,
-			...props.style,
+			...(props.style as any),
 		}}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>

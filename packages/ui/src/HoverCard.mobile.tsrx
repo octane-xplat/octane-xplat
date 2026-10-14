@@ -25,7 +25,7 @@ export function HoverCard(props: HoverCardProps) @{
 			id={props.id}
 			ref={card.ref}
 			className={cx('vx-hovercard-trigger', props.className)}
-			style={props.style}
+			style={props.style as any}
 			ios={props.ios as any}
 			android={props.android as any}
 		>

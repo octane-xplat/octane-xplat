@@ -30,7 +30,7 @@ export function UISwitch(inputProps: UISwitchProps) @{
 		id={props.id}
 		testID={props.testID ?? ''}
 		className={cx(props.className)}
-		style={props.style}
+		style={props.style as any}
 		checked={props.checked}
 		isEnabled={!props.isDisabled}
 		isUserInteractionEnabled={!props.isReadOnly}

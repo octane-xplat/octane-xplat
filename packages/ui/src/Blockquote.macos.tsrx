@@ -9,11 +9,11 @@ export function Blockquote(props: BlockquoteProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-blockquote', props.className)}
-		style={{ flexDirection: 'row', gap: 12, ...props.style }}
+		style={{ flexDirection: 'row', gap: 12, ...(props.style as any) }}
 		flexDirection="row"
 	>
 		<flexboxlayout
-			style={{ width: 2, backgroundColor: props.style?.borderLeftColor ?? '#3f3f46', alignSelf: 'stretch' }}
+			style={{ width: 2, backgroundColor: (props.style as any)?.borderLeftColor ?? '#3f3f46', alignSelf: 'stretch' }}
 		/>
 		<flexboxlayout flexDirection="column" style={{ flexGrow: 1 }}>
 			{typeof props.children === 'string' || typeof props.children === 'number'

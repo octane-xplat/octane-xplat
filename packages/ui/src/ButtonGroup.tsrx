@@ -8,7 +8,7 @@ export function ButtonGroup(props: ButtonGroupProps) @{
 	const value = { orientation, isDisabled: !!props.isDisabled, size: props.size ?? 'md', position: 'only' as const }
 
 	<ButtonGroupProvider value={value}>
-		<flexboxlayout id={props.id} className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)} style={props.style} accessible={true} accessibilityLabel={props.label}>
+		<flexboxlayout id={props.id} className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)} style={props.style as any} accessible={true} accessibilityLabel={props.label}>
 			{props.children}
 		</flexboxlayout>
 	</ButtonGroupProvider>

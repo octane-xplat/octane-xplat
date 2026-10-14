@@ -23,7 +23,7 @@ export function Toolbar(props: ToolbarProps) @{
 			id={props.id}
 			ref={(v: any) => applyEscapeProps(v, props)}
 			className={cx('vx-toolbar', 'vx-toolbar--' + (props.variant ?? 'transparent'), 'vx-toolbar--' + size, dividerCls, props.className)}
-			style={props.style}
+			style={props.style as any}
 			accessibilityLabel={props.label}
 		>
 			@if (hasCenter && !vertical) {

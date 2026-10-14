@@ -2,6 +2,7 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from './props';
+import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 
 /** Which `FocusScope` behavior flags this target honors — none on native;
@@ -33,8 +34,8 @@ export function FocusScope(props: FocusScopeProps) @{
 	<flexboxlayout
 		id={props.id}
 		ref={forwardedRef}
-		className={props.className}
-		style={props.style}
+		className={cx(props.className)}
+		style={props.style as any}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole as any}

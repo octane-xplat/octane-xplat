@@ -135,7 +135,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
 			)}
-			style={props.style}
+			style={props.style as any}
 		>
 			<Pressable
 				className="vx-timeinput-toggle"

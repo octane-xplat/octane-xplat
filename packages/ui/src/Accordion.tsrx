@@ -33,7 +33,7 @@ export function Accordion(props: AccordionProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-accordion', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		@for (const item of props.items; key item.key) {
 			<Collapsible

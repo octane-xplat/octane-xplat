@@ -26,7 +26,7 @@ export function ChatMessage(props: ChatMessageProps) @{
 		<flexboxlayout
 			id={props.id}
 			className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)}
-			style={props.style}
+			style={props.style as any}
 			flexDirection="row"
 			justifyContent={isSystem ? 'center' : 'flex-start'}
 			accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}

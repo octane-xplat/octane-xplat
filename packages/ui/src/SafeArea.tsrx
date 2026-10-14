@@ -12,7 +12,7 @@ export function SafeArea(props: SafeAreaProps) @{
 		id={props.id}
 		ref={(host: any) => applyEscapeProps(host, props)}
 		className={cx('vx-safe-area', props.className)}
-		style={{ ...props.style, paddingTop: insets.top, paddingRight: insets.right, paddingBottom: insets.bottom, paddingLeft: insets.left }}
+		style={{ ...(props.style as any), paddingTop: insets.top, paddingRight: insets.right, paddingBottom: insets.bottom, paddingLeft: insets.left }}
 	>
 		{props.children}
 	</flexboxlayout>

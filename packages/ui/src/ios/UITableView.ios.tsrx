@@ -171,7 +171,7 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
  *  the indicator is self-drawn (vx-spinner), the pull rides UITableView's
  *  own bounce, and the docked phase holds via contentInset — the same
  *  mechanics UIRefreshControl uses, without its OS spinner. */
-export function UITableView(props: UITableViewProps) @{
+export function UITableView<T>(props: UITableViewProps<T>) @{
 	const runtime = useRef<PlatformListRuntime>({
 		list: { current: null },
 		items: { current: props.items },
@@ -216,7 +216,7 @@ export function UITableView(props: UITableViewProps) @{
 					if (v?.ios) v.ios.clipsToBounds = true;
 				}}
 				className={cx('vx-refresh-wrap', props.className)}
-				style={props.style}
+				style={props.style as any}
 			>
 				<MemoListView
 					id={props.id}

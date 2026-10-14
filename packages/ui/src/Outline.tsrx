@@ -120,7 +120,7 @@ export function Outline(props: OutlineProps) @{
 		}}
 		id={props.id}
 		className={cx('vx-outline', `vx-outline--${density}`, props.className)}
-		style={{ flexDirection: 'column', ...props.style }}
+		style={{ flexDirection: 'column', ...(props.style as any) }}
 		flexDirection="column"
 		accessible={true}
 		accessibilityRole={nativeAccessibilityRole('none') as any}

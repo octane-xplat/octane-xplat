@@ -60,7 +60,7 @@ export function Toast(props: ToastProps) @{
 
 	<flexboxlayout flexDirection="row" alignItems="center" id={props.id} ref={view}
 		className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)}
-		style={{ opacity: props.isExiting ? 0 : 1, ...props.style }}>
+		style={{ opacity: props.isExiting ? 0 : 1, ...(props.style as any) }}>
 		{props.renderContent ? props.renderContent(content) : (
 			<flexboxlayout flexDirection="column" flexGrow={1} className="vx-toast-content">
 				{typeof props.body === 'string' ? <label whiteSpace="normal">{props.body}</label> : props.body}

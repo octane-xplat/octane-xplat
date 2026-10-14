@@ -13,7 +13,7 @@ export function Avatar(props: AvatarProps) @{
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		className={['vx-avatar', props.className]}
-		style={{ ...props.style, ...box }}
+		style={{ ...(props.style as any), ...(box as any) }}
 		role="img"
 		aria-label={props.alt}
 	>

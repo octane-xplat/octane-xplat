@@ -32,7 +32,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			}}
 			id={props.inputId}
 			className={cx('vx-typeahead-input', `vx-typeahead-input--size-${props.size}`, props.isDisabled && 'vx-typeahead-input--disabled', props.inputClassName, props.className)}
-			style={{ ...props.style, ...props.inputStyle }}
+			style={{ ...(props.style as any), ...(props.inputStyle as any) }}
 			hint={props.placeholder}
 			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 			accessibilityHint={props.accessibilityHint}

@@ -26,8 +26,8 @@ export function Stack(props: StackProps) @{
 			flexDirection: layout.flexDirection,
 			justifyContent: layout.justifyContent,
 			alignItems: layout.alignItems,
-			...stackWebStyle(layout, props),
-			...props.style,
+			...(stackWebStyle as any)(layout, props),
+			...(props.style as any),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

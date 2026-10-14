@@ -12,7 +12,7 @@ export function NavIcon(props: NavIconProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-navicon', props.className)}
-		style={props.style}
+		style={props.style as any}
 		justifyContent="center"
 		alignItems="center"
 	>

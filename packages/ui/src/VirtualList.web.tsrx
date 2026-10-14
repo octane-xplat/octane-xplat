@@ -397,8 +397,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}, [cells])
 
 	const style = {
-		...props.style,
-		minHeight: props.style?.minHeight ?? 0,
+		...(props.style as any),
+		minHeight: (props.style as any)?.minHeight ?? 0,
 		overflowY: 'auto',
 		overflowX: 'hidden',
 		overflowAnchor: 'none',

@@ -66,7 +66,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				open && 'vx-daterangeinput--open',
 				props.className,
 			)}
-			style={props.style}
+			style={props.style as any}
 		>
 			<Pressable
 				id={inputId}

@@ -22,7 +22,7 @@ export function Screen(props: ScreenProps) @{
 		<flexboxlayout
 			flexDirection="column"
 			className={cx(props.className)}
-			style={props.style}
+			style={props.style as any}
 			ref={(v: any) => { if (v) attachTapToBlur(v); }}
 		>
 			{props.children}

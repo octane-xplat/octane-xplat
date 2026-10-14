@@ -59,7 +59,7 @@ export function Timer(props: TimerProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-timer', roleClasses, props.className)}
-		style={props.style}
+		style={props.style as any}
 		text={text}
 		accessibilityValue={dateTime}
 	/>

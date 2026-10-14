@@ -74,7 +74,7 @@ export function Toast(props: ToastProps) @{
 		flexDirection="row"
 		alignItems="center"
 		className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite') as any}
 			>
 		{props.renderContent ? (

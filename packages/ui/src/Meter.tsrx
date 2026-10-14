@@ -33,7 +33,7 @@ export function Meter(props: MeterProps) @{
 	<gridlayout
 		id={props.id}
 		className={cx('vx-meter', props.className)}
-		style={{ width: size, height: size, ...props.style }}
+		style={{ width: size, height: size, ...(props.style as any) }}
 		accessible={true}
 		accessibilityRole={nativeAccessibilityRole('meter')}
 		accessibilityLabel={props.accessibilityLabel}

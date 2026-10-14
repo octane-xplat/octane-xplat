@@ -126,7 +126,7 @@ function DialogModal(props: DialogProps) @{
 					ref={(el: HTMLDialogElement | null) => {
 						dialogRef.current = el;
 						applyEscapeProps(el, props);
-						props.web?.ref?.(el);
+						(props.web?.ref as any)?.(el);
 					}}
 					id={props.id}
 					className={cx(
@@ -151,7 +151,7 @@ function DialogModal(props: DialogProps) @{
 									insetInlineEnd: toPx(pos.end),
 								}
 							: {}),
-						...props.style,
+						...(props.style as any),
 					}}
 					aria-label={props.accessibilityLabel}
 					aria-labelledby={props.accessibilityLabel ? undefined : titleId}
@@ -180,7 +180,7 @@ function DialogInline(props: DialogProps) @{
 					padding: `${padding}px`,
 					width: toPx(props.width) ?? '400px',
 					maxHeight: toPx(props.maxHeight),
-					...props.style,
+					...(props.style as any),
 				}}
 				role={props.purpose === 'required' ? 'alertdialog' : 'dialog'}
 				aria-label={props.accessibilityLabel}

@@ -118,7 +118,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 
 	const rootStyle = {
 		width: width === 'fit-content' ? 'fit-content' : width,
-		...props.style,
+		...(props.style as any),
 	};
 
 	<div

@@ -1,10 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 
-type RouteBoundaryProps = {
-	boundary?: any;
-	route?: any;
-	children?: any;
-};
+import type { RouteBoundaryProps } from './props';
 
 /** Route-level error-boundary host — wraps a route's rendered subtree in a
  *  portable @try/@catch so a declared `ErrorBoundary` export renders in

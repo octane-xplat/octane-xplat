@@ -59,7 +59,7 @@ export function InputGroupText(props: InputGroupTextProps) @{
 		id={props.id}
 		ref={forwardedRef}
 		className={cx('vx-inputgroup-text', props.className)}
-		style={props.style}
+		style={props.style as any}
 		justifyContent="center"
 		alignItems="center"
 	>

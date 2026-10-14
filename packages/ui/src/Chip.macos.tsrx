@@ -11,7 +11,7 @@ export function Chip(props: ChipProps) @{
 		className={cx('vx-chip', props.selected && 'vx-chip--on', props.disabled && 'vx-chip--disabled', props.className)}
 		// `--on` chrome is a CSS modifier on web — inline the same values
 		// (AppKit has no style layer; keep in step with .vx-chip--on).
-		style={{ ...(props.selected ? { backgroundColor: '#171717', color: '#fafafa' } : {}), ...props.style }}
+		style={{ ...(props.selected ? { backgroundColor: '#171717', color: '#fafafa' } : {}), ...(props.style as any) }}
 		disabled={props.disabled}
 		onPress={props.onSelect}
 		accessibilityLabel={props.accessibilityLabel}

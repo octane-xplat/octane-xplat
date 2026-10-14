@@ -16,7 +16,7 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-chatscroll-wrap', props.className)}
-		style={props.style}
+		style={props.style as any}
 		justifyContent="center"
 	>
 		<Pressable

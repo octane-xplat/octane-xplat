@@ -12,7 +12,7 @@ export function User(props: UserProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-user', props.onSelect && 'vx-user--pressable', props.className)}
-		style={props.style}
+		style={props.style as any}
 		onTap={props.onSelect}
 	>
 		<Avatar src={props.src} fallback={props.fallback} alt={props.name} size={props.size} />

@@ -111,7 +111,7 @@ export function TabList(props: TabListProps) @{
 		[props.value, props.onChange, size, props.layout, isTabList],
 	);
 
-	const label = props.web?.['aria-label'] ?? 'Tabs';
+	const label = (props.web?.['aria-label'] as string | undefined) ?? 'Tabs';
 	const fades = !hasScroll ? '' : overflowStart && overflowEnd ? 'vx-tabstrip--fade-both' : overflowStart ? 'vx-tabstrip--fade-start' : overflowEnd ? 'vx-tabstrip--fade-end' : '';
 	const attachRoot = (el: HTMLElement | null) => {
 		root.current = el;
@@ -163,7 +163,7 @@ export function TabList(props: TabListProps) @{
 		@if (isTabList) {
 			<div ref={attachRoot} id={props.id} className={cls} style={props.style} role="presentation" onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</div>
 		} @else {
-			<nav ref={attachRoot} id={props.id} className={cls} style={props.style} role={props.role} aria-label={props.role ? undefined : label} onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</nav>
+			<nav ref={attachRoot} id={props.id} className={cls} style={props.style as any} role={props.role} aria-label={props.role ? undefined : label} onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</nav>
 		}
 	</TabListProvider>
 }
@@ -198,7 +198,7 @@ export function Tab(props: TabProps) @{
 		id: props.id,
 		'data-tab-value': props.value,
 		className: ['vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className],
-		style: { height: SIZE_HEIGHT[ctx.size], ...props.style },
+		style: { height: SIZE_HEIGHT[ctx.size], ...(props.style as any) },
 		tabIndex: isDisabled ? -1 : isSelected ? 0 : -1,
 		'aria-label': props.isLabelHidden ? props.label : undefined,
 		'aria-disabled': isDisabled || undefined,
@@ -271,7 +271,7 @@ export function TabMenu(props: TabMenuProps) @{
 			id={props.id}
 			type="button"
 			className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}
-			style={{ height: SIZE_HEIGHT[ctx.size], ...props.style }}
+			style={{ height: SIZE_HEIGHT[ctx.size], ...(props.style as any) }}
 			data-tab-menu=""
 			tabIndex={selected ? 0 : -1}
 			aria-haspopup="menu"

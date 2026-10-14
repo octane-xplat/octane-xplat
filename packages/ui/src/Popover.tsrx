@@ -5,6 +5,7 @@ import { GridLayout, isIOS, Screen } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { PopoverProps } from './props';
+import type { PopoverInternalProps } from './internal-props';
 import { applyNativeProps } from './platformProps';
 import { cx } from '@octane-xplat/lib';
 import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, resolveLayerSide, type PopoverPosition } from './popover-position';
@@ -13,7 +14,7 @@ import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
 import { relativePosition } from './relative-position';
 
-function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: number }) @{
+function PopoverLayer(props: PopoverInternalProps & { anchorView: any; layerDepth: number }) @{
 	const panelRef = useRef<any>(null);
 	const [position, setPosition] = useState<PopoverPosition | null>(null);
 	const [settled, setSettled] = useState(false);
@@ -120,7 +121,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: numbe
 			top={position?.top ?? 0}
 			opacity={settled ? 1 : 0}
 			className={cx('vx-popover', props.className)}
-			style={props.style}
+			style={props.style as any}
 			onLoaded={update}
 			onLayoutChanged={update}
 		>
@@ -177,7 +178,7 @@ export function Popover(props: PopoverProps) @{
 		shown.current = { host, root, lifetime };
 		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, open, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
 		lifetime.open();
-	}, [props.anchor?.current, props.layerPosition, open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
+	}, [props.anchor?.current, (props as PopoverInternalProps).layerPosition, open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

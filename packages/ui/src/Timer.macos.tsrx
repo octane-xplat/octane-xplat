@@ -55,7 +55,7 @@ export function Timer(props: TimerProps) @{
 	<label
 		id={props.id}
 		className={cx('vx-timer', roleClasses, props.className)}
-		style={props.style}
+		style={props.style as any}
 		text={text}
 		accessibilityValue={dateTime}
 	/>

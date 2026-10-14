@@ -80,7 +80,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		}}
 		{...layoutChildProps(props)}
 		className={cx('vx-refresh-wrap', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		<scrollview
 			ref={forwardedRef}
@@ -137,7 +137,7 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 				height: props.height as any,
 				maxWidth: props.maxWidth as any,
 				minHeight: props.minHeight as any,
-				...props.style,
+				...(props.style as any),
 			}}
 			orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
 			{...a11y(props)}

@@ -8,7 +8,7 @@ export function Absolute(props: AbsoluteProps) @{
 		id={props.id}
 		ref={(view: any) => applyEscapeProps(view, props)}
 		className={cx('vx-absolute', props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

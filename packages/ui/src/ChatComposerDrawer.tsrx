@@ -26,7 +26,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)}
-		style={props.style}
+		style={props.style as any}
 		flexDirection="column"
 	>
 		{canCollapse ? (

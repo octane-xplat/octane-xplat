@@ -11,7 +11,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	<scrollview
 		id={props.id}
 		className={cx('vx-keyboard-avoiding', props.className)}
-		style={props.style}
+		style={props.style as any}
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}
 	>
 		<flexboxlayout

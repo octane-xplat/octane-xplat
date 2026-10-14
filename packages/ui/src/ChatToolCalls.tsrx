@@ -106,7 +106,7 @@ export function ChatToolCalls(props: ChatToolCallsProps) @{
 
 	if (props.calls.length === 1) {
 		return (
-			<flexboxlayout id={props.id} className={cx('vx-chattools', props.className)} style={props.style} flexDirection="column">
+			<flexboxlayout id={props.id} className={cx('vx-chattools', props.className)} style={props.style as any} flexDirection="column">
 				<CallRow call={props.calls[0]} />
 			</flexboxlayout>
 		);
@@ -115,7 +115,7 @@ export function ChatToolCalls(props: ChatToolCallsProps) @{
 	const latest = props.calls[props.calls.length - 1];
 	const latestStatus = latest.status ?? 'complete';
 
-	<flexboxlayout id={props.id} className={cx('vx-chattools', props.className)} style={props.style} flexDirection="column">
+	<flexboxlayout id={props.id} className={cx('vx-chattools', props.className)} style={props.style as any} flexDirection="column">
 		<flexboxlayout
 			className="vx-chattools-header"
 			flexDirection="row"

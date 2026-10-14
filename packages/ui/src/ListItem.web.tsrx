@@ -24,8 +24,8 @@ export function ListItem(props: ListItemProps) @{
 		// already landed on something interactive inside the row.
 		const target = e.target;
 		if (target?.closest?.('a,button,input,textarea,select,[role]')) { return; }
-		props.delegateRef.current.click?.();
-		props.delegateRef.current.focus?.();
+		(props.delegateRef.current as any).click?.();
+		(props.delegateRef.current as any).focus?.();
 	};
 
 	const marker =
@@ -70,7 +70,7 @@ export function ListItem(props: ListItemProps) @{
 				marginInlineStart: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--vx-container-padding-inline-start, 0px)))',
 				marginInlineEnd: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--vx-container-padding-inline-end, 0px)))',
 			} : {}),
-			...props.style,
+			...(props.style as any),
 		}}
 		aria-selected={props.isSelected || undefined}
 		aria-disabled={props.isDisabled || undefined}

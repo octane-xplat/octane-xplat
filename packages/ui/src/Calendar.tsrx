@@ -190,7 +190,7 @@ export function Calendar(props: CalendarProps) @{
 		flexDirection="column"
 		id={props.id}
 		className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		<flexboxlayout flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} alignItems="center" className="vx-calendar-header">
 			<Pressable

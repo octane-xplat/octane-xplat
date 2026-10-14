@@ -36,7 +36,7 @@ export function FormLayout(props: FormLayoutProps) @{
 				id={props.id}
 				ref={forwardedRef}
 				className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)}
-				style={props.style}
+				style={props.style as any}
 				accessible={props.accessible}
 				accessibilityLabel={props.accessibilityLabel}
 				accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
@@ -54,7 +54,7 @@ export function FormLayout(props: FormLayoutProps) @{
 				flexDirection="column"
 				gap={16}
 				className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
-				style={props.style}
+				style={props.style as any}
 				accessible={props.accessible}
 				accessibilityLabel={props.accessibilityLabel}
 				accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}

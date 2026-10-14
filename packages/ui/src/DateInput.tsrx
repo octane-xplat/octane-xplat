@@ -204,7 +204,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				(!isPendingValid) && 'vx-dateinput--invalid',
 				props.className,
 			)}
-			style={props.style}
+			style={props.style as any}
 		>
 			{shellContent}
 		</flexboxlayout>

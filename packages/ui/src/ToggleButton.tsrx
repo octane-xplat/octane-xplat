@@ -43,6 +43,6 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 	const context = { selectedValues: selected, toggle, size: props.size, isDisabled: props.isDisabled }
 
 	<ToggleButtonGroupContext.Provider value={context}>
-		<flexboxlayout id={props.id} className={cx('vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className)} style={props.style} accessible={true} accessibilityLabel={props.label}>{props.children}</flexboxlayout>
+		<flexboxlayout id={props.id} className={cx('vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className)} style={props.style as any} accessible={true} accessibilityLabel={props.label}>{props.children}</flexboxlayout>
 	</ToggleButtonGroupContext.Provider>
 }

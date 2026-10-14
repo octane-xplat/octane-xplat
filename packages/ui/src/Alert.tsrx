@@ -13,7 +13,7 @@ export function Alert(props: AlertProps) @{
 		id={props.id}
 		flexDirection="row"
 		className={cx('vx-alert', 'vx-alert--' + tone, props.className)}
-		style={props.style}
+		style={props.style as any}
 	>
 		{props.icon ? <Icon name={props.icon} className="vx-alert-icon" /> : null}
 		<flexboxlayout className="vx-alert-body">

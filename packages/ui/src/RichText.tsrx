@@ -13,7 +13,7 @@ export function RichText(props: RichTextProps) @{
 		ref={(el: any) => applyEscapeProps(el, props)}
 		{...layoutChildProps(props)}
 		className={cx('vx-rich-text', props.className)}
-		style={props.style}
+		style={props.style as any}
 		whiteSpace="normal"
 	>
 		<formattedstring>{props.children}</formattedstring>
@@ -34,7 +34,7 @@ export function RichTextSpan(props: RichTextSpanProps) @{
 	<span
 		text={runText(props)}
 		className={cx(props.className)}
-		style={props.style}
+		style={props.style as any}
 		onLinkTap={props.onPress}
 	/>
 }

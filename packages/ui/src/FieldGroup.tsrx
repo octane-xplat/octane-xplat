@@ -9,7 +9,7 @@ export function FieldGroup(props: FieldGroupProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-fieldgroup', props.className)}
-		style={props.style}
+		style={props.style as any}
 		accessibilityRole="group"
 		accessibilityLabel={props.label}
 	>

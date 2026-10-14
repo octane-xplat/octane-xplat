@@ -236,7 +236,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)}
-		style={props.style}
+		style={props.style as any}
 		flexDirection="column"
 	>
 		<ChatTriggerMenuOverlay
@@ -299,7 +299,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 /** Token chip element — renders the chip; on native tokens live in the
  *  composer chip row rather than inline in the text. */
 export function ChatComposerTokenElement(props: ChatComposerTokenElementProps) @{
-	<flexboxlayout id={props.id} className={cx('vx-chattoken-el', props.className)} style={props.style}>
+	<flexboxlayout id={props.id} className={cx('vx-chattoken-el', props.className)} style={props.style as any}>
 		<ChatTokenChip token={props.token} />
 	</flexboxlayout>
 }

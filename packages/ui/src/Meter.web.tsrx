@@ -20,7 +20,7 @@ export function Meter(props: MeterProps) @{
 	<div
 		id={props.id}
 		className={['vx-meter', props.className]}
-		style={{ display: 'grid', placeItems: 'center', position: 'relative', width: size, height: size, ...props.style }}
+		style={{ display: 'grid', placeItems: 'center', position: 'relative', width: size, height: size, ...(props.style as any) }}
 		role="meter progressbar"
 		aria-label={props.accessibilityLabel}
 		aria-valuemin={rangeMin}
