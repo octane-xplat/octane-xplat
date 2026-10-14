@@ -63,8 +63,7 @@ export function WebViewDemo() @{
 			<WebView
 				ref={handle}
 				className={'webview-demo-frame' + (matchContents ? '' : ' flex-1')}
-				html={remote ? undefined : INLINE_HTML}
-				src={remote ? 'https://example.com' : undefined}
+				{...(remote ? { src: 'https://example.com' } : { html: INLINE_HTML })}
 				scrollEnabled={scroll}
 				matchContents={matchContents}
 				onLayoutContent={(size) => setContentSize(`${Math.round(size.width)} × ${Math.round(size.height)}`)}

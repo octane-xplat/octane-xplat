@@ -23,7 +23,7 @@ export { setTranslate } from './translate'
 export { Spacer } from './Spacer'
 export { Text } from './Text'
 export { Markdown, MarkdownScreen } from './Markdown'
-export type { MdDoc, MdNode, MdInline, MarkdownProps } from './props'
+export type { MdDoc, MdNode, MdInline, MarkdownProps, MarkdownDataProps, MarkdownTextProps } from './props'
 export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
 export {
 	createMarkdownIncrementalState,

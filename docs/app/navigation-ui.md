@@ -75,9 +75,10 @@ import {
 `AppShell` measures its own width. At the `mobileNav.breakpoint` (default
 `md`, 768 dip/px), it changes the side navigation to a drawer. Set
 `mobileNav={false}` to disable that behavior; pass a `MobileNavConfig` object
-to control the breakpoint, toggle, open state, and custom drawer content. A custom `MobileNav` element replaces
-the automatic drawer. `MobileNavToggle` can be placed manually when
-`hasToggle` is false.
+to control the breakpoint, toggle, open state, and custom drawer content. To
+replace the drawer content with your own — typically a `MobileNav` element —
+set `mobileNav={{ content: <MobileNav>…</MobileNav> }}`. `MobileNavToggle`
+can be placed manually when `hasToggle` is false.
 
 ```tsx
 import { AppShell, SideNav, SideNavItem, Text } from '@octane-xplat/ui'

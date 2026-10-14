@@ -54,7 +54,7 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 
 ## Critical rules
 
-- Before merging, run `turbo run typecheck --filter=@octane-xplat/<package>...`
+- Before merging, run `turbo run typecheck --filter=...@octane-xplat/<package>`
   for every package you touched. The filter includes that package and its
   dependents; do not typecheck unrelated packages.
 - Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies

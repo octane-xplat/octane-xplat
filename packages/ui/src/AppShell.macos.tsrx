@@ -31,22 +31,16 @@ export function AppShell(props: AppShellProps) @{
 	const hasBanner = props.banner != null;
 
 	const mobileNavDisabled = props.mobileNav === false;
-	const mobileNavConfig: MobileNavConfig | null =
-		props.mobileNav != null && props.mobileNav !== false && isMobileNavConfig(props.mobileNav)
-			? props.mobileNav
-			: null;
-
-	const mobileNavReactNode =
-		props.mobileNav != null && props.mobileNav !== false && !isMobileNavConfig(props.mobileNav)
-			? props.mobileNav
-			: null;
+	const mobileNavConfig: MobileNavConfig | null = isMobileNavConfig(props.mobileNav)
+		? props.mobileNav
+		: null;
 
 	const mobileNavConfigContent = mobileNavConfig?.content ?? null;
 	const mobileNavHasToggle = mobileNavConfig?.hasToggle !== false;
 	const mobileNavIsControlled = mobileNavConfig?.isOpen !== undefined;
 
 	const hasNavContent = hasTopNav || hasSideNav;
-	const mobileNavEnabled = !mobileNavDisabled && hasNavContent && mobileNavReactNode == null;
+	const mobileNavEnabled = !mobileNavDisabled && hasNavContent;
 	const sideNavBreakpoint = mobileNavConfig?.breakpoint ?? 'md';
 	const breakpointDips = BREAKPOINT_DIPS[sideNavBreakpoint] ?? 768;
 
@@ -98,7 +92,7 @@ export function AppShell(props: AppShellProps) @{
 	) : null;
 
 	const topNavContent = hasTopNav ? (
-		isBelowBreakpoint && !mobileNavDisabled && mobileNavReactNode == null ? (
+		isBelowBreakpoint && !mobileNavDisabled ? (
 			<TopNavMobileContentProvider value={mobileContentValue}>
 				<TopNavRenderProvider value="mobile-bar">{props.topNav}</TopNavRenderProvider>
 			</TopNavMobileContentProvider>
@@ -141,9 +135,8 @@ export function AppShell(props: AppShellProps) @{
 			{/* Drawer overlay — last grid child paints on top of the shell. */}
 			{isBelowBreakpoint && !mobileNavDisabled ? (
 				<gridlayout row={0} rowSpan={2} col={0} className="vx-appshell-drawerhost">
-					{mobileNavReactNode}
 					{mobileNavEnabled && mobileNavConfigContent != null ? mobileNavConfigContent : null}
-					{mobileNavReactNode == null && mobileNavConfigContent == null ? (
+					{mobileNavConfigContent == null ? (
 						<>
 							{hasSideNav && !hasTopNav ? (
 								<SideNavRenderProvider value="drawer">{props.sideNav}</SideNavRenderProvider>

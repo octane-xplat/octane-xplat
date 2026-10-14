@@ -297,6 +297,18 @@ interface NSPopover extends NSObject {
 
 declare const NSPopover: NSClass<NSPopover>
 
+interface NSProgressIndicator extends NSView {
+	style: number
+	controlSize: number
+	indeterminate: boolean
+	displayedWhenStopped: boolean
+	sizeToFit(): void
+	startAnimation(sender: any): void
+	stopAnimation(sender: any): void
+}
+
+declare const NSProgressIndicator: NSClass<NSProgressIndicator>
+
 interface NSScrollView extends NSView {
 	documentView: NSView | null
 	contentView: any
@@ -335,6 +347,13 @@ declare const NSTextField: NSClass<NSTextField>
 
 interface NSSecureTextField extends NSTextField {}
 declare const NSSecureTextField: NSClass<NSSecureTextField>
+
+interface NSSearchField extends NSTextField {
+	sendsSearchStringImmediately: boolean
+	sendsWholeSearchString: boolean
+}
+
+declare const NSSearchField: NSClass<NSSearchField>
 
 interface NSTextView extends NSView {
 	string: string
@@ -443,10 +462,12 @@ declare const NSBackingStoreType: { [key: string]: number }
 declare const NSBezelStyle: { [key: string]: number }
 declare const NSBorderType: { [key: string]: number }
 declare const NSButtonType: { [key: string]: number }
+declare const NSControlSize: { [key: string]: number }
 declare const NSDatePickerElementFlags: { [key: string]: number }
 declare const NSDatePickerStyle: { [key: string]: number }
 declare const NSLayoutAttribute: { [key: string]: number }
 declare const NSPopoverBehavior: { [key: string]: number }
+declare const NSProgressIndicatorStyle: { [key: string]: number }
 declare const NSRectEdge: { [key: string]: number }
 declare const NSStackViewDistribution: { [key: string]: number }
 declare const NSStackViewGravity: { [key: string]: number }

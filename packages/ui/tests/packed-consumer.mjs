@@ -234,12 +234,20 @@ const keyboard = <KeyboardAvoiding {...keyboardProps} />
 const view = <View {...viewProps} />
 const handle: { current: WebViewHandle | null } = { current: null }
 const webProps: WebViewProps = {
- html: '<p>Embedded</p>', src: 'https://example.com', ref: handle,
+ html: '<p>Embedded</p>', ref: handle,
  matchContents: true, scrollEnabled: false,
  onLayoutContent: (size: WebViewContentSize) => { const height: number = size.height; void height },
  onLoad: (event: WebViewLoadEvent) => { const url: string | undefined = event.url; void url },
  onError: (event) => { const error: string | undefined = event.error; void error },
 }
+const remoteProps: WebViewProps = { src: 'https://example.com' }
+// @ts-expect-error src and html are mutually exclusive document sources
+const bothSources: WebViewProps = { src: 'https://example.com', html: '<p></p>' }
+// @ts-expect-error a WebView requires a document source
+const noSource: WebViewProps = {}
+void remoteProps
+void bothSources
+void noSource
 const embedded = <SafeArea ignoreSafeArea><WebView {...webProps} /></SafeArea>
 handle.current?.reload()
 handle.current?.goBack()

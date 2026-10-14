@@ -38,7 +38,9 @@ export function runWebViewFixture(first: string, second: string, missing: string
 		}, 20)
 	}
 
-	const props: WebViewProps = {
+	// Shared bag without a document source — each render step adds exactly
+	// one of `html`/`src` (the two are mutually exclusive on WebViewProps).
+	const props: Omit<WebViewProps, 'src' | 'html'> = {
 		id: 'embedded',
 		ref: handle,
 		style: { width: 320, height: 150 },
@@ -113,7 +115,6 @@ export function runWebViewFixture(first: string, second: string, missing: string
 	root.render(Content, {
 		...props,
 		html: '<html><body style="margin:0;height:700px">embedded</body></html>',
-		src: 'https://invalid.example',
 	})
 
 	host.layoutSubtreeIfNeeded()

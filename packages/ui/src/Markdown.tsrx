@@ -231,7 +231,7 @@ export function Markdown(props: MarkdownProps) @{
 export function MarkdownScreen(props: { data?: MdDoc; error?: unknown }) @{
 	<Screen className="vx-app">
 		<ScrollableArea padding={4}>
-			<Markdown data={props.data} />
+			{props.data != null ? <Markdown data={props.data} /> : null}
 		</ScrollableArea>
 	</Screen>
 }

@@ -896,7 +896,15 @@ import { WebView } from '@octane-xplat/ui'
 />
 ```
 
-`html` wins when both sources are present, including an empty string. Set
+Set exactly one document source — `src` and `html` are mutually exclusive;
+passing both (or neither) is a compile-time error. To switch sources
+conditionally, spread one of them:
+
+```tsx
+<WebView {...(remote ? { src: url } : { html: INLINE_HTML })} />
+```
+
+Set
 `matchContents` to apply the measured height after a successful load. AppKit
 measures after loading and when measurement props change; later changes made
 by page scripts are not continuously observed. A document's viewport can set a

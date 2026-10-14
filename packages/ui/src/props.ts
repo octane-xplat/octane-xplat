@@ -1176,27 +1176,10 @@ export interface WebViewContentSize {
 	height: number
 }
 
-/** Embedded web document — hosted bucket: web renders a sandboxed
- *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
- *  android.webkit.WebView). The *frame* is normalized; the document's
- *  pixels belong to each platform's engine, same as TextInput's IME.
- *  No JS bridge: iframe `postMessage`, WKScriptMessageHandler, and
- *  `addJavascriptInterface` have different page-side contracts, so a
- *  shared one would be fake parity — reach it through the escape bags. */
-export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
+interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
 	className?: any
 	style?: any
 	id?: string
-	/** Remote document URL. Native also accepts `~/` bundle paths and
-	 *  absolute file paths (NS `src` grammar). AppKit resolves `~/` relative
-	 *  to the app bundle resources and permits reads in the file's directory. */
-	src?: string
-	/** Inline HTML document — web `srcdoc`; native loads it through the
-	 *  `src` property's data path (`loadHTMLString`/`loadDataWithBaseURL`).
-	 *  Takes precedence over `src` when both are set. Treated as trusted
-	 *  content — the default web sandbox keeps `allow-same-origin`, so a
-	 *  srcdoc document can reach the embedding page. */
-	html?: string
 	/** After each successful document load (web `load`; native
 	 *  `loadFinished` without an error). */
 	onLoad?: (e: WebViewLoadEvent) => void
@@ -1231,6 +1214,36 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
 	android?: any
 	web?: any
 }
+
+/** Embedded web document — hosted bucket: web renders a sandboxed
+ *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
+ *  android.webkit.WebView). The *frame* is normalized; the document's
+ *  pixels belong to each platform's engine, same as TextInput's IME.
+ *  No JS bridge: iframe `postMessage`, WKScriptMessageHandler, and
+ *  `addJavascriptInterface` have different page-side contracts, so a
+ *  shared one would be fake parity — reach it through the escape bags.
+ *
+ *  Exactly one source is required: `src` or `html`. */
+export type WebViewProps = WebViewBaseProps &
+	(
+		| {
+				/** Remote document URL. Native also accepts `~/` bundle paths and
+				 *  absolute file paths (NS `src` grammar). AppKit resolves `~/`
+				 *  relative to the app bundle resources and permits reads in the
+				 *  file's directory. */
+				src: string
+				html?: never
+			}
+		| {
+				/** Inline HTML document — web `srcdoc`; native loads it through
+				 *  the `src` property's data path
+				 *  (`loadHTMLString`/`loadDataWithBaseURL`). Treated as trusted
+				 *  content — the default web sandbox keeps `allow-same-origin`,
+				 *  so a srcdoc document can reach the embedding page. */
+				html: string
+				src?: never
+			}
+	)
 
 /** A density/size-qualified entry in a multi-resolution `Image.src` array —
  *  the native `srcset` analog. `uri` takes the same grammar as a string
@@ -4345,25 +4358,41 @@ export interface ChatMessageListProps {
 
 export type ChatToolCallStatus = 'pending' | 'running' | 'complete' | 'error'
 
-/** One tool/function call in a ChatToolCalls list — mirrors the shape LLM
- *  streaming APIs return. */
-export interface ChatToolCallItem {
+interface ChatToolCallItemBase {
 	name: string
-	status?: ChatToolCallStatus
 	target?: string
-	duration?: string
 	/** Short qualifier rendered as a chip next to the name (e.g. file part). */
 	node?: string
 	additions?: number
 	deletions?: number
 	/** Custom stats content replacing/augmenting additions+deletions. */
 	stats?: any
-	errorMessage?: string
 	key?: string
 	data?: unknown
 	/** Expandable detail content (diff, code block, arguments). */
 	resultDetail?: any
 }
+
+/** One tool/function call in a ChatToolCalls list — mirrors the shape LLM
+ *  streaming APIs return. `status` gates the state fields: `duration` is
+ *  rendered only on `complete` (an omitted status reads as `complete`) and
+ *  `errorMessage` only on `error`. */
+export type ChatToolCallItem = ChatToolCallItemBase &
+	(
+		| {
+				status?: 'complete'
+				/** Display-formatted run time (e.g. `'1.2s'`) shown on the row. */
+				duration?: string
+				errorMessage?: never
+			}
+		| { status: 'pending' | 'running'; duration?: never; errorMessage?: never }
+		| {
+				status: 'error'
+				duration?: never
+				/** Failure detail — announced as the row's accessible name. */
+				errorMessage?: string
+			}
+	)
 
 /** Tool-call list — one call renders inline; several collapse behind a
  *  summary header showing the latest call and the count. */
@@ -5055,7 +5084,9 @@ export interface MobileNavConfig {
 	isOpen?: boolean
 	onOpenChange?: (isOpen: boolean) => void
 	/** Custom drawer content replacing the auto drawer — a `MobileNav`
-	 *  element or raw children. */
+	 *  element or raw children. Renders below the breakpoint inside the
+	 *  managed drawer; the auto toggle stays on unless `hasToggle` is
+	 *  false. */
 	content?: any
 	/** Width point below which mobile nav activates (default `md`;
 	 *  `none` disables automatic mobile mode). */
@@ -5090,9 +5121,12 @@ export interface AppShellProps extends LayoutChildProps {
 	/** `fill`: shell fills viewport and content scrolls internally;
 	 *  `auto`: shell grows with content. */
 	height?: 'fill' | 'auto'
-	/** `false` disables the mobile drawer; a config object customizes the
-	 *  auto drawer; an element replaces it entirely. */
-	mobileNav?: false | MobileNavConfig | any
+	/** Mobile navigation behavior. Omit for the default auto drawer;
+	 *  `false` disables it; a `MobileNavConfig` customizes it (breakpoint,
+	 *  toggle, controlled open state). Set `MobileNavConfig.content` to
+	 *  replace the drawer's content with your own — e.g. a `MobileNav`
+	 *  element. */
+	mobileNav?: false | MobileNavConfig
 	/** Side navigation — typically a `SideNav`. */
 	sideNav?: any
 	/** Top navigation — typically a `TopNav`. */
@@ -6925,15 +6959,21 @@ export interface MdDoc {
 	children: MdNode[]
 }
 
-/** `Markdown` — renders a Markdown doc with the shared vocabulary. Pass
- *  either `data` (an AST baked by route codegen — no parser in the bundle)
- *  or `text` (raw source parsed at runtime). `data` wins when both are set. */
-export interface MarkdownProps {
-	/** Pre-parsed doc, e.g. `routes.gen.data` for a `.md` route. */
-	data?: MdDoc
-	/** Raw Markdown source, parsed at runtime with the package's built-in
-	 *  subset parser (see docs/content-display.md for the grammar). */
-	text?: string
+/** `Markdown` with a pre-parsed document — the `MdDoc` AST baked by route
+ *  codegen (`routes.gen.data` for a `.md` route). No parser ships in the
+ *  bundle for this source, so `isStreaming`/`fadeIn` do not apply. */
+export interface MarkdownDataProps {
+	data: MdDoc
+	text?: never
+	isStreaming?: never
+	fadeIn?: never
+}
+
+/** `Markdown` with raw source parsed at runtime by the package's built-in
+ *  subset parser (see docs/content-display.md for the grammar). */
+export interface MarkdownTextProps {
+	text: string
+	data?: never
 	/** `text` is a cumulative streaming snapshot that grows in chunks — often
 	 *  mid-token with unclosed constructs. Completed blocks parse once and
 	 *  are kept mounted; incomplete trailing constructs (an unclosed fence,
@@ -6945,6 +6985,11 @@ export interface MarkdownProps {
 	 *  settled. @default true */
 	fadeIn?: boolean
 }
+
+/** `Markdown` — renders a Markdown doc with the shared vocabulary. Exactly
+ *  one source: `data` (a baked `MdDoc` AST) or `text` (raw source parsed at
+ *  runtime). */
+export type MarkdownProps = MarkdownDataProps | MarkdownTextProps
 
 // ---------- Astryx parity: layout containers ----------
 

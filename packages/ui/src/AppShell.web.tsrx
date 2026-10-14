@@ -32,28 +32,23 @@ export function AppShell(props: AppShellProps) @{
 	const hasSideNav = props.sideNav != null;
 	const hasBanner = props.banner != null;
 
-	// Parse mobileNav: false | config | element.
+	// Parse mobileNav: false | config. `isMobileNavConfig` keeps stray
+	// non-config values (e.g. a pre-migration element) out of the options bag.
 	const mobileNavDisabled = props.mobileNav === false;
-	const mobileNavConfig: MobileNavConfig | null =
-		props.mobileNav != null && props.mobileNav !== false && isMobileNavConfig(props.mobileNav)
-			? props.mobileNav
-			: null;
-
-	const mobileNavReactNode =
-		props.mobileNav != null && props.mobileNav !== false && !isMobileNavConfig(props.mobileNav)
-			? props.mobileNav
-			: null;
+	const mobileNavConfig: MobileNavConfig | null = isMobileNavConfig(props.mobileNav)
+		? props.mobileNav
+		: null;
 
 	const mobileNavConfigContent = mobileNavConfig?.content ?? null;
 	const mobileNavHasToggle = mobileNavConfig?.hasToggle !== false;
 	const mobileNavIsControlled = mobileNavConfig?.isOpen !== undefined;
 
 	const hasNavContent = hasTopNav || hasSideNav;
-	const mobileNavEnabled = !mobileNavDisabled && hasNavContent && mobileNavReactNode == null;
+	const mobileNavEnabled = !mobileNavDisabled && hasNavContent;
 	const sideNavBreakpoint = mobileNavConfig?.breakpoint ?? 'md';
 
 	const query =
-		!mobileNavEnabled && mobileNavReactNode == null ? null : sideNavBreakpoint === 'none' ? null : `(width < ${BREAKPOINT_PX[sideNavBreakpoint] ?? 768}px)`;
+		!mobileNavEnabled ? null : sideNavBreakpoint === 'none' ? null : `(width < ${BREAKPOINT_PX[sideNavBreakpoint] ?? 768}px)`;
 
 	// Hooks are unconditional — a disabled breakpoint subscribes to a
 	// never-matching query so the slot count stays fixed.
@@ -71,7 +66,6 @@ export function AppShell(props: AppShellProps) @{
 	);
 
 	const showSideNavInline = hasSideNav && !isBelowBreakpoint;
-	const shouldRenderMobileNavReactNode = mobileNavReactNode != null;
 	const shouldRenderConfigContent = mobileNavEnabled && mobileNavConfigContent != null && isBelowBreakpoint;
 
 	const mobileNavId = useId();
@@ -101,7 +95,7 @@ export function AppShell(props: AppShellProps) @{
 	) : null;
 
 	const topNavContent = hasTopNav ? (
-		isBelowBreakpoint && !mobileNavDisabled && mobileNavReactNode == null ? (
+		isBelowBreakpoint && !mobileNavDisabled ? (
 			<TopNavMobileContentProvider value={mobileContentValue}>
 				<TopNavRenderProvider value="mobile-bar">{props.topNav}</TopNavRenderProvider>
 			</TopNavMobileContentProvider>
@@ -158,9 +152,8 @@ export function AppShell(props: AppShellProps) @{
 				</div>
 			</div>
 
-			{shouldRenderMobileNavReactNode ? mobileNavReactNode : null}
 			{shouldRenderConfigContent ? mobileNavConfigContent : null}
-			{isBelowBreakpoint && !mobileNavDisabled && mobileNavReactNode == null && !mobileNavConfigContent ? (
+			{isBelowBreakpoint && !mobileNavDisabled && !mobileNavConfigContent ? (
 				<>
 					{hasSideNav && !hasTopNav ? (
 						<SideNavRenderProvider value="drawer">{props.sideNav}</SideNavRenderProvider>

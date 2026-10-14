@@ -74,7 +74,8 @@ Markdown vocabulary. It is not a plug-in Markdown parser.
 
 `Markdown` renders either a `data` prop — the `MdDoc` AST that `xplat routes`
 bakes from `marked` at codegen (no parser in the bundle) — or a `text` prop of
-raw Markdown parsed at runtime. `data` wins when both are set.
+raw Markdown parsed at runtime. Set exactly one: the sources are mutually
+exclusive, and `isStreaming`/`fadeIn` apply to `text` only.
 
 The runtime parser is a deliberately small, dependency-free subset covering
 what the `MdDoc` AST can express: ATX and Setext headings, paragraphs, fenced
