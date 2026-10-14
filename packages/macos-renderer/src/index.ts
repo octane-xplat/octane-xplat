@@ -1777,6 +1777,57 @@ function syncListPicker(node: ElementNode) {
 	notifyListPickerChange(node, value)
 }
 
+/** Raw shared SegmentedBar: ordered item titles with one retained selection. */
+function makeSegmentedBar(node: ElementNode) {
+	const view = NSSegmentedControl.segmentedControlWithLabelsTrackingModeTargetAction(
+		[], NSSegmentSwitchTracking.SelectOne, buttonActionTarget, 'controlChanged:',
+	)
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	view.selectedSegmentBezelColor = nativeColor('#0000ff')
+	const actionId = nextActionId++
+	view.tag = actionId
+	actionHandlers.set(actionId, null)
+	node.segmentedBarIndex = -1
+	node.segmentedBarRequested = -1
+	return { view, actionId }
+}
+
+function notifySegmentedBarChange(node: ElementNode, value: number) {
+	const oldIndex = node.segmentedBarIndex
+	node.segmentedBarIndex = value
+	if (value !== oldIndex && typeof node.props.onSelectedIndexChange === 'function') {
+		node.props.onSelectedIndexChange({ eventName: 'selectedIndexChange', object: node.view, value, oldIndex, newIndex: value })
+	}
+}
+
+function syncSegmentedBar(node: ElementNode) {
+	const view = node.view! as NSSegmentedControl
+	const titles = Array.from(node.props.items ?? [], (item: any) => String(item.title ?? ''))
+	if (!node.segmentedBarTitles || titles.length !== node.segmentedBarTitles.length || titles.some((title, index) => title !== node.segmentedBarTitles[index])) {
+		view.segmentCount = titles.length
+		for (const [index, title] of titles.entries()) {view.setLabelForSegment(title, index)}
+
+		node.segmentedBarTitles = titles
+		view.invalidateIntrinsicContentSize()
+	}
+
+	if (!Object.is(node.segmentedBarInput, node.props.selectedIndex)) {
+		node.segmentedBarRequested = node.props.selectedIndex ?? -1
+		node.segmentedBarInput = node.props.selectedIndex
+	}
+
+	const value = titles.length ? Math.max(0, Math.min(node.segmentedBarRequested, titles.length - 1)) : -1
+	view.selectedSegment = value
+	setControlAction(node, () => {
+		const index = Number(view.selectedSegment)
+		node.segmentedBarRequested = index
+		notifySegmentedBarChange(node, index)
+	}, () => undefined)
+
+	notifySegmentedBarChange(node, value)
+}
+
 /** DatePicker's shared values carry a local calendar day, never time-of-day. */
 function calendarDate(value: Date | string): Date {
 	const date = new Date(value)
@@ -3042,6 +3093,7 @@ const SUPPORTED_TYPES = new Set([
 	'progress',
 	'datepicker',
 	'listpicker',
+	'segmentedbar',
 	'webview',
 	'image',
 	'span',
@@ -3062,6 +3114,17 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'segmentedbar') {
+		if (props?.items != null && !Array.isArray(props.items)) {throw new Error('AppKit segmentedbar items must be an array')}
+		for (const item of props?.items ?? []) {
+			if (!item || typeof item !== 'object') {throw new Error('AppKit segmentedbar items must be objects with optional titles')}
+			if (item.title != null && typeof item.title !== 'string') {throw new Error('AppKit segmentedbar item title must be a string')}
+		}
+
+		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new Error('AppKit segmentedbar selectedIndex must be an integer')}
+		if (props?.style?.selectedBackgroundColor != null) {nativeColor(props.style.selectedBackgroundColor)}
+	}
+
 	if (type === 'listpicker') {
 		if (props?.items != null && !Array.isArray(props.items)) {throw new Error('AppKit listpicker items must be an array')}
 		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new Error('AppKit listpicker selectedIndex must be an integer')}
@@ -3253,6 +3316,12 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
 				break
+			case 'segmentedbar': {
+				const control = makeSegmentedBar(node)
+				node.view = control.view
+				node.actionId = control.actionId
+				break
+			}
 			case 'listpicker': {
 				const control = makeListPicker(node)
 				node.view = control.view
@@ -3800,7 +3869,9 @@ function resetStyle(node: ElementNode, name: string) {
 	}
 
 	const textControl = ['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
-	if (name === 'pointerEvents') {
+	if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
+		view.selectedSegmentBezelColor = nativeColor('#0000ff')
+	} else if (name === 'pointerEvents') {
 		inputTransparentViews.delete(view)
 	} else if (name === 'objectFit' && node.type === 'image') {
 		// NSImageScaleProportionallyDown — the makeImageView/AppKit default.
@@ -3915,6 +3986,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			} else {
 				inputTransparentViews.delete(node.view!)
 			}
+		} else if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
+			node.view!.selectedSegmentBezelColor = nativeColor(value)
 		} else if (name === 'objectFit' && node.type === 'image') {
 			// NSImageScaling: 0 ProportionallyDown, 1 AxesIndependently,
 			// 2 None (centered, unscaled), 3 ProportionallyUpOrDown.
@@ -4715,6 +4788,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	segmentedbar: ['items', 'selectedIndex', 'style', 'className'],
 	listpicker: ['items', 'selectedIndex', 'style', 'className'],
 	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
 	activityindicator: ['busy', 'style', 'className'],
@@ -4968,6 +5042,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
 				}
+
+				break
+			case 'segmentedbar':
+				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {continue}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else {console.warn('[macos-host] ignored segmentedbar prop ' + name)}
 
 				break
 			case 'listpicker':
@@ -5302,6 +5385,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
+	if (node.type === 'segmentedbar') {syncSegmentedBar(node)}
 	if (node.type === 'listpicker') {syncListPicker(node)}
 	if (node.type === 'datepicker') {syncDatePicker(node, props)}
 	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
@@ -5845,6 +5929,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
 	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
+	if (parentType === 'segmentedbar' && childType !== 'segmentedbaritem') {throw new Error('AppKit <segmentedbar> accepts only segmentedbaritem children')}
 	if (parentType === 'listpicker') {throw new Error('AppKit <listpicker> cannot contain JSX children')}
 	if (parentType === 'datepicker') {throw new Error('AppKit <datepicker> cannot contain JSX children')}
 	if (parentType === 'activityindicator') {
@@ -6178,6 +6263,15 @@ function destroy(node: ElementNode) {
 	// branch below must tolerate partial construction.
 	if (node.type === 'webview' && node.view) {
 		disposeWebView(node.view as WKWebView)
+	}
+
+	if (node.type === 'segmentedbar' && node.view) {
+		node.view.target = null
+		node.view.action = null
+		node.view.segmentCount = 0
+		node.segmentedBarTitles = null
+		node.props.items = undefined
+		node.props.onSelectedIndexChange = undefined
 	}
 
 	if (node.type === 'listpicker' && node.view) {

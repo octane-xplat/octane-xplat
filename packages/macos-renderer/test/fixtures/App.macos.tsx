@@ -22,6 +22,7 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<segmentedbar id="hmr-segment" items={[{ title: "First revision" }, { title: "Retained" }]} selectedIndex={count$.get()} />
 			<progress id="hmr-progress" value={count$.get() * ("First revision".startsWith("First") ? 25 : 40)} maxValue={100} />
 			<listpicker id="hmr-list" items={["First revision", "Retained"]} selectedIndex={count$.get()} />
 			<datepicker id="hmr-date" date={new Date(2026, 4, count$.get() + ("First revision".startsWith("First") ? 10 : 12), 19)} />

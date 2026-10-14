@@ -65,6 +65,7 @@ const tree = (
 		</contentview>
 		<listpicker items={["First", null, 42]} selectedIndex={1} onSelectedIndexChange={(event) => { const index: number = event.value; void index; void event.object }} ref={(view) => {void view; return () => {}}} />
 		<datepicker date={new Date(2026, 4, 10)} minDate="2026-05-01" maxDate={new Date(2026, 4, 31)} day={10} month={5} year={2026} onDateChange={(event) => { const value: Date = event.value; const old: Date | undefined = event.oldValue; void value; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
+		<segmentedbar items={[{ title: "First" }, { title: "Second" }]} selectedIndex={1} style={{ selectedBackgroundColor: "#ff0000" }} onSelectedIndexChange={(event) => { const index: number = event.value; const old: number | undefined = event.oldIndex; void index; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
 		<progress value={12.5} maxValue={100} ref={(view) => { void view; return () => {} }} />
 		<activityindicator busy={true} ref={(view) => { void view; return () => {} }} />
 		<htmlview html="<b>Hello &amp; world</b>" style={{ fontSize: 18 }} ref={(view) => { void view; return () => {} }} />
@@ -108,6 +109,15 @@ void badListMode
 const badDate = <datepicker date={123} />
 // @ts-expect-error AppKit-only props must stay out of shared JSX
 const badDateStyle = <datepicker datePickerStyle={0} />
+// @ts-expect-error SegmentedBar index must be numeric
+const badSegmentIndex = <segmentedbar selectedIndex="1" />
+// @ts-expect-error SegmentedBar items must be host objects
+const badSegmentItems = <segmentedbar items={["First"]} />
+// @ts-expect-error AppKit modes must stay out of shared JSX
+const badSegmentMode = <segmentedbar trackingMode={0} />
+void badSegmentIndex
+void badSegmentItems
+void badSegmentMode
 // @ts-expect-error Progress value is numeric
 const badProgressValue = <progress value="12" />
 // @ts-expect-error Progress maximum is numeric

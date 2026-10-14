@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`                                                                                                    | `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`                                                                                                    | `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 26 core factories and 13 missing core hosts. `span` and
+There are now 27 core factories and 12 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 13 missing core hosts and nine missing raw extension hosts remain required.
+The 12 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -543,3 +543,51 @@ hardware qualification remain release gates. Inherited common lifecycle,
 gesture, visibility/collapse, complete class/style/accessibility behavior,
 mobile execution, OS input, visual parity and the full native release gates
 remain open. This raw-host unit changes no recipe workflow.
+
+
+## SegmentedBar host
+
+SegmentedBar uses NSSegmentedControl with a single selection. Supply ordered
+item objects with `title` values; missing titles are empty strings. Duplicate
+and empty titles keep their slots. Empty items select -1; populated items clamp
+selection to the available indices and default to the first item. Removing
+items clears the control; removing selection restores the default. Selection
+changes emit `selectedIndexChange` with `value`, `oldIndex`, `newIndex` and the
+host `object`. Put the control alongside other views in a layout.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function SegmentExample() {
+	const selected$ = useSignal$(0)
+	return (
+		<stacklayout>
+			<segmentedbar
+				items={[{ title: 'Day' }, { title: 'Week' }]}
+				selectedIndex={selected$.get()}
+				style={{ selectedBackgroundColor: '#2563eb', width: 240, height: 32 }}
+				onSelectedIndexChange={(event) => selected$.set(event.value)}
+			/>
+		</stacklayout>
+	)
+}
+```
+
+The selected background is a style property. Removing it restores NativeScript's
+blue default. The existing renderer color parser supports hex and rgb/rgba
+strings and rejects other formats explicitly. Item arrays use the canonical
+HostObject projection; structural title objects are accepted. The separate
+`segmentedbaritem` intrinsic remains unimplemented, so JSX item children are
+not qualified by this unit. The shared declarations and ref policy are unchanged.
+
+Maintained unit and packed public consumer checks cover ordered item updates,
+selection bounds, native action payloads and unchanged-event suppression,
+tint/default restoration, sizing, nesting, keyed moves, parent changes,
+replacement/removal, refs and teardown. Retained-root HMR checks host identity,
+edited titles and retained selection. Authored parent changes recreate the host
+and clean old refs; units also check physical reparenting. Native action dispatch
+is event-bridge evidence, not OS input. Inherited common lifecycle, gesture,
+class/style/accessibility and host-object policy gaps, mobile hardware, visual
+parity and full release acceptance remain open. This raw host changes no recipe
+workflow; the normalized UI SegmentedControl remains separate.

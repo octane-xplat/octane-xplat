@@ -115,3 +115,21 @@ const invalidProgressMode: SharedJSX.IntrinsicElements['progress'] = { indetermi
 void progress
 void invalidProgress
 void invalidProgressMode
+
+const segmentedBar: SharedJSX.IntrinsicElements['segmentedbar'] = {
+	items: [{ title: 'First' }, { title: 'Second' }], selectedIndex: 1,
+	style: { selectedBackgroundColor: '#ff0000' },
+	onSelectedIndexChange: (event) => { const value: number = event.value; const old: number | undefined = event.oldIndex; void value; void old; void event.object },
+	ref: [(view) => { void view; return () => {} }],
+}
+
+// @ts-expect-error Index must be numeric
+const badSegmentIndex: SharedJSX.IntrinsicElements['segmentedbar'] = { selectedIndex: '1' }
+// @ts-expect-error Items use host objects, never primitive labels
+const badSegmentItems: SharedJSX.IntrinsicElements['segmentedbar'] = { items: ['First'] }
+// @ts-expect-error AppKit props do not enter the shared API
+const badSegmentMode: SharedJSX.IntrinsicElements['segmentedbar'] = { trackingMode: 0 }
+void segmentedBar
+void badSegmentIndex
+void badSegmentItems
+void badSegmentMode

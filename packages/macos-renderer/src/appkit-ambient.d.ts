@@ -115,6 +115,19 @@ interface NSPopUpButtonClass extends NSClass<NSPopUpButton> {
 
 declare const NSPopUpButton: NSPopUpButtonClass
 
+interface NSSegmentedControl extends NSControl {
+	segmentCount: number
+	selectedSegment: number
+	selectedSegmentBezelColor: NSColor
+	setLabelForSegment(label: string, segment: number): void
+}
+
+interface NSSegmentedControlClass extends NSClass<NSSegmentedControl> {
+	segmentedControlWithLabelsTrackingModeTargetAction(labels: string[], trackingMode: number, target: any, action: string): NSSegmentedControl
+}
+
+declare const NSSegmentedControl: NSSegmentedControlClass
+
 declare const NSButton: NSButtonClass
 
 declare const NSGestureRecognizerDelegate: any
@@ -482,6 +495,7 @@ declare const NSDatePickerMode: { [key: string]: number }
 declare const NSLayoutAttribute: { [key: string]: number }
 declare const NSPopoverBehavior: { [key: string]: number }
 declare const NSProgressIndicatorStyle: { [key: string]: number }
+declare const NSSegmentSwitchTracking: { [key: string]: number }
 declare const NSRectEdge: { [key: string]: number }
 declare const NSStackViewDistribution: { [key: string]: number }
 declare const NSStackViewGravity: { [key: string]: number }

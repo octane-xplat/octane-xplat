@@ -22,6 +22,7 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedSegment: any
 let retainedProgress: any
 let retainedList: any
 let retainedDate: any
@@ -48,6 +49,7 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedSegment = debug.findId('hmr-segment')
 			retainedProgress = debug.findId('hmr-progress')
 			retainedList = debug.findId('hmr-list')
 			retainedDate = debug.findId('hmr-date')
@@ -80,6 +82,7 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-segment') === retainedSegment && Number(retainedSegment.selectedSegment) === 1 && String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
 				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
 				debug.findId('hmr-list') === retainedList && Number(retainedList.indexOfSelectedItem) === 1 && String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
 				debug.findId('hmr-date') === retainedDate && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
@@ -119,6 +122,7 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedSegment.superview || retainedSegment.target != null || String(retainedSegment.action) !== '<null selector>' || Number(retainedSegment.segmentCount) !== 0 ||
 					retainedProgress.superview ||
 					retainedList.superview || retainedList.target != null || String(retainedList.action) !== '<null selector>' || Number(retainedList.numberOfItems) !== 0 ||
 					retainedDate.superview || retainedDate.target != null || String(retainedDate.action) !== '<null selector>' ||
@@ -152,6 +156,7 @@ function reload() {
 				console.log('PACKED_SEARCHBAR_HMR_OK')
 				console.log('PACKED_FORMATTEDSTRING_HMR_OK')
 				console.log('PACKED_ACTIVITYINDICATOR_HMR_OK')
+				console.log('PACKED_SEGMENTEDBAR_HMR_OK')
 				console.log('PACKED_PROGRESS_HMR_OK')
 				console.log('PACKED_HTMLVIEW_HMR_OK')
 				console.log('PACKED_LISTPICKER_HMR_OK')
