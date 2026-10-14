@@ -25,8 +25,8 @@ export default function DatePicker() {
 				? {}
 				: {
 						date: new Date(2026, 4, phase === 0 ? 10 : 12, 17, 30),
-						minDate: new Date(2026, 4, 1, 8),
-						maxDate: new Date(2026, 4, 20, 21),
+						minDate: new Date(2026, 4, phase === 1 ? 2 : 1, 8),
+						maxDate: new Date(2026, 4, phase === 1 ? 18 : 20, 21),
 						isEnabled: phase !== 1,
 					})}
 			onDateChange={(event) => dateChanges.push(event)}
