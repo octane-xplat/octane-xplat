@@ -6,10 +6,9 @@ import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from '../stacks';
 import { cx } from '@octane-xplat/lib';
 import { getIcon } from '../icons';
-import type { PlatformTabSpec, PlatformTabsProps, PlatformWidgetProps } from '../props';
+import type { PlatformTabSpec, UITabBarProps } from '../props';
 import { applyEscapeProps } from '../escape-props';
 
-export type { PlatformTabSpec as TabSpec } from '../props';
 
 // TabViewItem content is a plain native view — the driver can't parent
 // reconciled children into <tabviewitem>, so each pane is a GridLayout
@@ -137,7 +136,7 @@ function TabBarInner(props: {
 	selectedIndex?: number;
 	onSelectedIndexChanged?: (index: number) => void;
 	ios?: Record<string, any>;
-	modifiers?: PlatformWidgetProps<PlatformTabsProps>['modifiers'];
+	modifiers?: UITabBarProps['modifiers'];
 }) @{
 	<tabview
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -159,7 +158,7 @@ const MemoTabBar = memo(TabBarInner, (a, b) => a.tabs === b.tabs && a.selectedIn
  *  Real per-pane Frames: each `stack` tab keeps a native navigation stack
  *  inside its pane. The self-drawn shared `Tabs` lives in the root export.
  *  `tabs` is identity-stable (module const preferred). */
-export function UITabBar(props: PlatformWidgetProps<PlatformTabsProps>) @{
+export function UITabBar(props: UITabBarProps) @{
 	const indexForKey = (key?: string) =>
 		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key);
 	const keyIndex = indexForKey(props.selectedKey);

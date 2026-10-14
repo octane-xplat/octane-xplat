@@ -3,7 +3,7 @@
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
-import type { PlatformListProps, PlatformWidgetProps } from "../props";
+import type { RecyclerViewProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
 import { cx } from "@octane-xplat/lib";
 import { ActivityIndicator } from '../ActivityIndicator.tsrx';
@@ -48,11 +48,11 @@ function RecyclerViewInner(props: {
 	id?: string;
 	items: any[];
 	initialScrollIndex?: number;
-	viewabilityConfig?: PlatformListProps['viewabilityConfig'];
+	viewabilityConfig?: RecyclerViewProps['viewabilityConfig'];
 	renderItem: (item: any, index: number) => any;
 	onEndReached?: () => void;
 	android?: Record<string, any>;
-	modifiers?: PlatformWidgetProps<PlatformListProps>['modifiers'];
+	modifiers?: RecyclerViewProps['modifiers'];
 	refresh?: RefreshBag;
 	runtime: PlatformListRuntime;
 }) @{
@@ -169,7 +169,7 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
  *  the indicator is self-drawn (vx-spinner) and the list is translated
  *  inside a clipped wrapper while the drag accumulates — no
  *  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
-export function RecyclerView(props: PlatformWidgetProps<PlatformListProps>) @{
+export function RecyclerView(props: RecyclerViewProps) @{
 	const runtime = useRef<PlatformListRuntime>({
 		list: { current: null },
 		items: { current: props.items },

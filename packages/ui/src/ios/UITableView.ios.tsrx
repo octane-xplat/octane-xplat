@@ -3,7 +3,7 @@
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
-import type { PlatformListProps, PlatformWidgetProps } from "../props";
+import type { UITableViewProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
 import { cx } from "@octane-xplat/lib";
 import { ActivityIndicator } from '../ActivityIndicator.tsrx';
@@ -48,12 +48,12 @@ function UITableViewInner(props: {
 	id?: string;
 	items: any[];
 	initialScrollIndex?: number;
-	viewabilityConfig?: PlatformListProps['viewabilityConfig'];
+	viewabilityConfig?: UITableViewProps['viewabilityConfig'];
 	renderItem: (item: any, index: number) => any;
 	estimatedItemHeight?: number;
 	onEndReached?: () => void;
 	ios?: Record<string, any>;
-	modifiers?: PlatformWidgetProps<PlatformListProps>['modifiers'];
+	modifiers?: UITableViewProps['modifiers'];
 	refresh?: RefreshBag;
 	runtime: PlatformListRuntime;
 }) @{
@@ -171,7 +171,7 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
  *  the indicator is self-drawn (vx-spinner), the pull rides UITableView's
  *  own bounce, and the docked phase holds via contentInset — the same
  *  mechanics UIRefreshControl uses, without its OS spinner. */
-export function UITableView(props: PlatformWidgetProps<PlatformListProps>) @{
+export function UITableView(props: UITableViewProps) @{
 	const runtime = useRef<PlatformListRuntime>({
 		list: { current: null },
 		items: { current: props.items },

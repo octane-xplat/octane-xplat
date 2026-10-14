@@ -222,8 +222,13 @@ export function Settings() {
 }
 ```
 
-Platform widgets accept only the props the OS control can deliver. The
-platform switches share the `checked`/`onCheckedChange` state contract
+Platform widgets accept only the props the OS control can deliver. Each
+widget's props type carries the widget's name — `UISwitch` takes
+`UISwitchProps`, `UITableView` takes `UITableViewProps`, `MaterialSwitch`
+takes `MaterialSwitchProps`. The `Platform*` types (`PlatformTabSpec`,
+`PlatformListProps`, `PlatformIconChoice`, `PlatformWidgetProps`) are the
+contracts the platform widgets share with each other. The platform switches
+share the `checked`/`onCheckedChange` state contract
 (`defaultChecked` seeds uncontrolled use) and
 honor `isDisabled`, `isReadOnly`, `testID`, and the accessibility names —
 `label`, `description`, and `accessibilityLabel`/`accessibilityHint` are
@@ -411,14 +416,14 @@ subpath in `.android.*`.
 Native platform widgets accept a `modifiers` array for OS-specific styling or
 properties. Import `modifier` from the matching `@octane-xplat/ui/ios` or
 `@octane-xplat/ui/android` subpath and keep that configuration in a matching
-platform file. `Icon.select({ ios, android })` chooses a native asset for
-`UITabBar` or `BottomNavigationView`; the shared `Icon` remains unchanged.
+platform file. `PlatformIcon.select({ ios, android })` chooses a native asset for
+`UITabBar` or `BottomNavigationView`; the shared `Icon` component is unchanged.
 These selectors and modifiers are escape hatches for platform-authentic
 widgets, not shared styling props.
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
-import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
+import { PlatformIcon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
 
 function Saved() {
@@ -431,7 +436,7 @@ export function SavedTabs() {
 			tabs={[
 				{
 					title: 'Saved',
-					icon: Icon.select({ ios: 'heart.fill', android: 'favorite' }),
+					icon: PlatformIcon.select({ ios: 'heart.fill', android: 'favorite' }),
 					render: Saved,
 				},
 			]}

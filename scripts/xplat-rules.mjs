@@ -701,7 +701,7 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 
 // @octane-xplat/ui subpaths gate platform-authentic components: /ios and
 // /android resolve only under the `native` export condition, /web only
-// under `web`. `/native` is for NativeScript integration plumbing. Importing
+// under `web`. `/nativescript` is for NativeScript integration plumbing. Importing
 // one from a shared (or wrong-platform) file fails the other platform's build
 // on purpose — the import must live in a platform-specific module. `.mobile`
 // files may
@@ -724,7 +724,7 @@ const PLATFORM_SUBPATHS = [
 		leaf: '.windows.*',
 	},
 	{
-		spec: '@octane-xplat/ui/native',
+		spec: '@octane-xplat/ui/nativescript',
 		ok: (f) => isNativeFile(f),
 		leaf: 'a native default module or .mobile.* leaf',
 	},

@@ -1,5 +1,5 @@
 import { Application } from '@nativescript/core'
-import { findInRootLayouts } from '@octane-xplat/ui/native'
+import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 import {
 	VIRTUAL_LIST_BENCH_INTERVAL_MS,
 	runVirtualListInputTrace,

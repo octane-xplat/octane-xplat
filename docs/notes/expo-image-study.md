@@ -319,7 +319,7 @@ unimplemented).
   imperative handle overlaps what we already plan — `Image.prefetch` (L3)
   warms the cache and `ImageSource` instances can pass through `src` — so no
   extra shared API is warranted. (b) SF Symbols aren't entirely absent from
-  our surface: `Icon.select` already exposes `sys://` names, and NS core
+  our surface: `PlatformIcon.select` already exposes `sys://` names, and NS core
   `<image>` supports `iosSymbolEffect`/`iosSymbolScale`, reachable through the
   `ios` escape bag if a platform-authentic case ever wants them. The rest —
   `sfEffect` animation sugar, Live Text, HDR, `useAppleWebpCodec`, web-side

@@ -2,7 +2,7 @@
 import { registerElement } from '@nativescript-community/octane';
 import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer';
 import { useEffect, useRef } from 'octane';
-import type { DrawerProps, PlatformWidgetProps } from '../props';
+import type { DrawerLayoutProps } from '../props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from '../escape-props';
 
@@ -17,7 +17,7 @@ registerElement('drawer', NSDrawer);
  *  plugin). `main`/`drawer` are slot props wired via the driver's hostSlot
  *  mechanism; `open` drives the imperative open()/close(). Slot hosts are
  *  gridlayout so each side stays multi-child. */
-export function DrawerLayout(props: PlatformWidgetProps<DrawerProps>) @{
+export function DrawerLayout(props: DrawerLayoutProps) @{
 	const host = useRef<NSDrawer | null>(null);
 
 	useEffect(() => {

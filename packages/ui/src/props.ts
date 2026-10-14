@@ -256,6 +256,7 @@ export interface LiquidGlassProps extends LayoutChildProps {
 	interactive?: boolean
 	tint?: string
 	animateChangeDuration?: number
+	modifiers?: readonly NativeModifier[]
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
@@ -270,6 +271,7 @@ export interface LiquidGlassContainerProps extends LayoutChildProps {
 	children?: any
 	id?: string
 	spacing?: number
+	modifiers?: readonly NativeModifier[]
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
@@ -1017,6 +1019,15 @@ export interface PlatformListProps<T = any> extends RefreshProps {
 	web?: Record<string, any>
 }
 
+/** Props accepted by `UITableView` (`@octane-xplat/ui/ios`). */
+export type UITableViewProps<T = any> = PlatformWidgetProps<PlatformListProps<T>>
+/** Handle exposed by `UITableView`'s `ref` (`@octane-xplat/ui/ios`). */
+export type UITableViewHandle = PlatformListHandle
+/** Props accepted by `RecyclerView` (`@octane-xplat/ui/android`). */
+export type RecyclerViewProps<T = any> = PlatformWidgetProps<PlatformListProps<T>>
+/** Handle exposed by `RecyclerView`'s `ref` (`@octane-xplat/ui/android`). */
+export type RecyclerViewHandle = PlatformListHandle
+
 /** Logical scroll axis (Astryx `ScrollableArea`): 'inline' follows the
  *  writing direction's inline axis (horizontal in LTR/RTL), 'block' the
  *  block axis (vertical in horizontal writing modes), 'both' scrolls both.
@@ -1423,6 +1434,11 @@ export interface DrawerProps {
 	web?: Record<string, any>
 }
 
+/** Props accepted by `SideDrawer` (`@octane-xplat/ui/ios`). */
+export type SideDrawerProps = PlatformWidgetProps<DrawerProps>
+/** Props accepted by `DrawerLayout` (`@octane-xplat/ui/android`). */
+export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
+
 export interface SwitchProps extends FieldControlProps, TestIDProps {
 	className?: any
 	style?: any
@@ -1478,6 +1494,11 @@ export interface PlatformSwitchProps extends TestIDProps {
 	web?: any
 }
 
+/** Props accepted by `UISwitch` (`@octane-xplat/ui/ios`). */
+export type UISwitchProps = PlatformWidgetProps<PlatformSwitchProps>
+/** Props accepted by `MaterialSwitch` (`@octane-xplat/ui/android`). */
+export type MaterialSwitchProps = PlatformWidgetProps<PlatformSwitchProps>
+
 export interface ActivityIndicatorProps {
 	className?: any
 	style?: any
@@ -1487,6 +1508,11 @@ export interface ActivityIndicatorProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 }
+
+/** Props accepted by `UIActivityIndicatorView` (`@octane-xplat/ui/ios`). */
+export type UIActivityIndicatorViewProps = PlatformWidgetProps<ActivityIndicatorProps>
+/** Props accepted by `CircularProgressIndicator` (`@octane-xplat/ui/android`). */
+export type CircularProgressIndicatorProps = PlatformWidgetProps<ActivityIndicatorProps>
 
 /** Meter — a static gauge of a quantity within a known range (disk used,
  *  battery, rating), not task progress; use `ProgressBar` for operations.
@@ -1530,6 +1556,11 @@ export interface SliderProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 }
+
+/** Props accepted by `UISlider` (`@octane-xplat/ui/ios`). */
+export type UISliderProps = PlatformWidgetProps<SliderProps>
+/** Props accepted by `SeekBar` (`@octane-xplat/ui/android`). */
+export type SeekBarProps = PlatformWidgetProps<SliderProps>
 
 export interface IconProps {
 	className?: any
@@ -2055,6 +2086,11 @@ export interface ModalProps {
 	children?: any
 }
 
+/** Props accepted by `UIModal` (`@octane-xplat/ui/ios`). */
+export type UIModalProps = ModalProps
+/** Props accepted by `MaterialDialog` (`@octane-xplat/ui/android`). */
+export type MaterialDialogProps = ModalProps
+
 /** Options for `openModal`. `fullscreen` is retained for callers using the
  *  NativeScript option directly; `presentation` takes precedence when set.
  *  Android's non-fullscreen modal is a centered dialog, not a bottom sheet. */
@@ -2521,7 +2557,7 @@ export interface TabsProps {
 }
 
 /** Platform tab-bar item shape. `icon` may be a registered name or a native
- *  asset value returned by `Icon.select()` from the matching subpath. */
+ *  asset value returned by `PlatformIcon.select()` from the matching subpath. */
 export type PlatformTabSpec = Omit<TabSpec, 'icon'> & {
 	icon?: string
 }
@@ -2531,6 +2567,11 @@ export type PlatformTabsProps = Omit<TabsProps, 'tabs'> & {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 }
+
+/** Props accepted by `UITabBar` (`@octane-xplat/ui/ios`). */
+export type UITabBarProps = PlatformWidgetProps<PlatformTabsProps>
+/** Props accepted by `BottomNavigationView` (`@octane-xplat/ui/android`). */
+export type BottomNavigationViewProps = PlatformWidgetProps<PlatformTabsProps>
 
 // ---------- routes ----------
 
@@ -6975,7 +7016,7 @@ export interface OutlineItem {
  *  derivation is split by mechanism: `useOutlineFromMarkdown` and
  *  `useOutlineFromDoc` are portable; `useOutlineFromDOM` (live DOM
  *  observation) is web-only under `@octane-xplat/ui/web`; `useOutlineFromView`
- *  (view-tree snapshot) ships under `@octane-xplat/ui/native` and
+ *  (view-tree snapshot) ships under `@octane-xplat/ui/nativescript` and
  *  `@octane-xplat/ui/macos`. */
 export interface OutlineProps {
 	className?: any

@@ -11,10 +11,9 @@ import { Pressable } from '../Pressable.tsrx';
 import { Text } from '../Text.tsrx';
 import { errorBoundaryFor, layoutsForRoute, screenFor, useRoute } from '../route';
 import { RouteHost, screenParamsFor } from '../route-host';
-import type { PlatformTabSpec, PlatformTabsProps, PlatformWidgetProps } from '../props';
+import type { BottomNavigationViewProps, PlatformTabSpec } from '../props';
 import { applyEscapeProps } from '../escape-props';
 
-export type { PlatformTabSpec as TabSpec } from '../props';
 
 // Android named stacks never navigate a Frame (upstream #11444 makes
 // TabViewItem frames unsafe) — pushes live in the route store instead, and a
@@ -136,7 +135,7 @@ function NavInner(props: {
 	tabs: readonly PlatformTabSpec[];
 	selectedIndex?: number;
 	onSelectedIndexChanged?: (index: number) => void;
-	modifiers?: PlatformWidgetProps<PlatformTabsProps>['modifiers'];
+	modifiers?: BottomNavigationViewProps['modifiers'];
 }) @{
 	<tabview
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -160,7 +159,7 @@ const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex ==
  *  TabViewItem-hosted Frames lose navigation bookkeeping upstream
  *  (NativeScript#11444; the #11446 fix ships in the xplat core patch).
  *  `tabs` is identity-stable. */
-export function BottomNavigationView(props: PlatformWidgetProps<PlatformTabsProps>) @{
+export function BottomNavigationView(props: BottomNavigationViewProps) @{
 	const indexForKey = (key?: string) =>
 		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key);
 	const keyIndex = indexForKey(props.selectedKey);

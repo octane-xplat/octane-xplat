@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
-import type { PlatformSwitchProps, PlatformWidgetProps } from "../props";
+import type { UISwitchProps } from "../props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "../escape-props";
 import { useFieldControlProps } from '../field-context';
@@ -11,7 +11,7 @@ import { useFieldControlProps } from '../field-context';
  *  visible field chrome belongs to `Field`. `isDisabled` maps to `isEnabled`;
  *  `isReadOnly` blocks toggling (interaction off, change reverted) while
  *  keeping the enabled appearance. */
-export function UISwitch(inputProps: PlatformWidgetProps<PlatformSwitchProps>) @{
+export function UISwitch(inputProps: UISwitchProps) @{
 	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
 	// Last confirmed value for the `isReadOnly` revert — `checked` when

@@ -139,7 +139,7 @@ export function PackedToggle(props: { packed: boolean; onChange: (value: boolean
 | Liquid glass                           | —                                                                                  | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)                | —                                                                                   |
 
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in
-web builds. `ui/native` is plumbing (root-layout helpers), not components.
+web builds. `ui/nativescript` is plumbing (root-layout helpers), not components.
 
 ## VirtualList performance
 
@@ -364,7 +364,7 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `useOutlineFromMarkdown`/`useOutlineFromDoc` are unchanged. — post-0.14.0·desk.
 - **Target-only names moved off the `@octane-xplat/ui` root** — the root now
   exports the same names on every target. `useOutlineFromView` moved to
-  `@octane-xplat/ui/native` (iOS/Android) and `@octane-xplat/ui/macos`;
+  `@octane-xplat/ui/nativescript` (iOS/Android) and `@octane-xplat/ui/macos`;
   macOS-only `bottomSheetHost` and the unsupported `CameraView` leaf moved to
   `@octane-xplat/ui/macos`; `LinuxWindowHandle` moved to
   `@octane-xplat/ui/linux`. The published CSS paths are unchanged:

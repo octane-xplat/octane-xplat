@@ -5,7 +5,7 @@ import { SheetPanel } from '../SheetPanel.tsrx'
 // @octane-xplat/ui (sheet-service.ts); this keeps the probe's
 // BottomSheetPanel default and [probe] logging for the sweep timeline.
 export { closeBottomSheet } from '@octane-xplat/ui'
-export { bottomSheetHost } from '@octane-xplat/ui/native'
+export { bottomSheetHost } from '@octane-xplat/ui/nativescript'
 
 /** Bottom-anchored sheet: dedicated sub-root on the current RootLayout.
  *  Content is parameterized — callers pass any component (e.g. a demo

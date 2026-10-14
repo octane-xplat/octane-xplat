@@ -296,9 +296,9 @@ void [CameraView, dialog, alert, switcher, lightbox, viewport, toastHandle, prom
 	} else {
 		source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
-import { UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps } from '@octane-xplat/ui/ios'
-import { MaterialSwitch, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
-import { layoutsForRoute, useOutlineFromView } from '@octane-xplat/ui/native'
+import { PlatformIcon, UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps, type UITableViewProps, type UISwitchProps } from '@octane-xplat/ui/ios'
+import { MaterialSwitch, type MaterialSwitchProps, type RecyclerViewProps, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
+import { layoutsForRoute, useOutlineFromView } from '@octane-xplat/ui/nativescript'
 
 const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
 // @ts-expect-error isLoading is a boolean prop
@@ -323,6 +323,11 @@ const androidRefresh: AndroidRefreshProps = { onRefresh: () => {} }
 const tabBar = <UITabBar {...tabs} />
 const iosSwitch: typeof UISwitch = UISwitch
 const androidSwitch: typeof MaterialSwitch = MaterialSwitch
+const iosSwitchProps: UISwitchProps = { checked: true }
+const tableProps: UITableViewProps<{ id: string }> = { items: [], renderItem: () => null }
+const recyclerProps: RecyclerViewProps = { items: [], renderItem: () => null }
+const androidSwitchProps: MaterialSwitchProps = { isDisabled: true }
+const glyph: string = PlatformIcon.select({ ios: 'heart.fill', android: 'favorite' })
 const getLayouts: typeof layoutsForRoute = layoutsForRoute
 const viewOutline = useOutlineFromView()
 const root = <View {...viewProps} />
@@ -338,6 +343,11 @@ void androidRefresh
 void tabBar
 void iosSwitch
 void androidSwitch
+void iosSwitchProps
+void tableProps
+void recyclerProps
+void androidSwitchProps
+void glyph
 void getLayouts
 void viewOutline
 void root

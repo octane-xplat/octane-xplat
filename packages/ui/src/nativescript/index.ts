@@ -1,4 +1,4 @@
-// @octane-xplat/ui/native — NativeScript integration plumbing shared by iOS
+// @octane-xplat/ui/nativescript — NativeScript integration plumbing shared by iOS
 // and Android. This is not part of the cross-platform component barrel.
 
 export { rootLayoutFor, topRootLayout, findInRootLayouts } from '../root-layout'

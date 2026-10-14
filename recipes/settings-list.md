@@ -2,7 +2,7 @@
 
 ID: settings-list
 Targets: web, ios, android
-Related APIs: `Item`, `FieldGroup`, `modifier`, `Icon.select`
+Related APIs: `Item`, `FieldGroup`, `modifier`, `PlatformIcon.select`
 
 ## Starting point
 

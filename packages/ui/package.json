@@ -58,9 +58,9 @@
 			"types": "./types/generated/android/index.d.ts",
 			"native": "./src/android/index.ts"
 		},
-		"./native": {
-			"types": "./types/generated/native/index.d.ts",
-			"native": "./src/native/index.ts"
+		"./nativescript": {
+			"types": "./types/generated/nativescript/index.d.ts",
+			"native": "./src/nativescript/index.ts"
 		},
 		"./web": {
 			"types": "./types/generated/web/index.d.ts",
@@ -107,9 +107,9 @@
 				"types": "./types/generated/android/index.d.ts",
 				"native": "./dist/native/android/index.js"
 			},
-			"./native": {
-				"types": "./types/generated/native/index.d.ts",
-				"native": "./dist/native/native/index.js"
+			"./nativescript": {
+				"types": "./types/generated/nativescript/index.d.ts",
+				"native": "./dist/native/nativescript/index.js"
 			},
 			"./web": {
 				"types": "./types/generated/web/index.d.ts",

@@ -2,7 +2,7 @@
 import { registerElement } from '@nativescript-community/octane';
 import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer';
 import { useEffect, useRef } from 'octane';
-import type { DrawerProps, PlatformWidgetProps } from '../props';
+import type { SideDrawerProps } from '../props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from '../escape-props';
 
@@ -18,7 +18,7 @@ registerElement('drawer', NSDrawer);
  *  driver's hostSlot mechanism (parentView[slot] = view → mainContent /
  *  leftDrawer); `open` drives the imperative open()/close(). Slot hosts are
  *  gridlayout so each side stays multi-child. */
-export function SideDrawer(props: PlatformWidgetProps<DrawerProps>) @{
+export function SideDrawer(props: SideDrawerProps) @{
 	const host = useRef<NSDrawer | null>(null);
 
 	useEffect(() => {

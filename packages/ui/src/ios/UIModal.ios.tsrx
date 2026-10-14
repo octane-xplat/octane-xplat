@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef, useState } from 'octane';
-import type { ModalProps } from "../props";
+import type { UIModalProps } from "../props";
 import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
@@ -23,7 +23,7 @@ function Panel(props: { children?: any }) @{
  *  inline; the content lives on the modal's own root above the whole tree.
  *  The shared `ui` surface has no Modal — `Overlay`/`Sheet` are the
  *  self-drawn in-window versions. */
-export function UIModal(props: ModalProps) @{
+export function UIModal(props: UIModalProps) @{
 	const shown = useRef<{ host: GridLayout; root: any; unbindTheme?: () => void } | null>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const open = props.open ?? internal;

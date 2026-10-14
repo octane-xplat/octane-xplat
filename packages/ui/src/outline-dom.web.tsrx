@@ -4,7 +4,7 @@
 // web-only, so this hook ships from `@octane-xplat/ui/web`; the portable
 // derivations (useOutlineFromMarkdown/useOutlineFromDoc) stay on the root
 // barrel and the view-tree form `useOutlineFromView` ships under
-// `@octane-xplat/ui/native` and `@octane-xplat/ui/macos`.
+// `@octane-xplat/ui/nativescript` and `@octane-xplat/ui/macos`.
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { OutlineItem } from './props'
 import { slugify, uniqueSlug } from './outline-utils'

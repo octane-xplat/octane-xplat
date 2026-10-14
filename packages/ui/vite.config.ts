@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
 							shared: 'src/index.ts',
 							'ios/index': 'src/ios/index.ts',
 							'android/index': 'src/android/index.ts',
-							'native/index': 'src/native/index.ts',
+							'nativescript/index': 'src/nativescript/index.ts',
 							// Vendored ui-svg: the './vendor/ui-svg' specifier stays
 							// external so the consumer's per-platform build resolves
 							// index.ios.js / index.android.js itself.

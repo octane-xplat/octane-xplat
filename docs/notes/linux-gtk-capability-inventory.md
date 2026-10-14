@@ -377,7 +377,7 @@ the `.web` implementation that depends on DOM or the bridge.
 | `@octane-xplat/ui` root barrel under GTK condition — all ~319 exports with identical types | infra — new `index.<gtk>.ts` explicit barrel (macos precedent), generated types per platform | Every export resolves to a GTK implementation or an explicit, documented unsupported leaf — never a DOM file | 7a | pending |
 | Shared props contract (`props.ts`, ~596 interfaces) | infra — unchanged | No prop-meaning changes; unsupported pieces documented | S5→all | pending |
 | `ui/web` subpath (HoverCard/Tooltip re-exports) | infra — resolves under `web`/`linux` conditions today | Needs GTK-condition answer or documented gap | 7a | pending |
-| `ui/native`, `ui/ios`, `ui/android` subpaths | infra — NativeScript-only; GTK equivalent is the plan's "opt-in platform-authentic GTK surface" if later offered | Out of scope unless separately decided; do not alias silently | 7a | pending |
+| `ui/nativescript`, `ui/ios`, `ui/android` subpaths | infra — NativeScript-only; GTK equivalent is the plan's "opt-in platform-authentic GTK surface" if later offered | Out of scope unless separately decided; do not alias silently | 7a | pending |
 | `types/generated/*` per-platform d.ts | infra — typegen gets the new platform | Identical public types | 6b | pending |
 | `platformProps`/`escape-props` escape bags (`ios?`, `android?` members) | infra — GTK members if offered must be additive | Preserve contract | 7a | pending |
 

@@ -13,7 +13,7 @@ import {
 	setThemePreference,
 } from '@octane-xplat/ui'
 
-import { findInRootLayouts } from '@octane-xplat/ui/native'
+import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'

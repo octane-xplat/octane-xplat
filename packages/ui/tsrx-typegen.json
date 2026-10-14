@@ -30,10 +30,10 @@
 					"runtime": "./dist/native/android/index.js",
 					"types": "./types/generated/android/index.d.ts"
 				},
-				"./native": {
-					"source": "src/native/index.ts",
-					"runtime": "./dist/native/native/index.js",
-					"types": "./types/generated/native/index.d.ts"
+				"./nativescript": {
+					"source": "src/nativescript/index.ts",
+					"runtime": "./dist/native/nativescript/index.js",
+					"types": "./types/generated/nativescript/index.d.ts"
 				},
 				"./web": {
 					"source": "src/web/index.ts",

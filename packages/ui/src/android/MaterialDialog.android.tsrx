@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef, useState } from 'octane';
-import type { ModalProps } from "../props";
+import type { MaterialDialogProps } from "../props";
 import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
@@ -19,7 +19,7 @@ function Panel(props: { children?: any }) @{
  *  content lives on the modal's own root above the whole tree. The shared
  *  `ui` surface has no Modal — `Overlay`/`Sheet` are the self-drawn
  *  in-window versions. */
-export function MaterialDialog(props: ModalProps) @{
+export function MaterialDialog(props: MaterialDialogProps) @{
 	const shown = useRef<{ host: GridLayout; root: any; unbindTheme?: () => void } | null>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const open = props.open ?? internal;

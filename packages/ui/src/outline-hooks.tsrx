@@ -2,7 +2,7 @@
 // `useOutlineFromMarkdown` is identical on every target (pure parse); tree
 // discovery is platform-specific: `useOutlineFromDOM` (live DOM observation)
 // ships under `@octane-xplat/ui/web`, and `useOutlineFromView` (view-tree
-// snapshot) ships under `@octane-xplat/ui/native` (outline-view.tsrx) and
+// snapshot) ships under `@octane-xplat/ui/nativescript` (outline-view.tsrx) and
 // `@octane-xplat/ui/macos` (outline-view.macos.tsrx).
 import { useMemo } from 'octane'
 import { outlineFromDoc, parseOutlineFromMarkdown } from './outline-utils'

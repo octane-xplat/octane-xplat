@@ -3,7 +3,7 @@ import { LiquidGlass as NSLiquidGlass } from '@nativescript/core';
 import { LiquidGlassView } from './liquid-glass-view.ios';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import type { LiquidGlassProps, PlatformWidgetProps } from '../props';
+import type { LiquidGlassProps } from '../props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from '../escape-props';
 import { layoutChildProps } from '../layout-child';
@@ -20,7 +20,7 @@ registerElement('liquidglass', LiquidGlassView);
 /** System material blur before iOS 26; native glass on iOS 26+.
  *  Glass touch tracking is opt-in to avoid the reported child interception path.
  *  Explicit interactive glass with children still needs device qualification. */
-export function LiquidGlass(props: PlatformWidgetProps<LiquidGlassProps>) @{
+export function LiquidGlass(props: LiquidGlassProps) @{
 	<liquidglass
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}
