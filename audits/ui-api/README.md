@@ -2,17 +2,19 @@
 
 > Review the public API by concept, starting with the changes most likely to reduce agent mistakes.
 
-Status: proposals for review, not supported API instructions or implementation decisions. Reviewed source at `85e06e06` on 2026-10-13. No runtime targets were run. Agent usability is a design judgment, not a measured benchmark.
+Status: recommendations pending review, except the explicitly [approved decisions](approved-decisions.md). These are future designs, not supported API instructions. Reviewed source at `85e06e06` on 2026-10-13. No runtime targets were run. Agent usability is a design judgment, not a measured benchmark.
 
 The tree follows the current import boundaries: `root/` for `@octane-xplat/ui`, then `ios/`, `android/`, `native/`, `web/`, and `theme/`. Folders below `root/` group concepts; they are not current import subpaths. Closely related components share a page. Each recommendation has a short reason and an illustrative TypeScript shape.
 
 ## Start with these five changes
 
-1. [One vocabulary for names and types](root/contracts/names.md). Prefer familiar concepts and one `ComponentProps` spelling; remove orphan types.
+The [entrypoint boundary](approved-decisions.md) is approved. These five recommendations remain pending review, in priority order:
+
+1. [Honest platform contracts](root/contracts/platform-support.md) and [consistent export surfaces](root/contracts/conditional-surface.md). Accepted props must have supported behavior, and the same import must expose the same intended API across targets.
 2. [One state and event convention](root/contracts/state-events.md). Eliminate duplicate flags and make callback payloads predictable.
 3. [Exact selection and menu modes](root/forms/select.md), [menus](root/overlays/menus.md). Use unions that reject contradictory values.
 4. [Useful public types](root/contracts/props.md). Replace broad `any`, share collection contracts, and type handles.
-5. [Honest platform contracts](root/contracts/platform-support.md). Supported behavior must be observable; identical exports do not prove parity.
+5. [One vocabulary for names and types](root/contracts/names.md). Use specific frontend concepts and one `ComponentProps` spelling; remove ambiguous aliases and orphan types.
 
 ## Correctness findings to review first
 

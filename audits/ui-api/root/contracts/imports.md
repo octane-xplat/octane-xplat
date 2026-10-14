@@ -1,17 +1,18 @@
 # Package entrypoints and discoverability
 
-**Design: Keep common components at the root and give advanced helpers feature entrypoints.**
+**Approved D1: Keep general UI at the root and split independent systems by purpose.**
 
-The flat root mixes UI controls with route registries, markdown segmentation, syntax constants, and host services. Preserve convenient root imports for components, while moving advanced supported helpers to explicit feature entrypoints and removing internals. One public concept should have one canonical import; avoid retaining several synonymous root names indefinitely.
+The flat root mixes general UI with independent systems. Keep ordinary forms, layout, and overlays at the root; move routing, data, markdown, and chat to their own subpaths within the same package. Give each API one canonical import and keep its components, hooks, and types together. See [approved decision D1](../../approved-decisions.md) for the boundary and rationale. Syntax and other additional subpaths remain pending review.
 
 Proposed shape (illustrative):
 
 ```ts
-type ProposedFeatureEntrypoints =
+type ApprovedFeatureEntrypoints =
 	| '@octane-xplat/ui'
-	| '@octane-xplat/ui/navigation'
+	| '@octane-xplat/ui/routing'
+	| '@octane-xplat/ui/data'
 	| '@octane-xplat/ui/markdown'
-	| '@octane-xplat/ui/syntax'
+	| '@octane-xplat/ui/chat'
 ```
 
 **Design: Generate a compact agent-readable contract from the actual exported types.**
