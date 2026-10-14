@@ -50,61 +50,61 @@ Reason: a familiar pattern may help, but its age or popularity does not establis
 
 Use consistent slot roles and named render-context fields within related API families. State required structure and providers explicitly. Make accessible naming, focus, keyboard behavior, and state propagation part of the composed contract.
 
-Reason: agents can inspect fields and adapt examples without remembering a different positional or structural convention for each component. Proposed by [R1](next-recommendations.md#r1-consistent-composition-and-named-render-contexts).
+Reason: agents can inspect fields and adapt examples without remembering a different positional or structural convention for each component. See the composition recommendations in [recommended changes](recommended-changes.md#then-make-composition-and-operations-reliable).
 
 ### P9: Give created resources explicit instance ownership
 
 Return typed instance handles from imperative resource-creating operations. Define readiness, completion, cancellation, and cleanup; make disposal idempotent where appropriate. Specify whether retries create a new instance or affect an existing one.
 
-Reason: explicit ownership prevents delayed actions from affecting the wrong concurrent instance and makes lifecycle obligations visible. Proposed by [R2](next-recommendations.md#r2-return-handles-that-own-one-resource-instance).
+Reason: explicit ownership prevents delayed actions from affecting the wrong concurrent instance and makes lifecycle obligations visible. See [recommended changes](recommended-changes.md).
 
 ### P10: Preserve schema relationships end to end
 
 Derive consuming API types from one authoritative definition. Preserve literal keys and inferred relationships through builders, helpers, and execution methods.
 
-Reason: duplicated declarations drift, and widened types lose the compiler feedback needed to repair invented keys or incompatible values. Proposed by [R3](next-recommendations.md#r3-declare-schemas-once-and-preserve-inference-through-consuming-apis).
+Reason: duplicated declarations drift, and widened types lose the compiler feedback needed to repair invented keys or incompatible values. See [recommended changes](recommended-changes.md).
 
 ### P11: Declarative renders describe current state
 
 Define consistent default, omission, and clearing behavior for shared props. Restore defaults when optional props are removed; reserve merging behavior for explicitly documented patch operations.
 
-Reason: hidden retained host state makes source edits misleading and introduces cross-platform differences that types cannot reveal. Proposed by [R4](next-recommendations.md#r4-make-declarative-updates-and-prop-removal-predictable).
+Reason: hidden retained host state makes source edits misleading and introduces cross-platform differences that types cannot reveal. See [recommended changes](recommended-changes.md).
 
 ### P12: Diagnostics should identify a repair
 
 Report actionable runtime contract failures with stable codes, field paths, expected shapes, and repair hints. Distinguish invalid input, unsupported capabilities, cancellation, and operational failure. Make prerequisites such as required providers discoverable before invocation.
 
-Reason: clear diagnostic contracts turn failures into useful feedback rather than forcing an agent to inspect framework internals. Proposed by [R5](next-recommendations.md#r5-make-runtime-diagnostics-usable-as-repair-instructions).
+Reason: clear diagnostic contracts turn failures into useful feedback rather than forcing an agent to inspect framework internals. See [recommended changes](recommended-changes.md).
 
 ### P13: Make units, identity, and empty values explicit
 
 Give related APIs the same meaning for numeric units, keys, and empty values. Separate layout units from spacing tokens, instants from local dates, and positions from stable identity. Specify clearing per value family rather than guessing from magnitude or truthiness.
 
-Reason: plausible values can typecheck while expressing the wrong meaning. Explicit domains make reuse between components safer and prevent silent reinterpretation. See [time](root/content/time.md), [Stack](root/layout/stack.md), and [date inputs](root/forms/date-inputs.md).
+Reason: plausible values can typecheck while expressing the wrong meaning. Explicit domains make reuse between components safer and prevent silent reinterpretation. See [time](../../packages/ui/src/props.ts#L6440), [Stack](../../packages/ui/src/props.ts#L120), and [date inputs](../../packages/ui/src/props.ts#L602).
 
 ### P14: Separate snapshots, subscriptions, and mutations
 
 Make reactive reads distinguishable from one-time reads. Expose readonly snapshots and explicit mutation operations; define selector equality and initialization behavior. Preserve the framework’s signal-backed `$` convention.
 
-Reason: an agent should not need hidden knowledge about which reads subscribe or which mutations notify. Types should discourage modifications that bypass the state owner. See [stores](root/state/store.md) and [collection data](root/state/collection-data.md).
+Reason: an agent should not need hidden knowledge about which reads subscribe or which mutations notify. Types should discourage modifications that bypass the state owner. See [stores](../../packages/ui/src/store.ts#L16) and [collection data](../../packages/ui/src/list-data.ts#L12).
 
 ### P15: Make asynchronous outcomes and ordering observable
 
 Expose completion and failure for asynchronous actions. State cancellation, concurrent invocation, stale-result, and retry behavior. Model pending, success, and failure as meaningful states; reserve silent no-ops for explicitly documented optional operations.
 
-Reason: agents need to determine whether an action succeeded and whether it is safe to repeat. An operation that returns before completion or discards failures defeats that feedback. See [async lists](root/state/async-list.md), [Button](root/actions/button.md), and [query caching](root/state/query-cache.md).
+Reason: agents need to determine whether an action succeeded and whether it is safe to repeat. An operation that returns before completion or discards failures defeats that feedback. See [async lists](../../packages/ui/src/async-list.ts#L59), [Button](../../packages/ui/src/props.ts#L2744), and [query caching](../../packages/ui/src/query-cache.ts#L55).
 
 ### P16: Make the preferred path discoverable from the public contract
 
 Keep declarations and symbol documentation sufficient to find the canonical import, required prerequisites, defaults, units, errors, and related APIs. Show a minimal supported composition and one meaningful failure case. Keep experimental proposals distinct from current supported instructions.
 
-Reason: agents often work from a small slice of context. The contract should answer the immediate question without requiring private source inspection or a large custom instruction file. See [public props](root/contracts/props.md) and [imports](root/contracts/imports.md).
+Reason: agents often work from a small slice of context. The contract should answer the immediate question without requiring private source inspection or a large custom instruction file. See [public props](../../packages/ui/src/props.ts#L318) and [imports](../../packages/ui/package.json#L40).
 
 ### P17: Make configuration scope and precedence explicit
 
 Keep reusable components independent of unrelated systems. Bind configurable routing, caches, registries, and services to a visible application or instance scope. Define parent/child defaults and override precedence. Prefer a usable standard setup; introduce providers only when they own meaningful shared configuration or lifecycle.
 
-Reason: hidden global configuration makes one consumer affect another and forces agents to reason beyond the edited component. Explicit scope allows safe reuse; unnecessary providers add setup and failure points. See [routing](root/navigation/routes.md), [query caching](root/state/query-cache.md), [icons](root/styling/icons.md), and [ButtonGroup](root/actions/button-group.md).
+Reason: hidden global configuration makes one consumer affect another and forces agents to reason beyond the edited component. Explicit scope allows safe reuse; unnecessary providers add setup and failure points. See [routing](../../packages/ui/src/props.ts#L2349), [query caching](../../packages/ui/src/query-cache.ts#L55), [icons](../../packages/ui/src/props.ts#L1434), and [ButtonGroup](../../packages/ui/src/props.ts#L5491).
 
 ## Applying these principles
 
