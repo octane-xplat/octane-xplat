@@ -30,3 +30,12 @@ export interface RouteParams {
 export interface RoutePresentations {
 	'about': 'modal'
 }
+
+// Registers the file-route params map so pushRoute and NavLink's route
+// check destinations against the real schema (AppRoutes/TypedRoute).
+// Programmatic manifests contribute their own member — see defineRoutes.
+declare module '@octane-xplat/ui' {
+	interface AppRoutes {
+		fileRoutes: RouteParams
+	}
+}

@@ -33,7 +33,7 @@ import {
 
 import { RouteHost } from './route-host'
 import { modalPresenter } from './modal-presenter'
-import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
+import type { Route, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
 
 export type { Route } from './props'
 
@@ -361,7 +361,7 @@ export function redirect(r: Route): never {
 	throw new RouteRedirect(r)
 }
 
-export function pushRoute(r: Route): void {
+export function pushRoute(r: TypedRoute): void {
 	const request = navigationRequests.begin(r.stack)
 	if (metaFor(r.name)?.beforeLoad) {
 		void prepareRoute(r, request)
@@ -684,7 +684,7 @@ export function pushDeepLink(url: string): boolean {
 		return false
 	}
 
-	pushRoute(r)
+	pushRoute(r as TypedRoute)
 	return true
 }
 

@@ -13,7 +13,7 @@ const columns = [
 /** Bounded geometry regression without filter/pager input dependencies. */
 export default function GridGeometry() {
 	return <GridHost><View style={{ height: 300 }}>
-		<DataGrid id="grid" data={data} columns={columns} getRowId={row => row.id} resizableColumns reorderableColumns />
+		<DataGrid id="grid" data={data} columns={columns} getRowId={(row: { id: string }) => row.id} resizableColumns reorderableColumns />
 	</View></GridHost>
 }
 

@@ -22,9 +22,10 @@ database, a content directory, or a host framework's own route model.
 - Understand merge precedence between file-derived and programmatic routes
   and what happens on a same-name collision.
 - Navigate to programmatic routes with correct typing — literal-path specs
-  infer names/params at the callsite (`ManifestRouteNames`/
-  `ManifestRouteParams` merge into the app's generated types); only
-  runtime-computed paths fall back to the low-level `Route` shape.
+  infer names/params at the callsite; contributing
+  `ManifestRouteParams<typeof manifest>` as an `AppRoutes` member checks
+  `pushRoute`/`NavLink` against them. Only runtime-computed
+  paths stay outside the typed surface — they assert `as TypedRoute`.
 
 ## Acceptance criteria
 
@@ -34,9 +35,9 @@ database, a content directory, or a host framework's own route model.
   file `_layout` wraps and `defineRoutes` `layouts` entries like a file
   route does.
 - AC3: The reader can state the precedence rule (later manifest wins, with a
-  warning), union literal-path spec types into the app's `RouteName`/
-  `RouteParams` via the `ManifestRoute*` helpers, and reach computed-path
-  destinations via the low-level `Route` surface.
+  warning), register literal-path spec types on `AppRoutes` via
+  `ManifestRouteParams` so `pushRoute`/`NavLink` check them, and
+  reach computed-path destinations through the `as TypedRoute` escape.
 - AC4: On web, a programmatic route produces a real URL and a direct load of
   that URL boots into the screen.
 

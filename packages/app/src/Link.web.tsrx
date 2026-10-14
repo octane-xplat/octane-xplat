@@ -1,4 +1,5 @@
 import { hrefFor, pushRoute } from '@octane-xplat/ui';
+import type { TypedRoute } from '@octane-xplat/ui';
 import type { RouteLinkProps } from './routes';
 
 /** Link — web side: a real anchor (keyboard-navigable, href-shareable)
@@ -16,7 +17,7 @@ export function Link(props: RouteLinkProps) @{
 		className={props.className}
 		onClick={(e: any) => {
 			e.preventDefault();
-			pushRoute(route);
+			pushRoute(route as TypedRoute);
 		}}
 	>
 		{props.children}

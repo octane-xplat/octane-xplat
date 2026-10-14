@@ -27,6 +27,16 @@ import type { guideRoutes } from './guides.tsrx'
 
 wireRouteLinks()
 
+// Contribute the programmatic manifest's route types to the registered
+// navigation surface — file routes arrive via routes.gen.types.ts's own
+// AppRoutes member; together they type pushRoute/redirect/NavLink
+// (TypedRoute) across the app.
+declare module '@octane-xplat/ui' {
+	interface AppRoutes {
+		guideRoutes: ManifestRouteParams<typeof guideRoutes>
+	}
+}
+
 export type RouteName = FileRouteName | ManifestRouteNames<typeof guideRoutes>
 export type RouteParams = FileRouteParams & ManifestRouteParams<typeof guideRoutes>
 export type RoutePresentations = FileRoutePresentations &

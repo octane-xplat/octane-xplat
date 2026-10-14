@@ -440,8 +440,8 @@ export function Example() {
 
 `Table` and `TreeList` keep your row type through the whole API: `rows`,
 `renderCell`, `onRowPress`, and `idKey` on `Table` all work with your row
-objects, and `TreeList` accepts any node type with `key`, `label`, and
-`children`. Item identity uses the shared `Key` domain (`string | number`) —
+objects, `columns` keys must be fields on the row type, and `TreeList`
+accepts any node type with `key`, `label`, and `children`. Item identity uses the shared `Key` domain (`string | number`) —
 the same one `useListData`, `useTreeData`, and `GridList` selection report —
 so a key returned by a store means the same thing to a view. `TreeList`
 expands and selects by key: `expandedKeys`/`defaultExpandedKeys`/
@@ -470,6 +470,9 @@ export function Example() {
 **Migrating existing code:** `Table`'s `keyFor` was renamed to `idKey`, which
 also accepts a `key`-typed row field name (`idKey="id"`); the default row key
 now reads the row's `id` or `key` property before falling back to its index.
+`columns` keys are now checked against the row type — a column that names no
+row field is a type error; extend the row type or render it through
+`renderCell`.
 `TreeList`'s `defaultExpanded`
 became `defaultExpandedKeys`, `onToggle` became `onExpandedChange` (it reports
 the complete expanded key set, not one key), and `onSelect` became `onAction`

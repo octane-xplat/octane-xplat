@@ -16,7 +16,7 @@ export function Example() {
 		{ key: 'year', type: 'number', label: 'Year' },
 	] as const)
 	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilter>
+		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
 	return <PowerSearch config={config} filters={filters} onChange={setFilters} />
 }
@@ -25,7 +25,12 @@ export function Example() {
 Your app holds the current `filters` and updates them through `onChange`.
 `PowerSearch` offers field/operator/value suggestions and an editor, then
 reports changes as `add`, `edit`, or `remove` with the affected index.
-The following component fragment assumes you supply `books` to display the filtered records.
+The `config` carries its field definitions, so `filters` and `onChange`
+only accept field, operator, and value combinations the config declares —
+`PowerSearchFilterFor<typeof config>` names that union, and a hand-built
+`PowerSearchConfig` keeps the loose `PowerSearchFilter`. The following
+component fragment assumes you supply `books` to display the filtered
+records.
 
 ```tsx
 import { PowerSearch, Text, createPowerSearchConfig } from '@octane-xplat/ui'
@@ -38,7 +43,7 @@ const { config, applyFilters } = createPowerSearchConfig([
 
 function SearchBooks({ books }: { books: { title: string; year: number }[] }) {
 	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilter>
+		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
 
 	return (
@@ -88,7 +93,27 @@ const visible = applyFilters(
 	[{ year: 2019 }, { year: 2026 }],
 )
 console.log(visible) // [{ year: 2026 }]
+
+// Filters written by hand are checked against the same union — both of
+// these fail to compile.
+const wrong = applyFilters(
+	// 'yeahr' is not a defined field
+	[{ field: 'yeahr', operator: 'greater_than', value: { type: 'float', value: 2020 } }],
+	[],
+)
+const mismatch = applyFilters(
+	// 'contains' is not a number-field operator
+	[{ field: 'year', operator: 'contains', value: { type: 'string', value: 'x' } }],
+	[],
+)
 ```
+
+**Migrating existing code:** state or helpers annotated
+`ReadonlyArray<PowerSearchFilter>` still work with a hand-built
+`PowerSearchConfig`, but a `createPowerSearchConfig` config narrows
+`filters`/`onChange`/`applyFilters` to the defined union — switch the
+annotation to `PowerSearchFilterFor<typeof config>` (or fix the field or
+operator it flags).
 
 ## Portable implementation and upstream seams
 
@@ -107,7 +132,7 @@ import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
 export function Example() {
 	const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
 	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilter>
+		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
 	return (
 		<PowerSearch
@@ -146,7 +171,7 @@ import { PowerSearch, createPowerSearchConfig, Pressable, Text } from '@octane-x
 export function Example() {
 	const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
 	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilter>
+		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
 	const input = useRef<import('@octane-xplat/ui').PowerSearchHandle | null>(null)
 	return (

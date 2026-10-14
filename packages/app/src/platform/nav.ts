@@ -1,4 +1,5 @@
 import { popRoute, pushRoute } from '@octane-xplat/ui'
+import type { TypedRoute } from '@octane-xplat/ui'
 
 import type { NavigateArgs, RouteName } from '../routes'
 
@@ -19,7 +20,7 @@ export function navigate(...args: NavigateArgs) {
 	]
 
 	lastNavStack = opts?.into ?? 'root'
-	pushRoute({ stack: lastNavStack, name, params: params ?? {}, presentation: opts?.presentation })
+	pushRoute({ stack: lastNavStack, name, params: params ?? {}, presentation: opts?.presentation } as TypedRoute)
 	console.log('[probe] nav pushed ' + name + ' into ' + lastNavStack)
 }
 

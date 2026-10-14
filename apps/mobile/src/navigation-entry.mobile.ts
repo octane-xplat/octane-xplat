@@ -16,8 +16,9 @@ import {
 } from '@octane-xplat/ui'
 
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
+import type { ManifestRouteParams, TypedRoute } from '@octane-xplat/ui'
 // oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
-import { NavigationScreen, NavigationShell } from './navigation-fixture.mobile.tsrx'
+import { NavigationScreen, NavigationShell, navigationRoutes } from './navigation-fixture.mobile.tsrx'
 import { NavigationTabs } from './navigation-tabs'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
@@ -88,8 +89,35 @@ async function select(label: string): Promise<void> {
 	await pause()
 }
 
+// Manifests registered mid-test via addRoutes — module-scope consts so their
+// spec-derived route types can contribute to the navigation surface.
+const runtimeRoutes = defineRoutes([
+	{ path: 'runtime/:id', screen: NavigationScreen, loader: (p) => 'runtime-' + p.id },
+])
+
+const redirectedRoutes = defineRoutes([
+	{
+		path: 'redirected',
+		screen: NavigationScreen,
+		beforeLoad: () => redirect({ stack: 'first', name: 'nav/:id', params: { id: 'redirect' } }),
+	},
+])
+
+const iosTabsRoutes = defineRoutes([{ path: 'ios-tabs', screen: NavigationTabs }])
+
+// The fixture's spec-derived route types merge into the registered
+// navigation surface so pushes check name/params against the manifests.
+declare module '@octane-xplat/ui' {
+	interface AppRoutes {
+		navigationFixture: ManifestRouteParams<typeof navigationRoutes>
+		navigationRuntime: ManifestRouteParams<typeof runtimeRoutes>
+		navigationRedirected: ManifestRouteParams<typeof redirectedRoutes>
+		navigationIosTabs: ManifestRouteParams<typeof iosTabsRoutes>
+	}
+}
+
 const push = (stack: string, id: string, name = 'nav/:id') =>
-	pushRoute({ stack, name, params: { id } })
+	pushRoute({ stack, name, params: { id } } as TypedRoute)
 
 async function shown(stack: string, id: string, view: any = page): Promise<void> {
 	await wait(
@@ -142,11 +170,7 @@ async function run(): Promise<void> {
 	popRoute('first')
 	await wait('first base restored', () => texts(page).includes('first base'))
 
-	addRoutes(
-		defineRoutes([
-			{ path: 'runtime/:id', screen: NavigationScreen, loader: (p) => 'runtime-' + p.id },
-		]),
-	)
+	addRoutes(runtimeRoutes)
 
 	push('first', 'runtime', 'runtime/:id')
 	await shown('first', 'runtime')
@@ -163,15 +187,7 @@ async function run(): Promise<void> {
 	pushRoute({ stack: 'first', name: 'blocked', params: {} })
 	await pause()
 	check('rejected guard leaves route', routeFor('first')?.params.id === 'guarded')
-	addRoutes(
-		defineRoutes([
-			{
-				path: 'redirected',
-				screen: NavigationScreen,
-				beforeLoad: () => redirect({ stack: 'first', name: 'nav/:id', params: { id: 'redirect' } }),
-			},
-		]),
-	)
+	addRoutes(redirectedRoutes)
 
 	pushRoute({ stack: 'first', name: 'redirected', params: {} })
 	await shown('first', 'redirect')
@@ -258,7 +274,7 @@ async function run(): Promise<void> {
 	popRoute('first')
 
 	if (Application.ios) {
-		addRoutes(defineRoutes([{ path: 'ios-tabs', screen: NavigationTabs }]))
+		addRoutes(iosTabsRoutes)
 		pushRoute({ stack: 'root', name: 'ios-tabs', params: {} })
 		await wait('UITabBar loaded', () => !!getStack('ios-first')?.currentPage)
 		const tabview = frame.currentPage.getViewById('nav-ios-tabs') as any

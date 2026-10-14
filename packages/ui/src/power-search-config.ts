@@ -13,8 +13,10 @@ import type {
 	InferData,
 	OperatorValue,
 	PowerSearchConfig,
+	PowerSearchDefInfo,
 	PowerSearchField,
 	PowerSearchFilter,
+	PowerSearchFilterFor,
 	PowerSearchItem,
 	PowerSearchOperator,
 	SearchSource,
@@ -857,19 +859,19 @@ export function createPowerSearchConfig<const D extends ReadonlyArray<FieldDefin
 	definitions: D,
 	configName?: string,
 ): {
-	config: PowerSearchConfig
+	config: PowerSearchConfig & PowerSearchDefInfo<D>
 	applyFilters: <T extends InferData<D>>(
-		filters: ReadonlyArray<PowerSearchFilter>,
+		filters: ReadonlyArray<PowerSearchFilterFor<D>>,
 		data: ReadonlyArray<T>,
 	) => T[]
 } {
-	const config: PowerSearchConfig = {
+	const config: PowerSearchConfig & PowerSearchDefInfo<D> = {
 		name: configName ?? 'PowerSearchConfig',
 		fields: definitions.map(buildField),
-	}
+	} as unknown as PowerSearchConfig & PowerSearchDefInfo<D>
 
 	function applyFilters<T extends InferData<D>>(
-		filters: ReadonlyArray<PowerSearchFilter>,
+		filters: ReadonlyArray<PowerSearchFilterFor<D>>,
 		data: ReadonlyArray<T>,
 	): T[] {
 		if (filters.length === 0) {

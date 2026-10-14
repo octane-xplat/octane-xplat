@@ -5,11 +5,11 @@ import { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from '@octane-
 import { PowerSearchView } from './PowerSearchView.web.tsrx'
 import { createPowerSearchConfig, createInternalConfig, createPowerSearchSource } from './power-search-config'
 import type { PowerSearchViewProps } from './power-search-view'
-import type { PowerSearchFilter } from './props'
+import type { PowerSearchFilterFor } from './props'
 
 const { config } = createPowerSearchConfig([{ key: 'title', type: 'string', label: 'Title' }] as const)
 const internal = createInternalConfig(config)
-const filter: PowerSearchFilter = { field: 'title', operator: 'contains', value: { type: 'string', value: 'hello' } }
+const filter: PowerSearchFilterFor<typeof config> = { field: 'title', operator: 'contains', value: { type: 'string', value: 'hello' } }
 const cleanups: (() => void)[] = []
 afterEach(() => { cleanups.splice(0).forEach(fn => fn()); vi.unstubAllGlobals() })
 function mount(node: any) {

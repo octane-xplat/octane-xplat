@@ -1,6 +1,7 @@
 import type { NavigateArgs, RouteName } from '../routes'
 
 import { popRoute, pushRoute } from '@octane-xplat/ui'
+import type { TypedRoute } from '@octane-xplat/ui'
 
 // Web seam for the nav contract — real paths over history. `into` selects
 // the outlet: a named stack renders inside its tab pane (nested-route
@@ -17,7 +18,7 @@ export function navigate(...args: NavigateArgs) {
 		name,
 		params: params ?? {},
 		presentation: opts?.presentation,
-	})
+	} as TypedRoute)
 
 	console.log('[probe] nav web → ' + location.pathname)
 }

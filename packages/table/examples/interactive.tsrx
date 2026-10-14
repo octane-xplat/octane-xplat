@@ -33,18 +33,18 @@ export default function InteractiveGrid() {
 					id="grid"
 					data={data}
 					columns={columns}
-					getRowId={(row) => row.id}
+					getRowId={(row: { id: string }) => row.id}
 					showGlobalFilter
 					showColumnFilters
 					showPagination
 					showRowSelection
-					getRowLabel={(row) => row.original.name}
+					getRowLabel={(row: { original: { name: string } }) => row.original.name}
 					state={{ rowSelection }}
 					showColumnSettings
 					resizableColumns
 					reorderableColumns
 					initialState={{ pagination: { pageIndex: 0, pageSize: 2 } }}
-					options={{ enableRowSelection: (row) => row.id !== 'b', onRowSelectionChange: setRowSelection }}
+					options={{ enableRowSelection: (row: { id: string }) => row.id !== 'b', onRowSelectionChange: setRowSelection }}
 					renderEmpty={() => <Text id="grid-empty">No matching rows</Text>}
 				/>
 			</View>

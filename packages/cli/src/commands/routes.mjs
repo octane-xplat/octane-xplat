@@ -331,6 +331,15 @@ ${params.length ? params.join('\n') : '\t// no param routes'}
 export interface RoutePresentations {
 ${presents.length ? presents.join('\n') : '\t// no +modal/+fade routes'}
 }
+
+// Registers the file-route params map so pushRoute and NavLink's route
+// check destinations against the real schema (AppRoutes/TypedRoute).
+// Programmatic manifests contribute their own member — see defineRoutes.
+declare module '@octane-xplat/ui' {
+	interface AppRoutes {
+		fileRoutes: RouteParams
+	}
+}
 `
 
 	writeFileSync(join(cwd, base + '.types.ts'), src)

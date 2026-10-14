@@ -1,12 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useState } from 'octane'
-import type { PowerSearchProps, PowerSearchFilter, PartialFilter } from './props'
+import type { PowerSearchConfig, PowerSearchProps, PowerSearchFilter, PowerSearchFilterFor, PartialFilter } from './props'
 import { PowerSearchToken } from './PowerSearchToken'
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor'
 import { createInternalConfig, createPowerSearchSource } from './power-search-config'
 import { PowerSearchView } from './PowerSearchView.tsrx'
 
-export function PowerSearch(props: PowerSearchProps) @{
+export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(props: PowerSearchProps<C>) @{
 	const [query, setQuery] = useState('')
 	const [editing, setEditing] = useState<{filter:PartialFilter; index:number} | null>(null)
 	const [open, setOpen] = useState(false)
@@ -26,7 +26,7 @@ export function PowerSearch(props: PowerSearchProps) @{
 			const next = [...props.filters]
 			const changeType = editing.index < 0 ? 'add' : 'edit'
 			const index = editing.index < 0 ? next.length : editing.index
-			if (changeType === 'add') next.push(filter); else next[index] = filter
+			if (changeType === 'add') next.push(filter as PowerSearchFilterFor<C>); else next[index] = filter as PowerSearchFilterFor<C>
 			props.onChange(next, changeType, index)
 		}
 

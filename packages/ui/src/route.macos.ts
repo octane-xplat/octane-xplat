@@ -1,6 +1,6 @@
 import { createNavigationRequests, type NavigationRequest } from './navigation-request'
 import { useSyncExternalStore } from 'octane'
-import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable } from './props'
+import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
 import {
 	buildRoutePath,
 	layoutChain,
@@ -166,7 +166,7 @@ export function redirect(route: Route): never {
 	throw new RouteRedirect(route)
 }
 
-export function pushRoute(route: Route): void {
+export function pushRoute(route: TypedRoute): void {
 	const request = navigationRequests.begin(route.stack)
 	if (metaFor(route.name)?.beforeLoad) {
 		void prepareRoute(route, request)
@@ -232,7 +232,7 @@ export function popRoute(stack = 'root'): void {
 export function pushDeepLink(url: string): void {
 	const route = matchUrl(routes, url)
 	if (route) {
-		pushRoute(route)
+		pushRoute(route as TypedRoute)
 	}
 }
 

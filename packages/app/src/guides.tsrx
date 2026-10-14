@@ -47,7 +47,7 @@ export function GuideIndex(props: { _stack?: string }) @{
 		<Text className="text-sm text-muted">{'Registered from a ' + GUIDES.length + '-record data array.'}</Text>
 		<View className="gap-2">
 			@for (const doc of GUIDES; key doc.slug) {
-				<NavLink route={{ stack, name: 'guides/' + doc.slug, params: {} }} className="chip">
+				<NavLink route={{ stack, name: 'guides/:slug', params: { slug: doc.slug } }} className="chip">
 					<Text>{doc.title} →</Text>
 				</NavLink>
 			}

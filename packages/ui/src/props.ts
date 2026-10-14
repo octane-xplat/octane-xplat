@@ -2711,13 +2711,15 @@ export interface Route {
 /** Values shared by a route guard and the screen it admits. */
 export type RouteContext = Record<string, unknown>
 
-export interface BeforeLoadArgs {
-	params: Record<string, unknown>
+export interface BeforeLoadArgs<
+	Params extends Record<string, unknown> = Record<string, unknown>,
+> {
+	params: Params
 	context: RouteContext
 }
 
-export type BeforeLoad = (
-	args: BeforeLoadArgs,
+export type BeforeLoad<Params extends Record<string, unknown> = Record<string, unknown>> = (
+	args: BeforeLoadArgs<Params>,
 ) => RouteContext | void | Promise<RouteContext | void>
 
 /** The deliberately small cross-platform head surface. `meta` keys become
@@ -2727,7 +2729,16 @@ export interface RouteHead {
 	meta?: Record<string, string>
 }
 
-export type RouteHeadExport = RouteHead | ((params: Record<string, unknown>) => RouteHead)
+/** Function form of a route `head` export — a call signature (not a
+ *  function-typed property) so a `RouteHeadFn` narrowed to a spec's path
+ *  params stays assignable to the loose form under strictFunctionTypes. */
+export interface RouteHeadFn<Params extends Record<string, unknown> = Record<string, unknown>> {
+	(params: Params): RouteHead
+}
+
+export type RouteHeadExport<Params extends Record<string, unknown> = Record<string, unknown>> =
+	| RouteHead
+	| RouteHeadFn<Params>
 
 /** Props the framework passes to a route's `ErrorBoundary` export when the
  *  route's rendered subtree throws. `reset` clears the caught error and
@@ -2761,7 +2772,10 @@ export interface LinkProps {
 }
 
 export interface NavLinkProps {
-	route: Route
+	/** Destination the link pushes — checked against the registered route
+	 *  schema (see `AppRoutes`/`TypedRoute`). Runtime-computed destinations
+	 *  outside the schema assert to `TypedRoute`. */
+	route: TypedRoute
 	activeClassName?: string
 	className?: ClassName
 	style?: StyleProp
@@ -2834,19 +2848,34 @@ export interface RouteManifest {
 	baked?: Record<string, unknown>
 }
 
+/** Params record a spec `path` declares — `RouteSpecParams<'docs/:slug'>`
+ *  is `{ slug: string }`, optional segments and splats come out `?`d. A
+ *  non-literal `string` path stays the loose open record. Use it to type
+ *  `loader`/`beforeLoad`/`head` callbacks when authoring specs by hand or
+ *  with `satisfies RouteSpec<'docs/:slug'>`. */
+export type RouteSpecParams<Path extends string> = string extends Path
+	? Record<string, unknown>
+	: RouteParamRecord<Path>
+
 /** One programmatic route entry for `defineRoutes` — the manifest fields a
  *  route file would have produced, supplied directly. `path` uses the
  *  route-dir vocabulary: `'docs/:slug'` (or `'docs/[slug]'`), `'index'`/`''`
- *  for the root route. `screen` is the component itself — not a module. */
-export interface RouteSpec {
-	path: string
+ *  for the root route. `screen` is the component itself — not a module.
+ *  Supplying `Path` (via `satisfies RouteSpec<'docs/:slug'>` or an explicit
+ *  annotation) types the `loader`/`beforeLoad`/`head` params from the path;
+ *  the callback members are methods so a narrowed spec remains assignable
+ *  to the default `RouteSpec` the manifest consumes. */
+export interface RouteSpec<Path extends string = string> {
+	path: Path
 	screen: ScreenComponent
 	/** Default presentation, like a `+modal`/`+fade` filename suffix. */
 	presentation?: 'push' | 'modal' | 'fade'
-	loader?: RouteMeta['loader']
+	loader?(params: RouteSpecParams<Path>): unknown
 	dataMode?: RouteDataMode
-	beforeLoad?: BeforeLoad
-	head?: RouteHeadExport
+	beforeLoad?(
+		args: BeforeLoadArgs<RouteSpecParams<Path>>,
+	): RouteContext | void | Promise<RouteContext | void>
+	head?: RouteHeadExport<RouteSpecParams<Path>>
 	/** Component receiving `RouteErrorBoundaryProps` — the spec form of a
 	 *  route file's `ErrorBoundary` export. */
 	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
@@ -3039,6 +3068,58 @@ export type ManifestRoutePresentations<M> = M extends {
 }
 	? P
 	: {}
+
+// ---------- registered route typing ----------
+
+/** The app's registered route schema — every route source contributes one
+ *  member carrying its `{name: params}` map. `xplat routes` emits
+ *  `interface AppRoutes { fileRoutes: RouteParams }` into
+ *  `routes.gen.types.ts`; a programmatic manifest contributes
+ *  `ManifestRouteParams<typeof manifest>` from app code:
+ *
+ *  ```ts
+ *  declare module '@octane-xplat/ui' {
+ *  	interface AppRoutes {
+ *  		guideRoutes: ManifestRouteParams<typeof guideRoutes>
+ *  	}
+ *  }
+ *  ```
+ *
+ *  Registered names/params check `pushRoute` and `NavLink`'s `route` (see
+ *  `TypedRoute`). Unaugmented (the default) every name takes an open params
+ *  record, matching the historical `Route` contract. */
+export interface AppRoutes {}
+
+/** name → params record merged across `AppRoutes` contributions. */
+export type AppRouteParams = keyof AppRoutes extends never
+	? Record<string, Record<string, unknown>>
+	: UnionToIntersection<AppRoutes[keyof AppRoutes]>
+
+/** Registered route names — `string` when no source contributed. */
+export type AppRouteName = keyof AppRouteParams & string
+
+/** A `Route` narrowed by a `{name: params}` map: `name` is a map key and
+ *  `params` is that name's record, so invented names and incompatible
+ *  params fail at the callsite. Distributes over `Name`, so `RouteFor<P>`
+ *  is the union of every destination `P` describes. */
+export type RouteFor<Params, Name extends keyof Params & string = keyof Params & string> =
+	Name extends unknown
+		? Omit<Route, 'name' | 'params'> & {
+				name: Name
+				params: Params[Name]
+			}
+		: never
+
+/** The typed navigation surface — `pushRoute` and `NavLink`'s `route`
+ *  take this shape so invented names and incompatible params fail at the
+ *  callsite. `redirect` keeps the loose `Route` shape: it is called inside
+ *  spec callbacks, and a registry-typed parameter would make a contributed
+ *  manifest's type depend on itself. With no `AppRoutes` augmentation it is
+ *  assignable to and from `Route`. Destinations only known at runtime
+ *  (computed names outside the schema) assert `as TypedRoute`. APIs that
+ *  consume an already-committed route — `useRoute`, `currentRoute`,
+ *  `matchUrl`, `hrefFor` — keep the realized `Route` shape instead. */
+export type TypedRoute<Name extends AppRouteName = AppRouteName> = RouteFor<AppRouteParams, Name>
 
 export interface OpenWindowOptions {
 	/** Data handed to the new window's content resolver. Delivered on
@@ -4235,8 +4316,12 @@ export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPalet
 
 // ---------- data display (Phase 4) ----------
 
-export interface TableColumn {
-	key: Key
+/** `K` is the row field the column reads — constrained to `keyof T` on
+ *  `TableProps`, so a column key that exists in no row fails at the
+ *  callsite. Pure display columns (no backing row field) widen the row
+ *  type or render through `renderCell`. */
+export interface TableColumn<K extends Key = Key> {
+	key: K
 	label?: string
 	/** Column width in dips; omit to share the remaining space evenly. */
 	width?: number
@@ -4246,16 +4331,17 @@ export interface TableColumn {
 /** Table — self-drawn grid via rows + cells. Bounded and unvirtualized:
  *  large datasets belong to the platform UITableView/RecyclerView
  *  subpaths, not this component. The row generic flows through
- *  `renderCell`, `idKey`, and `onRowPress`, so rows keep their
- *  element type; `rowIndex` arguments are positional, not identity. */
+ *  `columns`, `renderCell`, `idKey`, and `onRowPress`, so rows keep their
+ *  element type and column keys stay row fields; `rowIndex` arguments
+ *  are positional, not identity. */
 export interface TableProps<T extends object = Record<string, unknown>> {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	columns: TableColumn[]
+	columns: readonly TableColumn<keyof T & Key>[]
 	rows: readonly T[]
 	/** Cell override — default renders `row[col.key]` as text. */
-	renderCell?: (row: T, column: TableColumn, rowIndex: number) => Renderable
+	renderCell?: (row: T, column: TableColumn<keyof T & Key>, rowIndex: number) => Renderable
 	/** Stable row `Key` — a row field name or an extractor (Astryx `idKey`).
 	 *  Defaults to the row's `id` or `key` property, then its index. The
 	 *  index fallback is positional — supply `idKey` or an `id`/`key` field
@@ -6504,20 +6590,25 @@ export type PowerSearchComponents = Partial<
 >
 
 /** Structured filter bar — pick a field, then operator and value in the
- *  editor popover; committed filters render as removable, editable tokens. */
-export interface PowerSearchProps extends FieldControlProps {
+ *  editor popover; committed filters render as removable, editable tokens.
+ *  A `config` built by `createPowerSearchConfig` carries its field
+ *  definitions, so `filters`/`onChange` only accept field/operator/value
+ *  combinations the config declares (see `PowerSearchFilterFor`); a
+ *  hand-built `PowerSearchConfig` keeps the loose `PowerSearchFilter`. */
+export interface PowerSearchProps<C extends PowerSearchConfig = PowerSearchConfig>
+	extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
 	/** Status layout: overlaps the field below it or occupies its own row. */
 	statusVariant?: 'attached' | 'detached'
 	/** Field/operator configuration. */
-	config: PowerSearchConfig
+	config: C
 	/** Active filters (controlled). */
-	filters: ReadonlyArray<PowerSearchFilter>
+	filters: ReadonlyArray<PowerSearchFilterFor<C>>
 	/** Fires on add/edit/remove with the change type and filter index. */
 	onChange: (
-		filters: ReadonlyArray<PowerSearchFilter>,
+		filters: ReadonlyArray<PowerSearchFilterFor<C>>,
 		changeType: PowerSearchChangeType,
 		index: number,
 	) => void
@@ -6593,6 +6684,117 @@ export type PowerSearchFieldTypeToJS = {
 export type InferData<D extends ReadonlyArray<FieldDefinition>> = {
 	[F in D[number] as F['key']]: PowerSearchFieldTypeToJS[F['type']]
 }
+
+/** Phantom key carrying a `createPowerSearchConfig` field-definition tuple —
+ *  type-level only, never present at runtime. Module-private so the
+ *  published declarations carry no value binding for it. */
+declare const powerSearchFields: unique symbol
+
+/** The field-definition record `createPowerSearchConfig` brands onto its
+ *  config — read it with `PowerSearchFilterFor`, never directly. */
+export interface PowerSearchDefInfo<Defs extends readonly FieldDefinition[]> {
+	readonly [powerSearchFields]: Defs
+}
+
+/** The enum `value` union a definition declares — `as const` definitions
+ *  keep literal values; a non-literal `enumValues` degrades to `string`. */
+type EnumValuesOf<D> = D extends { readonly enumValues: infer E extends readonly EnumItem[] }
+	? E[number]['value']
+	: string
+
+/** The `operator`/`value` pairs a field type's generated operators accept —
+ *  mirrors `buildField` in power-search-config.ts: string and enum share
+ *  `is`/`is_not`, numbers compare, dates bound, booleans and lists use the
+ *  empty/list vocabularies. */
+type PowerSearchFieldFilter<D extends FieldDefinition> = D extends {
+	readonly key: infer K extends string
+	readonly type: infer T extends PowerSearchFieldType
+}
+	? (
+			T extends 'string'
+				? {
+						readonly field: K
+						readonly operator:
+							| 'contains'
+							| 'not_contains'
+							| 'starts_with'
+							| 'not_starts_with'
+							| 'ends_with'
+							| 'not_ends_with'
+							| 'is'
+							| 'is_not'
+						readonly value: FilterValueString
+					}
+				: T extends 'number'
+					? {
+							readonly field: K
+							readonly operator:
+								| 'equals'
+								| 'not_equals'
+								| 'greater_than'
+								| 'less_than'
+								| 'greater_than_or_equal'
+								| 'less_than_or_equal'
+							readonly value: FilterValueFloat | FilterValueInteger
+						}
+					: T extends 'boolean'
+						? {
+								readonly field: K
+								readonly operator: 'is_true' | 'is_false'
+								readonly value: FilterValueEmpty
+							}
+						: T extends 'date'
+							?
+									| {
+											readonly field: K
+											readonly operator: 'before' | 'after'
+											readonly value: FilterValueDateAbsolute
+									  }
+									| {
+											readonly field: K
+											readonly operator: 'between'
+											readonly value: FilterValueDateRange
+									  }
+							: T extends 'enum'
+								? {
+										readonly field: K
+										readonly operator: 'is' | 'is_not'
+										readonly value: { readonly type: 'enum'; readonly value: EnumValuesOf<D> }
+									}
+								: T extends 'enum_list'
+									? {
+											readonly field: K
+											readonly operator: 'is_any_of' | 'is_none_of'
+											readonly value: {
+												readonly type: 'enum_list'
+												readonly value: ReadonlyArray<EnumValuesOf<D>>
+											}
+										}
+									: T extends 'string_list'
+										? {
+												readonly field: K
+												readonly operator: 'is_any_of' | 'is_none_of'
+												readonly value: FilterValueStringList
+											}
+										: never
+		) & { readonly isReadOnly?: boolean }
+	: never
+
+/** The filter union a schema accepts — pass the `config` from
+ *  `createPowerSearchConfig` (`PowerSearchFilterFor<typeof config>`) or a
+ *  field-definition tuple directly; anything else resolves to the loose
+ *  `PowerSearchFilter`. `field` is a defined key, `operator` one of that
+ *  field's operators, and `value` the operator's stored shape — invented
+ *  names and incompatible values fail at the callsite. */
+export type PowerSearchFilterFor<Source> = Source extends {
+	readonly [powerSearchFields]: infer Defs
+}
+	? Defs extends readonly FieldDefinition[]
+		? PowerSearchFieldFilter<Defs[number]>
+		: PowerSearchFilter
+	: Source extends readonly FieldDefinition[]
+		? PowerSearchFieldFilter<Source[number]>
+		: PowerSearchFilter
 
 // ---------- theme ----------
 

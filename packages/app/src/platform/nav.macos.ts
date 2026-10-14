@@ -1,4 +1,5 @@
 import { popRoute, pushRoute } from '@octane-xplat/ui'
+import type { TypedRoute } from '@octane-xplat/ui'
 import type { NavigateArgs, RouteName } from '../routes'
 
 export function navigate(...args: NavigateArgs): void {
@@ -9,7 +10,7 @@ export function navigate(...args: NavigateArgs): void {
 	]
 
 	const stack = options?.into ?? 'root'
-	pushRoute({ stack, name, params: params ?? {}, presentation: options?.presentation })
+	pushRoute({ stack, name, params: params ?? {}, presentation: options?.presentation } as TypedRoute)
 	console.log('[probe] nav macos → ' + name + ' into ' + stack)
 }
 

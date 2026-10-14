@@ -154,16 +154,35 @@ your route files if you need to refresh generated code:
 pnpm exec xplat routes
 ```
 
-The generated `RouteName` and `RouteParams` types let your own navigation
-helper check destination names and params. This helper belongs beside the
-app's generated `routes.gen.types.ts`:
+The generated `RouteName`, `RouteParams`, and `RoutePresentations` types
+describe the file routes, and the generated file also registers `RouteParams`
+on the framework's `AppRoutes` interface. That registration is what lets
+`pushRoute` and `NavLink` check destination names and params at the
+callsite — a route that does not exist, or params the route does not
+declare, are type errors:
+
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// OK — 'settings' is a file route and takes no params.
+pushRoute({ stack: 'root', name: 'settings', params: {} })
+
+// Type error — no route is named 'setings'.
+pushRoute({ stack: 'root', name: 'setings', params: {} })
+```
+
+The same checking flows through `NavLink`'s `route` prop and any helper you
+write on top. Destinations only known at runtime — a name built from data
+rather than a literal — assert the escape hatch `as TypedRoute`, which marks
+where the schema ends. The generated `RouteName`/`RouteParams` types stay
+available if you want a wrapper with its own signature:
 
 ```ts
 import { pushRoute } from '@octane-xplat/ui'
 import type { RouteName, RouteParams } from './routes.gen.types'
 
 export function openScreen<Name extends RouteName>(name: Name, params: RouteParams[Name]) {
-	pushRoute({ stack: 'root', name, params })
+	pushRoute({ stack: 'root', name, params } as import('@octane-xplat/ui').TypedRoute)
 }
 ```
 
@@ -281,27 +300,38 @@ registerRoutes(mergeRouteManifests(dynamic, files)) // FileGuide wins.
 Literal paths are typed at the callsite — `defineRoutes` infers route
 names, params, and presentations from each `path` string, and the returned
 manifest carries them through `ManifestRouteNames`/`ManifestRouteParams`/
-`ManifestRoutePresentations`, so an app can union them into its generated
-types (`RouteName | ManifestRouteNames<typeof manifest>`) with no codegen
-step. Only paths that are genuinely computed at runtime stay outside the
-typed surface — navigate those with the low-level `Route` shape
-(`pushRoute({stack, name, params})`, `NavLink route={...}`). The generated
-`routes.screens` snapshot likewise covers file routes only — resolve
-screens through `screenFor(name)`, which reads the merged registry.
+`ManifestRoutePresentations`. Register the manifest's params on `AppRoutes`
+so the programmatic names check `pushRoute` and `NavLink` just like file
+routes do:
 
 ```tsx
 import { defineRoutes, Text } from '@octane-xplat/ui'
-import type { ManifestRouteNames, ManifestRouteParams } from '@octane-xplat/ui'
+import type { ManifestRouteParams } from '@octane-xplat/ui'
 
 function Guide(props: { slug: string }) {
 	return <Text>{props.slug}</Text>
 }
+
 const manifest = defineRoutes({ routes: [{ path: 'docs/:slug', screen: Guide }] })
-type Name = ManifestRouteNames<typeof manifest>
-type Params = ManifestRouteParams<typeof manifest>
-const name: Name = 'docs/:slug'
-const params: Params['docs/:slug'] = { slug: 'packing' }
+
+declare module '@octane-xplat/ui' {
+	interface AppRoutes {
+		guides: ManifestRouteParams<typeof manifest>
+	}
+}
 ```
+
+Each `AppRoutes` member is one route source's `{name: params}` map — the
+generated `fileRoutes` member covers the route dir, so contributions merge.
+Inside a spec, `RouteSpecParams<'docs/:slug'>` types the `loader`,
+`beforeLoad`, and `head` params when you annotate a spec as
+`RouteSpec<'docs/:slug'>` or write them out. `redirect` deliberately keeps
+the loose `Route` shape — it runs inside spec callbacks, and a
+registry-typed parameter would make a contributed manifest's type
+self-referential. Destinations only known at runtime — a name computed
+from data rather than a literal — assert the escape hatch `as TypedRoute`. The generated `routes.screens` snapshot
+likewise covers file routes only — resolve screens through
+`screenFor(name)`, which reads the merged registry.
 
 ## Present a route modally
 
@@ -729,9 +759,11 @@ not device-verified; see [navigation limits](../verify/known-limits.md#navigatio
 `route.hash` is a web-only field native ignores.
 
 Generated `RouteParams` keeps normal route APIs scalar (`string`) for stable
-URLs. The low-level `Route` type remains open for compatibility: if an object
-or array is passed directly, web JSON-encodes it with a warning and decodes it
-again on matching. Prefer the generated scalar API for shareable routes.
+URLs — `TypedRoute` enforces that shape for registered routes. The runtime
+stays open for compatibility: if an object or array reaches a push anyway
+(a `TypedRoute` assertion or an unregistered app), web JSON-encodes it with
+a warning and decodes it again on matching. Prefer the scalar API for
+shareable routes.
 
 ```ts
 import { pushRoute } from '@octane-xplat/ui'

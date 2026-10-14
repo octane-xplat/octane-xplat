@@ -1,9 +1,15 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import type {
+	AppRouteName,
 	ManifestRouteNames,
 	ManifestRouteParams,
 	ManifestRoutePresentations,
+	Route,
+	RouteFor,
 	RouteManifest,
+	RouteSpec,
+	RouteSpecParams,
+	TypedRoute,
 } from './props'
 
 import {
@@ -774,5 +780,48 @@ describe('mergeRouteManifests', () => {
 		const merged = mergeRouteManifests(files, dynamic)
 
 		expect(matchRoute(merged.routes, ['demo', 'new'])!.meta.name).toBe('demo/new')
+	})
+})
+
+describe('schema-inferred routes', () => {
+	it('narrows a destination union to the params map', () => {
+		type Params = { 'docs/:slug': { slug: string }; about: {} }
+
+		expectTypeOf<RouteFor<Params>['name']>().toEqualTypeOf<'docs/:slug' | 'about'>()
+		expectTypeOf<RouteFor<Params, 'docs/:slug'>['params']>().toEqualTypeOf<{
+			slug: string
+		}>()
+
+		expectTypeOf<RouteFor<Params>>().toExtend<Route>()
+	})
+
+	it('derives spec params from the path literal', () => {
+		expectTypeOf<RouteSpecParams<'docs/:slug'>>().toEqualTypeOf<{ slug: string }>()
+		expectTypeOf<RouteSpecParams<':locale?/docs/:doc'>>().toEqualTypeOf<{
+			doc: string
+			locale?: string
+		}>()
+
+		expectTypeOf<RouteSpecParams<string>>().toEqualTypeOf<Record<string, unknown>>()
+	})
+
+	it('types spec callbacks from a literal path', () => {
+		const spec = {
+			path: 'guides/:doc',
+			screen: C('Doc'),
+			loader: (params) => params.doc,
+			beforeLoad: (args) => ({ doc: args.params.doc }),
+			head: (params) => ({ title: params.doc }),
+		} satisfies RouteSpec<'guides/:doc'>
+
+		// The narrowed spec still feeds the loose RouteSpec the manifest consumes.
+		expectTypeOf(spec).toExtend<RouteSpec>()
+		expect(defineRoutes([spec]).screens['guides/:doc'].displayName).toBe('Doc')
+	})
+
+	it('stays loose until the app contributes AppRoutes', () => {
+		expectTypeOf<AppRouteName>().toEqualTypeOf<string>()
+		expectTypeOf<TypedRoute>().toExtend<Route>()
+		expectTypeOf<Route>().toExtend<TypedRoute>()
 	})
 })

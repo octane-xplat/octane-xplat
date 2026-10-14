@@ -16,7 +16,7 @@ import { useSyncExternalStore } from 'octane'
  *  Back (popstate or popRoute) dismisses it. */
 
 export type { Route } from './props'
-import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable } from './props'
+import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
 import {
 	buildRoutePath,
 	layoutChain,
@@ -378,7 +378,7 @@ export function redirect(r: Route): never {
 	throw new RouteRedirect(r)
 }
 
-export function pushRoute(r: Route): void {
+export function pushRoute(r: TypedRoute): void {
 	const request = navigationRequests.begin('history')
 	if (metaFor(r.name)?.beforeLoad) {
 		void prepareRoute(r, request)
@@ -538,7 +538,7 @@ export function pushDeepLink(url: string): boolean {
 		return false
 	}
 
-	pushRoute(r)
+	pushRoute(r as TypedRoute)
 	return true
 }
 

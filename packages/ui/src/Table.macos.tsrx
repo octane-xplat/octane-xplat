@@ -15,7 +15,7 @@ function rowKey<T extends object>(props: TableProps<T>, row: T, index: number): 
 /** Table — self-drawn grid. Bounded and unvirtualized: large datasets
  *  belong to the platform UITableView/RecyclerView subpaths. */
 export function Table<T extends object = Record<string, any>>(props: TableProps<T>) @{
-	const cellStyle = (col: TableColumn) => ({
+	const cellStyle = (col: TableColumn<keyof T & Key>) => ({
 		...(col.width != null ? { width: col.width } : { flexGrow: 1 }),
 		...(col.align ? { textAlignment: col.align } : {}),
 	});
@@ -37,7 +37,7 @@ export function Table<T extends object = Record<string, any>>(props: TableProps<
 				>
 					@for (const col of props.columns; key col.key) {
 						<flexboxlayout className="vx-table-cell" style={cellStyle(col)}>
-							{props.renderCell ? props.renderCell(e.row, col, e.ri) : <label text={String((e.row as Record<string, any>)[col.key] ?? '')} />}
+							{props.renderCell ? props.renderCell(e.row, col, e.ri) : <label text={String((e.row as Record<Key, unknown>)[col.key] ?? '')} />}
 						</flexboxlayout>
 					}
 				</flexboxlayout>
