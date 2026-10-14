@@ -10,9 +10,9 @@ export function ActionControlsDemo() @{
 	<View className="action-controls-demo gap-4">
 		<Heading level={2}>Action controls</Heading>
 		<ButtonGroup label="Document actions">
-			<Button label="Save" variant="primary" onPress={() => setMessage('Saved')} />
+			<Button label="Save" variant="primary" clickAction={() => setMessage('Saved')} />
 			<ToggleButton label="Pin" icon="pin" isPressed={pinned} onPressedChange={setPinned} />
-			<IconButton label="Share" icon="share" onPress={() => setMessage('Ready to share')} />
+			<IconButton label="Share" icon="share" clickAction={() => setMessage('Ready to share')} />
 		</ButtonGroup>
 		<ToggleButtonGroup label="View mode" value={view} onChange={setView}>
 			<ToggleButton value="list" label="List" />

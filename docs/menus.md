@@ -14,13 +14,13 @@ arrays still work:
 	trigger={<Text>Actions</Text>}
 	items={[
 		{ key: 'rename', label: 'Rename', onSelect: rename },
-		{ key: 'remove', label: 'Remove', disabled: true },
+		{ key: 'remove', label: 'Remove', isDisabled: true },
 	]}
 />
 ```
 
-`key` identifies a data row. `isDisabled` is the preferred spelling for new
-code; legacy `disabled` still works. Disabled items remain discoverable by
+`key` identifies a data row and `isDisabled` disables it — the legacy
+`disabled` spelling was removed. Disabled items remain discoverable by
 keyboard on web, but neither clicks nor keyboard activation run their action.
 
 ## Add choices and submenus
@@ -78,9 +78,9 @@ the extendable `MenuItem` interface remains available to existing callers.
 Use `isOpen` with `onOpenChange` when another part of the app owns visibility.
 A close callback is a request. The menu stays mounted until you update
 `isOpen`; a rejected submenu close keeps its keyboard focus. Without `isOpen`,
-the menu owns visibility and can start open with `defaultOpen`.
-Legacy `open` is retained, with `isOpen` taking precedence when both are passed.
-A submenu uses `isOpen`, `defaultOpen`, and `onOpenChange` in the same way.
+the menu owns visibility and can start open with `defaultOpen`. The legacy
+`open` prop was removed — rename it to `isOpen`. A submenu uses `isOpen`,
+`defaultOpen`, and `onOpenChange` in the same way.
 
 Selecting a nested action requests closure of the whole menu. Escape and
 outside dismissal close the top surface first. Menus inherit the shared layer

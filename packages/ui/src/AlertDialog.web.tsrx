@@ -53,15 +53,15 @@ export function AlertDialog(props: AlertDialogProps) @{
 			<div className="vx-alertdialog-actions">
 				<Button
 					className="btn btn-secondary"
-					onPress={() => requestChange(false)}
-					disabled={props.isActionLoading}
+					clickAction={() => requestChange(false)}
+					isDisabled={props.isActionLoading}
 				>
 					{props.cancelLabel ?? 'Cancel'}
 				</Button>
 				<Button
 					className={cx('btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive'])}
-					onPress={props.onAction}
-					loading={props.isActionLoading}
+					clickAction={props.onAction}
+					isLoading={props.isActionLoading}
 				>
 					{props.actionLabel}
 				</Button>

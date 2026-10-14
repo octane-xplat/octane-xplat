@@ -31,7 +31,7 @@ export function CameraDemo() @{
 				value={facing}
 				onValueChange={(v: string) => setFacing(v as 'front' | 'back')}
 			/>
-			<Button className="btn btn-secondary" onPress={() => setActive(!active)}>
+			<Button className="btn btn-secondary" clickAction={() => setActive(!active)}>
 				<Text>{active ? 'Stop' : 'Start'}</Text>
 			</Button>
 		</HStack>

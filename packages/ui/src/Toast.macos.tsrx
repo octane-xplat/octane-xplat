@@ -67,6 +67,6 @@ export function Toast(props: ToastProps) @{
 				{props.endContent}
 			</flexboxlayout>
 		)}
-		{props.onDismiss != null && <Button accessibilityLabel="Dismiss notification" onPress={() => dismiss('manual')}>×</Button>}
+		{props.onDismiss != null && <Button accessibilityLabel="Dismiss notification" clickAction={() => dismiss('manual')}>×</Button>}
 	</flexboxlayout>
 }

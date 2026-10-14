@@ -60,7 +60,7 @@ export function OverlayDemo() @{
 		</View>
 		<Dialog isOpen={dialogOpen} onOpenChange={setDialogOpen} accessibilityLabel="Nested layers">
 			<Text>Open the menu. Escape requests the menu close first, then the dialog close.</Text>
-			<DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} trigger={<Text>Open menu</Text>} items={[{ key: 'close', label: 'Close menu' }]} />
+			<DropdownMenu isOpen={menuOpen} onOpenChange={setMenuOpen} trigger={<Text>Open menu</Text>} items={[{ key: 'close', label: 'Close menu' }]} />
 			<HoverCard content={<Text>Escape closes this card before the dialog.</Text>}>
 				<Pressable onPress={() => {}}><Text>Hover or tap for a card</Text></Pressable>
 			</HoverCard>

@@ -36,7 +36,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 			<SearchInput ref={(h:any)=>inputHandle.current=h} className="vx-power-search-input" value={query} placeholder={props.placeholder ?? powerSearchTranslate('@astryx.powersearch.placeholder')} onChange={props.onQueryChange} onFocus={props.onInputFocus} onBlur={props.onBlur} isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={props.isLoading} description={props.disabledMessage} hasClear={false} accessibilityLabel={props.label ?? 'Search'} />
 			{props.resultCount != null ? <label className="vx-power-search-count" accessibilityLiveRegion={'polite' as any} text={String(props.resultCount)} /> : null}
 			{props.endContent}
-			{props.hasClear !== false && props.filters.length > 0 ? <Button label="Clear" variant="ghost" onPress={props.onClear} isDisabled={props.isDisabled} /> : null}
+			{props.hasClear !== false && props.filters.length > 0 ? <Button label="Clear" variant="ghost" clickAction={props.onClear} isDisabled={props.isDisabled} /> : null}
 		</flexboxlayout>
 		<Popover anchor={anchor} open={props.suggestionsOpen} placement="bottom" onDismiss={()=>props.onDismiss()} className="vx-power-search-results" style={props.menuWidth ? {width:props.menuWidth} : undefined}>
 			<flexboxlayout className="vx-power-search-result-list">

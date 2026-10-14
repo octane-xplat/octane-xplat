@@ -66,7 +66,7 @@ export function ComponentsDemo() @{
 	const menuItems = [
 		{ key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
 		{ key: 'dup', label: 'Duplicate', onSelect: () => setLastMenu('dup') },
-		{ key: 'del', label: 'Delete', disabled: true, onSelect: () => setLastMenu('del') },
+		{ key: 'del', label: 'Delete', isDisabled: true, onSelect: () => setLastMenu('del') },
 	];
 
 	<View className="controls-demo gap-4">
@@ -75,11 +75,11 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Button</Text>
 			<HStack className="items-center gap-4">
-				<Button className="btn btn-secondary" onPress={() => setLastMenu('pressed')}>
+				<Button className="btn btn-secondary" clickAction={() => setLastMenu('pressed')}>
 					<Text>Press me</Text>
 				</Button>
-				<Button className="btn" loading={true}><Text>Loading</Text></Button>
-				<Button className="btn" disabled={true}><Text>Disabled</Text></Button>
+				<Button className="btn" isLoading={true}><Text>Loading</Text></Button>
+				<Button className="btn" isDisabled={true}><Text>Disabled</Text></Button>
 			</HStack>
 		</View>
 
@@ -194,13 +194,13 @@ export function ComponentsDemo() @{
 					{ key: 'off', label: 'Off', disabled: true },
 				]}
 			/>
-			<Button className="btn btn-secondary" onPress={() => setCmdk(true)}><Text>Command palette</Text></Button>
+			<Button className="btn btn-secondary" clickAction={() => setCmdk(true)}><Text>Command palette</Text></Button>
 			<CommandPalette id="demo-commands" open={cmdk} onOpenChange={setCmdk} searchMode="fuzzy" items={[
 				{ key: 'edit', label: 'Edit', group: 'Actions', onSelect: () => setLastCommand('edit') },
 				{ key: 'settings', label: 'Settings', group: 'Navigation', keywords: ['preferences'], description: 'Manage preferences', onSelect: () => setLastCommand('settings') },
-				{ key: 'delete', label: 'Delete', group: 'Actions', disabled: true },
+				{ key: 'delete', label: 'Delete', group: 'Actions', isDisabled: true },
 			]} />
-			<Button className="btn btn-secondary" onPress={() => setRemoteCmdk(true)}><Text>Search remote commands</Text></Button>
+			<Button className="btn btn-secondary" clickAction={() => setRemoteCmdk(true)}><Text>Search remote commands</Text></Button>
 			<CommandPalette id="demo-remote-commands" open={remoteCmdk} onOpenChange={setRemoteCmdk} searchSource={remoteCommandSource} onValueChange={setLastCommand} />
 			<Text>Last command: {lastCommand}. Remote search: type fail to exercise Retry.</Text>
 		</View>

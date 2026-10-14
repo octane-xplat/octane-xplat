@@ -1474,7 +1474,7 @@ export function SaveButton() {
 	const dialog = useImperativeDialog()
 	return (
 		<>
-			<Button onPress={() => dialog.show(<Text>Saved changes</Text>)}>Save</Button>
+			<Button clickAction={() => dialog.show(<Text>Saved changes</Text>)}>Save</Button>
 			{dialog.element}
 		</>
 	)
@@ -1500,13 +1500,13 @@ export function GalleryActions() {
 	return (
 		<>
 			<Button
-				onPress={() =>
+				clickAction={() =>
 					alert.show({ title: 'Remove photo?', actionLabel: 'Remove', onAction: alert.hide })
 				}
 			>
 				Remove
 			</Button>
-			<Button onPress={() => lightbox.open()}>View photo</Button>
+			<Button clickAction={() => lightbox.open()}>View photo</Button>
 			{alert.element}
 			{lightbox.element}
 		</>
@@ -1521,13 +1521,13 @@ window, and the returned promise resolves with the value passed to `close`.
 import { Button, openBottomSheet } from '@octane-xplat/ui'
 
 function Details(props: { params: { title: string }; close: (result?: unknown) => void }) {
-	return <Button onPress={() => props.close(props.params.title)}>Done</Button>
+	return <Button clickAction={() => props.close(props.params.title)}>Done</Button>
 }
 
 export function OpenDetails() {
 	return (
 		<Button
-			onPress={() => {
+			clickAction={() => {
 				void openBottomSheet(Details, { title: 'Packing list' }, { label: 'Details' }).then(
 					(result) => console.log(result),
 				)
@@ -1554,7 +1554,7 @@ import { ToastViewport, Button, useToast } from '@octane-xplat/ui'
 
 function SaveNotice() {
 	const toast = useToast()
-	return <Button onPress={() => toast({ body: 'Saved' })}>Save</Button>
+	return <Button clickAction={() => toast({ body: 'Saved' })}>Save</Button>
 }
 
 export function ScreenNotice() {

@@ -57,11 +57,11 @@ export function PagerDemo() @{
 			}
 		</HStack>
 		<HStack className="pager-controls">
-			<Button className="btn btn-secondary" onPress={() => setPage(Math.max(0, page - 1))}>
+			<Button className="btn btn-secondary" clickAction={() => setPage(Math.max(0, page - 1))}>
 				<Text>Previous</Text>
 			</Button>
 			<Text className="pager-page-index">{'Page ' + (page + 1) + ' of ' + PAGES.length}</Text>
-			<Button className="btn btn-secondary" onPress={() => setPage(Math.min(PAGES.length - 1, page + 1))}>
+			<Button className="btn btn-secondary" clickAction={() => setPage(Math.min(PAGES.length - 1, page + 1))}>
 				<Text>Next</Text>
 			</Button>
 		</HStack>

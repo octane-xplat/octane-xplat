@@ -3,7 +3,7 @@ import type { CommandPaletteItem, CommandPaletteProps } from './props'
 import { createCommandPaletteController, staticCommands } from './command-palette-state'
 
 const items = [
-	{ key: 'off', label: 'Disabled', disabled: true, group: 'Actions' },
+	{ key: 'off', label: 'Disabled', isDisabled: true, group: 'Actions' },
 	{ key: 'settings', label: 'Settings', group: 'Navigation', keywords: ['preferences'] },
 	{ key: 'new', label: 'New project', group: 'Actions' },
 ]

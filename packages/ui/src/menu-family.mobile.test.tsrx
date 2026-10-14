@@ -25,7 +25,7 @@ describe('native menu action contracts (object driver)', () => {
 		const close = vi.fn(), check = vi.fn(), radio = vi.fn(), disabled = vi.fn()
 		const items = [
 			{ key: 'check', label: 'Archived', type: 'checkbox' as const, value: false, onValueChange: check },
-			{ key: 'blocked', label: 'Disabled', disabled: true, onSelect: disabled },
+			{ key: 'blocked', label: 'Disabled', isDisabled: true, onSelect: disabled },
 			{ key: 'sort', label: 'Sort', type: 'radio-group' as const, value: 'new', onValueChange: radio, items: [{ key: 'old', label: 'Oldest' }] },
 		]
 

@@ -285,7 +285,7 @@ export function RetainedCard() {
 	const [present, setPresent] = useState(true)
 	return (
 		<>
-			<Button onPress={() => setPresent(!present)}>Toggle card</Button>
+			<Button clickAction={() => setPresent(!present)}>Toggle card</Button>
 			<Presence present={present}>
 				<motion.View exit={{ opacity: 0 }}>
 					<Text>Trip card</Text>

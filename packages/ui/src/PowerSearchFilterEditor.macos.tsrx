@@ -61,6 +61,6 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 	<flexboxlayout className="vx-power-search-editor">
 		<label className="vx-power-search-editor-heading" text={field ? `${field.label} · ${operator ? resolveOperatorLabel(operator) : ''}` : powerSearchTranslate('@astryx.powersearch.editor.field')} />
 		{unsupported ? <label className="vx-power-search-editor-note" text="Add a custom editor for this value type." /> : operator && operator.value.type !== 'empty' ? <TextInput className="vx-power-search-editor-value" label="Value" value={valueText} onChange={setValueText} keyboardType={operator.value.type==='integer'||operator.value.type==='float'?'number':'default'} isDisabled={props.isReadOnly} /> : null}
-		<flexboxlayout className="vx-power-search-editor-actions"><Button label="Cancel" variant="ghost" onPress={props.onCancel} /><Button label={props.saveButtonLabel ?? 'Apply'} variant="primary" onPress={save} isDisabled={props.isReadOnly||unsupported} /></flexboxlayout>
+		<flexboxlayout className="vx-power-search-editor-actions"><Button label="Cancel" variant="ghost" clickAction={props.onCancel} /><Button label={props.saveButtonLabel ?? 'Apply'} variant="primary" clickAction={save} isDisabled={props.isReadOnly||unsupported} /></flexboxlayout>
 	</flexboxlayout>
 }

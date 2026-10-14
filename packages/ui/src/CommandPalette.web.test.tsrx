@@ -28,7 +28,7 @@ describe('CommandPalette web interaction', () => {
 		const selected: string[] = [];
 		let closes = 0;
 		await mount({ open: true, onOpenChange: () => { closes++; }, onValueChange: (id: string) => selected.push(id), items: [
-			{ key: 'off', label: 'Off', disabled: true, group: 'Actions' },
+			{ key: 'off', label: 'Off', isDisabled: true, group: 'Actions' },
 			{ key: 'settings', label: 'Settings', group: 'Navigation' },
 			{ key: 'new', label: 'New', group: 'Actions' },
 		] });

@@ -36,6 +36,6 @@ export function PowerSearchFilterEditor(props: PowerSearchEditorProps) @{
 	<div className="vx-power-search-editor">
 		<strong>{field?.label} · {operator ? resolveOperatorLabel(operator) : ''}</strong>
 		{unsupported ? <div className="vx-power-search-editor-note">Add a custom editor for this value type.</div> : operator?.value.type !== 'empty' ? <TextInput label="Value" value={text} onChange={setText} keyboardType={operator?.value.type==='integer'||operator?.value.type==='float'?'number':'default'} web={operator?.value.type==='date_absolute'?{type:'date'}:undefined} isDisabled={props.isReadOnly} /> : null}
-		<div className="vx-power-search-editor-actions"><Button label="Cancel" variant="ghost" onPress={props.onCancel} /><Button label={props.saveButtonLabel ?? 'Apply'} variant="primary" onPress={save} isDisabled={props.isReadOnly||unsupported} /></div>
+		<div className="vx-power-search-editor-actions"><Button label="Cancel" variant="ghost" clickAction={props.onCancel} /><Button label={props.saveButtonLabel ?? 'Apply'} variant="primary" clickAction={save} isDisabled={props.isReadOnly||unsupported} /></div>
 	</div>
 }

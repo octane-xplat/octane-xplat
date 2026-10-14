@@ -13,10 +13,10 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 	const anchor = useRef<any>(null);
 	const initialFocus = useRef<'first' | 'last' | 'container'>('container');
 	const group = useButtonGroup();
-	const disabled = !!((props.isDisabled ?? props.disabled) || group?.isDisabled);
+	const disabled = !!(props.isDisabled || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const controlled = props.isOpen !== undefined || props.open !== undefined;
-	const open = props.isOpen ?? props.open ?? internal;
+	const controlled = props.isOpen !== undefined;
+	const open = props.isOpen ?? internal;
 
 	const setOpen = (next: boolean) => {
 		if (disabled && next) return;

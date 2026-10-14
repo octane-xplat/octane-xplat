@@ -53,7 +53,7 @@ import { Button, Overlay, TextInput } from '@octane-xplat/ui'
 export function EditOverlay(props: { open: boolean; close: () => void }) {
 	return <Overlay open={props.open} testID="packing.editor">
 		<TextInput testID="packing.editor.name" accessibilityLabel="Item name" />
-		<Button testID="packing.editor.save" label="Save" onPress={props.close} />
+		<Button testID="packing.editor.save" label="Save" clickAction={props.close} />
 	</Overlay>
 }
 ```

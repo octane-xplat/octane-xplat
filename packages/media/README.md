@@ -45,7 +45,7 @@ export function PhotoPicker() {
 	}
 	return (
 		<>
-			<Button onPress={pickPhoto}>Choose photo</Button>
+			<Button clickAction={pickPhoto}>Choose photo</Button>
 			{preview && <Image src={preview} alt="Selected photo" />}
 		</>
 	)

@@ -81,7 +81,7 @@ export function TiptapEditorDemo() @{
 				<Button
 					key={item.label}
 					className="btn btn-secondary"
-					onPress={() => press(item)}
+					clickAction={() => press(item)}
 				>
 					<Text>{item.label}</Text>
 				</Button>

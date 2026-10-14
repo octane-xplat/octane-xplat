@@ -35,7 +35,7 @@ export function Example() {
 				}}
 			/>
 			<ToggleButton label="Pin" isPressed={pinned} onPressedChange={setPinned} />
-			<IconButton label="Share" icon="xplat-search" onPress={() => console.log('Share')} />
+			<IconButton label="Share" icon="xplat-search" clickAction={() => console.log('Share')} />
 		</ButtonGroup>
 	)
 }
@@ -94,13 +94,20 @@ export function Example() {
 }
 ```
 
-## Button compatibility
+## Button states and actions
 
-`Button` keeps the existing `disabled`, `loading`, `leading`, and `trailing`
-props. When an Astryx spelling and a legacy spelling are both supplied, the
-states merge (either disabled/loading state wins); `children` takes precedence
-over `label`. A pending `clickAction` shows a loading indicator and prevents
-repeat presses unless `isInterruptible` is true.
+`Button` has one spelling per state and action: `isDisabled`, `isLoading`,
+`icon`, and `endContent` for slots, and `clickAction` for the press action;
+`children` takes precedence over `label`. A pending `clickAction` shows a
+loading indicator and prevents repeat presses unless `isInterruptible` is
+true.
+
+**Migrating existing code:** the legacy `disabled`, `loading`, `leading`,
+`trailing`, and `onPress` props were removed — rename them to `isDisabled`,
+`isLoading`, `icon`, `endContent`, and `clickAction`. Both spellings used to
+merge (either disabled/loading state won); now only the single spelling is
+accepted. `IconButton` and `ToggleButton` share the same contract;
+`ToggleButton` uses `pressedChangeAction` instead of `clickAction`.
 
 When a `clickAction` promise rejects — or the action throws — the failure
 reports through `onActionError`. If no handler is set, the error still
@@ -115,8 +122,8 @@ export function Example() {
 	return (
 		<Button
 			label="Fallback label"
-			disabled={false}
-			loading={false}
+			isDisabled={false}
+			isLoading={false}
 			isInterruptible={false}
 			clickAction={async () => {
 				await Promise.resolve()

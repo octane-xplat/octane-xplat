@@ -34,7 +34,7 @@ export function Details() {
 	const [open, setOpen] = useState(false)
 	return (
 		<>
-			<Button onPress={() => setOpen(true)}>Trip details</Button>
+			<Button clickAction={() => setOpen(true)}>Trip details</Button>
 			<SwiftUIBottomSheet
 				open={open}
 				detents={['medium', 'large']}

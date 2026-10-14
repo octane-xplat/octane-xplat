@@ -128,11 +128,11 @@ export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
 export function MenuData(props: Pick<MenuSurfaceProps, 'items'>) @{
 	<>
 		{props.items?.map((item) => item.type === 'divider' ? <DropdownMenuDivider id={item.key} />
-			: item.type === 'radio-group' ? <DropdownMenuRadioGroup label={item.label ?? 'Options'} value={typeof item.value === 'string' ? item.value : undefined} onValueChange={item.onValueChange} isDisabled={item.isDisabled ?? item.disabled} hasCloseOnSelect={item.hasCloseOnSelect}>
-				{item.items?.map((option) => <DropdownMenuRadioItem id={option.key} label={option.label} value={typeof option.value === 'string' ? option.value : option.key} isDisabled={option.isDisabled ?? option.disabled} onSelect={option.onSelect} />)}
+			: item.type === 'radio-group' ? <DropdownMenuRadioGroup label={item.label ?? 'Options'} value={typeof item.value === 'string' ? item.value : undefined} onValueChange={item.onValueChange} isDisabled={item.isDisabled} hasCloseOnSelect={item.hasCloseOnSelect}>
+				{item.items?.map((option) => <DropdownMenuRadioItem id={option.key} label={option.label} value={typeof option.value === 'string' ? option.value : option.key} isDisabled={option.isDisabled} onSelect={option.onSelect} />)}
 			</DropdownMenuRadioGroup>
-			: item.type === 'checkbox' ? <DropdownMenuCheckboxItem {...item} id={item.key} label={item.label} value={item.value === true} onValueChange={item.onValueChange} isDisabled={item.isDisabled ?? item.disabled} />
-			: item.items ? <DropdownMenuSubMenu {...item} id={item.key} label={item.label} isDisabled={item.isDisabled ?? item.disabled} />
-			: <DropdownMenuItem {...item} id={item.key} label={item.label} isDisabled={item.isDisabled ?? item.disabled} />)}
+			: item.type === 'checkbox' ? <DropdownMenuCheckboxItem {...item} id={item.key} label={item.label} value={item.value === true} onValueChange={item.onValueChange} isDisabled={item.isDisabled} />
+			: item.items ? <DropdownMenuSubMenu {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />
+			: <DropdownMenuItem {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />)}
 	</>
 }

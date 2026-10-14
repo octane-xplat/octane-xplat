@@ -22,11 +22,10 @@ function controlColors(dark: boolean) {
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup()
 	const [pending, setPending] = useState(false)
-	const loading = !!(props.loading || props.isLoading || pending)
-	const disabled = !!(props.disabled || props.isDisabled || props.isLoading || props.loading || group?.isDisabled)
+	const loading = !!(props.isLoading || pending)
+	const disabled = !!(props.isDisabled || props.isLoading || group?.isDisabled)
 	const press = () => {
 		if (disabled || (pending && !props.isInterruptible)) return
-		props.onPress?.()
 		let action: void | Promise<void> | undefined
 		try {
 			action = props.clickAction?.()
@@ -48,7 +47,7 @@ export function Button(props: ButtonProps) @{
 	}
 
 	<Pressable id={props.id} className={cx('vx-button', `vx-button--${props.variant ?? 'secondary'}`, `vx-button--size-${props.size ?? group?.size ?? 'md'}`, group && `vx-button--group-${group.position}`, props.isIconOnly && 'vx-button--icon', disabled && 'vx-button--disabled', props.className)} style={props.style} disabled={disabled} onPress={press} accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)} accessibilityRole="button">
-		{loading ? <ActivityIndicator /> : <>{typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon ?? props.leading}{props.children ?? (props.isIconOnly ? null : <Text>{props.label}</Text>)}{props.endContent ?? props.trailing}</>}
+		{loading ? <ActivityIndicator /> : <>{typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon}{props.children ?? (props.isIconOnly ? null : <Text>{props.label}</Text>)}{props.endContent}</>}
 	</Pressable>
 }
 

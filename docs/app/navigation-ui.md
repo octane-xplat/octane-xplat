@@ -197,9 +197,9 @@ export function Example() {
 		<Toolbar
 			label="Page actions"
 			orientation="horizontal"
-			startContent={<Button label="Save" onPress={() => console.log('Save')} />}
+			startContent={<Button label="Save" clickAction={() => console.log('Save')} />}
 			centerContent={<Text>Draft</Text>}
-			endContent={<Button label="Share" onPress={() => console.log('Share')} />}
+			endContent={<Button label="Share" clickAction={() => console.log('Share')} />}
 		/>
 	)
 }

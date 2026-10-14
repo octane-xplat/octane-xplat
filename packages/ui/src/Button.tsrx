@@ -13,7 +13,7 @@ import { reportActionError } from './action-error';
 
 /** Self-drawn button — Pressable row with optional icon/label/end content
  *  and a loading state that swaps content for the spinner and blocks
- *  presses. Accepts the Astryx vocabulary (`label`, `variant`, `size`,
+ *  presses. Props follow the Astryx vocabulary (`label`, `variant`, `size`,
  *  `isDisabled`, `isLoading`, `icon`, `isIconOnly`, `endContent`,
  *  `elevation`, `href`, `clickAction`, `isInterruptible`); `href` opens the
  *  platform browser — touch targets have no link-preview semantics.
@@ -22,8 +22,8 @@ import { reportActionError } from './action-error';
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup();
 	const [actionPending, setActionPending] = useState(false);
-	const disabled = !!(props.disabled || props.isDisabled || props.isLoading || props.loading || group?.isDisabled);
-	const loading = !!(props.loading || props.isLoading || actionPending);
+	const disabled = !!(props.isDisabled || props.isLoading || group?.isDisabled);
+	const loading = !!(props.isLoading || actionPending);
 	const size = props.size ?? group?.size ?? 'md';
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
 	const children = props.children == null ? null : <TextSlot className="vx-button-label">{props.children}</TextSlot>;
@@ -32,7 +32,7 @@ export function Button(props: ButtonProps) @{
 		? <ActivityIndicator />
 		: props.isIconOnly
 			? icon ?? children ?? labelEl
-			: <>{icon ?? props.leading}{children ?? labelEl}{props.endContent ?? props.trailing}</>;
+			: <>{icon}{children ?? labelEl}{props.endContent}</>;
 
 	const runPress = () => {
 		if (disabled || (actionPending && !props.isInterruptible)) { return; }
@@ -41,7 +41,6 @@ export function Button(props: ButtonProps) @{
 			if (url != null) { Utils.openUrl(url); }
 		}
 
-		props.onPress?.();
 		let action: void | Promise<void> | undefined;
 		try {
 			action = props.clickAction?.();

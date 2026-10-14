@@ -20,7 +20,7 @@ export function ToggleButton(props: ToggleButtonProps) @{
 		props.onPressedChange?.(next)
 	}
 
-	<Button {...props} variant={pressed ? 'secondary' : 'ghost'} isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} onPress={activate} clickAction={() => props.pressedChangeAction?.(actionValue)} accessibilityState={{...props.accessibilityState, pressed}} className={['vx-toggle-button', pressed ? 'vx-toggle-button--pressed' : undefined, props.className]} />
+	<Button {...props} variant={pressed ? 'secondary' : 'ghost'} isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={['vx-toggle-button', pressed ? 'vx-toggle-button--pressed' : undefined, props.className]} />
 }
 
 export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{

@@ -41,6 +41,7 @@ export function staticCommands(
 		...item,
 		id: item.key,
 		label: item.label ?? item.key,
+		disabled: item.isDisabled,
 		auxiliaryData: { group: item.group },
 	}))
 

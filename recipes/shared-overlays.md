@@ -22,9 +22,9 @@ export function Surfaces() {
 	}
 	return (
 		<>
-			<Button onPress={() => setSurface('dialog')}>Trip details</Button>
-			<Button onPress={() => setSurface('alert')}>Remove trip</Button>
-			<Button onPress={() => setSurface('sheet')}>Bag details</Button>
+			<Button clickAction={() => setSurface('dialog')}>Trip details</Button>
+			<Button clickAction={() => setSurface('alert')}>Remove trip</Button>
+			<Button clickAction={() => setSurface('sheet')}>Bag details</Button>
 			<Dialog isOpen={surface === 'dialog'} onOpenChange={onOpenChange}>
 				<Text>Trip details</Text>
 			</Dialog>
@@ -54,7 +54,7 @@ import { Button, ToastViewport, useToast, showToast } from '@octane-xplat/ui'
 
 function SaveButton() {
 	const toast = useToast()
-	return <Button onPress={() => toast({ body: 'Trip saved' })}>Save</Button>
+	return <Button clickAction={() => toast({ body: 'Trip saved' })}>Save</Button>
 }
 
 export function SaveNotice() {
@@ -63,7 +63,7 @@ export function SaveNotice() {
 			<ToastViewport>
 				<SaveButton />
 			</ToastViewport>
-			<Button onPress={() => showToast({ body: 'Background save complete' })}>
+			<Button clickAction={() => showToast({ body: 'Background save complete' })}>
 				Show background notice
 			</Button>
 		</>
@@ -105,7 +105,7 @@ export function TripPreview() {
 				<Text>Autumn trip</Text>
 			</HoverCard>
 			<Carousel label="Trip previews" hasButtons>
-				<Button onPress={() => setOpen(true)}>View trip photo</Button>
+				<Button clickAction={() => setOpen(true)}>View trip photo</Button>
 			</Carousel>
 			<Lightbox isOpen={open} onOpenChange={setOpen} media={media} />
 		</>

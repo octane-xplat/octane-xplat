@@ -14,11 +14,11 @@ import { Popover } from './Popover.macos.tsrx';
 export function ContextMenu(props: ContextMenuProps) @{
 	const anchor = useRef<any>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const controlled = props.isOpen !== undefined || props.open !== undefined;
-	const open = props.isOpen ?? props.open ?? internal;
+	const controlled = props.isOpen !== undefined;
+	const open = props.isOpen ?? internal;
 
 	const setOpen = (next: boolean) => {
-		if ((props.isDisabled ?? props.disabled) && next) return;
+		if ((props.isDisabled) && next) return;
 		if (!controlled) setInternal(next);
 		props.onOpenChange?.(next);
 	};
@@ -28,10 +28,10 @@ export function ContextMenu(props: ContextMenuProps) @{
 		id={props.id}
 		className={cx('vx-contextmenu', props.className)}
 		style={props.style}
-		onLongPress={(props.isDisabled ?? props.disabled) ? undefined : () => setOpen(true)}
+		onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}
 	>
 		{props.children}
-		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled ?? props.disabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
+		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
 		<Popover
 			anchor={anchor}
 			open={open}

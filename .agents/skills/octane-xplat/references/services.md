@@ -67,8 +67,8 @@ export function MovingCard() {
 	return (
 		<>
 			<View ref={x.ref} />
-			<Button onPress={() => x.to(80, { duration: 300 })}>Move</Button>
-			<Button onPress={() => x.spring(0, { damping: 14, stiffness: 120 })}>Return</Button>
+			<Button clickAction={() => x.to(80, { duration: 300 })}>Move</Button>
+			<Button clickAction={() => x.spring(0, { damping: 14, stiffness: 120 })}>Return</Button>
 		</>
 	)
 }

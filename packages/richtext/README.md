@@ -52,9 +52,9 @@ export function Formatting() {
 				}}
 				onSelectionChange={({ active }) => console.log(active)}
 			/>
-			<Button onPress={() => editor.current?.apply('bold')}>Bold</Button>
+			<Button clickAction={() => editor.current?.apply('bold')}>Bold</Button>
 			<Button
-				onPress={() => {
+				clickAction={() => {
 					const handle = editor.current
 					if (!handle) return
 					handle.setHTML('<p>New note</p>')

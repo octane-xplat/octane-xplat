@@ -2839,28 +2839,22 @@ export type Elevation = 'none' | 'low' | 'med' | 'high'
  *  class hooks (the upstream catalog is open the same way). */
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | (string & {})
 
-/** Button composes Pressable — same-props/same-pixels, self-drawn. `loading`
- *  shows the spinner and blocks presses. Also accepts the Astryx vocabulary
+/** Button composes Pressable — same-props/same-pixels, self-drawn. `isLoading`
+ *  shows the spinner and blocks presses. Props follow the Astryx vocabulary
  *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
  *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `clickAction`,
- *  `isInterruptible`); the legacy `disabled`/`loading`/`leading`/`trailing`
- *  names keep working and the Astryx names win when both are set.
+ *  `isInterruptible`) — each state and action has one spelling.
  *  `clickAction` failures report through `onActionError`. */
-export interface ButtonProps extends PressableProps {
-	loading?: boolean
-	/** Content rendered before children (e.g. an Icon). */
-	leading?: any
-	/** Content rendered after children. */
-	trailing?: any
+export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'> {
 	/** Visible label text; `children` takes precedence when both are set. */
 	label?: string
 	/** Visual variant. @default 'secondary' */
 	variant?: ButtonVariant
 	/** @default 'md' */
 	size?: FieldControlSize
-	/** Disabled state (merges with `disabled`). */
+	/** Disabled state — blocks presses and dims the button. */
 	isDisabled?: boolean
-	/** Loading state (merges with `loading`). */
+	/** Loading state — shows the spinner and blocks presses. */
 	isLoading?: boolean
 	/** Keep the button interactive while a `clickAction` is pending. */
 	isInterruptible?: boolean
@@ -2875,7 +2869,7 @@ export interface ButtonProps extends PressableProps {
 	icon?: any
 	/** Square icon-only button; `label` becomes the accessible name. */
 	isIconOnly?: boolean
-	/** Trailing content slot (merges with `trailing`). */
+	/** Trailing content slot. */
 	endContent?: any
 	/** Resting elevation — floating-button shadow. @default 'none' */
 	elevation?: Elevation
@@ -3008,12 +3002,11 @@ export interface SegmentedControlProps extends FieldControlProps {
 	web?: any
 }
 
-/** Fields retained by legacy data-driven menu callers. */
+/** Data-driven menu row fields shared by the menu families. */
 export interface MenuItemData {
 	key: string
 	label?: string
 	icon?: string
-	disabled?: boolean
 	isDisabled?: boolean
 	onSelect?: () => void
 	hasCloseOnSelect?: boolean
@@ -3138,15 +3131,11 @@ export interface DropdownMenuProps {
 	children?: any
 	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
 	isOpen?: boolean
-	/** Legacy controlled state; prefer isOpen. */
-	open?: boolean
 	defaultOpen?: boolean
 	onOpenChange?: (isOpen: boolean) => void
 	placement?: PopoverPlacement
 	alignment?: PopoverAlignment
 	isDisabled?: boolean
-	/** Legacy disabled state; prefer isDisabled. */
-	disabled?: boolean
 	ios?: any
 	android?: any
 	web?: any
@@ -5640,7 +5629,7 @@ export interface ButtonGroupProps {
  *  optional `pressedChangeAction` run through Button's action transition, and
  *  `pressedIcon` for outline→filled swaps. Inside a ToggleButtonGroup the
  *  group owns pressed state via `value`. */
-export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'> {
+export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant' | 'clickAction'> {
 	label: string
 	isPressed?: boolean
 	/** Called with the next pressed state when the button is activated. */

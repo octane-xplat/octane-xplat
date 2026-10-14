@@ -11,7 +11,7 @@ export default function TestID() {
 	return <Stack testID="screen.controls" style={{ padding: 24, gap: 8 }}>
 		<Text testID="counter.value">{'Count: ' + count}</Text>
 		<View testID="counter.group">
-			<Button id="legacy-increment" testID="counter.increment" accessibilityLabel="Increment" label="Increment" onPress={() => setCount(count + 1)} />
+			<Button id="legacy-increment" testID="counter.increment" accessibilityLabel="Increment" label="Increment" clickAction={() => setCount(count + 1)} />
 		</View>
 		<TextInput id="legacy-entry" testID="message.entry" accessibilityLabel="Message" value={message} onChange={setMessage} />
 		<Text testID="message.value">{'Message: ' + message}</Text>
@@ -19,13 +19,13 @@ export default function TestID() {
 		<SearchInput testID="message.search" accessibilityLabel="Search messages" icon={false} hasClear={false} />
 		<Switch testID="settings.enabled" label="Enable setting" checked={checked} onCheckedChange={setChecked} />
 		<Text testID="settings.value">{'Enabled: ' + checked}</Text>
-		<Pressable testID={item ? 'item.' + item + '.open' : undefined} accessibilityLabel="Reusable item" accessibilityRole="button" onPress={() => setCount(count + 1)}><Text>Reusable item</Text></Pressable>
-		<Button testID="items.rebind" label="Rebind item" accessibilityLabel="Rebind item" onPress={() => setItem(item === 'a' ? 'b' : undefined)} />
-		<Button testID="overlay.open" label="Open overlay" accessibilityLabel="Open overlay" onPress={() => setOpen(true)} />
+		<Pressable testID={item ? 'item.' + item + '.open' : undefined} accessibilityLabel="Reusable item" accessibilityRole="button" clickAction={() => setCount(count + 1)}><Text>Reusable item</Text></Pressable>
+		<Button testID="items.rebind" label="Rebind item" accessibilityLabel="Rebind item" clickAction={() => setItem(item === 'a' ? 'b' : undefined)} />
+		<Button testID="overlay.open" label="Open overlay" accessibilityLabel="Open overlay" clickAction={() => setOpen(true)} />
 		<Overlay testID="overlay.content" open={open} accessibilityLabel="Message overlay" onDismiss={() => setOpen(false)}>
 			<Stack style={{ padding: 48, gap: 16 }}>
 				<Text testID="overlay.status">Overlay is open</Text>
-				<Button testID="overlay.close" label="Close overlay" accessibilityLabel="Close overlay" onPress={() => setOpen(false)} />
+				<Button testID="overlay.close" label="Close overlay" accessibilityLabel="Close overlay" clickAction={() => setOpen(false)} />
 			</Stack>
 		</Overlay>
 	</Stack>

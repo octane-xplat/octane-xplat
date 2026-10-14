@@ -35,7 +35,7 @@ export function CachedImageDemo() @{
 		<Text>{status}</Text>
 		<Button
 			label="Prefetch first image, then report its cache level"
-			onPress={() => {
+			clickAction={() => {
 				void prefetch(PHOTOS[0]).then(() =>
 					isImageCached(PHOTOS).then((states) =>
 						setCached(`cache state: ${states[PHOTOS[0]]}`),

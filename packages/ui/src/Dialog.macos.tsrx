@@ -67,7 +67,7 @@ export function DialogHeader(props: DialogHeaderProps) @{
 				{props.subtitle != null && <label className="vx-dialog-subtitle">{props.subtitle}</label>}
 			</flexboxlayout>
 			{props.endContent}
-			{requestClose != null && <Button accessibilityLabel="Close dialog" onPress={() => requestClose(false)}>×</Button>}
+			{requestClose != null && <Button accessibilityLabel="Close dialog" clickAction={() => requestClose(false)}>×</Button>}
 		</flexboxlayout>
 	</flexboxlayout>
 }

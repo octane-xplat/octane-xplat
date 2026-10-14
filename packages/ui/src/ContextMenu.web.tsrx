@@ -11,11 +11,11 @@ import { Popover } from './Popover.web.tsrx';
 export function ContextMenu(props: ContextMenuProps) @{
 	const anchor = useRef<any>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const controlled = props.isOpen !== undefined || props.open !== undefined;
-	const open = props.isOpen ?? props.open ?? internal;
+	const controlled = props.isOpen !== undefined;
+	const open = props.isOpen ?? internal;
 
 	const setOpen = (next: boolean) => {
-		if ((props.isDisabled ?? props.disabled) && next) return;
+		if ((props.isDisabled) && next) return;
 		if (!controlled) setInternal(next);
 		props.onOpenChange?.(next);
 	};
@@ -31,13 +31,13 @@ export function ContextMenu(props: ContextMenuProps) @{
 		aria-expanded={open}
 		onKeyDown={(event: any) => { if (event.isComposing || event.keyCode === 229 || event.defaultPrevented) return; if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) { event.preventDefault(); setOpen(true); } }}
 		onContextMenu={(e: any) => {
-			if (props.isDisabled ?? props.disabled) return;
+			if (props.isDisabled) return;
 			e.preventDefault();
 			setOpen(true);
 		}}
 	>
 		{props.children}
-		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled ?? props.disabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
+		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
 		<Popover
 			anchor={anchor}
 			open={open}

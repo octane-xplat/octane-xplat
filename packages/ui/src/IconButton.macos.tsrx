@@ -9,11 +9,10 @@ import { cx } from '@octane-xplat/lib'
 import { reportActionError } from './action-error'
 export function IconButton(props: IconButtonProps) @{
 	const [pending, setPending] = useState(false)
-	const disabled = !!(props.isDisabled || props.disabled || props.isLoading || props.loading)
-	const loading = !!(props.loading || props.isLoading || pending)
+	const disabled = !!(props.isDisabled || props.isLoading)
+	const loading = !!(props.isLoading || pending)
 	const press = () => {
 		if (disabled || (pending && !props.isInterruptible)) return
-		props.onPress?.()
 		let action: void | Promise<void> | undefined
 		try {
 			action = props.clickAction?.()

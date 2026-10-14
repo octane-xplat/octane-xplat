@@ -33,12 +33,12 @@ export function LottieDemo() @{
 		/>
 		<Text className="lottie-demo-status">{status}</Text>
 		<HStack className="gap-2">
-			<Button className="btn btn-secondary" onPress={() => setPlaying(!playing)}>
+			<Button className="btn btn-secondary" clickAction={() => setPlaying(!playing)}>
 				<Text>{playing ? 'Pause' : 'Play'}</Text>
 			</Button>
 			<Button
 				className="btn btn-secondary"
-				onPress={() => {
+				clickAction={() => {
 					handle.current?.stop();
 					setPlaying(false);
 					setStatus('stopped');
@@ -46,12 +46,12 @@ export function LottieDemo() @{
 			>
 				<Text>Stop</Text>
 			</Button>
-			<Button className="btn btn-secondary" onPress={() => setLoop(!loop)}>
+			<Button className="btn btn-secondary" clickAction={() => setLoop(!loop)}>
 				<Text>Loop {loop ? 'on' : 'off'}</Text>
 			</Button>
 			<Button
 				className="btn btn-secondary"
-				onPress={() => {
+				clickAction={() => {
 					handle.current?.seekTo(0.5);
 					setStatus('seek 0.5');
 				}}
@@ -60,7 +60,7 @@ export function LottieDemo() @{
 			</Button>
 			<Button
 				className="btn btn-secondary"
-				onPress={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
+				clickAction={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
 			>
 				<Text>{speed}x</Text>
 			</Button>
