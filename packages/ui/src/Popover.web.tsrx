@@ -113,12 +113,19 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 /** Positions a body portal from its anchor and dismisses on outside taps. */
 export function Popover(props: PopoverProps) @{
 	const [anchorElement, setAnchorElement] = useState<any>(null);
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.open ?? internal;
+	const requestDismiss = () => {
+		if (props.open === undefined) setInternal(false);
+		props.onDismiss?.();
+	};
+
 	useEffect(() => {
 		const next = props.anchor?.current ?? null;
 		if (next !== anchorElement) setAnchorElement(next);
-	}, [props.anchor, props.anchor?.current, props.open, anchorElement]);
+	}, [props.anchor, props.anchor?.current, open, anchorElement]);
 
-	@if (props.open && anchorElement) {
-		<PopoverLayer {...props} anchorElement={anchorElement} />
+	@if (open && anchorElement) {
+		<PopoverLayer {...props} open={open} onDismiss={requestDismiss} anchorElement={anchorElement} />
 	}
 }

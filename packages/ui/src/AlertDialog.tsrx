@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useState } from 'octane';
 import type { AlertDialogProps } from './props';
 import { Dialog } from './Dialog';
 import { Button } from './Button.tsrx';
@@ -16,10 +17,17 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
  *  `required`-purpose Dialog with title, description, Cancel, and one
  *  action button. */
 export function AlertDialog(props: AlertDialogProps) @{
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.isOpen ?? internal;
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen);
+		props.onOpenChange?.(isOpen);
+	};
+
 	return (
 		<Dialog
-			isOpen={props.isOpen}
-			onOpenChange={props.onOpenChange}
+			isOpen={open}
+			onOpenChange={requestChange}
 			purpose="required"
 			width={props.width ?? 400}
 			isInline={props.isInline}
@@ -50,7 +58,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 			<flexboxlayout flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions">
 				<Button
 					className="btn btn-secondary"
-					onPress={() => props.onOpenChange(false)}
+					onPress={() => requestChange(false)}
 					disabled={props.isActionLoading}
 				>
 					{props.cancelLabel ?? 'Cancel'}

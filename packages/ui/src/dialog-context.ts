@@ -9,6 +9,10 @@ export interface DialogContextValue {
 	titleId: string
 	/** False while `isInline` — title carries no autofocus/label duties. */
 	isModal: boolean
+	/** The dialog's resolved open-state request — lets a `DialogHeader`
+	 *  close affordance work when the header's own `onOpenChange` is absent
+	 *  (required for uncontrolled `defaultOpen` dialogs). */
+	requestClose?: (isOpen: boolean) => void
 }
 
 export const DialogContext = createContext<DialogContextValue | null>(null)

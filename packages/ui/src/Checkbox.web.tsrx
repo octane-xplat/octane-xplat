@@ -1,3 +1,4 @@
+import { useState } from 'octane';
 import type { CheckboxProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
@@ -8,18 +9,23 @@ import { useIndicator, CheckboxIndicator, indicatorScope } from './indicators';
  *  app's own choice — there is no OS checkbox widget in the subpaths. */
 export function Checkbox(inputProps: CheckboxProps) @{
 	const props = useFieldControlProps(inputProps);
+	const [internal, setInternal] = useState(props.defaultChecked ?? false);
+	const checked = props.checked ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
-	const indState = props.indeterminate ? 'indeterminate' : props.checked ? 'checked' : 'unchecked';
+	const indState = props.indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked';
 	const toggle = () => {
-		if (!isBlocked) props.onCheckedChange?.(props.indeterminate ? true : !(props.checked ?? false));
+		if (isBlocked) return;
+		const next = props.indeterminate ? true : !checked;
+		if (props.checked === undefined) setInternal(next);
+		props.onCheckedChange?.(next);
 	};
 
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		role="checkbox"
-		aria-checked={props.indeterminate ? 'mixed' : props.checked ?? false}
+		aria-checked={props.indeterminate ? 'mixed' : checked}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}
@@ -30,7 +36,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		aria-describedby={props.ariaDescribedBy}
 		aria-description={props.accessibilityHint}
 		tabIndex={props.isDisabled ? undefined : 0}
-		className={['vx-checkbox-row', indicatorScope, props.checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
+		className={['vx-checkbox-row', indicatorScope, checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 		onClick={isBlocked ? undefined : toggle}
 		onKeyDown={(e: any) => {

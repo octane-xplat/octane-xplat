@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useState } from 'octane';
 import type { DrawerProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
@@ -8,6 +9,13 @@ import { applyEscapeProps } from './escape-props';
  *  (backdrop tap fires `onDismiss` on both). The edge-gesture plugin widget
  *  lives in `ui/android` (DrawerLayout) and `ui/ios` (SideDrawer). */
 export function Drawer(props: DrawerProps) @{
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.open ?? internal;
+	const requestDismiss = () => {
+		if (props.open === undefined) setInternal(false);
+		props.onDismiss?.();
+	};
+
 	<gridlayout
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -18,10 +26,10 @@ export function Drawer(props: DrawerProps) @{
 		{/* Backdrop + panel are sibling @ifs (a fragment inside @if is not
 		   lowered on this target). Chrome metrics live inline — AppKit has
 		   no CSS layer; keep in step with .vx-drawer-* in tokens.css. */}
-		@if (props.open) {
-			<flexboxlayout className="vx-drawer-backdrop" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }} onTap={props.onDismiss} />
+		@if (open) {
+			<flexboxlayout className="vx-drawer-backdrop" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }} onTap={requestDismiss} />
 		}
-		@if (props.open) {
+		@if (open) {
 			<flexboxlayout className="vx-drawer-panel" horizontalAlignment="left" style={{ width: 280, backgroundColor: '#ffffff' }}>{props.drawer}</flexboxlayout>
 		}
 	</gridlayout>

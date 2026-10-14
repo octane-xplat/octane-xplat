@@ -519,8 +519,13 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	className?: any
 	style?: any
 	id?: string
+	/** Controlled text — pair with `onChange`. */
 	value?: string
+	/** Initial text for uncontrolled use; `value` wins when both are set. */
+	defaultValue?: string
 	placeholder?: string
+	/** Reports the field's text after each user edit (and after `hasClear`).
+	 *  Programmatic `value` writes do not fire it. */
 	onChange?: (value: string) => void
 	/** Optional explicit accessible name override for the input. */
 	accessibilityLabel?: string
@@ -572,8 +577,10 @@ export interface SearchInputProps extends FieldControlProps, TestIDProps {
 	id?: string
 	/** Controlled text — pair with `onChange`. */
 	value?: string
-	/** Initial text for uncontrolled use. */
+	/** Initial text for uncontrolled use; `value` wins when both are set. */
 	defaultValue?: string
+	/** Reports the field's text after each user edit (and after `hasClear`).
+	 *  Programmatic `value` writes do not fire it. */
 	onChange?: (value: string) => void
 	/** Enter on web, the keyboard's `search` return key on native. */
 	onSubmit?: () => void
@@ -1372,7 +1379,11 @@ export interface DrawerProps {
 	id?: string
 	main?: any
 	drawer?: any
+	/** Controlled visibility — pair with `onDismiss`. */
 	open?: boolean
+	/** Initial visibility for uncontrolled use; `open` wins when both are
+	 *  set. Uncontrolled dismissal closes the drawer itself. */
+	defaultOpen?: boolean
 	/** Backdrop tap — the self-drawn leaf fires it on both platforms. */
 	onDismiss?: () => void
 	ios?: Record<string, any>
@@ -1386,7 +1397,12 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	id?: string
 	/** Optional explicit accessible name override for the switch. */
 	accessibilityLabel?: string
+	/** Controlled checked state — pair with `onCheckedChange`. */
 	checked?: boolean
+	/** Initial checked state for uncontrolled use; `checked` wins when both
+	 *  are set. */
+	defaultChecked?: boolean
+	/** Called with the requested next state when the user toggles. */
 	onCheckedChange?: (checked: boolean) => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -1407,7 +1423,12 @@ export interface PlatformSwitchProps extends TestIDProps {
 	className?: any
 	style?: any
 	id?: string
+	/** Controlled checked state — pair with `onCheckedChange`. */
 	checked?: boolean
+	/** Initial checked state for uncontrolled use; `checked` wins when both
+	 *  are set. Without `checked` the OS widget owns its state. */
+	defaultChecked?: boolean
+	/** Called with the requested next state when the user toggles. */
 	onCheckedChange?: (checked: boolean) => void
 	isDisabled?: boolean
 	isReadOnly?: boolean
@@ -1522,7 +1543,12 @@ export interface HeadingProps {
 export interface OverlayProps extends TestIDProps {
 	/** Accessible name for the modal content surface. */
 	accessibilityLabel?: string
+	/** Controlled visibility — pair with `onDismiss`. */
 	open?: boolean
+	/** Initial visibility for uncontrolled use; `open` wins when both are
+	 *  set. Uncontrolled dismissal closes the overlay itself. */
+	defaultOpen?: boolean
+	/** Called when the user requests dismissal (shade tap, Escape). */
 	onDismiss?: () => void
 	/** Enables a RootLayout shade that dismisses when tapped. */
 	shadeCover?: boolean
@@ -1549,7 +1575,11 @@ export interface PopoverProps {
 	layerPosition?: Pick<ContextRenderProps, 'placement' | 'alignment'>
 	/** Ref to a native view or web element, commonly populated by `ref`. */
 	anchor: PopoverAnchorRef
+	/** Controlled visibility — pair with `onDismiss`. */
 	open?: boolean
+	/** Initial visibility for uncontrolled use; `open` wins when both are
+	 *  set. Uncontrolled dismissal closes the popover itself. */
+	defaultOpen?: boolean
 	placement?: PopoverPlacement
 	/** Cross-axis alignment within the placement. @default 'start' */
 	alignment?: PopoverAlignment
@@ -1958,7 +1988,12 @@ export interface MeasureResult {
 }
 
 export interface ModalProps {
+	/** Controlled visibility — pair with `onClose`. */
 	open?: boolean
+	/** Initial visibility for uncontrolled use; `open` wins when both are
+	 *  set. Uncontrolled dismissal closes the modal itself. */
+	defaultOpen?: boolean
+	/** Called with the modal's result value when the host closes it. */
 	onClose?: (result?: ModalOpenResult) => void
 	fullscreen?: boolean
 	/** Native: sheet uses fullscreen=false (iOS form sheet; Android centered
@@ -2007,9 +2042,15 @@ export type BottomSheetSnapPoint = number | string
  *  registers the panel under the switcher's shared host instead of opening
  *  its own overlay. */
 export interface BottomSheetProps {
-	/** Standalone visibility. Required unless the sheet is a
-	 *  `BottomSheetSwitcher` child, where `activeSheet` owns visibility. */
+	/** Standalone controlled visibility — pair with `onOpenChange`.
+	 *  Required for standalone use unless `defaultOpen` seeds uncontrolled
+	 *  state; a `BottomSheetSwitcher` child's `activeSheet` owns visibility
+	 *  instead. */
 	isOpen?: boolean
+	/** Initial standalone visibility for uncontrolled use; `isOpen` wins
+	 *  when both are set and switcher children ignore it. Uncontrolled
+	 *  dismissal closes the sheet itself. */
+	defaultOpen?: boolean
 	/** Required accessible name for the panel (web `aria-label`, native
 	 *  `accessibilityLabel`). */
 	label: string
@@ -2052,10 +2093,14 @@ export interface BottomSheetProps {
  *  animate between panels in the same host instead of closing and
  *  reopening. A null `activeSheet` closes the host. */
 export interface BottomSheetSwitcherProps {
-	/** The `sheetId` currently shown, or null for closed. */
-	activeSheet: string | null
-	/** Called when the user changes/dismisses sheets (drag dismiss, scrim
-	 *  tap, Escape). */
+	/** Controlled selection — the `sheetId` currently shown, or null for
+	 *  closed. Pair with `onActiveSheetChange`. */
+	activeSheet?: string | null
+	/** Initial selection for uncontrolled use; `activeSheet` wins when both
+	 *  are set. Uncontrolled dismissal closes the host itself. */
+	defaultActiveSheet?: string | null
+	/** Called with the requested sheetId (or null on dismissal) when the
+	 *  user changes/dismisses sheets (drag dismiss, scrim tap, Escape). */
 	onActiveSheetChange?: (sheetId: string | null) => void
 	/** Scrim behavior for the whole switcher. @default true */
 	hasScrim?: boolean
@@ -2116,11 +2161,16 @@ export interface DialogPosition {
  *  callers own `isOpen` and restore focus to `finalFocusRef` or the
  *  previously-focused element. */
 export interface DialogProps extends AccessibilityProps {
-	isOpen: boolean
-	/** Called with false on every user dismissal path (backdrop, Escape,
-	 *  purpose permitting) — and with true only from `DialogHeader`'s
-	 *  close affordance contract. */
-	onOpenChange: (isOpen: boolean) => void
+	/** Controlled visibility — pair with `onOpenChange`. Omit for
+	 *  uncontrolled use via `defaultOpen`. */
+	isOpen?: boolean
+	/** Initial visibility for uncontrolled use; `isOpen` wins when both are
+	 *  set. Uncontrolled dismissal closes the dialog itself. */
+	defaultOpen?: boolean
+	/** Called with the requested next state: false on every user dismissal
+	 *  path (backdrop, Escape, purpose permitting) — and with true only from
+	 *  `DialogHeader`'s close affordance contract. */
+	onOpenChange?: (isOpen: boolean) => void
 	children?: any
 	/** Panel width (px on web, dips on native). @default 400 */
 	width?: number | string
@@ -2176,7 +2226,7 @@ export interface DialogHeaderProps {
 }
 
 /** Options accepted by `useImperativeDialog().show()`. */
-export type DialogOptions = Omit<DialogProps, 'isOpen' | 'onOpenChange' | 'children'>
+export type DialogOptions = Omit<DialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange' | 'children'>
 
 export interface ImperativeDialogReturn {
 	/** Opens the dialog with arbitrary content. */
@@ -2191,8 +2241,15 @@ export interface ImperativeDialogReturn {
  *  potentially destructive. Renders title/description plus Cancel and a
  *  single action button. Web maps to `role="alertdialog"`. */
 export interface AlertDialogProps {
-	isOpen: boolean
-	onOpenChange: (isOpen: boolean) => void
+	/** Controlled visibility — pair with `onOpenChange`. Omit for
+	 *  uncontrolled use via `defaultOpen`. */
+	isOpen?: boolean
+	/** Initial visibility for uncontrolled use; `isOpen` wins when both are
+	 *  set. Uncontrolled dismissal closes the dialog itself. */
+	defaultOpen?: boolean
+	/** Called with the requested next state: false on Cancel or user
+	 *  dismissal paths. */
+	onOpenChange?: (isOpen: boolean) => void
 	title: any
 	description?: any
 	actionLabel: any
@@ -2221,7 +2278,7 @@ export interface AlertDialogProps {
 
 export interface ImperativeAlertDialogReturn {
 	/** Opens the dialog with the given confirmation content. */
-	show: (options: Omit<AlertDialogProps, 'isOpen' | 'onOpenChange'>) => void
+	show: (options: Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>) => void
 	hide: () => void
 	isOpen: boolean
 	/** Rendered anywhere in the tree — the dialog itself. */
@@ -2879,12 +2936,18 @@ export interface CheckboxProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
+	/** Controlled checked state — pair with `onCheckedChange`. */
 	checked?: boolean
+	/** Initial checked state for uncontrolled use; `checked` wins when both
+	 *  are set. */
+	defaultChecked?: boolean
 	/** Partial-selection state (parent-of-a-tree semantics). Renders the
 	 *  indicator's `indeterminate` mark and `aria-checked="mixed"` on web;
 	 *  NativeScript reports `Partially selected` (no mixed state enum);
 	 *  AppKit exposes the semantic mixed checkbox value. */
 	indeterminate?: boolean
+	/** Called with the requested next state when the user toggles (always
+	 *  `true` when leaving `indeterminate`). */
 	onCheckedChange?: (checked: boolean) => void
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -2906,8 +2969,13 @@ export interface RadioGroupProps extends FieldControlProps {
 	style?: any
 	id?: string
 	options: RadioOption[]
+	/** Controlled selected option — pair with `onValueChange`. */
 	value?: string
+	/** Initial selected option for uncontrolled use; `value` wins when both
+	 *  are set. */
+	defaultValue?: string
 	horizontal?: boolean
+	/** Called with the chosen option's `value`. */
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
@@ -2926,8 +2994,12 @@ export interface SegmentedControlProps extends FieldControlProps {
 	style?: any
 	id?: string
 	options: RadioOption[]
+	/** Controlled selected segment — pair with `onValueChange`. */
 	value?: string
+	/** Initial selected segment for uncontrolled use; `value` wins when
+	 *  both are set. */
 	defaultValue?: string
+	/** Called with the chosen segment's `value`. */
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
@@ -3704,8 +3776,13 @@ export interface CheckboxGroupProps extends FieldControlProps {
 	style?: any
 	id?: string
 	options: RadioOption[]
+	/** Controlled checked values — pair with `onValueChange`. */
 	value?: string[]
+	/** Initial checked values for uncontrolled use; `value` wins when both
+	 *  are set. */
 	defaultValue?: string[]
+	/** Called with the complete next value array when the user toggles an
+	 *  option. */
 	onValueChange?: (values: string[]) => void
 	horizontal?: boolean
 	accessibilityLabel?: string

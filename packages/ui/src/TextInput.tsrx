@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useImperativeHandle, useEffect, useRef } from 'octane';
+import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { TextInputProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
@@ -17,12 +17,18 @@ import { useFieldControlProps } from './field-context';
 export function TextInput(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
-	useEffect(() => writeText(el.current, props.value), [props.value]);
+	const [internal, setInternal] = useState(props.defaultValue ?? '');
+	const value = props.value ?? internal;
+	useEffect(() => writeText(el.current, value), [value]);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const setValue = (next: string) => {
+		if (props.value === undefined) setInternal(next);
+		props.onChange?.(next);
+	};
+
 	const clear = () => {
 		if (isBlocked) return;
-		writeText(el.current, '');
-		props.onChange?.('');
+		setValue('');
 		props.onClear?.();
 		el.current?.focus();
 	};
@@ -49,12 +55,12 @@ export function TextInput(inputProps: TextInputProps) @{
 			returnKeyType={props.returnKeyType}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			onTextChange={(e: any) => { if (!isWritingText(e.object)) props.onChange?.(e.value); }}
+			onTextChange={(e: any) => { if (!isWritingText(e.object)) setValue(e.value); }}
 			onReturnPress={props.onSubmit}
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
 		/>
-		{props.hasClear && props.value != null && props.value !== '' && !isBlocked
+		{props.hasClear && value !== '' && !isBlocked
 			? <Pressable className="vx-input-clear" accessibilityLabel="Clear input" onPress={clear}><label text="×" /></Pressable>
 			: null}
 	</flexboxlayout>

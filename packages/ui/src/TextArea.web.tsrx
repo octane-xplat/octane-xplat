@@ -1,4 +1,4 @@
-import { useImperativeHandle, useLayoutEffect, useRef } from 'octane';
+import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'octane';
 import { normStyle } from './layout-child.web';
 import type { TextAreaProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
@@ -14,6 +14,12 @@ import { useFieldControlProps } from './field-context';
 export function TextArea(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps);
 	const el = useRef<HTMLTextAreaElement | null>(null);
+	const [internal, setInternal] = useState(props.defaultValue ?? '');
+	const value = props.value ?? internal;
+	const setValue = (next: string) => {
+		if (props.value === undefined) setInternal(next);
+		props.onChange?.(next);
+	};
 
 	const fit = () => {
 		const t = el.current;
@@ -39,7 +45,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 		}
 	};
 
-	useLayoutEffect(fit, [props.value, props.rows, props.autoGrow, props.maxRows, props.className, props.style]);
+	useLayoutEffect(fit, [value, props.rows, props.autoGrow, props.maxRows, props.className, props.style]);
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current?.focus(), blur: () => el.current?.blur(), native: el.current }), []);
 
@@ -53,7 +59,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 		data-testid={props.testID}
 		className={['vx-textarea', props.isDisabled ? 'vx-textarea--disabled' : undefined, props.isReadOnly ? 'vx-textarea--readonly' : undefined, props.isLoading ? 'vx-textarea--loading' : undefined, props.status ? `vx-textarea--status-${props.status.type}` : undefined, props.size ? `vx-textarea--size-${props.size}` : undefined, props.className]}
 		style={{ ...normStyle(props.style), ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
-		value={props.value}
+		value={value}
 		inputMode={props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType}
 		enterKeyHint={props.returnKeyType}
 	aria-label={props.ariaLabel}
@@ -66,7 +72,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 		readOnly={props.isReadOnly || undefined}
 		placeholder={props.placeholder}
 		rows={props.rows ?? (props.autoGrow ? 1 : 3)}
-		onInput={(e: any) => { fit(); props.onChange?.(e.target.value); }}
+		onInput={(e: any) => { fit(); setValue(e.target.value); }}
 		onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing && e.keyCode !== 229) props.onSubmit?.(); }}
 		onFocus={props.onFocus}
 		onBlur={props.onBlur}

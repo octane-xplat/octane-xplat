@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useState } from 'octane';
 import type { RadioGroupProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
@@ -9,8 +10,14 @@ import { useIndicator, RadioIndicator, indicatorScope } from './indicators';
  *  `horizontal`). Selecting an option calls `onValueChange`. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
+	const [internal, setInternal] = useState(props.defaultValue);
+	const current = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('radio') ?? RadioIndicator;
+	const select = (value: string) => {
+		if (props.value === undefined) setInternal(value);
+		props.onValueChange?.(value);
+	};
 
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -23,14 +30,14 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
 	>
 		{props.options.map((opt: any) => {
-			const selected = props.value === opt.value;
+			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			const blocked = disabled || isBlocked;
 			return (
 				<flexboxlayout
 					key={opt.value}
 					className={cx('vx-radio-row', indicatorScope, selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')}
-					onTap={blocked ? undefined : () => props.onValueChange?.(opt.value)}
+					onTap={blocked ? undefined : () => select(opt.value)}
 				>
 					<Ind state={selected ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 					{opt.label != null ? <label className="vx-radio-label" text={opt.label} /> : null}

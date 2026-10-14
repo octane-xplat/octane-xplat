@@ -1,4 +1,4 @@
-import { createPortal, useEffect, useRef } from 'octane';
+import { createPortal, useEffect, useRef, useState } from 'octane';
 import type { OverlayProps } from './props';
 import { useThemeScheme } from './theme/theme-scheme';
 import { cx } from '@octane-xplat/lib';
@@ -9,18 +9,25 @@ export function Overlay(props: OverlayProps) @{
 	const dark = useThemeScheme() === 'dark';
 	const layer = useRef<HTMLDivElement | null>(null);
 	const panel = useRef<HTMLDivElement | null>(null);
-	const dismiss = useRef(props.onDismiss);
-	dismiss.current = props.onDismiss;
-	useEffect(() => {
-		if (!props.open || !props.shadeCover || !layer.current || !panel.current) return;
-		return isolateModalFocus(layer.current, panel.current, () => dismiss.current?.());
-	}, [props.open, props.shadeCover]);
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.open ?? internal;
+	const requestDismiss = () => {
+		if (props.open === undefined) setInternal(false);
+		props.onDismiss?.();
+	};
 
-	@if (props.open) {
+	const dismiss = useRef(requestDismiss);
+	dismiss.current = requestDismiss;
+	useEffect(() => {
+		if (!open || !props.shadeCover || !layer.current || !panel.current) return;
+		return isolateModalFocus(layer.current, panel.current, () => dismiss.current?.());
+	}, [open, props.shadeCover]);
+
+	@if (open) {
 		<>{createPortal(
 			<div ref={layer} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...props.style, position: 'fixed', inset: 0 }} {...props.web}>
 				@if (props.shadeCover) {
-					<div className="vx-overlay-shade" onClick={props.onDismiss} />
+					<div className="vx-overlay-shade" onClick={requestDismiss} />
 				}
 				<div ref={panel} data-testid={props.testID} role={props.shadeCover ? 'dialog' : undefined} aria-modal={props.shadeCover ? true : undefined} aria-label={props.shadeCover ? props.accessibilityLabel : undefined} className="vx-overlay-content" onClick={(event: any) => event.stopPropagation()}>
 					{props.children}

@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
+import { useEffect, useRef, useState } from 'octane';
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
@@ -19,14 +19,21 @@ type OpenOverlay = { host: GridLayout; root: any; lifetime: ReturnType<typeof cr
 export function Overlay(props: OverlayProps) @{
 	const shown = useRef<OpenOverlay | null>(null);
 	const hostView = useRef<any>(null);
-	const dismiss = useRef(props.onDismiss);
-	dismiss.current = props.onDismiss;
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.open ?? internal;
+	const requestDismiss = () => {
+		if (props.open === undefined) setInternal(false);
+		props.onDismiss?.();
+	};
+
+	const dismiss = useRef(requestDismiss);
+	dismiss.current = requestDismiss;
 
 	const rootLayout = () => rootLayoutFor(hostView.current);
 
 	useEffect(() => {
 		const current = shown.current;
-		if (!props.open) {
+		if (!open) {
 			current?.lifetime.close();
 			return;
 		}
@@ -67,7 +74,7 @@ export function Overlay(props: OverlayProps) @{
 		lifetime.open(props.shadeCover ? {
 			shadeCover: { opacity: 0.45, color: '#000000', tapToClose: true },
 		} : {});
-	}, [props.open, props.children, props.shadeCover, props.className, props.style, props.accessibilityLabel, props.testID, props.ios, props.android]);
+	}, [open, props.children, props.shadeCover, props.className, props.style, props.accessibilityLabel, props.testID, props.ios, props.android]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

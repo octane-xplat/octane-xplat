@@ -1,3 +1,4 @@
+import { useState } from 'octane';
 import type { AlertDialogProps } from './props';
 import { Dialog } from './Dialog.web.tsrx';
 import { Button } from './Button.web.tsrx';
@@ -16,10 +17,17 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
  *  `role="alertdialog"`) with title, description, Cancel, and one action
  *  button. The action reports through `onAction`; callers own `isOpen`. */
 export function AlertDialog(props: AlertDialogProps) @{
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.isOpen ?? internal;
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen);
+		props.onOpenChange?.(isOpen);
+	};
+
 	return (
 		<Dialog
-			isOpen={props.isOpen}
-			onOpenChange={props.onOpenChange}
+			isOpen={open}
+			onOpenChange={requestChange}
 			purpose="required"
 			width={props.width ?? 400}
 			isInline={props.isInline}
@@ -45,7 +53,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 			<div className="vx-alertdialog-actions">
 				<Button
 					className="btn btn-secondary"
-					onPress={() => props.onOpenChange(false)}
+					onPress={() => requestChange(false)}
 					disabled={props.isActionLoading}
 				>
 					{props.cancelLabel ?? 'Cancel'}

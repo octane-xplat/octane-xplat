@@ -133,6 +133,24 @@ disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
 'success', message?: string }`. `hasClear` is available where clearing is part
 of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
+Controls that hold user state follow one ownership contract. The controlled
+prop carries the current value — `value`, `checked`, `isOpen`, or `open` —
+and its callback reports each requested change: `onChange` and
+`onValueChange` carry the next value, `onCheckedChange` the next boolean,
+and `onOpenChange`/`onDismiss` the requested visibility. Pass the matching
+`defaultValue`, `defaultChecked`, or `defaultOpen` instead and the control
+owns that state — user actions update it internally and still call the
+callback. When both are set, the controlled prop wins.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Example() {
+	// Uncontrolled — the switch owns its on state and reports each toggle.
+	return <Switch defaultChecked onCheckedChange={(next) => console.log(next)} />
+}
+```
+
 ```tsx
 import { Field, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
@@ -176,7 +194,7 @@ export function Example() {
 
 | Component                                               | What it is                                                       | Key props                                                                    |
 | ------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `TextInput`, `TextArea`                                 | One- and multi-line text entry                                   | `value`, `onChange`, `label`, `description`                                  |
+| `TextInput`, `TextArea`                                 | One- and multi-line text entry                                   | `value`, `defaultValue`, `onChange`, `label`, `description`                  |
 | `SearchInput`                                           | Search field with clear button                                   | `value`, `onSubmit`, `hasClear`, `onClear`                                   |
 | `FormLayout`                                            | Arranges labeled fields                                          | `direction`, `defaultOptionality`                                            |
 | `InputGroup`, `InputGroupText`                          | Joins a labeled control with prefix/suffix text                  | `label`, `size`                                                              |
@@ -192,12 +210,12 @@ export function Example() {
 | `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                         |
 | `DateRangeInput`                                        | Labeled range trigger with calendar and presets                  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan`               |
 | `FileInput`                                             | `@octane-xplat/files` picker with input and dropzone modes       | `value`, `onChange`, `accept`, `isMultiple`, `maxSize`                       |
-| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `onCheckedChange`, `isDisabled`                                   |
-| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `onCheckedChange`, `isDisabled`                                   |
+| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                 |
+| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                 |
 | `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks                                       | `state`, `size`, `isDisabled`                                                |
-| `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `onValueChange`, `isDisabled`                                     |
-| `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `onValueChange`, `isDisabled`                            |
-| `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `onValueChange`, `isDisabled`                            |
+| `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
+| `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
+| `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
 | `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                             |
 | `Selector`                                              | Single-option picker                                             | `options`, `value`, `searchable`, `isDisabled`                               |
 | `MultiSelector`                                         | Multiple-option picker                                           | `options`, `value`, `searchable`, `isDisabled`                               |
@@ -205,7 +223,7 @@ export function Example() {
 | `Tokenizer`                                             | Searchable multi-selection token field                           | `searchSource`, `value`, `onChange`, `hasCreate`                             |
 | `Token`                                                 | Removable or interactive entity chip                             | `label`, `color`, `onRemove`, `onClick`, `href`                              |
 | `ComplexSelector`                                       | Field trigger with a custom anchored picker surface              | `value`, `children`, `changeAction`, `variant`                               |
-| `NumberInput`                                           | Numeric entry with bounds                                        | `value`, `min`, `max`, `step`, `onValueChange`                               |
+| `NumberInput`                                           | Numeric entry with bounds                                        | `value`, `defaultValue`, `min`, `max`, `step`, `onValueChange`               |
 | `PinInput`                                              | Fixed-length code/PIN entry                                      | `length`, `onValueChange`, `onComplete`, `secure`                            |
 
 | `InputRating` | Tappable 1..max rating row | `value`, `max`, `icon`, `onValueChange` |
@@ -486,24 +504,31 @@ export function Example() {
 
 | Component                 | What it is                                        | Key props                                                         |
 | ------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
-| `Overlay`                 | Content above the screen                          |                                                                   |
-| `Popover`                 | Anchored floating content                         | `anchor`, `open`, `placement`, `alignment`, `offset`, `onDismiss` |
+| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onDismiss`, `shadeCover`                  |
+| `Popover`                 | Anchored floating content                         | `anchor`, `open`, `defaultOpen`, `placement`, `onDismiss`         |
 | `useLayer`                | Anchored/fixed overlay primitive (hook)           | `mode`, `ref`, `show`, `hide`, `isOpen`, `render`                 |
 | `Tooltip`                 | Pointer hover hint                                | `trigger`, `content`, `openDelay`                                 |
 | `HoverCard`               | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger`                   |
-| `Dialog`                  | Modal surface with optional header                | `isOpen`, `onOpenChange`, `purpose`, `position`                   |
-| `AlertDialog`             | Required-action confirmation dialog               | `title`, `description`, `actionLabel`, `onAction`                 |
-| `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `snapPoints`, `onOpenChange`                            |
+| `Dialog`                  | Modal surface with optional header                | `isOpen`, `defaultOpen`, `onOpenChange`, `purpose`, `position`    |
+| `AlertDialog`             | Required-action confirmation dialog               | `isOpen`, `defaultOpen`, `title`, `actionLabel`, `onAction`       |
+| `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `defaultOpen`, `snapPoints`, `onOpenChange`             |
+| `BottomSheetSwitcher`     | Shared host for a set of sheets                   | `activeSheet`, `defaultActiveSheet`, `onActiveSheetChange`        |
 | `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`                 |
 | `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                       |
 | `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`                 |
-| `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `onDismiss`                             |
+| `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onDismiss`              |
 
 Use `Dialog` for optional or informational modal content and `AlertDialog` when
 the user must choose an action. `BottomSheet` is the shared in-window surface;
 the platform-native `@octane-xplat/sheet` package remains a separate API.
 `showToast(options)` presents a transient toast, while `useToast()` targets the
-nearest `ToastViewport` or the fallback viewport. Modal content can render on a
+nearest `ToastViewport` or the fallback viewport. Overlay visibility follows
+the same state contract as the field controls: `open`/`isOpen` are controlled,
+`defaultOpen` seeds an uncontrolled layer that closes itself when the user
+dismisses it, and `onOpenChange`/`onDismiss` report the request — `isOpen`
+wins when both are set. `BottomSheetSwitcher` uses `activeSheet`/
+`defaultActiveSheet`/`onActiveSheetChange` for which child `sheetId` is
+visible. Modal content can render on a
 separate native root, so pass its data as props instead of depending on
 presenter context. `openWindow` opens a host window where supported; modal
 routing shares the navigation layer — see [navigation](navigation.md).

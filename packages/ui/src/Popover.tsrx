@@ -134,15 +134,22 @@ function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: numbe
  *  Overlay: a transparent host opened on the RootLayout enclosing the
  *  anchor, with PopoverLayer positioning itself over the anchor's rect. */
 export function Popover(props: PopoverProps) @{
-	const dismissal = useLayerDismissal({ get active() { return !!props.open }, isPresent: () => !!shown.current, getFocusTarget: () => props.finalFocusRef?.current, dismiss: () => props.onDismiss?.(), get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' } });
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.open ?? internal;
+	const requestDismiss = () => {
+		if (props.open === undefined) setInternal(false);
+		props.onDismiss?.();
+	};
+
+	const dismissal = useLayerDismissal({ get active() { return !!open }, isPresent: () => !!shown.current, getFocusTarget: () => props.finalFocusRef?.current, dismiss: requestDismiss, get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' } });
 	const shown = useRef<{ host: any; root: any; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
 
-	const dismiss = useRef(props.onDismiss);
-	dismiss.current = props.onDismiss;
+	const dismiss = useRef(requestDismiss);
+	dismiss.current = requestDismiss;
 
 	useEffect(() => {
 		const cur = shown.current;
-		if (!props.open) {
+		if (!open) {
 			cur?.lifetime.close();
 			return;
 		}
@@ -168,9 +175,9 @@ export function Popover(props: PopoverProps) @{
 
 		lifetime.own(unbindTheme);
 		shown.current = { host, root, lifetime };
-		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
+		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, open, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
 		lifetime.open();
-	}, [props.anchor?.current, props.layerPosition, props.open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
+	}, [props.anchor?.current, props.layerPosition, open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

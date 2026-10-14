@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useContext, useEffect, useMemo, useRef } from 'octane'
+import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
 import {
 	BottomSheetSwitcherContext,
@@ -45,6 +45,13 @@ function PresentedSheet(props: BottomSheetProps) @{
 
 export function BottomSheet(props: BottomSheetProps) @{
 	const switcher = useContext(BottomSheetSwitcherContext)
+	const [internal, setInternal] = useState(props.defaultOpen ?? false)
+	const open = props.isOpen ?? internal
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen)
+		props.onOpenChange?.(isOpen)
+	}
+
 	useEffect(() => {
 		if (props.sheetId == null || !switcher) return
 		const spec: BottomSheetRegistration = { sheetId: props.sheetId, props }
@@ -59,15 +66,22 @@ export function BottomSheet(props: BottomSheetProps) @{
 		return () => switcher.unregister(sheetId)
 	}, [switcher, props.sheetId])
 
-	@if (props.sheetId == null) { <PresentedSheet {...props} /> }
+	@if (props.sheetId == null) { <PresentedSheet {...props} isOpen={open} onOpenChange={requestChange} /> }
 }
 
 export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	const specs = useMemo(() => createStore(new Map<string, BottomSheetRegistration>()), []);
+	const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null);
+	const resolved = props.activeSheet !== undefined ? props.activeSheet : internal;
+	const requestChange = (sheetId: string | null) => {
+		if (props.activeSheet === undefined) setInternal(sheetId)
+		props.onActiveSheetChange?.(sheetId)
+	};
+
 	const onChange = useRef<any>(null);
-	const activeId = useRef(props.activeSheet);
-	activeId.current = props.activeSheet;
-	onChange.current = props.onActiveSheetChange;
+	const activeId = useRef(resolved);
+	activeId.current = resolved;
+	onChange.current = requestChange;
 	const handle: BottomSheetSwitcherHandle = useMemo(() => ({
 		register(spec) {
 			const existing = specs.get().get(spec.sheetId)
@@ -85,14 +99,14 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	}), []);
 
 	const dismissal = useLayerDismissal({
-		get active() { return props.activeSheet != null },
+		get active() { return resolved != null },
 		dismiss: () => handle.requestDismiss(),
 		get behavior() {
-			const active = props.activeSheet != null ? specs.get().get(props.activeSheet) : undefined
+			const active = resolved != null ? specs.get().get(resolved) : undefined
 			return active?.props.purpose === 'required' ? 'block' : 'close'
 		},
 		getFocusTarget: () => {
-			const active = props.activeSheet != null ? specs.get().get(props.activeSheet) : undefined
+			const active = resolved != null ? specs.get().get(resolved) : undefined
 			return active?.props.finalFocusRef?.current
 		},
 		restoreFocus: false,
@@ -101,7 +115,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	const owner = usePresentation(false, SheetPanel, {}, {}, {
 		subscribe: specs.subscribe,
 		resolve() {
-			const active = props.activeSheet != null ? specs.get().get(props.activeSheet) : undefined
+			const active = resolved != null ? specs.get().get(resolved) : undefined
 			const sheet = active?.props
 			return {
 				isOpen: active != null,

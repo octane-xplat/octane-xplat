@@ -56,8 +56,10 @@ export function NameForm() {
 Type a name, press Clear, and check that the field is empty. On a phone,
 press Done and check that the keyboard closes. Programmatically setting
 `value` does not call `onChange`; that callback reports user edits.
-`SearchInput` can also keep its own value when you supply `defaultValue`
-instead of controlling `value`.
+`TextInput`, `TextArea`, and `SearchInput` can also keep their own text when
+you supply `defaultValue` instead of controlling `value`. When both are set,
+`value` wins; `onChange` still reports each edit — setting `value` from code
+never calls it.
 
 ```tsx
 import { SearchInput } from '@octane-xplat/ui'

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useState } from 'octane'
 import type { AlertDialogProps } from './props'
 import { Dialog } from './Dialog.macos.tsrx'
 import { Button } from './controls.macos.tsrx'
@@ -13,10 +14,17 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
 
 /** Required decisions share Dialog presentation and block passive dismissal. */
 export function AlertDialog(props: AlertDialogProps) @{
+	const [internal, setInternal] = useState(props.defaultOpen ?? false)
+	const open = props.isOpen ?? internal
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen)
+		props.onOpenChange?.(isOpen)
+	}
+
 	return (
 		<Dialog
-			isOpen={props.isOpen}
-			onOpenChange={props.onOpenChange}
+			isOpen={open}
+			onOpenChange={requestChange}
 			purpose="required"
 			accessibilityLabel={typeof props.title === 'string' ? props.title : 'Required decision'}
 			finalFocusRef={props.finalFocusRef}
@@ -41,7 +49,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 			<flexboxlayout flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions">
 				<Button
 					className="btn btn-secondary"
-					onPress={() => props.onOpenChange(false)}
+					onPress={() => requestChange(false)}
 					disabled={props.isActionLoading}
 				>
 					{props.cancelLabel ?? 'Cancel'}

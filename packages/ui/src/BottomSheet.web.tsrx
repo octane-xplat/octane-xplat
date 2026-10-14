@@ -135,6 +135,13 @@ function BottomSheetLayer(props: {
  *  nothing on its own. */
 export function BottomSheet(props: BottomSheetProps) @{
 	const switcher = useContext(BottomSheetSwitcherContext);
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.isOpen ?? internal;
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen);
+		props.onOpenChange?.(isOpen);
+	};
+
 	const registration: BottomSheetRegistration = {
 		sheetId: props.sheetId ?? '',
 		props,
@@ -157,12 +164,12 @@ export function BottomSheet(props: BottomSheetProps) @{
 	@if (props.sheetId != null) {
 		<></>
 	} @else {
-		@if (props.isOpen) {
+		@if (open) {
 			<>{createPortal(
 				<BottomSheetLayer
 					sheet={props}
 					panel={props.children}
-					onDismiss={() => props.onOpenChange?.(false)}
+					onDismiss={() => requestChange(false)}
 				/>,
 				document.body,
 			)}</>
@@ -177,9 +184,17 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	const dark = useThemeScheme() === 'dark';
 	const registry = useRef(new Map<string, BottomSheetRegistration>());
 	const [version, bump] = useState(0);
-	const activeId = props.activeSheet ?? null;
-	const onChange = useRef(props.onActiveSheetChange);
-	onChange.current = props.onActiveSheetChange;
+	const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null);
+	const activeId = props.activeSheet !== undefined ? props.activeSheet : internal;
+	const requestChange = (sheetId: string | null) => {
+		if (props.activeSheet === undefined) setInternal(sheetId);
+		props.onActiveSheetChange?.(sheetId);
+	};
+
+	const onChange = useRef(requestChange);
+	onChange.current = requestChange;
+	const resolvedId = useRef(activeId);
+	resolvedId.current = activeId;
 
 	const handle: BottomSheetSwitcherHandle = useMemo(
 		() => ({
@@ -195,7 +210,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 				onChange.current?.(null);
 			},
 			activeSheet() {
-				return props.activeSheet ?? null;
+				return resolvedId.current ?? null;
 			},
 		}),
 		[],

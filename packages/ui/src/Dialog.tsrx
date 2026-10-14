@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
-import { useContext, useEffect, useId, useRef } from 'octane';
+import { useContext, useEffect, useId, useRef, useState } from 'octane';
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
@@ -79,7 +79,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={purpose === 'required' ? ('alert' as any) : undefined}
 		>
-			<DialogProvider value={{ titleId, isModal: true }}>
+			<DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
 				<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
 			</DialogProvider>
 		</flexboxlayout>
@@ -97,7 +97,7 @@ function DialogInline(props: DialogProps) @{
 		style={{ padding, width: typeof props.width === 'number' ? props.width : undefined, ...props.style }}
 		accessibilityLabel={props.accessibilityLabel}
 	>
-		<DialogProvider value={{ titleId, isModal: false }}>
+		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
 			{props.children}
 		</DialogProvider>
 	</flexboxlayout>
@@ -111,7 +111,14 @@ function DialogInline(props: DialogProps) @{
  *  documented deviation). Focus restoration has no direct equivalent;
  *  `finalFocusRef` calls the target's focus method when the declaration closes. */
 export function Dialog(props: DialogProps) @{
-	const dismissal = useLayerDismissal({ get active() { return !!props.isOpen && !props.isInline }, isPresent: () => !!shown.current, dismiss: () => props.onOpenChange?.(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' }, getFocusTarget: () => props.finalFocusRef?.current });
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.isOpen ?? internal;
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen);
+		props.onOpenChange?.(isOpen);
+	};
+
+	const dismissal = useLayerDismissal({ get active() { return !!open && !props.isInline }, isPresent: () => !!shown.current, dismiss: () => requestChange(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' }, getFocusTarget: () => props.finalFocusRef?.current });
 
 	const sentinel = useRef<any>(null);
 	const shown = useRef<{
@@ -120,12 +127,12 @@ export function Dialog(props: DialogProps) @{
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
 
-	const dismiss = useRef(props.onOpenChange);
-	dismiss.current = props.onOpenChange;
+	const dismiss = useRef(requestChange);
+	dismiss.current = requestChange;
 
 	useEffect(() => {
 		const cur = shown.current;
-		if (!props.isOpen) {
+		if (!open) {
 			cur?.lifetime.close();
 			return;
 		}
@@ -134,7 +141,7 @@ export function Dialog(props: DialogProps) @{
 		if (!rl) return;
 
 		if (cur) {
-			cur.root.render(DialogPanel as unknown as UniversalComponent, { ...props, layerDepth: dismissal.depth });
+			cur.root.render(DialogPanel as unknown as UniversalComponent, { ...props, onOpenChange: requestChange, layerDepth: dismissal.depth });
 			return;
 		}
 
@@ -154,7 +161,7 @@ export function Dialog(props: DialogProps) @{
 		lifetime.own(bindBottomInsetToKeyboard(host));
 		lifetime.own(attachTapToBlur(host));
 		shown.current = { host, root, lifetime };
-		root.render(DialogPanel as unknown as UniversalComponent, { ...props, layerDepth: dismissal.depth });
+		root.render(DialogPanel as unknown as UniversalComponent, { ...props, onOpenChange: requestChange, layerDepth: dismissal.depth });
 
 		const purpose = props.purpose ?? 'info';
 		lifetime.open({
@@ -168,7 +175,7 @@ export function Dialog(props: DialogProps) @{
 			},
 		});
 	}, [
-		props.isOpen,
+		open,
 		props.children,
 		props.className,
 		props.style,
@@ -187,7 +194,8 @@ export function Dialog(props: DialogProps) @{
 
 /** Dialog title row (Astryx `DialogHeader`), native leaf. */
 export function DialogHeader(props: DialogHeaderProps) @{
-	useContext(DialogContext); // keep provider membership for parity — the id only matters on web.
+	const ctx = useContext(DialogContext); // provider membership supplies the title id on web and the shared close request.
+	const requestClose = props.onOpenChange ?? ctx?.requestClose;
 
 	<flexboxlayout flexDirection="column" className={cx('vx-dialog-header', props.className)} style={props.style} id={props.id}>
 		<flexboxlayout flexDirection="row" alignItems="center">
@@ -196,14 +204,14 @@ export function DialogHeader(props: DialogHeaderProps) @{
 				{props.title != null && <label className="vx-dialog-title" textWrap={true}>{props.title}</label>}
 				{props.subtitle != null && <label className="vx-dialog-subtitle" textWrap={true}>{props.subtitle}</label>}
 			</flexboxlayout>
-			{(props.endContent != null || props.onOpenChange != null) && (
+			{(props.endContent != null || requestClose != null) && (
 				<flexboxlayout flexDirection="row" alignItems="center" className="vx-dialog-header-end">
 					{props.endContent}
-					{props.onOpenChange && (
+					{requestClose && (
 						<Pressable
 							className="vx-dialog-close"
 							accessibilityLabel="Close"
-							onPress={() => props.onOpenChange?.(false)}
+							onPress={() => requestClose(false)}
 						>
 							<Icon name="xplat-close" />
 						</Pressable>

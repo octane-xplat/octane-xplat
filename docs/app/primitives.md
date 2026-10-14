@@ -223,7 +223,8 @@ export function Settings() {
 ```
 
 Platform widgets accept only the props the OS control can deliver. The
-platform switches share the `checked`/`onCheckedChange` state contract and
+platform switches share the `checked`/`onCheckedChange` state contract
+(`defaultChecked` seeds uncontrolled use) and
 honor `isDisabled`, `isReadOnly`, `testID`, and the accessibility names —
 `label`, `description`, and `accessibilityLabel`/`accessibilityHint` are
 spoken, since a bare widget draws no visible label. Wrap one in `Field` for

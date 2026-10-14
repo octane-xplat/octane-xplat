@@ -1,5 +1,5 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
-import { createPortal, useContext, useEffect, useId, useRef } from 'octane';
+import { createPortal, useContext, useEffect, useId, useRef, useState } from 'octane';
 import type { DialogHeaderProps, DialogProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { useThemeScheme } from './theme/theme-scheme';
@@ -121,7 +121,7 @@ function DialogModal(props: DialogProps) @{
 
 	return (
 		<div ref={layerRef} className={cx('vx-dialog-layer', dark && 'dark')}>
-			<DialogProvider value={{ titleId, isModal: true }}>
+			<DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
 				<dialog
 					ref={(el: HTMLDialogElement | null) => {
 						dialogRef.current = el;
@@ -171,7 +171,7 @@ function DialogInline(props: DialogProps) @{
 	const padding = spacingStep(props.padding ?? 5) ?? 20;
 
 	return (
-		<DialogProvider value={{ titleId, isModal: false }}>
+		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
 			<div
 				ref={(el: any) => applyEscapeProps(el, props)}
 				id={props.id}
@@ -198,11 +198,18 @@ function DialogInline(props: DialogProps) @{
  *  'info' allows backdrop tap + Escape, 'form' keeps Escape only,
  *  'required' blocks both and carries `role="alertdialog"`. */
 export function Dialog(props: DialogProps) @{
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.isOpen ?? internal;
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen);
+		props.onOpenChange?.(isOpen);
+	};
+
 	@if (props.isInline) {
-		<DialogInline {...props} />
+		<DialogInline {...props} onOpenChange={requestChange} />
 	} @else {
-		@if (props.isOpen) {
-			<>{createPortal(<DialogModal {...props} />, document.body)}</>
+		@if (open) {
+			<>{createPortal(<DialogModal {...props} onOpenChange={requestChange} />, document.body)}</>
 		}
 	}
 }
@@ -212,6 +219,7 @@ export function Dialog(props: DialogProps) @{
  *  supplies the close affordance. */
 export function DialogHeader(props: DialogHeaderProps) @{
 	const ctx = useContext(DialogContext);
+	const requestClose = props.onOpenChange ?? ctx?.requestClose;
 	const pad = spacingStep(5) ?? 20;
 	const compensate =
 		props.endContentEdgeCompensation === 'inline' ||
@@ -235,17 +243,17 @@ export function DialogHeader(props: DialogHeaderProps) @{
 				)}
 				{props.subtitle != null && <div className="vx-dialog-subtitle">{props.subtitle}</div>}
 			</div>
-			{(props.endContent != null || props.onOpenChange != null) && (
+			{(props.endContent != null || requestClose != null) && (
 				<div
 					className="vx-dialog-header-end"
 					style={compensate ? { marginInlineEnd: `${-pad / 2}px` } : undefined}
 				>
 					{props.endContent}
-					{props.onOpenChange && (
+					{requestClose && (
 						<Pressable
 							className="vx-dialog-close"
 							accessibilityLabel="Close"
-							onPress={() => props.onOpenChange?.(false)}
+							onPress={() => requestClose(false)}
 						>
 							<Icon name="xplat-close" />
 						</Pressable>

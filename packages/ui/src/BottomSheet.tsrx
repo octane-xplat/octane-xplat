@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useContext, useEffect, useMemo, useRef } from 'octane';
+import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
@@ -109,14 +109,21 @@ export function attachBottomSheetHost(
 export function BottomSheet(props: BottomSheetProps) @{
 	const switcher = useContext(BottomSheetSwitcherContext);
 	const sentinel = useRef<any>(null);
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.isOpen ?? internal;
+	const requestChange = (isOpen: boolean) => {
+		if (props.isOpen === undefined) setInternal(isOpen);
+		props.onOpenChange?.(isOpen);
+	};
+
 	const shown = useRef<{
 		host: GridLayout;
 		root: any;
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
 
-	const dismiss = useRef(props.onOpenChange);
-	dismiss.current = props.onOpenChange;
+	const dismiss = useRef(requestChange);
+	dismiss.current = requestChange;
 
 	useEffect(() => {
 		if (props.sheetId == null) {
@@ -135,7 +142,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 
 	useEffect(() => {
 		const cur = shown.current;
-		if (props.sheetId != null || !props.isOpen) {
+		if (props.sheetId != null || !open) {
 			cur?.lifetime.close();
 			return;
 		}
@@ -184,7 +191,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 			() => enter(),
 		);
 	}, [
-		props.isOpen,
+		open,
 		props.sheetId,
 		props.children,
 		props.className,
@@ -255,9 +262,17 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
 
-	const onChange = useRef(props.onActiveSheetChange);
-	onChange.current = props.onActiveSheetChange;
-	const activeId = props.activeSheet ?? null;
+	const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null);
+	const activeId = props.activeSheet !== undefined ? props.activeSheet : internal;
+	const requestChange = (sheetId: string | null) => {
+		if (props.activeSheet === undefined) setInternal(sheetId);
+		props.onActiveSheetChange?.(sheetId);
+	};
+
+	const onChange = useRef(requestChange);
+	onChange.current = requestChange;
+	const resolvedId = useRef(activeId);
+	resolvedId.current = activeId;
 
 	const specs = useMemo(() => createStore(new Map<string, BottomSheetRegistration>()), []);
 	const handle: BottomSheetSwitcherHandle = useMemo(
@@ -275,7 +290,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 				onChange.current?.(null);
 			},
 			activeSheet() {
-				return props.activeSheet ?? null;
+				return resolvedId.current ?? null;
 			},
 		}),
 		[],

@@ -1,3 +1,4 @@
+import { useState } from 'octane';
 import type { SwitchProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
@@ -7,9 +8,13 @@ import { useFieldControlProps } from './field-context';
  *  `ui/android`. Toggles on click, Space, and Enter. */
 export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps);
+	const [internal, setInternal] = useState(props.defaultChecked ?? false);
+	const checked = props.checked ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const toggle = () => {
-		if (!isBlocked) props.onCheckedChange?.(!(props.checked ?? false));
+		if (isBlocked) return;
+		if (props.checked === undefined) setInternal(!checked);
+		props.onCheckedChange?.(!checked);
 	};
 
 	<div
@@ -17,7 +22,7 @@ export function Switch(inputProps: SwitchProps) @{
 		id={props.id}
 		data-testid={props.testID}
 		role="switch"
-		aria-checked={props.checked ?? false}
+		aria-checked={checked}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}
@@ -27,7 +32,7 @@ export function Switch(inputProps: SwitchProps) @{
 		aria-labelledby={props.ariaLabelledBy}
 		aria-describedby={props.ariaDescribedBy}
 		tabIndex={props.isDisabled ? undefined : 0}
-		className={['vx-switch', props.checked ? 'vx-switch--on' : undefined, props.isDisabled ? 'vx-switch--disabled' : undefined, props.isReadOnly ? 'vx-switch--readonly' : undefined, props.isLoading ? 'vx-switch--loading' : undefined, props.status ? `vx-switch--status-${props.status.type}` : undefined, props.size ? `vx-switch--size-${props.size}` : undefined, props.className]}
+		className={['vx-switch', checked ? 'vx-switch--on' : undefined, props.isDisabled ? 'vx-switch--disabled' : undefined, props.isReadOnly ? 'vx-switch--readonly' : undefined, props.isLoading ? 'vx-switch--loading' : undefined, props.status ? `vx-switch--status-${props.status.type}` : undefined, props.size ? `vx-switch--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 		onClick={toggle}
 		onKeyDown={(e: any) => {

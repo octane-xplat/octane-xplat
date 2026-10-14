@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useImperativeHandle, useEffect, useRef } from 'octane';
+import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -37,11 +37,18 @@ export function TextArea(inputProps: TextAreaProps) @{
 		else if (!props.autoGrow) v.style.maxHeight = rows * line;
 	};
 
+	const [internal, setInternal] = useState(props.defaultValue ?? '');
+	const value = props.value ?? internal;
+	const setValue = (next: string) => {
+		if (props.value === undefined) setInternal(next);
+		props.onChange?.(next);
+	};
+
 	// Explicit deps — tsrx infers effect deps from closure reads, and `fit`
 	//  hides the prop reads one level down.
 	useEffect(() => fit(el.current), [props.rows, props.autoGrow, props.maxRows, props.style]);
 	// Imperative controlled write — Android setText resets selection to 0.
-	useEffect(() => writeText(el.current, props.value), [props.value]);
+	useEffect(() => writeText(el.current, value), [value]);
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
@@ -64,7 +71,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 		isEnabled={!props.isDisabled}
 		editable={!props.isDisabled && !props.isReadOnly}
 		onLoaded={(e: any) => fit(e.object)}
-		onTextChange={(e: any) => { if (!isWritingText(e.object)) props.onChange?.(e.value); }}
+		onTextChange={(e: any) => { if (!isWritingText(e.object)) setValue(e.value); }}
 		// TextView emits returnPress for every newline. Only an explicit action
 		// key opts into the submit semantic; ordinary Return remains a newline.
 		onReturnPress={submitOnReturn ? props.onSubmit : undefined}

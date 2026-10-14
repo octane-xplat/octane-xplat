@@ -54,10 +54,16 @@ export function Button(props: ButtonProps) @{
 
 export function Checkbox(inputProps: CheckboxProps) @{
 	const props = useFieldControlProps(inputProps)
-	const checked = props.checked ?? false
+	const [internal, setInternal] = useState(props.defaultChecked ?? false)
+	const checked = props.checked ?? internal
 	const marked = checked || props.indeterminate
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
+	const toggle = () => {
+		const next = props.indeterminate ? true : !checked
+		if (props.checked === undefined) setInternal(next)
+		props.onCheckedChange?.(next)
+	}
 
 	<flexboxlayout
 		id={props.id}
@@ -71,7 +77,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		accessibilityHint={props.accessibilityHint}
 		accessibilityValue={props.indeterminate ? 'Partially selected' : undefined}
 		accessibilityState={{ checked: props.indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
-		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(props.indeterminate ? true : !checked)}
+		onTap={isBlocked ? undefined : toggle}
 	>
 		<flexboxlayout
 			className="vx-checkbox"
@@ -94,9 +100,14 @@ export function Checkbox(inputProps: CheckboxProps) @{
 
 export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps)
-	const checked = props.checked ?? false
+	const [internal, setInternal] = useState(props.defaultChecked ?? false)
+	const checked = props.checked ?? internal
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
+	const toggle = () => {
+		if (props.checked === undefined) setInternal(!checked)
+		props.onCheckedChange?.(!checked)
+	}
 
 	<flexboxlayout
 		id={props.id}
@@ -116,7 +127,7 @@ export function Switch(inputProps: SwitchProps) @{
 		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
-		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!checked)}
+		onTap={isBlocked ? undefined : toggle}
 	>
 		<flexboxlayout
 			className="vx-switch-thumb"

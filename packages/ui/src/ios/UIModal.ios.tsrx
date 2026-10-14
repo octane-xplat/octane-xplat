@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
+import { useEffect, useRef, useState } from 'octane';
 import type { ModalProps } from "../props";
 import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
@@ -25,9 +25,15 @@ function Panel(props: { children?: any }) @{
  *  self-drawn in-window versions. */
 export function UIModal(props: ModalProps) @{
 	const shown = useRef<{ host: GridLayout; root: any; unbindTheme?: () => void } | null>(null);
+	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const open = props.open ?? internal;
+	const closed = (result?: unknown) => {
+		if (props.open === undefined) setInternal(false);
+		props.onClose?.(result);
+	};
 
 	useEffect(() => {
-		if (props.open && !shown.current) {
+		if (open && !shown.current) {
 			const presenter = modalPresenter(Frame.topmost());
 			if (!presenter) {
 				// Dropped, not deferred: the effect only re-runs when props
@@ -53,16 +59,16 @@ export function UIModal(props: ModalProps) @{
 
 			presenter.showModal(host, {
 				context: {},
-				closeCallback: (result?: unknown) => { shown.current?.unbindTheme?.(); shown.current = null; props.onClose?.(result); },
+				closeCallback: (result?: unknown) => { shown.current?.unbindTheme?.(); shown.current = null; closed(result); },
 				fullscreen,
 				animated: true,
 			});
-		} else if (!props.open && shown.current) {
+		} else if (!open && shown.current) {
 			const { host } = shown.current;
 			shown.current = null;
 			host.closeModal();
 		}
-	}, [props.open]);
+	}, [open]);
 
 	<></>
 }

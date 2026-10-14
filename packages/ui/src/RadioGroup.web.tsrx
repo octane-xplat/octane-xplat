@@ -1,3 +1,4 @@
+import { useState } from 'octane';
 import type { RadioGroupProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
@@ -7,8 +8,14 @@ import { useIndicator, RadioIndicator, indicatorScope } from './indicators';
  *  `horizontal`). Selecting an option calls `onValueChange`. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
+	const [internal, setInternal] = useState(props.defaultValue);
+	const current = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('radio') ?? RadioIndicator;
+	const select = (value: string) => {
+		if (props.value === undefined) setInternal(value);
+		props.onValueChange?.(value);
+	};
 
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
@@ -26,7 +33,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 		style={props.style}
 	>
 		{props.options.map((opt: any) => {
-			const selected = props.value === opt.value;
+			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			const blocked = disabled || isBlocked;
 			return (
@@ -38,12 +45,12 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 					aria-readonly={props.isReadOnly || undefined}
 					tabIndex={disabled ? undefined : 0}
 					className={['vx-radio-row', indicatorScope, selected ? 'vx-radio--on' : undefined, disabled ? 'vx-radio--disabled' : undefined, props.isReadOnly ? 'vx-radio--readonly' : undefined]}
-					onClick={blocked ? undefined : () => props.onValueChange?.(opt.value)}
+					onClick={blocked ? undefined : () => select(opt.value)}
 					onKeyDown={(e: any) => {
 						if (blocked) return;
 						if (e.key === ' ' || e.key === 'Enter') {
 							e.preventDefault();
-							props.onValueChange?.(opt.value);
+							select(opt.value);
 						}
 					}}
 				>

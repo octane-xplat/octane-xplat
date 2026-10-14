@@ -5,13 +5,13 @@ import { AlertDialog } from './AlertDialog.macos.tsrx';
 
 export function useImperativeAlertDialog(): ImperativeAlertDialogReturn @{
 	const [isOpen, setIsOpen] = useState(false);
-	const [options, setOptions] = useState<Omit<AlertDialogProps, 'isOpen' | 'onOpenChange'>>({
+	const [options, setOptions] = useState<Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>>({
 		title: '',
 		actionLabel: '',
 		onAction: () => {},
 	});
 
-	const show = useCallback((next: Omit<AlertDialogProps, 'isOpen' | 'onOpenChange'>) => {
+	const show = useCallback((next: Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>) => {
 		setOptions(next);
 		setIsOpen(true);
 	}, []);

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useState } from 'octane';
 import type { SwitchProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
@@ -10,19 +11,25 @@ import { useFieldControlProps } from './field-context';
  *  in `ui/ios` + `ui/android`. */
 export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps);
+	const [internal, setInternal] = useState(props.defaultChecked ?? false);
+	const checked = props.checked ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const toggle = () => {
+		if (props.checked === undefined) setInternal(!checked);
+		props.onCheckedChange?.(!checked);
+	};
 
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		testID={props.testID ?? ''}
-		className={cx('vx-switch', props.checked ? 'vx-switch--on' : undefined, props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)}
+		className={cx('vx-switch', checked ? 'vx-switch--on' : undefined, props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)}
 		style={props.style}
 		accessibilityRole={nativeAccessibilityRole('switch') as any}
 		accessibilityLabel={props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ checked: props.checked ?? false, disabled: props.isDisabled }) as any}
-		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!(props.checked ?? false))}
+		accessibilityState={nativeAccessibilityState({ checked, disabled: props.isDisabled }) as any}
+		onTap={isBlocked ? undefined : toggle}
 	>
 		<flexboxlayout className="vx-switch-thumb" />
 	</flexboxlayout>

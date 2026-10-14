@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useState } from 'octane';
 import type { RadioGroupProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
@@ -8,7 +9,13 @@ import { useFieldControlProps } from './field-context';
  *  `horizontal`). Selecting an option calls `onValueChange`. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
+	const [internal, setInternal] = useState(props.defaultValue);
+	const current = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const select = (value: string) => {
+		if (props.value === undefined) setInternal(value);
+		props.onValueChange?.(value);
+	};
 
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -21,7 +28,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 		accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
 	>
 		{props.options.map((opt: any) => {
-			const selected = props.value === opt.value;
+			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			const blocked = disabled || isBlocked;
 			return (
@@ -32,7 +39,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 					gap={8}
 					className={cx('vx-radio-row', selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')}
 					accessibilityState={{ selected, disabled, readonly: props.isReadOnly }}
-					onTap={blocked ? undefined : () => props.onValueChange?.(opt.value)}
+					onTap={blocked ? undefined : () => select(opt.value)}
 				>
 					{/* circle/dot metrics are CSS on web — inline them here
 					   (AppKit has no style layer); keep in step with .vx-radio */}
