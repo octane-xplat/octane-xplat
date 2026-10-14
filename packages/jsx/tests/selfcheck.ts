@@ -110,3 +110,14 @@ const badDockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'f
 const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' };
 void badDockProps;
 void badDockChildProps;
+
+const wrapProps: JSX.IntrinsicElements['wraplayout'] = { orientation: 'horizontal', itemWidth: 0, itemHeight: 30 };
+const macWrapProps: MacJSX.IntrinsicElements['wraplayout'] = { orientation: 'vertical', itemWidth: 30, itemHeight: 0 };
+void wrapProps;
+void macWrapProps;
+// @ts-expect-error WrapLayout size is numeric
+const badWrapSize: JSX.IntrinsicElements['wraplayout'] = { itemWidth: '30' };
+// @ts-expect-error WrapLayout direction is closed
+const badWrapOrientation: JSX.IntrinsicElements['wraplayout'] = { orientation: 'diagonal' };
+void badWrapSize;
+void badWrapOrientation;

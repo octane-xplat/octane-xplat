@@ -1,5 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { checkWrapLifecycle } from './wrap-lifecycle'
 import { checkDockLifecycle } from './dock-lifecycle'
 import { checkContentLifecycle } from './content-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
@@ -146,6 +147,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 								await checkDockLifecycle(dockRoot, nativeWindow)
 							} finally {
 								dockRoot.unmount()
+							}
+
+							const wrapRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkWrapLifecycle(wrapRoot, nativeWindow)
+							} finally {
+								wrapRoot.unmount()
 							}
 
 							console.log('PACKED_RENDERER_OK')

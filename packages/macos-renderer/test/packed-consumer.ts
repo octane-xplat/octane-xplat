@@ -47,6 +47,8 @@ for (const file of [
 	'App.macos.tsx',
 	'Content.macos.tsx',
 	'Dock.macos.tsx',
+	'Wrap.macos.tsx',
+	'wrap-lifecycle.ts',
 	'dock-lifecycle.ts',
 	'content-lifecycle.ts',
 	'main.ts',
@@ -62,8 +64,8 @@ const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	3,
-	'Intrinsic ledger must include checked StackLayout, ContentView and DockLayout examples',
+	4,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout and WrapLayout examples',
 )
 
 for (const [index, example] of examples.entries()) {
@@ -188,6 +190,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_STACKLAYOUT_OK/)
 	assert.match(output, /PACKED_CONTENTVIEW_OK/)
 	assert.match(output, /PACKED_DOCKLAYOUT_OK/)
+	assert.match(output, /PACKED_WRAPLAYOUT_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -237,6 +240,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.ifError(failure)
 		assert.equal(verified, true, devOutput.slice(-5000))
 		assert.match(devOutput, /PACKED_DOCKLAYOUT_HMR_OK/)
+		assert.match(devOutput, /PACKED_WRAPLAYOUT_HMR_OK/)
 		assert.match(devOutput, /PACKED_CONTENTVIEW_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {

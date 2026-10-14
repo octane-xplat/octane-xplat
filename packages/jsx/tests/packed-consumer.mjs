@@ -54,6 +54,7 @@ const tree = (
 		<label text="hi" whiteSpace="nowrap" />
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
+		<wraplayout orientation="vertical" itemWidth={0} itemHeight={30}><label text="Item" /></wraplayout>
 		<docklayout stretchLastChild={false}><label dock="right" text="Side" /></docklayout>
 		<contentview id="single" style={{ width: 100, height: 40 }}
 			ref={(view) => { void view; return () => {} }}>
@@ -85,6 +86,12 @@ void badProp
 // @ts-expect-error ContentView has common attributes, no invented content prop
 const badContent = <contentview content="text" />
 void badContent
+// @ts-expect-error WrapLayout item size is numeric
+const badWrapSize = <wraplayout itemWidth="30" />
+// @ts-expect-error WrapLayout orientation is closed
+const badWrapOrientation = <wraplayout orientation="diagonal" />
+void badWrapSize
+void badWrapOrientation
 // @ts-expect-error DockLayout primitive contract rejects strings
 const badDock = <docklayout stretchLastChild="false" />
 // @ts-expect-error DockLayout edges are closed

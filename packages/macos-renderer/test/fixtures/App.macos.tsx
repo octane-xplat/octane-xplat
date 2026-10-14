@@ -31,6 +31,9 @@ export default function App() {
 			<docklayout id="hmr-dock" style={{ width: 180, height: 32 }}>
 				<label id="dock-revision" text="First revision" />
 			</docklayout>
+			<wraplayout id="hmr-wrap" itemWidth={80} itemHeight={30} style={{ width: 180, height: 60 }}>
+				<label id="wrap-revision" text="First revision" />
+			</wraplayout>
 			<stacklayout
 				id="layout"
 				onTap={
