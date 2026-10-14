@@ -37,7 +37,7 @@ export function ContextMenu(props: ContextMenuProps) @{
 		}}
 	>
 		{props.children}
-		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
+		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)} web={{ 'aria-haspopup': 'menu', 'aria-expanded': String(open) }}>{props.trigger}</Pressable>}
 		<Popover
 			anchor={anchor}
 			open={open}

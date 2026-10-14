@@ -65,6 +65,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 	aria-label={props.ariaLabel}
 	aria-labelledby={props.ariaLabelledBy}
 	aria-describedby={props.ariaDescribedBy}
+	aria-description={props.ariaDescription}
 		aria-required={props.isRequired && !props.isOptional || undefined}
 		aria-invalid={props.status?.type === 'error' || undefined}
 		aria-busy={props.isLoading || undefined}

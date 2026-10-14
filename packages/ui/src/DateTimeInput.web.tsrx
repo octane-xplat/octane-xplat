@@ -382,6 +382,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						aria-label={props.ariaLabel}
 						aria-labelledby={props.ariaLabelledBy}
 						aria-describedby={props.ariaDescribedBy}
+						aria-description={props.ariaDescription}
 						onClick={() => setOpen('sheet')}
 					>
 						<Icon name="xplat-calendar" size={14} /> {valueParts.date ? formatDateValue(valueParts.date, 'date_long', locale) : (props.placeholder ?? 'Select a date')}
@@ -413,6 +414,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							aria-label={props.ariaLabel}
 							aria-labelledby={props.ariaLabelledBy}
 							aria-describedby={props.ariaDescribedBy}
+							aria-description={props.ariaDescription}
 							aria-required={props.isRequired && !props.isOptional || undefined}
 							aria-invalid={statusType === 'error' || undefined}
 							aria-busy={isBusy || undefined}
@@ -438,6 +440,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							readOnly={showsDisabledReason || undefined}
 							aria-label={timeLabelText}
 							aria-describedby={props.ariaDescribedBy}
+							aria-description={props.ariaDescription}
 							aria-invalid={statusType === 'error' || undefined}
 							onChange={handleNativeTime}
 							onInput={handleNativeTime}
@@ -473,6 +476,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							aria-label={props.ariaLabel}
 							aria-labelledby={props.ariaLabelledBy}
 							aria-describedby={props.ariaDescribedBy}
+							aria-description={props.ariaDescription}
 							aria-required={props.isRequired && !props.isOptional || undefined}
 							aria-invalid={statusType === 'error' || !isDateValid || undefined}
 							aria-busy={isBusy || undefined}
@@ -499,6 +503,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							readOnly={showsDisabledReason || isBusy || undefined}
 							aria-label={timeLabelText}
 							aria-describedby={props.ariaDescribedBy}
+							aria-description={props.ariaDescription}
 							aria-invalid={statusType === 'error' || !isTimeValid || undefined}
 							aria-expanded={timeOptions.length ? open === 'times' : undefined}
 							aria-haspopup={timeOptions.length ? 'listbox' : undefined}

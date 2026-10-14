@@ -43,6 +43,7 @@ export function TextInput(props: TextInputProps) @{
 			aria-label={fieldProps.ariaLabel}
 			aria-labelledby={fieldProps.ariaLabelledBy}
 			aria-describedby={fieldProps.ariaDescribedBy}
+			aria-description={fieldProps.ariaDescription}
 			aria-required={fieldProps.isRequired && !fieldProps.isOptional || undefined}
 			aria-invalid={fieldProps.status?.type === 'error' || undefined}
 			aria-busy={fieldProps.isLoading || undefined}

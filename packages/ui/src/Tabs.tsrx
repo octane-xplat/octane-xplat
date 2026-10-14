@@ -8,6 +8,10 @@ import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';
 
+/** Selection identity — `key` is stable across reorders; a keyless tab
+ *  falls back to its position. */
+const keyFor = (tab: TabSpec | undefined, index: number) => tab?.key ?? String(index);
+
 /** Self-drawn tab shell — a fixed Pressable row plus a single swapped pane,
  *  identical on every target (the same shape as the web leaf). Route
  *  history for `stack` panes lives in the route store, so switching tabs
@@ -16,9 +20,10 @@ export type { TabSpec } from './props';
  *  chrome, per-pane Frames) lives in `ui/ios` + `ui/android`.
  *  `tabs` is identity-stable (module const preferred). */
 export function Tabs(props: TabsProps) @{
-	const [internal, setInternal] = useState(0);
-	const active = props.selectedIndex ?? internal;
-	const tab = props.tabs[active];
+	const [internal, setInternal] = useState(() => props.defaultSelectedKey ?? keyFor(props.tabs[0], 0));
+	const selectedKey = props.selectedKey ?? (props.selectedIndex != null ? keyFor(props.tabs[props.selectedIndex], props.selectedIndex) : internal);
+	const active = props.tabs.findIndex((t, i) => keyFor(t, i) === selectedKey);
+	const tab = active >= 0 ? props.tabs[active] : undefined;
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
 
@@ -29,11 +34,11 @@ export function Tabs(props: TabsProps) @{
 			role="tablist"
 			layout="fill"
 			hasDivider
-			value={String(active)}
-			onChange={(v) => { const i = Number(v); setInternal(i); props.onSelectedIndexChanged?.(i); }}
+			value={selectedKey}
+			onChange={(key) => { setInternal(key); props.onSelectionChange?.(key); props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key)); }}
 		>
-			@for (const t of props.tabs; index i; key t.title) {
-				<Tab value={String(i)} label={t.title} icon={t.icon} />
+			@for (const t of props.tabs; index i; key t.key ?? t.title) {
+				<Tab value={keyFor(t, i)} label={t.title} icon={t.icon} />
 			}
 		</TabList>
 		<gridlayout row={1} className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')}>

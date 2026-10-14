@@ -7,7 +7,16 @@ vi.mock('./pan', () => ({ usePan: () => undefined }))
 vi.mock('./Icon', () => ({ Icon: () => null }))
 vi.mock('./Popover', () => ({ Popover: () => null }))
 import { MenuSurface } from './MenuSurface.tsrx'
-import { MenuData } from './MenuParts.tsrx'
+import { DropdownMenuItem, MenuData } from './MenuParts.tsrx'
+const orphanCaught: { error?: unknown } = {}
+function OrphanItem() @{
+	@try {
+		<DropdownMenuItem label="Lonely" />
+	} @catch (error) {
+		orphanCaught.error = error
+		<label text="caught" />
+	}
+}
 function DataSurface(props: any) @{
 	<MenuSurface {...props}><MenuData items={props.items} /></MenuSurface>
 }
@@ -47,6 +56,17 @@ describe('native menu action contracts (object driver)', () => {
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(row('check').props.accessibilityState).toBe('checked'))
 		} finally { root.unmount(); flushUniversalSync(() => {}) }
+	})
+
+	it('rejects menu parts rendered outside a menu surface', () => {
+		const container = createObjectContainer('nativescript')
+		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+		orphanCaught.error = undefined
+		try {
+			root.render(OrphanItem as any, {})
+			flushUniversalSync(() => {})
+			expect(String(orphanCaught.error)).toContain('requires a menu')
+		} finally { try { root.unmount() } catch {} }
 	})
 
 	it('provides a named Back action for touch submenu traversal', async () => {

@@ -160,14 +160,22 @@ const MemoTabBar = memo(TabBarInner, (a, b) => a.tabs === b.tabs && a.selectedIn
  *  inside its pane. The self-drawn shared `Tabs` lives in the root export.
  *  `tabs` is identity-stable (module const preferred). */
 export function UITabBar(props: PlatformWidgetProps<PlatformTabsProps>) @{
+	const indexForKey = (key?: string) =>
+		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key);
+	const keyIndex = indexForKey(props.selectedKey);
+	// selectedKey wins, matching the shared Tabs; an unmatched key selects
+	// nothing rather than silently reverting to the index.
+	const selectedIndex = props.selectedKey != null
+		? (keyIndex >= 0 ? keyIndex : undefined)
+		: (props.selectedIndex ?? (indexForKey(props.defaultSelectedKey) >= 0 ? indexForKey(props.defaultSelectedKey) : undefined));
 	<MemoTabBar
 		id={props.id}
 		className={props.className}
 		style={props.style}
 		tabs={props.tabs}
-		selectedIndex={props.selectedIndex}
+		selectedIndex={selectedIndex}
 		ios={props.ios}
-		onSelectedIndexChanged={props.onSelectedIndexChanged}
+		onSelectedIndexChanged={(i: number) => { props.onSelectionChange?.(props.tabs[i]?.key ?? String(i)); props.onSelectedIndexChanged?.(i) }}
 		modifiers={props.modifiers}
 	/>
 }

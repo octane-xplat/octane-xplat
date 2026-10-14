@@ -99,6 +99,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			aria-label={props.ariaLabel}
 			aria-labelledby={props.ariaLabelledBy}
 			aria-describedby={props.ariaDescribedBy}
+			aria-description={props.ariaDescription}
 			aria-required={props.isRequired && !props.isOptional || undefined}
 			aria-invalid={props.status?.type === 'error' || undefined}
 			aria-disabled={props.isFocusableDisabled ? 'true' : undefined}

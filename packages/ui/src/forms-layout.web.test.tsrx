@@ -316,3 +316,38 @@ describe('List/ListItem (web)', () => {
 		root.unmount();
 	});
 });
+
+describe('Field description channel (web)', () => {
+	it('announces a standalone control\'s description, status, and disabled reason via aria-description', () => {
+		const { el, root } = mount(
+			<TextInput label="Name" description="Your legal name" isDisabled disabledMessage="Locked by admin" status={{ type: 'error', message: 'Required' }} />,
+		);
+		const input = el.querySelector('input')!;
+		expect(input.getAttribute('aria-label')).toBe('Name');
+		expect(input.getAttribute('aria-description')).toBe('Your legal name. Required. Locked by admin');
+		expect(input.getAttribute('aria-describedby')).toBeNull();
+		root.unmount();
+	});
+
+	it('links Field chrome through aria-describedby without repeating the text in aria-description', () => {
+		const { el, root } = mount(
+			<FormField label="Name" description="Legal" status={{ type: 'error', message: 'Bad' }}>
+				<TextInput />
+			</FormField>,
+		);
+		const input = el.querySelector('input')!;
+		const describedby = input.getAttribute('aria-describedby') ?? '';
+		expect(describedby).toContain('-description');
+		expect(describedby).toContain('-status');
+		expect(input.getAttribute('aria-description')).toBeNull();
+		root.unmount();
+	});
+
+	it('still carries the control\'s own hint text inside a Field', () => {
+		const { el, root } = mount(
+			<FormField label="Name" description="Legal"><TextInput accessibilityHint="Shown publicly" /></FormField>,
+		);
+		expect(el.querySelector('input')!.getAttribute('aria-description')).toBe('Shown publicly');
+		root.unmount();
+	});
+});

@@ -22,14 +22,14 @@ export function NavigationLayout(props: { children?: any }) @{
 const first = () => <Text>first base</Text>;
 const second = () => <Text>second base</Text>;
 const tabs: TabSpec[] = [
-	{ title: 'First', stack: 'first', render: first },
-	{ title: 'Second', stack: 'second', render: second },
+	{ key: 'first', title: 'First', stack: 'first', render: first },
+	{ key: 'second', title: 'Second', stack: 'second', render: second },
 ];
 
 export function NavigationShell() @{
-	const [selected, setSelected] = useState(0);
+	const [selected, setSelected] = useState('first');
 
-	<Screen><Tabs id="nav-tabs" tabs={tabs} selectedIndex={selected} onSelectedIndexChanged={setSelected} /></Screen>
+	<Screen><Tabs id="nav-tabs" tabs={tabs} selectedKey={selected} onSelectionChange={setSelected} /></Screen>
 }
 
 export const navigationRoutes = defineRoutes({

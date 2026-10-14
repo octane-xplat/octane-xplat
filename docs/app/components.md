@@ -125,7 +125,10 @@ Field controls share `label`, `description`, `isDisabled`, `isReadOnly`,
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
 optional on controls so they can be composed inside `Field`; `Field` renders
 the visible label and description before its child and the status message
-after it, and connects those texts to the child control. Use `inputID` when a
+after it, and connects those texts to the child control. A control used
+outside `Field` still announces its `label`, `description`, `status` message,
+and `disabledMessage` — they arrive through the platform's accessibility
+description channel instead of rendered chrome. Use `inputID` when a
 specific control ID is needed for the label's `htmlFor`; otherwise the child
 uses the field's accessible label relationship. `isRequired` and
 `isOptional` are mutually exclusive. `isLoading` reports busy work without
@@ -343,7 +346,7 @@ registerIndicators({ check: SelectionMark })
 | ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------- |
 | `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                               |
 | `Accordion`                                | List of expanding items                                  | `items`, `multiple`, `open`, `onOpenChange`                     |
-| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedIndex`, `onSelectedIndexChanged`               |
+| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedKey`, `onSelectionChange`                      |
 | `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`               |
 | `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                      |
 | `TopNav`, `TopNavHeading`, `TopNavItem`    | Top navigation bar and items                             | `heading`, `startContent`, `endContent`, `href`                 |

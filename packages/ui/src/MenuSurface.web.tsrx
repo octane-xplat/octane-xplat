@@ -47,7 +47,7 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		}
 	}
 
-	<div ref={panel} role="menu" aria-label={props.label} tabIndex={-1} className="vx-menu-list" onKeyDown={keydown}>
+	<div ref={panel} role="menu" aria-label={props.labelledBy ? undefined : props.label} aria-labelledby={props.labelledBy} tabIndex={-1} className="vx-menu-list" onKeyDown={keydown}>
 		<MenuProvider value={context}>{props.children}</MenuProvider>
 	</div>
 }

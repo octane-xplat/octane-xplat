@@ -31,6 +31,7 @@ export function Switch(inputProps: SwitchProps) @{
 		aria-label={props.ariaLabel}
 		aria-labelledby={props.ariaLabelledBy}
 		aria-describedby={props.ariaDescribedBy}
+		aria-description={props.ariaDescription}
 		tabIndex={props.isDisabled ? undefined : 0}
 		className={['vx-switch', checked ? 'vx-switch--on' : undefined, props.isDisabled ? 'vx-switch--disabled' : undefined, props.isReadOnly ? 'vx-switch--readonly' : undefined, props.isLoading ? 'vx-switch--loading' : undefined, props.status ? `vx-switch--status-${props.status.type}` : undefined, props.size ? `vx-switch--size-${props.size}` : undefined, props.className]}
 		style={props.style}

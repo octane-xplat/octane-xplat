@@ -1,6 +1,6 @@
 import { MenuData } from './MenuParts.web.tsrx';
 import { MenuSurface } from './MenuSurface.web.tsrx';
-import { useRef, useState } from 'octane';
+import { useId, useRef, useState } from 'octane';
 import type { DropdownMenuProps } from "./props";
 import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
@@ -11,6 +11,7 @@ import { useButtonGroup } from './button-group-context';
  *  #48): bounded, unvirtualized items. */
 export function DropdownMenu(props: DropdownMenuProps) @{
 	const anchor = useRef<any>(null);
+	const triggerId = useId();
 	const initialFocus = useRef<'first' | 'last' | 'container'>('container');
 	const group = useButtonGroup();
 	const disabled = !!(props.isDisabled || group?.isDisabled);
@@ -28,7 +29,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 	<>
 		<Pressable
 			ref={(e: any) => { anchor.current = e; }}
-			id={props.id}
+			id={props.id ?? triggerId}
 			className={['vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, group?.size && `vx-button--size-${group.size}`, props.className]}
 			style={props.style}
 			disabled={disabled}
@@ -47,7 +48,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 			onDismiss={() => setOpen(false)}
 			className={['vx-menu', props.menuClassName]}
 		>
-			<MenuSurface initialFocus={initialFocus.current} closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
+			<MenuSurface initialFocus={initialFocus.current} closeMenu={() => setOpen(false)} label={props.accessibilityLabel} labelledBy={props.id ?? triggerId}>
 				<MenuData items={props.items} />{props.children}
 			</MenuSurface>
 		</Popover>

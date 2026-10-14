@@ -2408,6 +2408,10 @@ export interface UseLightboxReturn {
 }
 
 export interface TabSpec {
+	/** Stable identity for this tab — selection (`selectedKey`), the
+	 *  web tab↔panel ARIA linkage, and pane reconciliation all use it.
+	 *  Defaults to the tab's position index. */
+	key?: string
 	title: string
 	/** Registered icon name (see `registerIcons`). The shared self-drawn
 	 *  `Tabs` renders the glyph through `Icon` on every platform. The
@@ -2429,7 +2433,19 @@ export interface TabsProps {
 	style?: any
 	id?: string
 	tabs: readonly TabSpec[]
+	/** Controlled selection by tab `key` — React Aria `selectedKey`. Wins
+	 *  over `selectedIndex` when both are passed. */
+	selectedKey?: string
+	/** Initial selection for the uncontrolled form — React Aria
+	 *  `defaultSelectedKey`. */
+	defaultSelectedKey?: string
+	/** Reports the selected tab's `key` — React Aria `onSelectionChange`. */
+	onSelectionChange?: (key: string) => void
+	/** @deprecated Use `selectedKey` — index selection still maps to the
+	 *  tab at that position. */
 	selectedIndex?: number
+	/** @deprecated Use `onSelectionChange`. Fires alongside it with the
+	 *  selected tab's position. */
 	onSelectedIndexChanged?: (index: number) => void
 	/** Renders a pushed route's screen by name (the app owns the table).
 	 *  Web: route outlet. Native: pushes render inside the pane's Frame. */
@@ -3112,6 +3128,11 @@ export interface MenuSurfaceProps {
 	closeLevel?: () => void
 	initialFocus?: 'first' | 'last' | 'container'
 	label?: string
+	/** Id of the trigger that opened this surface — the web leaf sets
+	 *  `aria-labelledby` so the menu is named by its trigger. Native leaves
+	 *  have no trigger↔menu association and ignore it; `label` stays the
+	 *  fallback name on every target. */
+	labelledBy?: string
 }
 
 /** Both data rows and compound children use the same menu contracts. */

@@ -161,13 +161,21 @@ const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex ==
  *  (NativeScript#11444; the #11446 fix ships in the xplat core patch).
  *  `tabs` is identity-stable. */
 export function BottomNavigationView(props: PlatformWidgetProps<PlatformTabsProps>) @{
+	const indexForKey = (key?: string) =>
+		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key);
+	const keyIndex = indexForKey(props.selectedKey);
+	// selectedKey wins, matching the shared Tabs; an unmatched key selects
+	// nothing rather than silently reverting to the index.
+	const selectedIndex = props.selectedKey != null
+		? (keyIndex >= 0 ? keyIndex : undefined)
+		: (props.selectedIndex ?? (indexForKey(props.defaultSelectedKey) >= 0 ? indexForKey(props.defaultSelectedKey) : undefined));
 	<MemoNav
 		id={props.id}
 		className={props.className}
 		style={props.style}
 		tabs={props.tabs}
-		selectedIndex={props.selectedIndex}
-		onSelectedIndexChanged={props.onSelectedIndexChanged}
+		selectedIndex={selectedIndex}
+		onSelectedIndexChanged={(i: number) => { props.onSelectionChange?.(props.tabs[i]?.key ?? String(i)); props.onSelectedIndexChanged?.(i) }}
 		modifiers={props.modifiers}
 	/>
 }

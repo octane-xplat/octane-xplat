@@ -11,11 +11,23 @@ export function getFocusScopeCapabilities(): FocusScopeCapabilities {
 	return { contain: false, autoFocus: false, restoreFocus: false };
 }
 
+// Report inert flags once per flag — the leaf can't honor them, so a caller
+// passing one should learn about it rather than assume containment.
+const warnedFocusScopeFlags = new Set<string>();
+function warnInertFocusScopeFlag(flag: 'contain' | 'autoFocus' | 'restoreFocus') {
+	if (warnedFocusScopeFlags.has(flag)) return;
+	warnedFocusScopeFlags.add(flag);
+	console.warn(`[octane-xplat] FocusScope: '${flag}' has no effect on this platform — getFocusScopeCapabilities() reports the supported flags`);
+}
+
 /** FocusScope native leaf — keyboard focus containment is a web
  *  convention, so `contain`/`restoreFocus`/`autoFocus` are inert here and
  *  the leaf renders a plain accessible container. Same public props as the
  *  web leaf; the divergence is intrinsic to the platform. */
 export function FocusScope(props: FocusScopeProps) @{
+	if (props.contain) warnInertFocusScopeFlag('contain');
+	if (props.autoFocus) warnInertFocusScopeFlag('autoFocus');
+	if (props.restoreFocus) warnInertFocusScopeFlag('restoreFocus');
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout

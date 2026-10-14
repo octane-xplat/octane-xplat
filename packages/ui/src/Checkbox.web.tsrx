@@ -34,7 +34,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		aria-label={props.ariaLabel}
 		aria-labelledby={props.ariaLabelledBy}
 		aria-describedby={props.ariaDescribedBy}
-		aria-description={props.accessibilityHint}
+		aria-description={props.ariaDescription}
 		tabIndex={props.isDisabled ? undefined : 0}
 		className={['vx-checkbox-row', indicatorScope, checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
 		style={props.style}

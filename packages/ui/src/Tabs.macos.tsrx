@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { createContext, useContext, useState } from 'octane'
-import type { TabsProps } from './props'
+import type { TabSpec, TabsProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { TabList, Tab } from './TabList.macos.tsrx'
 import { RouteHost } from './RouteHost.macos.tsrx'
@@ -23,11 +23,16 @@ function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
 // the JS stack overflows.
 const PresentedStacks: any = createContext(null)
 
+/** Selection identity — `key` is stable across reorders; a keyless tab
+ *  falls back to its position. */
+const keyFor = (tab: TabSpec | undefined, index: number) => tab?.key ?? String(index)
+
 export function Tabs(props: TabsProps) @{
-	const [internal, setInternal] = useState(0)
+	const [internal, setInternal] = useState(() => props.defaultSelectedKey ?? keyFor(props.tabs[0], 0))
 	const presented: Set<string> = useContext(PresentedStacks) ?? new Set()
-	const active = props.selectedIndex ?? internal
-	const tab = props.tabs[active]
+	const selectedKey = props.selectedKey ?? (props.selectedIndex != null ? keyFor(props.tabs[props.selectedIndex], props.selectedIndex) : internal)
+	const active = props.tabs.findIndex((t, i) => keyFor(t, i) === selectedKey)
+	const tab = active >= 0 ? props.tabs[active] : undefined
 	const route = useRoute(tab?.stack ?? 'root')
 	const presentable = route && !presented.has(route.stack) ? route : null
 	const Screen = presentable ? screenFor(presentable.name) : undefined
@@ -43,11 +48,11 @@ export function Tabs(props: TabsProps) @{
 			role="tablist"
 			layout="fill"
 			hasDivider
-			value={String(active)}
-			onChange={(v) => { const i = Number(v); setInternal(i); props.onSelectedIndexChanged?.(i); }}
+			value={selectedKey}
+			onChange={(key) => { setInternal(key); props.onSelectionChange?.(key); props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key)) }}
 		>
-			@for (const item of props.tabs; index i; key item.title) {
-				<Tab id={'tab-' + i} value={String(i)} label={item.title} icon={item.icon} />
+			@for (const item of props.tabs; index i; key item.key ?? item.title) {
+				<Tab id={'tab-' + i} value={keyFor(item, i)} label={item.title} icon={item.icon} />
 			}
 		</TabList>
 		<flexboxlayout flexDirection="column" className="vx-tabpane flex-1">

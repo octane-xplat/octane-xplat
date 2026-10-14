@@ -54,13 +54,14 @@ describe('focus hooks (universal renderer)', () => {
 		root.unmount()
 	})
 
-	it('FocusScope renders an accessible container; behavior flags are inert', () => {
+	it('FocusScope renders an accessible container; behavior flags are inert and warn once each', () => {
 		expect(getFocusScopeCapabilities()).toEqual({
 			contain: false,
 			autoFocus: false,
 			restoreFocus: false,
 		})
 
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		root.render(FocusScope as any, {
@@ -72,6 +73,10 @@ describe('focus hooks (universal renderer)', () => {
 
 		const host = container.children[0]
 		expect(host.props.accessibilityLabel).toBe('Scoped')
+		expect(warn.mock.calls.flat().join(' ')).toContain('contain')
+		expect(warn.mock.calls.flat().join(' ')).toContain('autoFocus')
+		expect(warn.mock.calls.flat().join(' ')).toContain('restoreFocus')
 		root.unmount()
+		warn.mockRestore()
 	})
 })

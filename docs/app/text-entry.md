@@ -74,7 +74,10 @@ export function Example() {
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
 optional for composition inside `Field`; the wrapper renders the visible label,
 description, and status text, and connects them to the child control. A
-standalone control's `label` supplies its accessible name. `hasClear` is opt-in on `TextInput` and defaults
+standalone control's `label` supplies its accessible name, and its
+`description`, `status` message, and `disabledMessage` still announce through
+the platform's accessibility description channel (`aria-description` on web,
+the accessibility hint on native). `hasClear` is opt-in on `TextInput` and defaults
 to the existing clear behavior on `SearchInput`. `isLoading` announces busy
 work and does not disable editing. Avoid replacing the native view through the
 handle: use `value` to change its text.

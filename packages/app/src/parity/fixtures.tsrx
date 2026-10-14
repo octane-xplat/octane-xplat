@@ -550,7 +550,7 @@ function TabsFixture() @{
 	<Tabs
 		className="parity-tabs-root"
 		style={{ width: 200, height: 104, backgroundColor: '#f5f5f5' }}
-		selectedIndex={1}
+		selectedKey="1"
 		tabs={[
 			{ title: 'Overview', render: () => <View style={{ width: 200, height: 48 }} /> },
 			{

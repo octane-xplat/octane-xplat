@@ -22,18 +22,29 @@ export type { TabSpec } from './props';
 // a pushed screen that re-presents 'root').
 const PresentedStacks: any = createContext(null);
 
+/** Selection identity — `key` is stable across reorders; a keyless tab
+ *  falls back to its position. */
+const keyFor = (tab: TabSpec | undefined, index: number) => tab?.key ?? String(index);
+
 /** Platform tab shell — web version: a button row + the active pane. The
  *  pane also acts as the route outlet for its `stack`; a route on the
  *  'root' stack covers the whole shell (native: root push covers tabs). */
 export function Tabs(props: TabsProps) @{
-	const [internal, setInternal] = useState(0);
-	const active = props.selectedIndex ?? internal;
+	const [internal, setInternal] = useState(() => props.defaultSelectedKey ?? keyFor(props.tabs[0], 0));
+	const selectedKey = props.selectedKey ?? (props.selectedIndex != null ? keyFor(props.tabs[props.selectedIndex], props.selectedIndex) : internal);
+	const active = props.tabs.findIndex((t, i) => keyFor(t, i) === selectedKey);
 	const panelId = useId();
 	const presented: Set<string> = useContext(PresentedStacks) ?? new Set();
 	const rootRoute = useRoute('root');
 	// Hooks must be unconditional — subscribe with the active pane's stack
 	// name ('' never matches a route).
 	const paneRoute = useRoute(props.tabs[active]?.stack ?? '');
+
+	const selectKey = (key: string) => {
+		setInternal(key);
+		props.onSelectionChange?.(key);
+		props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key));
+	};
 	const modal = useModalRoute();
 	// resolveScreen prop wins; the registerScreens table is the fallback —
 	// one registration serves both platforms' outlets. Directory _layout
@@ -92,18 +103,14 @@ export function Tabs(props: TabsProps) @{
 			role="tablist"
 			layout="fill"
 			hasDivider
-			value={String(active)}
-			onChange={(v) => {
-				const i = Number(v);
-				setInternal(i);
-				props.onSelectedIndexChanged?.(i);
-			}}
+			value={selectedKey}
+			onChange={selectKey}
 		>
-			@for (const t of props.tabs; index i; key t.title) {
-				<Tab value={String(i)} label={t.title} icon={t.icon} panelId={panelId} id={panelId + '-tab-' + i} />
+			@for (const t of props.tabs; index i; key t.key ?? t.title) {
+				<Tab value={keyFor(t, i)} label={t.title} icon={t.icon} panelId={panelId} id={panelId + '-tab-' + i} />
 			}
 		</TabList>
-		<div className="vx-tabpane" role="tabpanel" id={panelId} aria-labelledby={panelId + '-tab-' + active} tabIndex={0}>
+		<div className="vx-tabpane" role="tabpanel" id={panelId} aria-labelledby={active >= 0 ? panelId + '-tab-' + active : undefined} tabIndex={0}>
 			{(paneRoute && !presented.has(paneRoute.stack)
 				? <PresentedStacks value={presentedWith(paneRoute.stack)}>{resolve(paneRoute.name, routeProps(paneRoute), paneRoute)}</PresentedStacks>
 				: null)

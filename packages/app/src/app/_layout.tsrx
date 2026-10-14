@@ -41,11 +41,11 @@ const resolveRoute = (name: string, params: Record<string, unknown>) => {
 };
 
 const TABS: TabSpec[] = [
-	{ title: 'Home', icon: 'tab-home', render: renderHome },
-	{ title: 'Apps', icon: 'tab-demos', render: renderApps, stack: 'demos' },
+	{ key: 'home', title: 'Home', icon: 'tab-home', render: renderHome },
+	{ key: 'apps', title: 'Apps', icon: 'tab-demos', render: renderApps, stack: 'demos' },
 	// Instrumentation + proofs — last so the familiar tabs stay the first
 	// thing a human sees. Its own stack keeps seam-proof pushes local.
-	{ title: 'Test', icon: 'tab-test', render: renderTest, stack: 'test' },
+	{ key: 'test', title: 'Test', icon: 'tab-test', render: renderTest, stack: 'test' },
 ];
 
 console.log('[harness] App module evaluated');
@@ -61,7 +61,7 @@ export function RootLayout(props: { children?: any }) @{
 	const [tab, setTab] = useState(() => {
 		const r = currentRoute();
 		const i = r ? TABS.findIndex((t) => t.stack === r.stack) : -1;
-		return i >= 0 ? i : 0;
+		return i >= 0 ? (TABS[i].key ?? String(i)) : 'home';
 	});
 
 	// Effective scheme on the shell root: .dark/.ns-dark here re-themes the
@@ -87,8 +87,8 @@ export function RootLayout(props: { children?: any }) @{
 			id="app-tabs"
 			className="flex-1"
 			tabs={TABS}
-			selectedIndex={tab}
-			onSelectedIndexChanged={(i) => { console.log('[probe] tab -> ' + i); setTab(i); }}
+			selectedKey={tab}
+			onSelectionChange={(key) => { console.log('[probe] tab -> ' + key); setTab(key); }}
 			resolveScreen={resolveRoute}
 		/>
 	</Screen>

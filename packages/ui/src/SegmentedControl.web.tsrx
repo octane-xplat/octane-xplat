@@ -25,6 +25,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		aria-label={props.ariaLabel}
 		aria-labelledby={props.ariaLabelledBy}
 		aria-describedby={props.ariaDescribedBy}
+		aria-description={props.ariaDescription}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}

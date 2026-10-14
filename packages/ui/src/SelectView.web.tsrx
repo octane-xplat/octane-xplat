@@ -116,7 +116,7 @@ export function SelectView(props: SelectViewProps) @{
 			aria-label={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 			aria-labelledby={props.ariaLabelledBy}
 			aria-describedby={props.ariaDescribedBy}
-			aria-description={props.accessibilityHint}
+			aria-description={props.ariaDescription}
 			aria-disabled={props.isDisabled || undefined}
 			aria-readonly={props.isReadOnly || undefined}
 			aria-busy={busy || undefined}

@@ -19,6 +19,12 @@ export interface ResolvedFieldControlProps extends FieldControlProps {
 	ariaLabel?: string
 	ariaLabelledBy?: string
 	ariaDescribedBy?: string
+	/** Fallback description text for web `aria-description` — carries only
+	 *  what `ariaDescribedBy` doesn't link. A bare control (no `Field`
+	 *  ancestor) announces its own `description`/`status`/`disabledMessage`
+	 *  through it; inside a `Field`, the describedby-linked elements carry
+	 *  that text and only the caller's own `accessibilityHint` lands here. */
+	ariaDescription?: string
 	accessibilityHint?: string
 	/** True when the control renders inside an `InputGroup`'s surface —
 	 *  it should drop its own border/radius/background chrome. */
@@ -58,6 +64,18 @@ export function useFieldControlProps<
 			.filter(Boolean)
 			.join('. ') || undefined
 
+	// Text not covered by the describedby links — bare controls announce
+	// their description/status this way on web, matching the native hint.
+	const ariaDescription =
+		[
+			props.accessibilityHint,
+			field?.descriptionId ? undefined : description,
+			field?.statusId ? undefined : status?.message,
+			disabledReason,
+		]
+			.filter(Boolean)
+			.join('. ') || undefined
+
 	// Resolved required (Astryx useResolvedRequired): the control announces
 	// required when declared, or when the enclosing FormLayout defaults to
 	// 'required'. isOptional always wins — an explicitly optional control
@@ -82,6 +100,7 @@ export function useFieldControlProps<
 		ariaLabel: ownLabel ?? (field ? undefined : props.label),
 		ariaLabelledBy: ownLabel ? undefined : (props.web?.['aria-labelledby'] ?? field?.labelId),
 		ariaDescribedBy,
+		ariaDescription,
 		accessibilityHint: hint,
 	} as T & ResolvedFieldControlProps
 }

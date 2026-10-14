@@ -10,6 +10,8 @@ export function FieldGroup(props: FieldGroupProps) @{
 		id={props.id}
 		className={cx('vx-fieldgroup', props.className)}
 		style={props.style}
+		accessibilityRole="group"
+		accessibilityLabel={props.label}
 	>
 		{props.label != null ? <label className="vx-fieldgroup-label" text={props.label} /> : null}
 		{props.children}

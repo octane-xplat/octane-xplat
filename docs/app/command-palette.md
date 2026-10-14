@@ -27,7 +27,7 @@ import { CommandPalette, Text } from '@octane-xplat/ui'
 			description: 'Manage workspace preferences',
 			onSelect: openSettings,
 		},
-		{ key: 'delete', label: 'Delete workspace', group: 'Actions', disabled: true },
+		{ key: 'delete', label: 'Delete workspace', group: 'Actions', isDisabled: true },
 	]}
 	searchMode="fuzzy"
 	onValueChange={(id) => setLastCommand(id)}

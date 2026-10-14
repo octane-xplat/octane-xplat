@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState } from 'octane'
+import { useContext, useId, useMemo, useRef, useState } from 'octane'
 import type { MenuItemProps, MenuCheckboxItemProps, MenuRadioItemProps, MenuRadioGroupProps, MenuDividerProps, MenuSubMenuProps, MenuSurfaceProps } from './props'
 import { MenuRadioContext, MenuRadioProvider, useDropdownMenuContext } from './menu-context'
 import { View } from './View.web.tsrx'
@@ -11,10 +11,11 @@ import { MenuSurface } from './MenuSurface.web.tsrx'
 
 export function DropdownMenuItem(props: MenuItemProps) @{
 	const menu = useDropdownMenuContext()
+	if (!menu) throw new Error('DropdownMenuItem requires a menu — render it inside DropdownMenu or ContextMenu')
 	const select = () => {
 		if (props.isDisabled) return
 		props.onSelect?.()
-		if (props.hasCloseOnSelect !== false) menu?.closeMenu()
+		menu.closeMenu()
 	}
 
 	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
@@ -28,11 +29,12 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 
 export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 	const menu = useDropdownMenuContext()
+	if (!menu) throw new Error('DropdownMenuCheckboxItem requires a menu — render it inside DropdownMenu or ContextMenu')
 	const select = () => {
 		if (props.isDisabled) return
 		props.onValueChange?.(!props.value)
 		props.onSelect?.()
-		if (props.hasCloseOnSelect) menu?.closeMenu()
+		if (props.hasCloseOnSelect) menu.closeMenu()
 	}
 
 	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
@@ -68,11 +70,12 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 	const group = useContext(MenuRadioContext)
 	const menu = useDropdownMenuContext()
 	if (!group) throw new Error('MenuRadioItem requires a MenuRadioGroup')
+	if (!menu) throw new Error('DropdownMenuRadioItem requires a menu — render it inside DropdownMenu or ContextMenu')
 	const select = () => {
 		if (props.isDisabled || group.isDisabled) return
 		if (group.value !== props.value) group.onValueChange?.(props.value)
 		props.onSelect?.()
-		if ((props.hasCloseOnSelect ?? group.hasCloseOnSelect) !== false) menu?.closeMenu()
+		if ((props.hasCloseOnSelect ?? group.hasCloseOnSelect) !== false) menu.closeMenu()
 	}
 
 	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
@@ -91,7 +94,9 @@ export function DropdownMenuDivider(props: MenuDividerProps) @{
 
 export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
 	const parent = useDropdownMenuContext()
+	if (!parent) throw new Error('DropdownMenuSubMenu requires a menu — render it inside DropdownMenu or ContextMenu')
 	const anchor = useRef<any>(null)
+	const triggerId = useId()
 	const initialFocus = useRef<'first' | 'container'>('container')
 	const mergedRef = useMemo(() => props.ref ? [anchor, props.ref] : anchor, [props.ref])
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
@@ -105,7 +110,7 @@ export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
 	const closeLevel = () => setOpen(false)
 
 	<>
-		<Pressable ref={mergedRef} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
+		<Pressable ref={mergedRef} id={props.id ?? triggerId} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
 			accessibilityRole="menuitem" accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 			accessibilityHint="Opens submenu" accessibilityState={{ disabled: props.isDisabled }} onPress={() => setOpen(!open)}
 			web={{ onpointerdown: () => { initialFocus.current = 'container' }, 'aria-haspopup': 'menu', 'aria-expanded': String(open), 'data-menu-submenu': true,
@@ -117,7 +122,7 @@ export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
 			{props.icon && <Icon name={props.icon} />}<Text>{props.label}</Text><Text accessible={false}>›</Text>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="right" alignment="start" onDismiss={() => setOpen(false)} className="vx-menu">
-			<MenuSurface initialFocus={initialFocus.current} closeMenu={() => { setOpen(false); parent?.closeMenu() }} closeLevel={closeLevel} label={typeof props.label === 'string' ? props.label : undefined}>
+			<MenuSurface initialFocus={initialFocus.current} closeMenu={() => { setOpen(false); parent.closeMenu() }} closeLevel={closeLevel} label={typeof props.label === 'string' ? props.label : undefined} labelledBy={props.id ?? triggerId}>
 				<MenuData items={props.items} />{props.children}
 			</MenuSurface>
 		</Popover>

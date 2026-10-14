@@ -283,6 +283,7 @@ function DateInputControl(inputProps: CoreProps) @{
 						aria-label={props.ariaLabel}
 						aria-labelledby={props.ariaLabelledBy}
 						aria-describedby={props.ariaDescribedBy}
+						aria-description={props.ariaDescription}
 						aria-required={props.isRequired && !props.isOptional || undefined}
 						aria-invalid={props.status?.type === 'error' || rejected !== null || undefined}
 						aria-busy={isBusy || undefined}
@@ -303,6 +304,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					aria-label={props.ariaLabel}
 					aria-labelledby={props.ariaLabelledBy}
 					aria-describedby={props.ariaDescribedBy}
+					aria-description={props.ariaDescription}
 					aria-required={props.isRequired && !props.isOptional || undefined}
 					aria-expanded={open}
 					aria-haspopup="dialog"
@@ -326,6 +328,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					aria-label={props.ariaLabel}
 					aria-labelledby={props.ariaLabelledBy}
 					aria-describedby={props.ariaDescribedBy}
+					aria-description={props.ariaDescription}
 					aria-required={props.isRequired && !props.isOptional || undefined}
 					aria-invalid={props.status?.type === 'error' || rejected !== null || !isPendingValid || undefined}
 					aria-busy={isBusy || undefined}

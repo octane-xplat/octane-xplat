@@ -83,6 +83,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				aria-label={props.ariaLabel}
 				aria-labelledby={props.ariaLabelledBy}
 				aria-describedby={props.ariaDescribedBy}
+				aria-description={props.ariaDescription}
 				aria-required={props.isRequired && !props.isOptional || undefined}
 				aria-invalid={statusType === 'error' || undefined}
 				aria-busy={isBusy || undefined}

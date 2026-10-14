@@ -168,4 +168,33 @@ describe('menu family contracts', () => {
 		click('ancestor-1'); expect(select).toHaveBeenCalledTimes(1)
 		expect(document.querySelector('[aria-current="page"]')?.textContent).toBe('Current')
 	})
+
+	it('names the menu surface by its trigger', () => {
+		mount(DropdownMenu, { id: 'named-trigger', trigger: 'Actions', isOpen: true, items: [{ key: 'one', label: 'One' }] })
+		const menu = document.querySelector('[role="menu"]') as HTMLElement
+		expect(menu.getAttribute('aria-labelledby')).toBe('named-trigger')
+		expect(menu.getAttribute('aria-label')).toBeNull()
+	})
+
+	it('names the menu surface by a generated trigger id when none is given', () => {
+		mount(DropdownMenu, { trigger: 'Actions', isOpen: true, items: [{ key: 'one', label: 'One' }] })
+		const menu = document.querySelector('[role="menu"]') as HTMLElement
+		const labelledBy = menu.getAttribute('aria-labelledby')
+		expect(labelledBy).toBeTruthy()
+		expect(document.getElementById(labelledBy!)?.textContent).toContain('Actions')
+	})
+
+	it('requires a menu surface for menu item parts', () => {
+		const caught: { error?: unknown } = {}
+		function Harness() @{
+			@try {
+				<DropdownMenuItem label="Lonely" />
+			} @catch (error) {
+				caught.error = error
+				<span>caught</span>
+			}
+		}
+		mount(Harness, {})
+		expect(String(caught.error)).toContain('requires a menu')
+	})
 })

@@ -44,7 +44,7 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<div ref={(e: any) => applyEscapeProps(e, fieldProps)} id={fieldProps.id} aria-label={fieldProps.ariaLabel} aria-labelledby={fieldProps.ariaLabelledBy} aria-describedby={fieldProps.ariaDescribedBy} aria-busy={fieldProps.isLoading || undefined} className={['vx-pininput', fieldProps.isDisabled ? 'vx-pininput--disabled' : undefined, fieldProps.isReadOnly ? 'vx-pininput--readonly' : undefined, fieldProps.isLoading ? 'vx-pininput--loading' : undefined, fieldProps.status ? `vx-pininput--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-pininput--size-${fieldProps.size}` : undefined, fieldProps.className]} style={fieldProps.style} role="group">
+	<div ref={(e: any) => applyEscapeProps(e, fieldProps)} id={fieldProps.id} aria-label={fieldProps.ariaLabel} aria-labelledby={fieldProps.ariaLabelledBy} aria-describedby={fieldProps.ariaDescribedBy} aria-description={fieldProps.ariaDescription} aria-busy={fieldProps.isLoading || undefined} className={['vx-pininput', fieldProps.isDisabled ? 'vx-pininput--disabled' : undefined, fieldProps.isReadOnly ? 'vx-pininput--readonly' : undefined, fieldProps.isLoading ? 'vx-pininput--loading' : undefined, fieldProps.status ? `vx-pininput--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-pininput--size-${fieldProps.size}` : undefined, fieldProps.className]} style={fieldProps.style} role="group">
 		<FieldProvider value={null}>{Array.from({ length }, (_, i) => (
 			<TextInput
 				key={i}
