@@ -34,6 +34,9 @@ export default function App() {
 			<wraplayout id="hmr-wrap" itemWidth={80} itemHeight={30} style={{ width: 180, height: 60 }}>
 				<label id="wrap-revision" text="First revision" />
 			</wraplayout>
+			<rootlayout id="hmr-root" style={{ width: 180, height: 32 }}>
+				<label id="root-revision" text="First revision" />
+			</rootlayout>
 			<proxyviewcontainer id="hmr-proxy">
 				<label id="proxy-revision" text="First revision" />
 			</proxyviewcontainer>

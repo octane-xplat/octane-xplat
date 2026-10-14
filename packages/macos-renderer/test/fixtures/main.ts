@@ -1,5 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { checkRootLifecycle } from './root-lifecycle'
 import { checkProxyLifecycle } from './proxy-lifecycle'
 import { checkWrapLifecycle } from './wrap-lifecycle'
 import { checkDockLifecycle } from './dock-lifecycle'
@@ -162,6 +163,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 								await checkProxyLifecycle(proxyRoot, nativeWindow)
 							} finally {
 								proxyRoot.unmount()
+							}
+
+							const rootLayoutRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkRootLifecycle(rootLayoutRoot, nativeWindow)
+							} finally {
+								rootLayoutRoot.unmount()
 							}
 
 							console.log('PACKED_RENDERER_OK')

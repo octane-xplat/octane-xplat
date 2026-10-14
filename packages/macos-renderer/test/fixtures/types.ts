@@ -37,3 +37,16 @@ const invalidDock: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChil
 const invalidDockChild: SharedJSX.IntrinsicElements['label'] = { dock: 'center' }
 void invalidDock
 void invalidDockChild
+
+const rootLayout: SharedJSX.IntrinsicElements['rootlayout'] = {
+	style: { width: 200, height: 80, padding: 10 },
+	ref: (view) => {
+		void view
+		return () => {}
+	},
+}
+
+void rootLayout
+// @ts-expect-error RootLayout has no invented popup JSX props
+const invalidRoot: SharedJSX.IntrinsicElements['rootlayout'] = { open: true }
+void invalidRoot

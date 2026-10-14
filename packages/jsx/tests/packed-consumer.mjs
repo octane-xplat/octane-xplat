@@ -55,6 +55,7 @@ const tree = (
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
 		<wraplayout orientation="vertical" itemWidth={0} itemHeight={30}><label text="Item" /></wraplayout>
+		<rootlayout ref={(view) => { void view; return () => {} }} style={{ padding: 8 }}><label horizontalAlignment="right" text="Overlay" /><contentview /></rootlayout>
 		<docklayout stretchLastChild={false}><label dock="right" text="Side" /></docklayout>
 		<proxyviewcontainer row={1} ref={(element) => { void element; return () => {} }}><label text="Projected" /></proxyviewcontainer>
 		<contentview id="single" style={{ width: 100, height: 40 }}
@@ -87,6 +88,9 @@ void badProp
 // @ts-expect-error ContentView has common attributes, no invented content prop
 const badContent = <contentview content="text" />
 void badContent
+// @ts-expect-error RootLayout has no new track configuration prop
+const badRoot = <rootlayout rows="20" />
+void badRoot
 // @ts-expect-error WrapLayout item size is numeric
 const badWrapSize = <wraplayout itemWidth="30" />
 // @ts-expect-error WrapLayout orientation is closed

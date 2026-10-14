@@ -18,7 +18,7 @@ All conditioned native declarations derive from that same map.
 
 | Family            | Existing AppKit factories                                                                                                       | Missing raw AppKit hosts                                                                                                               |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer` | `rootlayout`                                                                                                                           |
+| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`                                                                                                                 | `formattedstring`, `htmlview`                                                                                                          |
 | Text input        | `textfield`, `textview`                                                                                                         | `searchbar`                                                                                                                            |
 | Controls          | `button`, `switch`, `slider`                                                                                                    | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
@@ -27,7 +27,7 @@ All conditioned native declarations derive from that same map.
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 18 core factories and 21 missing core hosts. `span` is viewless;
+There are now 19 core factories and 20 missing core hosts. `span` is viewless;
 its factory presence does not establish formatted-text behavior. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 21 missing core hosts and nine missing raw extension hosts remain required.
+The 20 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -89,8 +89,7 @@ No new iOS/Android execution or visual parity evidence is supplied by this unit.
 This host fix does not change the recommended UI Stack API or the requirements
 of the shared-layout recipe. Public source migration, release documentation,
 package defaults, and the full native/web acceptance matrix must still land
-and pass together. ContentView follows below; the remaining independent
-layout unit is RootLayout.
+and pass together. ContentView follows below; the independent layout units follow below.
 
 ## ContentView host
 
@@ -254,3 +253,39 @@ restoration, parent changes, replacement, removal, disposal and retained-root
 HMR. Fresh packed declaration lanes check the viewless ref contract. This unit
 does not qualify the inherited common event/style contract or complete native
 parity. No mobile execution, visual analysis or OS-input evidence is supplied.
+
+## RootLayout host
+
+RootLayout overlays its children in one cell. Later JSX children appear above
+earlier children. Unconstrained children stretch; fixed sizes center by default.
+Padding, margins and child alignment apply within the cell. Removing those
+values restores their defaults. The shared contract exposes common attributes,
+without track configuration or imperative popup props.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function RootExample() {
+	return (
+		<rootlayout style={{ width: 200, height: 80, padding: 10 }}>
+			<label text="Background" />
+			<contentview
+				horizontalAlignment="right"
+				verticalAlignment="bottom"
+				style={{ width: 40, height: 20 }}
+			>
+				<label text="Above" />
+			</contentview>
+		</rootlayout>
+	)
+}
+```
+
+The maintained unit and packed AppKit fixtures check overlap, default
+restoration, sizing, padding, margins, projection, keyed ordering, nested roots,
+parent changes, replacement, removal, retained refs and disposal. Retained-root
+HMR checks host and child identity, edited text, retained state and teardown.
+Window-owned presentation remains independent of the raw host's child tree;
+the fixture checks its ownership and explicit cleanup. These checks do not
+qualify NativeScript's imperative popup methods, OS input, mobile overlays,
+visual parity or the inherited common event/style contract. All remaining
+native hosts and release gates still apply.

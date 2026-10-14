@@ -144,3 +144,25 @@ const macProxy: MacJSX.IntrinsicElements['proxyviewcontainer'] = {
 }
 
 void macProxy
+
+const sharedRoot: NativeElements<HostElement>['rootlayout'] = {
+	id: 'root',
+	style: { padding: 8 },
+	ref: (element) => {
+		void element
+		return () => {}
+	},
+}
+
+const macRoot: MacJSX.IntrinsicElements['rootlayout'] = {
+	ref: (element) => {
+		void element
+		return () => {}
+	},
+}
+
+void sharedRoot
+void macRoot
+// @ts-expect-error RootLayout shares common props, with no track configuration
+const invalidRoot: NativeElements<HostElement>['rootlayout'] = { rows: '20' }
+void invalidRoot

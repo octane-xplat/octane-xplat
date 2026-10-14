@@ -31,6 +31,8 @@ let retainedWrap: any
 let retainedWrapChild: any
 let retainedProxy: any
 let retainedProxyChild: any
+let retainedRoot: any
+let retainedRootChild: any
 let reloaded = false
 function reload() {
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
@@ -38,6 +40,8 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedRoot = debug.findId('hmr-root')
+			retainedRootChild = debug.findId('root-revision')
 			retainedLabel = debug.findId('count')
 			retainedContent = debug.findId('hmr-content')
 			retainedChild = debug.findId('revision')
@@ -56,6 +60,10 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-root') === retainedRoot &&
+				debug.findId('root-revision') === retainedRootChild &&
+				retainedRootChild.superview === retainedRoot &&
+				String(retainedRootChild.stringValue) === 'Second revision' &&
 				debug.findId('hmr-proxy') === retainedProxy &&
 				retainedProxy.view === null &&
 				debug.findId('proxy-revision') === retainedProxyChild &&
@@ -78,6 +86,8 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedRoot.superview ||
+					retainedRootChild.superview ||
 					retainedProxyChild.superview ||
 					retainedProxy.children.length ||
 					retainedWrap.superview ||
@@ -95,6 +105,7 @@ function reload() {
 				console.log('PACKED_DOCKLAYOUT_HMR_OK')
 				console.log('PACKED_WRAPLAYOUT_HMR_OK')
 				console.log('PACKED_PROXYVIEWCONTAINER_HMR_OK')
+				console.log('PACKED_ROOTLAYOUT_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

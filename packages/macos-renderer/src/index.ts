@@ -124,6 +124,7 @@ const textNodesByView = new WeakMap<object, ElementNode>()
 const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
 const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
+const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
 const wrapLayoutNodesByView = new WeakMap<object, ElementNode>()
 const dockLayoutNodesByView = new WeakMap<object, ElementNode>()
 const contentViewNodesByView = new WeakMap<object, ElementNode>()
@@ -638,6 +639,49 @@ function makeDockLayout(node: ElementNode) {
 	return view
 }
 
+// NativeScript 9.1.2 (MIT), RootLayoutBase extends GridLayout. The shared
+// rootlayout contract exposes no rows/columns: its implicit single cell
+// overlaps all children, including nonzero attached indices clamped to it.
+// Window-owned presentation remains in presentation.ts, outside this tree.
+class RootLayoutView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	get intrinsicContentSize() {
+		return rootNaturalSize(rootLayoutNodesByView.get(this))
+	}
+
+	layout() {
+		super.layout()
+		layoutRootChildren(rootLayoutNodesByView.get(this))
+	}
+}
+
+function makeRootLayout(node: ElementNode) {
+	const view = RootLayoutView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	rootLayoutNodesByView.set(view, node)
+	view.postsFrameChangedNotifications = true
+	node.rootGeometryObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			() => {
+				if (rootLayoutNodesByView.get(view) === node) {
+					queueLayoutReconcile(node.container, node)
+				}
+			},
+		)
+
+	return view
+}
+
 class WrapLayoutView extends NSView {
 	static {
 		NativeClass(this)
@@ -1062,7 +1106,7 @@ function syncMarginHost(node: ElementNode) {
 		// Grid children are laid out manually and already honor margins.
 		if (
 			marginInsetsOf(node) &&
-			!['gridlayout', 'contentview', 'docklayout', 'wraplayout'].includes(parent.type)
+			!['gridlayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(parent.type)
 		) {
 			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
 		}
@@ -1116,7 +1160,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 	}
 
 	if (
-		['gridlayout', 'contentview', 'docklayout', 'wraplayout'].includes(
+		['gridlayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
 			(node.layoutParent ?? node.parent)?.type ?? '',
 		)
 	) {
@@ -1412,7 +1456,10 @@ function setScrollAction(node: ElementNode, handler: ((event: any) => void) | un
 	scrollHandlers.set(clipView, () => {
 		const startedAt = performance.now()
 		const bounds = clipView.bounds
-		const contentHeight = Number((node.view! as NSScrollView).documentView?.frame?.size?.height ?? 0)
+		const contentHeight = Number(
+			(node.view! as NSScrollView).documentView?.frame?.size?.height ?? 0,
+		)
+
 		const event = {
 			verticalOffset: Number(bounds.origin.y ?? 0),
 			viewportHeight: Number(bounds.size.height ?? 0),
@@ -2548,6 +2595,64 @@ function layoutWrapChildren(parent: ElementNode | undefined) {
 	}
 }
 
+function rootNaturalSize(parent: ElementNode | undefined) {
+	let width = 0,
+		height = 0
+
+	for (const child of parent?.projectedChildren ?? parent?.children ?? []) {
+		if (!child.view) {continue}
+		const margins = child.marginInsets ?? {}
+		width = Math.max(
+			width,
+			dockChildSize(child, 'width', Infinity, Infinity) +
+				(margins.left ?? 0) +
+				(margins.right ?? 0),
+		)
+
+		height = Math.max(
+			height,
+			dockChildSize(child, 'height', Infinity, Infinity) +
+				(margins.top ?? 0) +
+				(margins.bottom ?? 0),
+		)
+	}
+
+	const padding = parent?.dockInsets ?? {}
+	return {
+		width: width + (padding.left ?? 0) + (padding.right ?? 0),
+		height: height + (padding.top ?? 0) + (padding.bottom ?? 0),
+	}
+}
+
+function layoutRootChildren(parent: ElementNode | undefined) {
+	if (!parent?.view) {return}
+	// Each child receives the whole padded cell. Reuse the established
+	// NativeScript measure/alignment implementation for a final stretching
+	// slot, independently for every child; attached dock metadata has no effect.
+	for (const child of parent.projectedChildren ?? parent.children) {
+		if (!child.view) {continue}
+		layoutDockChildren({ ...parent, props: {}, projectedChildren: [child] })
+	}
+
+	// JSX order is also native back-to-front order. Reorder only our own
+	// children; window presentation layers and their ownership stay untouched.
+	const children = (parent.projectedChildren ?? parent.children).filter((child) => child.view)
+	const views = children.map(layoutView)
+	const native = parent.view.subviews
+	const count = typeof native?.count === 'function' ? native.count() : native?.count
+	const actual = Array.from({ length: Number(count ?? 0) }, (_, i) =>
+		native.objectAtIndex(i),
+	).filter((view) => views.includes(view))
+
+	if (views.some((view, index) => view !== actual[index])) {
+		let previous: NSView | null = null
+		for (const view of views) {
+			parent.view.addSubviewPositionedRelativeTo(view, 1, previous)
+			previous = view
+		}
+	}
+}
+
 function layoutContentChild(parent: ElementNode | undefined) {
 	const child = parent?.projectedChildren ? parent.projectedChildren[0] : parent?.contentChild
 	if (!parent?.view || !child?.view) {
@@ -2649,6 +2754,7 @@ function makeImageView(props: PropBag) {
 const VIEW_PARENT_TYPES = new Set([
 	'docklayout',
 	'wraplayout',
+	'rootlayout',
 	'contentview',
 	'proxyviewcontainer',
 	'stack',
@@ -2821,6 +2927,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.actionId = flexbox.actionId
 				break
 			}
+			case 'rootlayout':
+				node.view = makeRootLayout(node)
+				break
 			case 'wraplayout':
 				node.view = makeWrapLayout(node)
 				break
@@ -3159,7 +3268,7 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 	}
 
 	if (
-		['gridlayout', 'absolutelayout', 'docklayout', 'wraplayout'].includes(
+		['gridlayout', 'absolutelayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(
 			(node.layoutParent ?? node.parent)?.type ?? '',
 		)
 	) {
@@ -3213,7 +3322,7 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	if (
 		!spec ||
 		!node.view ||
-		['contentview', 'docklayout', 'wraplayout'].includes(
+		['contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
 			(node.layoutParent ?? node.parent)?.type ?? '',
 		)
 	) {
@@ -3296,7 +3405,7 @@ function syncEdgeInsets(node: ElementNode) {
 		left: edges?.left ?? box?.left ?? klass?.left ?? 0,
 	}
 
-	if (node.type === 'docklayout' || node.type === 'wraplayout') {
+	if (node.type === 'docklayout' || node.type === 'wraplayout' || node.type === 'rootlayout') {
 		node.dockInsets = insets
 		queueLayoutReconcile(node.container, node)
 	} else {
@@ -3374,13 +3483,13 @@ function resetStyle(node: ElementNode, name: string) {
 		applyThemeColors(node)
 	} else if (
 		name === 'padding' &&
-		['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout'].includes(node.type)
+		['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
 	) {
 		node.stylePaddingBox = undefined
 		syncEdgeInsets(node)
 	} else if (
 		EDGE_INSET_PROPS.has(name) &&
-		['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout'].includes(node.type)
+		['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
 	) {
 		for (const edge of EDGE_INSET_PROPS.get(name)!) {
 			delete node.stylePaddingEdges?.[edge]
@@ -3496,13 +3605,13 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		} else if (
 			name === 'padding' &&
-			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout'].includes(node.type)
+			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
 		) {
 			node.stylePaddingBox = parseEdgeInsets(value)
 			syncEdgeInsets(node)
 		} else if (
 			EDGE_INSET_PROPS.has(name) &&
-			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout'].includes(node.type)
+			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
 		) {
 			const edges = (node.stylePaddingEdges ??= {})
 			for (const edge of EDGE_INSET_PROPS.get(name)!) {
@@ -4281,6 +4390,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		absolutelayout: ['left', 'top', 'right', 'bottom'],
+		rootlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
 		wraplayout: ['horizontalAlignment', 'verticalAlignment'],
 		docklayout: ['dock', 'horizontalAlignment', 'verticalAlignment'],
 		contentview: ['horizontalAlignment', 'verticalAlignment'],
@@ -4349,6 +4459,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					continue
 				}
 			// Common styling uses the same reconciliation as ContentView.
+			case 'rootlayout':
 			case 'contentview':
 				if (name === 'style') {
 					applyStyle(node, value)
@@ -4727,12 +4838,20 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	if (
-		['gridlayout', 'absolutelayout', 'contentview', 'docklayout', 'wraplayout'].includes(node.type)
+		[
+			'gridlayout',
+			'absolutelayout',
+			'contentview',
+			'docklayout',
+			'wraplayout',
+			'rootlayout',
+		].includes(node.type)
 	) {
 		queueLayoutReconcile(node.container, node)
 	} else if (
 		node.parent?.type === 'gridlayout' ||
 		node.parent?.type === 'absolutelayout' ||
+		node.parent?.type === 'rootlayout' ||
 		node.parent?.type === 'wraplayout' ||
 		node.parent?.type === 'stacklayout' ||
 		node.parent?.type === 'contentview' ||
@@ -4747,7 +4866,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	// Container children also reconcile their own subtree. Their size updates
 	// must still notify the outer DockLayout or WrapLayout.
-	if (node.parent?.type === 'docklayout' || node.parent?.type === 'wraplayout') {
+	if (
+		node.parent?.type === 'docklayout' ||
+		node.parent?.type === 'wraplayout' ||
+		node.parent?.type === 'rootlayout'
+	) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 }
@@ -4847,6 +4970,7 @@ function syncProxyProjection(parent: ElementNode) {
 		'contentview',
 		'docklayout',
 		'wraplayout',
+		'rootlayout',
 		'#root',
 	].includes(parent.type)
 
@@ -4919,8 +5043,9 @@ function syncProxyProjection(parent: ElementNode) {
 		const views = children.map(layoutView)
 		const native = host.subviews
 		const count = typeof native.count === 'function' ? native.count() : native.count
-		const actual = Array.from({ length: Number(count) }, (_, index) => native.objectAtIndex(index))
-			.filter((view) => views.includes(view))
+		const actual = Array.from({ length: Number(count) }, (_, index) =>
+			native.objectAtIndex(index),
+		).filter((view) => views.includes(view))
 
 		if (views.some((view, index) => view !== actual[index])) {
 			let previous: NSView | null = null
@@ -5151,10 +5276,24 @@ function reconcileLayoutParent(parent: ElementNode) {
 		syncProxyProjection(parent)
 	}
 
+	if (parent.type === 'rootlayout') {
+		parent.view?.invalidateIntrinsicContentSize()
+		layoutRootChildren(parent)
+		if (
+			['docklayout', 'contentview', 'wraplayout', 'rootlayout'].includes(parent.parent?.type ?? '')
+		) {
+			queueLayoutReconcile(parent.container, parent.parent)
+		}
+
+		return
+	}
+
 	if (parent.type === 'wraplayout') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutWrapChildren(parent)
-		if (['docklayout', 'contentview', 'wraplayout'].includes(parent.parent?.type ?? '')) {
+		if (
+			['docklayout', 'contentview', 'wraplayout', 'rootlayout'].includes(parent.parent?.type ?? '')
+		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
 
@@ -5164,7 +5303,9 @@ function reconcileLayoutParent(parent: ElementNode) {
 	if (parent.type === 'docklayout') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutDockChildren(parent)
-		if (['docklayout', 'contentview', 'wraplayout'].includes(parent.parent?.type ?? '')) {
+		if (
+			['docklayout', 'contentview', 'wraplayout', 'rootlayout'].includes(parent.parent?.type ?? '')
+		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
 
@@ -5174,7 +5315,11 @@ function reconcileLayoutParent(parent: ElementNode) {
 	if (parent.type === 'contentview') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutContentChild(parent)
-		if (parent.parent?.type === 'docklayout' || parent.parent?.type === 'wraplayout') {
+		if (
+			parent.parent?.type === 'docklayout' ||
+			parent.parent?.type === 'wraplayout' ||
+			parent.parent?.type === 'rootlayout'
+		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
 
@@ -5218,9 +5363,14 @@ function insert(
 	}
 
 	if (
-		['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'proxyviewcontainer'].includes(
-			parent?.type ?? '',
-		) &&
+		[
+			'stacklayout',
+			'contentview',
+			'docklayout',
+			'wraplayout',
+			'rootlayout',
+			'proxyviewcontainer',
+		].includes(parent?.type ?? '') &&
 		!node.view &&
 		node.type !== 'proxyviewcontainer'
 	) {
@@ -5273,9 +5423,14 @@ function insert(
 	if (node.view) {
 		if (parent) {
 			if (
-				['gridlayout', 'absolutelayout', 'contentview', 'docklayout', 'wraplayout'].includes(
-					parent.type,
-				)
+				[
+					'gridlayout',
+					'absolutelayout',
+					'contentview',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(parent.type)
 			) {
 				// Re-homing under a manually laid-out parent — release the
 				// margin wrapper so arrangedView() stops returning the
@@ -5300,7 +5455,8 @@ function insert(
 			} else if (
 				parent.type === 'gridlayout' ||
 				parent.type === 'docklayout' ||
-				parent.type === 'wraplayout'
+				parent.type === 'wraplayout' ||
+				parent.type === 'rootlayout'
 			) {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
@@ -5401,6 +5557,16 @@ function destroy(node: ElementNode) {
 		for (const child of node.children.slice()) {
 			detach(node.container, child)
 		}
+	}
+
+	if (node.type === 'rootlayout') {
+		if (node.rootGeometryObserver) {
+			NSNotificationCenter.defaultCenter.removeObserver(node.rootGeometryObserver)
+			node.rootGeometryObserver = null
+		}
+
+		if (node.view) {rootLayoutNodesByView.delete(node.view)}
+		for (const child of node.children.slice()) {detach(node.container, child)}
 	}
 
 	if (node.type === 'wraplayout') {
@@ -5550,9 +5716,14 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const parentId = parentOf(command.id)
 				const parent = parentId == null ? null : known(parentId)
 				if (
-					['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'proxyviewcontainer'].includes(
-						parent?.type ?? '',
-					) &&
+					[
+						'stacklayout',
+						'contentview',
+						'docklayout',
+						'wraplayout',
+						'rootlayout',
+						'proxyviewcontainer',
+					].includes(parent?.type ?? '') &&
 					!typeHasView(command.type) &&
 					command.type !== 'proxyviewcontainer'
 				) {
@@ -5599,6 +5770,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 							'contentview',
 							'docklayout',
 							'wraplayout',
+							'rootlayout',
 							'proxyviewcontainer',
 						].includes(parent.type) &&
 						!typeHasView(entry.type) &&
@@ -5651,7 +5823,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
 			if (
-				['stacklayout', 'contentview', 'docklayout', 'wraplayout'].includes(
+				['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
 					existing?.parent?.type ?? '',
 				) &&
 				!typeHasView(command.type) &&
@@ -5683,13 +5855,20 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				// readers. Inject explicit clears for every sticky prop so a
 				// removed key restores its default.
 				const childClears =
-					node.type === 'proxyviewcontainer' || node.parent?.type === 'proxyviewcontainer' || node.layoutParent
-						? Object.fromEntries([...PROXY_LAYOUT_PROPS, 'visibility', 'horizontalAlignment', 'verticalAlignment']
-							.filter((name) => node.props[name] !== undefined || node.authoredProps?.[name] !== undefined)
-							.map((name) => [name, undefined]))
+					node.type === 'proxyviewcontainer' ||
+					node.parent?.type === 'proxyviewcontainer' ||
+					node.layoutParent
+						? Object.fromEntries(
+								[...PROXY_LAYOUT_PROPS, 'visibility', 'horizontalAlignment', 'verticalAlignment']
+									.filter(
+										(name) =>
+											node.props[name] !== undefined || node.authoredProps?.[name] !== undefined,
+									)
+									.map((name) => [name, undefined]),
+							)
 						: node.parent?.type === 'docklayout'
 							? { dock: undefined, horizontalAlignment: undefined, verticalAlignment: undefined }
-							: ['contentview', 'wraplayout'].includes(node.parent?.type ?? '')
+							: ['contentview', 'wraplayout', 'rootlayout'].includes(node.parent?.type ?? '')
 								? { horizontalAlignment: undefined, verticalAlignment: undefined }
 								: {}
 
@@ -5751,9 +5930,14 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 
 			const parent = node.parent
 			if (
-				['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'proxyviewcontainer'].includes(
-					parent?.type ?? '',
-				) &&
+				[
+					'stacklayout',
+					'contentview',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+					'proxyviewcontainer',
+				].includes(parent?.type ?? '') &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
