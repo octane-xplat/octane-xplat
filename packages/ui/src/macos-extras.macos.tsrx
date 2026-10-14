@@ -1,8 +1,12 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { HeadingProps, MeterProps } from './props'
 import { cx } from '@octane-xplat/lib'
+import { meterRange } from './meter-math'
 
 export function Meter(props: MeterProps) @{
+	const min = props.minValue ?? 0
+	const max = props.maxValue ?? props.max ?? 100
+	const { max: rangeMax, value } = meterRange(props.value, min, max)
 	const size = props.size ?? 24
 	const strokeWidth = Math.max(0, Math.min(props.strokeWidth ?? 3, size))
 
@@ -19,9 +23,12 @@ export function Meter(props: MeterProps) @{
 			borderRadius: size / 2,
 			...props.style,
 		}}
-		accessible={true}
-		accessibilityRole="progressbar"
-		accessibilityValue={String(props.value ?? 0) + ' of ' + String(props.max ?? 100)}
+		accessibilityRole="meter"
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityValue={value}
+		accessibilityMinValue={min}
+		accessibilityMaxValue={rangeMax}
+		accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}
 	>
 		{props.children}
 	</flexboxlayout>

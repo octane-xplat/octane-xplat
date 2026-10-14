@@ -74,6 +74,9 @@ const NATIVE_ACCESSIBILITY_ROLES: Record<Role, string> = {
 	menuitem: 'button',
 	menuitemcheckbox: 'checkbox',
 	menuitemradio: 'radioButton',
+	// NativeScript has no meter role; progressBar is the closest platform
+	// role for a scalar-within-a-range readout.
+	meter: 'progressBar',
 }
 
 /** Translate the shared/ARIA spelling to NativeScript's narrower role enum. */

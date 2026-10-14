@@ -229,6 +229,28 @@ console.log(tokens)
 
 ## Progress, status, and time
 
+`Meter` is a gauge of a quantity within a known range — disk used, battery
+level, a rating — not task progress (use `ProgressBar` for that). Assistive
+technology reports the meter role with the clamped range and value; `valueLabel`
+supplies a human-readable reading such as "6 GB of 10 GB used". The range is
+`minValue`/`maxValue`; the older `max` name still works as an alias.
+
+```tsx
+import { Meter } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Meter
+			value={6}
+			minValue={0}
+			maxValue={10}
+			accessibilityLabel="Storage used"
+			valueLabel="6 GB of 10 GB used"
+		/>
+	)
+}
+```
+
 `Timestamp` absolute formats use `Intl` and an optional named time zone. Live
 relative timestamps and timers update on their own intervals. Hover cards and
 mark tooltips are pointer affordances; touch targets do not show them. Keep

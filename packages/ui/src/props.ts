@@ -368,6 +368,7 @@ export type Role =
 	| 'menuitem'
 	| 'menuitemcheckbox'
 	| 'menuitemradio'
+	| 'meter'
 
 export interface TextProps extends LayoutChildProps, TestIDProps {
 	className?: any
@@ -1403,13 +1404,28 @@ export interface ActivityIndicatorProps {
 	web?: Record<string, any>
 }
 
+/** Meter — a static gauge of a quantity within a known range (disk used,
+ *  battery, rating), not task progress; use `ProgressBar` for operations.
+ *  Exposes the `meter` accessibility role (`role="meter progressbar"` on web,
+ *  matching the React Aria fallback spelling; NativeScript's role enum has no
+ *  meter so `progressBar` is the platform fallback, AppKit reports
+ *  AXLevelIndicator). */
 export interface MeterProps {
 	className?: any
 	style?: any
 	id?: string
 	children?: any
+	/** Current quantity, clamped to the [minValue, maxValue] range. */
 	value: number
+	/** Lower bound of the measured range. @default 0 */
+	minValue?: number
+	/** Upper bound of the measured range. @default 100 */
+	maxValue?: number
+	/** @deprecated Use `maxValue`; `maxValue` wins when both are set. */
 	max?: number
+	/** Human-readable value description reported to assistive technology —
+	 *  `aria-valuetext` on web (for example "6 GB of 10 GB used"). */
+	valueLabel?: string
 	size?: number
 	strokeWidth?: number
 	color?: string
@@ -2740,7 +2756,8 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 
  *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
  *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `clickAction`,
  *  `isInterruptible`); the legacy `disabled`/`loading`/`leading`/`trailing`
- *  names keep working and the Astryx names win when both are set. */
+ *  names keep working and the Astryx names win when both are set.
+ *  `clickAction` failures report through `onActionError`. */
 export interface ButtonProps extends PressableProps {
 	loading?: boolean
 	/** Content rendered before children (e.g. an Icon). */
@@ -2762,6 +2779,10 @@ export interface ButtonProps extends PressableProps {
 	/** Action run on press; pending promises show the loading spinner unless
 	 *  `isInterruptible` keeps presses live. */
 	clickAction?: () => void | Promise<void>
+	/** Reports a `clickAction` failure — a thrown error or a rejected
+	 *  promise. When omitted, failures surface as uncaught asynchronous
+	 *  errors rather than being silently swallowed. */
+	onActionError?: (error: unknown) => void
 	/** Leading icon — a node (e.g. `<Icon />`) or a registered icon name. */
 	icon?: any
 	/** Square icon-only button; `label` becomes the accessible name. */
@@ -5517,7 +5538,8 @@ export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'
 	/** Called with the next pressed state when the button is activated. */
 	onPressedChange?: (isPressed: boolean) => void
 	/** Action-backed toggle — runs while the pending spinner shows, with an
-	 *  optimistic press flip. Ignored when `value` binds group membership. */
+	 *  optimistic press flip. Ignored when `value` binds group membership.
+	 *  Failures report through `onActionError`. */
 	pressedChangeAction?: (isPressed: boolean) => void | Promise<void>
 	/** Icon shown while pressed (e.g. filled variant); falls back to `icon`. */
 	pressedIcon?: any

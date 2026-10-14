@@ -6,6 +6,7 @@ import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { useButtonGroup } from './button-group-context';
 import { sanitizeUrl } from './safe-url';
+import { reportActionError } from './action-error';
 
 /** Self-drawn button — Pressable row with optional icon/label/end content
  *  and a loading state that swaps content for the spinner and blocks
@@ -48,10 +49,23 @@ export function Button(props: ButtonProps) @{
 		}
 
 		props.onPress?.();
-		const action = props.clickAction?.();
+		let action: void | Promise<void> | undefined;
+		try {
+			action = props.clickAction?.();
+		} catch (error) {
+			reportActionError(error, props.onActionError);
+			return;
+		}
+
 		if (action && typeof (action as any).then === 'function') {
 			setActionPending(true);
-			Promise.resolve(action).then(() => setActionPending(false), () => setActionPending(false));
+			Promise.resolve(action).then(
+				() => setActionPending(false),
+				(error) => {
+					setActionPending(false);
+					reportActionError(error, props.onActionError);
+				},
+			);
 		}
 	};
 

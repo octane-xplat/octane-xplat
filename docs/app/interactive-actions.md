@@ -102,6 +102,12 @@ states merge (either disabled/loading state wins); `children` takes precedence
 over `label`. A pending `clickAction` shows a loading indicator and prevents
 repeat presses unless `isInterruptible` is true.
 
+When a `clickAction` promise rejects — or the action throws — the failure
+reports through `onActionError`. If no handler is set, the error still
+surfaces as an uncaught asynchronous error so a failed action is never
+silently swallowed. `ToggleButton`'s `pressedChangeAction` reports the same
+way.
+
 ```tsx
 import { Button, Text } from '@octane-xplat/ui'
 
@@ -114,6 +120,9 @@ export function Example() {
 			isInterruptible={false}
 			clickAction={async () => {
 				await Promise.resolve()
+			}}
+			onActionError={(error) => {
+				console.error('Save failed', error)
 			}}
 		>
 			<Text>Save</Text>

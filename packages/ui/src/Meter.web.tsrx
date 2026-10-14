@@ -2,8 +2,9 @@ import type { MeterProps } from './props';
 import { meterRange } from './meter-math';
 
 export function Meter(props: MeterProps) @{
-	const max = props.max ?? 100;
-	const { max: rangeMax, value, ratio } = meterRange(props.value, max);
+	const min = props.minValue ?? 0;
+	const max = props.maxValue ?? props.max ?? 100;
+	const { min: rangeMin, max: rangeMax, value, ratio } = meterRange(props.value, min, max);
 	const size = props.size ?? 24;
 	const strokeWidth = Math.max(0, Math.min(props.strokeWidth ?? 3, size));
 	const color = props.color ?? '#3376cc';
@@ -20,11 +21,12 @@ export function Meter(props: MeterProps) @{
 		id={props.id}
 		className={['vx-meter', props.className]}
 		style={{ display: 'grid', placeItems: 'center', position: 'relative', width: size, height: size, ...props.style }}
-		role="progressbar"
+		role="meter progressbar"
 		aria-label={props.accessibilityLabel}
-		aria-valuemin={0}
+		aria-valuemin={rangeMin}
 		aria-valuemax={rangeMax}
 		aria-valuenow={value}
+		aria-valuetext={props.valueLabel}
 	>
 		<div aria-hidden="true" style={ringStyle} />
 		<div style={{ position: 'relative' }}>{props.children}</div>

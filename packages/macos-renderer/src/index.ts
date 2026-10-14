@@ -350,6 +350,9 @@ class AccessibleStackView extends NSStackView {
 		accessibilityRole: { params: [], returns: interop.types.id },
 		accessibilityLabel: { params: [], returns: interop.types.id },
 		accessibilityValue: { params: [], returns: interop.types.id },
+		accessibilityMinValue: { params: [], returns: interop.types.id },
+		accessibilityMaxValue: { params: [], returns: interop.types.id },
+		accessibilityValueDescription: { params: [], returns: interop.types.id },
 		accessibilityHelp: { params: [], returns: interop.types.id },
 		accessibilityIsEnabled: { params: [], returns: interop.types.bool },
 		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
@@ -375,7 +378,17 @@ class AccessibleStackView extends NSStackView {
 
 	accessibilityRole() {
 		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
-		return role === 'checkbox' ? 'AXCheckBox' : role === 'button' ? 'AXButton' : 'AXGroup'
+		// ARIA 'meter' is AppKit's level indicator — a gauge of a scalar within
+		// a range, distinct from task progress (AXProgressIndicator).
+		return role === 'checkbox'
+			? 'AXCheckBox'
+			: role === 'button'
+				? 'AXButton'
+				: role === 'meter'
+					? 'AXLevelIndicator'
+					: role === 'progressbar'
+						? 'AXProgressIndicator'
+						: 'AXGroup'
 	}
 
 	accessibilityLabel() {
@@ -384,7 +397,8 @@ class AccessibleStackView extends NSStackView {
 
 	accessibilityValue() {
 		const props = stackAccessibilityPropsByView.get(this)
-		if (this.accessibilityRole() === 'AXCheckBox') {
+		const role = this.accessibilityRole()
+		if (role === 'AXCheckBox') {
 			// AppKit uses 0/1/2 for off/on/mixed checkbox values.
 			return NSNumber.numberWithDouble(
 				props?.accessibilityState?.checked === 'mixed'
@@ -395,7 +409,27 @@ class AccessibleStackView extends NSStackView {
 			)
 		}
 
+		if (role === 'AXLevelIndicator' || role === 'AXProgressIndicator') {
+			return NSNumber.numberWithDouble(Number(props?.accessibilityValue ?? 0))
+		}
+
 		return props?.accessibilityValue ?? ''
+	}
+
+	accessibilityMinValue() {
+		return NSNumber.numberWithDouble(
+			Number(stackAccessibilityPropsByView.get(this)?.accessibilityMinValue ?? 0),
+		)
+	}
+
+	accessibilityMaxValue() {
+		return NSNumber.numberWithDouble(
+			Number(stackAccessibilityPropsByView.get(this)?.accessibilityMaxValue ?? 100),
+		)
+	}
+
+	accessibilityValueDescription() {
+		return String(stackAccessibilityPropsByView.get(this)?.accessibilityValueDescription ?? '')
 	}
 
 	accessibilityHelp() {
@@ -419,6 +453,7 @@ class GridLayoutView extends NSView {
 		accessibilityValue: { params: [], returns: interop.types.id },
 		accessibilityMinValue: { params: [], returns: interop.types.id },
 		accessibilityMaxValue: { params: [], returns: interop.types.id },
+		accessibilityValueDescription: { params: [], returns: interop.types.id },
 		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
 		accessibilityIsEnabled: { params: [], returns: interop.types.bool },
 		accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
@@ -431,7 +466,14 @@ class GridLayoutView extends NSView {
 
 	accessibilityRole() {
 		const node = gridLayoutNodesByView.get(this)
-		return node?.props.accessibilityRole === 'adjustable' ? 'AXSlider' : 'AXGroup'
+		const role = node?.props.accessibilityRole
+		return role === 'adjustable'
+			? 'AXSlider'
+			: role === 'meter'
+				? 'AXLevelIndicator'
+				: role === 'progressbar'
+					? 'AXProgressIndicator'
+					: 'AXGroup'
 	}
 
 	accessibilityLabel() {
@@ -454,6 +496,10 @@ class GridLayoutView extends NSView {
 		return NSNumber.numberWithDouble(
 			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMaxValue ?? 100),
 		)
+	}
+
+	accessibilityValueDescription() {
+		return String(gridLayoutNodesByView.get(this)?.props.accessibilityValueDescription ?? '')
 	}
 
 	accessibilityIsIgnored() {

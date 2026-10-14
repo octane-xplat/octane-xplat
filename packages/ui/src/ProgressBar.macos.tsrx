@@ -35,6 +35,10 @@ export function ProgressBar(props: ProgressBarProps) @{
 		flexDirection="column"
 		accessibilityRole="progressbar"
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityValue={isIndeterminate ? undefined : value}
+		accessibilityMinValue={0}
+		accessibilityMaxValue={max}
+		accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}
 	>
 		{showHead ? (
 			<flexboxlayout flexDirection="row" justifyContent="space-between" className="vx-progressbar-head">

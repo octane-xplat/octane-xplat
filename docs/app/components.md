@@ -181,7 +181,7 @@ export function Example() {
 | `FormLayout`                                            | Arranges labeled fields                                          | `direction`, `defaultOptionality`                                            |
 | `InputGroup`, `InputGroupText`                          | Joins a labeled control with prefix/suffix text                  | `label`, `size`                                                              |
 | `PowerSearch`                                           | Structured field/operator/value filters                          | `config`, `filters`, `onChange`, `components`                                |
-| `Button`                                                | Labeled action                                                   | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `href` |
+| `Button`                                                | Labeled action                                                   | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `onActionError`, `href` |
 | `IconButton`                                            | Icon-only named action                                           | `icon`, `label`, `variant`, `size`                                           |
 | `ButtonGroup`                                           | Connected action row                                             | `label`, `orientation`, `size`, `isDisabled`                                 |
 | `ToggleButton`, `ToggleButtonGroup`                     | Pressed action and toggle group                                  | `isPressed`, `value`, `onChange`, `type`                                     |
@@ -384,7 +384,7 @@ export function Example() {
 | `TreeList`                         | Expandable node hierarchy                    | `nodes`, `defaultExpanded`, `onToggle`, `onSelect`                      |
 | `Timeline`                         | Vertical event list (dot + connector)        | `items`                                                                 |
 | `ProgressGroup`                    | Stacked labeled `Meter` rows                 | `items`                                                                 |
-| `Meter`                            | Gauge/dash ring                              | `value`, `max`, `strokeWidth`                                           |
+| `Meter`                            | Gauge/dash ring (meter role, not progress)   | `value`, `minValue`, `maxValue`, `valueLabel`, `strokeWidth`             |
 | `ProgressBar`                      | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`                                        |
 | `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `label`, `children`                                          |
 | `StatusDot`                        | Accessible colored status signal             | `variant`, `label`, `isPulsing`, `tooltip`                              |

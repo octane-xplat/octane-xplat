@@ -6,10 +6,11 @@ import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { Icon } from './Icon.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
+import { reportActionError } from './action-error'
 export function ToggleButton(props: ToggleButtonProps) @{
 	const group=useToggleButtonGroup(); const [local,setLocal]=useState(!!props.isPressed)
 	const pressed=group&&props.value!=null?group.selectedValues.has(props.value):props.isPressed??local
-	const activate=()=>{if(props.isDisabled||group?.isDisabled)return;if(group&&props.value!=null){group.toggle(props.value);return};const next=!pressed;if(props.isPressed===undefined)setLocal(next);props.onPressedChange?.(next);const action=props.pressedChangeAction?.(next);if(action&&typeof (action as any).then==='function')Promise.resolve(action).catch(()=>{})}
+	const activate=()=>{if(props.isDisabled||group?.isDisabled)return;if(group&&props.value!=null){group.toggle(props.value);return};const next=!pressed;if(props.isPressed===undefined)setLocal(next);props.onPressedChange?.(next);let action:void|Promise<void>|undefined;try{action=props.pressedChangeAction?.(next)}catch(error){reportActionError(error,props.onActionError);return};if(action&&typeof (action as any).then==='function')Promise.resolve(action).catch((error)=>reportActionError(error,props.onActionError))}
 
 	<Pressable id={props.id} className={cx('vx-button','vx-toggle-button',pressed&&'vx-toggle-button--pressed',props.className)} style={props.style} disabled={props.isDisabled||props.disabled||group?.isDisabled} onPress={activate} accessibilityLabel={props.accessibilityLabel??props.label} accessibilityRole="button" accessibilityState={{pressed}}>
 		{typeof (pressed?(props.pressedIcon??props.icon):props.icon)==='string'?<Icon name={(pressed?(props.pressedIcon??props.icon):props.icon) as string}/>:null}<Text>{props.children??props.label}</Text>

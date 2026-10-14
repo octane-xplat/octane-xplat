@@ -11,6 +11,7 @@ import { useThemeScheme } from './theme/theme-scheme.macos'
 import { useFieldControlProps } from './field-context'
 import { useButtonGroup } from './button-group-context'
 import { Icon } from './Icon.macos.tsrx'
+import { reportActionError } from './action-error'
 
 function controlColors(dark: boolean) {
 	return dark
@@ -26,10 +27,23 @@ export function Button(props: ButtonProps) @{
 	const press = () => {
 		if (disabled || (pending && !props.isInterruptible)) return
 		props.onPress?.()
-		const action = props.clickAction?.()
+		let action: void | Promise<void> | undefined
+		try {
+			action = props.clickAction?.()
+		} catch (error) {
+			reportActionError(error, props.onActionError)
+			return
+		}
+
 		if (action && typeof (action as any).then === 'function') {
 			setPending(true)
-			Promise.resolve(action).then(() => setPending(false), () => setPending(false))
+			Promise.resolve(action).then(
+				() => setPending(false),
+				(error) => {
+					setPending(false)
+					reportActionError(error, props.onActionError)
+				},
+			)
 		}
 	}
 
