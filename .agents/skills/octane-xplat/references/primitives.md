@@ -103,7 +103,7 @@ deliberate exits from the same-pixels shared contract; use a matching
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackingToggle() {
-	return <UISwitch value={false} onValueChange={console.log} />
+	return <UISwitch checked={false} onCheckedChange={console.log} />
 }
 ```
 

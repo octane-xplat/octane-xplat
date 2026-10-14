@@ -17,7 +17,7 @@ export { Icon } from './icon.android'
 export { modifier } from '../modifier-factories'
 
 export type {
-	SwitchProps,
+	PlatformSwitchProps,
 	SliderProps,
 	ActivityIndicatorProps,
 	PlatformListProps as ListProps,

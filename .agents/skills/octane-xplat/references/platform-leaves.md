@@ -53,7 +53,7 @@ not a filename suffix; `/web` resolves only under web/Linux conditions.
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackedToggle() {
-	return <UISwitch value={false} onValueChange={console.log} />
+	return <UISwitch checked={false} onCheckedChange={console.log} />
 }
 ```
 

@@ -1394,6 +1394,37 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	web?: any
 }
 
+/** Props for the platform-authentic switches — `UISwitch` (`ui/ios`) and
+ *  `MaterialSwitch` (`ui/android`). These are bare OS widgets, so unlike the
+ *  shared `SwitchProps` they carry only what the host control can deliver:
+ *  `isDisabled` disables it (`isEnabled`), `isReadOnly` blocks toggling
+ *  without the disabled appearance, and `label`, `description`,
+ *  `disabledMessage`, and the `accessibility*` names resolve to the widget's
+ *  spoken name and hint — an enclosing `Field` supplies the same through
+ *  context. Visible label, status, sizing, and validation chrome live on
+ *  `Field`, not on the widget itself. */
+export interface PlatformSwitchProps extends TestIDProps {
+	className?: any
+	style?: any
+	id?: string
+	checked?: boolean
+	onCheckedChange?: (checked: boolean) => void
+	isDisabled?: boolean
+	isReadOnly?: boolean
+	/** Spoken name source — the platform widget renders no visible label. */
+	label?: string
+	/** Folded into the widget's spoken hint. */
+	description?: string
+	/** Appended to the spoken hint while the widget is disabled. */
+	disabledMessage?: string
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
 export interface ActivityIndicatorProps {
 	className?: any
 	style?: any

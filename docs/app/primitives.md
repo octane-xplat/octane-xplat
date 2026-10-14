@@ -222,6 +222,24 @@ export function Settings() {
 }
 ```
 
+Platform widgets accept only the props the OS control can deliver. The
+platform switches share the `checked`/`onCheckedChange` state contract and
+honor `isDisabled`, `isReadOnly`, `testID`, and the accessibility names —
+`label`, `description`, and `accessibilityLabel`/`accessibilityHint` are
+spoken, since a bare widget draws no visible label. Wrap one in `Field` for
+visible label, description, and status chrome; the widget picks those states
+up from the field automatically.
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+// Settings.ios.tsrx
+import { UISwitch } from '@octane-xplat/ui/ios'
+
+export function AirplaneRow() {
+	return <UISwitch checked label="Airplane mode" isDisabled />
+}
+```
+
 ### Text and keyboard actions
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
