@@ -1,7 +1,7 @@
 import { GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
-import type { ModalOpenResult, OpenBottomSheet } from './props'
+import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from './props'
 import { topRootLayout } from './root-layout'
 import { applyThemeClasses } from './theme/theme-scheme'
 import { normalizeSnapPoints } from './sheet-snap'
@@ -35,8 +35,9 @@ export function closeBottomSheet(result?: ModalOpenResult): void {
  *  (topRootLayout — the service has no declaring view). Resolves when the
  *  sheet closes. Astryx `snapPoints` fractions/percent/px all resolve
  *  against the screen height. */
-export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}) =>
-	new Promise<ModalOpenResult>((resolve) => {
+export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}) => {
+	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
+	const handle = new Promise<ModalOpenResult>((resolve) => {
 		const rl = topRootLayout()
 		if (!rl) {
 			console.warn('[openBottomSheet] no RootLayout mounted — sheet skipped')
@@ -104,6 +105,8 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 			resolve(result)
 		}
 
+		closeSheet = finish
+
 		let closing = false
 
 		const entry: ActiveSheet = { host, root, unbindKeyboard, finish }
@@ -127,4 +130,8 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 				console.error('[openBottomSheet] open failed', error)
 				finish()
 			})
-	})
+	}) as BottomSheetHandle
+
+	handle.close = (result?: ModalOpenResult) => closeSheet?.(result)
+	return handle
+}

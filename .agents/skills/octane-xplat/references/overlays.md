@@ -22,8 +22,10 @@ export function BagDetails() {
 `UIModal` + `openModal` are exported from `@octane-xplat/ui/ios`;
 `MaterialDialog` + `openModal` are exported from
 `@octane-xplat/ui/android`. There is no shared `Modal` or `openModal` export.
-Both native APIs mount content in a separate root, so context and theme
-classes do not cross from the presenter (see styling/root-boundaries.md).
+`openModal` returns a `ModalHandle` — the close-result promise plus
+`close(result)` scoped to that instance. Both native APIs mount content in a
+separate root, so context and theme classes do not cross from the presenter
+(see styling/root-boundaries.md).
 For a shared in-window surface, compose `BottomSheet`, `Overlay`, or `Popover`.
 
 ```tsx
@@ -46,8 +48,10 @@ export function Details() {
 `openBottomSheet(Component, props)` is the current shared service name.
 Native mounts a bottom-docked host in `RootLayout`; web creates a portal
 layer under `document.body` and renders the component in its own Octane root.
-The web backdrop dismisses the sheet, and the returned promise resolves when
-it closes. Content is parameterized, so any component can render in the sheet.
+The web backdrop dismisses the sheet, and the returned `BottomSheetHandle` —
+a promise — resolves when it closes; `handle.close(result)` dismisses that
+specific sheet (while `closeBottomSheet(result)` still targets the most
+recent). Content is parameterized, so any component can render in the sheet.
 
 ```tsx
 import { openBottomSheet, Pressable, Text } from '@octane-xplat/ui'
@@ -59,7 +63,7 @@ function Details({ params, close }: { params: { name: string }; close: () => voi
 		</Pressable>
 	)
 }
-// Call from an app action; the promise resolves when the sheet closes.
+// Call from an app action; the handle resolves when the sheet closes.
 await openBottomSheet(Details, { name: 'Carry-on' })
 ```
 

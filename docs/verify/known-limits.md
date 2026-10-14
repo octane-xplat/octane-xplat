@@ -370,6 +370,17 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `@octane-xplat/ui/linux`. The published CSS paths are unchanged:
   `@octane-xplat/ui/theme/tokens.css` and `chrome.css` are now the only
   `ui/theme/*` specifiers, matching the published export map. — post-0.14.0·desk.
+- **Imperative overlay services return typed handles** — `showToast`/`useToast`
+  now return `ToastHandle | null` (`{ id, dismiss(), update(options) }`) instead
+  of a bare dismiss function — call `toast?.dismiss()`, and note `null` when a
+  `collisionBehavior: 'ignore'` duplicate suppresses the toast. `openBottomSheet`
+  and the platform `openModal` now return `BottomSheetHandle`/`ModalHandle` —
+  the same result promise as before plus `close(result)` scoped to that
+  instance — so `await` call sites are unchanged. `openWindow` returns
+  `WindowHandle | null` (`id`, `closed`, `isClosed`, `close()`, optional
+  `setTitle`/`setSize`/`onCloseRequested`) on every target instead of `void` or
+  a raw `Window`; `OpenWindowOptions` also gained `kind`, `title`, `size`, and
+  `parent` hints. — post-0.14.0·desk.
 - **`FocusScope`, `useGridList`, and `useFocusWithin` report platform
   support explicitly** — `getFocusScopeCapabilities()`,
   `useGridList().isSupported`, and `useFocusWithin().isSubtreeTrackingSupported`

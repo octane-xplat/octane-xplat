@@ -47,7 +47,9 @@ export function Surfaces() {
 ```
 
 `ToastViewport` owns toast routing; `showToast(options)` and `useToast()` send
-notifications to a mounted viewport or the fallback viewport.
+notifications to a mounted viewport or the fallback viewport and return a
+`ToastHandle` (`dismiss()`, `update(options)`) — `null` when a
+`collisionBehavior: 'ignore'` duplicate suppressed the toast.
 
 ```tsx
 import { Button, ToastViewport, useToast, showToast } from '@octane-xplat/ui'

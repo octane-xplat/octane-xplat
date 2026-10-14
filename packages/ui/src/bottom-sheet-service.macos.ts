@@ -1,5 +1,5 @@
 import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'
-import type { BottomSheetOpenOptions, ModalOpenResult, OpenBottomSheet } from './props'
+import type { BottomSheetHandle, BottomSheetOpenOptions, ModalOpenResult, OpenBottomSheet } from './props'
 
 interface ActiveSheet {
 	controller?: { close(): void; closedPromise: Promise<unknown> }
@@ -18,7 +18,8 @@ export const openBottomSheet: OpenBottomSheet = (
 	params,
 	options: BottomSheetOpenOptions = {},
 ) => {
-	return new Promise<ModalOpenResult>((resolve, reject) => {
+	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
+	const handle = new Promise<ModalOpenResult>((resolve, reject) => {
 		let finished = false
 		const entry: ActiveSheet = {
 			finish(result) {
@@ -37,6 +38,7 @@ export const openBottomSheet: OpenBottomSheet = (
 		}
 
 		active.add(entry)
+		closeSheet = entry.finish
 		try {
 			const present = (globalThis as any).__xplatAppKit?.presentSurface
 			if (!present) {
@@ -64,7 +66,10 @@ export const openBottomSheet: OpenBottomSheet = (
 			entry.controller?.close()
 			reject(error)
 		}
-	})
+	}) as BottomSheetHandle
+
+	handle.close = (result?: ModalOpenResult) => closeSheet?.(result)
+	return handle
 }
 
 export function bottomSheetHost(): null {

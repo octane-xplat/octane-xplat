@@ -4,9 +4,11 @@ import {
 	FALLBACK_TOAST_VIEWPORT,
 	pushToast,
 	registerToastViewport,
+	toastHandleFor,
 	toastOnViewport,
 	toastStore,
 	toastTiming,
+	updateToast,
 } from './toast-store'
 
 describe('toast store', () => {
@@ -64,6 +66,26 @@ describe('toast store', () => {
 		expect(toastOnViewport(hosted, FALLBACK_TOAST_VIEWPORT)).toBe(false)
 		unregister()
 		expect(toastOnViewport(hosted, FALLBACK_TOAST_VIEWPORT)).toBe(true)
+	})
+
+	it('returns no handle for an ignore-suppressed toast and dismisses owned entries', () => {
+		pushToast({ body: 'first', uniqueID: 'save' })
+		expect(toastHandleFor(pushToast({ body: 'next', uniqueID: 'save', collisionBehavior: 'ignore' }))).toBeNull()
+
+		const handle = toastHandleFor(pushToast({ body: 'kept' }))!
+		expect(handle.id).toBe(toastStore.get()[1].id)
+		handle.dismiss()
+		expect(toastStore.get()[1].exiting).toBe(true)
+	})
+
+	it('updates a live toast in place and leaves dismissing entries alone', () => {
+		const id = pushToast({ body: 'first' })
+		updateToast(id, { body: 'second', type: 'error' })
+		expect(toastStore.get()[0].options).toEqual({ body: 'second', type: 'error' })
+
+		dismissToast(id)
+		updateToast(id, { body: 'resurrected' })
+		expect(toastStore.get()[0].options.body).toBe('second')
 	})
 
 	it('uses status-aware auto-hide defaults and clamps durations at zero', () => {

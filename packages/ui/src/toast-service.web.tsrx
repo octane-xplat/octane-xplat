@@ -1,12 +1,12 @@
 import { useCallback, useContext } from 'octane';
 import { createRoot } from 'octane';
-import type { ShowToastFn, ToastDismissFn, ToastOptions } from './props';
+import type { ShowToastFn, ToastOptions } from './props';
 import { ToastViewportContext } from './toast-context';
 import {
 	FALLBACK_TOAST_VIEWPORT,
-	dismissToast,
 	pushToast,
 	registerToastViewport,
+	toastHandleFor,
 } from './toast-store';
 
 import { ToastViewportSurface } from './toast-viewport.web.tsrx';
@@ -32,11 +32,11 @@ function ensureFallbackViewport(): void {
 }
 
 /** Show a toast on the fallback stack (Astryx `useToast` fallback path,
- *  as a module-level function). Returns the toast's dismiss function. */
-export const showToast: ShowToastFn = (options: ToastOptions): ToastDismissFn => {
+ *  as a module-level function). Returns the toast's handle — `null` when
+ *  an 'ignore' collision suppressed it. */
+export const showToast: ShowToastFn = (options: ToastOptions) => {
 	ensureFallbackViewport();
-	const id = pushToast(options, FALLBACK_TOAST_VIEWPORT);
-	return () => dismissToast(id, 'manual');
+	return toastHandleFor(pushToast(options, FALLBACK_TOAST_VIEWPORT));
 };
 
 /** Imperative toast control (Astryx `useToast`), web leaf. Inside a
@@ -45,10 +45,9 @@ export const showToast: ShowToastFn = (options: ToastOptions): ToastDismissFn =>
 export function useToast(): ShowToastFn {
 	const ctx = useContext(ToastViewportContext);
 	return useCallback(
-		(options: ToastOptions): ToastDismissFn => {
+		(options: ToastOptions) => {
 			ensureFallbackViewport();
-			const id = pushToast(options, ctx?.id ?? FALLBACK_TOAST_VIEWPORT);
-			return () => dismissToast(id, 'manual');
+			return toastHandleFor(pushToast(options, ctx?.id ?? FALLBACK_TOAST_VIEWPORT));
 		},
 		[ctx?.id],
 	);

@@ -4,9 +4,9 @@ import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import type { RootLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
-import type { ShowToastFn, ToastDismissFn, ToastEntry, ToastOptions, ToastPosition } from './props';
+import type { ShowToastFn, ToastEntry, ToastHandle, ToastOptions, ToastPosition } from './props';
 import { ToastViewportContext } from './toast-context';
-import { dismissToast, pushToast, toastStore, toastTiming } from './toast-store';
+import { dismissToast, pushToast, toastHandleFor, toastStore, toastTiming } from './toast-store';
 import { topRootLayout } from './root-layout';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { Popover } from './Popover';
@@ -22,6 +22,8 @@ interface ToastHost {
 	timer: ReturnType<typeof setTimeout> | null
 	unbindTheme: () => void
 	position: ToastPosition
+	/** Auto-hide contract armed for `timer` — updates reschedule it. */
+	timing: { isAutoHide: boolean; autoHideDuration: number }
 	rl: RootLayout
 	closing: boolean
 }
@@ -149,12 +151,12 @@ function mount(entry: ToastEntry) {
 	Object.assign(host, isIOS ? entry.options.ios : isAndroid ? entry.options.android : undefined)
 
 	const root = createNativeScriptRoot(host)
-	const rec: ToastHost = { host, root, timer: null, unbindTheme, position, rl, closing: false }
+	const timing = toastTiming(entry.options)
+	const rec: ToastHost = { host, root, timer: null, unbindTheme, position, timing, rl, closing: false }
 	hosts.set(entry.id, rec)
 	// 'closed' marks RootLayout-side removal already in flight — detach
 	// must not re-enter close(). There is no scrim dismissal for toasts.
 
-	const timing = toastTiming(entry.options)
 	if (timing.isAutoHide) {
 		rec.timer = setTimeout(() => dismissToast(entry.id, 'auto'), timing.autoHideDuration)
 	}
@@ -207,6 +209,34 @@ export function sync() {
 			}
 
 			if (cur) {
+				// An updateToast() rewrite can move the toast to a different
+				// edge or change its auto-hide contract: remount for a new
+				// position, re-arm the timer for a new duration.
+				if (cur.position !== positionFor(entry)) {
+					detach(entry)
+					mount(entry)
+					continue
+				}
+
+				const timing = toastTiming(entry.options)
+				if (
+					timing.isAutoHide !== cur.timing.isAutoHide ||
+					timing.autoHideDuration !== cur.timing.autoHideDuration
+				) {
+					if (cur.timer) {
+						clearTimeout(cur.timer)
+					}
+
+					cur.timer = null
+					cur.timing = timing
+					if (timing.isAutoHide && !entry.exiting) {
+						cur.timer = setTimeout(
+							() => dismissToast(entry.id, 'auto'),
+							timing.autoHideDuration,
+						)
+					}
+				}
+
 				cur.root.render(ToastEntryView as unknown as UniversalComponent, { entry })
 				continue
 			}
@@ -268,16 +298,16 @@ function ensureSubscribed() {
 	toastStore.subscribe(sync)
 }
 
-function show(options: ToastOptions, viewportId?: string): ToastDismissFn {
+function show(options: ToastOptions, viewportId?: string): ToastHandle | null {
 	ensureSubscribed()
 	const id = pushToast(options, viewportId)
 	sync()
-	return () => dismissToast(id, 'manual')
+	return toastHandleFor(id)
 }
 
 /** Module-level toast (Astryx `useToast` fallback path as a function):
  *  lands on the current top RootLayout's edge stack. Returns the toast's
- *  dismiss function. */
+ *  handle — `null` when an 'ignore' collision suppressed it. */
 export const showToast: ShowToastFn = (options) => show(options, undefined)
 
 /** Imperative toast control (Astryx `useToast`), native leaf. Inside a

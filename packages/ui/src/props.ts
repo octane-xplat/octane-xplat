@@ -1908,10 +1908,25 @@ export interface ToastContentRenderProps {
 /** Renders the content of one toast inside the toast surface. */
 export type ToastContentRenderFn = (toast: ToastContentRenderProps) => any
 
+/** Owning handle for one toast shown through `useToast()`/`showToast`.
+ *  The toast's identity, dismissal, and option updates are scoped to this
+ *  instance — concurrent toasts don't share controls. */
+export interface ToastHandle {
+	/** Stable identity of the queued toast entry. */
+	readonly id: string
+	/** Dismiss this toast. Idempotent; reports reason 'manual' to
+	 *  `onHide`. */
+	dismiss: ToastDismissFn
+	/** Replace this toast's options while it is queued or showing — same
+	 *  identity, new body/type/timing. Include `uniqueID` to keep the
+	 *  collision identity. No-op once the toast is dismissing or gone. */
+	update(options: ToastOptions): void
+}
+
 /** The function `useToast()`/`showToast` returns — shows a toast, returns
- *  a dismiss callback. The dismiss callback is idempotent and reports
- *  reason 'manual' to `onHide`. */
-export type ShowToastFn = (options: ToastOptions) => ToastDismissFn
+ *  its handle, or `null` when a same-`uniqueID` toast with
+ *  `collisionBehavior: 'ignore'` suppressed the new one. */
+export type ShowToastFn = (options: ToastOptions) => ToastHandle | null
 
 /** One queued/active toast inside a viewport. `viewportId`/`exiting` are
  *  managed by the toast stack — callers never set them. */
@@ -2020,12 +2035,22 @@ export interface ModalOpenOptions {
 /** Value supplied to a modal close callback and returned by `openModal`. */
 export type ModalOpenResult = unknown
 
+/** Owning handle for one imperative modal opened by `openModal`. It is the
+ *  completion promise — `await` resolves with the value passed to
+ *  `close(result)` or the presented component's own `close` — plus an
+ *  instance-scoped close, so concurrent modals dispose independently. */
+export interface ModalHandle extends Promise<ModalOpenResult> {
+	/** Close this modal, resolving the handle with `result`. Idempotent —
+	 *  a user dismissal or an earlier close wins. */
+	close(result?: ModalOpenResult): void
+}
+
 /** Public function shape of the imperative modal service. */
 export type OpenModal = (
 	component: any,
 	params?: any,
 	options?: ModalOpenOptions,
-) => Promise<ModalOpenResult>
+) => ModalHandle
 
 // ---------- bottom sheet (in-window bottom panel) ----------
 
@@ -2123,14 +2148,25 @@ export interface BottomSheetOpenOptions {
 	label?: string
 }
 
+/** Owning handle for one imperative `openBottomSheet` sheet. It is the
+ *  completion promise — `await` resolves with the value passed to
+ *  `close(result)` or the content's own `close` — plus an instance-scoped
+ *  close, so concurrent sheets dispose independently of
+ *  `closeBottomSheet` (which always targets the most recent sheet). */
+export interface BottomSheetHandle extends Promise<ModalOpenResult> {
+	/** Close this sheet, resolving the handle with `result`. Idempotent —
+	 *  a user dismissal or an earlier close wins. */
+	close(result?: ModalOpenResult): void
+}
+
 /** Imperative sheet: mounts `component` on a dedicated root in a bottom
- *  sheet and resolves with the value passed to `close(result)`. The
- *  component receives `{ params, close }`. */
+ *  sheet and returns its handle — awaiting it resolves with the value
+ *  passed to `close(result)`. The component receives `{ params, close }`. */
 export type OpenBottomSheet = (
 	component: any,
 	params?: any,
 	options?: BottomSheetOpenOptions,
-) => Promise<ModalOpenResult>
+) => BottomSheetHandle
 
 // ---------- dialog / alert dialog ----------
 
@@ -2817,10 +2853,62 @@ export type ManifestRoutePresentations<M> = M extends {
 	: {}
 
 export interface OpenWindowOptions {
-	/** Data made available to the native window content resolver. */
+	/** Data handed to the new window's content resolver. Delivered on
+	 *  native (`WindowContentResolver` request data), macOS (the
+	 *  app-installed window resolver), and Linux (`window.__xplatWindowData`
+	 *  in the new root). Web windows cannot receive it — `data` warns and
+	 *  is ignored on web. */
 	data?: Record<string, unknown>
-	/** Optional URL used by the web window. */
+	/** URL the window loads — web and Linux only. Defaults to the current
+	 *  app URL on web; ignored by native/macOS hosts that resolve content
+	 *  from `data`. */
 	url?: string
+	/** Presentation behavior: 'regular' is an independent window, 'dialog'
+	 *  is modal to its parent (AppKit sheet, GTK transient window), 'popup'
+	 *  is a non-activating child panel. Kinds are behavior semantics, not
+	 *  an OS-window promise — hosts without a matching concept fall back
+	 *  to 'regular'. @default 'regular' */
+	kind?: 'regular' | 'dialog' | 'popup'
+	/** Requested window title. Desktop hosts may apply or ignore it. */
+	title?: string
+	/** Requested content size in px/dips; hosts may clamp. */
+	size?: { width: number; height: number }
+	/** Owning window for 'dialog'/'popup' kinds — a `WindowHandle` returned
+	 *  by `openWindow` or the host's own window/controller object.
+	 *  @default the host's key window */
+	parent?: unknown
+}
+
+/** Owning handle for one window opened by `openWindow` — the created
+ *  instance's identity, completion, and close. `openWindow` returns `null`
+ *  when the host refuses the request synchronously (web popup blocked, no
+ *  AppKit window service installed, a host that cannot open windows).
+ *
+ *  Native multi-window is device-dependent (iPadOS scenes, experimental
+ *  Android activities): a dropped request still returns a handle whose
+ *  `closed` never resolves — the host reports no per-request outcome. */
+export interface WindowHandle {
+	/** Stable identity of the window instance — the host-assigned window id
+	 *  where the platform registers one, else a generated token. */
+	readonly id: string
+	/** Resolves when the window closes for any reason: user close, host
+	 *  teardown, or this handle's `close()`. Never resolves when the window
+	 *  never opened. */
+	readonly closed: Promise<void>
+	/** True once the window has closed. */
+	readonly isClosed: boolean
+	/** Request the window close. No-op once closed. */
+	close(): void
+	/** Retitle the window. Absent on hosts that cannot retitle (native);
+	 *  on web it applies only while the window stays same-origin. */
+	setTitle?(title: string): void
+	/** Resize the window's content area. Present only on hosts that support
+	 *  resizing (macOS, Linux, script-opened web popups). */
+	setSize?(size: { width: number; height: number }): void
+	/** Veto a user-initiated close request — the callback returning false
+	 *  cancels the close. Present only on hosts that report close requests
+	 *  (macOS). Returns an unsubscribe function. */
+	onCloseRequested?(callback: () => boolean): () => void
 }
 
 // ---------- animation ----------

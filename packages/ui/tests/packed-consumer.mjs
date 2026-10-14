@@ -263,7 +263,9 @@ const switcher = <BottomSheetSwitcher activeSheet="options">{sheet}</BottomSheet
 const lightbox = <Lightbox isOpen onOpenChange={() => {}} media={[{ src: 'image.png', alt: 'Image' }]} />
 const toast = <Toast body="Saved" renderContent={props => props.body} onDismiss={reason => { const typed: 'auto' | 'manual' = reason; void typed }} />
 const viewport = <ToastViewport position="topStart" maxVisible={3}>{toast}</ToastViewport>
-const dismiss: () => void = showToast({ body: 'Saved', onHide: reason => { const typed: 'auto' | 'manual' = reason; void typed } })
+const toastHandle = showToast({ body: 'Saved', onHide: reason => { const typed: 'auto' | 'manual' = reason; void typed } })
+toastHandle?.update({ body: 'Saved again' })
+toastHandle?.dismiss()
 const dialogControl = useImperativeDialog()
 dialogControl.show('Edit', { purpose: 'required', width: 400 })
 const alertControl = useImperativeAlertDialog()
@@ -281,7 +283,7 @@ const invalidSheet = <BottomSheet isOpen />
 showToast({ body: 'Saved', position: 'middle' })
 // @ts-expect-error imperative dialogs use the shared purpose contract
 dialogControl.show('Edit', { purpose: 'anything' })
-void [CameraView, dialog, alert, switcher, lightbox, viewport, dismiss, promise, host, invalidSheet]
+void [CameraView, dialog, alert, switcher, lightbox, viewport, toastHandle, promise, host, invalidSheet]
 `
 	} else {
 		source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'

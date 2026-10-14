@@ -1,5 +1,5 @@
 import { createStore } from './store'
-import type { ToastDismissReason, ToastEntry, ToastOptions } from './props'
+import type { ToastDismissReason, ToastEntry, ToastHandle, ToastOptions } from './props'
 
 /** Module-scope toast queue — the single source of truth for every leaf.
  *  Cross-root state uses module stores (overlay roots never share context
@@ -93,9 +93,40 @@ export function dismissToast(id: string, reason: ToastDismissReason = 'manual'):
 	}, TOAST_EXIT_MS)
 }
 
+/** Replace a live toast's options in place (the `update` half of
+ *  `ToastHandle`). No-op when the id names no queued entry or the toast
+ *  is already dismissing. */
+export function updateToast(id: string, options: ToastOptions): void {
+	if (!id) {
+		return
+	}
+
+	const list = toastStore.get()
+	const index = list.findIndex((t) => t.id === id)
+	if (index === -1 || list[index].exiting) {
+		return
+	}
+
+	toastStore.set(list.map((t) => (t.id === id ? { ...t, options } : t)))
+}
+
 /** Look up a live toast by its deduplication key. */
 export function findToastByUniqueID(uniqueID: string): ToastEntry | undefined {
 	return toastStore.get().find((t) => t.options.uniqueID === uniqueID)
+}
+
+/** Build the public handle for one pushed toast — `null` for the '' id
+ *  `pushToast` returns when an 'ignore' collision suppressed it. */
+export function toastHandleFor(id: string): ToastHandle | null {
+	if (!id) {
+		return null
+	}
+
+	return {
+		id,
+		dismiss: () => dismissToast(id, 'manual'),
+		update: (options) => updateToast(id, options),
+	}
 }
 
 /** Resolved auto-hide contract: error toasts hold for manual dismissal

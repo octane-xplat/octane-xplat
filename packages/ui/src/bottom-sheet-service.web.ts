@@ -1,5 +1,5 @@
 import { createRoot } from 'octane'
-import type { ModalOpenResult, OpenBottomSheet } from './props'
+import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from './props'
 import { applyThemeClasses } from './theme/theme-scheme'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents.web'
@@ -22,8 +22,9 @@ export function closeBottomSheet(result?: ModalOpenResult): void {
 /** Imperative in-window bottom sheet: portal layer at document root,
  *  bottom-anchored panel, dedicated Octane root, grabber + snap/swipe
  *  gestures. Resolves when the sheet closes. */
-export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}) =>
-	new Promise<ModalOpenResult>((resolve) => {
+export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}) => {
+	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
+	const handle = new Promise<ModalOpenResult>((resolve) => {
 		const layer = document.createElement('div')
 		const unbindTheme = applyThemeClasses(layer, 'vx-sheet-layer vx-bottom-sheet-layer')
 		const panel = document.createElement('div')
@@ -50,6 +51,8 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 			layer.remove()
 			resolve(result)
 		}
+
+		closeSheet = finish
 
 		const entry: ActiveSheet = { layer, finish }
 		let backdrop: HTMLDivElement | null = null
@@ -82,4 +85,8 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 			panel.setAttribute('aria-modal', 'true')
 			releaseFocus = isolateModalFocus(layer, panel, () => finish())
 		}
-	})
+	}) as BottomSheetHandle
+
+	handle.close = (result?: ModalOpenResult) => closeSheet?.(result)
+	return handle
+}

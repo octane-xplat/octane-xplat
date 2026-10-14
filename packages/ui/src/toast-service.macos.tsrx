@@ -2,7 +2,7 @@
 import { useCallback, useContext } from 'octane'
 import type { ShowToastFn, ToastOptions } from './props'
 import { ToastViewportContext } from './toast-context'
-import { FALLBACK_TOAST_VIEWPORT, dismissToast, pushToast, registerToastViewport, toastOnViewport, toastStore } from './toast-store'
+import { FALLBACK_TOAST_VIEWPORT, dismissToast, pushToast, registerToastViewport, toastHandleFor, toastOnViewport, toastStore } from './toast-store'
 import { ToastViewportSurface } from './toast-viewport.macos.tsrx'
 
 let fallback: any = null
@@ -29,15 +29,13 @@ function ensureFallbackViewport(): void {
 
 export const showToast: ShowToastFn = (options: ToastOptions) => {
 	ensureFallbackViewport()
-	const id = pushToast(options, FALLBACK_TOAST_VIEWPORT)
-	return () => dismissToast(id, 'manual')
+	return toastHandleFor(pushToast(options, FALLBACK_TOAST_VIEWPORT))
 }
 
 export function useToast(): ShowToastFn @{
 	const ctx = useContext(ToastViewportContext)
 	return useCallback((options: ToastOptions) => {
 		ensureFallbackViewport()
-		const id = pushToast(options, ctx?.id ?? FALLBACK_TOAST_VIEWPORT)
-		return () => dismissToast(id, 'manual')
+		return toastHandleFor(pushToast(options, ctx?.id ?? FALLBACK_TOAST_VIEWPORT))
 	}, [ctx?.id])
 }

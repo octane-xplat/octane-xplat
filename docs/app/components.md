@@ -524,7 +524,8 @@ export function Example() {
 Use `Dialog` for optional or informational modal content and `AlertDialog` when
 the user must choose an action. `BottomSheet` is the shared in-window surface;
 the platform-native `@octane-xplat/sheet` package remains a separate API.
-`showToast(options)` presents a transient toast, while `useToast()` targets the
+`showToast(options)` presents a transient toast and returns its `ToastHandle`
+(`dismiss()`/`update(options)`), while `useToast()` targets the
 nearest `ToastViewport` or the fallback viewport. Overlay visibility follows
 the same state contract as the field controls: `open`/`isOpen` are controlled,
 `defaultOpen` seeds an uncontrolled layer that closes itself when the user

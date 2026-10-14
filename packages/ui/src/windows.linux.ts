@@ -3,40 +3,42 @@
 // against the same bundle base; options.data arrives in the new root as
 // window.__xplatWindowData (document-start injection — the content resolver
 // seam, per #59). The client assigns the id so the controller is available
-// synchronously. Unbridged dev degrades to window.open.
-import type { OpenWindowOptions } from './props'
+// synchronously. Unbridged dev degrades to the web window path.
+import type { OpenWindowOptions, WindowHandle } from './props'
+import { openWebWindow } from './windows.web'
 
-export interface LinuxWindowHandle {
-	readonly id: string
-	readonly closed: Promise<void>
-	close(): void
-	setTitle(title: string): void
-}
+/** LinuxWindowHandle is the shared `WindowHandle` — retitled through the
+ *  host bridge. Retained as the `/linux` subpath's former export name. */
+export type LinuxWindowHandle = WindowHandle
 
 const bridge = () => (globalThis as any).__xplatBridge
 let seq = 0
 
-export function openWindow(
-	options: OpenWindowOptions & {
-		kind?: 'regular' | 'dialog'
-		title?: string
-		size?: { width: number; height: number }
-	} = {},
-): LinuxWindowHandle | Window | null {
+export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
 	if (!bridge()?.call) {
-		return window.open(options.url ?? window.location.href, '_blank')
+		return openWebWindow(options)
 	}
 
 	const id = `w${++seq}`
+	let isClosed = false
 	let resolveClosed: () => void = () => {}
 	const closed = new Promise<void>((resolve) => {
 		resolveClosed = resolve
 	})
 
+	const finish = () => {
+		if (isClosed) {
+			return
+		}
+
+		isClosed = true
+		resolveClosed()
+	}
+
 	const off = bridge().on('windows', 'closed', (wid: unknown) => {
 		if (wid === id) {
 			off()
-			resolveClosed()
+			finish()
 		}
 	})
 
@@ -44,12 +46,15 @@ export function openWindow(
 		.call('windows', 'open', [{ ...options, id }])
 		.catch(() => {
 			off()
-			resolveClosed()
+			finish()
 		})
 
 	return {
 		id,
 		closed,
+		get isClosed() {
+			return isClosed
+		},
 		close() {
 			void bridge()
 				.call('windows', 'close', [id])

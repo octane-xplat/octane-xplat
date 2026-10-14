@@ -64,6 +64,37 @@ test('AppKit imperative sheets preserve results and close the latest sheet first
 	assert.equal(bottomSheetHost(), null)
 })
 
+test('the returned handle closes only its own sheet', async () => {
+	const opened = []
+	globalThis.__xplatAppKit = {
+		presentSurface(options) {
+			let resolve
+			const controller = {
+				closes: 0,
+				closedPromise: new Promise((r) => {
+					resolve = r
+				}),
+				close() {
+					this.closes++
+					resolve()
+				},
+			}
+
+			opened.push({ options, controller })
+			return controller
+		},
+	}
+
+	const first = openBottomSheet(() => null)
+	const second = openBottomSheet(() => null)
+	first.close('mine')
+	assert.equal(await first, 'mine')
+	assert.equal(opened[0].controller.closes, 1)
+	assert.equal(opened[1].controller.closes, 0)
+	opened[1].options.props.close('other')
+	assert.equal(await second, 'other')
+})
+
 test('content can close synchronously while mounting without leaving an active sheet', async () => {
 	let closes = 0
 	globalThis.__xplatAppKit = {

@@ -1,13 +1,14 @@
 import { Frame, GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
-import type { ModalOpenOptions, ModalOpenResult, OpenModal } from '../props'
+import type { ModalHandle, ModalOpenOptions, ModalOpenResult, OpenModal } from '../props'
 import { applyThemeClasses } from '../theme/theme-scheme'
 import { modalPresenter } from '../modal-presenter'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
-export const openModal: OpenModal = (Component, params, options = {}) =>
-	new Promise<ModalOpenResult>((resolve, reject) => {
+export const openModal: OpenModal = (Component, params, options = {}) => {
+	let closeModal: ((result?: ModalOpenResult) => void) | undefined
+	const handle = new Promise<ModalOpenResult>((resolve, reject) => {
 		const presenter = modalPresenter(Frame.topmost())
 		if (!presenter) {
 			reject(
@@ -36,6 +37,16 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 		}
 
 		const close = (result?: ModalOpenResult) => host.closeModal(result)
+		closeModal = (result?: ModalOpenResult) => {
+			// closeModal on a never-presented host throws — treat the close as
+			// completing the request either way so the handle always settles.
+			try {
+				close(result)
+			} catch {
+				finish(result)
+			}
+		}
+
 		root.render(Component as UniversalComponent, { params, close })
 
 		const fullscreen = options.presentation
@@ -50,6 +61,10 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 			fullscreen,
 			animated: options.animated ?? true,
 		})
-	})
+	}) as ModalHandle
+
+	handle.close = (result?: ModalOpenResult) => closeModal?.(result)
+	return handle
+}
 
 export type { ModalOpenOptions }

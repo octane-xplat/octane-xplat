@@ -618,7 +618,9 @@ export type {
 	UseScrollableAreaResult,
 	ShowToastFn,
 	ToastCollisionBehavior,
+	ToastDismissFn,
 	ToastDismissReason,
+	ToastHandle,
 	ToastEntry,
 	ToastOptions,
 	ToastPosition,
@@ -740,6 +742,7 @@ export type {
 	ScreenTable,
 	ModalOpenResult,
 	OpenWindowOptions,
+	WindowHandle,
 } from './props'
 
 // Stores, bottom sheets, and shared prop types
@@ -812,6 +815,7 @@ export type {
 export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
 export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service.web'
 export type {
+	BottomSheetHandle,
 	BottomSheetOpenOptions,
 	BottomSheetProps,
 	BottomSheetSnapPoint,

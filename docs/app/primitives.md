@@ -815,7 +815,9 @@ export function Example() {
 ```
 
 `ToastViewport` owns toast position and visibility limits. `showToast({ body,
-position, anchor, placement })` returns a dismiss function; `useToast()` routes
+position, anchor, placement })` returns a `ToastHandle` — `dismiss()` closes
+the toast, `update(options)` rewrites it in place — or `null` when a
+`collisionBehavior: 'ignore'` duplicate suppressed it; `useToast()` routes
 to the nearest viewport or the fallback viewport. Anchored toasts follow
 `Popover`'s platform-specific overlay behavior.
 
@@ -1482,8 +1484,9 @@ export function SaveButton() {
 ```
 
 `useImperativeAlertDialog()` and `useLightbox()` return mounted elements and
-show/dismiss methods with the same owner cleanup. Use `closeBottomSheet(result)`
-to close the most recently opened imperative sheet. A sheet's component receives
+show/dismiss methods with the same owner cleanup. The `openBottomSheet` handle's
+`close(result)` dismisses that specific sheet; `closeBottomSheet(result)`
+remains for closing the most recently opened one. A sheet's component receives
 `{ params, close }`; `close(result)` resolves its promise with that result, while
 user dismissal or owner-window closure resolves with `'closed'`. Call
 `openBottomSheet` after a window mounts; missing host/window support rejects
@@ -1515,7 +1518,8 @@ export function GalleryActions() {
 ```
 
 `openBottomSheet(Component, params, options)` mounts its own root in the key
-window, and the returned promise resolves with the value passed to `close`.
+window and returns a `BottomSheetHandle` — await it for the value passed to
+`close`, or call `handle.close(result)` to dismiss that specific sheet.
 
 ```tsx
 import { Button, openBottomSheet } from '@octane-xplat/ui'
@@ -1543,7 +1547,7 @@ export function OpenDetails() {
 a fallback stack in the key window. Info toasts auto-hide after 5000ms by
 default; error toasts wait for manual dismissal. Override `isAutoHide` and
 `autoHideDuration` as needed. Hover and keyboard focus pause the countdown.
-The returned dismiss function and `onHide(reason)` keep the shared contract.
+The returned `ToastHandle` and `onHide(reason)` keep the shared contract.
 `uniqueID`, `collisionBehavior`, `maxVisible`, `renderContent`, edge positions,
 and insets are supported. A toast whose viewport unmounts moves to the
 fallback stack. Toast stacks leave page input and focus available. Anchored

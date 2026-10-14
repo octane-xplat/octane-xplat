@@ -874,13 +874,20 @@ content separate from ordinary back-stack navigation.
 
 Native deep links resolve against the same route manifest. `openWindow({data})`
 opens another NativeScript window; the app provides
-`Application.setWindowContentResolver()` to render that window's root.
+`Application.setWindowContentResolver()` to render that window's root. Every
+target's `openWindow` returns a shared `WindowHandle` — `id`, a `closed`
+promise, `isClosed`, and `close()`, plus optional `setTitle`/`setSize`/
+`onCloseRequested` where the host supports them — or `null` when the host
+cannot open a window. On native the request is asynchronous: the handle binds
+to the next registered window, and a request the platform drops (a
+single-scene iPhone) leaves `closed` unsettled.
 
 ```ts
 import { openWindow } from '@octane-xplat/ui'
 
 // Native app bootstrap must install its window content resolver first.
-openWindow({ data: { listId: 'trip' } })
+const win = openWindow({ data: { listId: 'trip' } })
+// win?.closed resolves when the window closes; win?.close() closes it.
 ```
 
 The [navigation notes](../notes/navigation-notes.md) explain native containers, modal
