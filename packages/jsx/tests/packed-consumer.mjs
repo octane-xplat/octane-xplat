@@ -56,6 +56,7 @@ const tree = (
 		<scrollview orientation="horizontal" />
 		<wraplayout orientation="vertical" itemWidth={0} itemHeight={30}><label text="Item" /></wraplayout>
 		<docklayout stretchLastChild={false}><label dock="right" text="Side" /></docklayout>
+		<proxyviewcontainer row={1} ref={(element) => { void element; return () => {} }}><label text="Projected" /></proxyviewcontainer>
 		<contentview id="single" style={{ width: 100, height: 40 }}
 			ref={(view) => { void view; return () => {} }}>
 			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
@@ -153,6 +154,18 @@ const lane = <>
 void lane
 `,
 	macos: `
+const proxy = <proxyviewcontainer ref={(element) => {
+	if (element) {
+		const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element
+		const absent: null = logical.view
+		void absent
+		// @ts-expect-error a viewless ref is not an NSView
+		element.addSubview(element)
+	}
+	return () => {}
+}} />
+void proxy
+
 const lane = <label
 	ref={(element) => {
 		// AppKit host surface — proves the macos branch resolved.
@@ -162,6 +175,18 @@ const lane = <label
 void lane
 `,
 	both: `
+const proxy = <proxyviewcontainer ref={(element) => {
+	if (element) {
+		const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element
+		const absent: null = logical.view
+		void absent
+		// @ts-expect-error a viewless ref is not an NSView
+		element.addSubview(element)
+	}
+	return () => {}
+}} />
+void proxy
+
 // customConditions: ['macos', 'native'] with @nativescript/core ABSENT —
 // only the macos branch can resolve; a stray native resolution would fail
 // import of '@nativescript/core' before this check runs.

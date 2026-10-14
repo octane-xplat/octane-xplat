@@ -29,6 +29,8 @@ let retainedDock: any
 let retainedDockChild: any
 let retainedWrap: any
 let retainedWrapChild: any
+let retainedProxy: any
+let retainedProxyChild: any
 let reloaded = false
 function reload() {
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
@@ -43,6 +45,8 @@ function reload() {
 			retainedDockChild = debug.findId('dock-revision')
 			retainedWrap = debug.findId('hmr-wrap')
 			retainedWrapChild = debug.findId('wrap-revision')
+			retainedProxy = debug.findId('hmr-proxy')
+			retainedProxyChild = debug.findId('proxy-revision')
 			debug.pressId('increment')
 			console.log('HMR_CONSUMER_READY')
 		}, 60)
@@ -52,6 +56,10 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-proxy') === retainedProxy &&
+				retainedProxy.view === null &&
+				debug.findId('proxy-revision') === retainedProxyChild &&
+				String(retainedProxyChild.stringValue) === 'Second revision' &&
 				debug.findId('hmr-wrap') === retainedWrap &&
 				debug.findId('wrap-revision') === retainedWrapChild &&
 				retainedWrapChild.superview === retainedWrap &&
@@ -70,6 +78,8 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedProxyChild.superview ||
+					retainedProxy.children.length ||
 					retainedWrap.superview ||
 					retainedWrapChild.superview ||
 					retainedContent.superview ||
@@ -84,6 +94,7 @@ function reload() {
 				console.log('PACKED_CONTENTVIEW_HMR_OK')
 				console.log('PACKED_DOCKLAYOUT_HMR_OK')
 				console.log('PACKED_WRAPLAYOUT_HMR_OK')
+				console.log('PACKED_PROXYVIEWCONTAINER_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

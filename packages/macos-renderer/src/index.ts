@@ -43,6 +43,8 @@ export interface ElementNode {
 	id: number
 	type: string
 	view: NSView | null
+	projectedChildren?: ElementNode[]
+	layoutParent?: ElementNode | null
 	childHost?: NSView
 	props: PropBag
 	parent: ElementNode | null
@@ -104,6 +106,8 @@ interface RootContainer {
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: UniversalRoot | null
+	/** Native root projection for top-level viewless containers. */
+	projectionRoot?: ElementNode
 	/** Parents needing a sibling-wide layout pass; non-null only while a
 	 *  command batch is applying. */
 	layoutDirty: Set<ElementNode> | null
@@ -545,7 +549,8 @@ class ContentViewHost extends NSView {
 	}
 
 	get intrinsicContentSize() {
-		const child = contentViewNodesByView.get(this)?.contentChild
+		const node = contentViewNodesByView.get(this)
+		const child = node?.projectedChildren ? node.projectedChildren[0] : node?.contentChild
 		if (!child?.view) {
 			return { width: 0, height: 0 }
 		}
@@ -637,8 +642,15 @@ function setWrapSizingPriorities(node: ElementNode, view = node.view) {
 	}
 
 	const vertical = node.props.orientation === 'vertical'
-	view.setContentCompressionResistancePriorityForOrientation(vertical ? 750 : 250, NSUserInterfaceLayoutOrientation.Horizontal)
-	view.setContentCompressionResistancePriorityForOrientation(vertical ? 250 : 750, NSUserInterfaceLayoutOrientation.Vertical)
+	view.setContentCompressionResistancePriorityForOrientation(
+		vertical ? 750 : 250,
+		NSUserInterfaceLayoutOrientation.Horizontal,
+	)
+
+	view.setContentCompressionResistancePriorityForOrientation(
+		vertical ? 250 : 750,
+		NSUserInterfaceLayoutOrientation.Vertical,
+	)
 }
 
 function makeWrapLayout(node: ElementNode) {
@@ -684,7 +696,10 @@ function observeContentGeometry(node: ElementNode) {
 	// new bounds even when AppKit does not schedule another layout pass.
 	node.contentGeometryObserver =
 		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSViewFrameDidChangeNotification, view, null, () => {
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			() => {
 				if (contentViewNodesByView.get(view) === node) {
 					queueLayoutReconcile(node.container, node)
 				}
@@ -783,7 +798,7 @@ function syncStackLayout(node: ElementNode) {
 
 	node.appliedStackJustify = justifyContent
 	if (node.type === 'stacklayout') {
-		for (const child of node.children) {
+		for (const child of node.projectedChildren ?? node.children) {
 			setStackChildPriorities(node, child)
 		}
 	}
@@ -887,7 +902,7 @@ function updateCrossAxisConstraints(parent: ElementNode) {
 	// otherwise span the stack's full cross size, overflowing the padding.
 	const insets = stack.edgeInsets ?? { top: 0, left: 0, bottom: 0, right: 0 }
 	const inset = horizontal ? insets.top + insets.bottom : insets.left + insets.right
-	for (const child of parent.children) {
+	for (const child of parent.projectedChildren ?? parent.children) {
 		if (child.crossAxisConstraint) {
 			child.crossAxisConstraint.active = false
 		}
@@ -1017,7 +1032,7 @@ function makeMarginHost(node: ElementNode) {
 /** Wrap/unwrap/re-apply margins on a node that is already arranged inside a
  *  stack. Margins set before insert are materialized there instead. */
 function syncMarginHost(node: ElementNode) {
-	const parent = node.parent
+	const parent = node.layoutParent ?? node.parent
 	if (!node.view || !parent) {
 		return
 	}
@@ -1080,7 +1095,11 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 		insets[MARGIN_SIDES[name]] = points
 	}
 
-	if (['gridlayout', 'contentview', 'docklayout', 'wraplayout'].includes(node.parent?.type ?? '')) {
+	if (
+		['gridlayout', 'contentview', 'docklayout', 'wraplayout'].includes(
+			(node.layoutParent ?? node.parent)?.type ?? '',
+		)
+	) {
 		// These parents lay out children manually from props.style — no wrapper needed.
 		queueLayoutReconcile(node.container, node.parent)
 		return
@@ -1104,12 +1123,12 @@ function stackGravity(parent: ElementNode, child: ElementNode) {
 	}
 
 	if (justifyContent === 'space-between') {
-		const index = parent.children.indexOf(child)
+		const index = (parent.projectedChildren ?? parent.children).indexOf(child)
 		if (index === 0) {
 			return leading
 		}
 
-		if (index === parent.children.length - 1) {
+		if (index === (parent.projectedChildren ?? parent.children).length - 1) {
 			return trailing
 		}
 
@@ -1124,7 +1143,7 @@ function stackGravity(parent: ElementNode, child: ElementNode) {
  *  Shared by stack insertion and margin-host reinsertion. */
 function gravityInsertIndex(parent: ElementNode, node: ElementNode, gravity: number) {
 	let index = 0
-	for (const sibling of parent.children) {
+	for (const sibling of parent.projectedChildren ?? parent.children) {
 		if (sibling === node) {
 			break
 		}
@@ -1160,7 +1179,7 @@ function syncStackGravityArea(
 	moved: Set<ElementNode>,
 ) {
 	const desired: ElementNode[] = []
-	for (const child of parent.children) {
+	for (const child of parent.projectedChildren ?? parent.children) {
 		if (child.view && stackGravity(parent, child) === gravity) {
 			desired.push(child)
 		}
@@ -1238,7 +1257,9 @@ function updateStackDistribution(parent: ElementNode) {
 		return
 	}
 
-	const grows = parent.children.some((child) => child.view && nodeClasses(child).includes('flex-1'))
+	const grows = (parent.projectedChildren ?? parent.children).some(
+		(child) => child.view && nodeClasses(child).includes('flex-1'),
+	)
 
 	stack.distribution = grows ? NSStackViewDistribution.Fill : NSStackViewDistribution.GravityAreas
 }
@@ -1272,8 +1293,7 @@ function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 
 function makeFlexbox(props: PropBag) {
 	const stack = makeStack(props, AccessibleStackView)
-	const interactive =
-		typeof props.onTap === 'function' || props.accessibilityRole === 'button'
+	const interactive = typeof props.onTap === 'function' || props.accessibilityRole === 'button'
 
 	// Accessibility props need the AX id too — a 'checkbox'/'link' role or a
 	// bare accessibilityLabel must not drop every accessibility prop.
@@ -1286,10 +1306,7 @@ function makeFlexbox(props: PropBag) {
 		if (interactive) {
 			stack.addGestureRecognizer(
 				configureGesture(
-					NSClickGestureRecognizer.alloc().initWithTargetAction(
-						buttonActionTarget,
-						'viewPressed:',
-					),
+					NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
 				),
 			)
 		}
@@ -1945,7 +1962,7 @@ function layoutGridChildren(parent: ElementNode | undefined) {
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
 	const overlayChildren = parent.props.overlayChildren === true
-	const placements = parent.children
+	const placements = (parent.projectedChildren ?? parent.children)
 		.filter((child) => child.view)
 		.map((child) => ({
 			child,
@@ -2083,7 +2100,7 @@ function layoutAbsoluteChildren(parent: ElementNode | undefined) {
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
 
-	for (const child of parent.children) {
+	for (const child of parent.projectedChildren ?? parent.children) {
 		if (!child.view) {
 			continue
 		}
@@ -2163,7 +2180,7 @@ function dockNaturalSize(parent: ElementNode | undefined) {
 		usedWidth = 0,
 		usedHeight = 0
 
-	for (const child of parent?.children ?? []) {
+	for (const child of parent?.projectedChildren ?? parent?.children ?? []) {
 		if (!child.view) {
 			continue
 		}
@@ -2216,7 +2233,7 @@ function layoutDockChildren(parent: ElementNode | undefined) {
 		remainingWidth = width,
 		remainingHeight = height
 
-	const children = parent.children.filter((child) => child.view)
+	const children = (parent.projectedChildren ?? parent.children).filter((child) => child.view)
 	for (const [index, child] of children.entries()) {
 		const margins = child.marginInsets ?? {}
 		const ml = margins.left ?? 0,
@@ -2224,8 +2241,20 @@ function layoutDockChildren(parent: ElementNode | undefined) {
 			mt = margins.top ?? 0,
 			mb = margins.bottom ?? 0
 
-		const measuredWidth = dockChildSize(child, 'width', remainingWidth, Number(parent.view.bounds.size.width))
-		const measuredHeight = dockChildSize(child, 'height', remainingHeight, Number(parent.view.bounds.size.height))
+		const measuredWidth = dockChildSize(
+			child,
+			'width',
+			remainingWidth,
+			Number(parent.view.bounds.size.width),
+		)
+
+		const measuredHeight = dockChildSize(
+			child,
+			'height',
+			remainingHeight,
+			Number(parent.view.bounds.size.height),
+		)
+
 		const stretch = index === children.length - 1 && parent.props.stretchLastChild !== false
 		let slotX = x,
 			slotTop = top,
@@ -2322,7 +2351,7 @@ function wrapMeasure(parent: ElementNode, width: number, height: number) {
 	const vertical = parent.props.orientation === 'vertical'
 	const limit = vertical ? availableHeight : availableWidth
 	const lines: { length: number; cross: number; entries: any[] }[] = []
-	for (const child of parent.children) {
+	for (const child of parent.projectedChildren ?? parent.children) {
 		if (!child.view) {
 			continue
 		}
@@ -2500,7 +2529,7 @@ function layoutWrapChildren(parent: ElementNode | undefined) {
 }
 
 function layoutContentChild(parent: ElementNode | undefined) {
-	const child = parent?.contentChild
+	const child = parent?.projectedChildren ? parent.projectedChildren[0] : parent?.contentChild
 	if (!parent?.view || !child?.view) {
 		return
 	}
@@ -2601,6 +2630,7 @@ const VIEW_PARENT_TYPES = new Set([
 	'docklayout',
 	'wraplayout',
 	'contentview',
+	'proxyviewcontainer',
 	'stack',
 	'stacklayout',
 	'flexboxlayout',
@@ -2625,7 +2655,7 @@ const SUPPORTED_TYPES = new Set([
 ])
 
 function typeHasView(type: string) {
-	return type !== '#text' && type !== 'span'
+	return type !== '#text' && type !== 'span' && type !== 'proxyviewcontainer'
 }
 
 function assertSupportedType(type: string) {
@@ -2829,6 +2859,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'image':
 				node.view = makeImageView(props)
 				break
+			case 'proxyviewcontainer':
 			case 'span':
 				break
 			default:
@@ -2972,19 +3003,15 @@ function nativeColor(value: any): NSColor {
 		)
 	}
 
-	match =
-		/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]*([\d.]*)\s*(%?)\s*\)$/i.exec(string)
+	match = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]*([\d.]*)\s*(%?)\s*\)$/i.exec(
+		string,
+	)
 
 	if (match) {
 		// Clamp components like CSS does; a percent alpha is /100, a bare
 		// number is already 0–1.
 		const component = (raw: string) => Math.min(255, Math.max(0, Number(raw))) / 255
-		const alpha =
-			match[4] === ''
-				? 1
-				: match[5] === '%'
-					? Number(match[4]) / 100
-					: Number(match[4])
+		const alpha = match[4] === '' ? 1 : match[5] === '%' ? Number(match[4]) / 100 : Number(match[4])
 
 		return NSColor.colorWithRedGreenBlueAlpha(
 			component(match[1]),
@@ -3107,7 +3134,9 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 	}
 
 	if (
-		['gridlayout', 'absolutelayout', 'docklayout', 'wraplayout'].includes(node.parent?.type ?? '')
+		['gridlayout', 'absolutelayout', 'docklayout', 'wraplayout'].includes(
+			(node.layoutParent ?? node.parent)?.type ?? '',
+		)
 	) {
 		deactivateSizeConstraints(node)
 		queueLayoutReconcile(node.container, node.parent)
@@ -3142,7 +3171,7 @@ function sizeConstraintSpec(value: any) {
 
 function sizeConstraintParentView(node: ElementNode) {
 	if (node.parent) {
-		return node.parent.childHost ?? node.parent.view
+		return (node.layoutParent ?? node.parent).childHost ?? (node.layoutParent ?? node.parent).view
 	}
 
 	return node.container.children.includes(node) ? node.container.hostView : null
@@ -3159,7 +3188,9 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	if (
 		!spec ||
 		!node.view ||
-		['contentview', 'docklayout', 'wraplayout'].includes(node.parent?.type ?? '')
+		['contentview', 'docklayout', 'wraplayout'].includes(
+			(node.layoutParent ?? node.parent)?.type ?? '',
+		)
 	) {
 		return
 	}
@@ -3281,8 +3312,8 @@ function clearMarginStyle(node: ElementNode, name: string) {
 		insets[MARGIN_SIDES[name]] = 0
 	}
 
-	if (node.parent?.type === 'gridlayout') {
-		layoutGridChildren(node.parent)
+	if ((node.layoutParent ?? node.parent)?.type === 'gridlayout') {
+		layoutGridChildren(node.layoutParent ?? node.parent ?? undefined)
 		return
 	}
 
@@ -3340,12 +3371,12 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'width' || name === 'height') {
 		setSizeConstraint(node, name, undefined)
 	} else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
-		if (node.parent?.type === 'gridlayout') {
-			layoutGridChildren(node.parent)
+		if ((node.layoutParent ?? node.parent)?.type === 'gridlayout') {
+			layoutGridChildren(node.layoutParent ?? node.parent ?? undefined)
 		}
 
-		if (node.parent?.type === 'absolutelayout') {
-			layoutAbsoluteChildren(node.parent)
+		if ((node.layoutParent ?? node.parent)?.type === 'absolutelayout') {
+			layoutAbsoluteChildren(node.layoutParent ?? node.parent ?? undefined)
 		}
 	} else if (name === 'translateX' || name === 'translateY') {
 		if (typeof view.layer?.setValueForKeyPath === 'function') {
@@ -3465,7 +3496,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
-			if (['gridlayout', 'absolutelayout'].includes(node.parent?.type ?? '')) {
+			if (
+				['gridlayout', 'absolutelayout'].includes((node.layoutParent ?? node.parent)?.type ?? '')
+			) {
 				queueLayoutReconcile(node.container, node.parent)
 			}
 		} else if ((name === 'translateX' || name === 'translateY' || name === 'zIndex') && node.view) {
@@ -4198,6 +4231,15 @@ function staleEventClears(props: PropBag, next: PropBag): PropBag {
 
 function applyProps(node: ElementNode, props: PropBag) {
 	node.props = { ...node.props, ...props }
+	if (node.authoredProps || node.parent?.type === 'proxyviewcontainer' || node.type === 'proxyviewcontainer') {
+		node.authoredProps = { ...node.authoredProps, ...props }
+	}
+
+	if (node.type === 'proxyviewcontainer') {
+		queueLayoutReconcile(node.container, node)
+		return
+	}
+
 	if (node.type === '#text') {
 		if ('value' in props) {
 			node.text = String(props.value ?? '')
@@ -4221,7 +4263,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	for (const [name, value] of Object.entries(props)) {
-		if (node.parent && layoutChildProps[node.parent.type]?.includes(name)) {
+		if (
+			(node.layoutParent ?? node.parent) &&
+			layoutChildProps[(node.layoutParent ?? node.parent)!.type]?.includes(name)
+		) {
 			continue
 		}
 
@@ -4670,6 +4715,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 
+	if (node.parent?.type === 'proxyviewcontainer') {
+		queueLayoutReconcile(node.container, node.parent)
+	}
+
 	// Container children also reconcile their own subtree. Their size updates
 	// must still notify the outer DockLayout or WrapLayout.
 	if (node.parent?.type === 'docklayout' || node.parent?.type === 'wraplayout') {
@@ -4677,8 +4726,324 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 }
 
+// NativeScript ProxyViewContainer's attached layout-property inventory.
+// These are forwarded to children; explicit child values retain precedence.
+const PROXY_LAYOUT_PROPS = [
+	'left',
+	'top',
+	'dock',
+	'flexDirection',
+	'flexWrap',
+	'justifyContent',
+	'alignItems',
+	'alignContent',
+	'order',
+	'flexGrow',
+	'flexShrink',
+	'flexWrapBefore',
+	'alignSelf',
+	'flexFlow',
+	'flex',
+	'column',
+	'columnSpan',
+	'col',
+	'colSpan',
+	'row',
+	'rowSpan',
+] as const
+
+function projectedViews(parent: ElementNode): ElementNode[] {
+	const children =
+		parent.type === 'contentview'
+			? parent.contentChild
+				? [parent.contentChild]
+				: []
+			: parent.children
+
+	return children.flatMap((child: ElementNode) => {
+		if (child.props.visibility === 'collapse') {
+			return []
+		}
+
+		if (child.type === 'proxyviewcontainer') {
+			return projectedViews(child)
+		}
+
+		return child.view ? [child] : []
+	})
+}
+
+function releaseProjectedView(node: ElementNode) {
+	if (node.crossAxisConstraint) {
+		node.crossAxisConstraint.active = false
+	}
+
+	node.crossAxisConstraint = null
+	deactivateSizeConstraints(node)
+	releasePlacementPins(node)
+	const parent = node.layoutParent
+	const view = parent?.childHost ?? parent?.view
+	if (arrangedView(node)?.superview === view) {
+		view?.removeArrangedSubview?.(arrangedView(node))
+	}
+
+	arrangedView(node)?.removeFromSuperview()
+	node.layoutParent = null
+	if (node.authoredProps) {
+		for (const name of PROXY_LAYOUT_PROPS) {
+			if (node.props[name] !== node.authoredProps[name]) {
+				node.props[name] = node.authoredProps[name]
+			}
+		}
+	}
+}
+
+function syncProxyProjection(parent: ElementNode) {
+	const children = projectedViews(parent)
+	if (parent.type === 'contentview' && children.length > 1) {
+		throw new Error(
+			'AppKit <contentview> cannot project multiple ProxyViewContainer layout children',
+		)
+	}
+
+	const previous = parent.projectedChildren ?? []
+	for (const child of previous) {
+		if (!children.includes(child) && child.layoutParent === parent) {
+			releaseProjectedView(child)
+		}
+	}
+
+	parent.projectedChildren = children
+	const host = parent.childHost ?? parent.view
+	const manual = [
+		'gridlayout',
+		'absolutelayout',
+		'contentview',
+		'docklayout',
+		'wraplayout',
+		'#root',
+	].includes(parent.type)
+
+	for (const child of children) {
+		// Preserve authored values separately from the parent's forwarded values.
+		child.authoredProps ??= { ...child.props }
+		const chain: ElementNode[] = []
+		for (let owner = child.parent; owner?.type === 'proxyviewcontainer'; owner = owner.parent) {
+			chain.push(owner)
+		}
+
+		const forwarded: PropBag = {}
+		for (const owner of chain.reverse()) {
+			for (const name of PROXY_LAYOUT_PROPS) {
+				if (owner.props[name] != null) {
+					forwarded[name] = owner.props[name]
+				}
+			}
+		}
+
+		const changes: PropBag = {}
+		for (const name of PROXY_LAYOUT_PROPS) {
+			const next = child.authoredProps[name] ?? forwarded[name]
+			if (next !== child.props[name]) {
+				changes[name] = next
+				child.props[name] = next
+			}
+		}
+
+		child.layoutParent = parent
+		if (
+			['flexboxlayout', 'stack', 'stacklayout'].includes(child.type) &&
+			Object.keys(changes).length
+		) {
+			// Apply container-layout properties to the actual host as well as its
+			// placement metadata. Do not overwrite the authored prop snapshot.
+			syncStackLayout(child)
+		}
+
+		if (manual) {
+			child.marginHost?.removeFromSuperview()
+			child.marginHost = null
+			child.marginConstraints = null
+			if (layoutView(child).superview !== host) {
+				host!.addSubview(layoutView(child))
+			}
+
+			layoutView(child).translatesAutoresizingMaskIntoConstraints = false
+			deactivateSizeConstraints(child)
+			if (parent.type === '#root') {
+				pinLayoutChild(
+					child,
+					host,
+					0,
+					0,
+					Number(host!.bounds.size.width),
+					Number(host!.bounds.size.height),
+				)
+			}
+		} else {
+			if (marginInsetsOf(child) && !child.marginHost) {
+				makeMarginHost(child)
+			}
+		}
+
+		syncScheme(child)
+	}
+
+	if (manual && host?.addSubviewPositionedRelativeTo) {
+		const views = children.map(layoutView)
+		const native = host.subviews
+		const count = typeof native.count === 'function' ? native.count() : native.count
+		const actual = Array.from({ length: Number(count) }, (_, index) => native.objectAtIndex(index))
+			.filter((view) => views.includes(view))
+
+		if (views.some((view, index) => view !== actual[index])) {
+			let previous: NSView | null = null
+			for (const view of views) {
+				// NSWindowAbove = 1 (AppKit NSGraphics.h); use the SDK value without a generated enum global.
+				host.addSubviewPositionedRelativeTo(view, 1, previous)
+				previous = view
+			}
+		}
+	}
+
+	if (!manual) {
+		moveStackChildren(parent)
+	}
+}
+
+/** Simulate logical ownership and ContentView's current slot before applying
+ * a batch. A proxy may be empty when inserted and gain its children later in
+ * that same batch; checking only the insert command misses that failure. */
+function validateProxyTree(container: RootContainer, commands: readonly UniversalHostCommand[]) {
+	if (
+		![...container.nodes.values()].some((node) => node.type === 'proxyviewcontainer') &&
+		!commands.some((command) => 'type' in command && command.type === 'proxyviewcontainer')
+	) {
+		return
+	}
+
+	const nodes = new Map<
+		number,
+		{
+			type: string
+			props: PropBag
+			children: number[]
+			parent: number | null
+			slot?: number | null
+		}
+	>()
+
+	for (const node of container.nodes.values()) {
+		nodes.set(node.id, {
+			type: node.type,
+			props: node.props,
+			children: node.children.map((child) => child.id),
+			parent: node.parent?.id ?? null,
+			slot: node.contentChild?.id ?? null,
+		})
+	}
+
+	const unlink = (id: number) => {
+		const node = nodes.get(id)
+		const parent = node?.parent == null ? null : nodes.get(node.parent)
+		if (parent) {
+			parent.children = parent.children.filter((child) => child !== id)
+			if (parent.slot === id) {
+				parent.slot = null
+			}
+		}
+
+		if (node) {
+			node.parent = null
+		}
+	}
+
+	for (const command of commands) {
+		if (command.op === 'create' || command.op === 'recreate') {
+			const old = nodes.get(command.id)
+			nodes.set(command.id, {
+				type: command.type,
+				props: command.props,
+				children: [],
+				parent: old?.parent ?? null,
+			})
+		} else if (command.op === 'update') {
+			const node = nodes.get(command.id)
+			if (node) {
+				node.props = command.props
+			}
+		} else if (command.op === 'insert' || command.op === 'move') {
+			unlink(command.id)
+			const node = nodes.get(command.id)!,
+				parent = command.parent == null ? null : nodes.get(command.parent as number)
+
+			node.parent = command.parent as number | null
+			if (parent) {
+				const index = parent.children.indexOf(command.before!)
+				parent.children.splice(index < 0 ? parent.children.length : index, 0, command.id)
+				if (parent.type === 'contentview') {
+					parent.slot = command.id
+				}
+			}
+		} else if (command.op === 'remove') {
+			if (nodes.get(command.id)?.parent === command.parent) {
+				unlink(command.id)
+			}
+		} else if (command.op === 'destroy') {
+			unlink(command.id)
+			nodes.delete(command.id)
+		}
+	}
+
+	const count = (id: number, seen = new Set<number>()): number => {
+		if (seen.has(id)) {
+			throw new Error('AppKit ProxyViewContainer ownership cycle')
+		}
+
+		const node = nodes.get(id)
+		if (!node || node.props.visibility === 'collapse') {
+			return 0
+		}
+
+		if (node.type !== 'proxyviewcontainer') {
+			return typeHasView(node.type) ? 1 : 0
+		}
+
+		return node.children.reduce((sum, child) => sum + count(child, new Set([...seen, id])), 0)
+	}
+
+	for (const [id, node] of nodes) {
+		if (node.type === 'contentview' && node.slot != null && count(node.slot) > 1) {
+			throw new Error(
+				'AppKit <contentview> cannot project multiple ProxyViewContainer layout children',
+			)
+		}
+
+		if (node.type === 'proxyviewcontainer') {
+			count(id)
+			for (const child of node.children) {
+				const type = nodes.get(child)?.type
+				if (type === '#text' || type === 'span') {
+					throw new Error('AppKit <proxyviewcontainer> cannot contain text-only children')
+				}
+			}
+		}
+	}
+}
+
 function detach(container: RootContainer, node: ElementNode) {
 	const previousParent = node.parent
+	const physicalParent = node.layoutParent ?? previousParent
+	if (node.layoutParent) {
+		releaseProjectedView(node)
+	}
+
+	if (node.type === 'proxyviewcontainer') {
+		for (const child of projectedViews(node)) {
+			releaseProjectedView(child)
+		}
+	}
+
 	const siblings = previousParent?.children ?? container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {
@@ -4693,8 +5058,8 @@ function detach(container: RootContainer, node: ElementNode) {
 	deactivateSizeConstraints(node)
 	releasePlacementPins(node)
 	if (node.view) {
-		const parentView = previousParent?.childHost ?? previousParent?.view
-		if (parentView?.removeArrangedSubview) {
+		const parentView = physicalParent?.childHost ?? physicalParent?.view
+		if (parentView?.removeArrangedSubview && arrangedView(node)?.superview === parentView) {
 			parentView.removeArrangedSubview(arrangedView(node))
 		}
 
@@ -4709,6 +5074,7 @@ function detach(container: RootContainer, node: ElementNode) {
 	queueLayoutReconcile(container, previousParent)
 	syncText(previousParent)
 	node.parent = null
+	node.layoutParent = null
 }
 
 /** Mark a parent for one sibling-wide reconcile after the batch's commands.
@@ -4722,6 +5088,26 @@ function queueLayoutReconcile(container: RootContainer, parent: ElementNode | nu
 		return
 	}
 
+	while (parent?.type === 'proxyviewcontainer') {
+		if (parent.parent) {
+			parent = parent.parent
+		} else {
+			if (!container.children.includes(parent)) {
+				return
+			}
+
+			parent = container.projectionRoot ??= {
+				type: '#root',
+				children: container.children,
+				view: container.hostView,
+				props: {},
+				container,
+			} as ElementNode
+
+			break
+		}
+	}
+
 	const pending = container?.layoutDirty
 	if (pending) {
 		pending.add(parent)
@@ -4732,6 +5118,13 @@ function queueLayoutReconcile(container: RootContainer, parent: ElementNode | nu
 }
 
 function reconcileLayoutParent(parent: ElementNode) {
+	if (
+		parent.projectedChildren ||
+		parent.children.some((child) => child.type === 'proxyviewcontainer')
+	) {
+		syncProxyProjection(parent)
+	}
+
 	if (parent.type === 'wraplayout') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutWrapChildren(parent)
@@ -4777,7 +5170,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
-	for (const child of parent.children) {
+	for (const child of parent.projectedChildren ?? parent.children) {
 		setStackChildPriorities(parent, child)
 	}
 
@@ -4799,15 +5192,28 @@ function insert(
 	}
 
 	if (
-		['stacklayout', 'contentview', 'docklayout', 'wraplayout'].includes(parent?.type ?? '') &&
-		!node.view
+		['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'proxyviewcontainer'].includes(
+			parent?.type ?? '',
+		) &&
+		!node.view &&
+		node.type !== 'proxyviewcontainer'
 	) {
 		throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 	}
 
-	if (parent && node.view && !VIEW_PARENT_TYPES.has(parent.type)) {
+	if (
+		parent &&
+		(node.view || node.type === 'proxyviewcontainer') &&
+		!VIEW_PARENT_TYPES.has(parent.type)
+	) {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
+
+	const projected =
+		node.type === 'proxyviewcontainer' ||
+		parent?.type === 'proxyviewcontainer' ||
+		parent?.projectedChildren ||
+		parent?.children.some((child) => child.type === 'proxyviewcontainer')
 
 	const parentView = parent?.childHost ?? parent?.view ?? container.hostView
 	if (node.view && !parentView) {
@@ -4820,6 +5226,24 @@ function insert(
 	const index = beforeIndex < 0 ? siblings.length : beforeIndex
 	siblings.splice(index, 0, node)
 	node.parent = parent
+	if (projected) {
+		if (parent?.type === 'contentview') {
+			const previous = parent.contentChild
+			if (previous && previous !== node) {
+				for (const child of previous.type === 'proxyviewcontainer'
+					? projectedViews(previous)
+					: [previous]) {
+					releaseProjectedView(child)
+				}
+			}
+
+			parent.contentChild = node
+		}
+
+		queueLayoutReconcile(container, parent ?? node)
+		return
+	}
+
 	if (node.view) {
 		if (parent) {
 			if (
@@ -4899,6 +5323,15 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 		return
 	}
 
+	if (
+		node.type === 'proxyviewcontainer' ||
+		expectedParent?.type === 'proxyviewcontainer' ||
+		node.layoutParent
+	) {
+		detach(container, node)
+		return
+	}
+
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {
@@ -4914,7 +5347,7 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 	releasePlacementPins(node)
 	if (node.view) {
 		const parentView = expectedParent?.childHost ?? expectedParent?.view
-		if (parentView?.removeArrangedSubview) {
+		if (parentView?.removeArrangedSubview && arrangedView(node)?.superview === parentView) {
 			parentView.removeArrangedSubview(arrangedView(node))
 		}
 
@@ -4936,6 +5369,13 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	if (node.type === 'proxyviewcontainer') {
+		detach(node.container, node)
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
+	}
+
 	if (node.type === 'wraplayout') {
 		if (node.wrapGeometryObserver) {
 			NSNotificationCenter.defaultCenter.removeObserver(node.wrapGeometryObserver)
@@ -5083,15 +5523,18 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const parentId = parentOf(command.id)
 				const parent = parentId == null ? null : known(parentId)
 				if (
-					['stacklayout', 'contentview', 'docklayout', 'wraplayout'].includes(parent?.type ?? '') &&
-					!typeHasView(command.type)
+					['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'proxyviewcontainer'].includes(
+						parent?.type ?? '',
+					) &&
+					!typeHasView(command.type) &&
+					command.type !== 'proxyviewcontainer'
 				) {
 					throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 				}
 
 				if (
 					existing?.parent &&
-					typeHasView(command.type) &&
+					(typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
 					!VIEW_PARENT_TYPES.has(existing.parent.type)
 				) {
 					throw new Error('AppKit <' + existing.parent.type + '> cannot contain child views')
@@ -5124,13 +5567,23 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					}
 
 					if (
-						['stacklayout', 'contentview', 'docklayout', 'wraplayout'].includes(parent.type) &&
-						!typeHasView(entry.type)
+						[
+							'stacklayout',
+							'contentview',
+							'docklayout',
+							'wraplayout',
+							'proxyviewcontainer',
+						].includes(parent.type) &&
+						!typeHasView(entry.type) &&
+						entry.type !== 'proxyviewcontainer'
 					) {
 						throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 					}
 
-					if (typeHasView(entry.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
+					if (
+						(typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
+						!VIEW_PARENT_TYPES.has(parent.type)
+					) {
 						throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 					}
 				}
@@ -5155,6 +5608,13 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				throw new Error('AppKit spike does not support host command ' + command.op)
 		}
 	}
+
+	if (
+		[...container.nodes.values()].some((node) => node.type === 'proxyviewcontainer') ||
+		commands.some((command) => 'type' in command && command.type === 'proxyviewcontainer')
+	) {
+		validateProxyTree(container, commands)
+	}
 }
 
 function applyCommand(container: RootContainer, command: UniversalHostCommand) {
@@ -5167,7 +5627,8 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				['stacklayout', 'contentview', 'docklayout', 'wraplayout'].includes(
 					existing?.parent?.type ?? '',
 				) &&
-				!typeHasView(command.type)
+				!typeHasView(command.type) &&
+				command.type !== 'proxyviewcontainer'
 			) {
 				throw new Error('AppKit <' + existing!.parent!.type + '> cannot contain text-only children')
 			}
@@ -5195,11 +5656,15 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				// readers. Inject explicit clears for every sticky prop so a
 				// removed key restores its default.
 				const childClears =
-					node.parent?.type === 'docklayout'
-						? { dock: undefined, horizontalAlignment: undefined, verticalAlignment: undefined }
-						: ['contentview', 'wraplayout'].includes(node.parent?.type ?? '')
-							? { horizontalAlignment: undefined, verticalAlignment: undefined }
-							: {}
+					node.type === 'proxyviewcontainer' || node.parent?.type === 'proxyviewcontainer' || node.layoutParent
+						? Object.fromEntries([...PROXY_LAYOUT_PROPS, 'visibility', 'horizontalAlignment', 'verticalAlignment']
+							.filter((name) => node.props[name] !== undefined || node.authoredProps?.[name] !== undefined)
+							.map((name) => [name, undefined]))
+						: node.parent?.type === 'docklayout'
+							? { dock: undefined, horizontalAlignment: undefined, verticalAlignment: undefined }
+							: ['contentview', 'wraplayout'].includes(node.parent?.type ?? '')
+								? { horizontalAlignment: undefined, verticalAlignment: undefined }
+								: {}
 
 				applyProps(node, {
 					...staleEventClears(node.props, command.props),
@@ -5259,13 +5724,20 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 
 			const parent = node.parent
 			if (
-				['stacklayout', 'contentview', 'docklayout', 'wraplayout'].includes(parent?.type ?? '') &&
-				!typeHasView(command.type)
+				['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'proxyviewcontainer'].includes(
+					parent?.type ?? '',
+				) &&
+				!typeHasView(command.type) &&
+				command.type !== 'proxyviewcontainer'
 			) {
 				throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 			}
 
-			if (parent && typeHasView(command.type) && !VIEW_PARENT_TYPES.has(parent.type)) {
+			if (
+				parent &&
+				(typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
+				!VIEW_PARENT_TYPES.has(parent.type)
+			) {
 				// insert would reject the replacement after the original was
 				// already removed and destroyed — fail while it is intact.
 				throw new Error('AppKit <' + parent.type + '> cannot contain child views')
@@ -5332,7 +5804,8 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 		}
 	},
 	getPublicInstance(container, id) {
-		return container.nodes.get(id)?.view ?? null
+		const node = container.nodes.get(id)
+		return node?.type === 'proxyviewcontainer' ? node : (node?.view ?? null)
 	},
 }
 
@@ -6178,8 +6651,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 	picker.datePickerElements = isTime
 		? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
 		: isBoth
-			? ((DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0) |
-				(DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c))
+			? (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0) | (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
 			: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
 
 	picker.datePickerStyle =
@@ -6482,7 +6954,8 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
 			findId(id: string) {
-				return [...container.nodes.values()].find((node) => node.props.id === id)?.view ?? null
+				const node = [...container.nodes.values()].find((node) => node.props.id === id)
+				return node?.type === 'proxyviewcontainer' ? node : (node?.view ?? null)
 			},
 			measureParity(facets: readonly string[]) {
 				return measureParity(container, facets)

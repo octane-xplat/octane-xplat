@@ -48,6 +48,8 @@ for (const file of [
 	'Content.macos.tsx',
 	'Dock.macos.tsx',
 	'Wrap.macos.tsx',
+	'Proxy.macos.tsx',
+	'proxy-lifecycle.ts',
 	'wrap-lifecycle.ts',
 	'dock-lifecycle.ts',
 	'content-lifecycle.ts',
@@ -64,12 +66,16 @@ const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	4,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout and WrapLayout examples',
+	5,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout WrapLayout and ProxyViewContainer examples',
 )
 
 for (const [index, example] of examples.entries()) {
 	await writeFile(join(app, `src/Example${index}.macos.tsx`), example[1])
+}
+
+for (const [index, example] of [...ledger.matchAll(/```ts\n([\s\S]*?)```/g)].entries()) {
+	await writeFile(join(app, `src/ExampleTypes${index}.ts`), example[1])
 }
 
 for (const file of ['vite.config.ts', 'vite.dev.config.ts', 'vite.shell.config.ts']) {
@@ -191,6 +197,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_CONTENTVIEW_OK/)
 	assert.match(output, /PACKED_DOCKLAYOUT_OK/)
 	assert.match(output, /PACKED_WRAPLAYOUT_OK/)
+	assert.match(output, /PACKED_PROXYVIEWCONTAINER_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -241,6 +248,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.equal(verified, true, devOutput.slice(-5000))
 		assert.match(devOutput, /PACKED_DOCKLAYOUT_HMR_OK/)
 		assert.match(devOutput, /PACKED_WRAPLAYOUT_HMR_OK/)
+		assert.match(devOutput, /PACKED_PROXYVIEWCONTAINER_HMR_OK/)
 		assert.match(devOutput, /PACKED_CONTENTVIEW_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {

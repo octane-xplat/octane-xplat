@@ -121,3 +121,26 @@ const badWrapSize: JSX.IntrinsicElements['wraplayout'] = { itemWidth: '30' };
 const badWrapOrientation: JSX.IntrinsicElements['wraplayout'] = { orientation: 'diagonal' };
 void badWrapSize;
 void badWrapOrientation;
+
+// Viewless macOS hosts expose logical identity, never an NSView facade.
+const macProxy: MacJSX.IntrinsicElements['proxyviewcontainer'] = {
+	row: 1,
+	dock: 'right',
+	ref: [
+		(element) => {
+			if (element) {
+				const id: number = element.id
+				const noView: null = element.view
+				void id
+				void noView
+				// @ts-expect-error logical elements have no NSView methods
+				element.addSubview(element)
+			}
+
+			return () => {}
+		},
+		{ current: null },
+	],
+}
+
+void macProxy

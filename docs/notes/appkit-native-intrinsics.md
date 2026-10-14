@@ -16,18 +16,18 @@ The authority is `NativeElements` in `packages/jsx/src/shared.d.ts`: 39 core
 intrinsics, nine maintained extensions, and compiler-produced `#text`.
 All conditioned native declarations derive from that same map.
 
-| Family            | Existing AppKit factories                                                                                 | Missing raw AppKit hosts                                                                                                               |
-| ----------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout` | `proxyviewcontainer`, `rootlayout`                                                                                                     |
-| Text              | `label`, `span`                                                                                           | `formattedstring`, `htmlview`                                                                                                          |
-| Text input        | `textfield`, `textview`                                                                                   | `searchbar`                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`                                                                              | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
-| Collections       | —                                                                                                         | `listview`, `tabview`, `tabviewitem`                                                                                                   |
-| Navigation        | —                                                                                                         | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
-| Other             | `image`, `scrollview`, `webview`                                                                          | `liquidglass`, `placeholder`                                                                                                           |
-| Shared extensions | —                                                                                                         | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
+| Family            | Existing AppKit factories                                                                                                       | Missing raw AppKit hosts                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer` | `rootlayout`                                                                                                                           |
+| Text              | `label`, `span`                                                                                                                 | `formattedstring`, `htmlview`                                                                                                          |
+| Text input        | `textfield`, `textview`                                                                                                         | `searchbar`                                                                                                                            |
+| Controls          | `button`, `switch`, `slider`                                                                                                    | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
+| Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
+| Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
+| Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
+| Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 17 core factories and 22 missing core hosts. `span` is viewless;
+There are now 18 core factories and 21 missing core hosts. `span` is viewless;
 its factory presence does not establish formatted-text behavior. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 22 missing core hosts and nine missing raw extension hosts remain required.
+The 21 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -90,7 +90,7 @@ This host fix does not change the recommended UI Stack API or the requirements
 of the shared-layout recipe. Public source migration, release documentation,
 package defaults, and the full native/web acceptance matrix must still land
 and pass together. ContentView follows below; the remaining independent
-layout units are ProxyViewContainer and RootLayout.
+layout unit is RootLayout.
 
 ## ContentView host
 
@@ -180,7 +180,12 @@ apply within those slots.
 /** @jsxImportSource @octane-xplat/jsx */
 export default function WrapExample() {
 	return (
-		<wraplayout orientation="vertical" itemWidth={80} itemHeight={40} style={{ width: 200, height: 100, padding: 10 }}>
+		<wraplayout
+			orientation="vertical"
+			itemWidth={80}
+			itemHeight={40}
+			style={{ width: 200, height: 100, padding: 10 }}
+		>
 			<label text="First" style={{ width: 40, height: 20 }} />
 			<label text="Second" />
 			<contentview>
@@ -198,3 +203,54 @@ cleanup. Retained-root HMR checks host/child identity, edited text, signal
 state and teardown. These checks qualify this core host, not the inherited
 common-contract gaps or full native parity. Mobile execution, visual parity
 and OS input remain unqualified.
+
+## ProxyViewContainer logical host
+
+ProxyViewContainer groups children without adding a native view. Its children
+participate directly in the nearest parent layout, in JSX order. Attached
+layout properties such as `row`, `col`, `dock`, `left` and `top` reach those
+children; a child's explicit value takes precedence. Removing a forwarded
+property restores the child's own value or the layout default. ContentView
+still accepts only one projected layout child; group multiple children in a
+layout before putting them in ContentView.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function ProxyExample() {
+	return (
+		<gridlayout rows="40,40" columns="100,100" style={{ width: 200, height: 80 }}>
+			<proxyviewcontainer row={1} col={1}>
+				<label text="Projected into the second cell" />
+			</proxyviewcontainer>
+		</gridlayout>
+	)
+}
+```
+
+On macOS, a viewless intrinsic's ref receives a logical element instance,
+including when it has no children. The exported conditioned `LogicalElement`
+type exposes its identity (`id`, `type`) and `view: null`. View-backed tags
+continue to receive AppKit views. Callback, object and nested-array refs use
+the universal runtime's assignment and cleanup rules.
+
+```ts
+import type { JSX, LogicalElement, Ref } from '@octane-xplat/jsx/jsx-runtime'
+
+const current = { current: null as LogicalElement | null }
+const refs: Ref<LogicalElement> = [
+	current,
+	(element) => {
+		if (element) console.log(element.id, element.type)
+		return () => {}
+	},
+]
+const attributes: JSX.IntrinsicElements['proxyviewcontainer'] = { ref: refs }
+void attributes
+```
+
+The maintained tests and packed AppKit consumer exercise logical identity,
+empty refs, nested projection, ordered moves, prop updates and default
+restoration, parent changes, replacement, removal, disposal and retained-root
+HMR. Fresh packed declaration lanes check the viewless ref contract. This unit
+does not qualify the inherited common event/style contract or complete native
+parity. No mobile execution, visual analysis or OS-input evidence is supplied.

@@ -3,15 +3,16 @@
  *
  * The same shared contract as the default entry, with `HostElement` bound to
  * the bridged AppKit `NSView` the macOS driver hands to refs and host
- * events. Intrinsic membership and prop names are unchanged — only the host
- * element value type is conditioned. This entry never references
+ * events. Viewless intrinsics bind to `LogicalElement` instead. Intrinsic
+ * membership and prop names are unchanged — only the host element value type
+ * is conditioned. This entry never references
  * `@nativescript/core`: it resolves for macOS consumers without any
  * NativeScript dependency, and wins over `native` when both conditions are
  * enabled.
  *
  * Types only — the compiler lowers JSX before any factory could run.
  */
-import type { ElementTypeOf, NativeElements, NativeNode, Ref } from './shared.js';
+import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref } from './shared.js';
 
 export * from './shared.js';
 
@@ -28,10 +29,21 @@ export interface HostElement {
 	[key: string]: any;
 }
 
+/** Public instance of a viewless intrinsic. It owns logical identity and
+ * children without allocating an NSView. Universal refs retain this instance
+ * across updates and clear it on replacement or disposal. */
+export interface LogicalElement {
+	readonly id: number;
+	readonly type: string;
+	readonly view: null;
+}
+
 export declare namespace JSX {
 	type Element = NativeNode;
 	type ElementType = ElementTypeOf;
-	interface IntrinsicElements extends NativeElements<HostElement> {}
+	interface IntrinsicElements extends Omit<NativeElements<HostElement>, 'proxyviewcontainer'> {
+		proxyviewcontainer: Attributes<LogicalElement>;
+	}
 	interface IntrinsicAttributes {
 		key?: string | number;
 	}

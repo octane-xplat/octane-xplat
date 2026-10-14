@@ -29,17 +29,22 @@ function fixture() {
 	const stack = {
 		removeArrangedSubview(view) {
 			const index = arranged.indexOf(view)
-			if (index >= 0) {
-				arranged.splice(index, 1)
+			if (index < 0) {
+				throw new Error('Cannot remove a view not owned by this stack')
 			}
+
+			arranged.splice(index, 1)
+			view.superview = null
 		},
 		addViewInGravity(view) {
 			arranged.push(view)
+			view.superview = this
 		},
 		insertViewAtIndexInGravity(view, index, gravity) {
 			const group = arranged.filter((value) => value.gravity === gravity)
 			const before = group[index]
 			arranged.splice(before ? arranged.indexOf(before) : arranged.length, 0, view)
+			view.superview = this
 		},
 	}
 
