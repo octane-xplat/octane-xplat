@@ -1,5 +1,7 @@
 import { Application, Utils } from '@nativescript/core'
 import type { HapticPattern, HapticPreset, Haptics, HapticsCapabilities } from './types'
+import { java } from '@octane-xplat/platform/android'
+
 
 declare const XplatPulsarBridge: any
 declare const com: any

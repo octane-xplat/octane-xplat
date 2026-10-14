@@ -1,3 +1,5 @@
+import type { NSWindow } from '@octane-xplat/platform/macos'
+
 export interface MacOSWebView {
 	/** Load a development page from localhost over HTTP. */
 	load(address: string): boolean
@@ -6,9 +8,8 @@ export interface MacOSWebView {
 	/** Install a JSON-encoded initial state before the next document load. */
 	setBootstrap(serialized: string): boolean
 	setWindowContext(id: string, data: string): boolean
-	// Resolves to the ambient AppKit NSWindow in macOS programs (macos-renderer
-	// appkit.d.ts or the app's own AppKit globals); the native host returns the
-	// window object.
+	// The native host returns the window object; NSWindow resolves through the
+	// module surface so the type is the same in every program.
 	owningWindow(): NSWindow | null
 	installDispatcher(dispatch: (message: string) => void): void
 	deliver(message: string): void

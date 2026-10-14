@@ -105,5 +105,8 @@
 				"CoreMedia"
 			]
 		}
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
 	}
 }

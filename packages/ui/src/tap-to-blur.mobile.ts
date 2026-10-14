@@ -1,4 +1,6 @@
 import { Application } from '@nativescript/core'
+import { android } from '@octane-xplat/platform/android'
+
 
 /** Hide the Android soft keyboard when the user taps the attached view. */
 export function attachTapToBlur(view: any): () => void {

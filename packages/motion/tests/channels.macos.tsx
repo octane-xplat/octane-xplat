@@ -1,6 +1,8 @@
 import { createMacOSRoot } from '../../macos-renderer/src/index'
 import { motion, MotionConfig } from '../src/index'
 import { attachHost } from '../src/host.macos'
+import { NSView } from '@octane-xplat/platform/macos'
+
 
 let view: any
 let snapshot: any

@@ -16,4 +16,6 @@ declare function setInterval(callback: (...args: unknown[]) => void, delay?: num
 declare function clearInterval(handle?: number): void
 declare function queueMicrotask(callback: () => void): void
 
-declare var process: { env: { NODE_ENV?: string } }
+// The macOS host embeds a real Node runtime — the broader process ambient
+// (env index signature + cwd) lives in macos-renderer's host-globals.d.ts,
+// which is listed alongside this file for every macos-env program.

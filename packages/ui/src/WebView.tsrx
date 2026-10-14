@@ -5,6 +5,8 @@ import type { WebViewProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
+import { android } from '@octane-xplat/platform/android'
+
 
 function reportContentLayout(view: any, props: WebViewProps) {
 	let width = Number(view?.getActualSize?.()?.width ?? 0)

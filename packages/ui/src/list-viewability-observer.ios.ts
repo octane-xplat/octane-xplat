@@ -1,6 +1,8 @@
 import type { ListViewabilityConfig } from './props'
 import type { VisibleListRow } from './list-viewability-core'
 import { observeLoadedListPeer, type ListVisibilityObserver } from './list-viewability-runtime'
+import { NSIndexPath, NSObject, UIScrollView, UITableView } from '@octane-xplat/platform/ios'
+
 
 export function observeListViewability(
 	list: any,

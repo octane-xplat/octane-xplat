@@ -14,6 +14,9 @@ import {
 	closeBottomSheet,
 } from '../../../packages/ui/src/bottom-sheet-service.macos'
 
+import { NSApplication, NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
+
+
 const media = [
 	{ src: '', alt: 'Fixture image' },
 	{ src: '', alt: 'Second fixture image' },

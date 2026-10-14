@@ -1,4 +1,6 @@
 import { Application, isAndroid, isIOS } from '@nativescript/core'
+import { android } from '@octane-xplat/platform/android'
+
 
 let requestCode = 7719
 

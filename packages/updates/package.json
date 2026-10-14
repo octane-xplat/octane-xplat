@@ -37,6 +37,7 @@
 	},
 	"dependencies": {
 		"@noble/hashes": "2.4.0",
+		"@octane-xplat/platform": "workspace:*",
 		"fflate": "0.8.3"
 	},
 	"devDependencies": {

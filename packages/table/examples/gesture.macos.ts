@@ -1,5 +1,7 @@
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import type { ProbeContext } from '../../../scripts/probe/context'
+import { NSView } from '@octane-xplat/platform/macos'
+
 
 /** AppKit handler dispatch only; no OS mouse input or hit-testing. */
 export function pan(ctx: ProbeContext, id: string, dx: number, cancelled = false) {

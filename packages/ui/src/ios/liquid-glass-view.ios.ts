@@ -1,4 +1,6 @@
 import { LiquidGlass as NSLiquidGlass, Utils, type GlassEffectType } from '@nativescript/core'
+import { UIBlurEffect, UIVisualEffectView } from '@octane-xplat/platform/ios'
+
 
 // UIBlurEffectStyle.SystemMaterial = 8 (iOS 13+). Numeric spelling keeps
 // NativeScript ambient const enums compatible with verbatimModuleSyntax.

@@ -78,10 +78,9 @@ export const TYPECHECK_ENVIRONMENTS = {
 			customConditions: ['macos'],
 			lib: ['ESNext'],
 		},
-		// The renderer's AppKit ambient declares the NS* globals every .macos
-		// source leans on. It must precede any @nativescript/types copy in the
-		// program (duplicate global classes are first-wins) — ambient files are
-		// emitted ahead of all env files for that reason.
+		// The renderer's host ambient covers the injected bridge globals
+		// (dlopen, __xplatAppKit, Node-ish process/console). The AppKit class
+		// surface itself is module-scoped now — @octane-xplat/platform/macos.
 		ambient: ['typecheck-globals/macos.d.ts', '../../macos-renderer/src/host-globals.d.ts'],
 	},
 	linux: {

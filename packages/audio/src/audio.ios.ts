@@ -1,4 +1,7 @@
 import type { AudioCapabilities, AudioPlayer, AudioSnapshot, Track } from './types'
+import { AVAudioSession, AVAudioSessionCategoryOptions, AVAudioSessionSetActiveOptions, AVPlayer, AVPlayerItem, MPNowPlayingInfoCenter, MPRemoteCommandCenter, NSDictionary, NSMutableDictionary, NSNotificationCenter, NSOperationQueue, NSURL } from '@octane-xplat/platform/ios'
+import type { NSObjectProtocol } from '@octane-xplat/platform/ios'
+
 
 // CoreMedia is available at runtime but omitted from NativeScript's common
 // ambient references. Reuse AVPlayer's time type for this bridge slice.

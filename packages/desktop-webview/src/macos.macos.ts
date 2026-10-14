@@ -1,4 +1,6 @@
 import '@nativescript/macos-node-api'
+import { NSWindow } from '@octane-xplat/platform/macos'
+
 
 interface NativeWebView {
 	attachTo(parent: object): void

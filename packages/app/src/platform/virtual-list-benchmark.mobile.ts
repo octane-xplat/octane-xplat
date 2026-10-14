@@ -9,6 +9,9 @@ import {
 	type VirtualListBenchSnapshot,
 } from '../virtual-list-benchmark'
 
+import { android } from '@octane-xplat/platform/android'
+
+
 const hostIds = new WeakMap<object, number>()
 let nextHostId = 1
 

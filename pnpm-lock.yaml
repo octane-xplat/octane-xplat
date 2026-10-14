@@ -726,6 +726,10 @@ importers:
         version: 0.11.0(patch_hash=dc0b2a2b4d9acb84e82789c7e8a53a7da11299736b3a99f196e7f08276cd146d)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/audio:
+    dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -1183,6 +1187,9 @@ importers:
       '@nativescript/macos-node-api':
         specifier: 0.4.4-next.2026-08-09-31292056208
         version: 0.4.4-next.2026-08-09-31292056208
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
 
   packages/dnd-kit:
     dependencies:
@@ -1355,6 +1362,10 @@ importers:
         version: 8.3.0(@types/node@20.19.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
   packages/haptics:
+    dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -1692,6 +1703,9 @@ importers:
       '@nativescript/objc-node-api':
         specifier: 1.0.0-alpha.7
         version: 1.0.0-alpha.7
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       acorn:
         specifier: 8.15.0
         version: 8.15.0
@@ -1732,6 +1746,9 @@ importers:
       '@octane-xplat/camera':
         specifier: workspace:*
         version: link:../camera
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -1754,6 +1771,9 @@ importers:
       '@nativescript/audio-context':
         specifier: 1.3.3
         version: 1.3.3
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -1767,6 +1787,9 @@ importers:
 
   packages/motion:
     dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../ui
@@ -1956,6 +1979,10 @@ importers:
         version: 8.3.0(@types/node@20.19.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
   packages/platform:
+    dependencies:
+      '@nativescript/macos-node-api':
+        specifier: 0.4.4-next.2026-08-09-31292056208
+        version: 0.4.4-next.2026-08-09-31292056208
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -1963,6 +1990,12 @@ importers:
       '@nativescript/core':
         specifier: 9.1.3
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/objc-node-api':
+        specifier: 1.0.0-alpha.7
+        version: 1.0.0-alpha.7
+      '@nativescript/types':
+        specifier: 9.1.4
+        version: 9.1.4
       '@nativescript/unit-test-runner':
         specifier: 5.0.0
         version: 5.0.0(@babel/core@7.29.7(supports-color@10.2.2))(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(@vitest/runner@4.1.11)(supports-color@10.2.2)(vitest@4.1.11)(webpack@5.111.1(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.4(@types/node@20.19.0)))
@@ -2014,6 +2047,10 @@ importers:
         version: 8.3.0(@types/node@20.19.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
   packages/recorder:
+    dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -2071,6 +2108,10 @@ importers:
         version: 5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/rolling-text:
+    dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -2306,6 +2347,9 @@ importers:
 
   packages/table:
     dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       '@tanstack/table-core':
         specifier: 9.2.4
         version: 9.2.4
@@ -2419,6 +2463,9 @@ importers:
       '@octane-xplat/lib':
         specifier: workspace:*
         version: link:../lib
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
@@ -2465,6 +2512,9 @@ importers:
       '@noble/hashes':
         specifier: 2.4.0
         version: 2.4.0
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       fflate:
         specifier: 0.8.3
         version: 0.8.3
@@ -2524,6 +2574,9 @@ importers:
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../cli
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../ui

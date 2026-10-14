@@ -1,4 +1,7 @@
 import { Application, Utils } from '@nativescript/core'
+import { android } from '@octane-xplat/platform/android'
+import { NSNotificationCenter, NSOperationQueue, UIScreen } from '@octane-xplat/platform/ios'
+
 
 // One shared observer tracks the keyboard's current bottom inset — a sheet
 // opened while another reader or overlay tracks the keyboard can lift

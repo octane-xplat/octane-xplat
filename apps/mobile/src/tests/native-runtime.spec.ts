@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { Device, isAndroid, isIOS } from '@nativescript/core'
+import { java } from '@octane-xplat/platform/android'
+import { NSMutableArray } from '@octane-xplat/platform/ios'
+
 
 // Proves specs execute inside the real V8/JSC runtime with the platform
 // bridge live — not in jsdom or the object-driver harness.

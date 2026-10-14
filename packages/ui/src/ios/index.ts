@@ -9,6 +9,8 @@
 // identity contracts the widgets share with each other and with portable
 // components; portable components' own props live on the root barrel.
 
+
+import { UIActivityIndicatorView, UISlider, UISwitch, UITabBar, UITableView } from '@octane-xplat/platform/ios'
 export { UISwitch } from './UISwitch.ios.tsrx'
 export { UISlider } from './UISlider.ios.tsrx'
 export { UIActivityIndicatorView } from './UIActivityIndicatorView.ios.tsrx'

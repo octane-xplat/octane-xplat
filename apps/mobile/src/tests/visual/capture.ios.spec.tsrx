@@ -9,6 +9,9 @@ import { CAPTURE_PROFILE } from '../../../../visual/src/scenario'
 import { assertSwitchGeometry } from '../../../../visual/src/geometry'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import { NSLocale, NSTimeZone, UIDevice, UIGraphicsImageRenderer, UIGraphicsImageRendererFormat, UIImagePNGRepresentation, UIScreen, UIView } from '@octane-xplat/platform/ios'
+import type { CGRect } from '@octane-xplat/platform/ios'
+
 
 declare const __VISUAL_CAPTURE__: null | {
 	url: string; runId: string; revision: string; scenarioHash: string

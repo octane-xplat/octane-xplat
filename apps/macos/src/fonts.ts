@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { CTFontDescriptorCopyAttribute, CTFontManagerCreateFontDescriptorsFromURL, NSURL, kCTFontURLAttribute } from '@octane-xplat/platform/macos'
+
 
 const injectedGeistFontBase64 =
 	typeof __XPLAT_GEIST_FONT_BASE64__ === 'string' ? __XPLAT_GEIST_FONT_BASE64__ : null

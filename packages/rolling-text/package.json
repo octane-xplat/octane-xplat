@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/rolling-text",
 	"version": "0.14.0",
-	"description": "Rolling/slot-machine text label for Octane xplat — per-unit roll with survivor matching on web, iOS and Android",
+	"description": "Rolling/slot-machine text label for Octane xplat \u2014 per-unit roll with survivor matching on web, iOS and Android",
 	"keywords": [
 		"android",
 		"animated-text",
@@ -92,5 +92,8 @@
 		"@octane-xplat/macos-renderer": {
 			"optional": true
 		}
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
 	}
 }

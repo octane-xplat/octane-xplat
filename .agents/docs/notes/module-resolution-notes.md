@@ -228,10 +228,13 @@ claims per environment (`environments.<env>.files|include|exclude`) and
 - Package boundaries resolve the default/unsuffixed export surface — the
   combined program carries **no** platform `customConditions`, the boundary
   analog of extensionless-first.
-- Ambient host-globals (AppKit, NativeScript) load ahead of env files:
-  duplicate global declarations are first-wins in TypeScript, so
-  `packages/macos-renderer/src/appkit.d.ts` must precede
-  `@nativescript/types`' ObjC classes wherever both enter the program.
+- Ambient host-globals (bridge globals, NativeScript) load ahead of env
+  files: duplicate global declarations are first-wins in TypeScript. The
+  AppKit class surface is module-scoped (`@octane-xplat/platform/macos`), so
+  the old ambient-first `NSObject` race is gone; what remains ambient is
+  `packages/macos-renderer/src/host-globals.d.ts` (dlopen, __xplatAppKit,
+  console/process) plus the upstream `@nativescript/types` set that NativeScript
+  Core's own declarations still consume.
 - Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain
   `tsc`.
 - **`exports` wildcards don't extension-resolve** (verified): `"./\*":

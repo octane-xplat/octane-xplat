@@ -101,5 +101,8 @@
 				"AVFoundation/AVFoundation.h"
 			]
 		}
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
 	}
 }

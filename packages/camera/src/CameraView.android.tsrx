@@ -8,6 +8,8 @@ import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
 import { observePreviewTap } from './preview-tap'
+import { java } from '@octane-xplat/platform/android'
+
 
 class CameraPreview extends View {
 	createNativeView() {

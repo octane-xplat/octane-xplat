@@ -2,6 +2,8 @@
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { WebView } from '@octane-xplat/ui'
 import type { WebViewHandle, WebViewProps } from '@octane-xplat/ui'
+import { NSView } from '@octane-xplat/platform/macos'
+
 
 function Content(props: WebViewProps) {
 	return <WebView {...props} />

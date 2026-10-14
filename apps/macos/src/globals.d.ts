@@ -16,10 +16,6 @@ interface ImportMeta {
 	glob<T = unknown>(patterns: string | string[], options?: { eager?: boolean }): Record<string, T>
 }
 
-// The AppKit/ObjC ambient surface (classes, enums, CoreText, dlopen) is
-// generated — packages/macos-renderer/types, wired through this program's
-// tsconfig files list. Host-injected globals stay in
-// packages/macos-renderer/src/appkit.d.ts.
 
 // Vite `define` constants carrying the bundled Geist font (see vite.shared.mjs).
 declare const __XPLAT_GEIST_FONT_BASE64__: string

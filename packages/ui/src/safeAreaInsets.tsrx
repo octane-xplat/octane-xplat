@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'octane';
 import { Application, Screen } from '@nativescript/core';
+import { android } from '@octane-xplat/platform/android'
+
 
 /**
  * Current device safe-area insets in dips — `{ top, right, bottom, left }`.

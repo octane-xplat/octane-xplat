@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { TextInput, TextArea } from '@octane-xplat/ui'
+import { NSBackingStoreType, NSSecureTextFieldCell, NSWindow, NSWindowStyleMask } from '@octane-xplat/platform/macos'
+
 
 function Content({
 	secure = false,

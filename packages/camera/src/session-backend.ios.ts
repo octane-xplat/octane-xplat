@@ -21,6 +21,11 @@ import type {
 	MovieOutputHandle,
 } from './types'
 
+import { AVCaptureDevice, AVCaptureDeviceDiscoverySession, AVCaptureDeviceInput, AVCaptureMovieFileOutput, AVCaptureSession, AVCaptureVideoPreviewLayer, AVURLAsset, CGPointMake, NSBundle, NSError, NSFileManager, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSOperationQueue, NSURL } from '@octane-xplat/platform/ios'
+import { AVCaptureFileOutputRecordingDelegate } from '@octane-xplat/platform/ios'
+import type { CGAffineTransform, NSObjectProtocol } from '@octane-xplat/platform/ios'
+
+
 // AVAuthorizationStatus numeric values — the ambient const enum cannot be
 // read under verbatimModuleSyntax in every build lane.
 const authorizationNotDetermined = 0

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/ui",
 	"version": "0.14.0",
-	"description": "Cross-platform UI for Octane xplat — shared primitives, stacks, routes and theming across web (DOM), iOS and Android (NativeScript)",
+	"description": "Cross-platform UI for Octane xplat \u2014 shared primitives, stacks, routes and theming across web (DOM), iOS and Android (NativeScript)",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -331,7 +331,8 @@
 		"test:macos": "node --test tests/query-storage.macos.test.mjs && node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only"
 	},
 	"dependencies": {
-		"@octane-xplat/lib": "workspace:*"
+		"@octane-xplat/lib": "workspace:*",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

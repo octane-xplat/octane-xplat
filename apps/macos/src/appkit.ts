@@ -3,6 +3,9 @@ import { announceAppKit } from './accessibility'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-renderer'
+import { NSApplication, NSApplicationActivationPolicy, NSApplicationDelegate, NSBundle, NSEventMask, NSFileManager, NSObject, NSPanel, NSPasteboard, NSRectEdge, NSScreen, NSSharingServicePicker, NSURL, NSUserDefaults, NSView, NSWindow, NSWindowDelegate, NSWindowOrderingMode, NSWindowStyleMask, NSWorkspace, NativeClass } from '@octane-xplat/platform/macos'
+import type { NSClass } from '@octane-xplat/platform/macos'
+
 
 const app = NSApplication.sharedApplication
 
