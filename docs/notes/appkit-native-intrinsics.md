@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`                                                                                                    | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`                                                                                                    | `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 22 core factories and 17 missing core hosts. `span` and
+There are now 23 core factories and 16 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -387,3 +387,39 @@ old ref; retained identity is checked within one parent. Shared declarations
 remain unchanged. The inherited common gesture/lifecycle/style audit, mobile
 execution, OS input, visual parity and complete release gates remain open.
 No recipe workflow changes in this core-host unit.
+
+## ActivityIndicator host
+
+ActivityIndicator uses AppKit's indeterminate NSProgressIndicator spinner.
+`busy` defaults to false: the stopped spinner is invisible but keeps its layout
+slot. Setting `busy` starts or stops native animation; removing it restores the
+stopped default. Updates and keyed moves keep the same native ref. Supply no
+JSX children. The raw host uses AppKit's regular spinner appearance; the shared
+UI ActivityIndicator remains a separate normalized component.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function ActivityExample() {
+	const busy$ = useSignal$(true)
+	return (
+		<stacklayout>
+			<activityindicator busy={busy$.get()} style={{ width: 24, height: 24 }} />
+			<button text="Stop" onTap={() => busy$.set(false)} />
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and packed AppKit checks cover spinner defaults, busy updates,
+dropped busy/style restoration, intrinsic and explicit sizing, nesting, keyed
+order, parent changes, replacement/removal, refs and teardown. Retained-root
+HMR preserves host identity and signal state while updating busy behavior.
+Authored JSX parent changes recreate hosts and clean the previous refs; the
+production-driver unit test also checks physical reparenting. Animation start
+and stop calls are checked in units; packed checks inspect native visibility
+and ownership, without visual frame analysis. Shared types and host-ref policy
+are unchanged. Inherited common gesture/lifecycle/class/style/accessibility
+coverage, mobile execution, OS input, visual parity and the full release gates
+remain open. This unit changes no recipe workflow.

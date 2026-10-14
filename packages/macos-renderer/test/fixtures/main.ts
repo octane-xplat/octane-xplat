@@ -1,3 +1,4 @@
+import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
@@ -187,6 +188,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
 							const htmlRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkHtmlLifecycle(htmlRoot, nativeWindow)} finally {htmlRoot.unmount()}
+
+							const activityRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkActivityLifecycle(activityRoot, nativeWindow)} finally {activityRoot.unmount()}
 
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {

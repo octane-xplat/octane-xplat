@@ -22,6 +22,7 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedActivity: any
 let retainedHtml: any
 let retainedFormatted: any
 let retainedFormattedParent: any
@@ -44,6 +45,7 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedActivity = debug.findId('hmr-activity')
 			retainedHtml = debug.findId('hmr-html')
 			retainedFormatted = debug.findId('hmr-formatted')
 			retainedFormattedParent = debug.findId('hmr-formatted-parent')
@@ -60,7 +62,10 @@ function reload() {
 			retainedProxy = debug.findId('hmr-proxy')
 			retainedProxyChild = debug.findId('proxy-revision')
 			debug.pressId('increment')
-			console.log('HMR_CONSUMER_READY')
+			setTimeout(() => {
+				if ((Number(retainedActivity.alphaValue) === 0)) {console.error('PACKED_HMR_FAIL: busy signal did not start spinner')}
+				console.log('HMR_CONSUMER_READY')
+			}, 60)
 		}, 60)
 	} else {
 		liveComponent[native.UNIVERSAL_HMR].update(loaded.default ?? loaded)
@@ -68,6 +73,7 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-activity') === retainedActivity && (Number(retainedActivity.alphaValue) === 0) &&
 				debug.findId('hmr-html') === retainedHtml &&
 				String(retainedHtml.stringValue).trim() === 'Second revision1' &&
 				debug.findId('hmr-formatted') === retainedFormatted &&
@@ -103,6 +109,7 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedActivity.superview || !(Number(retainedActivity.alphaValue) === 0) ||
 					retainedHtml.superview ||
 					retainedFormatted.children.length ||
 					retainedFormatted.parent ||
@@ -131,6 +138,7 @@ function reload() {
 				console.log('PACKED_ROOTLAYOUT_HMR_OK')
 				console.log('PACKED_SEARCHBAR_HMR_OK')
 				console.log('PACKED_FORMATTEDSTRING_HMR_OK')
+				console.log('PACKED_ACTIVITYINDICATOR_HMR_OK')
 				console.log('PACKED_HTMLVIEW_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {

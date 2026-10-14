@@ -223,3 +223,16 @@ const invalidHtml: MacJSX.IntrinsicElements['htmlview'] = { html: 123 }
 const invalidHtmlText: MacJSX.IntrinsicElements['htmlview'] = { text: 'Hello' }
 void invalidHtml
 void invalidHtmlText
+
+const activityIndicator: MacJSX.IntrinsicElements['activityindicator'] = {
+	busy: true,
+	ref: (view) => { if (view) { view.removeFromSuperview() }; return () => {} },
+}
+
+void activityIndicator
+// @ts-expect-error busy is boolean
+const invalidActivityBusy: MacJSX.IntrinsicElements['activityindicator'] = { busy: 'true' }
+// @ts-expect-error AppKit spinner styles do not widen the shared contract
+const invalidActivityStyle: MacJSX.IntrinsicElements['activityindicator'] = { controlSize: 0 }
+void invalidActivityBusy
+void invalidActivityStyle

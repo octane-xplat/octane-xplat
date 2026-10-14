@@ -1717,6 +1717,34 @@ function makeSwitch(props: PropBag) {
 	return { view: button, actionId }
 }
 
+function makeActivityIndicator() {
+	const view = NSProgressIndicator.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 16, height: 16 },
+	})
+
+	view.style = NSProgressIndicatorStyle.Spinning
+	view.controlSize = NSControlSize.Regular
+	view.indeterminate = true
+	view.displayedWhenStopped = false
+	view.sizeToFit()
+	view.translatesAutoresizingMaskIntoConstraints = false
+	return view
+}
+
+function syncActivityIndicator(node: ElementNode) {
+	const view = node.view! as NSProgressIndicator
+	if (node.props.busy === true) {
+		view.startAnimation(null)
+	} else {
+		view.stopAnimation(null)
+	}
+
+	// NSStackView detaches hidden arranged views. Suppress drawing instead
+	// so a stopped spinner retains its NativeScript-style layout slot.
+	view.alphaValue = node.props.busy === true ? Number(node.appliedStyle?.opacity ?? 1) : 0
+}
+
 function makeSlider(props: PropBag) {
 	const slider = NSSlider.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
@@ -2855,6 +2883,7 @@ const SUPPORTED_TYPES = new Set([
 	'searchbar',
 	'switch',
 	'slider',
+	'activityindicator',
 	'webview',
 	'image',
 	'span',
@@ -2875,6 +2904,10 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'activityindicator' && props?.busy != null && typeof props.busy !== 'boolean') {
+		throw new Error('AppKit activityindicator busy must be boolean')
+	}
+
 	if (type === 'htmlview') {validateHtmlProps(props ?? {})}
 	if (type === 'span' || type === 'formattedstring') {
 		validateTextStyle(props ?? {}, nativeColor)
@@ -3033,6 +3066,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
+				break
+			case 'activityindicator':
+				node.view = makeActivityIndicator()
 				break
 			case 'htmlview':
 				node.view = makeLabel()
@@ -4478,6 +4514,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	activityindicator: ['busy', 'style', 'className'],
 	htmlview: ['html', 'style', 'className'],
 	formattedstring: ['style', 'fontFamily', 'fontSize', 'color', 'backgroundColor'],
 	span: ['text', 'style', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textDecoration', 'color', 'backgroundColor'],
@@ -4726,6 +4763,22 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
+				}
+
+				break
+			case 'activityindicator':
+				if (name === 'busy' || name === 'id') {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else {
+					console.warn('[macos-host] ignored activityindicator prop ' + name)
 				}
 
 				break
@@ -5018,6 +5071,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
+	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
 	if (node.type === 'htmlview') {syncHtmlView(node)}
 
 	if (node.type === 'searchbar') {
@@ -5556,6 +5610,10 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'activityindicator') {
+		throw new Error('AppKit <activityindicator> cannot contain JSX children')
+	}
+
 	if (parentType === 'htmlview') {
 		throw new Error('AppKit <htmlview> takes html content, not JSX children')
 	}
@@ -5883,6 +5941,12 @@ function destroy(node: ElementNode) {
 	// branch below must tolerate partial construction.
 	if (node.type === 'webview' && node.view) {
 		disposeWebView(node.view as WKWebView)
+	}
+
+	if (node.type === 'activityindicator' && node.view) {
+		node.view.stopAnimation(null)
+		node.view.alphaValue = 0
+		node.view.hidden = true
 	}
 
 	if (node.type === 'image' && node.view) {
