@@ -56,6 +56,10 @@ export interface ElementNode {
 	datePickerDefault?: Date
 	datePickerValue?: Date
 	datePickerInputs?: PropBag
+	timePickerDefault?: Date
+	timePickerValue?: Date
+	timePickerInputs?: PropBag
+	timePickerBounds?: [number, number]
 	props: PropBag
 	parent: ElementNode | null
 	children: ElementNode[]
@@ -1834,6 +1838,95 @@ function syncSegmentedBar(node: ElementNode) {
 	notifySegmentedBarChange(node, value)
 }
 
+/** Shared time-of-day values discard calendar dates, seconds and milliseconds. */
+function timeOfDay(value: Date | string): Date {
+	if (typeof value === 'string') {
+		const match = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value)
+		if (!match || match[0] !== value || Number(match[1]) > 23 || Number(match[2]) > 59 || Number(match[3] ?? 0) > 59) {
+			throw new TypeError('AppKit timepicker time must be a valid Date or 24-hour HH:mm[:ss] string')
+		}
+
+		return new Date(0, 0, 0, Number(match[1]), Number(match[2]))
+	}
+
+	if (!(value instanceof Date) || !Number.isFinite(value.getTime())) {
+		throw new TypeError('AppKit timepicker time must be a valid Date or 24-hour HH:mm[:ss] string')
+	}
+
+	return new Date(0, 0, 0, value.getHours(), value.getMinutes())
+}
+
+function makeTimePicker(node: ElementNode) {
+	const view = NSDatePicker.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 100, height: 24 } })
+	view.datePickerStyle = NSDatePickerStyle.TextFieldAndStepper
+	view.datePickerElements = NSDatePickerElementFlags.HourMinute
+	view.datePickerMode = NSDatePickerMode.Single
+	view.bezeled = true
+	view.drawsBackground = true
+	view.target = buttonActionTarget
+	view.action = 'controlChanged:'
+	view.sizeToFit()
+	view.translatesAutoresizingMaskIntoConstraints = false
+	const actionId = nextActionId++
+	view.tag = actionId
+	actionHandlers.set(actionId, null)
+	node.timePickerDefault = timeOfDay(new Date())
+	node.timePickerValue = node.timePickerDefault
+	node.timePickerBounds = [0, 1439]
+	view.dateValue = NSDate.dateWithTimeIntervalSince1970(node.timePickerDefault.getTime() / 1000)
+	return { view, actionId }
+}
+
+function notifyTimeChange(node: ElementNode, value: Date) {
+	const normalized = timeOfDay(value)
+	const [minimum, maximum] = node.timePickerBounds!
+	const minutes = Math.min(Math.max(normalized.getHours() * 60 + normalized.getMinutes(), minimum), maximum)
+	const time = new Date(0, 0, 0, 0, minutes)
+	const oldValue = node.timePickerValue!
+	node.timePickerValue = time
+
+	;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(time.getTime() / 1000)
+	if (time.getHours() !== oldValue.getHours() || time.getMinutes() !== oldValue.getMinutes()) {
+		if (typeof node.props.onTimeChange === 'function') {
+			node.props.onTimeChange({ eventName: 'timeChange', object: node.view, value: new Date(time), oldValue: new Date(oldValue) })
+		}
+	}
+}
+
+function syncTimePicker(node: ElementNode, props: PropBag) {
+	const view = node.view! as NSDatePicker
+	const minimum = (node.props.minHour ?? 0) * 60 + (node.props.minMinute ?? 0)
+	const maximum = (node.props.maxHour ?? 23) * 60 + (node.props.maxMinute ?? 59)
+	// Bounds are one atomic range. Never partially apply an inverted proposal.
+	if (minimum <= maximum) {node.timePickerBounds = [minimum, maximum]}
+	const [lower, upper] = node.timePickerBounds!
+	view.minDate = null as any
+	view.maxDate = null as any
+	view.minDate = NSDate.dateWithTimeIntervalSince1970(new Date(0, 0, 0, 0, lower).getTime() / 1000)
+	view.maxDate = NSDate.dateWithTimeIntervalSince1970(new Date(0, 0, 0, 0, upper).getTime() / 1000)
+	let time = new Date(node.timePickerValue!)
+	const previous = node.timePickerInputs ?? {}
+	for (const name of Object.keys(props)) {
+		if (!['time', 'hour', 'minute'].includes(name)) {continue}
+		const value = props[name]
+		if (name === 'time') {
+			const next = value == null ? node.timePickerDefault! : timeOfDay(value)
+			const old = previous.time == null ? node.timePickerDefault! : timeOfDay(previous.time)
+			if ((value == null) === (previous.time == null) && next.getHours() === old.getHours() && next.getMinutes() === old.getMinutes()) {continue}
+			time = new Date(next)
+		} else if (!Object.is(previous[name], value)) {
+			if (name === 'hour') {time.setHours(value ?? node.timePickerDefault!.getHours())}
+			else {time.setMinutes(value ?? node.timePickerDefault!.getMinutes())}
+		}
+	}
+
+	// Keep copies so mutating a caller-owned Date cannot alter equality history.
+	node.timePickerInputs = { ...node.props, time: node.props.time == null ? undefined : timeOfDay(node.props.time) }
+	view.enabled = node.props.isEnabled !== false
+	setControlAction(node, () => notifyTimeChange(node, new Date(Number(view.dateValue!.timeIntervalSince1970) * 1000)), () => undefined)
+	notifyTimeChange(node, time)
+}
+
 /** DatePicker's shared values carry a local calendar day, never time-of-day. */
 function calendarDate(value: Date | string): Date {
 	const date = new Date(value)
@@ -3098,6 +3191,7 @@ const SUPPORTED_TYPES = new Set([
 	'activityindicator',
 	'progress',
 	'datepicker',
+	'timepicker',
 	'listpicker',
 	'segmentedbar',
 	'segmentedbaritem',
@@ -3141,6 +3235,17 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new Error('AppKit listpicker selectedIndex must be an integer')}
 		// Validate item conversion before allocating a view or registration.
 		for (const item of props?.items ?? []) {if (item != null) {void (item + '')}}
+	}
+
+	if (type === 'timepicker') {
+		if (props?.time != null) {timeOfDay(props.time)}
+		for (const name of ['hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute']) {
+			const value = props?.[name]
+			const maximum = name.toLowerCase().includes('hour') ? 23 : 59
+			if (value != null && (!Number.isInteger(value) || value < 0 || value > maximum)) {
+				throw new TypeError('AppKit timepicker ' + name + ' must be an integer from 0 through ' + maximum)
+			}
+		}
 	}
 
 	if (type === 'datepicker') {
@@ -3335,6 +3440,12 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			}
 			case 'listpicker': {
 				const control = makeListPicker(node)
+				node.view = control.view
+				node.actionId = control.actionId
+				break
+			}
+			case 'timepicker': {
+				const control = makeTimePicker(node)
 				node.view = control.view
 				node.actionId = control.actionId
 				break
@@ -4803,6 +4914,7 @@ const CLEAR_ON_UPDATE: Record<string, string[]> = {
 	segmentedbaritem: ['title'],
 	segmentedbar: ['items', 'selectedIndex', 'style', 'className'],
 	listpicker: ['items', 'selectedIndex', 'style', 'className'],
+	timepicker: ['time', 'hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute', 'isEnabled', 'style', 'className'],
 	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
 	activityindicator: ['busy', 'style', 'className'],
 	progress: ['value', 'maxValue', 'style', 'className'],
@@ -4849,6 +4961,7 @@ function staleEventClears(props: PropBag, next: PropBag): PropBag {
 }
 
 function applyProps(node: ElementNode, props: PropBag) {
+	if (node.type === 'timepicker') {validateNodeProps(node.type, props)}
 	node.props = { ...node.props, ...props }
 	if (node.authoredProps || node.parent?.type === 'proxyviewcontainer' || node.type === 'proxyviewcontainer') {
 		node.authoredProps = { ...node.authoredProps, ...props }
@@ -5078,6 +5191,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
 				else {console.warn('[macos-host] ignored listpicker prop ' + name)}
+
+				break
+			case 'timepicker':
+				if (['time', 'hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute', 'isEnabled', 'onTimeChange', 'id'].includes(name)) {continue}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else {console.warn('[macos-host] ignored timepicker prop ' + name)}
 
 				break
 			case 'datepicker':
@@ -5406,6 +5528,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	if (node.type === 'segmentedbar') {syncSegmentedBar(node)}
 	if (node.type === 'listpicker') {syncListPicker(node)}
 	if (node.type === 'datepicker') {syncDatePicker(node, props)}
+	if (node.type === 'timepicker') {syncTimePicker(node, props)}
 	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
 	if (node.type === 'progress') {syncProgress(node)}
 	if (node.type === 'htmlview') {syncHtmlView(node)}
@@ -5952,6 +6075,7 @@ function validateTextNesting(parentType: string | undefined, childType: string) 
 	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
 	if (parentType === 'segmentedbar' && childType !== 'segmentedbaritem') {throw new Error('AppKit <segmentedbar> accepts only segmentedbaritem children')}
 	if (parentType === 'listpicker') {throw new Error('AppKit <listpicker> cannot contain JSX children')}
+	if (parentType === 'timepicker') {throw new Error('AppKit <timepicker> cannot contain JSX children')}
 	if (parentType === 'datepicker') {throw new Error('AppKit <datepicker> cannot contain JSX children')}
 	if (parentType === 'activityindicator') {
 		throw new Error('AppKit <activityindicator> cannot contain JSX children')
@@ -6312,6 +6436,13 @@ function destroy(node: ElementNode) {
 		node.view.removeAllItems()
 		node.listPickerTitles = null
 		node.props.onSelectedIndexChange = undefined
+	}
+
+	if (node.type === 'timepicker' && node.view) {
+		node.view.target = null
+		node.view.action = null
+		node.props.onTimeChange = undefined
+		node.timePickerInputs = undefined
 	}
 
 	if (node.type === 'datepicker' && node.view) {

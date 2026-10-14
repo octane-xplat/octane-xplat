@@ -27,6 +27,7 @@ let retainedItemBar: any
 let retainedSegment: any
 let retainedProgress: any
 let retainedList: any
+let retainedTime: any
 let retainedDate: any
 let retainedActivity: any
 let retainedHtml: any
@@ -56,6 +57,7 @@ function reload() {
 			retainedSegment = debug.findId('hmr-segment')
 			retainedProgress = debug.findId('hmr-progress')
 			retainedList = debug.findId('hmr-list')
+			retainedTime = debug.findId('hmr-time')
 			retainedDate = debug.findId('hmr-date')
 			retainedActivity = debug.findId('hmr-activity')
 			retainedHtml = debug.findId('hmr-html')
@@ -90,6 +92,7 @@ function reload() {
 				debug.findId('hmr-segment') === retainedSegment && Number(retainedSegment.selectedSegment) === 1 && String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
 				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
 				debug.findId('hmr-list') === retainedList && Number(retainedList.indexOfSelectedItem) === 1 && String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
+				debug.findId('hmr-time') === retainedTime && new Date(Number(retainedTime.dateValue.timeIntervalSince1970) * 1000).getTime() === new Date(0, 0, 0, 13, 35).getTime() &&
 				debug.findId('hmr-date') === retainedDate && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
 				debug.findId('hmr-activity') === retainedActivity && (Number(retainedActivity.alphaValue) === 0) &&
 				debug.findId('hmr-html') === retainedHtml &&
@@ -131,6 +134,7 @@ function reload() {
 					retainedSegment.superview || retainedSegment.target != null || String(retainedSegment.action) !== '<null selector>' || Number(retainedSegment.segmentCount) !== 0 ||
 					retainedProgress.superview ||
 					retainedList.superview || retainedList.target != null || String(retainedList.action) !== '<null selector>' || Number(retainedList.numberOfItems) !== 0 ||
+					retainedTime.superview || retainedTime.target != null || String(retainedTime.action) !== '<null selector>' ||
 					retainedDate.superview || retainedDate.target != null || String(retainedDate.action) !== '<null selector>' ||
 					retainedActivity.superview || !(Number(retainedActivity.alphaValue) === 0) ||
 					retainedHtml.superview ||
@@ -167,6 +171,7 @@ function reload() {
 				console.log('PACKED_PROGRESS_HMR_OK')
 				console.log('PACKED_HTMLVIEW_HMR_OK')
 				console.log('PACKED_LISTPICKER_HMR_OK')
+				console.log('PACKED_TIMEPICKER_HMR_OK')
 				console.log('PACKED_DATEPICKER_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {

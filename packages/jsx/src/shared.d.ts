@@ -399,6 +399,13 @@ export interface DatePickerProps<TElement> {
 	onDateChange?: (event: ValueChangeEvent<TElement, Date>) => void;
 }
 
+/** Minute-precision time of day: time and event values normalize to
+ * new Date(0, 0, 0, hour, minute), with zero seconds/milliseconds. Strings must
+ * be 24-hour HH:mm or HH:mm:ss; invalid values throw TypeError. Equality uses
+ * hour/minute only. Components are applied in prop order; removing them restores
+ * the creation-time component. Bounds compose one inclusive range (defaults
+ * 00:00–23:59); inverted proposals retain the previous effective range without
+ * partial application. Bounds changes clamp selection to the nearest endpoint. */
 export interface TimePickerProps<TElement> {
 	time?: Date | string;
 	hour?: number;
@@ -407,7 +414,7 @@ export interface TimePickerProps<TElement> {
 	maxHour?: number;
 	minMinute?: number;
 	maxMinute?: number;
-	onTimeChange?: (event: ValueChangeEvent<TElement>) => void;
+	onTimeChange?: (event: ValueChangeEvent<TElement, Date>) => void;
 }
 
 export interface ListViewProps<TElement> {

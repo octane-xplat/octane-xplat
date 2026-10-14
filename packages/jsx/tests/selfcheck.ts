@@ -308,3 +308,25 @@ const badItemEnabled: MacJSX.IntrinsicElements['segmentedbaritem'] = {enabled: f
 void segmentItem
 void badItemTitle
 void badItemEnabled
+
+const timePicker: MacJSX.IntrinsicElements['timepicker'] = {
+	time: '10:30:59',
+	hour: 10,
+	minute: 30,
+	minHour: 9,
+	minMinute: 15,
+	maxHour: 17,
+	maxMinute: 45,
+	onTimeChange: (event) => {
+		const value: Date = event.value
+		void value
+	},
+}
+
+void timePicker
+// @ts-expect-error time is Date or string
+const invalidTimePicker: MacJSX.IntrinsicElements['timepicker'] = { time: 123 }
+void invalidTimePicker
+// @ts-expect-error AppKit-only host configuration is outside the shared API
+const invalidTimeStyle: MacJSX.IntrinsicElements['timepicker'] = { datePickerStyle: 0 }
+void invalidTimeStyle

@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`                                                                                                    | `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                                                                                                    | —                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 28 core factories and 11 missing core hosts. `span` and
+There are now 29 core factories and 10 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 12 missing core hosts and nine missing raw extension hosts remain required.
+The 10 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -630,3 +630,68 @@ The inherited common lifecycle/gesture/class/style/accessibility and host-object
 policy audit, mobile hardware, visual parity, OS input and full release gates
 remain open. This core unit changes no recipe workflow; the normalized UI
 SegmentedControl remains separate.
+
+
+## TimePicker host
+
+TimePicker uses NSDatePicker's hour/minute field and stepper. Times normalize to
+`new Date(0, 0, 0, hour, minute)`; calendar dates, seconds and milliseconds are
+discarded. Strings accept 24-hour `HH:mm` or `HH:mm:ss`; invalid inputs throw
+TypeError. The default is the creation-time hour/minute. Removing time or
+component props restores those creation-time values. Put the picker alongside
+other views in a layout, without JSX children.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function TimeExample() {
+	const time$ = useSignal$(new Date(0, 0, 0, 10, 30))
+	return (
+		<stacklayout>
+			<timepicker
+				time={time$.get()}
+				minHour={9}
+				minMinute={15}
+				maxHour={17}
+				maxMinute={45}
+				onTimeChange={(event) => time$.set(event.value)}
+			/>
+		</stacklayout>
+	)
+}
+```
+
+The four bound props compose one inclusive range, defaulting to 00:00–23:59.
+An inverted proposal keeps both previous effective endpoints. A changed range
+clamps selection to its nearest endpoint. Changes emit minute-precision Dates
+with the host object and old value; unchanged hour/minute pairs emit nothing.
+Components apply in prop order, as with DatePicker.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function BoundedTimeExample() {
+	return (
+		<timepicker
+			time="08:00:59"
+			minHour={9}
+			minMinute={15}
+			maxHour={17}
+			maxMinute={45}
+			onTimeChange={(event) => console.log(event.value.getHours(), event.value.getMinutes())}
+		/>
+	)
+}
+```
+
+Maintained units and the packed public consumer check normalization, bounds,
+updates, default restoration, events, sizing, keyed order, parent changes,
+replacement/removal, retained refs, teardown and retained-root HMR. Authored
+parent changes recreate hosts and clean old refs; units also check physical
+reparenting. Action dispatch establishes the event bridge, not OS input.
+Pinned NativeScript common callbacks reject out-of-range selections and iOS
+bound setters combine fields with the current selection; mobile normalization
+must adopt the resolved shared range contract before release. No mobile,
+visual, hardware or full parity qualification is claimed. The inherited common
+lifecycle/gesture/class/style/accessibility audit and full release gates remain
+open. This raw-host unit changes no recipe workflow.

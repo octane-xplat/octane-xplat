@@ -100,7 +100,7 @@ test('assigned action strings retain declared arity and gestures use explicit Ob
 	const sites = [...actionSites()]
 
 	// Guard against a pattern silently matching nothing after a refactor.
-	assert.equal(sites.length, 11)
+	assert.equal(sites.length, 12)
 
 	for (const { target, selector } of sites) {
 		if (target === 'buttonActionTarget' && ['viewPressed:', 'viewPanned:'].includes(selector)) {

@@ -1,3 +1,4 @@
+import { checkTimeLifecycle } from './time-lifecycle'
 import { checkSegmentItemLifecycle } from './segment-item-lifecycle'
 import { checkSegmentLifecycle } from './segment-lifecycle'
 import { checkProgressLifecycle } from './progress-lifecycle'
@@ -211,6 +212,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
 							const itemRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkSegmentItemLifecycle(itemRoot, nativeWindow)} finally {itemRoot.unmount()}
+
+							const timeRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkTimeLifecycle(timeRoot, nativeWindow)} finally {timeRoot.unmount()}
 
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {
