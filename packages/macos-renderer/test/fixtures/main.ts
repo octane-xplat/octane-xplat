@@ -1,3 +1,4 @@
+import { checkListLifecycle } from './list-lifecycle'
 import { checkDateLifecycle } from './date-lifecycle'
 import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
@@ -195,6 +196,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
 							const dateRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkDateLifecycle(dateRoot, nativeWindow)} finally {dateRoot.unmount()}
+
+							const listRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkListLifecycle(listRoot, nativeWindow)} finally {listRoot.unmount()}
 
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {

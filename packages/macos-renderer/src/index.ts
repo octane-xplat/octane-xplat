@@ -1720,6 +1720,63 @@ function makeSwitch(props: PropBag) {
 	return { view: button, actionId }
 }
 
+/** A noneditable AppKit picker for the shared NativeScript item/index API. */
+function makeListPicker(node: ElementNode) {
+	const view = NSPopUpButton.alloc().initWithFramePullsDown({
+		origin: { x: 0, y: 0 }, size: { width: 120, height: 26 },
+	}, false)
+
+	view.target = buttonActionTarget
+	view.action = 'controlChanged:'
+	view.translatesAutoresizingMaskIntoConstraints = false
+	const actionId = nextActionId++
+	view.tag = actionId
+	actionHandlers.set(actionId, null)
+	node.listPickerIndex = -1
+	node.listPickerRequested = -1
+	return { view, actionId }
+}
+
+function notifyListPickerChange(node: ElementNode, value: number) {
+	const oldValue = node.listPickerIndex
+	node.listPickerIndex = value
+	if (value !== oldValue && typeof node.props.onSelectedIndexChange === 'function') {
+		node.props.onSelectedIndexChange({ eventName: 'selectedIndexChange', object: node.view, value, oldValue })
+	}
+}
+
+function syncListPicker(node: ElementNode) {
+	const view = node.view! as NSPopUpButton
+	const items = node.props.items ?? []
+	const titles = Array.from(items, (item, index) => item == null ? String(index) : item + '')
+	// Adding by title can merge duplicate labels. Explicit menu items preserve
+	// every entry and its index, including empty or repeated labels.
+	if (!node.listPickerTitles || titles.length !== node.listPickerTitles.length || titles.some((title, index) => title !== node.listPickerTitles[index])) {
+		view.removeAllItems()
+		for (const title of titles) {
+			view.menu!.addItem(NSMenuItem.alloc().initWithTitleActionKeyEquivalent(title, null, ''))
+		}
+
+		node.listPickerTitles = titles
+		view.invalidateIntrinsicContentSize()
+	}
+
+	if (!Object.is(node.listPickerInput, node.props.selectedIndex)) {
+		node.listPickerRequested = node.props.selectedIndex ?? -1
+		node.listPickerInput = node.props.selectedIndex
+	}
+
+	const value = titles.length ? Math.max(0, Math.min(node.listPickerRequested, titles.length - 1)) : -1
+	view.selectItemAtIndex(value)
+	setControlAction(node, () => {
+		const index = Number(view.indexOfSelectedItem)
+		node.listPickerRequested = index
+		notifyListPickerChange(node, index)
+	}, () => undefined)
+
+	notifyListPickerChange(node, value)
+}
+
 /** DatePicker's shared values carry a local calendar day, never time-of-day. */
 function calendarDate(value: Date | string): Date {
 	const date = new Date(value)
@@ -2956,6 +3013,7 @@ const SUPPORTED_TYPES = new Set([
 	'slider',
 	'activityindicator',
 	'datepicker',
+	'listpicker',
 	'webview',
 	'image',
 	'span',
@@ -2976,6 +3034,13 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'listpicker') {
+		if (props?.items != null && !Array.isArray(props.items)) {throw new Error('AppKit listpicker items must be an array')}
+		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new Error('AppKit listpicker selectedIndex must be an integer')}
+		// Validate item conversion before allocating a view or registration.
+		for (const item of props?.items ?? []) {if (item != null) {void (item + '')}}
+	}
+
 	if (type === 'datepicker') {
 		for (const name of ['date', 'minDate', 'maxDate']) {
 			if (props?.[name] != null) {
@@ -3152,6 +3217,12 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
 				break
+			case 'listpicker': {
+				const control = makeListPicker(node)
+				node.view = control.view
+				node.actionId = control.actionId
+				break
+			}
 			case 'datepicker': {
 				const control = makeDatePicker(node)
 				node.view = control.view
@@ -4605,6 +4676,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	listpicker: ['items', 'selectedIndex', 'style', 'className'],
 	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
 	activityindicator: ['busy', 'style', 'className'],
 	htmlview: ['html', 'style', 'className'],
@@ -4856,6 +4928,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
 				}
+
+				break
+			case 'listpicker':
+				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {continue}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else {console.warn('[macos-host] ignored listpicker prop ' + name)}
 
 				break
 			case 'datepicker':
@@ -5172,6 +5253,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
+	if (node.type === 'listpicker') {syncListPicker(node)}
 	if (node.type === 'datepicker') {syncDatePicker(node, props)}
 	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
 	if (node.type === 'htmlview') {syncHtmlView(node)}
@@ -5712,6 +5794,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'listpicker') {throw new Error('AppKit <listpicker> cannot contain JSX children')}
 	if (parentType === 'datepicker') {throw new Error('AppKit <datepicker> cannot contain JSX children')}
 	if (parentType === 'activityindicator') {
 		throw new Error('AppKit <activityindicator> cannot contain JSX children')
@@ -6044,6 +6127,14 @@ function destroy(node: ElementNode) {
 	// branch below must tolerate partial construction.
 	if (node.type === 'webview' && node.view) {
 		disposeWebView(node.view as WKWebView)
+	}
+
+	if (node.type === 'listpicker' && node.view) {
+		node.view.target = null
+		node.view.action = null
+		node.view.removeAllItems()
+		node.listPickerTitles = null
+		node.props.onSelectedIndexChange = undefined
 	}
 
 	if (node.type === 'datepicker' && node.view) {

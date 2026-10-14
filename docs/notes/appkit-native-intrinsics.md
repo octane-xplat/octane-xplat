@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`                                                                                                    | `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`                                                                                                    | `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 24 core factories and 15 missing core hosts. `span` and
+There are now 25 core factories and 14 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -463,3 +463,43 @@ The shared date-only contract still needs mobile boundary normalization and
 hardware qualification, particularly iOS's inherited time-preserving setters.
 Inherited common lifecycle/gesture/style/accessibility coverage and full release
 gates remain open. This raw-host unit changes no recipe workflow.
+
+
+## ListPicker host
+
+ListPicker uses a noneditable AppKit popup button. Items keep their array order,
+including duplicate and empty labels; null items display their index. An empty
+list has index -1. Populated lists clamp the requested index to their range,
+selecting the first item by default. Updating or removing items and selection
+keeps the host; removed items clear the list. Selection changes from props or
+native actions emit `selectedIndexChange` with the numeric `value` and host
+`object`. Put the picker alongside other children in a layout.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function ListExample() {
+	const selected$ = useSignal$(0)
+	return (
+		<stacklayout>
+			<listpicker
+				items={['Small', 'Medium', 'Large']}
+				selectedIndex={selected$.get()}
+				onSelectedIndexChange={(event) => selected$.set(event.value)}
+			/>
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and packed public consumer checks cover item/index updates,
+empty lists, duplicate labels, bounds coercion, event payloads and suppression,
+style restoration, layout, keyed order, parent changes, replacement/removal,
+refs and teardown. Retained-root HMR checks identity, revised items and retained
+signal selection. Authored parent changes recreate hosts and clean old refs;
+units also check physical reparenting. Action dispatch establishes the event
+bridge, not OS input. Shared declarations and host-ref policy remain unchanged.
+The inherited common lifecycle/gesture/style/accessibility audit, mobile hardware,
+visual parity and complete native release gates remain open. This core host
+changes no recipe workflow.

@@ -251,3 +251,17 @@ void invalidDatePicker
 // @ts-expect-error AppKit-only picker style is outside the shared contract
 const invalidDateStyle: MacJSX.IntrinsicElements['datepicker'] = { datePickerStyle: 0 }
 void invalidDateStyle
+
+const listPicker: MacJSX.IntrinsicElements['listpicker'] = {
+	items: ['First', null, 42], selectedIndex: 1,
+	onSelectedIndexChange: (event) => {const index: number = event.value; void index; void event.object},
+	ref: (view) => {void view; return () => {}},
+}
+
+void listPicker
+// @ts-expect-error ListPicker index must be numeric
+const invalidListIndex: MacJSX.IntrinsicElements['listpicker'] = { selectedIndex: '1' }
+void invalidListIndex
+// @ts-expect-error AppKit-specific picker mode is outside the shared contract
+const invalidListMode: MacJSX.IntrinsicElements['listpicker'] = { pullsDown: true }
+void invalidListMode

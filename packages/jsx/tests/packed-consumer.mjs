@@ -63,6 +63,7 @@ const tree = (
 			ref={(view) => { void view; return () => {} }}>
 			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
 		</contentview>
+		<listpicker items={["First", null, 42]} selectedIndex={1} onSelectedIndexChange={(event) => { const index: number = event.value; void index; void event.object }} ref={(view) => {void view; return () => {}}} />
 		<datepicker date={new Date(2026, 4, 10)} minDate="2026-05-01" maxDate={new Date(2026, 4, 31)} day={10} month={5} year={2026} onDateChange={(event) => { const value: Date = event.value; const old: Date | undefined = event.oldValue; void value; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
 		<activityindicator busy={true} ref={(view) => { void view; return () => {} }} />
 		<htmlview html="<b>Hello &amp; world</b>" style={{ fontSize: 18 }} ref={(view) => { void view; return () => {} }} />
@@ -96,6 +97,12 @@ void badContent
 // @ts-expect-error RootLayout has no new track configuration prop
 const badRoot = <rootlayout rows="20" />
 void badRoot
+// @ts-expect-error ListPicker index must be numeric
+const badListIndex = <listpicker selectedIndex="1" />
+// @ts-expect-error AppKit-only mode is not in the shared contract
+const badListMode = <listpicker pullsDown={true} />
+void badListIndex
+void badListMode
 // @ts-expect-error date must be Date or string
 const badDate = <datepicker date={123} />
 // @ts-expect-error AppKit-only props must stay out of shared JSX

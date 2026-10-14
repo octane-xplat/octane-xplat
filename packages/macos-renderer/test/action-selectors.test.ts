@@ -85,7 +85,7 @@ function* actionSites() {
 	// initWithTitleActionKeyEquivalent(<title>, '<selector>', '<key>') — the
 	// item's `.target` is assigned right after.
 	for (const match of source.matchAll(
-		/initWithTitleActionKeyEquivalent\([\s\S]*?,\s*'([^']+)'\s*,\s*'[^']*'\s*,?\s*\)/g,
+		/initWithTitleActionKeyEquivalent\(\s*[^,\n]+,\s*'([^']+)'\s*,\s*'[^']*'\s*,?\s*\)/g,
 	)) {
 		yield { target: nearbyTarget(match.index), selector: match[1] }
 	}
@@ -100,7 +100,7 @@ test('assigned action strings retain declared arity and gestures use explicit Ob
 	const sites = [...actionSites()]
 
 	// Guard against a pattern silently matching nothing after a refactor.
-	assert.equal(sites.length, 10)
+	assert.equal(sites.length, 11)
 
 	for (const { target, selector } of sites) {
 		if (target === 'buttonActionTarget' && ['viewPressed:', 'viewPanned:'].includes(selector)) {

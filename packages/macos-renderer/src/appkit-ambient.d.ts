@@ -102,6 +102,19 @@ interface NSButtonClass extends NSClass<NSButton> {
 	buttonWithTitleTargetAction(title: string, target: any, action: string): NSButton
 }
 
+interface NSPopUpButton extends NSButton {
+	menu: NSMenu | null
+	indexOfSelectedItem: number
+	removeAllItems(): void
+	selectItemAtIndex(index: number): void
+}
+
+interface NSPopUpButtonClass extends NSClass<NSPopUpButton> {
+	alloc(): NSPopUpButton & { initWithFramePullsDown(frame: any, pullsDown: boolean): NSPopUpButton }
+}
+
+declare const NSPopUpButton: NSPopUpButtonClass
+
 declare const NSButton: NSButtonClass
 
 declare const NSGestureRecognizerDelegate: any
