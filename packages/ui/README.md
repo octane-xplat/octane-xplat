@@ -42,15 +42,21 @@ import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css' // optional defaults
 ```
 
-`styled()` composes class names from boolean variant props.
+`styled()` composes class names from typed variant props — a class string
+is a boolean variant, an option→class record is an enumerated variant, and
+`defaultVariants` applies when the prop is omitted.
 
 ```tsx
 import { styled, Pressable, Text } from '@octane-xplat/ui'
 
-const DangerAction = styled(Pressable, { variants: { danger: 'bg-danger' } })
+const DangerAction = styled(Pressable, {
+	base: 'btn',
+	variants: { danger: 'bg-danger', size: { sm: 'btn-sm', lg: 'btn-lg' } },
+	defaultVariants: { size: 'sm' },
+})
 export function RemoveAction() {
 	return (
-		<DangerAction danger onPress={() => console.log('Remove item')}>
+		<DangerAction danger size="lg" onPress={() => console.log('Remove item')}>
 			<Text>Remove</Text>
 		</DangerAction>
 	)

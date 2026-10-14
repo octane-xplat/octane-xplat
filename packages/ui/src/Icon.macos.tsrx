@@ -10,14 +10,14 @@ export function Icon(props: IconProps) @{
 	const glyph = getIcon(props.name)
 	const markup = glyph && glyphSvgMarkup(glyph, props.color ?? '#000000')
 	if (markup) return <Image src={markup} id={props.id} className={cx(props.className)}
-		alt={props.name}
+		alt={props.accessibilityLabel ?? ''}
 		style={{ width: size, height: size }} />
 
 	<label
 		id={props.id}
 		className={cx(props.className)}
 		style={{ width: size, height: size, fontSize: size * 0.75 }}
-		accessibilityLabel={props.name}
+		accessibilityLabel={props.accessibilityLabel}
 	>
 		{glyph?.font?.glyph ?? props.name}
 	</label>

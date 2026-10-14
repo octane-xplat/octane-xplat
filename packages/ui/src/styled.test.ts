@@ -31,6 +31,33 @@ describe('styled() (native leaf)', () => {
 		const el = Btn({ danger: true, className: 'extra' })
 		expect(inner(el).className).toEqual(['btn', 'bg-danger', 'extra'])
 	})
+
+	it('selects enumerated variant options and consumes the prop', () => {
+		const Card = styled(Base, {
+			base: 'card',
+			variants: { tone: { danger: 'bg-danger', neutral: 'bg-neutral' } },
+		})
+
+		const el = Card({ tone: 'danger', id: 'c1' })
+		expect(inner(el).className).toEqual(['card', 'bg-danger'])
+		expect(inner(el).tone).toBeUndefined()
+		expect(inner(el).id).toBe('c1')
+	})
+
+	it('applies defaultVariants when the prop is omitted', () => {
+		const Card = styled(Base, {
+			base: 'card',
+			variants: {
+				tone: { danger: 'bg-danger', neutral: 'bg-neutral' },
+				flat: 'shadow-none',
+			},
+			defaultVariants: { tone: 'neutral', flat: true },
+		})
+
+		expect(inner(Card({})).className).toEqual(['card', 'bg-neutral', 'shadow-none'])
+		// An explicit prop beats the default; a boolean default can turn off.
+		expect(inner(Card({ tone: 'danger', flat: false })).className).toEqual(['card', 'bg-danger'])
+	})
 })
 
 describe('getColorScheme (web leaf)', () => {

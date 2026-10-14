@@ -265,15 +265,20 @@ export { useAnimation } from './anim.macos.tsrx'
 export {
 	useThemeScheme,
 	getThemeScheme,
+	useThemePreference,
 	setThemePreference,
 	getThemePreference,
-	themeSchemeClasses,
 	onThemeSchemeChange,
-	applyThemeClasses,
 } from './theme/theme-scheme'
 
+export type { ThemePreference, ThemeScheme } from './theme/theme-scheme'
+export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
+export type { ThemeClassHost } from './theme/theme-host'
+
 export { useColorScheme, getColorScheme } from './colorScheme.macos'
+export type { ColorScheme } from './props'
 export { styled } from './styled.macos.tsrx'
+export type { StyledClass, StyledDef, StyledVariant, StyledVariantSelection } from './props'
 export { openWindow } from './windows.macos'
 export { Screen } from './Screen.macos.tsrx'
 export { Tabs } from './Tabs.macos.tsrx'
@@ -288,6 +293,7 @@ export { Meter, Heading } from './macos-extras.macos.tsrx'
 export { Icon } from './Icon.macos.tsrx'
 export { registerIcon, registerIcons } from './icons'
 export type { IconGlyph } from './icons'
+export type { BuiltinIconName, IconName, IconNameRegistry } from './props'
 export const isNative = true as const
 export { registerStack, getStack, stackEntries } from './stacks.macos'
 export {

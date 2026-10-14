@@ -5,7 +5,7 @@ import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { LightboxProps, LightboxMedia } from './props';
 import { cx } from '@octane-xplat/lib';
-import { applyThemeClasses } from './theme/theme-scheme';
+import { applyThemeClasses } from './theme/theme-host';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
 import { Icon } from './Icon';

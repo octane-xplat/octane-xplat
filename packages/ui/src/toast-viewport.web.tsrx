@@ -11,7 +11,7 @@ import {
 } from './toast-store';
 
 import { useStore } from './use-store.web.tsrx';
-import { applyThemeClasses } from './theme/theme-scheme';
+import { applyThemeClasses } from './theme/theme-host';
 import { cx } from '@octane-xplat/lib';
 import { ToastSurface } from './Toast.web.tsrx';
 import { Popover } from './Popover.web.tsrx';

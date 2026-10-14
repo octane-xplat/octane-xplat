@@ -306,7 +306,7 @@ export function Attachments() {
 | `Avatar`         | Circular image with text fallback                  | `src`, `fallback`, `size`                              |
 | `AvatarGroup`    | Overlapping avatar row with `+N` overflow          | `max`, `size`                                          |
 | `User`           | Avatar + name/description row                      | `name`, `description`, `src`, `onSelect`               |
-| `Icon`           | Registered icon glyph                              | `name`, `size`, `color`                                |
+| `Icon`           | Registered icon glyph                              | `name`, `size`, `color`, `accessibilityLabel`          |
 | `Image`          | Image                                              | `src`, `alt`, `placeholder`, `recyclingKey`, `contentFit`, `contentPosition`, `decoding` |
 | `Thumbnail`      | Square image preview with optional remove action   | `src`, `alt`, `isLoading`, `onPress`, `onRemove`       |
 | `Blockquote`     | Quoted content with optional attribution           | `cite`                                                 |
@@ -320,6 +320,30 @@ For images on native, prefer the `Image` from `@octane-xplat/image` — same
 name, same props, and it loads through Glide/SDWebImage (sized memory + disk
 cache, decode-to-view-size) instead of the core component's 5 MB cache. Core
 `Image` remains the dep-free baseline and the path for SVG sources.
+
+`Icon` looks its `name` up in one app-wide registry: the framework registers
+its `xplat-*` glyphs at startup, and `registerIcon`/`registerIcons` add or
+replace names for icons rendered afterward — already-mounted icons do not
+re-render, so register during startup. Everywhere an `icon` prop takes a
+registered name (`Alert`, `Banner`, `EmptyState`, menus, tab items), the
+same registry applies. An icon with no `accessibilityLabel` is decorative;
+set it when the icon carries meaning on its own.
+
+```tsx
+import { registerIcon, Icon, Alert } from '@octane-xplat/ui'
+
+registerIcon('logo', { svg: 'M4 4h16v16H4z' })
+
+export function Brand() {
+	return (
+		<>
+			<Icon name="logo" size={20} accessibilityLabel="Company logo" />
+			<Icon name="logo" /> {/* decorative second use */}
+			<Alert tone="info" icon="xplat-warning" title="Heads up" />
+		</>
+	)
+}
+```
 
 Indicators draw the selection mark; the owning control keeps focus,
 interaction, and accessibility semantics. `registerIndicator` and

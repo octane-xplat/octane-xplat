@@ -6,6 +6,7 @@ export function Icon(props: IconProps) @{
 	const glyph = getIcon(props.name);
 	if (!glyph) return null;
 	const size = props.size ?? 24;
+	const labeled = props.accessibilityLabel != null;
 
 	@if (glyph.markup) {
 		<svg
@@ -14,7 +15,9 @@ export function Icon(props: IconProps) @{
 			viewBox={glyph.viewBox ?? '0 0 24 24'}
 			width={size}
 			height={size}
-			aria-hidden="true"
+			role={labeled ? 'img' : undefined}
+			aria-label={props.accessibilityLabel}
+			aria-hidden={labeled ? undefined : 'true'}
 			style={props.color ? { color: props.color } : undefined}
 			ref={(el: any) => {
 				if (el) el.innerHTML = glyph.markup;
@@ -29,7 +32,9 @@ export function Icon(props: IconProps) @{
 				viewBox={glyph.viewBox ?? '0 0 24 24'}
 				width={size}
 				height={size}
-				aria-hidden="true"
+				role={labeled ? 'img' : undefined}
+				aria-label={props.accessibilityLabel}
+				aria-hidden={labeled ? undefined : 'true'}
 				ref={(el: any) => applyWebProps(el, props.web)}
 			>
 				<path d={glyph.svg} fill={props.color ?? 'currentColor'} />
@@ -39,7 +44,9 @@ export function Icon(props: IconProps) @{
 				<span
 					id={props.id}
 					className={['vx-icon', props.className]}
-					aria-hidden="true"
+					role={labeled ? 'img' : undefined}
+					aria-label={props.accessibilityLabel}
+					aria-hidden={labeled ? undefined : 'true'}
 					style={{ fontFamily: glyph.font.family, fontSize: size, color: props.color }}
 					ref={(el: any) => applyWebProps(el, props.web)}
 				>
@@ -53,7 +60,7 @@ export function Icon(props: IconProps) @{
 						src={glyph.src}
 						width={size}
 						height={size}
-						alt={props.name}
+						alt={props.accessibilityLabel ?? ''}
 						ref={(el: any) => applyWebProps(el, props.web)}
 					/>
 				} @else {
@@ -61,7 +68,9 @@ export function Icon(props: IconProps) @{
 						<span
 							id={props.id}
 							className={['vx-icon', props.className]}
-							aria-hidden="true"
+							role={labeled ? 'img' : undefined}
+							aria-label={props.accessibilityLabel}
+							aria-hidden={labeled ? undefined : 'true'}
 							style={{ fontSize: size, color: props.color }}
 							ref={(el: any) => applyWebProps(el, props.web)}
 						>

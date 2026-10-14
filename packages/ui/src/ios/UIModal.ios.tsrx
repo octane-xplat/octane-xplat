@@ -4,7 +4,7 @@ import type { UIModalProps } from "../props";
 import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
-import { applyThemeClasses } from '../theme/theme-scheme';
+import { applyThemeClasses } from '../theme/theme-host';
 import { modalPresenter } from '../modal-presenter';
 
 // The modal's content renders inside a separate Octane root on a GridLayout

@@ -16,7 +16,8 @@ import type {
 import { Popover } from './Popover';
 import type { PopoverInternalProps } from './internal-props';
 import { applyNativeProps } from './platformProps';
-import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
+import { useThemeScheme } from './theme/theme-scheme';
+import { applyThemeClasses } from './theme/theme-host';
 import { cx } from '@octane-xplat/lib';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';

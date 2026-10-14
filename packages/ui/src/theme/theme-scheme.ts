@@ -1,14 +1,24 @@
 import { useSyncExternalStore } from 'octane'
 import { getColorScheme, subscribeSystemScheme } from './colorScheme'
-import { cx } from '@octane-xplat/lib'
+import type { ColorScheme } from '../props'
 
+/** The app's theme preference — an explicit 'light'/'dark' override or
+ *  'system' to follow the OS appearance. Distinct from the resolved
+ *  scheme: the preference may be 'system' while `ThemeScheme` is always a
+ *  concrete scheme. */
 export type ThemePreference = 'light' | 'dark' | 'system'
+
+/** The resolved app scheme — the effective appearance the UI renders
+ *  with: the explicit preference when set, otherwise the current system
+ *  appearance. Same value space as the system `ColorScheme`. */
+export type ThemeScheme = ColorScheme
 
 let preference: ThemePreference = 'system'
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((l) => l())
 
-/** App-level theme override. 'system' clears the override and follows the OS. */
+/** Set the app-level theme preference. 'system' clears the override and
+ *  follows the OS appearance. */
 export function setThemePreference(p: ThemePreference) {
 	if (p !== preference) {
 		preference = p
@@ -20,8 +30,9 @@ export function getThemePreference(): ThemePreference {
 	return preference
 }
 
-/** The effective scheme: explicit override if set, else system appearance. */
-export function getThemeScheme(): 'light' | 'dark' {
+/** Resolved app scheme: the explicit preference when set, else the system
+ *  appearance. */
+export function getThemeScheme(): ThemeScheme {
 	return preference === 'system' ? getColorScheme() : preference
 }
 
@@ -34,33 +45,24 @@ function subscribe(cb: () => void): () => void {
 	}
 }
 
-/** Reactive effective scheme — re-renders on override or OS change. */
-export function useThemeScheme(): 'light' | 'dark' {
+/** Reactive resolved scheme — re-renders when the preference or the OS
+ *  appearance changes the effective scheme. Use `useThemePreference` for
+ *  the raw preference including 'system'. */
+export function useThemeScheme(): ThemeScheme {
 	return useSyncExternalStore(subscribe, getThemeScheme)
 }
 
-/** Class string to stamp on independently-mounted roots (portal hosts,
- *  overlay/sheet/modal/toast containers): 'ns-dark dark' when effective
- *  dark, '' otherwise. Both names because tokens.css publishes both
- *  selectors and hosts may render either vocabulary. */
-export function themeSchemeClasses(): string {
-	return getThemeScheme() === 'dark' ? 'ns-dark dark' : ''
+/** Reactive preference — the app's 'light' | 'dark' | 'system' choice,
+ *  re-rendering when the preference changes. */
+export function useThemePreference(): ThemePreference {
+	return useSyncExternalStore(subscribe, getThemePreference)
 }
 
-/** Subscribe imperative hosts to effective-scheme changes; returns an
- *  unsubscribe. Use for hosts that live outside any render cycle. */
+/** Subscribe imperative consumers to resolved-scheme changes; returns an
+ *  unsubscribe. Fires on preference writes and OS appearance changes —
+ *  use for hosts that live outside any render cycle. Independently-mounted
+ *  roots should prefer `applyThemeClasses` in './theme-host', which keeps
+ *  the scheme classes stamped live. */
 export function onThemeSchemeChange(cb: () => void): () => void {
 	return subscribe(cb)
-}
-
-/** Stamp `base + themeSchemeClasses()` onto an imperative host (NS view or
- *  DOM element) and keep it live — returns an unsubscribe to call when the
- *  host closes. Works on both leaves since both honor `.className`. */
-export function applyThemeClasses(view: any, base: string): () => void {
-	const apply = () => {
-		view.className = cx(base, themeSchemeClasses())
-	}
-
-	apply()
-	return onThemeSchemeChange(apply)
 }

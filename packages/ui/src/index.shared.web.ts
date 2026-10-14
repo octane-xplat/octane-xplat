@@ -656,12 +656,15 @@ export type { AnimatedValue } from './anim'
 export {
 	useThemeScheme,
 	getThemeScheme,
+	useThemePreference,
 	setThemePreference,
 	getThemePreference,
-	themeSchemeClasses,
 	onThemeSchemeChange,
-	applyThemeClasses,
 } from './theme/theme-scheme'
+
+export type { ThemePreference, ThemeScheme } from './theme/theme-scheme'
+export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
+export type { ThemeClassHost } from './theme/theme-host'
 
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
 export type { ColorScheme } from './theme/colorScheme.web'
@@ -688,6 +691,7 @@ export { Icon } from './Icon'
 export { Heading } from './Heading'
 export { registerIcon, registerIcons } from './icons'
 export type { IconGlyph } from './icons'
+export type { BuiltinIconName, IconName, IconNameRegistry } from './props'
 export type {
 	ActivityIndicatorProps,
 	HeadingProps,
@@ -696,6 +700,10 @@ export type {
 	RefreshProps,
 	SearchInputProps,
 	SliderProps,
+	StyledClass,
+	StyledDef,
+	StyledVariant,
+	StyledVariantSelection,
 } from './props'
 
 // Platform state and routing

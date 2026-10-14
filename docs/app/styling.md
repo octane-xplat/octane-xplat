@@ -486,3 +486,27 @@ export function chooseDark() {
 	setThemePreference('dark')
 }
 ```
+
+Three related but distinct values are at play. `useColorScheme` reads the
+system appearance — always `'light'` or `'dark'`, never an app override.
+`useThemePreference` reads the app's preference — `'light'`, `'dark'`, or
+`'system'` — so a settings screen can show which mode the user picked.
+`useThemeScheme` resolves the two: the explicit preference when set,
+otherwise the current system appearance. Non-component code uses the
+matching `getColorScheme`, `getThemePreference`, and `getThemeScheme`
+getters.
+
+```tsx
+import { Text, Pressable, useThemePreference, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
+
+export function ThemePicker() {
+	const preference = useThemePreference() // 'system' | 'light' | 'dark'
+	const scheme = useThemeScheme() // 'light' | 'dark'
+	return (
+		<>
+			<Text>{`Mode: ${preference}, appearance: ${scheme}`}</Text>
+			<Pressable onPress={() => setThemePreference('system')}>Follow system</Pressable>
+		</>
+	)
+}
+```

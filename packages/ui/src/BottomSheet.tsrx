@@ -14,7 +14,7 @@ import {
 import { createStore } from './store';
 import { useStore } from './use-store.tsrx';
 import { cx } from '@octane-xplat/lib';
-import { applyThemeClasses } from './theme/theme-scheme';
+import { applyThemeClasses } from './theme/theme-host';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
 import { attachSheetDetents, type SheetDetentsController } from './sheet-detents';

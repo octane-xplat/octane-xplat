@@ -1,8 +1,17 @@
 import { useSyncExternalStore } from 'octane'
 import { getColorScheme, subscribeSystemScheme } from '../colorScheme.macos'
-import { cx } from '@octane-xplat/lib'
+import type { ColorScheme } from '../props'
 
+/** The app's theme preference — an explicit 'light'/'dark' override or
+ *  'system' to follow the OS appearance. Distinct from the resolved
+ *  scheme: the preference may be 'system' while `ThemeScheme` is always a
+ *  concrete scheme. */
 export type ThemePreference = 'light' | 'dark' | 'system'
+
+/** The resolved app scheme — the effective appearance the UI renders
+ *  with: the explicit preference when set, otherwise the current system
+ *  appearance. Same value space as the system `ColorScheme`. */
+export type ThemeScheme = ColorScheme
 
 let preference: ThemePreference = 'system'
 const listeners = new Set<() => void>()
@@ -21,7 +30,7 @@ export function getThemePreference(): ThemePreference {
 	return preference
 }
 
-export function getThemeScheme(): 'light' | 'dark' {
+export function getThemeScheme(): ThemeScheme {
 	return preference === 'system' ? getColorScheme() : preference
 }
 
@@ -34,23 +43,14 @@ function subscribe(callback: () => void): () => void {
 	}
 }
 
-export function useThemeScheme(): 'light' | 'dark' {
+export function useThemeScheme(): ThemeScheme {
 	return useSyncExternalStore(subscribe, getThemeScheme)
 }
 
-export function themeSchemeClasses(): string {
-	return getThemeScheme() === 'dark' ? 'ns-dark dark' : ''
+export function useThemePreference(): ThemePreference {
+	return useSyncExternalStore(subscribe, getThemePreference)
 }
 
 export function onThemeSchemeChange(callback: () => void): () => void {
 	return subscribe(callback)
-}
-
-export function applyThemeClasses(view: any, base = ''): () => void {
-	const apply = () => {
-		view.className = cx(base, themeSchemeClasses())
-	}
-
-	apply()
-	return onThemeSchemeChange(apply)
 }

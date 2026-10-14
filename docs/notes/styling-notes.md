@@ -267,9 +267,13 @@ const Card = styled(View, {
 ```
 
 - `base`/`variants` are class strings → clsx composition (Octane already does
-  clsx-style `class` everywhere).
+  clsx-style `class` everywhere). A class value is a boolean variant; an
+  option→class record is an enumerated variant whose prop takes the option
+  names; `defaultVariants` supplies the value when the prop is omitted.
 - Dynamic variant→style escape: `style` prop still available.
-- Keeps TypeScript prop inference: `styled()` exports typed variant props.
+- Keeps TypeScript prop inference: `styled()` exports typed variant props —
+  `boolean` flags for class variants, option-name unions for enumerated
+  variants (`StyledDef`/`StyledVariantSelection` in props.ts).
 
 **Verified on iOS:** the component-factory shape hits a real universal
 constraint — component elements require the compiler-stamped

@@ -642,7 +642,7 @@ export interface SearchInputProps extends FieldControlProps, TestIDProps {
 	hasClear?: boolean
 	/** Leading glyph — a registered icon name. Defaults to the built-in
 	 *  `'xplat-search'` glyph; `false` renders no glyph. */
-	icon?: string | false
+	icon?: IconName | false
 	ref?: Octane.Ref<TextInputHandle>
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
@@ -1610,12 +1610,70 @@ export type UISliderProps = PlatformWidgetProps<SliderProps>
 /** Props accepted by `SeekBar` (`@octane-xplat/ui/android`). */
 export type SeekBarProps = PlatformWidgetProps<SliderProps>
 
+/** Identifiers of the framework-provided icons — registered automatically
+ *  and used by built-in affordances (search/clear glyphs, disclosure and
+ *  navigation chevrons, transport and status marks). An app registering
+ *  the same name overrides the bundled glyph. */
+export type BuiltinIconName =
+	| 'xplat-calendar'
+	| 'xplat-check'
+	| 'xplat-check-double'
+	| 'xplat-chevron-down'
+	| 'xplat-chevron-left'
+	| 'xplat-chevron-right'
+	| 'xplat-chevron-up'
+	| 'xplat-clear'
+	| 'xplat-clock'
+	| 'xplat-close'
+	| 'xplat-copy'
+	| 'xplat-doc-image'
+	| 'xplat-error'
+	| 'xplat-mic'
+	| 'xplat-more-horizontal'
+	| 'xplat-pause'
+	| 'xplat-play'
+	| 'xplat-search'
+	| 'xplat-send'
+	| 'xplat-stop'
+	| 'xplat-upload'
+	| 'xplat-volume'
+	| 'xplat-volume-off'
+	| 'xplat-warning'
+	| 'xplat-wrench'
+
+/** Augmentation point for app-registered icon identifiers. Declare module
+ *  '@octane-xplat/ui' and add the names your `registerIcon` calls use;
+ *  `IconName` then closes to the built-ins plus the declared names and
+ *  unregistered identifiers become type errors:
+ *
+ *  declare module '@octane-xplat/ui' {
+ *  	interface IconNameRegistry {
+ *  		'my-logo': true
+ *  	}
+ *  }
+ */
+export interface IconNameRegistry {}
+
+/** A registered icon identifier. Without augmentation this is the built-in
+ *  `xplat-*` names plus any string — registration is runtime, so unlisted
+ *  names stay assignable and resolve once registered. Once
+ *  `IconNameRegistry` is augmented the union closes to the declared names. */
+export type IconName = keyof IconNameRegistry extends never
+	? BuiltinIconName | (string & {})
+	: BuiltinIconName | (keyof IconNameRegistry & string)
+
 export interface IconProps {
 	className?: ClassName
 	id?: string
-	name: string
+	/** Registered icon identifier — a built-in `xplat-*` name or a name
+	 *  registered through `registerIcon`/`registerIcons`. An unregistered
+	 *  name renders nothing. */
+	name: IconName
 	size?: number
 	color?: string
+	/** Accessible name — set it when the icon carries meaning on its own.
+	 *  Omitted keeps the glyph decorative (hidden from assistive tech). */
+	accessibilityLabel?: string
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -2570,7 +2628,7 @@ export interface TabSpec {
 	 *  iconSource URI — `sys://` SF Symbol, `res://`, `font://`, file
 	 *  path) or `font`/`text` representation; `svg`/`markup`-only glyphs
 	 *  warn and render title-only there. */
-	icon?: string
+	icon?: IconName
 	render: () => Renderable
 	/** Named parallel stack — the pane is the route outlet for `stack`
 	 *  (pushed screens render in place). The platform tab bars host a real
@@ -3240,7 +3298,8 @@ export interface SegmentedControlProps extends FieldControlProps {
 export interface MenuItemData {
 	key: string
 	label?: string
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	isDisabled?: boolean
 	onSelect?: () => void
 	hasCloseOnSelect?: boolean
@@ -3290,7 +3349,8 @@ export interface MenuItemProps {
 	className?: ClassName
 	style?: StyleProp
 	label: Renderable
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	description?: string
 	endContent?: Renderable
 	isDisabled?: boolean
@@ -4072,7 +4132,8 @@ export interface PaginationProps {
 export interface StepperStep {
 	key: string
 	label?: string
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	disabled?: boolean
 }
 
@@ -4094,7 +4155,8 @@ export interface StepperProps {
 export interface NavigationMenuItem {
 	key: string
 	label?: string
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	/** Link target — a real anchor on web; deep-link/route-table activation
 	 *  on native. */
 	href?: string
@@ -4127,7 +4189,8 @@ export interface CommandPaletteMenuItem extends MenuItem {
 
 /** Source-backed command entry. Metadata grouping uses auxiliaryData.group. */
 export interface CommandPaletteItem extends SearchableItem {
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	disabled?: boolean
 	description?: string
 	shortcut?: string
@@ -4210,7 +4273,8 @@ export interface TimelineItem {
 	title?: string
 	description?: string
 	time?: string
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 }
 
 /** Timeline — vertical list of events with dot + connector. */
@@ -4276,7 +4340,8 @@ export interface AlertProps {
 	style?: StyleProp
 	id?: string
 	tone?: 'info' | 'success' | 'warning' | 'error'
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	title?: string
 	children?: Renderable
 	ios?: PlatformProps
@@ -4341,7 +4406,8 @@ export interface EmptyProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	title?: string
 	description?: string
 	children?: Renderable
@@ -4355,7 +4421,8 @@ export interface BannerProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	icon?: string
+	/** Registered icon name — see `registerIcon`. */
+	icon?: IconName
 	children?: Renderable
 	onDismiss?: () => void
 	ios?: PlatformProps
@@ -4623,7 +4690,7 @@ export interface ChatComposerTokenBadge {
 	label?: Renderable
 	variant?: ChatComposerTokenVariant
 	/** Registered icon name (see registerIcon). */
-	icon?: string
+	icon?: IconName
 }
 
 /** Custom-rendered token — full control over the chip's content. */
@@ -6543,6 +6610,38 @@ export type Key = string | number
  *  `'all'` or the set of selected keys. Reported sets are readonly — the
  *  framework owns them; pass them back instead of mutating. */
 export type Selection = 'all' | ReadonlySet<Key>
+
+// ---------- styled() ----------
+
+/** One class value in a `styled()` definition — a class string, a list of
+ *  class strings, or a falsy value that contributes nothing. Unlike
+ *  `ClassName`, keyed objects are not allowed: an object map declares an
+ *  enumerated variant instead. */
+export type StyledClass = string | readonly string[] | false | null | undefined
+
+/** One `styled()` variant slot. A `StyledClass` value is a boolean
+ *  variant — the prop takes a flag and the class applies when truthy. An
+ *  option→class record is an enumerated variant — the prop takes one of
+ *  its option names. */
+export type StyledVariant = StyledClass | { readonly [option: string]: StyledClass }
+
+/** The props a `styled()` component accepts for its variant slots —
+ *  `boolean` flags for class variants, option-name unions for enumerated
+ *  variants. */
+export type StyledVariantSelection<V extends Record<string, StyledVariant>> = {
+	[K in keyof V]?: V[K] extends { readonly [option: string]: StyledClass }
+		? keyof V[K] & string
+		: boolean
+}
+
+/** `styled()` definition — `base` classes compose unconditionally, each
+ *  `variants` slot adds a typed prop, and `defaultVariants` supplies the
+ *  value used when a variant prop is omitted. */
+export interface StyledDef<V extends Record<string, StyledVariant>> {
+	base?: StyledClass
+	variants?: V
+	defaultVariants?: StyledVariantSelection<V>
+}
 
 // ---------- stores ----------
 

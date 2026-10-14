@@ -54,8 +54,8 @@ vi.mock('@nativescript-community/octane', async (original) => ({
 }))
 
 vi.mock('./root-layout', () => ({ rootLayoutFor: () => state.owner }))
-vi.mock('./theme/theme-scheme', () => ({
-	useThemeScheme: () => 'light',
+vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+vi.mock('./theme/theme-host', () => ({
 	applyThemeClasses: (host: any, base: string) => {
 		host.className = base
 		const listener = () => {

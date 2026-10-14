@@ -8,7 +8,7 @@ import type { ShowToastFn, ToastEntry, ToastHandle, ToastOptions, ToastPosition 
 import { ToastViewportContext } from './toast-context';
 import { dismissToast, pushToast, toastHandleFor, toastStore, toastTiming } from './toast-store';
 import { topRootLayout } from './root-layout';
-import { applyThemeClasses } from './theme/theme-scheme';
+import { applyThemeClasses } from './theme/theme-host';
 import { Popover } from './Popover';
 import { Toast } from './Toast';
 

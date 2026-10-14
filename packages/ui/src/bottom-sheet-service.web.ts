@@ -1,6 +1,6 @@
 import { createRoot } from 'octane'
 import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from './props'
-import { applyThemeClasses } from './theme/theme-scheme'
+import { applyThemeClasses } from './theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents.web'
 import { isolateModalFocus } from './modal-focus.web'

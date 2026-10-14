@@ -2,7 +2,7 @@ import { Frame, GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { ModalHandle, ModalOpenOptions, ModalOpenResult, OpenModal } from '../props'
-import { applyThemeClasses } from '../theme/theme-scheme'
+import { applyThemeClasses } from '../theme/theme-host'
 import { modalPresenter } from '../modal-presenter'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */

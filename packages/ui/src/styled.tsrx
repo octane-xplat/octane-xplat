@@ -1,12 +1,19 @@
 import { defineUniversalComponent, universalComponent } from 'octane/universal/native';
+import type { ClassName, StyledDef, StyledVariant, StyledVariantSelection } from './props';
+import { resolveStyledClasses } from './styled-variants';
 
 /**
  * styled() — decision #7, Tamagui-shaped but CSS-backed. base/variants are
  * class strings composed into className; the leaf decides what those classes
- * mean per platform.
+ * mean per platform. A class value is a boolean variant (the prop is a
+ * flag); an option→class record is an enumerated variant (the prop takes an
+ * option name); defaultVariants applies when the prop is omitted.
  *
- *   const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } });
- *   <DangerBtn danger />  →  className=['btn','bg-danger']
+ *   const Btn = styled(Pressable, {
+ *   	base: 'btn',
+ *   	variants: { danger: 'bg-danger', size: { sm: 'btn-sm', lg: 'btn-lg' } },
+ *   });
+ *   <Btn danger size="sm" />  →  className=['btn','bg-danger','btn-sm']
  *
  * Universal constraint (Exp 16): component elements require the
  * compiler-stamped UNIVERSAL_COMPONENT mark and JSX/`@{ }` only lowers at
@@ -15,20 +22,13 @@ import { defineUniversalComponent, universalComponent } from 'octane/universal/n
  * universalComponent(...) elements directly. If upstream exposes a blessed
  * factory path, switch to it (driver-level fix candidate).
  */
-export function styled<P extends { className?: any }, V extends Record<string, any>>(
+export function styled<P extends { className?: ClassName }, V extends Record<string, StyledVariant>>(
 	Base: (props: P) => any,
-	def: { base?: any; variants?: V },
-): (props: P & { [K in keyof V]?: boolean }, context: any) => any {
-	function Styled(props: P & { [K in keyof V]?: boolean }) {
-		const cls: any[] = [def.base];
-		const rest: any = { ...props };
-		for (const k of Object.keys(def.variants ?? {})) {
-			if ((props as any)[k]) cls.push((def.variants as any)[k]);
-			delete rest[k]; // variant flags are consumed — don't leak to the leaf
-		}
-
-		if (props.className) cls.push(props.className);
-		rest.className = cls;
+	def: StyledDef<V>,
+): (props: P & StyledVariantSelection<V>, context: any) => any {
+	function Styled(props: P & StyledVariantSelection<V>) {
+		const { classes, rest } = resolveStyledClasses(def, props);
+		rest.className = classes;
 		return universalComponent('nativescript', Base as any, rest);
 	}
 

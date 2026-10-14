@@ -10,6 +10,7 @@ export function Icon(props: IconProps) @{
 	if (!glyph) return null;
 	const size = props.size ?? 24;
 	const markup = glyphSvgMarkup(glyph, props.color);
+	const accessible = props.accessibilityLabel != null;
 
 	@if (markup) {
 		<svgview
@@ -18,6 +19,8 @@ export function Icon(props: IconProps) @{
 			src={markup}
 			stretch="aspectFit"
 			style={{ width: size, height: size }}
+			accessible={accessible}
+			accessibilityLabel={props.accessibilityLabel}
 			ref={(el: any) => applyNativeProps(el, props)}
 		/>
 	} @else {
@@ -27,6 +30,8 @@ export function Icon(props: IconProps) @{
 				className={cx(props.className)}
 				text={glyph.font.glyph}
 				style={{ fontFamily: glyph.font.family, fontSize: size, color: props.color as any }}
+				accessible={accessible}
+				accessibilityLabel={props.accessibilityLabel}
 				ref={(el: any) => applyNativeProps(el, props)}
 			/>
 		} @else {
@@ -38,6 +43,8 @@ export function Icon(props: IconProps) @{
 						src={svgSource(glyph.src)}
 						stretch="aspectFit"
 						style={{ width: size, height: size }}
+						accessible={accessible}
+						accessibilityLabel={props.accessibilityLabel}
 						ref={(el: any) => applyNativeProps(el, props)}
 					/>
 				} @else {
@@ -46,6 +53,8 @@ export function Icon(props: IconProps) @{
 						className={cx(props.className)}
 						src={glyph.src}
 						style={{ width: size, height: size }}
+						accessible={accessible}
+						accessibilityLabel={props.accessibilityLabel}
 						ref={(el: any) => applyNativeProps(el, props)}
 					/>
 				}
@@ -56,6 +65,8 @@ export function Icon(props: IconProps) @{
 						className={cx(props.className)}
 						text={glyph.text}
 						style={{ fontSize: size, color: props.color as any }}
+						accessible={accessible}
+						accessibilityLabel={props.accessibilityLabel}
 						ref={(el: any) => applyNativeProps(el, props)}
 					/>
 				}
