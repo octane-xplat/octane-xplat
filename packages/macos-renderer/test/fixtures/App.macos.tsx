@@ -28,6 +28,9 @@ export default function App() {
 			<contentview id="hmr-content" style={{ width: 180, height: 32 }}>
 				<label id="revision" text="First revision" />
 			</contentview>
+			<docklayout id="hmr-dock" style={{ width: 180, height: 32 }}>
+				<label id="dock-revision" text="First revision" />
+			</docklayout>
 			<stacklayout
 				id="layout"
 				onTap={

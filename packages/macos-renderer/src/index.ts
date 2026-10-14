@@ -115,6 +115,7 @@ const textNodesByView = new WeakMap<object, ElementNode>()
 const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
 const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
+const dockLayoutNodesByView = new WeakMap<object, ElementNode>()
 const contentViewNodesByView = new WeakMap<object, ElementNode>()
 const accessibilityLabels = new Map<number, string>()
 const accessibilityRoles = new Map<number, string>()
@@ -523,6 +524,48 @@ class ContentViewHost extends NSView {
 	}
 }
 
+// Mirrors NativeScript 9.1.2 (MIT): ui/layouts/dock-layout/index.ios.ts
+// and ViewHelper's measurement/alignment rules. Ordered strips need NSView,
+// not NSStackView's single layout axis.
+class DockLayoutView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	get intrinsicContentSize() {
+		return dockNaturalSize(dockLayoutNodesByView.get(this))
+	}
+
+	layout() {
+		super.layout()
+		layoutDockChildren(dockLayoutNodesByView.get(this))
+	}
+}
+
+function makeDockLayout(node: ElementNode) {
+	const view = DockLayoutView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	dockLayoutNodesByView.set(view, node)
+	view.postsFrameChangedNotifications = true
+	node.dockGeometryObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			() => {
+				if (dockLayoutNodesByView.get(view) === node) {
+					queueLayoutReconcile(node.container, node)
+				}
+			},
+		)
+
+	return view
+}
+
 function makeContentView() {
 	const view = ContentViewHost.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
@@ -882,7 +925,10 @@ function syncMarginHost(node: ElementNode) {
 	const stack = parent.childHost ?? parent.view
 	if (typeof stack?.addViewInGravity !== 'function') {
 		// Grid children are laid out manually and already honor margins.
-		if (marginInsetsOf(node) && parent.type !== 'gridlayout') {
+		if (
+			marginInsetsOf(node) &&
+			!['gridlayout', 'contentview', 'docklayout'].includes(parent.type)
+		) {
 			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
 		}
 
@@ -934,7 +980,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 		insets[MARGIN_SIDES[name]] = points
 	}
 
-	if (['gridlayout', 'contentview'].includes(node.parent?.type ?? '')) {
+	if (['gridlayout', 'contentview', 'docklayout'].includes(node.parent?.type ?? '')) {
 		// These parents lay out children manually from props.style — no wrapper needed.
 		queueLayoutReconcile(node.container, node.parent)
 		return
@@ -1970,6 +2016,195 @@ function layoutAbsoluteChildren(parent: ElementNode | undefined) {
 	}
 }
 
+// Width/height percentages use the parent's available content size, not the
+// progressively smaller strip. Explicit lengths are capped by the measure slot
+// (NativeScript ViewHelper.getMeasureSpec); margins consume additional space.
+function dockChildSize(
+	child: ElementNode,
+	axis: 'width' | 'height',
+	available: number,
+	basis: number,
+) {
+	const spec = child.sizeConstraintSpecs?.[axis]
+	const desired = child.props.style?.[axis]
+	const intrinsic = layoutView(child).intrinsicContentSize?.[axis]
+	const fitting = layoutView(child).fittingSize?.[axis]
+	const natural = Math.max(0, Number(Number(intrinsic) >= 0 ? intrinsic : fitting) || 0)
+	const length =
+		desired != null
+			? typeof desired === 'string' && desired.endsWith('%') && !Number.isFinite(basis)
+				? natural
+				: layoutLength(desired, basis, natural)
+			: spec?.kind === 'points'
+				? spec.points
+				: spec?.kind === 'percent' && Number.isFinite(basis)
+					? spec.multiplier * basis
+					: natural
+
+	const margins = child.marginInsets ?? {}
+	const margin =
+		axis === 'width'
+			? (margins.left ?? 0) + (margins.right ?? 0)
+			: (margins.top ?? 0) + (margins.bottom ?? 0)
+
+	return Math.max(
+		0,
+		Math.min(desired != null || spec ? available : Math.max(0, available - margin), length),
+	)
+}
+
+function dockNaturalSize(parent: ElementNode | undefined) {
+	let width = 0,
+		height = 0,
+		usedWidth = 0,
+		usedHeight = 0
+
+	for (const child of parent?.children ?? []) {
+		if (!child.view) {
+			continue
+		}
+
+		const margins = child.marginInsets ?? {}
+		const w =
+			dockChildSize(child, 'width', Infinity, Infinity) + (margins.left ?? 0) + (margins.right ?? 0)
+
+		const h =
+			dockChildSize(child, 'height', Infinity, Infinity) +
+			(margins.top ?? 0) +
+			(margins.bottom ?? 0)
+
+		if (['top', 'bottom'].includes(child.props.dock)) {
+			usedHeight += h
+			width = Math.max(width, usedWidth + w)
+			height = Math.max(height, usedHeight)
+		} else {
+			usedWidth += w
+			width = Math.max(width, usedWidth)
+			height = Math.max(height, usedHeight + h)
+		}
+	}
+
+	const padding = parent?.dockInsets ?? {}
+	return {
+		width: width + (padding.left ?? 0) + (padding.right ?? 0),
+		height: height + (padding.top ?? 0) + (padding.bottom ?? 0),
+	}
+}
+
+function layoutDockChildren(parent: ElementNode | undefined) {
+	if (!parent?.view) {
+		return
+	}
+
+	const padding = parent.dockInsets ?? {}
+	const width = Math.max(
+		0,
+		Number(parent.view.bounds.size.width) - (padding.left ?? 0) - (padding.right ?? 0),
+	)
+
+	const height = Math.max(
+		0,
+		Number(parent.view.bounds.size.height) - (padding.top ?? 0) - (padding.bottom ?? 0),
+	)
+
+	let x = padding.left ?? 0,
+		top = padding.top ?? 0,
+		remainingWidth = width,
+		remainingHeight = height
+
+	const children = parent.children.filter((child) => child.view)
+	for (const [index, child] of children.entries()) {
+		const margins = child.marginInsets ?? {}
+		const ml = margins.left ?? 0,
+			mr = margins.right ?? 0,
+			mt = margins.top ?? 0,
+			mb = margins.bottom ?? 0
+
+		const measuredWidth = dockChildSize(child, 'width', remainingWidth, width)
+		const measuredHeight = dockChildSize(child, 'height', remainingHeight, height)
+		const stretch = index === children.length - 1 && parent.props.stretchLastChild !== false
+		let slotX = x,
+			slotTop = top,
+			slotWidth = remainingWidth,
+			slotHeight = remainingHeight
+
+		if (!stretch) {
+			switch (child.props.dock ?? 'left') {
+				case 'top':
+					slotHeight = measuredHeight + mt + mb
+					top += slotHeight
+					remainingHeight = Math.max(0, remainingHeight - slotHeight)
+					break
+				case 'bottom':
+					slotHeight = measuredHeight + mt + mb
+					slotTop += remainingHeight - slotHeight
+					remainingHeight = Math.max(0, remainingHeight - slotHeight)
+					break
+				case 'right':
+					slotWidth = measuredWidth + ml + mr
+					slotX += remainingWidth - slotWidth
+					remainingWidth = Math.max(0, remainingWidth - slotWidth)
+					break
+				default:
+					slotWidth = measuredWidth + ml + mr
+					x += slotWidth
+					remainingWidth = Math.max(0, remainingWidth - slotWidth)
+			}
+		}
+
+		const axis = (
+			slot: number,
+			measured: number,
+			fixed: boolean,
+			alignment: string,
+			start: number,
+			end: number,
+		) => {
+			const space = Math.max(0, slot - start - end)
+			const size = alignment === 'stretch' && !fixed ? space : measured
+			const offset =
+				alignment === 'right' || alignment === 'bottom'
+					? slot - end - size
+					: ['stretch', 'center', 'middle'].includes(alignment)
+						? start + (space - size) / 2
+						: start
+
+			return [offset, size]
+		}
+
+		const [dx, w] = axis(
+			slotWidth,
+			measuredWidth,
+			child.props.style?.width != null || !!child.sizeConstraintSpecs?.width,
+			child.props.horizontalAlignment ?? 'stretch',
+			ml,
+			mr,
+		)
+
+		const [dy, h] = axis(
+			slotHeight,
+			measuredHeight,
+			child.props.style?.height != null || !!child.sizeConstraintSpecs?.height,
+			child.props.verticalAlignment ?? 'stretch',
+			mt,
+			mb,
+		)
+
+		// NativeScript rounds both edges independently.
+		const left = Math.round(slotX + dx),
+			childTop = Math.round(slotTop + dy)
+
+		pinLayoutChild(
+			child,
+			parent.view,
+			left,
+			childTop,
+			Math.round(slotX + dx + w) - left,
+			Math.round(slotTop + dy + h) - childTop,
+		)
+	}
+}
+
 function layoutContentChild(parent: ElementNode | undefined) {
 	const child = parent?.contentChild
 	if (!parent?.view || !child?.view) {
@@ -2069,6 +2304,7 @@ function makeImageView(props: PropBag) {
 
 /** Types whose views arrange child views; mirrors the check in insert(). */
 const VIEW_PARENT_TYPES = new Set([
+	'docklayout',
 	'contentview',
 	'stack',
 	'stacklayout',
@@ -2137,6 +2373,18 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		!['horizontal', 'vertical'].includes(props.orientation)
 	) {
 		throw new Error('[macos-host] stacklayout orientation must be horizontal or vertical')
+	}
+
+	if (
+		type === 'docklayout' &&
+		props?.stretchLastChild != null &&
+		typeof props.stretchLastChild !== 'boolean'
+	) {
+		throw new Error('[macos-host] docklayout stretchLastChild must be boolean')
+	}
+
+	if (props?.dock != null && !['left', 'top', 'right', 'bottom'].includes(props.dock)) {
+		throw new Error('[macos-host] dock must be left, top, right or bottom')
 	}
 
 	if (type === 'gridlayout') {
@@ -2219,6 +2467,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.actionId = flexbox.actionId
 				break
 			}
+			case 'docklayout':
+				node.view = makeDockLayout(node)
+				break
 			case 'contentview':
 				node.view = makeContentView()
 				contentViewNodesByView.set(node.view!, node)
@@ -2548,7 +2799,7 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 		specs[name] = spec
 	}
 
-	if (node.parent?.type === 'gridlayout' || node.parent?.type === 'absolutelayout') {
+	if (['gridlayout', 'absolutelayout', 'docklayout'].includes(node.parent?.type ?? '')) {
 		deactivateSizeConstraints(node)
 		queueLayoutReconcile(node.container, node.parent)
 		return
@@ -2596,7 +2847,7 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	}
 
 	const spec = node.sizeConstraintSpecs?.[name]
-	if (!spec || !node.view || node.parent?.type === 'contentview') {
+	if (!spec || !node.view || ['contentview', 'docklayout'].includes(node.parent?.type ?? '')) {
 		return
 	}
 
@@ -2669,11 +2920,18 @@ function syncEdgeInsets(node: ElementNode) {
 	}
 
 	node.insetsApplied = true
-	view.edgeInsets = {
+	const insets = {
 		top: edges?.top ?? box?.top ?? klass?.top ?? 0,
 		right: edges?.right ?? box?.right ?? klass?.right ?? 0,
 		bottom: edges?.bottom ?? box?.bottom ?? klass?.bottom ?? 0,
 		left: edges?.left ?? box?.left ?? klass?.left ?? 0,
+	}
+
+	if (node.type === 'docklayout') {
+		node.dockInsets = insets
+		queueLayoutReconcile(node.container, node)
+	} else {
+		view.edgeInsets = insets
 	}
 }
 
@@ -2745,10 +3003,16 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'color' && textControl) {
 		node.styleColor = undefined
 		applyThemeColors(node)
-	} else if (name === 'padding' && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
+	} else if (
+		name === 'padding' &&
+		['flexboxlayout', 'stacklayout', 'docklayout'].includes(node.type)
+	) {
 		node.stylePaddingBox = undefined
 		syncEdgeInsets(node)
-	} else if (EDGE_INSET_PROPS.has(name) && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
+	} else if (
+		EDGE_INSET_PROPS.has(name) &&
+		['flexboxlayout', 'stacklayout', 'docklayout'].includes(node.type)
+	) {
 		for (const edge of EDGE_INSET_PROPS.get(name)!) {
 			delete node.stylePaddingEdges?.[edge]
 		}
@@ -2861,10 +3125,16 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'lineHeight' && node.type === 'label') {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
 			continue
-		} else if (name === 'padding' && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
+		} else if (
+			name === 'padding' &&
+			['flexboxlayout', 'stacklayout', 'docklayout'].includes(node.type)
+		) {
 			node.stylePaddingBox = parseEdgeInsets(value)
 			syncEdgeInsets(node)
-		} else if (EDGE_INSET_PROPS.has(name) && ['flexboxlayout', 'stacklayout'].includes(node.type)) {
+		} else if (
+			EDGE_INSET_PROPS.has(name) &&
+			['flexboxlayout', 'stacklayout', 'docklayout'].includes(node.type)
+		) {
 			const edges = (node.stylePaddingEdges ??= {})
 			for (const edge of EDGE_INSET_PROPS.get(name)!) {
 				edges[edge] = Number(value) || 0
@@ -2882,7 +3152,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
-			if (node.parent?.type === 'gridlayout' || node.parent?.type === 'absolutelayout') {
+			if (['gridlayout', 'absolutelayout'].includes(node.parent?.type ?? '')) {
 				queueLayoutReconcile(node.container, node.parent)
 			}
 		} else if ((name === 'translateX' || name === 'translateY' || name === 'zIndex') && node.view) {
@@ -3575,6 +3845,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	docklayout: ['stretchLastChild'],
 	contentview: ['horizontalAlignment', 'verticalAlignment'],
 	stacklayout: [
 		'orientation',
@@ -3628,6 +3899,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		absolutelayout: ['left', 'top', 'right', 'bottom'],
+		docklayout: ['dock', 'horizontalAlignment', 'verticalAlignment'],
 		contentview: ['horizontalAlignment', 'verticalAlignment'],
 		stacklayout: ['horizontalAlignment', 'verticalAlignment'],
 		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
@@ -3651,7 +3923,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 		// Attached alignment metadata is retained before the batch inserts
 		// the child; its parent consumes it during layout reconciliation.
-		if (!node.parent && ['horizontalAlignment', 'verticalAlignment'].includes(name)) {
+		if (!node.parent && ['dock', 'horizontalAlignment', 'verticalAlignment'].includes(name)) {
 			continue
 		}
 
@@ -3682,13 +3954,18 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 
 		switch (node.type) {
+			case 'docklayout':
+				if (name === 'stretchLastChild') {
+					continue
+				}
+			// Common styling uses the same reconciliation as ContentView.
 			case 'contentview':
 				if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name !== 'id') {
-					console.warn('[macos-host] ignored contentview prop ' + name)
+					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
 				}
 
 				break
@@ -3999,8 +4276,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
-	if (node.type === 'stacklayout' ||
-		(['flexboxlayout', 'stack'].includes(node.type) && Object.keys(props).some(isStackLayoutInput))) {
+	if (
+		node.type === 'stacklayout' ||
+		(['flexboxlayout', 'stack'].includes(node.type) && Object.keys(props).some(isStackLayoutInput))
+	) {
 		syncStackLayout(node)
 	}
 
@@ -4053,14 +4332,21 @@ function applyProps(node: ElementNode, props: PropBag) {
 		queueLayoutReconcile(node.container, node)
 	}
 
-	if (['gridlayout', 'absolutelayout', 'contentview'].includes(node.type)) {
+	if (['gridlayout', 'absolutelayout', 'contentview', 'docklayout'].includes(node.type)) {
 		queueLayoutReconcile(node.container, node)
 	} else if (
 		node.parent?.type === 'gridlayout' ||
 		node.parent?.type === 'absolutelayout' ||
 		node.parent?.type === 'stacklayout' ||
-		node.parent?.type === 'contentview'
+		node.parent?.type === 'contentview' ||
+		node.parent?.type === 'docklayout'
 	) {
+		queueLayoutReconcile(node.container, node.parent)
+	}
+
+	// Container children also reconcile their own subtree. A dock-only update
+	// must still notify the outer DockLayout when the child is a container.
+	if (node.parent?.type === 'docklayout') {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 }
@@ -4120,9 +4406,23 @@ function queueLayoutReconcile(container: RootContainer, parent: ElementNode | nu
 }
 
 function reconcileLayoutParent(parent: ElementNode) {
+	if (parent.type === 'docklayout') {
+		parent.view?.invalidateIntrinsicContentSize()
+		layoutDockChildren(parent)
+		if (parent.parent?.type === 'docklayout' || parent.parent?.type === 'contentview') {
+			queueLayoutReconcile(parent.container, parent.parent)
+		}
+
+		return
+	}
+
 	if (parent.type === 'contentview') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutContentChild(parent)
+		if (parent.parent?.type === 'docklayout') {
+			queueLayoutReconcile(parent.container, parent.parent)
+		}
+
 		return
 	}
 
@@ -4162,7 +4462,7 @@ function insert(
 		throw new Error('Unknown AppKit parent ' + parentId)
 	}
 
-	if (['stacklayout', 'contentview'].includes(parent?.type ?? '') && !node.view) {
+	if (['stacklayout', 'contentview', 'docklayout'].includes(parent?.type ?? '') && !node.view) {
 		throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 	}
 
@@ -4183,7 +4483,7 @@ function insert(
 	node.parent = parent
 	if (node.view) {
 		if (parent) {
-			if (['gridlayout', 'absolutelayout', 'contentview'].includes(parent.type)) {
+			if (['gridlayout', 'absolutelayout', 'contentview', 'docklayout'].includes(parent.type)) {
 				// Re-homing under a manually laid-out parent — release the
 				// margin wrapper so arrangedView() stops returning the
 				// detached host and the grid cannot keep a ghost view.
@@ -4204,7 +4504,7 @@ function insert(
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
 				queueLayoutReconcile(container, parent)
-			} else if (parent.type === 'gridlayout') {
+			} else if (parent.type === 'gridlayout' || parent.type === 'docklayout') {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
@@ -4289,6 +4589,21 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	if (node.type === 'docklayout') {
+		if (node.dockGeometryObserver) {
+			NSNotificationCenter.defaultCenter.removeObserver(node.dockGeometryObserver)
+			node.dockGeometryObserver = null
+		}
+
+		if (node.view) {
+			dockLayoutNodesByView.delete(node.view)
+		}
+
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
+	}
+
 	// Removing an ancestor does not detach its native descendants. Every
 	// destroyed view releases its own edge, including retained ContentView refs.
 	if (node.type === 'contentview') {
@@ -4379,9 +4694,8 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 	const pending = new Map<number, { type: string; props: PropBag }>()
 	const destroyed = new Set<number>()
 	const parents = new Map<number, number | null>()
-	const parentOf = (id: number) => parents.has(id)
-		? parents.get(id)
-		: container.nodes.get(id)?.parent?.id
+	const parentOf = (id: number) =>
+		parents.has(id) ? parents.get(id) : container.nodes.get(id)?.parent?.id
 
 	const known = (id: number): { type: string; props: PropBag } | undefined =>
 		pending.get(id) ?? (destroyed.has(id) ? undefined : container.nodes.get(id))
@@ -4407,7 +4721,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const parentId = parentOf(command.id)
 				const parent = parentId == null ? null : known(parentId)
 				if (
-					['stacklayout', 'contentview'].includes(parent?.type ?? '') &&
+					['stacklayout', 'contentview', 'docklayout'].includes(parent?.type ?? '') &&
 					!typeHasView(command.type)
 				) {
 					throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
@@ -4447,7 +4761,10 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 						throw new Error('Unknown AppKit parent ' + parentId)
 					}
 
-					if (['stacklayout', 'contentview'].includes(parent.type) && !typeHasView(entry.type)) {
+					if (
+						['stacklayout', 'contentview', 'docklayout'].includes(parent.type) &&
+						!typeHasView(entry.type)
+					) {
 						throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 					}
 
@@ -4485,7 +4802,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
 			if (
-				['stacklayout', 'contentview'].includes(existing?.parent?.type ?? '') &&
+				['stacklayout', 'contentview', 'docklayout'].includes(existing?.parent?.type ?? '') &&
 				!typeHasView(command.type)
 			) {
 				throw new Error('AppKit <' + existing!.parent!.type + '> cannot contain text-only children')
@@ -4513,9 +4830,12 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				// applyProps merges — a dropped key stays stale for node.props
 				// readers. Inject explicit clears for every sticky prop so a
 				// removed key restores its default.
-				const childClears = node.parent?.type === 'contentview'
-					? { horizontalAlignment: undefined, verticalAlignment: undefined }
-					: {}
+				const childClears =
+					node.parent?.type === 'docklayout'
+						? { dock: undefined, horizontalAlignment: undefined, verticalAlignment: undefined }
+						: node.parent?.type === 'contentview'
+							? { horizontalAlignment: undefined, verticalAlignment: undefined }
+							: {}
 
 				applyProps(node, {
 					...staleEventClears(node.props, command.props),
@@ -4575,7 +4895,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 
 			const parent = node.parent
 			if (
-				['stacklayout', 'contentview'].includes(parent?.type ?? '') &&
+				['stacklayout', 'contentview', 'docklayout'].includes(parent?.type ?? '') &&
 				!typeHasView(command.type)
 			) {
 				throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')

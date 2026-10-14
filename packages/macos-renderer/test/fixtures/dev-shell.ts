@@ -25,6 +25,8 @@ let liveComponent: any
 let retainedLabel: any
 let retainedContent: any
 let retainedChild: any
+let retainedDock: any
+let retainedDockChild: any
 let reloaded = false
 function reload() {
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
@@ -35,6 +37,8 @@ function reload() {
 			retainedLabel = debug.findId('count')
 			retainedContent = debug.findId('hmr-content')
 			retainedChild = debug.findId('revision')
+			retainedDock = debug.findId('hmr-dock')
+			retainedDockChild = debug.findId('dock-revision')
 			debug.pressId('increment')
 			console.log('HMR_CONSUMER_READY')
 		}, 60)
@@ -44,6 +48,10 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-dock') === retainedDock &&
+				debug.findId('dock-revision') === retainedDockChild &&
+				retainedDockChild.superview === retainedDock &&
+				String(retainedDockChild.stringValue) === 'Second revision' &&
 				label === retainedLabel &&
 				debug.findId('hmr-content') === retainedContent &&
 				revision === retainedChild &&
@@ -53,12 +61,18 @@ function reload() {
 				String(revision.stringValue) === 'Second revision'
 			) {
 				root.unmount()
-				if (retainedContent.superview || retainedChild.superview) {
+				if (
+					retainedContent.superview ||
+					retainedChild.superview ||
+					retainedDock.superview ||
+					retainedDockChild.superview
+				) {
 					console.error('PACKED_HMR_FAIL: ContentView teardown retained views')
 					return
 				}
 
 				console.log('PACKED_CONTENTVIEW_HMR_OK')
+				console.log('PACKED_DOCKLAYOUT_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

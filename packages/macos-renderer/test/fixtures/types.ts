@@ -1,3 +1,4 @@
+import type { JSX as SharedJSX } from '@octane-xplat/jsx/jsx-runtime'
 import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-renderer'
 import type { MacOSRootOptions } from '@octane-xplat/macos-renderer'
 import type { XplatMacOSOptions } from '@octane-xplat/cli/macos/vite'
@@ -25,3 +26,14 @@ void (null as unknown as typeof jsxs)
 createMacOSRoot(host, { fontFamily: 7 })
 // @ts-expect-error face weights must be numbers
 registerFontFamily('Test', [{ weight: 'bold', descriptor }])
+
+const dock: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChild: false }
+const dockChild: SharedJSX.IntrinsicElements['label'] = { dock: 'bottom' }
+void dock
+void dockChild
+// @ts-expect-error primitive prop accepts boolean only
+const invalidDock: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' }
+// @ts-expect-error attached edge vocabulary is closed
+const invalidDockChild: SharedJSX.IntrinsicElements['label'] = { dock: 'center' }
+void invalidDock
+void invalidDockChild

@@ -1,5 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { checkDockLifecycle } from './dock-lifecycle'
 import { checkContentLifecycle } from './content-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
 
@@ -38,7 +39,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 				c = debug.findId('c')
 
 			const check = (condition: boolean, message: string) => {
-				if (!condition) {throw new Error(message)}
+				if (!condition) {
+					throw new Error(message)
+				}
 			}
 
 			const rect = (view: any) => view.alignmentRectForFrame(view.frame)
@@ -136,6 +139,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 								await checkContentLifecycle(contentRoot, nativeWindow)
 							} finally {
 								contentRoot.unmount()
+							}
+
+							const dockRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkDockLifecycle(dockRoot, nativeWindow)
+							} finally {
+								dockRoot.unmount()
 							}
 
 							console.log('PACKED_RENDERER_OK')

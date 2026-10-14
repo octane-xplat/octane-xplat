@@ -54,6 +54,7 @@ const tree = (
 		<label text="hi" whiteSpace="nowrap" />
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
+		<docklayout stretchLastChild={false}><label dock="right" text="Side" /></docklayout>
 		<contentview id="single" style={{ width: 100, height: 40 }}
 			ref={(view) => { void view; return () => {} }}>
 			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
@@ -84,6 +85,12 @@ void badProp
 // @ts-expect-error ContentView has common attributes, no invented content prop
 const badContent = <contentview content="text" />
 void badContent
+// @ts-expect-error DockLayout primitive contract rejects strings
+const badDock = <docklayout stretchLastChild="false" />
+// @ts-expect-error DockLayout edges are closed
+const badEdge = <label dock="center" />
+void badDock
+void badEdge
 `
 
 // Module augmentation through the intrinsics entry must reach the contract.
@@ -243,14 +250,17 @@ try {
 			const files = []
 			if (lane.domOnly) {
 				writeFileSync(join(consumerRoot, 'dom.tsx'), domSource)
-				writeFileSync(join(consumerRoot, 'imports.ts'), `
+				writeFileSync(
+					join(consumerRoot, 'imports.ts'),
+					`
 import type { JSX } from '@octane-xplat/jsx/dom/jsx-runtime'
 import type { JSX as DevJSX } from '@octane-xplat/jsx/dom/jsx-dev-runtime'
 declare const el: JSX.Element
 declare const dev: DevJSX.Element
 void el
 void dev
-`)
+`,
+				)
 
 				files.push('dom.tsx', 'imports.ts')
 			} else {

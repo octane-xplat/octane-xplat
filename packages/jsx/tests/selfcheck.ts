@@ -98,3 +98,15 @@ const macContent: MacJSX.IntrinsicElements['contentview'] = {
 
 void sharedContent;
 void macContent;
+
+// DockLayout retains the shared primitive contract across target conditions.
+const dockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: false };
+const dockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' };
+void dockProps;
+void dockChildProps;
+// @ts-expect-error stretchLastChild accepts only boolean
+const badDockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' };
+// @ts-expect-error attached dock edges are closed
+const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' };
+void badDockProps;
+void badDockChildProps;
