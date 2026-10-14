@@ -320,7 +320,7 @@ export async function runOverlayFixture() {
 		dismissScoped()
 		await new Promise((resolve) => setTimeout(resolve, 250))
 		check(
-			scopedReason === 'manual' && toastStore.get().length === 0,
+			scopedReason === 'manual' && toastStore.getSnapshot().length === 0,
 			'manual scoped toast dismissal lost',
 		)
 
@@ -339,7 +339,7 @@ export async function runOverlayFixture() {
 		await tick()
 		check(hidden === 'auto', 'toast timer did not run')
 		await new Promise((resolve) => setTimeout(resolve, 250))
-		check(toastStore.get().length === 0, 'toast did not drain')
+		check(toastStore.getSnapshot().length === 0, 'toast did not drain')
 		root.render(Content, { open: true })
 		await tick()
 		root.unmount()

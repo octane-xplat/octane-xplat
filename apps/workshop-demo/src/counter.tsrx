@@ -13,7 +13,7 @@ export function WorkshopCounter(props: {
 		<Pressable
 			accessibilityLabel="Increment"
 			testID="workshop.counter"
-			onPress={() => props.state.set((s) => ({ count: s.count + props.step }))}
+			onPress={() => props.state.update((s) => ({ count: s.count + props.step }))}
 		>
 			<Text>
 				{props.label ?? props.fixture.account}: {count} (+{props.step})

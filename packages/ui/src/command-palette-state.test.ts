@@ -70,20 +70,20 @@ describe('CommandPalette search and selection', () => {
 
 	it('uses grouped display order for keyboard navigation and skips disabled commands', () => {
 		const { controller } = setup()
-		expect(controller.store.get().results.map((item) => item.id)).toEqual([
+		expect(controller.store.getSnapshot().results.map((item) => item.id)).toEqual([
 			'off',
 			'new',
 			'settings',
 		])
 
 		key(controller, 'ArrowDown')
-		expect(controller.store.get().highlighted).toBe('new')
+		expect(controller.store.getSnapshot().highlighted).toBe('new')
 		key(controller, 'PageDown')
-		expect(controller.store.get().highlighted).toBe('settings')
+		expect(controller.store.getSnapshot().highlighted).toBe('settings')
 		key(controller, 'ArrowDown')
-		expect(controller.store.get().highlighted).toBe('settings')
+		expect(controller.store.getSnapshot().highlighted).toBe('settings')
 		key(controller, 'PageUp')
-		expect(controller.store.get().highlighted).toBe('new')
+		expect(controller.store.getSnapshot().highlighted).toBe('new')
 	})
 
 	it('does not execute without a highlight, on a disabled item, or during composition', () => {
@@ -94,7 +94,7 @@ describe('CommandPalette search and selection', () => {
 		key(controller, 'ArrowDown')
 		key(controller, 'Enter', true)
 		expect(events).toEqual([])
-		expect(controller.store.get().open).toBe(true)
+		expect(controller.store.getSnapshot().open).toBe(true)
 		expect(key(controller, 'Home')).toBe(false)
 		expect(key(controller, 'End')).toBe(false)
 		key(controller, 'Enter')
@@ -117,9 +117,9 @@ describe('CommandPalette search and selection', () => {
 
 	it('preselects by ID in grouped order rather than the source array index', () => {
 		const { controller } = setup({ value: 'settings' })
-		expect(controller.store.get().highlighted).toBe('settings')
+		expect(controller.store.getSnapshot().highlighted).toBe('settings')
 		key(controller, 'ArrowUp')
-		expect(controller.store.get().highlighted).toBe('new')
+		expect(controller.store.getSnapshot().highlighted).toBe('new')
 	})
 
 	it('discards superseded results without requiring cancel()', async () => {
@@ -135,7 +135,7 @@ describe('CommandPalette search and selection', () => {
 		controller.search('fast')
 		slow.resolve([{ id: 'slow', label: 'Slow' }])
 		await tick()
-		expect(controller.store.get().results.map((item) => item.id)).toEqual(['fast'])
+		expect(controller.store.getSnapshot().results.map((item) => item.id)).toEqual(['fast'])
 	})
 
 	it('invalidates external close and reboots with a clean query', async () => {
@@ -151,7 +151,7 @@ describe('CommandPalette search and selection', () => {
 		await tick()
 		props.open = true
 		controller.configure()
-		expect(controller.store.get()).toMatchObject({ query: '', results: [], status: 'ready' })
+		expect(controller.store.getSnapshot()).toMatchObject({ query: '', results: [], status: 'ready' })
 	})
 
 	it('rejects a late response after internal close or disposal', async () => {
@@ -170,7 +170,7 @@ describe('CommandPalette search and selection', () => {
 
 			slow.resolve([{ id: 'ghost', label: 'Ghost' }])
 			await tick()
-			expect(controller.store.get().results).toEqual([])
+			expect(controller.store.getSnapshot().results).toEqual([])
 		}
 	})
 
@@ -197,7 +197,7 @@ describe('CommandPalette search and selection', () => {
 		slow.resolve([{ id: 'old', label: 'Old' }])
 		await tick()
 		expect(cancelled).toBeGreaterThan(0)
-		expect(controller.store.get().results[0].id).toBe('query')
+		expect(controller.store.getSnapshot().results[0].id).toBe('query')
 	})
 
 	it('shows promise rejection as an error and supports retry', async () => {
@@ -207,13 +207,13 @@ describe('CommandPalette search and selection', () => {
 		})
 
 		controller.search('fail')
-		expect(controller.store.get().status).toBe('loading')
+		expect(controller.store.getSnapshot().status).toBe('loading')
 		request.reject(new Error('offline'))
 		await tick()
-		expect(controller.store.get().status).toBe('error')
+		expect(controller.store.getSnapshot().status).toBe('error')
 		props.searchSource!.search = () => [{ id: 'ok', label: 'Success' }]
 		controller.search('fail')
-		expect(controller.store.get().status).toBe('ready')
+		expect(controller.store.getSnapshot().status).toBe('ready')
 	})
 
 	it('closes once whether the parent accepts or ignores the request, and reopens after false', () => {
@@ -233,12 +233,12 @@ describe('CommandPalette search and selection', () => {
 			controller.close() // Native dismissal completion must not request another close.
 			controller.configure()
 			expect(calls).toBe(1)
-			expect(controller.store.get().open).toBe(false)
+			expect(controller.store.getSnapshot().open).toBe(false)
 			props.open = false
 			controller.configure()
 			props.open = true
 			controller.configure()
-			expect(controller.store.get()).toMatchObject({ open: true, query: '', highlighted: null })
+			expect(controller.store.getSnapshot()).toMatchObject({ open: true, query: '', highlighted: null })
 		}
 	})
 })

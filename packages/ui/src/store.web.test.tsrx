@@ -6,13 +6,13 @@ import { useStore } from './use-store';
 
 // DOM-renderer counterpart to store.mobile.test.ts. Here a parent re-render
 // re-invokes children with unchanged props (React semantics — memo() is the
-// only bail), so a bare store.get() in a child refreshes incidentally. The
+// only bail), so a bare store.getSnapshot() in a child refreshes incidentally. The
 // portable rule is still: readers subscribe via useStore.
 
 const store = createStore(0);
 
 function BareChild() @{
-	<span class="bare">{String(store.get())}</span>
+	<span class="bare">{String(store.getSnapshot())}</span>
 }
 
 function SubbedChild() @{

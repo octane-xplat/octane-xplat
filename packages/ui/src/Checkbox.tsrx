@@ -4,7 +4,8 @@ import type { CheckboxProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { useFieldControlProps } from './field-context';
-import { useIndicator, CheckboxIndicator, indicatorScope } from './indicators';
+import { CheckboxIndicator, indicatorScope } from './indicators';
+import { useIndicator } from './use-indicator';
 
 /** Self-drawn checkbox — box + ✓ glyph, identical layout across targets.
  *  Toggles on tap. */

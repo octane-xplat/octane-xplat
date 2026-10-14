@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
 import { Popover } from './Popover.web.tsrx'
-import { useIndicator, CheckIndicator, CheckboxIndicator } from './indicators'
+import { CheckIndicator, CheckboxIndicator } from './indicators'
+import { useIndicator } from './use-indicator'
 import { cx } from '@octane-xplat/lib'
 
 /** Select presentation — resolved finite-list state in, user intents out.

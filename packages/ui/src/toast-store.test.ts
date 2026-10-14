@@ -25,8 +25,8 @@ describe('toast store', () => {
 		const first = pushToast({ body: 'first', uniqueID: 'save' }, 'screen')
 		const second = pushToast({ body: 'second', uniqueID: 'save' }, 'screen')
 
-		expect(toastStore.get()).toHaveLength(1)
-		expect(toastStore.get()[0]).toMatchObject({
+		expect(toastStore.getSnapshot()).toHaveLength(1)
+		expect(toastStore.getSnapshot()[0]).toMatchObject({
 			id: second,
 			viewportId: 'screen',
 			options: { body: 'second' },
@@ -40,7 +40,7 @@ describe('toast store', () => {
 		)
 
 		expect(ignored).toBe('')
-		expect(toastStore.get()[0].options.body).toBe('second')
+		expect(toastStore.getSnapshot()[0].options.body).toBe('second')
 	})
 
 	it('notifies once and removes a dismissed entry after its exit window', () => {
@@ -52,15 +52,15 @@ describe('toast store', () => {
 
 		expect(onHide).toHaveBeenCalledOnce()
 		expect(onHide).toHaveBeenCalledWith('manual')
-		expect(toastStore.get()[0].exiting).toBe(true)
+		expect(toastStore.getSnapshot()[0].exiting).toBe(true)
 		vi.runAllTimers()
-		expect(toastStore.get()).toEqual([])
+		expect(toastStore.getSnapshot()).toEqual([])
 	})
 
 	it('routes entries to their mounted viewport, then falls back when it unmounts', () => {
 		const unregister = registerToastViewport('screen')
 		const id = pushToast({ body: 'Hello' }, 'screen')
-		const hosted = toastStore.get().find((item) => item.id === id)!
+		const hosted = toastStore.getSnapshot().find((item) => item.id === id)!
 
 		expect(toastOnViewport(hosted, 'screen')).toBe(true)
 		expect(toastOnViewport(hosted, FALLBACK_TOAST_VIEWPORT)).toBe(false)
@@ -73,19 +73,19 @@ describe('toast store', () => {
 		expect(toastHandleFor(pushToast({ body: 'next', uniqueID: 'save', collisionBehavior: 'ignore' }))).toBeNull()
 
 		const handle = toastHandleFor(pushToast({ body: 'kept' }))!
-		expect(handle.id).toBe(toastStore.get()[1].id)
+		expect(handle.id).toBe(toastStore.getSnapshot()[1].id)
 		handle.dismiss()
-		expect(toastStore.get()[1].exiting).toBe(true)
+		expect(toastStore.getSnapshot()[1].exiting).toBe(true)
 	})
 
 	it('updates a live toast in place and leaves dismissing entries alone', () => {
 		const id = pushToast({ body: 'first' })
 		updateToast(id, { body: 'second', type: 'error' })
-		expect(toastStore.get()[0].options).toEqual({ body: 'second', type: 'error' })
+		expect(toastStore.getSnapshot()[0].options).toEqual({ body: 'second', type: 'error' })
 
 		dismissToast(id)
 		updateToast(id, { body: 'resurrected' })
-		expect(toastStore.get()[0].options.body).toBe('second')
+		expect(toastStore.getSnapshot()[0].options.body).toBe('second')
 	})
 
 	it('uses status-aware auto-hide defaults and clamps durations at zero', () => {

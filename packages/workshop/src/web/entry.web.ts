@@ -89,7 +89,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 	})
 
 	session.subscribe((snapshot) => {
-		store.set((s) => ({ ...s, session: snapshot }))
+		store.update((s) => ({ ...s, session: snapshot }))
 	})
 
 	runtime = {
@@ -118,7 +118,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 		updateCatalog(entries, diagnostics = []) {
 			const generation = ++runtime!.loadGeneration
 			const stamp = String(Date.now())
-			store.set((s) => ({
+			store.update((s) => ({
 				...s,
 				catalog: entries,
 				catalogError: diagnostics.length ? diagnostics.map((d) => d.message).join('\n') : undefined,
@@ -130,14 +130,14 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 				return
 			}
 
-			const current = store.get().selectedId
+			const current = store.getSnapshot().selectedId
 			if (!current) {
 				return
 			}
 
 			const entry = pickEntry(entries, current)
 			if (!entry?.load) {
-				store.set((s) => ({ ...s, missingId: current }))
+				store.update((s) => ({ ...s, missingId: current }))
 				void session.dispose()
 				return
 			}
@@ -173,7 +173,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 		// before the catalog. Retire/remount once the successful update has
 		// applied; a catalog update already owns its own fresh generation.
 		if (runtime!.loadGeneration === updateLoadGeneration && session.state.stale) {
-			runtime!.updateCatalog(store.get().catalog)
+			runtime!.updateCatalog(store.getSnapshot().catalog)
 		}
 	})
 
@@ -203,23 +203,23 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 	if (initialId) {
 		const entry = pickEntry(options.catalog, initialId)
 		if (entry?.load) {
-			store.set((s) => ({ ...s, selectedId: initialId }))
+			store.update((s) => ({ ...s, selectedId: initialId }))
 			void runtime.selectEntry(entry)
 		} else {
-			store.set((s) => ({ ...s, selectedId: initialId, missingId: initialId }))
+			store.update((s) => ({ ...s, selectedId: initialId, missingId: initialId }))
 		}
 	}
 
 	globalThis.addEventListener?.('hashchange', () => {
 		const id = idFromHash()
-		if (id && id !== store.get().selectedId) {
-			const entry = pickEntry(store.get().catalog, id)
+		if (id && id !== store.getSnapshot().selectedId) {
+			const entry = pickEntry(store.getSnapshot().catalog, id)
 			if (entry?.load) {
-				store.set((s) => ({ ...s, selectedId: id, missingId: null }))
+				store.update((s) => ({ ...s, selectedId: id, missingId: null }))
 				void runtime!.selectEntry(entry)
 			} else {
 				++runtime!.loadGeneration
-				store.set((s) => ({ ...s, selectedId: id, missingId: id }))
+				store.update((s) => ({ ...s, selectedId: id, missingId: id }))
 				void session.dispose()
 			}
 		}

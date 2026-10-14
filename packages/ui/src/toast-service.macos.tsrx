@@ -22,7 +22,7 @@ function ensureFallbackViewport(): void {
 		void host.closedPromise.then(() => {
 			unregister()
 			if (fallback === host) fallback = null
-			for (const entry of toastStore.get()) if (toastOnViewport(entry, FALLBACK_TOAST_VIEWPORT)) dismissToast(entry.id, 'manual')
+			for (const entry of toastStore.getSnapshot()) if (toastOnViewport(entry, FALLBACK_TOAST_VIEWPORT)) dismissToast(entry.id, 'manual')
 		})
 	} catch (error) { unregister(); throw error }
 }

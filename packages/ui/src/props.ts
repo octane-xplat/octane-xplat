@@ -6421,19 +6421,43 @@ export type ColorScheme = 'light' | 'dark'
 export type Key = string | number
 
 /** Selection shared by keyed collections — React Aria's `Selection`:
- *  `'all'` or the set of selected keys. */
-export type Selection = 'all' | Set<Key>
+ *  `'all'` or the set of selected keys. Reported sets are readonly — the
+ *  framework owns them; pass them back instead of mutating. */
+export type Selection = 'all' | ReadonlySet<Key>
 
 // ---------- stores ----------
 
-/** Minimal external-store contract `useStore` subscribes to. */
+/** The value a store read hands out — readonly, because mutating it would
+ *  bypass the store and leave subscribers stale. Arrays become
+ *  `readonly T[]`, maps `ReadonlyMap`, sets `ReadonlySet`; other values get
+ *  readonly properties. Write through the store's own methods instead. */
+export type StoreSnapshot<T> = T extends ReadonlyMap<infer K, infer V>
+	? ReadonlyMap<K, V>
+	: T extends ReadonlySet<infer V>
+		? ReadonlySet<V>
+		: T extends readonly (infer E)[]
+			? readonly E[]
+			: T extends object
+				? Readonly<T>
+				: T
+
+/** Minimal external-store contract `useStore` subscribes to — the same
+ *  `subscribe` + `getSnapshot` pair `useSyncExternalStore` expects.
+ *  `getSnapshot` is a one-time read: it never subscribes the caller, so a
+ *  render that reads it directly can go stale on the universal renderer
+ *  (retained children do not re-run). A reactive read goes through
+ *  `useStore(store)`. */
 export interface ReadableStore<T> {
-	get(): T
+	getSnapshot(): StoreSnapshot<T>
 	subscribe(notify: () => void): () => void
 }
 
 export interface Store<T> extends ReadableStore<T> {
-	set(next: T | ((prev: T) => T)): void
+	/** Assign a value. Updaters belong to `update` — a function passed here
+	 *  is stored as the value, never invoked. */
+	set(value: T): void
+	/** Compute the next value from the current snapshot. */
+	update(updater: (prev: StoreSnapshot<T>) => T): void
 }
 
 // Astryx-aligned component prop names. The existing interfaces remain the
@@ -7348,6 +7372,8 @@ export interface GridListProps<T = any> extends LayoutChildProps, AccessibilityP
 	selectedKeys?: 'all' | Iterable<Key>
 	/** Initial selection for the uncontrolled form. */
 	defaultSelectedKeys?: 'all' | Iterable<Key>
+	/** Reports the resolved selection — `'all'` or a readonly key set owned
+	 *  by the framework; pass it back through `selectedKeys`, never mutate. */
 	onSelectionChange?: (keys: Selection) => void
 	/** Keys that cannot be selected, focused, or actioned. */
 	disabledKeys?: Iterable<Key>

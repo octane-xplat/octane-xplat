@@ -49,7 +49,7 @@ export function toastOnViewport(entry: ToastEntry, viewportId: string): boolean 
  *  swaps the entry in place — the replaced toast's `onHide` does NOT fire
  *  (it was superseded, not dismissed). */
 export function pushToast(options: ToastOptions, viewportId?: string): string {
-	const list = toastStore.get()
+	const list = toastStore.getSnapshot()
 	const uniqueID = options.uniqueID
 	if (
 		uniqueID &&
@@ -80,7 +80,7 @@ export function dismissToast(id: string, reason: ToastDismissReason = 'manual'):
 		return
 	}
 
-	const list = toastStore.get()
+	const list = toastStore.getSnapshot()
 	const entry = list.find((t) => t.id === id)
 	if (!entry || entry.exiting) {
 		return
@@ -89,7 +89,7 @@ export function dismissToast(id: string, reason: ToastDismissReason = 'manual'):
 	entry.options.onHide?.(reason)
 	toastStore.set(list.map((t) => (t.id === id ? { ...t, exiting: true } : t)))
 	setTimeout(() => {
-		toastStore.set(toastStore.get().filter((t) => t.id !== id))
+		toastStore.set(toastStore.getSnapshot().filter((t) => t.id !== id))
 	}, TOAST_EXIT_MS)
 }
 
@@ -101,7 +101,7 @@ export function updateToast(id: string, options: ToastOptions): void {
 		return
 	}
 
-	const list = toastStore.get()
+	const list = toastStore.getSnapshot()
 	const index = list.findIndex((t) => t.id === id)
 	if (index === -1 || list[index].exiting) {
 		return
@@ -112,7 +112,7 @@ export function updateToast(id: string, options: ToastOptions): void {
 
 /** Look up a live toast by its deduplication key. */
 export function findToastByUniqueID(uniqueID: string): ToastEntry | undefined {
-	return toastStore.get().find((t) => t.options.uniqueID === uniqueID)
+	return toastStore.getSnapshot().find((t) => t.options.uniqueID === uniqueID)
 }
 
 /** Build the public handle for one pushed toast — `null` for the '' id

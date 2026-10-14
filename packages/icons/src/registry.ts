@@ -9,7 +9,7 @@ const identifier = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 // Each component subscribes through ui's useStore, including retained native children.
 export const registry = {
-	get: () => revision,
+	getSnapshot: () => revision,
 	subscribe(notify: () => void) {
 		listeners.add(notify)
 		return () => {

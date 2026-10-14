@@ -110,7 +110,7 @@ function Row(props: { id: string; title: string }) {
 	const selections = useStore(selected)
 	return (
 		<Pressable
-			onPress={() => selected.set({ ...selected.get(), [props.id]: !selected.get()[props.id] })}
+			onPress={() => selected.update((s) => ({ ...s, [props.id]: !s[props.id] }))}
 		>
 			<Text>
 				{selections[props.id] ? 'Packed: ' : ''}

@@ -416,7 +416,7 @@ describe('retirement races and isolation', () => {
 		await s.reset()
 		const next = h.recorded.mounts[1]!.props as any
 		expect(next.nested.label).toBe('default')
-		expect(next.state.get().nested.count).toBe(0)
+		expect(next.state.getSnapshot().nested.count).toBe(0)
 		expect(next.fixture.nested.label).toBe('fixture')
 		expect(next.state).not.toBe(first.state)
 	})

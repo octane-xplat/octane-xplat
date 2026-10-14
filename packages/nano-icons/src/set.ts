@@ -33,7 +33,7 @@ let revision = 0
 // Components subscribe through ui's useStore so registering a set after mount
 // updates unbound `NanoIcon`s, matching the previous collection behavior.
 export const nanoIconSetRegistry = {
-	get: () => revision,
+	getSnapshot: () => revision,
 	subscribe(notify: () => void) {
 		listeners.add(notify)
 		return () => {

@@ -10,13 +10,16 @@ import type { ReadableStore } from './props'
 export type { Key, Selection }
 
 export interface TreeNode<T> {
-	key: Key
-	parentKey: Key | null
-	value: T
-	children: readonly TreeNode<T>[]
+	readonly key: Key
+	readonly parentKey: Key | null
+	readonly value: T
+	readonly children: readonly TreeNode<T>[]
 }
 
 export interface TreeDataOptions<T> {
+	/** All `initial*` options are read once, when the store is created —
+	 *  `useTreeData` builds the store on first render and ignores later
+	 *  option values. */
 	initialItems?: Iterable<T>
 	initialSelectedKeys?: Selection | Iterable<Key>
 	getKey?: (item: T) => Key
@@ -24,11 +27,13 @@ export interface TreeDataOptions<T> {
 }
 
 export interface TreeSnapshot<T> {
-	items: readonly TreeNode<T>[]
-	selectedKeys: Selection
+	readonly items: readonly TreeNode<T>[]
+	readonly selectedKeys: Selection
 }
 
 export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
+	/** Snapshot reads — they never subscribe; `useTreeData`/`useStore` is
+	 *  the reactive read. */
 	readonly items: readonly TreeNode<T>[]
 	readonly selectedKeys: Selection
 	setSelectedKeys(keys: Selection | Iterable<Key>): void
@@ -144,7 +149,10 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 		return changed ? next : null
 	}
 
-	const editSiblingsOf = (key: Key, edit: (siblings: readonly TreeNode<T>[], index: number) => TreeNode<T>[]) => {
+	const editSiblingsOf = (
+		key: Key,
+		edit: (siblings: readonly TreeNode<T>[], index: number) => TreeNode<T>[],
+	) => {
 		const next = rebuild(snapshot.items, (siblings) => {
 			const index = siblings.findIndex((node) => node.key === key)
 			return index < 0 ? null : edit(siblings, index)
@@ -155,7 +163,10 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 		}
 	}
 
-	const editChildrenOf = (parentKey: Key | null, edit: (children: readonly TreeNode<T>[]) => TreeNode<T>[]) => {
+	const editChildrenOf = (
+		parentKey: Key | null,
+		edit: (children: readonly TreeNode<T>[]) => TreeNode<T>[],
+	) => {
 		if (parentKey === null) {
 			commit({ ...snapshot, items: edit(snapshot.items) })
 			return
@@ -188,7 +199,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 	}
 
 	return {
-		get: () => snapshot,
+		getSnapshot: () => snapshot,
 		subscribe(notify) {
 			listeners.add(notify)
 			return () => {

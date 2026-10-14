@@ -2,7 +2,8 @@ import { useState } from 'octane';
 import type { CheckboxProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
-import { useIndicator, CheckboxIndicator, indicatorScope } from './indicators';
+import { CheckboxIndicator, indicatorScope } from './indicators';
+import { useIndicator } from './use-indicator';
 
 /** Self-drawn checkbox — box + ✓ glyph, identical layout across targets.
  *  Toggles on click, Space, and Enter. The platform look (if wanted) is an

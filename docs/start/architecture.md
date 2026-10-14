@@ -198,8 +198,9 @@ export function PackingCount() {
 ```
 
 Plain mutable objects do not subscribe automatically on native. Code using
-an existing store needs `useStore(store)` in each reading component. Prefer
-signals for new shared state.
+an existing store needs `useStore(store)` in each reading component —
+`store.getSnapshot()` is the one-time read for handlers, `store.set` and
+`store.update` write. Prefer signals for new shared state.
 
 ```tsx
 import { createStore, useStore, Text } from '@octane-xplat/ui'

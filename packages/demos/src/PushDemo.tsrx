@@ -15,7 +15,7 @@ const CONFIG: { firebaseConfig: Record<string, string>; vapidKey: string } | nul
 // Module-scope store — push handlers fire outside any component, so the log
 // survives remounts and never closes over a stale setState.
 const pushLog = createStore<string[]>([]);
-const note = (line: string) => pushLog.set((l) => [line, ...l].slice(0, 12));
+const note = (line: string) => pushLog.update((l) => [line, ...l].slice(0, 12));
 
 const summarize = (m: PushMessage) =>
 	`${m.title ?? m.body ?? 'message'}${m.data ? ' ' + JSON.stringify(m.data) : ''}`;

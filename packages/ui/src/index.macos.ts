@@ -63,9 +63,9 @@ export {
 	getIndicator,
 	registerIndicator,
 	registerIndicators,
-	useIndicator,
 	indicatorScope,
 } from './indicators'
+export { useIndicator } from './use-indicator'
 
 export type {
 	FieldControlProps,
@@ -324,7 +324,7 @@ export {
 } from './route-table'
 
 export { createStore } from './store'
-export type { Store, ReadableStore } from './store'
+export type { Store, ReadableStore, StoreSnapshot } from './store'
 export { useStore } from './useStore.macos.tsrx'
 
 // Immutable collection data stores — shared implementations, no macOS leaf

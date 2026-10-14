@@ -67,7 +67,7 @@ export function ToastViewport(props: ToastViewportProps) @{
 		return () => {
 			unregister()
 			// Notify the fallback root after changing the routing registry.
-			toastStore.set([...toastStore.get()])
+			toastStore.set([...toastStore.getSnapshot()])
 		}
 	}, [id])
 

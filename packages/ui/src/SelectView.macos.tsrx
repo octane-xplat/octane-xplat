@@ -5,7 +5,8 @@ import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 
-import { useIndicator, CheckIndicator, CheckboxIndicator } from './indicators'
+import { CheckIndicator, CheckboxIndicator } from './indicators'
+import { useIndicator } from './use-indicator'
 import { nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 
 /** Select presentation — resolved finite-list state in, user intents out.

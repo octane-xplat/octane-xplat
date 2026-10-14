@@ -1,6 +1,4 @@
-import { useSyncExternalStore } from 'octane'
-import type { ReadableStore } from './store'
-
-export function useStore<T>(store: ReadableStore<T>): T {
-	return useSyncExternalStore(store.subscribe, store.get)
-}
+// macOS uses the shared leaf — one `useStore` contract across variants
+// (selector and equality included). This file only preserves the
+// `./useStore.macos.tsrx` import path.
+export { useStore } from './use-store.tsrx';

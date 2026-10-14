@@ -60,7 +60,7 @@ describe('universal renderer — store reads under parent re-render', () => {
 		// Bare read: no subscription — a retained child never re-runs.
 		const BareChild = defineUniversalComponent('object', () => {
 			renders.bare++
-			return label(`bare:${store.get()}`)
+			return label(`bare:${store.getSnapshot()}`)
 		})
 
 		// Control: a child whose PROPS change still re-renders normally.
@@ -144,6 +144,29 @@ describe('universal renderer — store reads under parent re-render', () => {
 		expect(renders.a).toBe(1) // slice unchanged → no re-render
 		flushUniversalSync(() => store.set({ a: 2, b: 1 }))
 		expect(texts(container)).toEqual(['a:2'])
+		root.unmount()
+	})
+
+	it('useStore isEqual gates re-renders for computed selections', () => {
+		const store = createStore({ items: [1, 2] })
+		const renders = { sum: 0 }
+		const shallowArray = (a: readonly number[], b: readonly number[]) =>
+			a.length === b.length && a.every((v, i) => v === b[i])
+		const Child = defineUniversalComponent('object', () => {
+			renders.sum++
+			const items = useStore(store, (s) => s.items, shallowArray)
+			return label(`sum:${items.reduce((x, y) => x + y, 0)}`)
+		})
+
+		const { container, root } = objectRoot()
+		root.render(Child, {})
+		expect(texts(container)).toEqual(['sum:3'])
+
+		// A fresh array with equal contents satisfies isEqual → no re-render.
+		flushUniversalSync(() => store.update((s) => ({ items: [...s.items] })))
+		expect(renders.sum).toBe(1)
+		flushUniversalSync(() => store.update((s) => ({ items: [...s.items, 4] })))
+		expect(texts(container)).toEqual(['sum:7'])
 		root.unmount()
 	})
 })

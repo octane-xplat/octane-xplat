@@ -16,7 +16,8 @@ import { TextInput } from './TextInput.web.tsrx';
 import { Checkbox } from './Checkbox.web.tsrx';
 import { List } from './List.web.tsrx';
 import { ListItem } from './ListItem.web.tsrx';
-import { CheckboxIndicator, CheckIndicator, RadioIndicator, getIndicator, registerIndicator, useIndicator } from './indicators';
+import { CheckboxIndicator, CheckIndicator, RadioIndicator, getIndicator, registerIndicator } from './indicators';
+import { useIndicator } from './use-indicator';
 
 function mount(node: any) {
 	const el = document.createElement('div');
@@ -224,13 +225,26 @@ describe('indicators (web)', () => {
 		root.unmount();
 	});
 
-	it('registry overrides reach useIndicator/getIndicator', () => {
+	it('registry overrides reach getIndicator and re-render useIndicator readers', () => {
 		const Custom = (p: any) => <span className="vx-ind-custom" />;
-		registerIndicator('checkbox', Custom as any);
-		expect(useIndicator('checkbox')).toBe(Custom);
+		function Reader() {
+			const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
+			return <Ind state="unchecked" />;
+		}
+
+		const { el, root } = mount(<Reader />);
+		expect(el.querySelector('.vx-ind-checkbox')).not.toBeNull();
+		expect(el.querySelector('.vx-ind-custom')).toBeNull();
+
+		act(() => registerIndicator('checkbox', Custom as any));
+		expect(el.querySelector('.vx-ind-custom')).not.toBeNull();
+		expect(el.querySelector('.vx-ind-checkbox')).toBeNull();
+		expect(getIndicator('checkbox')).toBe(Custom);
 		expect(getIndicator('radio')).toBe(RadioIndicator);
-		// restore default for other assertions
-		registerIndicator('checkbox', CheckboxIndicator);
+
+		act(() => registerIndicator('checkbox', CheckboxIndicator));
+		expect(el.querySelector('.vx-ind-checkbox')).not.toBeNull();
+		root.unmount();
 	});
 
 	it('Checkbox renders through the indicator registry', () => {

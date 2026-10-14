@@ -156,12 +156,12 @@ try {
 		document.querySelector('.xw-stage-mount')?.textContent === 'Demo: 0 (+3)')
 
 	writeFileSync(storyPath, originalStory.replace("id: 'counter/basic'", "id: 'counter/renamed'"))
-	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.store.get().missingId === 'counter/basic' &&
+	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.store.getSnapshot().missingId === 'counter/basic' &&
 		!document.querySelector('.xw-stage-mount'))
 
 	assert.match(await page.locator('.xw-stage-area').innerText(), /was not found/)
 	writeFileSync(storyPath, originalStory)
-	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.store.get().catalog.some(e => e.id === 'counter/basic'))
+	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.store.getSnapshot().catalog.some(e => e.id === 'counter/basic'))
 	await page.locator('.xw-story').filter({ hasText: /^Basic$/ }).click()
 	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.session.state.phase === 'ready')
 	await page.getByRole('searchbox', { name: 'Search stories' }).fill('Counter')
@@ -170,11 +170,11 @@ try {
 	writeFileSync(dynamicPath, `import { defineStory } from '@octane-xplat/workshop'
 export const Dynamic = defineStory({ id: 'dynamic/new', title: 'Dynamic / New', targets: ['web'], component: () => null, args: {} })`)
 
-	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.store.get().catalog.some(e => e.id === 'dynamic/new'))
+	await page.waitForFunction(() => globalThis.__xplatWorkshopRuntime.store.getSnapshot().catalog.some(e => e.id === 'dynamic/new'))
 	assert.equal(await page.evaluate(() => globalThis.__workshopCatalogToken), 'retained')
 	assert.equal(await page.getByRole('searchbox', { name: 'Search stories' }).inputValue(), 'Counter')
 	rmSync(dynamicPath)
-	await page.waitForFunction(() => !globalThis.__xplatWorkshopRuntime.store.get().catalog.some(e => e.id === 'dynamic/new'))
+	await page.waitForFunction(() => !globalThis.__xplatWorkshopRuntime.store.getSnapshot().catalog.some(e => e.id === 'dynamic/new'))
 	assert.equal(await page.evaluate(() => globalThis.__workshopCatalogToken), 'retained')
 	assert.equal(pageReloads, 0, 'story and component edits must not reload the workshop page')
 	console.log('PASS story source edit, renamed-ID missing state, add/unlink retains catalog query and session shell')

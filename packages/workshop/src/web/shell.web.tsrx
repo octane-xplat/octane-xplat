@@ -45,8 +45,8 @@ function observeMode(el: HTMLElement, store: WorkshopRuntime['store']): ResizeOb
 		// Defer past the notification frame — a synchronous re-render that
 		// resizes the root reports "ResizeObserver loop" noise.
 		requestAnimationFrame(() => {
-			if (el.isConnected && store.get().mode !== mode) {
-				store.set((s) => ({ ...s, mode }))
+			if (el.isConnected && store.getSnapshot().mode !== mode) {
+				store.update((s) => ({ ...s, mode }))
 			}
 		})
 	})
@@ -61,7 +61,7 @@ function selectStory(runtime: WorkshopRuntime, entry: CatalogEntry) {
 		return
 	}
 
-	const s = store.get()
+	const s = store.getSnapshot()
 	store.set({
 		...s,
 		selectedId: entry.id,
@@ -144,7 +144,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 						aria-pressed={!s.catalogCollapsed}
 						title="Toggle story catalog"
 						onClick={() =>
-							props.runtime.store.set((x) => ({ ...x, catalogCollapsed: !x.catalogCollapsed }))
+							props.runtime.store.update((x) => ({ ...x, catalogCollapsed: !x.catalogCollapsed }))
 						}
 					>
 						Catalog
@@ -155,7 +155,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 						aria-pressed={!s.controlsCollapsed}
 						title="Toggle controls panel"
 						onClick={() =>
-							props.runtime.store.set((x) => ({ ...x, controlsCollapsed: !x.controlsCollapsed }))
+							props.runtime.store.update((x) => ({ ...x, controlsCollapsed: !x.controlsCollapsed }))
 						}
 					>
 						Controls
@@ -177,7 +177,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 				type="button"
 				className="xw-btn"
 				title="Hide workshop chrome (Esc or the floating button returns)"
-				onClick={() => props.runtime.store.set((x) => ({ ...x, stageOnly: true }))}
+				onClick={() => props.runtime.store.update((x) => ({ ...x, stageOnly: true }))}
 			>
 				Stage only
 			</button>
@@ -186,12 +186,12 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 }
 
 function toggleAux(runtime: WorkshopRuntime, panel: 'stories' | 'controls') {
-	const s = runtime.store.get()
+	const s = runtime.store.getSnapshot()
 	runtime.store.set({ ...s, auxPanel: s.auxPanel === panel ? null : panel })
 }
 
 function clearEdits(runtime: WorkshopRuntime) {
-	runtime.store.set((s) => ({ ...s, drafts: {}, fieldErrors: {}, unsetKeys: new Set() }))
+	runtime.store.update((s) => ({ ...s, drafts: {}, fieldErrors: {}, unsetKeys: new Set() }))
 }
 
 // ---------- catalog ----------
@@ -254,7 +254,7 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
 								className="xw-group-head"
 								aria-expanded={open}
 								onClick={() =>
-									props.runtime.store.set((x) => {
+									props.runtime.store.update((x) => {
 										const next = new Set(x.expanded)
 										if (next.has(key)) next.delete(key)
 										else next.add(key)
@@ -317,14 +317,14 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
 					aria-label="Search stories"
 					value={s.query}
 					onInput={(e: any) =>
-						props.runtime.store.set((x) => ({ ...x, query: e.target.value }))
+						props.runtime.store.update((x) => ({ ...x, query: e.target.value }))
 					}
 				/>
 				{props.mode === 'overlay' ? (
 					<button
 						type="button"
 						className="xw-btn"
-						onClick={() => props.runtime.store.set((x) => ({ ...x, auxPanel: null }))}
+						onClick={() => props.runtime.store.update((x) => ({ ...x, auxPanel: null }))}
 					>
 						Close
 					</button>
@@ -383,7 +383,7 @@ function ControlField(props: {
 		const genProps = props.runtime.session.currentProps ?? {}
 		const result = applyControlInput(props.definition, genProps, key, raw)
 		if (result.error) {
-			store.set((x) => ({
+			store.update((x) => ({
 				...x,
 				fieldErrors: { ...x.fieldErrors, [key]: result.error!.message },
 			}))
@@ -391,7 +391,7 @@ function ControlField(props: {
 			return
 		}
 
-		store.set((x) => {
+		store.update((x) => {
 			const drafts = { ...x.drafts }
 			delete drafts[key]
 			const fieldErrors = { ...x.fieldErrors }
@@ -407,7 +407,7 @@ function ControlField(props: {
 	}
 
 	const setDraft = (text: string) =>
-		store.set((x) => ({ ...x, drafts: { ...x.drafts, [key]: text } }))
+		store.update((x) => ({ ...x, drafts: { ...x.drafts, [key]: text } }))
 
 	let field = null
 	if (control.type === 'boolean') {
@@ -510,7 +510,7 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
 					<button
 						type="button"
 						className="xw-btn"
-						onClick={() => props.runtime.store.set((x) => ({ ...x, auxPanel: null }))}
+						onClick={() => props.runtime.store.update((x) => ({ ...x, auxPanel: null }))}
 					>
 						Close
 					</button>
@@ -520,11 +520,11 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
 				<fieldset className="xw-environment">
 					<legend>Stage environment</legend>
 					<label>Background <select aria-label="Stage background" value={s.stageBackground}
-						onChange={(e: any) => props.runtime.store.set(x => ({ ...x, stageBackground: e.target.value }))}>
+						onChange={(e: any) => props.runtime.store.update(x => ({ ...x, stageBackground: e.target.value }))}>
 						<option value="default">Default</option><option value="light">Light</option><option value="dark">Dark</option>
 					</select></label>
 					<label>Bounds <select aria-label="Stage bounds" value={s.stageBounds}
-						onChange={(e: any) => props.runtime.store.set(x => ({ ...x, stageBounds: e.target.value }))}>
+						onChange={(e: any) => props.runtime.store.update(x => ({ ...x, stageBounds: e.target.value }))}>
 						<option value="available">Available space</option><option value="small">320 × 240</option><option value="medium">640 × 480</option>
 					</select></label>
 				</fieldset>
@@ -577,7 +577,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 						className="xw-btn"
 						onClick={() => {
 							const store = props.runtime.store
-							store.set((x) => ({ ...x, missingId: null, auxPanel: 'stories' }))
+							store.update((x) => ({ ...x, missingId: null, auxPanel: 'stories' }))
 						}}
 					>
 						Browse stories
@@ -645,8 +645,8 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 		if (el) {
 			observerRef.current = observeMode(el, props.runtime.store)
 			const mode = modeFor(el.clientWidth, el.clientHeight)
-			if (props.runtime.store.get().mode !== mode) {
-				props.runtime.store.set((x) => ({ ...x, mode }))
+			if (props.runtime.store.getSnapshot().mode !== mode) {
+				props.runtime.store.update((x) => ({ ...x, mode }))
 			}
 		}
 	}
@@ -661,9 +661,9 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 				return
 			}
 
-			const state = props.runtime.store.get()
+			const state = props.runtime.store.getSnapshot()
 			if (state.stageOnly) {
-				props.runtime.store.set((x) => ({ ...x, stageOnly: false }))
+				props.runtime.store.update((x) => ({ ...x, stageOnly: false }))
 				return
 			}
 
@@ -679,7 +679,7 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 				return
 			}
 
-			props.runtime.store.set((x) => ({ ...x, auxPanel: null }))
+			props.runtime.store.update((x) => ({ ...x, auxPanel: null }))
 		}
 
 		document.addEventListener('keydown', onKeyDown)
@@ -695,7 +695,7 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 			openerRef.current = document.activeElement as HTMLElement | null
 			openerKeyRef.current = s.auxPanel
 			requestAnimationFrame(() => {
-				if (props.runtime.store.get().auxPanel) {
+				if (props.runtime.store.getSnapshot().auxPanel) {
 					document.querySelector<HTMLElement>('.xw-overlay input, .xw-overlay button')?.focus()
 				}
 			})
@@ -721,7 +721,7 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 					<button
 						type="button"
 						className="xw-btn"
-						onClick={() => props.runtime.store.set((x) => ({ ...x, stageOnly: false }))}
+						onClick={() => props.runtime.store.update((x) => ({ ...x, stageOnly: false }))}
 					>
 						Workshop
 					</button>

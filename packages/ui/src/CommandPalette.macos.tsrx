@@ -29,7 +29,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 			unbind = bindCommandPaletteKeys(input.current, (event) => {
 				controller.keyDown(event);
 				if (['ArrowDown', 'ArrowUp', 'PageUp', 'PageDown'].includes(event.key)) {
-					scrollCommandPaletteHighlight(rows.current.get(controller.store.get().highlighted ?? ''));
+					scrollCommandPaletteHighlight(rows.current.get(controller.store.getSnapshot().highlighted ?? ''));
 				}
 			}, true, controller.search);
 		}, 0);

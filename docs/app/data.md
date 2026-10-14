@@ -756,9 +756,13 @@ export function Count() {
 ```
 
 **Non-signal module state needs a subscription on native.** Plain stores
-need `useStore(store)` per reading component: the universal renderer retains
-unchanged-prop children, so bare reads go stale (decision #27). Prefer `signal$`
-when possible.
+separate the reactive read from the one-time snapshot: `useStore(store)`
+subscribes the reading component, while `store.getSnapshot()` reads the
+current value once and never subscribes. The universal renderer retains
+unchanged-prop children, so a bare snapshot read in a render goes stale on
+native (decision #27). Write with `store.set(value)` or compute from the
+previous value with `store.update((prev) => next)` — snapshots are readonly.
+Prefer `signal$` when possible.
 
 ```tsx
 import { createStore, useStore, Text } from '@octane-xplat/ui'
@@ -768,7 +772,25 @@ export function StoredName() {
 	const value = useStore(store)
 	return <Text>{value.name}</Text>
 }
+// Renames the store and re-renders every subscriber.
+store.update((prev) => ({ ...prev, name: 'Sam' }))
+// A one-time read that never subscribes — right for event handlers.
+store.getSnapshot().name
 ```
+
+`useStore` also takes a selector to subscribe to one slice of the value. The
+reader re-renders only when the selection changes under `Object.is` — pick
+fields rather than building objects, or pass a third `isEqual` argument to
+compare computed selections.
+
+```tsx
+const name = useStore(store, (s) => s.name)
+```
+
+**Migrating from the old store API:** `store.get()` is now
+`store.getSnapshot()`, and an updater function moves from
+`store.set((prev) => next)` to `store.update((prev) => next)`.
+`store.set(value)` still assigns a plain value.
 
 **Route `loader` exports run on navigation** and deliver `data` or `error`
 props; they do not provide a reactive query cache or suspense boundary.

@@ -101,7 +101,8 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 	let mode = read().searchMode
 	let disposed = false
 
-	const patch = (next: Partial<CommandPaletteState<T>>) => store.set({ ...store.get(), ...next })
+	const patch = (next: Partial<CommandPaletteState<T>>) =>
+		store.update((state) => ({ ...state, ...next }))
 	const invalidate = () => {
 		generation++
 		// Cancellation is advisory; even a throwing cancel cannot bypass invalidation.
@@ -113,7 +114,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 	}
 
 	const search = (query: string) => {
-		if (disposed || !store.get().open) {
+		if (disposed || !store.getSnapshot().open) {
 			return
 		}
 
@@ -121,12 +122,12 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		const version = generation
 		patch({ query, results: [], highlighted: null, status: 'loading' })
 		const commit = (items: T[]) => {
-			if (disposed || version !== generation || !store.get().open) {
+			if (disposed || version !== generation || !store.getSnapshot().open) {
 				return
 			}
 
 			const results = groupTypeaheadItems(items).flatMap((group) => group.items)
-			const selected = store.get().selected
+			const selected = store.getSnapshot().selected
 			patch({
 				results,
 				status: 'ready',
@@ -135,7 +136,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		}
 
 		const fail = () => {
-			if (!disposed && version === generation && store.get().open) {
+			if (!disposed && version === generation && store.getSnapshot().open) {
 				patch({ results: [], highlighted: null, status: 'error' })
 			}
 		}
@@ -158,7 +159,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 	}
 
 	const close = () => {
-		if (!store.get().open) {
+		if (!store.getSnapshot().open) {
 			return
 		}
 
@@ -168,7 +169,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 	}
 
 	const select = (id: string) => {
-		const state = store.get()
+		const state = store.getSnapshot()
 		const item = state.results.find((entry) => entry.id === id)
 		if (!state.open || state.status !== 'ready' || !item || item.disabled) {
 			return
@@ -181,7 +182,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 	}
 
 	const highlight = (id: string | null) => {
-		if (id === null || store.get().results.some((item) => item.id === id && !item.disabled)) {
+		if (id === null || store.getSnapshot().results.some((item) => item.id === id && !item.disabled)) {
 			patch({ highlighted: id })
 		}
 	}
@@ -193,7 +194,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		defaultPrevented?: boolean
 		preventDefault(): void
 	}) => {
-		if (event.defaultPrevented || event.isComposing || event.keyCode === 229 || !store.get().open) {
+		if (event.defaultPrevented || event.isComposing || event.keyCode === 229 || !store.getSnapshot().open) {
 			return
 		}
 
@@ -203,7 +204,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 			return
 		}
 
-		const state = store.get()
+		const state = store.getSnapshot()
 		const enabled = state.results.filter((item) => !item.disabled)
 		if (event.key === 'Enter') {
 			event.preventDefault()
@@ -260,7 +261,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 			staticItems = props.items
 			mode = props.searchMode
 			externalOpen = Boolean(props.open)
-			if (props.value !== undefined && props.value !== store.get().selected) {
+			if (props.value !== undefined && props.value !== store.getSnapshot().selected) {
 				patch({ selected: props.value })
 			}
 
@@ -270,8 +271,8 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 			} else if (opened) {
 				patch({ open: true })
 				search('')
-			} else if (changed && store.get().open) {
-				search(store.get().query)
+			} else if (changed && store.getSnapshot().open) {
+				search(store.getSnapshot().query)
 			}
 		},
 		dispose() {

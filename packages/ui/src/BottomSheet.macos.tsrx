@@ -84,14 +84,14 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	onChange.current = requestChange;
 	const handle: BottomSheetSwitcherHandle = useMemo(() => ({
 		register(spec) {
-			const existing = specs.get().get(spec.sheetId)
+			const existing = specs.getSnapshot().get(spec.sheetId)
 			if (existing && Object.keys(existing.props).length === Object.keys(spec.props).length && Object.keys(spec.props).every(key => (existing.props as any)[key] === (spec.props as any)[key])) return
-			const next = new Map(specs.get());
+			const next = new Map(specs.getSnapshot());
 			next.set(spec.sheetId, spec);
 			specs.set(next);
 		},
 		unregister(sheetId) {
-			const next = new Map(specs.get());
+			const next = new Map(specs.getSnapshot());
 			if (next.delete(sheetId)) specs.set(next);
 		},
 		requestDismiss() { onChange.current?.(null) },
@@ -102,11 +102,11 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 		get active() { return resolved != null },
 		dismiss: () => handle.requestDismiss(),
 		get behavior() {
-			const active = resolved != null ? specs.get().get(resolved) : undefined
+			const active = resolved != null ? specs.getSnapshot().get(resolved) : undefined
 			return active?.props.purpose === 'required' ? 'block' : 'close'
 		},
 		getFocusTarget: () => {
-			const active = resolved != null ? specs.get().get(resolved) : undefined
+			const active = resolved != null ? specs.getSnapshot().get(resolved) : undefined
 			return active?.props.finalFocusRef?.current
 		},
 		restoreFocus: false,
@@ -115,7 +115,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	const owner = usePresentation(false, SheetPanel, {}, {}, {
 		subscribe: specs.subscribe,
 		resolve() {
-			const active = resolved != null ? specs.get().get(resolved) : undefined
+			const active = resolved != null ? specs.getSnapshot().get(resolved) : undefined
 			const sheet = active?.props
 			return {
 				isOpen: active != null,

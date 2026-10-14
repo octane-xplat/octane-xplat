@@ -103,12 +103,12 @@ it powers scoped commits, and context changes DO defeat it correctly).
 The DOM renderer re-invokes children React-style; only `memo()` or a
 literally identical element bails.
 
-Consequence: a bare module-store read (`store.get()`) in a child refreshes
+Consequence: a bare module-store read (`store.getSnapshot()`) in a child refreshes
 on web but goes **stale on native**. The portable rule: **every component
 that reads shared state subscribes** — `useStore(store)` /
 `useStore(store, select)` from `@octane-xplat/ui` (over
 `useSyncExternalStore`; a subscriber is marked dirty and always re-runs).
-`createStore(initial)` makes a minimal `{get,set,subscribe}` store.
+`createStore(initial)` makes a minimal `{getSnapshot,set,update,subscribe}` store.
 Pinned by `packages/ui/src/store.mobile.test.ts` + `store.web.test.tsrx`.
 
 ```tsx
@@ -119,7 +119,7 @@ export function PackedCount() {
 	const packed = useStore(trip, (state) => state.packed)
 	return <Text>{packed}</Text>
 }
-trip.set((state) => ({ ...state, packed: state.packed + 1 }))
+trip.update((state) => ({ ...state, packed: state.packed + 1 }))
 ```
 
 ## Frame/page containers

@@ -323,8 +323,8 @@ cache, decode-to-view-size) instead of the core component's 5 MB cache. Core
 
 Indicators draw the selection mark; the owning control keeps focus,
 interaction, and accessibility semantics. `registerIndicator` and
-`registerIndicators` replace named marks for subsequent lookups on each
-target.
+`registerIndicators` replace named marks; mounted controls re-render with
+the override on each target.
 
 ```tsx
 import { registerIndicators, Text, View } from '@octane-xplat/ui'

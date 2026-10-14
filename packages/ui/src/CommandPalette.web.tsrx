@@ -20,7 +20,7 @@ export function CommandPalette<T extends CommandPaletteItem>(props: CommandPalet
 	const keyDown = (event: any) => {
 		controller.keyDown(event);
 		if (event.defaultPrevented && ['ArrowDown', 'ArrowUp', 'PageUp', 'PageDown'].includes(event.key)) {
-			const highlighted = controller.store.get().highlighted;
+			const highlighted = controller.store.getSnapshot().highlighted;
 			if (highlighted) document.getElementById(optionId(highlighted))?.scrollIntoView?.({ block: 'nearest' });
 		}
 	};

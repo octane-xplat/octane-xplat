@@ -89,11 +89,11 @@ export class MacOSWorkshopController {
 		const state = this.session.state
 		const generation = (this.session as unknown as { current?: {
 			fixture: unknown
-			store?: { get(): unknown }
+			store?: { getSnapshot(): unknown }
 		} }).current
 
 		let store
-		try { store = generation?.store?.get() } catch { store = undefined }
+		try { store = generation?.store?.getSnapshot() } catch { store = undefined }
 		return {
 			phase: state.phase,
 			storyId: state.storyId ?? null,

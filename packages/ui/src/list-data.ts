@@ -9,6 +9,9 @@ import type { Key, ReadableStore, Selection } from './props'
 export type { Key, Selection }
 
 export interface ListDataOptions<T> {
+	/** All `initial*` options are read once, when the store is created —
+	 *  `useListData` builds the store on first render and ignores later
+	 *  option values. */
 	initialItems?: Iterable<T>
 	initialSelectedKeys?: Selection | Iterable<Key>
 	initialFilterText?: string
@@ -17,13 +20,15 @@ export interface ListDataOptions<T> {
 }
 
 export interface ListSnapshot<T> {
-	items: readonly T[]
-	filterText: string
-	selectedKeys: Selection
+	readonly items: readonly T[]
+	readonly filterText: string
+	readonly selectedKeys: Selection
 }
 
 export interface ListData<T> extends ReadableStore<ListSnapshot<T>> {
-	/** Items after applying `filter` with the current `filterText`. */
+	/** Items after applying `filter` with the current `filterText` — a
+	 *  snapshot read, not a subscription; `useListData`/`useStore` is the
+	 *  reactive read. */
 	readonly items: readonly T[]
 	readonly filterText: string
 	readonly selectedKeys: Selection
@@ -56,7 +61,7 @@ export function defaultItemKey<T>(item: T): Key {
 	return key
 }
 
-export function normalizeSelection(keys: Selection | Iterable<Key> | undefined): Selection {
+export function normalizeSelection(keys: 'all' | Iterable<Key> | undefined): Selection {
 	if (keys === 'all') {
 		return 'all'
 	}
@@ -128,7 +133,7 @@ export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T>
 	}
 
 	return {
-		get: () => snapshot,
+		getSnapshot: () => snapshot,
 		subscribe(notify) {
 			listeners.add(notify)
 			return () => {

@@ -746,7 +746,7 @@ export type {
 
 // Stores, bottom sheets, and shared prop types
 export { createStore } from './store'
-export type { Store, ReadableStore } from './store'
+export type { Store, ReadableStore, StoreSnapshot } from './store'
 export { useStore } from './use-store'
 
 // Immutable collection data stores — React Aria useListData/useTreeData/
@@ -831,9 +831,9 @@ export {
 	getIndicator,
 	registerIndicator,
 	registerIndicators,
-	useIndicator,
 	indicatorScope,
 } from './indicators'
+export { useIndicator } from './use-indicator'
 
 export type {
 	IndicatorComponent,

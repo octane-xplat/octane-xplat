@@ -115,7 +115,7 @@ function detach(entry: ToastEntry) {
 /** Recompute bucket margins for every live host (a toast measuring in or
  *  leaving shifts the rest). */
 function syncBuckets() {
-	const list = toastStore.get()
+	const list = toastStore.getSnapshot()
 	const groups = new Map<string, ToastEntry[]>()
 	for (const e of list) {
 		const host = hosts.get(e.id)
@@ -180,7 +180,7 @@ export function sync() {
 	if (syncing) return
 	syncing = true
 	try {
-		const list = toastStore.get()
+		const list = toastStore.getSnapshot()
 
 		// The visible window per (RootLayout, edge) bucket: the last
 		// `maxVisible` entries, counted per entry's own viewport limit.

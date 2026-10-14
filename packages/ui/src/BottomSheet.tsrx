@@ -278,12 +278,12 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	const handle: BottomSheetSwitcherHandle = useMemo(
 		() => ({
 			register(spec) {
-				const next = new Map(specs.get());
+				const next = new Map(specs.getSnapshot());
 				next.set(spec.sheetId, spec);
 				specs.set(next);
 			},
 			unregister(sheetId) {
-				const next = new Map(specs.get());
+				const next = new Map(specs.getSnapshot());
 				if (next.delete(sheetId)) specs.set(next);
 			},
 			requestDismiss() {
@@ -298,7 +298,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 
 	useEffect(() => {
 		const cur = shown.current;
-		const active = activeId != null ? specs.get().get(activeId) : undefined;
+		const active = activeId != null ? specs.getSnapshot().get(activeId) : undefined;
 		if (!active) {
 			cur?.lifetime.close();
 			return;

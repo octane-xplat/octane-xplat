@@ -37,7 +37,7 @@ import { createStore, Text } from '@octane-xplat/ui'
 
 const packedCount = createStore(0)
 export function PackingStatus() {
-	const count = useSyncExternalStore(packedCount.subscribe, packedCount.get, packedCount.get)
+	const count = useSyncExternalStore(packedCount.subscribe, packedCount.getSnapshot, packedCount.getSnapshot)
 	return <Text>{count} packed</Text>
 }
 // Call packedCount.set(nextCount) from an app action to publish a change.

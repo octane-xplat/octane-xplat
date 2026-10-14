@@ -2,7 +2,8 @@ import { useState } from 'octane';
 import type { RadioGroupProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
-import { useIndicator, RadioIndicator, indicatorScope } from './indicators';
+import { RadioIndicator, indicatorScope } from './indicators';
+import { useIndicator } from './use-indicator';
 
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Selecting an option calls `onValueChange`. */

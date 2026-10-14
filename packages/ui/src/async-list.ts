@@ -44,23 +44,24 @@ export interface AsyncListOptions<T, C = string> {
 		items: readonly T[]
 		sortDescriptor: SortDescriptor
 	}) => { items: T[] } | Promise<{ items: T[] }>
-	initialSelectedKeys?: Selection | Iterable<Key>
+	initialSelectedKeys?: 'all' | Iterable<Key>
 	initialFilterText?: string
 	initialSortDescriptor?: SortDescriptor
 	getKey?: (item: T) => Key
 }
 
 export interface AsyncListSnapshot<T> {
-	items: readonly T[]
-	filterText: string
-	selectedKeys: Selection
-	sortDescriptor?: SortDescriptor
-	loadingState: LoadingState
-	error?: Error
+	readonly items: readonly T[]
+	readonly filterText: string
+	readonly selectedKeys: Selection
+	readonly sortDescriptor?: SortDescriptor
+	readonly loadingState: LoadingState
+	readonly error?: Error
 }
 
 export interface AsyncListData<T>
-	extends ReadableStore<AsyncListSnapshot<T>>, Omit<ListData<T>, 'get' | 'subscribe' | 'setFilterText'> {
+	extends ReadableStore<AsyncListSnapshot<T>>,
+		Omit<ListData<T>, 'getSnapshot' | 'subscribe' | 'setFilterText'> {
 	readonly loadingState: LoadingState
 	readonly isLoading: boolean
 	readonly error?: Error
@@ -94,9 +95,9 @@ export function createAsyncListData<T, C = string>(
 	let ticket = 0
 
 	const makeSnapshot = (): AsyncListSnapshot<T> => ({
-		items: base.get().items,
-		filterText: base.get().filterText,
-		selectedKeys: base.get().selectedKeys,
+		items: base.getSnapshot().items,
+		filterText: base.getSnapshot().filterText,
+		selectedKeys: base.getSnapshot().selectedKeys,
 		sortDescriptor,
 		loadingState,
 		error,
@@ -139,7 +140,8 @@ export function createAsyncListData<T, C = string>(
 				return
 			}
 
-			const items = nextCursor === undefined ? result.items : [...base.get().items, ...result.items]
+			const items =
+				nextCursor === undefined ? result.items : [...base.getSnapshot().items, ...result.items]
 			replaceItems(items)
 			cursor = result.cursor
 			if (result.selectedKeys !== undefined) {
@@ -161,12 +163,12 @@ export function createAsyncListData<T, C = string>(
 	// createListData owns item mutation; wholesale replacement goes through
 	// remove()+append() so selection pruning stays in one place.
 	const replaceItems = (items: T[]) => {
-		base.remove(...base.get().items.map(getKey))
+		base.remove(...base.getSnapshot().items.map(getKey))
 		base.append(...items)
 	}
 
 	return {
-		get: () => snap,
+		getSnapshot: () => snap,
 		subscribe(notify) {
 			listeners.add(notify)
 			return () => {
@@ -233,7 +235,7 @@ export function createAsyncListData<T, C = string>(
 			emit()
 			if (options.sort) {
 				phase('sorting')
-				Promise.resolve(options.sort({ items: base.get().items, sortDescriptor: descriptor }))
+				Promise.resolve(options.sort({ items: base.getSnapshot().items, sortDescriptor: descriptor }))
 					.then((result) => {
 						replaceItems(result.items)
 						phase('idle')

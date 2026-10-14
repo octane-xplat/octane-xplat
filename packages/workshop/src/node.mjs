@@ -223,7 +223,7 @@ function WorkshopCounter(p: Props & { state: Store<State>; fixture: Fixture }) {
 	return (
 		<Pressable
 			accessibilityLabel="Increment"
-			onPress={() => p.state.set((s) => ({ count: s.count + p.step }))}
+			onPress={() => p.state.update((s) => ({ count: s.count + p.step }))}
 		>
 			<Text>{p.fixture.account}: {count}</Text>
 		</Pressable>
