@@ -22,6 +22,7 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<datepicker id="hmr-date" date={new Date(2026, 4, count$.get() + ("First revision".startsWith("First") ? 10 : 12), 19)} />
 			<activityindicator id="hmr-activity" busy={count$.get() > 0 && "First revision".startsWith("First")} style={{ width: 24, height: 24 }} />
 			<htmlview id="hmr-html" html={"<b>First revision</b>" + String(count$.get())} style={{ fontSize: 18 }} />
 			<label id="hmr-formatted-parent"><formattedstring id="hmr-formatted" fontSize={18}><span text="First revision" /><span text={String(count$.get())} /></formattedstring></label>

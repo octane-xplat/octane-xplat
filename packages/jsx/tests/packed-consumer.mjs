@@ -63,6 +63,7 @@ const tree = (
 			ref={(view) => { void view; return () => {} }}>
 			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
 		</contentview>
+		<datepicker date={new Date(2026, 4, 10)} minDate="2026-05-01" maxDate={new Date(2026, 4, 31)} day={10} month={5} year={2026} onDateChange={(event) => { const value: Date = event.value; const old: Date | undefined = event.oldValue; void value; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
 		<activityindicator busy={true} ref={(view) => { void view; return () => {} }} />
 		<htmlview html="<b>Hello &amp; world</b>" style={{ fontSize: 18 }} ref={(view) => { void view; return () => {} }} />
 		<searchbar text="query" hint="Find" onTextChange={(event) => { const value: string = event.value; const old: string | undefined = event.oldValue; void value; void old; void event.object }} onSubmit={(event) => { const name: string = event.eventName; void name; void event.object }} ref={(view) => { void view; return () => {} }} />
@@ -95,7 +96,11 @@ void badContent
 // @ts-expect-error RootLayout has no new track configuration prop
 const badRoot = <rootlayout rows="20" />
 void badRoot
-// @ts-expect-error busy is boolean
+// @ts-expect-error date must be Date or string
+const badDate = <datepicker date={123} />
+// @ts-expect-error AppKit-only props must stay out of shared JSX
+const badDateStyle = <datepicker datePickerStyle={0} />
+// @ts-expect-error busy must stay boolean
 const badActivityBusy = <activityindicator busy="true" />
 // @ts-expect-error AppKit-specific props are not in the shared contract
 const badActivitySize = <activityindicator controlSize={0} />

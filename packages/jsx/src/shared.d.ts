@@ -383,6 +383,9 @@ export interface SegmentedBarItemProps {
 	title?: string;
 }
 
+/** Calendar-date-only values. Drivers normalize date/minDate/maxDate to local
+ * midnight, and dateChange emits a Date at local midnight. Time-of-day belongs
+ * to timepicker. Strings are parsed as Date values before normalization. */
 export interface DatePickerProps<TElement> {
 	date?: Date | string;
 	minDate?: Date | string;

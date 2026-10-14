@@ -236,3 +236,18 @@ const invalidActivityBusy: MacJSX.IntrinsicElements['activityindicator'] = { bus
 const invalidActivityStyle: MacJSX.IntrinsicElements['activityindicator'] = { controlSize: 0 }
 void invalidActivityBusy
 void invalidActivityStyle
+
+const datePicker: MacJSX.IntrinsicElements['datepicker'] = {
+	date: new Date(2026, 4, 10, 19), minDate: '2026-05-01', maxDate: new Date(2026, 4, 31),
+	year: 2026, month: 5, day: 10,
+	onDateChange: (event) => {const date: Date = event.value; const old: Date | undefined = event.oldValue; void date; void old; void event.object},
+	ref: (view) => {void view; return () => {}},
+}
+
+void datePicker
+// @ts-expect-error DatePicker does not accept numeric dates
+const invalidDatePicker: MacJSX.IntrinsicElements['datepicker'] = { date: 123 }
+void invalidDatePicker
+// @ts-expect-error AppKit-only picker style is outside the shared contract
+const invalidDateStyle: MacJSX.IntrinsicElements['datepicker'] = { datePickerStyle: 0 }
+void invalidDateStyle

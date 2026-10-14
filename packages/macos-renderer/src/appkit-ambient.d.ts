@@ -465,6 +465,7 @@ declare const NSButtonType: { [key: string]: number }
 declare const NSControlSize: { [key: string]: number }
 declare const NSDatePickerElementFlags: { [key: string]: number }
 declare const NSDatePickerStyle: { [key: string]: number }
+declare const NSDatePickerMode: { [key: string]: number }
 declare const NSLayoutAttribute: { [key: string]: number }
 declare const NSPopoverBehavior: { [key: string]: number }
 declare const NSProgressIndicatorStyle: { [key: string]: number }

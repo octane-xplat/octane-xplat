@@ -50,6 +50,8 @@ for (const file of [
 	'Wrap.macos.tsx',
 	'Proxy.macos.tsx',
 	'Root.macos.tsx',
+	'Date.macos.tsx',
+	'date-lifecycle.ts',
 	'Activity.macos.tsx',
 	'activity-lifecycle.ts',
 	'Html.macos.tsx',
@@ -76,8 +78,8 @@ const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	10,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView and ActivityIndicator examples',
+	11,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator and DatePicker examples',
 )
 
 for (const [index, example] of examples.entries()) {
@@ -213,6 +215,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_FORMATTEDSTRING_OK/)
 	assert.match(output, /PACKED_HTMLVIEW_OK/)
 	assert.match(output, /PACKED_ACTIVITYINDICATOR_OK/)
+	assert.match(output, /PACKED_DATEPICKER_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -270,6 +273,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(devOutput, /PACKED_FORMATTEDSTRING_HMR_OK/)
 		assert.match(devOutput, /PACKED_HTMLVIEW_HMR_OK/)
 		assert.match(devOutput, /PACKED_ACTIVITYINDICATOR_HMR_OK/)
+		assert.match(devOutput, /PACKED_DATEPICKER_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)

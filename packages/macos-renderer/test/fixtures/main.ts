@@ -1,3 +1,4 @@
+import { checkDateLifecycle } from './date-lifecycle'
 import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
 import '@nativescript/macos-node-api'
@@ -191,6 +192,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
 							const activityRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkActivityLifecycle(activityRoot, nativeWindow)} finally {activityRoot.unmount()}
+
+							const dateRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkDateLifecycle(dateRoot, nativeWindow)} finally {dateRoot.unmount()}
 
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {

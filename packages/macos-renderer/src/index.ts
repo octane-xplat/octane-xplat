@@ -53,6 +53,9 @@ export interface ElementNode {
 	projectedChildren?: ElementNode[]
 	layoutParent?: ElementNode | null
 	childHost?: AppKitView
+	datePickerDefault?: Date
+	datePickerValue?: Date
+	datePickerInputs?: PropBag
 	props: PropBag
 	parent: ElementNode | null
 	children: ElementNode[]
@@ -1717,6 +1720,74 @@ function makeSwitch(props: PropBag) {
 	return { view: button, actionId }
 }
 
+/** DatePicker's shared values carry a local calendar day, never time-of-day. */
+function calendarDate(value: Date | string): Date {
+	const date = new Date(value)
+	if (!Number.isFinite(date.getTime())) {throw new Error('AppKit datepicker requires a valid date')}
+	date.setHours(0, 0, 0, 0)
+	return date
+}
+
+function makeDatePicker(node: ElementNode) {
+	const view = NSDatePicker.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 24 } })
+	view.datePickerStyle = NSDatePickerStyle.TextFieldAndStepper
+	view.datePickerElements = NSDatePickerElementFlags.YearMonthDay
+	view.datePickerMode = NSDatePickerMode.Single
+	view.bezeled = true
+	view.drawsBackground = true
+	view.dateValue = NSDate.dateWithTimeIntervalSince1970(calendarDate(new Date()).getTime() / 1000)
+	view.target = buttonActionTarget
+	view.action = 'controlChanged:'
+	view.sizeToFit()
+	view.translatesAutoresizingMaskIntoConstraints = false
+	const actionId = nextActionId++
+	view.tag = actionId
+	actionHandlers.set(actionId, null)
+	node.datePickerDefault = calendarDate(new Date())
+	node.datePickerValue = node.datePickerDefault
+	return { view, actionId }
+}
+
+function notifyDateChange(node: ElementNode, value: Date) {
+	const oldValue = node.datePickerValue as Date
+	const date = calendarDate(value)
+	node.datePickerValue = date
+
+	;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(date.getTime() / 1000)
+	if (date.getTime() !== oldValue.getTime() && typeof node.props.onDateChange === 'function') {
+		node.props.onDateChange({ eventName: 'dateChange', object: node.view, value: new Date(date), oldValue: new Date(oldValue) })
+	}
+}
+
+function syncDatePicker(node: ElementNode, props: PropBag) {
+	const view = node.view! as NSDatePicker
+	// Clear both old bounds before applying a new range, so moving the range
+	// does not leave AppKit temporarily constrained by the previous endpoint.
+	view.minDate = null as any
+	view.maxDate = null as any
+	if (node.props.minDate != null) {view.minDate = NSDate.dateWithTimeIntervalSince1970(calendarDate(node.props.minDate).getTime() / 1000)}
+	if (node.props.maxDate != null) {view.maxDate = NSDate.dateWithTimeIntervalSince1970(calendarDate(node.props.maxDate).getTime() / 1000)}
+	let date = new Date(node.datePickerValue as Date)
+	const previous = node.datePickerInputs ?? {}
+	// Property order matches NativeScript's sequential setters. An explicit
+	// date sets all components; subsequent component props adjust that date.
+	for (const name of Object.keys(props)) {
+		if (!['date', 'year', 'month', 'day'].includes(name) || Object.is(previous[name], props[name])) {continue}
+		const value = props[name]
+		if (name === 'date') {date = value == null ? new Date(node.datePickerDefault as Date) : calendarDate(value)}
+		else if (name === 'year') {date.setFullYear(value ?? (node.datePickerDefault as Date).getFullYear())}
+		else if (name === 'month') {date.setMonth((value ?? ((node.datePickerDefault as Date).getMonth() + 1)) - 1)}
+		else {date.setDate(value ?? (node.datePickerDefault as Date).getDate())}
+	}
+
+	node.datePickerInputs = { ...node.props }
+	if (node.props.minDate != null && date < calendarDate(node.props.minDate)) {date = calendarDate(node.props.minDate)}
+	if (node.props.maxDate != null && date > calendarDate(node.props.maxDate)) {date = calendarDate(node.props.maxDate)}
+	view.enabled = node.props.isEnabled !== false
+	setControlAction(node, () => notifyDateChange(node, new Date(Number(view.dateValue!.timeIntervalSince1970) * 1000)), () => undefined)
+	notifyDateChange(node, date)
+}
+
 function makeActivityIndicator() {
 	const view = NSProgressIndicator.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
@@ -2884,6 +2955,7 @@ const SUPPORTED_TYPES = new Set([
 	'switch',
 	'slider',
 	'activityindicator',
+	'datepicker',
 	'webview',
 	'image',
 	'span',
@@ -2904,6 +2976,19 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'datepicker') {
+		for (const name of ['date', 'minDate', 'maxDate']) {
+			if (props?.[name] != null) {
+				if (!(props[name] instanceof Date) && typeof props[name] !== 'string') {throw new Error('AppKit datepicker ' + name + ' must be Date or string')}
+				calendarDate(props[name])
+			}
+		}
+
+		for (const name of ['year', 'month', 'day']) {
+			if (props?.[name] != null && !Number.isInteger(props[name])) {throw new Error('AppKit datepicker ' + name + ' must be an integer')}
+		}
+	}
+
 	if (type === 'activityindicator' && props?.busy != null && typeof props.busy !== 'boolean') {
 		throw new Error('AppKit activityindicator busy must be boolean')
 	}
@@ -3067,6 +3152,12 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
 				break
+			case 'datepicker': {
+				const control = makeDatePicker(node)
+				node.view = control.view
+				node.actionId = control.actionId
+				break
+			}
 			case 'activityindicator':
 				node.view = makeActivityIndicator()
 				break
@@ -4514,6 +4605,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
 	activityindicator: ['busy', 'style', 'className'],
 	htmlview: ['html', 'style', 'className'],
 	formattedstring: ['style', 'fontFamily', 'fontSize', 'color', 'backgroundColor'],
@@ -4764,6 +4856,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
 				}
+
+				break
+			case 'datepicker':
+				if (['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'onDateChange', 'id'].includes(name)) {continue}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else {console.warn('[macos-host] ignored datepicker prop ' + name)}
 
 				break
 			case 'activityindicator':
@@ -5071,6 +5172,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
+	if (node.type === 'datepicker') {syncDatePicker(node, props)}
 	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
 	if (node.type === 'htmlview') {syncHtmlView(node)}
 
@@ -5610,6 +5712,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'datepicker') {throw new Error('AppKit <datepicker> cannot contain JSX children')}
 	if (parentType === 'activityindicator') {
 		throw new Error('AppKit <activityindicator> cannot contain JSX children')
 	}
@@ -5941,6 +6044,12 @@ function destroy(node: ElementNode) {
 	// branch below must tolerate partial construction.
 	if (node.type === 'webview' && node.view) {
 		disposeWebView(node.view as WKWebView)
+	}
+
+	if (node.type === 'datepicker' && node.view) {
+		node.view.target = null
+		node.view.action = null
+		node.props.onDateChange = undefined
 	}
 
 	if (node.type === 'activityindicator' && node.view) {

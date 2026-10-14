@@ -73,3 +73,18 @@ void searchBar
 // @ts-expect-error SearchBar text must stay a string
 const invalidSearchBar: SharedJSX.IntrinsicElements['searchbar'] = { text: 123 }
 void invalidSearchBar
+
+const datePicker: SharedJSX.IntrinsicElements['datepicker'] = {
+	date: new Date(2026, 4, 10, 19), minDate: '2026-05-01', maxDate: new Date(2026, 4, 31),
+	year: 2026, month: 5, day: 10,
+	onDateChange: (event) => {const date: Date = event.value; const old: Date | undefined = event.oldValue; void date; void old; void event.object},
+	ref: (view) => {void view; return () => {}},
+}
+
+void datePicker
+// @ts-expect-error DatePicker does not accept numeric dates
+const invalidDatePicker: SharedJSX.IntrinsicElements['datepicker'] = { date: 123 }
+void invalidDatePicker
+// @ts-expect-error AppKit-only picker style is outside the shared contract
+const invalidDateStyle: SharedJSX.IntrinsicElements['datepicker'] = { datePickerStyle: 0 }
+void invalidDateStyle

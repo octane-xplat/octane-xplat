@@ -22,6 +22,7 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedDate: any
 let retainedActivity: any
 let retainedHtml: any
 let retainedFormatted: any
@@ -45,6 +46,7 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedDate = debug.findId('hmr-date')
 			retainedActivity = debug.findId('hmr-activity')
 			retainedHtml = debug.findId('hmr-html')
 			retainedFormatted = debug.findId('hmr-formatted')
@@ -73,6 +75,7 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-date') === retainedDate && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
 				debug.findId('hmr-activity') === retainedActivity && (Number(retainedActivity.alphaValue) === 0) &&
 				debug.findId('hmr-html') === retainedHtml &&
 				String(retainedHtml.stringValue).trim() === 'Second revision1' &&
@@ -109,6 +112,7 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedDate.superview || retainedDate.target != null || String(retainedDate.action) !== '<null selector>' ||
 					retainedActivity.superview || !(Number(retainedActivity.alphaValue) === 0) ||
 					retainedHtml.superview ||
 					retainedFormatted.children.length ||
@@ -140,6 +144,7 @@ function reload() {
 				console.log('PACKED_FORMATTEDSTRING_HMR_OK')
 				console.log('PACKED_ACTIVITYINDICATOR_HMR_OK')
 				console.log('PACKED_HTMLVIEW_HMR_OK')
+				console.log('PACKED_DATEPICKER_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`                                                                                                    | `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`                                                                                                    | `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 23 core factories and 16 missing core hosts. `span` and
+There are now 24 core factories and 15 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -423,3 +423,43 @@ and ownership, without visual frame analysis. Shared types and host-ref policy
 are unchanged. Inherited common gesture/lifecycle/class/style/accessibility
 coverage, mobile execution, OS input, visual parity and the full release gates
 remain open. This unit changes no recipe workflow.
+
+## DatePicker host
+
+DatePicker uses NSDatePicker's date field and stepper. `date`, `minDate` and
+`maxDate` are calendar dates: the boundary strips time-of-day to local midnight.
+The `dateChange` event also carries a local-midnight Date. Use `timepicker` for
+time-of-day. Month is one-based; day/month/year setters update calendar components.
+Removing a date or component prop restores its creation-day default; removing
+bounds clears them. Put the picker alongside other children in a layout.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function DateExample() {
+	const date$ = useSignal$(new Date(2026, 4, 10))
+	return (
+		<stacklayout>
+			<datepicker
+				date={date$.get()}
+				minDate={new Date(2026, 4, 1)}
+				maxDate={new Date(2026, 4, 31)}
+				onDateChange={(event) => date$.set(event.value)}
+			/>
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and packed consumer fixtures cover date/bounds/components,
+normalization, reactive updates, defaults, unchanged-event suppression, native
+action payloads, intrinsic and explicit layout, ordering, parent changes,
+replacement/removal, refs and teardown. Retained-root HMR keeps the host and
+signal state while an edited date changes. Authored parent changes recreate
+hosts and clean old refs; units also cover physical reparenting. Dispatch is
+event-bridge evidence, not OS input. No visual or mobile execution is claimed.
+The shared date-only contract still needs mobile boundary normalization and
+hardware qualification, particularly iOS's inherited time-preserving setters.
+Inherited common lifecycle/gesture/style/accessibility coverage and full release
+gates remain open. This raw-host unit changes no recipe workflow.
