@@ -401,8 +401,8 @@ export function Example() {
 | ---------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
 | `List`                             | Non-virtual content list                     | `listStyle`, `density`, `hasDividers`, `start`                          |
 | `ListItem`                         | Labeled row inside `List`                    | `label`, `description`, `startContent`, `endContent`, `onPress`, `href` |
-| `Table`                            | Columnar rows                                | `columns`, `rows`, `renderCell`, `onRowPress`                           |
-| `TreeList`                         | Expandable node hierarchy                    | `nodes`, `defaultExpanded`, `onToggle`, `onSelect`                      |
+| `Table`                            | Columnar rows                                | `columns`, `rows`, `idKey`, `renderCell`, `onRowPress`                  |
+| `TreeList`                         | Expandable node hierarchy                    | `nodes`, `expandedKeys`, `selectionMode`, `onAction`                    |
 | `Timeline`                         | Vertical event list (dot + connector)        | `items`                                                                 |
 | `ProgressGroup`                    | Stacked labeled `Meter` rows                 | `items`                                                                 |
 | `Meter`                            | Gauge/dash ring (meter role, not progress)   | `value`, `minValue`, `maxValue`, `valueLabel`, `strokeWidth`             |
@@ -413,6 +413,47 @@ export function Example() {
 | `Timer`                            | Live elapsed duration                        | `startTime`, `format`, `type`, `size`                                   |
 | `Outline`                          | Navigable heading outline                    | `items`, `activeId`, `hasScrollOnClick`                                 |
 | `Spinner`                          | Self-drawn loading indicator                 |                                                                         |
+
+`Table` and `TreeList` keep your row type through the whole API: `rows`,
+`renderCell`, `onRowPress`, and `idKey` on `Table` all work with your row
+objects, and `TreeList` accepts any node type with `key`, `label`, and
+`children`. Item identity uses the shared `Key` domain (`string | number`) —
+the same one `useListData`, `useTreeData`, and `GridList` selection report —
+so a key returned by a store means the same thing to a view. `TreeList`
+expands and selects by key: `expandedKeys`/`defaultExpandedKeys`/
+`onExpandedChange` own the open set, and `selectionMode` plus `selectedKeys`/
+`defaultSelectedKeys`/`onSelectionChange` select leaf rows — parent rows
+always expand on press, and `onAction` reports leaf activation.
+
+```tsx
+import { TreeList } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [expanded, setExpanded] = useState<ReadonlySet<string | number>>(new Set(['src']))
+	return (
+		<TreeList
+			nodes={[{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }] }]}
+			expandedKeys={expanded}
+			onExpandedChange={setExpanded}
+			selectionMode="single"
+			onAction={(key) => console.log('activated', key)}
+		/>
+	)
+}
+```
+
+**Migrating existing code:** `Table`'s `keyFor` was renamed to `idKey`, which
+also accepts a `key`-typed row field name (`idKey="id"`); the default row key
+now reads the row's `id` or `key` property before falling back to its index.
+`TreeList`'s `defaultExpanded`
+became `defaultExpandedKeys`, `onToggle` became `onExpandedChange` (it reports
+the complete expanded key set, not one key), and `onSelect` became `onAction`
+with the leaf's key as its argument. The visual `TreeNode` prop type is now
+`TreeListNode` — the exported `TreeNode` is the `useTreeData` store node
+(still available as `CollectionTreeNode`). Store snapshots from
+`useListData`, `useTreeData`, and `useAsyncList` now type `items` and
+`selectedKeys` as readonly.
 
 ## Scrolling
 

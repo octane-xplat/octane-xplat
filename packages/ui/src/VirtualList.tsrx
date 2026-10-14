@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
-import type { VirtualListProps } from './props'
+import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'
+import { defaultItemKey } from './list-data'
 import {
 	createVirtualListEntries,
 	estimateVirtualListSizes,
@@ -63,7 +64,7 @@ interface VirtualListAnchor {
  *  preserve the visible keyed anchor after layout. */
 export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const entries = useMemo(
-		() => createVirtualListEntries(props.items, props.keyExtractor, props.getItemType),
+		() => createVirtualListEntries(props.items, props.keyExtractor ?? defaultItemKey, props.getItemType),
 		[props.items, props.keyExtractor, props.getItemType],
 	)
 
@@ -320,8 +321,25 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		refreshWindow()
 	}
 
+	function scrollToIndex(index: number, options?: VirtualListScrollOptions) {
+		const entry = entriesRef.current[index]
+		if (!entry) return
+		const top = headerHeightRef.current + sizeIndexRef.current.prefix(index)
+		const size = sizeIndexRef.current.get(index)
+		const align = options?.align ?? 'start'
+		scrollToOffset(
+			align === 'end' ? top + size - viewportHeightRef.current
+				: align === 'center' ? top + (size - viewportHeightRef.current) / 2
+					: top,
+			options?.animated,
+		)
+	}
+
 	useImperativeHandle(props.ref, () => ({
 		scrollToOffset: (offset, options) => scrollToOffset(offset, options?.animated),
+		scrollToIndex,
+		scrollToItem: (key: Key, options?: VirtualListScrollOptions) =>
+			scrollToIndex(entriesRef.current.findIndex((entry) => entry.key === key), options),
 	}), [props.ref])
 
 	function scheduleEstimateRebuild() {
@@ -555,6 +573,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			if (view) applyEscapeProps(view, props)
 		}}
 		id={props.id}
+		testID={props.testID ?? ''}
 		{...layoutChildProps(props)}
 		className={cx('vx-virtual-list', props.className)}
 		style={style}

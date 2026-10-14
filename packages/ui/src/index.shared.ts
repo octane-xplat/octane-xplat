@@ -449,7 +449,7 @@ export type {
 	TableProps,
 	TimelineItem,
 	TimelineProps,
-	TreeNode,
+	TreeListNode,
 	TreeProps,
 	UserProps,
 } from './props'
@@ -544,7 +544,7 @@ export { SegmentedControl } from './SegmentedControl'
 export { ScrollableArea } from './ScrollableArea'
 export { useScrollableArea } from './use-scrollable-area'
 export { VirtualList } from './VirtualList'
-export type { VirtualListProps, VirtualListHandle } from './props'
+export type { VirtualListProps, VirtualListHandle, VirtualListScrollOptions } from './props'
 export { Image } from './Image'
 export { WebView } from './WebView'
 export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
@@ -758,6 +758,7 @@ export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from './
 export type {
 	TreeData,
 	TreeDataOptions,
+	TreeNode,
 	TreeNode as CollectionTreeNode,
 	TreeSnapshot,
 } from './tree-data'

@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'octane'
 import { Pressable } from './Pressable'
 import { cx } from '@octane-xplat/lib'
 import type { GridListProps } from './props'
-import type { Key, Selection } from './list-data'
+import { defaultItemKey, type Key, type Selection } from './list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 import { applyEscapeProps, nativeAccessibilityRole } from './escape-props'
 import { layoutChildProps } from './layout-child'
@@ -15,7 +15,7 @@ import { refList } from './ref-list'
  *  nature. Tap activates onAction and toggles selection per the shared
  *  grid-list-selection mapping (no Shift-range on touch). */
 export function GridList<T = any>(props: GridListProps<T>) @{
-	const keys = props.items.map((item, index) => props.keyExtractor(item, index))
+	const keys = props.items.map((item, index) => (props.keyExtractor ?? defaultItemKey)(item, index))
 	const disabled = new Set<Key>(props.disabledKeys ?? [])
 	const selectionMode = props.selectionMode ?? 'none'
 	const [uncontrolled, setUncontrolled] = useState<Selection>(() =>

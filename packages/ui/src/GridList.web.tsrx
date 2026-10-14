@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'octane';
 import { refList } from './ref-list';
 import type { GridListProps } from './props';
-import type { Key, Selection } from './list-data';
+import { defaultItemKey, type Key, type Selection } from './list-data';
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -15,7 +15,7 @@ import { useGridList } from './use-grid-list';
  *  without firing onAction. Not virtualized; VirtualList stays 1D. */
 export function GridList<T = any>(props: GridListProps<T>) @{
 	const keys = useMemo(
-		() => props.items.map((item, index) => props.keyExtractor(item, index)),
+		() => props.items.map((item, index) => (props.keyExtractor ?? defaultItemKey)(item, index)),
 		[props.items, props.keyExtractor],
 	);
 

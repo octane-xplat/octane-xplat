@@ -782,7 +782,7 @@ function TreeFixture() @{
 				children: [{ key: 'leaf', label: 'Project', disabled: true }],
 			},
 		]}
-		defaultExpanded={['root']}
+		defaultExpandedKeys={['root']}
 	/>
 }
 

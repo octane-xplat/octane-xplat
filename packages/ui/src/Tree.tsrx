@@ -1,45 +1,84 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useState } from 'octane';
-import type { TreeProps, TreeNode } from "./props";
+import { useMemo, useState } from 'octane';
+import type { Key, Selection, TreeProps, TreeListNode } from "./props";
 import { cx } from "@octane-xplat/lib";
-import { applyEscapeProps } from "./escape-props";
+import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
+import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection';
 
-function TreeRow(props: { node: TreeNode; depth: number; open: Set<string>; toggle: (n: TreeNode) => void; onSelect?: (n: TreeNode) => void }) @{
+function leafKeys(nodes: readonly TreeListNode[], into: Key[] = []): Key[] {
+	for (const node of nodes) {
+		if (node.children?.length) leafKeys(node.children, into);
+		else if (!node.disabled) into.push(node.key);
+	}
+	return into;
+}
+
+function TreeRow(props: {
+	node: TreeListNode; depth: number; open: ReadonlySet<Key>; selected: Selection;
+	selectionMode: 'none' | 'single' | 'multiple';
+	toggle: (n: TreeListNode) => void; press: (n: TreeListNode) => void;
+}) @{
 	const node = props.node;
 	const kids = node.children ?? [];
+	const isLeaf = kids.length === 0;
 	const isOpen = props.open.has(node.key);
+	const isSelected = isLeaf && props.selectionMode !== 'none' && isGridListKeySelected(props.selected, node.key);
 
 	<flexboxlayout className="vx-tree-node">
 		<flexboxlayout
-			className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled')}
+			className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')}
 			style={{ paddingLeft: props.depth * 16 }}
-			onTap={node.disabled ? undefined : () => (kids.length ? props.toggle(node) : props.onSelect?.(node))}
+			onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))}
+			accessibilityState={nativeAccessibilityState({
+				disabled: node.disabled || undefined,
+				selected: props.selectionMode !== 'none' && isLeaf ? isSelected : undefined,
+			}) as any}
 		>
-			<label className="vx-tree-caret" text={kids.length ? (isOpen ? '▾' : '▸') : ''} />
-			<label className="vx-tree-label" text={node.label ?? node.key} />
+			<label className="vx-tree-caret" text={isLeaf ? '' : (isOpen ? '▾' : '▸')} />
+			<label className="vx-tree-label" text={node.label ?? String(node.key)} />
 		</flexboxlayout>
-		{isOpen && kids.map((kid: TreeNode) => (
-			<TreeRow node={kid} depth={props.depth + 1} open={props.open} toggle={props.toggle} onSelect={props.onSelect} />
+		{isOpen && kids.map((kid: TreeListNode) => (
+			<TreeRow node={kid} depth={props.depth + 1} open={props.open} selected={props.selected}
+				selectionMode={props.selectionMode} toggle={props.toggle} press={props.press} />
 		))}
 	</flexboxlayout>
 }
 
-/** Tree — recursive indent + collapse. `defaultExpanded` seeds the open
- *  set (uncontrolled); `onToggle`/`onSelect` report changes. */
-export function Tree(props: TreeProps) @{
-	const [open, setOpen] = useState<Set<string>>(new Set(props.defaultExpanded ?? []));
+/** TreeList — recursive indent + collapse. `expandedKeys`/`onExpandedChange`
+ *  control the open set, `defaultExpandedKeys` seeds it; leaf rows keep a
+ *  keyed selection under `selectionMode` and `onAction` reports leaf
+ *  activation. */
+export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>) @{
+	const selectionMode = props.selectionMode ?? 'none';
+	const [openInternal, setOpenInternal] = useState<Set<Key>>(() => new Set(props.defaultExpandedKeys ?? []));
+	const open: ReadonlySet<Key> = props.expandedKeys !== undefined ? new Set(props.expandedKeys) : openInternal;
+	const [selectedInternal, setSelectedInternal] = useState<Selection>(() => normalizeSelection(props.defaultSelectedKeys));
+	const selected: Selection = props.selectedKeys !== undefined ? normalizeSelection(props.selectedKeys) : selectedInternal;
+	const keys = useMemo(() => leafKeys(props.nodes), [props.nodes]);
 
-	const toggle = (node: TreeNode) => {
+	const toggle = (node: TreeListNode) => {
 		const next = new Set(open);
-		const willOpen = !next.has(node.key);
-		if (willOpen) next.add(node.key); else next.delete(node.key);
-		setOpen(next);
-		props.onToggle?.(node.key, willOpen);
+		if (next.has(node.key)) next.delete(node.key); else next.add(node.key);
+		if (props.expandedKeys === undefined) setOpenInternal(next);
+		props.onExpandedChange?.(next);
+	};
+
+	const press = (node: TreeListNode) => {
+		if (selectionMode !== 'none') {
+			const next = gridListPress({
+				selection: selected, key: node.key, index: 0, anchorIndex: null,
+				keys, selectionMode, selectionBehavior: 'toggle',
+			}).selection;
+			if (props.selectedKeys === undefined) setSelectedInternal(next);
+			props.onSelectionChange?.(next);
+		}
+		props.onAction?.(node.key);
 	};
 
 	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={props.style}>
-		{props.nodes.map((node: TreeNode) => (
-			<TreeRow node={node} depth={0} open={open} toggle={toggle} onSelect={props.onSelect} />
+		{props.nodes.map((node: T) => (
+			<TreeRow node={node} depth={0} open={open} selected={selected}
+				selectionMode={selectionMode} toggle={toggle} press={press} />
 		))}
 	</flexboxlayout>
 }

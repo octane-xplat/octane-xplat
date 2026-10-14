@@ -6,13 +6,7 @@ import type { Key, Selection } from './list-data'
  * `disallowEmptySelection` keeps the last selected key. `all`
  * materializes over the item keys on first mutation. */
 
-export function normalizeSelection(input: 'all' | Iterable<Key> | undefined): Selection {
-	if (input === 'all') {
-		return 'all'
-	}
-
-	return new Set(input ?? [])
-}
+export { normalizeSelection } from './list-data'
 
 export function isGridListKeySelected(selection: Selection, key: Key): boolean {
 	return selection === 'all' ? true : selection.has(key)

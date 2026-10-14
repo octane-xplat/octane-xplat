@@ -2,7 +2,7 @@
 
 ID: virtual-list
 Targets: web, ios, android, linux
-Related APIs: VirtualList, keyExtractor, getItemType, renderItem, renderHeader, renderFooter, renderSeparator, renderEmpty
+Related APIs: VirtualList, keyExtractor, getItemType, renderItem, renderHeader, renderFooter, renderSeparator, renderEmpty, scrollToOffset, scrollToIndex, scrollToItem, VirtualListHandle
 
 ## Starting point
 

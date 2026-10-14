@@ -283,7 +283,7 @@ export function ComponentsDemo() @{
 					{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }, { key: 'ui', label: 'ui', children: [{ key: 'btn', label: 'Button.tsrx' }] }] },
 					{ key: 'docs', label: 'docs' },
 				]}
-				defaultExpanded={['src']}
+				defaultExpandedKeys={['src']}
 			/>
 		</View>
 

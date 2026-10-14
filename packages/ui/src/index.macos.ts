@@ -335,6 +335,7 @@ export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from './
 export type {
 	TreeData,
 	TreeDataOptions,
+	TreeNode,
 	TreeNode as CollectionTreeNode,
 	TreeSnapshot,
 } from './tree-data'

@@ -4,10 +4,9 @@
  * prunes selection. Pure module — useListData (use-list-data.tsx) subscribes
  * a renderer to a store created once per component.
  */
-import type { ReadableStore } from './props'
+import type { Key, ReadableStore, Selection } from './props'
 
-export type Key = string | number
-export type Selection = 'all' | Set<Key>
+export type { Key, Selection }
 
 export interface ListDataOptions<T> {
 	initialItems?: Iterable<T>
@@ -18,14 +17,14 @@ export interface ListDataOptions<T> {
 }
 
 export interface ListSnapshot<T> {
-	items: T[]
+	items: readonly T[]
 	filterText: string
 	selectedKeys: Selection
 }
 
 export interface ListData<T> extends ReadableStore<ListSnapshot<T>> {
 	/** Items after applying `filter` with the current `filterText`. */
-	readonly items: T[]
+	readonly items: readonly T[]
 	readonly filterText: string
 	readonly selectedKeys: Selection
 	setFilterText(filterText: string): void
@@ -44,10 +43,14 @@ export interface ListData<T> extends ReadableStore<ListSnapshot<T>> {
 	update(key: Key, value: T): void
 }
 
-function defaultGetKey<T>(item: T): Key {
+/** Shared default item identity — reads the item's `id` or `key` property.
+ *  The collection components and data stores use it as the `keyExtractor`/
+ *  `getKey` default; an item without either field fails loudly instead of
+ *  falling back to a positional key. */
+export function defaultItemKey<T>(item: T): Key {
 	const key = (item as { id?: Key }).id ?? (item as { key?: Key }).key
 	if (key == null) {
-		throw new Error('list data: item has no `id` or `key` property — pass getKey')
+		throw new Error('item has no `id` or `key` property — pass getKey or keyExtractor')
 	}
 
 	return key
@@ -75,7 +78,7 @@ function pruneSelection(selection: Selection, removed: ReadonlySet<Key>): Select
 }
 
 export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T> {
-	const getKey = options.getKey ?? defaultGetKey
+	const getKey = options.getKey ?? defaultItemKey
 	let snapshot: ListSnapshot<T> = {
 		items: [...(options.initialItems ?? [])],
 		filterText: options.initialFilterText ?? '',

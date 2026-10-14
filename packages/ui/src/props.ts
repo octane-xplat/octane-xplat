@@ -1119,6 +1119,13 @@ export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProp
 	web?: any
 }
 
+/** Options accepted by the `VirtualList` key/index seeks. */
+export interface VirtualListScrollOptions {
+	animated?: boolean
+	/** Where the target row lands in the viewport. @default 'start' */
+	align?: 'start' | 'center' | 'end'
+}
+
 /** Imperative operations exposed by `VirtualList` via `ref`. Calls before
  *  the list mounts are no-ops; the handle is cleared on unmount. */
 export interface VirtualListHandle {
@@ -1127,20 +1134,32 @@ export interface VirtualListHandle {
 	 *  scrollable range; `animated` (default false) uses the platform's
 	 *  scroll animation where the leaf provides one. */
 	scrollToOffset(offset: number, options?: { animated?: boolean }): void
+	/** Scrolls so the item at `index` lands on the aligned viewport edge.
+	 *  An index is positional: it follows inserts and reorders rather than
+	 *  tracking an item — use `scrollToItem` to seek by identity. Rows
+	 *  above an unvisited target are estimated, so a deep seek can land
+	 *  short; call again once intervening rows measure. */
+	scrollToIndex(index: number, options?: VirtualListScrollOptions): void
+	/** Same seek as `scrollToIndex`, addressed by the item's `keyExtractor`
+	 *  key. Unknown keys are a no-op. */
+	scrollToItem(key: Key, options?: VirtualListScrollOptions): void
 }
 
 /** Shared virtualized vertical list. Item keys must be unique and stable
  *  across inserts and reorders. Rows outside the rendered window unmount;
  *  keep durable row state keyed by item identity outside the row component. */
-export interface VirtualListProps<T = any> extends LayoutChildProps, AccessibilityProps {
+export interface VirtualListProps<T = any> extends LayoutChildProps, AccessibilityProps, TestIDProps {
 	className?: any
 	style?: any
 	id?: string
 	/** Ref to a platform-neutral scroll handle. It is cleared on unmount. */
 	ref?: Octane.Ref<VirtualListHandle>
 	items: readonly T[]
-	keyExtractor: (item: T, index: number) => string | number
-	getItemType?: (item: T, index: number) => string | number
+	/** Returns each item's stable `Key`; must be unique and survive reorder.
+	 *  Defaults to `defaultItemKey` — the item's `id` or `key` property;
+	 *  items without either throw instead of guessing a positional key. */
+	keyExtractor?: (item: T, index: number) => Key
+	getItemType?: (item: T, index: number) => Key
 	renderItem: (item: T, index: number) => any
 	renderEmpty?: () => any
 	renderHeader?: () => any
@@ -4049,7 +4068,7 @@ export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPalet
 // ---------- data display (Phase 4) ----------
 
 export interface TableColumn {
-	key: string
+	key: Key
 	label?: string
 	/** Column width in dips; omit to share the remaining space evenly. */
 	width?: number
@@ -4058,18 +4077,23 @@ export interface TableColumn {
 
 /** Table — self-drawn grid via rows + cells. Bounded and unvirtualized:
  *  large datasets belong to the platform UITableView/RecyclerView
- *  subpaths, not this component. */
-export interface TableProps {
+ *  subpaths, not this component. The row generic flows through
+ *  `renderCell`, `idKey`, and `onRowPress`, so rows keep their
+ *  element type; `rowIndex` arguments are positional, not identity. */
+export interface TableProps<T extends object = Record<string, any>> {
 	className?: any
 	style?: any
 	id?: string
 	columns: TableColumn[]
-	rows: Record<string, any>[]
-	/** Cell override — default renders row[col.key] as text. */
-	renderCell?: (row: Record<string, any>, column: TableColumn, rowIndex: number) => any
-	/** Row key; defaults to the row index. */
-	keyFor?: (row: Record<string, any>, rowIndex: number) => string
-	onRowPress?: (row: Record<string, any>, rowIndex: number) => void
+	rows: readonly T[]
+	/** Cell override — default renders `row[col.key]` as text. */
+	renderCell?: (row: T, column: TableColumn, rowIndex: number) => any
+	/** Stable row `Key` — a row field name or an extractor (Astryx `idKey`).
+	 *  Defaults to the row's `id` or `key` property, then its index. The
+	 *  index fallback is positional — supply `idKey` or an `id`/`key` field
+	 *  when rows can be reordered. */
+	idKey?: keyof T | ((row: T, rowIndex: number) => Key)
+	onRowPress?: (row: T, rowIndex: number) => void
 	empty?: any
 	ios?: any
 	android?: any
@@ -4095,23 +4119,46 @@ export interface TimelineProps {
 	web?: any
 }
 
-export interface TreeNode {
-	key: string
+/** One visual `TreeList` node — the rendered row descriptor, distinct from
+ *  the `TreeNode` store wrapper `useTreeData` produces. Carry extra fields
+ *  by extending it; `onAction`'s key and `useTreeData`'s `getItem` share
+ *  the same `Key` identity. */
+export interface TreeListNode {
+	key: Key
 	label?: string
-	children?: TreeNode[]
+	children?: TreeListNode[]
 	disabled?: boolean
 }
 
-/** Tree — recursive indent + collapse. `defaultExpanded` seeds the open
- *  set; `onToggle` reports changes. */
-export interface TreeProps {
+/** TreeList — recursive indent + collapse. Expansion is keyed and follows
+ *  the shared state contract: `expandedKeys`/`onExpandedChange` for the
+ *  controlled form, `defaultExpandedKeys` to seed the uncontrolled form.
+ *  Leaf rows can hold a keyed selection under `selectionMode`, matching
+ *  `GridList`; `onAction` fires on leaf activation either way. */
+export interface TreeProps<T extends TreeListNode = TreeListNode> {
 	className?: any
 	style?: any
 	id?: string
-	nodes: TreeNode[]
-	defaultExpanded?: string[]
-	onToggle?: (key: string, open: boolean) => void
-	onSelect?: (node: TreeNode) => void
+	nodes: readonly T[]
+	/** Controlled expanded keys — pair with `onExpandedChange`. */
+	expandedKeys?: Iterable<Key>
+	/** Initial expanded keys for uncontrolled use; `expandedKeys` wins when
+	 *  both are set. */
+	defaultExpandedKeys?: Iterable<Key>
+	/** Called with the complete expanded key set when a parent row toggles. */
+	onExpandedChange?: (keys: Set<Key>) => void
+	/** 'none' (default) disables selection; 'single' and 'multiple' give
+	 *  leaf rows a keyed selection with the same contract as `GridList`.
+	 *  Parent rows always toggle expansion instead of selecting. */
+	selectionMode?: 'none' | 'single' | 'multiple'
+	/** Controlled selection — `'all'` or the selected key set. */
+	selectedKeys?: 'all' | Iterable<Key>
+	/** Initial selection for the uncontrolled form. */
+	defaultSelectedKeys?: 'all' | Iterable<Key>
+	onSelectionChange?: (keys: Selection) => void
+	/** Fires when a leaf row is activated (click/Enter on web, tap on
+	 *  native), independent of selection. */
+	onAction?: (key: Key) => void
 	ios?: any
 	android?: any
 	web?: any
@@ -6365,6 +6412,18 @@ export type InferData<D extends ReadonlyArray<FieldDefinition>> = {
 
 export type ColorScheme = 'light' | 'dark'
 
+// ---------- collection identity ----------
+
+/** Stable item identity shared by keyed collections and the collection data
+ *  stores — React Aria's `Key`. A key names the item itself and stays valid
+ *  across inserts, reorders, and moves; an index is only the item's current
+ *  position, so keyed lookups and callbacks take `Key`, not a position. */
+export type Key = string | number
+
+/** Selection shared by keyed collections — React Aria's `Selection`:
+ *  `'all'` or the set of selected keys. */
+export type Selection = 'all' | Set<Key>
+
 // ---------- stores ----------
 
 /** Minimal external-store contract `useStore` subscribes to. */
@@ -6407,7 +6466,7 @@ export type MultiSelectorProps = Omit<
 /** Props accepted by `Breadcrumbs`. */
 export type BreadcrumbsProps = BreadcrumbProps
 /** Props accepted by `TreeList`. */
-export type TreeListProps = TreeProps
+export type TreeListProps<T extends TreeListNode = TreeListNode> = TreeProps<T>
 /** Props accepted by `EmptyState`. */
 export type EmptyStateProps = EmptyProps
 /** Props accepted by `Spinner`. */
@@ -7267,7 +7326,10 @@ export interface GridListProps<T = any> extends LayoutChildProps, AccessibilityP
 	id?: string
 	ref?: Octane.Ref<any>
 	items: readonly T[]
-	keyExtractor: (item: T, index: number) => string | number
+	/** Returns each item's stable `Key`; must be unique and survive reorder.
+	 *  Defaults to `defaultItemKey` — the item's `id` or `key` property;
+	 *  items without either throw instead of guessing a positional key. */
+	keyExtractor?: (item: T, index: number) => Key
 	renderItem: (item: T, index: number) => any
 	/** Content rendered when `items` is empty (RA `renderEmptyState`). */
 	renderEmpty?: () => any
@@ -7283,17 +7345,17 @@ export interface GridListProps<T = any> extends LayoutChildProps, AccessibilityP
 	 *  range. 'replace': click selects only the pressed key. */
 	selectionBehavior?: 'toggle' | 'replace'
 	/** Controlled selection — `'all'` or the selected key set. */
-	selectedKeys?: 'all' | Iterable<string | number>
+	selectedKeys?: 'all' | Iterable<Key>
 	/** Initial selection for the uncontrolled form. */
-	defaultSelectedKeys?: 'all' | Iterable<string | number>
-	onSelectionChange?: (keys: 'all' | Set<string | number>) => void
+	defaultSelectedKeys?: 'all' | Iterable<Key>
+	onSelectionChange?: (keys: Selection) => void
 	/** Keys that cannot be selected, focused, or actioned. */
-	disabledKeys?: Iterable<string | number>
+	disabledKeys?: Iterable<Key>
 	/** Block deselecting the last selected key. */
 	disallowEmptySelection?: boolean
 	/** Fires when a row is activated (click/Enter on web, tap on native),
 	 *  independent of selection. */
-	onAction?: (key: string | number) => void
+	onAction?: (key: Key) => void
 	/** 'arrow' (default): single Tab stop + arrow-key navigation.
 	 *  'tab': every row is a Tab stop and arrows are left to content —
 	 *  use when cells contain interactive controls. Web only: grid

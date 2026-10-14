@@ -7,6 +7,7 @@
  */
 import {
 	createListData,
+	defaultItemKey,
 	type Key,
 	type ListData,
 	type Selection,
@@ -37,9 +38,10 @@ export interface AsyncListLoadResult<T, C> {
 export interface AsyncListOptions<T, C = string> {
 	load: (state: AsyncListLoadContext<C>) => Promise<AsyncListLoadResult<T, C>>
 	/** Client-side sort; when omitted, sort() reloads through `load` with the
-	 *  descriptor (server-side sort). */
+	 *  descriptor (server-side sort). `state.items` is the current readonly
+	 *  snapshot — return a new array rather than mutating it. */
 	sort?: (state: {
-		items: T[]
+		items: readonly T[]
 		sortDescriptor: SortDescriptor
 	}) => { items: T[] } | Promise<{ items: T[] }>
 	initialSelectedKeys?: Selection | Iterable<Key>
@@ -49,7 +51,7 @@ export interface AsyncListOptions<T, C = string> {
 }
 
 export interface AsyncListSnapshot<T> {
-	items: T[]
+	items: readonly T[]
 	filterText: string
 	selectedKeys: Selection
 	sortDescriptor?: SortDescriptor
@@ -74,19 +76,10 @@ export interface AsyncListData<T>
 
 const ACTIVE: ReadonlySet<LoadingState> = new Set(['loading', 'loadingMore', 'sorting', 'filtering'])
 
-function defaultGetKey<T>(item: T): Key {
-	const key = (item as { id?: Key }).id ?? (item as { key?: Key }).key
-	if (key == null) {
-		throw new Error('async list: item has no `id` or `key` property — pass getKey')
-	}
-
-	return key
-}
-
 export function createAsyncListData<T, C = string>(
 	options: AsyncListOptions<T, C>,
 ): AsyncListData<T> {
-	const getKey = options.getKey ?? defaultGetKey
+	const getKey = options.getKey ?? defaultItemKey
 	const base = createListData<T>({
 		initialSelectedKeys: options.initialSelectedKeys,
 		initialFilterText: options.initialFilterText,

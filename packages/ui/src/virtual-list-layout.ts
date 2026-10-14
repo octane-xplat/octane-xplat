@@ -1,4 +1,6 @@
-export type VirtualListKey = string | number
+import type { Key } from './props'
+
+export type VirtualListKey = Key
 
 export interface VirtualListRange {
 	start: number

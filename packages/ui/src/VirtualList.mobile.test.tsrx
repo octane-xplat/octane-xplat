@@ -316,6 +316,29 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		expect(rows.some((node) => node.props.id === 'row-r0')).toBe(false)
 	})
 
+	it('scrolls to a row by index and by key through the imperative handle', async () => {
+		const handle = {
+			current: null as null | {
+				scrollToIndex(i: number, o?: { animated?: boolean; align?: 'start' | 'center' | 'end' }): void
+				scrollToItem(k: string | number, o?: { animated?: boolean; align?: 'start' | 'center' | 'end' }): void
+			},
+		}
+		const { scroll } = await mount(100, renderItem, { ref: handle })
+		// Estimated rows are 48 units tall; index 10 starts at 480.
+		handle.current!.scrollToIndex(10)
+		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(480, false)
+		// Keys seek by identity, not position: 'r20' sits at 20 * 48.
+		handle.current!.scrollToItem('r20')
+		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(960, false)
+		// 'end' lands the row's bottom on the viewport edge (200 units tall).
+		handle.current!.scrollToItem('r20', { align: 'end' })
+		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(960 + 48 - 200, false)
+		const calls = scroll.scrollToVerticalOffset.mock.calls.length
+		handle.current!.scrollToItem('missing-key')
+		handle.current!.scrollToIndex(-1)
+		expect(scroll.scrollToVerticalOffset.mock.calls.length).toBe(calls)
+	})
+
 	it('prefers the platform animated scroll write when the native view offers one', async () => {
 		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
 		const { scroll } = await mount(100, renderItem, { ref: handle })

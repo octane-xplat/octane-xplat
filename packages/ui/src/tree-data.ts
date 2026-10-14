@@ -4,7 +4,7 @@
  * mutators produce fresh trees, and removal prunes selection — including
  * descendants of removed subtrees.
  */
-import { normalizeSelection, type Key, type Selection } from './list-data'
+import { defaultItemKey, normalizeSelection, type Key, type Selection } from './list-data'
 import type { ReadableStore } from './props'
 
 export type { Key, Selection }
@@ -13,7 +13,7 @@ export interface TreeNode<T> {
 	key: Key
 	parentKey: Key | null
 	value: T
-	children: TreeNode<T>[]
+	children: readonly TreeNode<T>[]
 }
 
 export interface TreeDataOptions<T> {
@@ -24,16 +24,16 @@ export interface TreeDataOptions<T> {
 }
 
 export interface TreeSnapshot<T> {
-	items: TreeNode<T>[]
+	items: readonly TreeNode<T>[]
 	selectedKeys: Selection
 }
 
 export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
-	readonly items: TreeNode<T>[]
+	readonly items: readonly TreeNode<T>[]
 	readonly selectedKeys: Selection
 	setSelectedKeys(keys: Selection | Iterable<Key>): void
 	getItem(key: Key): TreeNode<T> | undefined
-	getChildren(key: Key | null): TreeNode<T>[]
+	getChildren(key: Key | null): readonly TreeNode<T>[]
 	insert(parentKey: Key | null, index: number, ...values: T[]): void
 	insertBefore(key: Key, ...values: T[]): void
 	insertAfter(key: Key, ...values: T[]): void
@@ -45,21 +45,12 @@ export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
 	update(key: Key, value: T): void
 }
 
-function defaultGetKey<T>(item: T): Key {
-	const key = (item as { id?: Key }).id ?? (item as { key?: Key }).key
-	if (key == null) {
-		throw new Error('tree data: item has no `id` or `key` property — pass getKey')
-	}
-
-	return key
-}
-
 function defaultGetChildren<T>(item: T): Iterable<T> {
 	return ((item as { children?: Iterable<T> }).children ?? []) as Iterable<T>
 }
 
 export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T> {
-	const getKey = options.getKey ?? defaultGetKey
+	const getKey = options.getKey ?? defaultItemKey
 	const getChildren = options.getChildren ?? defaultGetChildren
 
 	const build = (value: T, parentKey: Key | null): TreeNode<T> => {
@@ -86,9 +77,9 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 	}
 
 	const locate = (
-		nodes: TreeNode<T>[],
+		nodes: readonly TreeNode<T>[],
 		key: Key,
-	): { node: TreeNode<T>; siblings: TreeNode<T>[]; index: number } | null => {
+	): { node: TreeNode<T>; siblings: readonly TreeNode<T>[]; index: number } | null => {
 		for (let i = 0; i < nodes.length; i++) {
 			if (nodes[i].key === key) {
 				return { node: nodes[i], siblings: nodes, index: i }
@@ -105,7 +96,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 
 	const find = (key: Key) => locate(snapshot.items, key)
 
-	const childrenOf = (key: Key | null): TreeNode<T>[] =>
+	const childrenOf = (key: Key | null): readonly TreeNode<T>[] =>
 		key === null ? snapshot.items : (find(key)?.node.children ?? [])
 
 	const collectKeys = (node: TreeNode<T>, into: Set<Key>) => {
@@ -131,8 +122,8 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 	// Rebuild the tree applying `edit` to the matching sibling list. Returns
 	// null when the target is absent so callers can no-op like React Aria.
 	const rebuild = (
-		nodes: TreeNode<T>[],
-		match: (siblings: TreeNode<T>[]) => TreeNode<T>[] | null,
+		nodes: readonly TreeNode<T>[],
+		match: (siblings: readonly TreeNode<T>[]) => TreeNode<T>[] | null,
 	): TreeNode<T>[] | null => {
 		const replaced = match(nodes)
 		if (replaced) {
@@ -153,7 +144,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 		return changed ? next : null
 	}
 
-	const editSiblingsOf = (key: Key, edit: (siblings: TreeNode<T>[], index: number) => TreeNode<T>[]) => {
+	const editSiblingsOf = (key: Key, edit: (siblings: readonly TreeNode<T>[], index: number) => TreeNode<T>[]) => {
 		const next = rebuild(snapshot.items, (siblings) => {
 			const index = siblings.findIndex((node) => node.key === key)
 			return index < 0 ? null : edit(siblings, index)
@@ -164,7 +155,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 		}
 	}
 
-	const editChildrenOf = (parentKey: Key | null, edit: (children: TreeNode<T>[]) => TreeNode<T>[]) => {
+	const editChildrenOf = (parentKey: Key | null, edit: (children: readonly TreeNode<T>[]) => TreeNode<T>[]) => {
 		if (parentKey === null) {
 			commit({ ...snapshot, items: edit(snapshot.items) })
 			return
@@ -180,7 +171,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 	const remove = (keys: Iterable<Key>) => {
 		const removed = new Set(keys)
 		const detached = new Set<Key>()
-		const strip = (nodes: TreeNode<T>[]): TreeNode<T>[] =>
+		const strip = (nodes: readonly TreeNode<T>[]): TreeNode<T>[] =>
 			nodes
 				.filter((node) => {
 					if (removed.has(node.key)) {

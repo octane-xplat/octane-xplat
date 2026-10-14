@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
-import type { VirtualListProps } from './props'
+import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'
+import { defaultItemKey } from './list-data'
 import {
 	createVirtualListEntries,
 	estimateVirtualListSizes,
@@ -29,7 +30,7 @@ function sameSize(a: number, b: number) {
  *  the viewport plus one viewport of overscan are unmounted. */
 export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const entries = useMemo(
-		() => createVirtualListEntries(props.items, props.keyExtractor, props.getItemType),
+		() => createVirtualListEntries(props.items, props.keyExtractor ?? defaultItemKey, props.getItemType),
 		[props.items, props.keyExtractor, props.getItemType],
 	)
 
@@ -344,8 +345,25 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		refreshWindow()
 	}
 
+	function scrollToIndex(index: number, options?: VirtualListScrollOptions) {
+		const entry = entriesRef.current[index]
+		if (!entry) return
+		const top = headerHeightRef.current + sizeIndexRef.current.prefix(index)
+		const size = sizeIndexRef.current.get(index)
+		const align = options?.align ?? 'start'
+		scrollToOffset(
+			align === 'end' ? top + size - viewportHeightRef.current
+				: align === 'center' ? top + (size - viewportHeightRef.current) / 2
+					: top,
+			options?.animated,
+		)
+	}
+
 	useImperativeHandle(props.ref, () => ({
 		scrollToOffset: (offset, options) => scrollToOffset(offset, options?.animated),
+		scrollToIndex,
+		scrollToItem: (key: Key, options?: VirtualListScrollOptions) =>
+			scrollToIndex(entriesRef.current.findIndex((entry) => entry.key === key), options),
 	}), [props.ref])
 
 	const range = currentRange()
@@ -393,6 +411,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			bindObservedNode('viewport', node, { kind: 'viewport' })
 		}}
 		id={props.id}
+		data-testid={props.testID}
 		className={['vx-virtual-list', props.className]}
 		{...layoutChildProps(props, style)}
 		role={props.accessibilityRole}

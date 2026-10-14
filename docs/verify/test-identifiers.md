@@ -66,6 +66,7 @@ export function EditOverlay(props: { open: boolean; close: () => void }) {
 | `TextInput`, `TextArea`, `SearchInput` | Editable field, excluding shell and clear button |
 | `Switch` | Interactive track |
 | `ScrollableArea` | Scroller, including the refreshable variant |
+| `VirtualList` | Scroll viewport |
 | `Overlay` | Content host, only while open |
 
 Other composites, leaf packages, OS subpaths, and desktop renderers are not

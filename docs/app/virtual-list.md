@@ -59,8 +59,10 @@ export function Example() {
 
 Replace the item array when changing data. Do not use array indices as keys
 for reorderable data. Keys must be unique strings or finite numbers; duplicate
-keys throw. `getItemType` optionally distinguishes templates: changing an
-item's type remounts that row.
+keys throw. The default extractor reads the item's `id` or `key` property, so
+items carrying one of those fields need no `keyExtractor`; items without any
+identity throw instead of guessing a position. `getItemType` optionally
+distinguishes templates: changing an item's type remounts that row.
 
 ```tsx
 import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
@@ -137,8 +139,8 @@ and remeasuring rows above a visible keyed anchor preserve that anchor's viewpor
 position after settling. This requires the anchor to remain in the data with the
 same key and type. Removing the anchor has no replacement-anchor guarantee.
 Changing width invalidates exact cached sizes and requires new measurements.
-Unmeasured rows may change the estimated total extent, so a raw pixel seek into
-unknown rows is approximate; there is no public indexed-seek handle.
+Unmeasured rows may change the estimated total extent, so seeks into unknown
+rows — whether by pixel, index, or key — are approximate.
 
 ```tsx
 import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
@@ -198,8 +200,41 @@ export function Example() {
 
 Calls before the list mounts are no-ops, and the handle clears on unmount.
 `{ animated: true }` uses the platform's scroll animation where the leaf
-provides one; the default is an instant write. There is no indexed seek —
-row heights are content-measured, so index-to-offset mapping is not stable.
+provides one; the default is an instant write.
+
+## Scroll to an item by index or key
+
+`scrollToIndex(index)` seeks by position and `scrollToItem(key)` seeks by the
+item's `keyExtractor` key — the key tracks an item across inserts and reorders
+while the index only names its current position. Both accept `{ animated }`
+plus `align: 'start' | 'center' | 'end'` (default `'start'`) for where the row
+lands in the viewport. An unknown key or out-of-range index is a no-op.
+Unmeasured rows above the target are estimated, so a deep seek can land short;
+call again after the intervening rows measure.
+
+```tsx
+import { VirtualList, Text, Pressable, type VirtualListHandle } from '@octane-xplat/ui'
+import { useRef } from 'octane'
+
+export function Example() {
+	const list = useRef<VirtualListHandle | null>(null)
+	const items = [{ id: 'coat', title: 'Coat' }]
+	return (
+		<>
+			<Pressable onPress={() => list.current?.scrollToItem('coat', { align: 'center' })}>
+				<Text>Find the coat</Text>
+			</Pressable>
+			<VirtualList
+				ref={list}
+				className="item-viewport"
+				items={items}
+				keyExtractor={(item) => item.id}
+				renderItem={(item) => <Text>{item.title}</Text>}
+			/>
+		</>
+	)
+}
+```
 
 See the maintained [interactive example](../../packages/demos/src/VirtualList.tsrx)
 for prepend, removal, reverse, resize, empty, restore, and keyed local state.
@@ -255,8 +290,8 @@ Read the [current evidence](../notes/primitive-notes.md#virtuallist-readiness-re
 before choosing this list for a performance-sensitive feed or chat.
 
 There is no shared viewability callback, load threshold, sticky-row/grid/masonry
-layout, bottom-pinned chat policy, or indexed scroll seek (`scrollToOffset` on
-`VirtualListHandle` is the only imperative scroll surface). Application-level
+layout, or bottom-pinned chat policy; `VirtualListHandle` exposes the imperative
+scroll surface (`scrollToOffset`, `scrollToIndex`, `scrollToItem`). Application-level
 loading and chat anchoring need explicit designs; the prepend contract does not
 establish those workflows. Actual native frame pacing and direct finger/physical
 trackpad input remain separate verification requirements. JavaScript polling
