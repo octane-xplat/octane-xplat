@@ -2,9 +2,9 @@
 
 Current exports: `CheckboxInput`, `Switch`.
 
-**Design: Use Checkbox and one checked/defaultChecked/onCheckedChange contract.**
+**Design: Preserve CheckboxInput naming and make checked-state ownership coherent.**
 
-Both controls have optional checked without defaultChecked. Checkbox adds a separate indeterminate flag, so agents must learn whether that affects the callback value. Keep mixed visual state explicit and distinguish it from the submitted boolean; do not silently turn undefined into a different state model on each target.
+Preserve the Astryx-aligned CheckboxInput name. Both controls have optional checked without defaultChecked. CheckboxInput adds a separate indeterminate flag, so agents must learn whether that affects the callback value. Keep mixed visual state explicit and distinguish it from the submitted boolean; do not silently turn undefined into a different state model on each target.
 
 Proposed shape (illustrative):
 

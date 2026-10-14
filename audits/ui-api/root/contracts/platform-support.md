@@ -1,6 +1,6 @@
 # Platform support contracts
 
-**Fix: Make unsupported behavior visible before an agent chooses an API.**
+**Approved D2: Make unsupported behavior visible before an agent chooses an API.**
 
 Identical prop shapes currently hide different behavior: native FocusScope has inert focus flags and useGridList returns an inert prop bag. Either implement the promised behavior or expose an explicit platform subset. Capability results suit optional services; core interaction requirements should fail clearly rather than silently disappear.
 

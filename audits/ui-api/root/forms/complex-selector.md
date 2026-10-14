@@ -2,14 +2,14 @@
 
 Current exports: `ComplexSelector`.
 
-**Design: Use Picker for a custom value editor and a named render-state object.**
+**Design: Preserve reference-backed ComplexSelector naming and use a named render-state object.**
 
-Complex describes implementation effort rather than the user-facing concept. Its four positional children arguments are easy to reorder, and contentXstyle is inconsistent with contentStyle elsewhere. Prefer Picker with one render-state object, contentStyle, and the standard open/value callbacks; make asynchronous commit behavior explicit.
+Resolve the name through D6; a generic Picker preference does not override an Astryx equivalent. Its four positional children arguments are easy to reorder, and contentXstyle is inconsistent with contentStyle elsewhere. Use one render-state object and consistent content-style and open/value contracts; make asynchronous commit behavior explicit.
 
 Proposed shape (illustrative):
 
 ```ts
-type ProposedPickerRenderState<T> = {
+type ProposedSelectorRenderState<T> = {
 	value: T
 	setValue(value: T): void
 	close(): void

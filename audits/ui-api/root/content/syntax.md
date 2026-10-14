@@ -2,9 +2,9 @@
 
 Current exports: `tokenize`, `tokenizeAsync`, `tokenizeStreaming`, `flatTokensToLines`, `SYNC_TOKENIZE_THRESHOLD`, `TOKEN_TYPES`, `syntaxTokenVar`, `syntaxTokenVarRef`.
 
-**Design: Use a syntax subpath and explicit tokenizeCode names.**
+**Design: Give code syntax a canonical Markdown home and explicit tokenization names.**
 
-tokenize at the root is ambiguous beside Tokenizer and chat tokens. The root also exposes a synchronous size threshold and CSS-variable helpers. Keep tuning constants internal, expose the useful tokenizer contract under a syntax entrypoint, and type token kinds and offset units rather than leaving type:string.
+tokenize at the root is ambiguous beside Tokenizer and chat tokens. The root also exposes a synchronous size threshold and CSS-variable helpers. Keep tuning constants internal, expose the useful tokenizer contract with Markdown initially; add a syntax entrypoint only for a demonstrated independent consumer task, and type token kinds and offset units rather than leaving type:string.
 
 Proposed shape (illustrative):
 

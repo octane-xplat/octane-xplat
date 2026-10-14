@@ -4,7 +4,7 @@ Current exports: `PinInput`, `InputRating`.
 
 **Design: Use consistent input names and complete value contracts.**
 
-InputRating reverses NumberInput/DateInput naming; prefer RatingInput. PinInput has no defaultValue, while rating does. Keep PIN values as strings so leading zeros survive, and state allowed characters and paste behavior. Define whether rating permits zero, fractional steps, and clearing instead of leaving these to generated guesses.
+Withdraw the generic RatingInput rename until the higher-priority references are checked; lexical symmetry alone does not override their naming. PinInput has no defaultValue, while rating does. Keep PIN values as strings so leading zeros survive, and state allowed characters and paste behavior. Define whether rating permits zero, fractional steps, and clearing instead of leaving these to generated guesses.
 
 Proposed shape (illustrative):
 

@@ -2,14 +2,14 @@
 
 Current exports: `Typeahead`, `BaseTypeahead`, `TypeaheadItem`, `createStaticSource`.
 
-**Design: Prefer Combobox for the public selection concept and keep the base implementation private.**
+**Design: Preserve reference-backed Typeahead naming and separate public selection from internals.**
 
-Typeahead is understandable, but Combobox ties the input-and-popup interaction to an established frontend pattern. BaseTypeahead exposes __queryEntries, an internal coordination prop. Keep one public component and explicit slots, with separately named query text and selected item state. The naming preference follows the [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
+Resolve naming through D6 rather than automatically replacing Typeahead with Combobox. BaseTypeahead exposes __queryEntries, an internal coordination prop. Keep one public component and explicit slots, with separately named query text and selected item state. Interaction semantics follow the [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
 
 Proposed shape (illustrative):
 
 ```ts
-type ProposedComboboxState<T> = {
+type ProposedTypeaheadState<T> = {
 	value: T | null
 	onValueChange(value: T | null): void
 	query?: string

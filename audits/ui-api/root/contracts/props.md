@@ -1,8 +1,8 @@
 # Shared props and type safety
 
-**Design: Use one typed base contract for styling, accessibility, refs, and test IDs.**
+**Approved D5: Use precise common contracts for styling, accessibility, refs, and test IDs.**
 
-Common props are repeated with different coverage. List has data-testid while many components have testID; VirtualList has neither in its declared props. Keep testID as the portable spelling, and use renderer-owned child/ref/class types plus a typed portable style subset. Avoid blanket any: mobileNav?: false | MobileNavConfig | any currently loses all useful checking.
+Common props are repeated with different coverage. List has data-testid while many components have testID; VirtualList has neither in its declared props. Select one portable test-identifier spelling through D6, and use renderer-owned child/ref/class types plus a typed portable style subset. Avoid blanket any: mobileNav?: false | MobileNavConfig | any currently loses all useful checking.
 
 Proposed shape (illustrative):
 

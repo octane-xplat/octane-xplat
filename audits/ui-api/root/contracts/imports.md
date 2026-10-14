@@ -2,7 +2,7 @@
 
 **Approved D1: Keep general UI at the root and split independent systems by purpose.**
 
-The flat root mixes general UI with independent systems. Keep ordinary forms, layout, and overlays at the root; move routing, data, markdown, and chat to their own subpaths within the same package. Give each API one canonical import and keep its components, hooks, and types together. See [approved decision D1](../../approved-decisions.md) for the boundary and rationale. Syntax and other additional subpaths remain pending review.
+The flat root mixes general UI with independent systems. Keep ordinary forms, layout, and overlays at the root; move routing, data, markdown, and chat to their own subpaths within the same package. Give each API one canonical import and keep its components, hooks, and types together. See [approved decision D1](../../approved-decisions.md) for the boundary and rationale. The whole-package vision places syntax with Markdown initially; further entrypoints need a distinct consumer task.
 
 Proposed shape (illustrative):
 

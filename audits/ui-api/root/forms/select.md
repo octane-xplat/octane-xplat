@@ -2,9 +2,9 @@
 
 Current exports: `Selector`, `MultiSelector`.
 
-**Design: Use Select and MultiSelect with exact value types.**
+**Design: Preserve Selector and MultiSelector with exact value types.**
 
-Selector accepts string, string[], and null independently of multiple, allowing invalid mode/value combinations. MultiSelector narrows the types through an alias around SelectMenu. Prefer separate Select/MultiSelect exports or one discriminated selectionMode union; match prop-type names and use null only for empty single selection.
+Selector accepts string, string[], and null independently of multiple, allowing invalid mode/value combinations. MultiSelector narrows the types through an alias around SelectMenu. Keep the Astryx-aligned Selector/MultiSelector names and use precise separate contracts or a discriminated mode union; match prop-type names and use null only for empty single selection.
 
 Proposed shape (illustrative):
 

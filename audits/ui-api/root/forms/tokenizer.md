@@ -2,14 +2,14 @@
 
 Current exports: `Token`, `Tokenizer`.
 
-**Design: Use Tag and TagInput for selected-value editing.**
+**Design: Preserve reference-backed Token and Tokenizer naming and clarify selected-value editing.**
 
-Tokenizer also describes lexical parsing, and this root API exports code tokenization helpers. TagInput is a clearer frontend name for a multi-value editor. Align its value callback with other inputs, use onPress rather than Token.onClick, and give change details a named object instead of another positional convention.
+Tokenizer also describes lexical parsing, and this root API exports code tokenization helpers. The earlier Tag/TagInput rename is superseded by the approved naming precedence; coherent entrypoint ownership can distinguish these concepts. Align its value callback with other inputs, use onPress rather than Token.onClick, and give change details a named object instead of another positional convention.
 
 Proposed shape (illustrative):
 
 ```ts
-type ProposedTagChange<T> = {
+type ProposedTokenChange<T> = {
 	values: readonly T[]
 	change: { type: 'add' | 'remove'; item: T }
 }

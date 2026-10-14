@@ -2,9 +2,9 @@
 
 Current exports: `Absolute`.
 
-**Design: Call the container AbsoluteLayout and make placement a complete contract.**
+**Design: Use reference-backed absolute-layout naming and make placement a complete contract.**
 
-Absolute names an adjective rather than a layout and currently relies on child left/top props. AbsoluteLayout makes the parent role clearer. Specify coordinates, supported edges, and stacking order together so an agent does not guess that CSS inset or zIndex is portable.
+Absolute currently relies on child left/top props. Resolve its name through D6 before considering the generic AbsoluteLayout alternative. Specify coordinates, supported edges, and stacking order together so an agent does not guess that CSS inset or zIndex is portable.
 
 Proposed shape (illustrative):
 

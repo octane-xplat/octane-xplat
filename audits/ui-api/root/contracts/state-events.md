@@ -1,8 +1,8 @@
 # State and event conventions
 
-**Design: Use semantic state triples and one boolean spelling.**
+**Approved D3: Use coherent state triples and one spelling for each role.**
 
-Prefer value/defaultValue/onValueChange, checked/defaultChecked/onCheckedChange, and open/defaultOpen/onOpenChange. Use disabled, readOnly, required, loading, and autoFocus throughout. These follow familiar frontend spellings; onValueChange makes the value payload explicit. TextInput currently lacks defaultValue, and Button accepts both disabled/isDisabled and loading/isLoading.
+Give values, checked state, and visibility coherent controlled, initial, and change-notification roles. Choose actual spellings through Astryx → React Aria → React Native → generic frontend; this supersedes the earlier blanket preference for generic boolean names and onValueChange. TextInput currently lacks defaultValue, and Button accepts both disabled/isDisabled and loading/isLoading. Resolve duplicate names without introducing a new vocabulary unnecessarily.
 
 Proposed shape (illustrative):
 
@@ -14,9 +14,9 @@ type ProposedValueProps<T> = {
 }
 ```
 
-**Design: Keep onPress for portable activation; make async actions observable.**
+**Approved D3: Use one portable activation path and make async actions observable.**
 
-onClick appears on Token and navigation items while other shared components use onPress. Normalize the semantic action rather than requiring a DOM event. A promise-returning action also needs pending and error behavior; avoid two callbacks that independently execute the same user intent.
+onClick appears on Token and navigation items while other shared components use onPress. Normalize activation semantics and payloads, then select the name through the approved precedence. A promise-returning action needs pending and error behavior; avoid two callbacks that independently execute the same user intent. Shapes below illustrate those contracts, not final prop spellings.
 
 Proposed shape (illustrative):
 

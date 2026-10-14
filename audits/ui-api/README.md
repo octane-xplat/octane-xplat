@@ -2,19 +2,21 @@
 
 > Review the public API by concept, starting with the changes most likely to reduce agent mistakes.
 
-Status: recommendations pending review, except the explicitly [approved decisions](approved-decisions.md). These are future designs, not supported API instructions. Reviewed source at `85e06e06` on 2026-10-13. No runtime targets were run. Agent usability is a design judgment, not a measured benchmark.
+Status: the entrypoint split and five priority directions are [approved](approved-decisions.md). Concrete recommendations use the reviewer’s judgment and remain proposed public changes. These are future designs, not supported API instructions. [Candidate framework principles](principles.md) collect guidance for possible adoption in `AGENTS.md`. Reviewed source at `85e06e06` on 2026-10-13. No runtime targets were run. Agent usability is a design judgment, not a measured benchmark.
 
 The tree follows the current import boundaries: `root/` for `@octane-xplat/ui`, then `ios/`, `android/`, `native/`, `web/`, and `theme/`. Folders below `root/` group concepts; they are not current import subpaths. Closely related components share a page. Each recommendation has a short reason and an illustrative TypeScript shape.
 
+Start with the [compact recommended changes list](recommended-changes.md), then the [framework design principles](principles.md). The [whole-package vision](package-vision.md) gives every concept an intended destination and target contract. [Further recommendations R1–R5](next-recommendations.md) expand composition, resource ownership, schema inference, declarative resets, and repairable diagnostics. These documents need no further approval to develop; they do not change the current framework contract.
+
 ## Start with these five changes
 
-The [entrypoint boundary](approved-decisions.md) is approved. These five recommendations remain pending review, in priority order:
+The [entrypoint boundary](approved-decisions.md) and these five directions are approved. Concrete spellings and individual changes still require implementation review:
 
 1. [Honest platform contracts](root/contracts/platform-support.md) and [consistent export surfaces](root/contracts/conditional-surface.md). Accepted props must have supported behavior, and the same import must expose the same intended API across targets.
 2. [One state and event convention](root/contracts/state-events.md). Eliminate duplicate flags and make callback payloads predictable.
 3. [Exact selection and menu modes](root/forms/select.md), [menus](root/overlays/menus.md). Use unions that reject contradictory values.
 4. [Useful public types](root/contracts/props.md). Replace broad `any`, share collection contracts, and type handles.
-5. [One vocabulary for names and types](root/contracts/names.md). Use specific frontend concepts and one `ComponentProps` spelling; remove ambiguous aliases and orphan types.
+5. [One vocabulary for names and types](root/contracts/names.md). Prefer Astryx → React Aria → React Native → generic frontend, with matching public type names.
 
 ## Correctness findings to review first
 
@@ -30,7 +32,7 @@ The [entrypoint boundary](approved-decisions.md) is approved. These five recomme
 | Button action rejection is swallowed by the web leaf                                  | [Button](root/actions/button.md)                                                                                                             |
 | Theme source wildcard permits imports absent from published exports                   | [Stylesheets](theme/stylesheets.md)                                                                                                          |
 
-`Fix` marks a concrete contract or semantic problem. `Design` marks a preference with a tradeoff. `Keep` preserves a useful concept while tightening its contract. Recommended names are choices, not claims of universal consensus. Existing Astryx alignment was considered but is open to revision for this audit.
+`Fix` marks a concrete contract or semantic problem. `Design` marks a preference with a tradeoff. `Keep` preserves a useful concept while tightening its contract. Approval is recorded separately in [approved decisions](approved-decisions.md). Naming now follows D6: Astryx → React Aria → React Native → generic frontend. This supersedes earlier generic naming preferences; prop spellings and names in illustrative shapes are not final choices.
 
 ## Browse the shared API
 
