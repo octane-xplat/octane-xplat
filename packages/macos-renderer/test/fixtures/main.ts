@@ -1,5 +1,6 @@
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { checkFormattedLifecycle } from './formatted-lifecycle'
 import { checkSearchLifecycle } from './search-lifecycle'
 import { checkRootLifecycle } from './root-lifecycle'
 import { checkProxyLifecycle } from './proxy-lifecycle'
@@ -179,6 +180,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 							} finally {
 								searchRoot.unmount()
 							}
+
+							const formattedRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkFormattedLifecycle(formattedRoot, nativeWindow)} finally {formattedRoot.unmount()}
 
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {

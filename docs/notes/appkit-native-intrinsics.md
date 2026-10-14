@@ -19,7 +19,7 @@ All conditioned native declarations derive from that same map.
 | Family            | Existing AppKit factories                                                                                                       | Missing raw AppKit hosts                                                                                                               |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
-| Text              | `label`, `span`                                                                                                                 | `formattedstring`, `htmlview`                                                                                                          |
+| Text              | `label`, `span`, `formattedstring`                                                                                                                 | `htmlview`                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
 | Controls          | `button`, `switch`, `slider`                                                                                                    | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
@@ -27,8 +27,8 @@ All conditioned native declarations derive from that same map.
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 20 core factories and 19 missing core hosts. `span` is viewless;
-its factory presence does not establish formatted-text behavior. The renderer
+There are now 21 core factories and 18 missing core hosts. `span` and
+`formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
 claim that all shared props, events, styles, or lifecycle behavior are qualified.
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 19 missing core hosts and nine missing raw extension hosts remain required.
+The 18 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -296,8 +296,7 @@ SearchBar uses NSSearchField. Text and hint default to empty strings; removing
 these props restores the defaults without replacing the field. Text changes
 carry `eventName`, `object`, `value` and `oldValue`; unchanged strings emit no
 change event. Return emits `submit` with the host object. Clearing the field
-changes text without submitting. SearchBar is a leaf: put it inside a layout,
-rather than nesting child views inside it.
+changes text without submitting. Put SearchBar inside a layout; child views belong alongside it.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -327,3 +326,36 @@ Delegate dispatch is runtime evidence for the event bridge, not OS keyboard or
 hit-testing evidence. Inherited common gesture, lifecycle, visibility and style
 coverage still needs the common-contract audit. No mobile execution, visual
 parity or full native release acceptance is claimed.
+
+## FormattedString logical host
+
+FormattedString adds styled text to a Label, Button, TextField, TextView or
+SearchBar without adding a native view. Its ordered Span children inherit font
+and color values; nested spans override only the values they supply. Removing
+an override restores the ancestor value. An empty container clears composed
+text; removing the container restores its parent's plain `text` value. Both
+FormattedString and Span refs receive the macOS `LogicalElement` instance.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function FormattedExample() {
+	return (
+		<label text="Plain fallback">
+			<formattedstring fontFamily="system-ui" fontSize={20} color="#222222">
+				<span text="Hello " fontWeight="bold">
+					<span text="world" color="#2563eb" />
+				</span>
+			</formattedstring>
+		</label>
+	)
+}
+```
+
+Maintained tests and the independent packed AppKit consumer cover inheritance,
+local styling, reactive updates, default restoration, nested text, keyed order,
+emptying, replacement, parent changes, refs, cleanup and retained-root HMR.
+Parent changes through authored JSX dispose and recreate logical nodes; they
+do not promise identity across renderer parents. The inherited common
+lifecycle/gesture/class styling audit, broader color formats, host-object policy,
+mobile execution, OS input, visual parity and the complete release gates remain
+open. This unit changes no recipe workflow and makes no full parity claim.

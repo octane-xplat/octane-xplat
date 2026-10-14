@@ -22,6 +22,8 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedFormatted: any
+let retainedFormattedParent: any
 let retainedLabel: any
 let retainedContent: any
 let retainedChild: any
@@ -41,6 +43,8 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedFormatted = debug.findId('hmr-formatted')
+			retainedFormattedParent = debug.findId('hmr-formatted-parent')
 			retainedSearch = debug.findId('hmr-search')
 			retainedRoot = debug.findId('hmr-root')
 			retainedRootChild = debug.findId('root-revision')
@@ -62,6 +66,10 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-formatted') === retainedFormatted &&
+				retainedFormatted.view === null &&
+				debug.findId('hmr-formatted-parent') === retainedFormattedParent &&
+				String(retainedFormattedParent.stringValue) === 'Second revision1' &&
 				debug.findId('hmr-search') === retainedSearch &&
 				String(retainedSearch.stringValue) === 'Second revision' &&
 				String(retainedSearch.placeholderString) === '1' &&
@@ -91,6 +99,8 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedFormatted.children.length ||
+					retainedFormatted.parent ||
 					retainedSearch.superview ||
 					retainedSearch.delegate != null ||
 					retainedSearch.target != null ||
@@ -115,6 +125,7 @@ function reload() {
 				console.log('PACKED_PROXYVIEWCONTAINER_HMR_OK')
 				console.log('PACKED_ROOTLAYOUT_HMR_OK')
 				console.log('PACKED_SEARCHBAR_HMR_OK')
+				console.log('PACKED_FORMATTEDSTRING_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

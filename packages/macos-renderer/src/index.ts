@@ -20,6 +20,7 @@ import type {
 	UniversalRoot,
 } from 'octane/universal/native'
 
+import { composeAttributedText, validateTextStyle } from './formatted-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 export { registerFontFamily } from './fonts'
 
@@ -2855,10 +2856,11 @@ const SUPPORTED_TYPES = new Set([
 	'webview',
 	'image',
 	'span',
+	'formattedstring',
 ])
 
 function typeHasView(type: string) {
-	return type !== '#text' && type !== 'span' && type !== 'proxyviewcontainer'
+	return type !== '#text' && type !== 'span' && type !== 'formattedstring' && type !== 'proxyviewcontainer'
 }
 
 function assertSupportedType(type: string) {
@@ -2871,7 +2873,12 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
-	if (type === '#text' || type === 'span') {
+	if (type === 'span' || type === 'formattedstring') {
+		validateTextStyle(props ?? {}, nativeColor)
+		return
+	}
+
+	if (type === '#text') {
 		return
 	}
 
@@ -3069,6 +3076,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.view = makeImageView(props)
 				break
 			case 'proxyviewcontainer':
+			case 'formattedstring':
 			case 'span':
 				break
 			default:
@@ -4114,15 +4122,42 @@ function setLabelText(node: ElementNode, text: any) {
 }
 
 function syncText(parent: ElementNode | null | undefined) {
-	if (parent?.type !== 'label') {
+	while (parent && ['span', 'formattedstring'].includes(parent.type)) {parent = parent.parent}
+	if (!parent || !['label', 'button', 'textfield', 'textview', 'searchbar'].includes(parent.type)) {return}
+
+	const rich = parent.children.some((child) => child.type === 'formattedstring' || child.type === 'span')
+	if (rich) {
+		const view = parent.view!
+		const attributed = composeAttributedText(parent.children, view, parent.props, fontForFamilyStyle, nativeColor, {
+			fontFamily: parent.appliedFontFamily,
+			fontSize: Number(view.font?.pointSize ?? (parent.type === 'label' ? 16 : 14)),
+			fontWeight: parent.appliedFontWeight ?? 400,
+			color: view.textColor,
+		})
+
+		if (parent.type === 'button') {view.attributedTitle = attributed}
+		else if (parent.type === 'textview') {view.textStorage.setAttributedString(attributed)}
+		else {view.attributedStringValue = attributed}
+
+		parent.formattedTextActive = true
+		view.invalidateIntrinsicContentSize()
+		if (parent.type === 'textview') {fitTextView(parent)}
+		queueLayoutReconcile(parent.container, parent.parent)
 		return
 	}
 
+	if (parent.type !== 'label' && !parent.formattedTextActive) {return}
+	parent.formattedTextActive = false
 	const text = parent.children.length
 		? parent.children.map(textContent).join('')
 		: String(parent.props?.text ?? '')
 
-	setLabelText(parent, text)
+	if (parent.type === 'label') {setLabelText(parent, text)}
+	else if (parent.type === 'button') {parent.view!.title = text}
+	else if (parent.type === 'textview') {parent.view!.string = text}
+	else {parent.view!.stringValue = text}
+
+	parent.view!.invalidateIntrinsicContentSize()
 }
 
 function dispatchTextEvent(node: ElementNode | undefined, name: string) {
@@ -4422,6 +4457,8 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	formattedstring: ['style', 'fontFamily', 'fontSize', 'color', 'backgroundColor'],
+	span: ['text', 'style', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textDecoration', 'color', 'backgroundColor'],
 	wraplayout: ['orientation', 'itemWidth', 'itemHeight'],
 	docklayout: ['stretchLastChild'],
 	contentview: ['horizontalAlignment', 'verticalAlignment'],
@@ -4481,7 +4518,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 		return
 	}
 
-	if (node.type === 'span') {
+	if (node.type === 'span' || node.type === 'formattedstring') {
+		syncText(node.parent)
 		return
 	}
 
@@ -4999,6 +5037,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 	) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
+
+	if (node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {syncText(node)}
 }
 
 // NativeScript ProxyViewContainer's attached layout-property inventory.
@@ -5475,12 +5515,31 @@ function reconcileLayoutParent(parent: ElementNode) {
 	updateCrossAxisConstraints(parent)
 }
 
+function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'formattedstring' && childType !== 'span') {
+		throw new Error('AppKit <formattedstring> accepts only span children')
+	}
+
+	if (parentType === 'span' && !['span', '#text'].includes(childType)) {
+		throw new Error('AppKit <span> accepts only span or text children')
+	}
+
+	if (childType === 'formattedstring' && !['label', 'button', 'textfield', 'textview', 'searchbar'].includes(parentType ?? '')) {
+		throw new Error('AppKit <formattedstring> requires a text-bearing parent')
+	}
+
+	if (parentType === 'searchbar' && childType !== 'formattedstring') {
+		throw new Error('AppKit <searchbar> cannot contain children other than formattedstring')
+	}
+}
+
 function insert(
 	container: RootContainer,
 	parentId: number | null,
 	node: ElementNode,
 	beforeId: number | null,
 ) {
+	validateTextNesting(parentId === null ? undefined : container.nodes.get(parentId)?.type, node.type)
 	// Validate before detaching — a rejected insert must not leave the node
 	// orphaned from its current parent.
 	const parent = (parentId === null ? null : container.nodes.get(parentId)) ?? null
@@ -5496,7 +5555,6 @@ function insert(
 			'wraplayout',
 			'rootlayout',
 			'proxyviewcontainer',
-			'searchbar',
 		].includes(parent?.type ?? '') &&
 		!node.view &&
 		node.type !== 'proxyviewcontainer'
@@ -5679,6 +5737,11 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	if (node.type === 'formattedstring' || node.type === 'span') {
+		detach(node.container, node)
+		for (const child of node.children.slice()) {detach(node.container, child)}
+	}
+
 	if (node.type === 'proxyviewcontainer') {
 		detach(node.container, node)
 		for (const child of node.children.slice()) {
@@ -5847,6 +5910,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const existing = container.nodes.get(command.id)
 				const parentId = parentOf(command.id)
 				const parent = parentId == null ? null : known(parentId)
+				if (parent) {validateTextNesting(parent.type, command.type)}
 				if (
 					[
 						'stacklayout',
@@ -5892,9 +5956,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const parentId = command.parent as number | null
 				if (parentId !== null) {
 					const parent = known(parentId)
-					if (parent?.type === 'searchbar') {
-						throw new Error('AppKit <searchbar> cannot contain children')
-					}
+					validateTextNesting(parent?.type, entry.type)
 
 					if (!parent) {
 						throw new Error('Unknown AppKit parent ' + parentId)
@@ -5921,6 +5983,12 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					) {
 						throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 					}
+				}
+
+				const seen = new Set([command.id])
+				for (let ancestor = parentId; ancestor != null; ancestor = parentOf(ancestor) ?? null) {
+					if (seen.has(ancestor)) {throw new Error('AppKit logical ownership cycle')}
+					seen.add(ancestor)
 				}
 
 				parents.set(command.id, parentId)
@@ -5965,7 +6033,6 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 					'docklayout',
 					'wraplayout',
 					'rootlayout',
-					'searchbar',
 				].includes(existing?.parent?.type ?? '') &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
@@ -6157,7 +6224,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	},
 	getPublicInstance(container, id) {
 		const node = container.nodes.get(id)
-		return node?.type === 'proxyviewcontainer' ? node : (node?.view ?? null)
+		return node && ['proxyviewcontainer', 'formattedstring', 'span'].includes(node.type) ? node : (node?.view ?? null)
 	},
 }
 
@@ -7318,7 +7385,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		const debug = {
 			findId(id: string) {
 				const node = [...container.nodes.values()].find((node) => node.props.id === id)
-				return node?.type === 'proxyviewcontainer' ? node : (node?.view ?? null)
+				return node && ['proxyviewcontainer', 'formattedstring', 'span'].includes(node.type) ? node : (node?.view ?? null)
 			},
 			measureParity(facets: readonly string[]) {
 				return measureParity(container, facets)

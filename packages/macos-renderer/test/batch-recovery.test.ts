@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { validateTextStyle } from '../src/formatted-text.ts'
 
 // Exercise the production creation/command paths without the Objective-C
 // bridge. Failed commands must not leak action registrations, observers, or
@@ -29,6 +30,7 @@ const slices = [
 	fn('observeContentGeometry'),
 	fn('makeNode'),
 	fn('destroy'),
+	fn('validateTextNesting'),
 	fn('validateBatch'),
 	source.slice(at('const CLEAR_ON_UPDATE'), at('\nfunction applyProps(')),
 	source.slice(at('function applyCommand('), at('\nconst macOSDriver')),
@@ -64,6 +66,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 	}
 
 	const sandbox = {
+		validateTextStyle,
 		nextMockActionId: 500,
 		actionHandlers,
 		accessibilityLabels,

@@ -52,6 +52,7 @@ const nativeSource = `
 const tree = (
 	<flexboxlayout className="row" style={{ padding: 4 }} flexDirection="row">
 		<label text="hi" whiteSpace="nowrap" />
+		<label><formattedstring fontFamily="system-ui" fontSize={18} color="#ff0000" backgroundColor="#ffffff" ref={(element) => { void element; return () => {} }}><span text="Rich" fontWeight="bold"><span text="nested" /></span></formattedstring></label>
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
 		<wraplayout orientation="vertical" itemWidth={0} itemHeight={30}><label text="Item" /></wraplayout>
@@ -168,6 +169,11 @@ const lane = <>
 void lane
 `,
 	macos: `
+const formatted = <label><formattedstring ref={(element) => {
+ if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView; }
+ return () => {}
+}}><span text="rich" /></formattedstring></label>
+void formatted
 const proxy = <proxyviewcontainer ref={(element) => {
 	if (element) {
 		const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element
@@ -189,6 +195,11 @@ const lane = <label
 void lane
 `,
 	both: `
+const formatted = <label><formattedstring ref={(element) => {
+ if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView; }
+ return () => {}
+}}><span text="rich" /></formattedstring></label>
+void formatted
 const proxy = <proxyviewcontainer ref={(element) => {
 	if (element) {
 		const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element

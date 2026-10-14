@@ -72,6 +72,7 @@ function fixture() {
 			'detach',
 			'queueLayoutReconcile',
 			'reconcileLayoutParent',
+			'validateTextNesting',
 			'insert',
 			'remove',
 			'destroy',

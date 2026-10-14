@@ -189,3 +189,23 @@ void searchBar
 // @ts-expect-error SearchBar text must stay a string
 const invalidSearchBar: MacJSX.IntrinsicElements['searchbar'] = { text: 123 }
 void invalidSearchBar
+
+const formatted: MacJSX.IntrinsicElements['formattedstring'] = {
+	fontFamily: 'system-ui',
+	fontSize: 18,
+	color: '#ff0000',
+	backgroundColor: '#ffffff',
+	ref: (element) => {
+		if (element) {
+			const view: null = element.view
+			void view
+		}
+
+		return () => {}
+	},
+}
+
+void formatted
+// @ts-expect-error FormattedString fontSize is numeric
+const invalidFormatted: MacJSX.IntrinsicElements['formattedstring'] = { fontSize: '18' }
+void invalidFormatted
