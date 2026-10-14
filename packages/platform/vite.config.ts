@@ -18,13 +18,28 @@ for (const file of readdirSync(new URL('./src/', import.meta.url))) {
 	}
 }
 
+// Platform-type wrappers (src/types/<platform>.ts) ship as dist entries too —
+// they're the runtime modules behind the ./ios ./android ./macos ./windows
+// export subpaths.
+for (const file of readdirSync(new URL('./src/types/', import.meta.url))) {
+	if (!/\.ts$/.test(file) || /\.d\.ts$/.test(file)) {
+		continue
+	}
+
+	entries[`types/${file.replace(/\.ts$/, '')}`] = `src/types/${file}`
+}
+
 export default defineConfig(({ mode }) => {
 	const linux = mode === 'linux'
 	const native = mode === 'native'
 	const targetEntries = Object.fromEntries(
 		Object.entries(entries)
 			.filter(
-				([name]) => (!native || !name.endsWith('.web')) && (linux || !name.endsWith('.linux')),
+				([name]) =>
+					(!native || !name.endsWith('.web')) &&
+					(linux || !name.endsWith('.linux')) &&
+					// platform-type wrappers are native-only runtime modules
+					(native || !name.startsWith('types/')),
 			)
 			.map(([name, file]) => [
 				name,

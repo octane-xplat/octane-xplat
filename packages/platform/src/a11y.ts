@@ -1,6 +1,8 @@
 // A11y announce — native leaf. UIAccessibility announcement notification on
 // iOS; View.announceForAccessibility on Android (posted on the content view).
 import { Application } from '@nativescript/core'
+import { UIAccessibilityPostNotification } from '@octane-xplat/platform/ios'
+
 
 export function announce(text: string): void {
 	if (Application.ios) {

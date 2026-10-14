@@ -3,6 +3,9 @@
 // lookup inside the calls — `Application.android.context` is undefined while
 // the bundled entry evaluates, so nothing native may be read at module scope.
 import { Application, Utils } from '@nativescript/core'
+import { android } from '@octane-xplat/platform/android'
+import { UIPasteboard } from '@octane-xplat/platform/ios'
+
 
 function toText(value: unknown): string | null {
 	const text = value ? String(value) : ''

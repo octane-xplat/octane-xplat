@@ -10,6 +10,9 @@
 // symbols resolve through the runtime bridge either way.
 import { Application, Utils } from '@nativescript/core'
 import type { AuthSessionImpl, AuthSessionOptions, AuthSessionResult, Capability } from './types'
+import { android } from '@octane-xplat/platform/android'
+import { NSObject, NSURL, UIApplication, UIWindow, UIWindowScene } from '@octane-xplat/platform/ios'
+
 
 declare const ASWebAuthenticationSession: any
 declare const ASWebAuthenticationSessionErrorCode: any

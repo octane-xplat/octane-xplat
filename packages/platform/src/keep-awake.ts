@@ -1,6 +1,9 @@
 import { Application, Utils, isIOS, isAndroid } from '@nativescript/core'
 import type { KeepAwakeImpl } from './keep-awake.types'
 import { createTaggedKeepAwake } from './keep-awake-tags'
+import { android } from '@octane-xplat/platform/android'
+import { UIApplication } from '@octane-xplat/platform/ios'
+
 export { KeepAwakeDefaultTag } from './keep-awake.types'
 export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'
 

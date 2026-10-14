@@ -4,6 +4,8 @@
 import { useEffect, useState } from 'octane'
 import { Application, Screen } from '@nativescript/core'
 import type { Insets } from './types'
+import { android } from '@octane-xplat/platform/android'
+
 
 const zeroInsets = (): Insets => ({ top: 0, bottom: 0, left: 0, right: 0 })
 
