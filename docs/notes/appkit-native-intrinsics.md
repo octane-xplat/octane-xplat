@@ -22,12 +22,12 @@ All conditioned native declarations derive from that same map.
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
 | Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                                                                                                    | —                          |
-| Collections       | `listview`                                                                                                                               | `tabview`, `tabviewitem`                                                                                                   |
+| Collections       | `listview`, `tabview`, `tabviewitem` | — |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 30 core factories and 9 missing core hosts. `span` and
+There are now 32 core factories and 7 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 9 missing core hosts and nine missing raw extension hosts remain required.
+The 7 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -769,3 +769,56 @@ const options: ListViewProps<HostObject> = {
 }
 void options
 ```
+
+## TabView host and minimal logical items
+
+TabView uses NSTabView with the shared `selectedIndex` and both selection
+callbacks. Empty tabs select -1; populated tabs clamp the requested index to
+their bounds, with the first item selected by default. Removing the index
+restores that default. Item children define each tab's content; the macOS
+compiler adapter gives each item its own Octane root, which mounts on insertion,
+diffs content in place and unmounts on removal or teardown. Keep the standard
+`xplatMacOS` compiler setup when authoring raw tabs.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function TabsExample() {
+	return (
+		<tabview selectedIndex={1} style={{ width: 320, height: 180 }}
+			onSelectedIndexChange={(event) => console.log(event.value)}
+			onSelectedIndexChanged={(event) => console.log(event.oldIndex, event.newIndex)}>
+			<tabviewitem title="Home"><label text="Home content" /></tabviewitem>
+			<tabviewitem title="Settings"><label text="Settings content" /></tabviewitem>
+		</tabview>
+	)
+}
+```
+
+Resolved contract (2026-10-14): items are logical tabviewitem handles, never
+HostObject/NSView values on macOS. Their title/iconSource props describe the
+item; JSX children describe its content. The imperative items array accepts
+live handles obtained from refs and rejects other values with TypeError.
+Retained handles keep identity across array updates, and incoming handles
+transfer prior-parent ownership. Reassigning an assigned content root is
+rejected; content changes use the item element's children diff. The array is
+the imperative alternative to JSX child order. This unit supplies the minimal
+logical-item hosting TabView requires; the standalone tabviewitem unit remains
+a separate qualification boundary.
+
+```ts
+import type { JSX, TabViewItemHandle } from '@octane-xplat/jsx/jsx-runtime'
+const retained = { current: null as TabViewItemHandle | null }
+const itemAttributes: JSX.IntrinsicElements['tabviewitem'] = {
+	title: 'Home', iconSource: 'res://Home', ref: retained,
+}
+const attributes = (): JSX.IntrinsicElements['tabview'] => ({
+	items: retained.current ? [retained.current] : [], selectedIndex: 0,
+})
+void itemAttributes
+void attributes
+```
+
+The maintained fixtures cover the host and logical-item boundary. The full
+native release, inherited common-contract audit, OS input, mobile execution
+and visual parity remain separate gates. No recipe workflow changes here;
+the shared JSX source and existing layout recipes retain their release gates.

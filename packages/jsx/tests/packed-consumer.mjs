@@ -67,6 +67,7 @@ const tree = (
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
 		<wraplayout orientation="vertical" itemWidth={0} itemHeight={30}><label text="Item" /></wraplayout>
+		<tabview selectedIndex={0} onSelectedIndexChange={(event) => { const index: number = event.value; void index }} onSelectedIndexChanged={(event) => void event.newIndex}><tabviewitem title="Home" iconSource="res://Home" ref={(element) => { void element; return () => {} }}><label text="Content" /></tabviewitem></tabview>
 		<rootlayout ref={(view) => { void view; return () => {} }} style={{ padding: 8 }}><label horizontalAlignment="right" text="Overlay" /><contentview /></rootlayout>
 		<docklayout stretchLastChild={false}><label dock="right" text="Side" /></docklayout>
 		<proxyviewcontainer row={1} ref={(element) => { void element; return () => {} }}><label text="Projected" /></proxyviewcontainer>
@@ -309,7 +310,9 @@ void lane
 
 // Resolution proof for every published subpath in each lane.
 const importsSource = `
-import type { HostElement, JSX, NativeElements, Ref } from '@octane-xplat/jsx/jsx-runtime'
+import type { HostElement, JSX, NativeElements, Ref, TabViewItemHandle } from '@octane-xplat/jsx/jsx-runtime'
+const tabItemContract: TabViewItemHandle | null = null
+void tabItemContract
 import type { JSX as DevJSX } from '@octane-xplat/jsx/jsx-dev-runtime'
 import type { NativeElements as Intrinsics } from '@octane-xplat/jsx/intrinsics'
 import type { JSX as DomJSX } from '@octane-xplat/jsx/dom/jsx-runtime'

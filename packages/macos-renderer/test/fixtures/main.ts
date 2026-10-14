@@ -1,4 +1,5 @@
 import { checkListViewLifecycle } from './listview-lifecycle'
+import { checkTabLifecycle, checkImperativeTabLifecycle } from './tab-lifecycle'
 import { checkTimeLifecycle } from './time-lifecycle'
 import { checkSegmentItemLifecycle } from './segment-item-lifecycle'
 import { checkSegmentLifecycle } from './segment-lifecycle'
@@ -216,6 +217,10 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
 							const timeRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkTimeLifecycle(timeRoot, nativeWindow)} finally {timeRoot.unmount()}
+							const tabRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkTabLifecycle(tabRoot, nativeWindow)} finally {tabRoot.unmount()}
+							const tabItemsRoot = createMacOSRoot(nativeWindow.contentView)
+							try {await checkImperativeTabLifecycle(tabItemsRoot, nativeWindow)} finally {tabItemsRoot.unmount()}
 
 							const listViewRoot = createMacOSRoot(nativeWindow.contentView)
 							try { await checkListViewLifecycle(listViewRoot, nativeWindow) } finally { listViewRoot.unmount() }

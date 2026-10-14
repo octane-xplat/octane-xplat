@@ -343,3 +343,18 @@ const listTemplates: JSX.IntrinsicElements['listview'] = {
 };
 
 void listTemplates;
+const tabs: MacJSX.IntrinsicElements['tabview'] = {
+ selectedIndex: 1,
+ onSelectedIndexChange: (event) => { const value: number = event.value; void value },
+ onSelectedIndexChanged: (event) => { const next: number | undefined = event.newIndex; void next },
+}
+
+const tabItem: MacJSX.IntrinsicElements['tabviewitem'] = {
+ title: 'Home', iconSource: 'res://Home', ref: (item) => {if (item) {const absent: null = item.view; tabs.items = [item]; void absent}; return () => {}},
+}
+
+// @ts-expect-error macOS items are logical handles, not prop bags or native views
+const badTabs: MacJSX.IntrinsicElements['tabview'] = {items: [{title: 'Home'}]}
+// @ts-expect-error Content roots are host-owned
+const badTabContent: MacJSX.IntrinsicElements['tabviewitem'] = {view: {}}
+void tabs; void tabItem; void badTabs; void badTabContent

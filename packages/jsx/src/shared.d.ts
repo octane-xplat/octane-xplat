@@ -442,9 +442,20 @@ export interface ListViewProps<TElement> {
 	onLoadMoreItems?: (event: NativeEvent<TElement>) => void;
 }
 
-export interface TabViewProps<TElement> {
-	/** Upstream `TabViewItem[]`. */
-	items?: readonly HostObject[];
+/** Unconditioned item instance. Target entries bind this name to the
+ * NativeScript TabViewItem or AppKit's viewless logical handle. */
+export type TabViewItemHandle = HostObject;
+
+/** Logical item instances come from tabviewitem refs, not arbitrary prop bags.
+ * AppKit conditions this to its viewless handle; mobile uses TabViewItem.
+ * JSX children belong to the item's host-owned content root. Retained handles
+ * keep identity across item-array updates and transfer prior-parent ownership.
+ * Assigned content roots cannot be replaced: update the item's JSX children.
+ * This is minimal hosting for TabView; standalone item qualification follows.
+ */
+export interface TabViewProps<TElement, TItem = TabViewItemHandle> {
+	/** Imperative alternative to ordered tabviewitem JSX children. */
+	items?: readonly TItem[];
 	selectedIndex?: number;
 	onSelectedIndexChange?: (event: IndexChangeEvent<TElement>) => void;
 	onSelectedIndexChanged?: (event: IndexChangeEvent<TElement>) => void;

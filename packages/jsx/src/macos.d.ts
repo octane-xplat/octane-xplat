@@ -12,7 +12,7 @@
  *
  * Types only — the compiler lowers JSX before any factory could run.
  */
-import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, FormattedStringProps, SpanProps, SegmentedBarItemProps } from './shared.js';
+import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, FormattedStringProps, SpanProps, SegmentedBarItemProps, TabViewProps, TabViewItemProps } from './shared.js';
 
 export * from './shared.js';
 
@@ -38,11 +38,18 @@ export interface LogicalElement {
 	readonly view: null;
 }
 
+/** Logical TabView item instance. Its content root is owned by the host. */
+export interface TabViewItemHandle extends LogicalElement {
+	readonly type: 'tabviewitem';
+}
+
 export declare namespace JSX {
 	type Element = NativeNode;
 	type ElementType = ElementTypeOf;
-	interface IntrinsicElements extends Omit<NativeElements<HostElement>, 'proxyviewcontainer' | 'formattedstring' | 'span' | 'segmentedbaritem'> {
+	interface IntrinsicElements extends Omit<NativeElements<HostElement>, 'proxyviewcontainer' | 'formattedstring' | 'span' | 'segmentedbaritem' | 'tabview' | 'tabviewitem'> {
 		proxyviewcontainer: Attributes<LogicalElement>;
+		tabview: Attributes<HostElement, TabViewProps<HostElement, TabViewItemHandle>>;
+		tabviewitem: Attributes<TabViewItemHandle, TabViewItemProps>;
 		segmentedbaritem: Attributes<LogicalElement, SegmentedBarItemProps>;
 		formattedstring: Attributes<LogicalElement, FormattedStringProps>;
 		span: Attributes<LogicalElement, SpanProps>;

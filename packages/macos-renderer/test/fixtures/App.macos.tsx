@@ -24,6 +24,7 @@ export default function App() {
 		<stacklayout>
 			<listview id="hmr-listview" items={["First revision" + count$.get()]} renderItem={(item) => <label text={String(item)} style={{ height: 24 }} />} style={{ width: 200, height: 40 }} />
 			<segmentedbar id="hmr-item-bar" selectedIndex={count$.get()}><segmentedbaritem id="hmr-item" title="First revision" /><segmentedbaritem title={String(count$.get())} /></segmentedbar>
+			<tabview id="hmr-tabs" selectedIndex={count$.get()} style={{width: 120, height: 70}}><tabviewitem id="hmr-tab-item" title="First revision"><label id="hmr-tab-content" text="First revision" /></tabviewitem><tabviewitem title="Retained"><label text="Other" /></tabviewitem></tabview>
 			<segmentedbar id="hmr-segment" items={[{ title: "First revision" }, { title: "Retained" }]} selectedIndex={count$.get()} />
 			<progress id="hmr-progress" value={count$.get() * ("First revision".startsWith("First") ? 25 : 40)} maxValue={100} />
 			<listpicker id="hmr-list" items={["First revision", "Retained"]} selectedIndex={count$.get()} />

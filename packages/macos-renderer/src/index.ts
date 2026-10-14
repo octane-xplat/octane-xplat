@@ -9,6 +9,11 @@ import {
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
+import {
+	makeTabView, makeTabItem, syncTabView, flushTabViews, configureTabContentRoots,
+	syncTabItem, validateTabProps, releaseTabView, releaseTabItem, detachTabItem,
+} from './tab-view'
+
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
@@ -26,6 +31,9 @@ import { composeAttributedText, validateTextStyle } from './formatted-text'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 export { registerFontFamily } from './fonts'
+export { __tabItemProps } from './tab-view'
+
+configureTabContentRoots((host, fontFamily) => createMacOSRoot(host, { fontFamily }), nativeColor)
 
 /** Props arrive from compiled elements as open-ended bags; each leaf
  *  factory or applier reads only the keys it understands. */
@@ -127,6 +135,8 @@ interface RootContainer {
 	/** Parents needing a sibling-wide layout pass; non-null only while a
 	 *  command batch is applying. */
 	layoutDirty: Set<ElementNode> | null
+	tabDirty?: Set<ElementNode>
+	tabReleases?: Set<ElementNode>
 }
 
 const actionHandlers = new Map<number, (() => void) | null>()
@@ -3197,6 +3207,8 @@ const SUPPORTED_TYPES = new Set([
 	'listpicker',
 	'listview',
 	'segmentedbar',
+	'tabview',
+	'tabviewitem',
 	'segmentedbaritem',
 	'webview',
 	'image',
@@ -3205,7 +3217,7 @@ const SUPPORTED_TYPES = new Set([
 ])
 
 function typeHasView(type: string) {
-	return type !== 'segmentedbaritem' && type !== '#text' && type !== 'span' && type !== 'formattedstring' && type !== 'proxyviewcontainer'
+	return type !== 'tabviewitem' && type !== 'segmentedbaritem' && type !== '#text' && type !== 'span' && type !== 'formattedstring' && type !== 'proxyviewcontainer'
 }
 
 function assertSupportedType(type: string) {
@@ -3232,6 +3244,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		if (props?.separatorColor != null) { nativeColor(props.separatorColor) }
 	}
 
+	if (type === 'tabview' || type === 'tabviewitem') {validateTabProps(type, props ?? {})}
 	if (type === 'segmentedbaritem' && props?.title != null && typeof props.title !== 'string') {
 		throw new Error('AppKit segmentedbaritem title must be a string')
 	}
@@ -3448,6 +3461,12 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
+				break
+			case 'tabview':
+				node.view = makeTabView(node)
+				break
+			case 'tabviewitem':
+				makeTabItem(node)
 				break
 			case 'segmentedbar': {
 				const control = makeSegmentedBar(node)
@@ -4936,6 +4955,8 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	tabview: ['items', 'selectedIndex', 'style', 'className'],
+	tabviewitem: ['title', 'iconSource', 'style', '__tabContent'],
 	segmentedbaritem: ['title'],
 	segmentedbar: ['items', 'selectedIndex', 'style', 'className'],
 	listview: ['items', 'renderItem', 'itemTemplate', 'itemTemplates', 'separatorColor', 'style', 'className'],
@@ -4991,6 +5012,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 	node.props = { ...node.props, ...props }
 	if (node.authoredProps || node.parent?.type === 'proxyviewcontainer' || node.type === 'proxyviewcontainer') {
 		node.authoredProps = { ...node.authoredProps, ...props }
+	}
+
+	if (node.type === 'tabviewitem') {
+		syncTabItem(node)
+		return
 	}
 
 	if (node.type === 'segmentedbaritem') {
@@ -5199,6 +5225,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
 				}
+
+				break
+			case 'tabview':
+				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'onSelectedIndexChanged', 'id'].includes(name)) {continue}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else {console.warn('[macos-host] ignored tabview prop ' + name)}
 
 				break
 			case 'segmentedbar':
@@ -5560,6 +5595,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
+	if (node.type === 'tabview') {syncTabView(node)}
 	if (node.type === 'segmentedbar') {syncSegmentedBar(node)}
 	if (node.type === 'listpicker') {syncListPicker(node)}
 	if (node.type === 'listview') { updateListView(node.view!, node.props) }
@@ -5937,8 +5973,9 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 	}
 }
 
-function detach(container: RootContainer, node: ElementNode) {
+function detach(container: RootContainer, node: ElementNode, preserveTab = false) {
 	const previousParent = node.parent
+	if (node.type === 'tabviewitem' && !preserveTab) {detachTabItem(node)}
 	const physicalParent = node.layoutParent ?? previousParent
 	if (node.layoutParent) {
 		releaseProjectedView(node)
@@ -5979,6 +6016,7 @@ function detach(container: RootContainer, node: ElementNode) {
 
 	queueLayoutReconcile(container, previousParent)
 	syncText(previousParent)
+	if (previousParent?.type === 'tabview') {syncTabView(previousParent)}
 	if (previousParent?.type === 'segmentedbar') {syncSegmentedBar(previousParent)}
 	node.parent = null
 	node.layoutParent = null
@@ -6107,6 +6145,9 @@ function reconcileLayoutParent(parent: ElementNode) {
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
 	if (parentType === 'listview') { throw new Error('AppKit <listview> takes item templates, not JSX children') }
+	if (parentType === 'tabview' && childType !== 'tabviewitem') {throw new TypeError('AppKit <tabview> accepts only tabviewitem children')}
+	if (childType === 'tabviewitem' && parentType !== 'tabview' && parentType !== undefined) {throw new TypeError('AppKit <tabviewitem> requires a tabview parent or an unparented handle')}
+	if (parentType === 'tabviewitem') {throw new TypeError('AppKit <tabviewitem> content requires the xplatMacOS compiler adapter')}
 	if (parentType === 'segmentedbaritem') {throw new Error('AppKit <segmentedbaritem> takes title content, not JSX children')}
 	if (childType === 'segmentedbaritem' && parentType !== 'segmentedbar') {throw new Error('AppKit <segmentedbaritem> requires a segmentedbar parent')}
 	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
@@ -6187,7 +6228,7 @@ function insert(
 		throw new Error('AppKit host has no parent view for node ' + node.id)
 	}
 
-	detach(container, node)
+	detach(container, node, node.type === 'tabviewitem' && node.parent === parent)
 	const siblings = parent ? parent.children : container.children
 	const beforeIndex = beforeId === null ? -1 : siblings.findIndex((child) => child.id === beforeId)
 	const index = beforeIndex < 0 ? siblings.length : beforeIndex
@@ -6287,7 +6328,8 @@ function insert(
 
 		syncScheme(node)
 	} else {
-		if (parent?.type === 'segmentedbar') {syncSegmentedBar(parent)}
+		if (parent?.type === 'tabview') {syncTabView(parent)}
+		else if (parent?.type === 'segmentedbar') {syncSegmentedBar(parent)}
 		else {syncText(parent)}
 	}
 }
@@ -6307,6 +6349,7 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 		return
 	}
 
+	if (node.type === 'tabviewitem') {detachTabItem(node)}
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {
@@ -6341,11 +6384,18 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 	queueLayoutReconcile(container, expectedParent)
 	node.parent = null
 	syncText(expectedParent)
+	if (expectedParent?.type === 'tabview') {syncTabView(expectedParent)}
 	if (expectedParent?.type === 'segmentedbar') {syncSegmentedBar(expectedParent)}
 }
 
 function destroy(node: ElementNode) {
 	if (node.type === 'listview' && node.view) { disposeListView(node.view) }
+	if (node.type === 'tabview') {releaseTabView(node)}
+	if (node.type === 'tabviewitem') {
+		detach(node.container, node)
+		releaseTabItem(node)
+	}
+
 	if (node.type === 'segmentedbaritem') {
 		detach(node.container, node)
 		node.props.title = undefined
@@ -6867,6 +6917,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 				} finally {
 					const dirty = container.layoutDirty
 					container.layoutDirty = null
+					flushTabViews(container)
 					if (dirty) {
 						for (const parent of dirty) {
 							reconcileLayoutParent(parent)
@@ -6879,7 +6930,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	},
 	getPublicInstance(container, id) {
 		const node = container.nodes.get(id)
-		return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem'].includes(node.type) ? node : (node?.view ?? null)
+		return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem', 'tabviewitem'].includes(node.type) ? node : (node?.view ?? null)
 	},
 }
 
@@ -8049,7 +8100,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		const debug = {
 			findId(id: string) {
 				const node = [...container.nodes.values()].find((node) => node.props.id === id)
-				return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem'].includes(node.type) ? node : (node?.view ?? null)
+				return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem', 'tabviewitem'].includes(node.type) ? node : (node?.view ?? null)
 			},
 			measureParity(facets: readonly string[]) {
 				return measureParity(container, facets)

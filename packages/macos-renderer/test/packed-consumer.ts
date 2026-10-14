@@ -55,6 +55,8 @@ for (const file of [
 	'listview-lifecycle.ts',
 	'List.macos.tsx',
 	'list-lifecycle.ts',
+	'Tab.macos.tsx',
+	'tab-lifecycle.ts',
 	'Time.macos.tsx',
 	'time-lifecycle.ts',
 	'Date.macos.tsx',
@@ -91,7 +93,7 @@ const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	18,
+	19,
 	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem and TimePicker examples',
 )
 
@@ -235,6 +237,8 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_DATEPICKER_OK/)
 	assert.match(output, /PACKED_TIMEPICKER_OK/)
 	assert.match(output, /PACKED_LISTVIEW_OK/)
+	assert.match(output, /PACKED_TABVIEW_OK/)
+	assert.match(output, /PACKED_TABVIEW_ITEMS_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -249,7 +253,9 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	let editing: Promise<void> | undefined
 	let verified = false
 	let failure: unknown
-	const deadline = setTimeout(() => dev.kill('SIGTERM'), 60_000)
+	// Dev startup compiles the cold shell and then the watched app before the
+	// first runtime assertion. Allow both builds under concurrent CI workloads.
+	const deadline = setTimeout(() => dev.kill('SIGTERM'), 180_000)
 	for (const stream of [dev.stdout!, dev.stderr!]) {
 		stream.on('data', (chunk) => {
 			devOutput += chunk.toString()
@@ -299,6 +305,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(devOutput, /PACKED_DATEPICKER_HMR_OK/)
 		assert.match(devOutput, /PACKED_TIMEPICKER_HMR_OK/)
 		assert.match(devOutput, /PACKED_LISTVIEW_HMR_OK/)
+		assert.match(devOutput, /PACKED_TABVIEW_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)

@@ -4,6 +4,8 @@ import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine } from '../vite.mjs'
 
+import { tabItemContentRoots } from './tab-item.mjs'
+
 const renderer = '@octane-xplat/macos-renderer'
 const runtime = '@nativescript/macos-node-api'
 
@@ -24,6 +26,7 @@ export async function xplatMacOS(env, options = {}) {
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
 			xplatBoundary('macos'),
+			tabItemContentRoots(),
 			octane({
 				hmr: options.hmr ?? false,
 				renderers: {

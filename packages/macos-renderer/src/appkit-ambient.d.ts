@@ -537,3 +537,11 @@ declare const NSTableViewColumnAutoresizingStyle: any
 declare const NSTableViewGridLineStyle: any
 declare const NSTableColumnResizingOptions: any
 declare const NSIndexSet: any
+// TabView logical items own native content roots without exposing NSView refs.
+declare class NSTabView extends NSView {
+ static alloc(): NSTabView
+ init(): this
+}
+
+declare class NSTabViewItem extends NSObject {}
+declare const NSTabViewDelegate: any

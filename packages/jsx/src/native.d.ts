@@ -13,18 +13,26 @@
 // `@nativescript/core`'s root index re-exports `./ui` as a bare directory,
 // which bundler-mode resolution indexes but node16/nodenext does not — the
 // deep specifier keeps `View` resolvable under both modes.
+import type { TabViewItem } from '@nativescript/core/ui/tab-view/index.js';
 import type { View } from '@nativescript/core/ui/core/view/index.js';
-import type { ElementTypeOf, NativeElements, NativeNode, Ref } from './shared.js';
+import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, TabViewProps, TabViewItemProps } from './shared.js';
 
 export * from './shared.js';
 
 /** NativeScript host element — the `View` the driver creates for intrinsics. */
 export type HostElement = View;
 
+/** NativeScript logical tab item instance, not its hosted View. */
+export type TabViewItemHandle = TabViewItem;
+
 export declare namespace JSX {
 	type Element = NativeNode;
 	type ElementType = ElementTypeOf;
-	interface IntrinsicElements extends NativeElements<View> {}
+	interface IntrinsicElements extends Omit<NativeElements<View>, 'tabview' | 'tabviewitem'> {
+		tabview: Attributes<View, TabViewProps<View, TabViewItem>>;
+		tabviewitem: Attributes<TabViewItem, TabViewItemProps>;
+	}
+
 	interface IntrinsicAttributes {
 		key?: string | number;
 	}
