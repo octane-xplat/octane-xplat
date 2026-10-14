@@ -81,9 +81,15 @@ json_dir="$build_dir/metadata-json"
 mkdir -p "$out_dir" "$types_dir" "$json_dir"
 
 # Mirrors scripts/metagen.js's macos invocation (same arg set, arm64 only).
+# ts-index-frameworks picks the default ambient set for types/index.d.ts: the
+# renderer's own surface (AppKit/QuartzCore/WebKit dlopen'd by the webview
+# leaf), CoreText for app font registration, and the frameworks backing our
+# native leaf packages (camera/notifications/biometrics). Every other emitted
+# file remains referenceable on demand.
 "$gen_dir/build/bin/objc-metadata-generator" \
   "types=$types_dir" "json=$json_dir" \
-  ts-index-mode=frameworks-list ts-index-frameworks=Foundation,AppKit \
+  ts-index-mode=frameworks-list \
+  ts-index-frameworks=Foundation,AppKit,QuartzCore,WebKit,CoreText,UniformTypeIdentifiers,AVFoundation,UserNotifications,LocalAuthentication \
   -output-bin "$out_dir/metadata.macos.arm64.nsmd" \
   -output-umbrella "$out_dir/umbrella.macos.arm64.h" \
   -output-signature-bindings-cpp "$out_dir/GeneratedSignatureDispatch.inc" \
@@ -93,6 +99,28 @@ echo "Generated $out_dir/metadata.macos.arm64.nsmd"
 
 if [[ "$install_artifacts" == 1 ]]; then
   cp "$out_dir/metadata.macos.arm64.nsmd" "$host_dir/prebuilt/macos-arm64/metadata.nsmd"
+  # The generator's types= output is the ambient AppKit SDK surface for
+  # macos-renderer consumers — check it in next to the renderer, keyed to the
+  # same generator pin + SDK as the shipped metadata.nsmd.
+  types_install="$repo_root/packages/macos-renderer/types"
+  rm -rf "$types_install"
+  cp -R "$types_dir" "$types_install"
+  # Repair upstream TSEmitter quirks that leave .d.ts files unparseable
+  # (anonymous bitfields, reserved words, leaked C qualifiers).
+  python3 "$host_dir/fix-generated-types.py" "$types_install"
+  python3 - "$types_install" "$sdk_path" <<'PY'
+import json, pathlib, subprocess, sys
+root = pathlib.Path(sys.argv[1])
+stamp = {
+    'generator': 'objc-metadata-generator (NativeScript/runtimes, pinned by build-metadata.sh)',
+    'sdk': sys.argv[2],
+    'sdkVersion': subprocess.run(
+        ['xcrun', '--sdk', 'macosx', '--show-sdk-version'],
+        capture_output=True, text=True, check=True).stdout.strip(),
+}
+(root / 'REVISION.json').write_text(json.dumps(stamp, indent=2) + '\n')
+PY
+  echo "Installed $(find "$types_install" -name '*.d.ts' | wc -l | tr -d ' ') generated type files to packages/macos-renderer/types"
   python3 - "$host_dir/prebuilt" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])
