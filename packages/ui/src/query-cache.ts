@@ -133,9 +133,20 @@ interface CacheFamily {
 		string,
 		{
 			facade: CachedQuerySignal<unknown>
-			state: { lastElements: readonly string[] | undefined }
+			state: CachedQueryState<unknown>
 		}
 	>
+}
+
+/**
+ * Per-declaration bookkeeping shared between the query wrapper and its
+ * facade: the cache key of the last evaluated selection and the request
+ * that evaluation started (or joined), which is what the awaitable verbs
+ * resolve on.
+ */
+interface CachedQueryState<T> {
+	lastElements: readonly string[] | undefined
+	lastRequest: PromiseLike<T> | undefined
 }
 
 /** Deterministic JSON encoding: sorted object fields, JSON scalar rules. */
@@ -524,13 +535,46 @@ function loadThroughCache<A, T>(
 }
 
 /**
+ * A `QuerySignal` declared by `cachedQuery$`: the same reads plus
+ * awaitable refresh operations.
+ *
+ * `refetch()`/`retry()`/`reset()` force a fresh request and resolve when
+ * that request settles — immediately when none started (a `skip`ped
+ * selection, or an owner with no readers). They never reject: a failed
+ * request lands on `snapshot().error`, so an unawaited call cannot produce
+ * an unhandled rejection. Requests on one cache entry always dedupe — an
+ * overlapping call joins the in-flight request rather than starting
+ * another, and the returned promise tracks that shared request.
+ *
+ * Pending and error state come from `snapshot()`: `status` is `'pending'`
+ * before the first value, `'error'` on failure, and `refreshing` marks a
+ * background revalidation over retained data. Cancellation follows the
+ * `query$` rules — a changed selection, a retired owner, or
+ * `clearQueryCache` on the entry aborts the in-flight request's signal;
+ * there is no per-query `cancel()` because the cell owns request lifetime.
+ */
+export interface CachedQuery<T> extends QuerySignal<T> {
+	refetch(): Promise<void>
+	retry(options?: { pending?: boolean }): Promise<void>
+	reset(): Promise<void>
+}
+
+const SETTLE = (): void => {}
+
+function asThenable<T>(value: T | PromiseLike<T>): PromiseLike<T> | undefined {
+	return typeof (value as { then?: unknown }).then === 'function'
+		? (value as PromiseLike<T>)
+		: undefined
+}
+
+/**
  * Declare a `query$` whose results are shared through the module-level query
  * cache. Same signature shape as `query$`, plus a required family `key` that
  * gives the query a stable cross-screen identity and an invalidation target.
  *
  * The returned handle is a full `QuerySignal`: `.get()` suspends, `.latest()`
  * and `.snapshot()` read without suspending, and `.refetch()`/`.retry()`/
- * `.reset()` force a fresh request.
+ * `.reset()` force a fresh request, resolving when it settles.
  *
  * The inner query uses an explicit, family-derived key so every re-render
  * declaration resolves to the same cell. Two declarations in the same scope
@@ -544,7 +588,7 @@ export function cachedQuery$<A, T>(
 	select: () => A | typeof skip,
 	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
 	options?: CachedQueryOptions<T>,
-): QuerySignal<T> {
+): CachedQuery<T> {
 	if (options !== undefined && (options as { kind?: unknown }).kind !== undefined) {
 		throw new TypeError(
 			'cachedQuery$ supports promise queries only; stream queries stay plain query$',
@@ -552,14 +596,17 @@ export function cachedQuery$<A, T>(
 	}
 
 	const family = familyFor(key)
-	const state: { lastElements: readonly string[] | undefined } = { lastElements: undefined }
+	const state: CachedQueryState<T> = { lastElements: undefined, lastRequest: undefined }
 	const handle = new CachedQuerySignal<T>()
 	const inner$ = query$(
 		select,
 		(selection: A, context: QueryContext<T>) => {
 			const elements = [...family.elements, canonicalize(selection)]
 			state.lastElements = elements
-			return loadThroughCache(elements, options, load, selection, context)
+			const result = loadThroughCache(elements, options, load, selection, context)
+			state.lastRequest = asThenable(result)
+
+			return result
 		},
 		{
 			key: `xplat:query-cache:${keyString(family.elements)}${options?.key ? `:${options.key}` : ''}`,
@@ -567,6 +614,7 @@ export function cachedQuery$<A, T>(
 	)
 
 	handle.inner$ = inner$
+	handle.state = state
 	const registration = registrationKey(inner$)
 	const existing = family.queries.get(registration)
 	if (existing === undefined) {
@@ -598,10 +646,14 @@ function registrationKey(inner$: QuerySignal<unknown>): string {
 	return `${inner$.key}${discriminator ?? ''}`
 }
 
-class CachedQuerySignal<T> implements QuerySignal<T> {
+class CachedQuerySignal<T> implements CachedQuery<T> {
 	readonly [SIGNAL_HANDLE] = true as const
 	readonly kind = 'async' as const
 	inner$!: QuerySignal<T>
+	/** @internal Set by `cachedQuery$` — shared bookkeeping with the
+	 *  declaring wrapper; `lastRequest` is the request the awaitable verbs
+	 *  resolve on. */
+	state!: CachedQueryState<T>
 
 	get key(): string {
 		return this.inner$.key
@@ -609,6 +661,23 @@ class CachedQuerySignal<T> implements QuerySignal<T> {
 
 	private forced(run: () => void): void {
 		withLoadMode('forced', run)
+	}
+
+	// The octane retry verbs evaluate and start the loader synchronously,
+	// so the request the wrapper just recorded is this call's outcome.
+	private settleAfter(run: () => void): Promise<void> {
+		let request: PromiseLike<T> | undefined
+		this.forced(() => {
+			this.state.lastRequest = undefined
+			run()
+			request = this.state.lastRequest
+		})
+
+		// Settle-only: the failure lives on the query's error state — an
+		// unawaited verb must not produce an unhandled rejection.
+		return request === undefined
+			? Promise.resolve()
+			: Promise.resolve(request).then(SETTLE, SETTLE)
 	}
 
 	/** @internal Fan-out retries inherit the republish mode instead of forcing. */
@@ -646,16 +715,16 @@ class CachedQuerySignal<T> implements QuerySignal<T> {
 		return this.inner$[SIGNAL_BINDING_IDENTITY]()
 	}
 
-	refetch(): void {
-		this.forced(() => this.inner$.refetch())
+	refetch(): Promise<void> {
+		return this.settleAfter(() => this.inner$.refetch())
 	}
 
-	retry(options?: { pending?: boolean }): void {
-		this.forced(() => this.inner$.retry(options))
+	retry(options?: { pending?: boolean }): Promise<void> {
+		return this.settleAfter(() => this.inner$.retry(options))
 	}
 
-	reset(): void {
-		this.forced(() => this.inner$.reset())
+	reset(): Promise<void> {
+		return this.settleAfter(() => this.inner$.reset())
 	}
 }
 

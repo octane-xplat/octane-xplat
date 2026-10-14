@@ -1,9 +1,14 @@
 /**
  * Async list-data store mirroring React Aria's useAsyncList: a load()
  * function drives items, with managed loading/error state, abortable
- * requests, cursor pagination (loadMore), sort descriptors, and
- * filterText-triggered reloads. The client-side mutation surface matches
- * ListData — createListData supplies it.
+ * requests, cursor pagination (loadMore/hasMore), sort descriptors, and
+ * filterText-triggered reloads. Every operation returns a completion
+ * promise — it resolves when that operation settles or is superseded and
+ * never rejects, so fire-and-forget stays safe and failures are read from
+ * `loadingState`/`error`. Starting an operation aborts the in-flight
+ * request and drops a pending client sort; `abort()` cancels the current
+ * operation explicitly. The client-side mutation surface matches ListData
+ * — createListData supplies it.
  */
 import {
 	createListData,
@@ -57,6 +62,9 @@ export interface AsyncListSnapshot<T> {
 	readonly sortDescriptor?: SortDescriptor
 	readonly loadingState: LoadingState
 	readonly error?: Error
+	/** Whether a next page can be requested — true while the last load
+	 *  returned a pagination cursor. */
+	readonly hasMore: boolean
 }
 
 export interface AsyncListData<T>
@@ -66,16 +74,44 @@ export interface AsyncListData<T>
 	readonly isLoading: boolean
 	readonly error?: Error
 	readonly sortDescriptor?: SortDescriptor
-	/** First page / refresh. The hook fires this on mount. */
-	reload(): void
-	/** Fetch the next page using the cursor returned by the previous load. */
-	loadMore(): void
-	/** Sort via `options.sort` (client) or a descriptor-triggered reload (server). */
-	sort(descriptor: SortDescriptor): void
-	setFilterText(filterText: string): void
+	/** Whether a next page can be requested — true while the last load
+	 *  returned a pagination cursor. */
+	readonly hasMore: boolean
+	/** First page / refresh. The hook fires this on mount. Resolves when this
+	 *  reload settles — or when a newer operation supersedes it — and never
+	 *  rejects: inspect `loadingState`/`error` for the outcome. Starting any
+	 *  operation aborts an in-flight request and drops its result, so a retry
+	 *  is simply calling `reload()` again after `'error'`. */
+	reload(): Promise<void>
+	/** Fetch the next page using the cursor returned by the previous load.
+	 *  Resolves when the page load settles or is superseded; resolves
+	 *  immediately without fetching while `hasMore` is false or another
+	 *  operation is in flight (check `isLoading`). A `'error'` result keeps
+	 *  the cursor, so a retry is another `loadMore()`. */
+	loadMore(): Promise<void>
+	/** Sort via `options.sort` (client) or a descriptor-triggered reload
+	 *  (server). Resolves when the sort settles or is superseded. */
+	sort(descriptor: SortDescriptor): Promise<void>
+	/** Update the filter text and reload through `load`. Resolves when the
+	 *  reload settles or is superseded; resolves immediately when the text
+	 *  is unchanged. */
+	setFilterText(filterText: string): Promise<void>
+	/** Cancel the in-flight request or pending client sort, dropping its
+	 *  result; a load that ignores its `signal` cannot publish afterward.
+	 *  The list returns to `'idle'`, or to `'error'` when an earlier error
+	 *  still stands. No-op when nothing is pending. */
+	abort(): void
 }
 
 const ACTIVE: ReadonlySet<LoadingState> = new Set(['loading', 'loadingMore', 'sorting', 'filtering'])
+
+/** The current async operation — a request (abortable via `controller`) or
+ *  a pending client sort (result dropped via the ticket check instead). */
+interface AsyncListOperation {
+	ticket: number
+	controller?: AbortController
+	settle: () => void
+}
 
 export function createAsyncListData<T, C = string>(
 	options: AsyncListOptions<T, C>,
@@ -91,7 +127,7 @@ export function createAsyncListData<T, C = string>(
 	let loadingState: LoadingState = 'idle'
 	let error: Error | undefined
 	let cursor: C | undefined
-	let inFlight: { ticket: number; controller: AbortController } | undefined
+	let current: AsyncListOperation | undefined
 	let ticket = 0
 
 	const makeSnapshot = (): AsyncListSnapshot<T> => ({
@@ -101,6 +137,7 @@ export function createAsyncListData<T, C = string>(
 		sortDescriptor,
 		loadingState,
 		error,
+		hasMore: cursor !== undefined,
 	})
 
 	// useSyncExternalStore requires identity-stable snapshots — rebuild on
@@ -122,42 +159,79 @@ export function createAsyncListData<T, C = string>(
 		emit()
 	}
 
-	const run = async (kind: LoadingState, nextCursor?: C) => {
-		inFlight?.controller.abort()
-		const controller = new AbortController()
+	// Overlap rule: every operation supersedes the previous one — aborting
+	// its request, dropping a pending client sort, and resolving its
+	// completion promise.
+	const supersede = () => {
+		const op = current
+		current = undefined
+		op?.controller?.abort()
+		op?.settle()
+	}
+
+	// Start an operation: returns its ticket, abort controller (requests
+	// only), the completion promise, and finish() to settle it. finish() is
+	// also safe to call after supersede() already resolved the promise.
+	const beginOperation = (kind: LoadingState, abortable: boolean) => {
+		supersede()
 		const mine = ++ticket
-		inFlight = { ticket: mine, controller }
+		let settle!: () => void
+		const completed = new Promise<void>((resolve) => {
+			settle = resolve
+		})
+
+		const controller = abortable ? new AbortController() : undefined
+		current = { ticket: mine, controller, settle }
 		phase(kind)
-		try {
-			const result = await options.load({
-				filterText: base.filterText,
-				sortDescriptor,
-				cursor: nextCursor,
-				signal: controller.signal,
-			})
-
-			if (mine !== ticket || controller.signal.aborted) {
-				return
+		const finish = () => {
+			if (current?.ticket === mine) {
+				current = undefined
 			}
 
-			const items =
-				nextCursor === undefined ? result.items : [...base.getSnapshot().items, ...result.items]
-			replaceItems(items)
-			cursor = result.cursor
-			if (result.selectedKeys !== undefined) {
-				base.setSelectedKeys(result.selectedKeys)
-			}
-
-			error = undefined
-			phase('idle')
-		} catch (e) {
-			if (mine !== ticket || controller.signal.aborted) {
-				return
-			}
-
-			error = e instanceof Error ? e : new Error(String(e))
-			phase('error')
+			settle()
 		}
+
+		return { mine, controller, completed, finish }
+	}
+
+	const run = (kind: LoadingState, nextCursor?: C): Promise<void> => {
+		const { mine, controller, completed, finish } = beginOperation(kind, true)
+		const signal = controller!.signal
+		void (async () => {
+			try {
+				const result = await options.load({
+					filterText: base.filterText,
+					sortDescriptor,
+					cursor: nextCursor,
+					signal,
+				})
+
+				if (mine !== ticket || signal.aborted) {
+					return
+				}
+
+				const items =
+					nextCursor === undefined ? result.items : [...base.getSnapshot().items, ...result.items]
+
+				replaceItems(items)
+				cursor = result.cursor
+				if (result.selectedKeys !== undefined) {
+					base.setSelectedKeys(result.selectedKeys)
+				}
+
+				error = undefined
+				phase('idle')
+			} catch (e) {
+				if (mine !== ticket || signal.aborted) {
+					return
+				}
+
+				error = e instanceof Error ? e : new Error(String(e))
+				phase('error')
+			}
+		})().then(finish, finish)
+
+		return completed
 	}
 
 	// createListData owns item mutation; wholesale replacement goes through
@@ -196,6 +270,9 @@ export function createAsyncListData<T, C = string>(
 		get sortDescriptor() {
 			return sortDescriptor
 		},
+		get hasMore() {
+			return cursor !== undefined
+		},
 		getItem: base.getItem,
 		insert: base.insert,
 		insertBefore: base.insertBefore,
@@ -211,45 +288,68 @@ export function createAsyncListData<T, C = string>(
 		setSelectedKeys: base.setSelectedKeys,
 		setFilterText(filterText) {
 			if (filterText === base.filterText) {
-				return
+				return Promise.resolve()
 			}
 
 			base.setFilterText(filterText)
 			// Reload on filter change — RA fires load with the new filterText.
 			cursor = undefined
-			void run('filtering')
+			return run('filtering')
 		},
 		reload() {
 			cursor = undefined
-			void run('loading')
+			return run('loading')
 		},
 		loadMore() {
 			if (loadingState !== 'idle' || cursor === undefined) {
-				return
+				return Promise.resolve()
 			}
 
-			void run('loadingMore', cursor)
+			return run('loadingMore', cursor)
 		},
 		sort(descriptor) {
 			sortDescriptor = descriptor
 			emit()
 			if (options.sort) {
-				phase('sorting')
-				Promise.resolve(options.sort({ items: base.getSnapshot().items, sortDescriptor: descriptor }))
-					.then((result) => {
-						replaceItems(result.items)
-						phase('idle')
-					})
-					.catch((e) => {
-						error = e instanceof Error ? e : new Error(String(e))
-						phase('error')
-					})
+				// No request to abort — the ticket check drops a superseded
+				// sort's result instead of letting it publish over a newer op.
+				const { mine, completed, finish } = beginOperation('sorting', false)
+				Promise.resolve()
+					.then(() => options.sort!({ items: base.getSnapshot().items, sortDescriptor: descriptor }))
+					.then(
+						(result) => {
+							if (mine !== ticket) {
+								return
+							}
 
-				return
+							replaceItems(result.items)
+							error = undefined
+							phase('idle')
+						},
+						(e) => {
+							if (mine !== ticket) {
+								return
+							}
+
+							error = e instanceof Error ? e : new Error(String(e))
+							phase('error')
+						},
+					)
+					.then(finish, finish)
+
+				return completed
 			}
 
 			cursor = undefined
-			void run('sorting')
+			return run('sorting')
+		},
+		abort() {
+			if (current === undefined) {
+				return
+			}
+
+			supersede()
+			phase(error === undefined ? 'idle' : 'error')
 		},
 	}
 }

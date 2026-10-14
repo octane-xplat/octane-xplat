@@ -100,7 +100,9 @@ export function Example() {
 `icon`, and `endContent` for slots, and `clickAction` for the press action;
 `children` takes precedence over `label`. A pending `clickAction` shows a
 loading indicator and prevents repeat presses unless `isInterruptible` is
-true.
+true — with it, each press starts another overlapping call without
+cancelling the in-flight one. A failed action retries by pressing again;
+the promise `clickAction` returns is the handle your code awaits.
 
 **Migrating existing code:** the legacy `disabled`, `loading`, `leading`,
 `trailing`, and `onPress` props were removed — rename them to `isDisabled`,

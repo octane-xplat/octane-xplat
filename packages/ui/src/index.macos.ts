@@ -388,6 +388,7 @@ export {
 
 export { platformQueryStorage } from './query-storage.macos'
 export type {
+	CachedQuery,
 	QueryKey,
 	QueryKeyPart,
 	QueryStorageAdapter,

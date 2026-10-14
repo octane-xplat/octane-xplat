@@ -560,6 +560,23 @@ export const user$ = cachedQuery$(
 )
 ```
 
+`refetch()`, `retry()`, and `reset()` are awaitable: each returns a promise
+that resolves when the request it started settles — including when it
+fails, so a forgotten `await` never produces an unhandled rejection. Read
+`snapshot()` for the outcome. Calls that overlap on one cache entry share
+the in-flight request rather than loading twice. Cancellation follows
+`query$` — a changed selection, an unmounted owner, or `clearQueryCache`
+aborts the in-flight request's signal; the cell owns request lifetime, so
+there is no per-query `cancel()`.
+
+```ts
+export async function refreshUser() {
+	await user$.refetch()
+	const snapshot = user$.snapshot()
+	if (snapshot.status === 'error') throw snapshot.error
+}
+```
+
 `invalidateQueries` marks entries stale and refetches every screen that
 currently owns them — a whole family, or one exact key. Callers keep showing
 their previous data while the new request runs, so a pull-to-refresh or a

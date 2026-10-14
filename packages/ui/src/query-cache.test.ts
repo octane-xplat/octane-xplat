@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { createScope, runWithSignalOwner, type Scope } from 'octane/signals'
+import { createScope, runWithSignalOwner, skip, type Scope } from 'octane/signals'
 import {
 	cachedQuery$,
 	clearQueryCache,
@@ -214,6 +214,92 @@ describe('cachedQuery$', () => {
 		screen(() => query.retry())
 		await settle()
 		expect(calls).toHaveLength(2)
+	})
+
+	it('awaiting refetch resolves once the request lands', async () => {
+		const gate = deferred<string>()
+		const calls: LoadCall[] = []
+		const load = (selection: unknown, context: LoadContext) => {
+			calls.push({ selection, signal: context.signal, previous: context.previous })
+			return calls.length === 1 ? Promise.resolve('v1') : gate.promise
+		}
+
+		const query = screen(() => cachedQuery$(['await-refetch'], () => 'x', load))
+		screen(() => query.latest())
+		await settle()
+		screen(() => expect(query.latest()).toBe('v1'))
+
+		const pending = screen(() => query.refetch())
+		let resolved = false
+		void pending.then(() => {
+			resolved = true
+		})
+
+		// The loader starts on a microtask; the promise stays pending until it lands.
+		await settle(2)
+		expect(calls).toHaveLength(2)
+		expect(resolved).toBe(false)
+
+		gate.resolve('v2')
+		await expect(pending).resolves.toBeUndefined()
+		screen(() => expect(query.latest()).toBe('v2'))
+	})
+
+	it('awaiting retry resolves — not rejects — when the request fails', async () => {
+		const calls: LoadCall[] = []
+		const load = (selection: unknown, context: LoadContext) => {
+			calls.push({ selection, signal: context.signal, previous: context.previous })
+			return calls.length === 1
+				? Promise.resolve('v1')
+				: Promise.reject(new Error('offline'))
+		}
+
+		const query = screen(() => cachedQuery$(['await-fail'], () => 'x', load))
+		screen(() => query.latest())
+		await settle()
+		screen(() => expect(query.latest()).toBe('v1'))
+
+		await expect(screen(() => query.retry())).resolves.toBeUndefined()
+		expect(calls).toHaveLength(2)
+		screen(() => expect(query.snapshot().status).toBe('error'))
+		screen(() => expect(query.latest()).toBe('v1'))
+	})
+
+	it('awaiting a verb resolves immediately when no request starts', async () => {
+		const { calls, load } = recording()
+		const query = screen(() => cachedQuery$(['await-skip'], () => skip, load))
+
+		await expect(screen(() => query.refetch())).resolves.toBeUndefined()
+		await expect(screen(() => query.retry())).resolves.toBeUndefined()
+		await expect(screen(() => query.reset())).resolves.toBeUndefined()
+		expect(calls).toHaveLength(0)
+	})
+
+	it('a second refetch joins the in-flight request instead of loading again', async () => {
+		const gate = deferred<string>()
+		const calls: LoadCall[] = []
+		const load = (selection: unknown, context: LoadContext) => {
+			calls.push({ selection, signal: context.signal, previous: context.previous })
+			return calls.length === 1 ? Promise.resolve('v1') : gate.promise
+		}
+
+		const a = screen(() => cachedQuery$(['await-dedupe'], () => 'x', load))
+		const b = screen(() => cachedQuery$(['await-dedupe'], () => 'x', load))
+		screen(() => a.latest())
+		screen(() => b.latest())
+		await settle()
+		expect(calls).toHaveLength(1)
+
+		const first = screen(() => a.refetch())
+		const second = screen(() => b.refetch())
+		// The loader starts on a microtask; both verbs join the one request.
+		await settle(2)
+		expect(calls).toHaveLength(2)
+
+		gate.resolve('v2')
+		await expect(first).resolves.toBeUndefined()
+		await expect(second).resolves.toBeUndefined()
+		screen(() => expect(b.latest()).toBe('v2'))
 	})
 
 	it('evicts entries on clearQueryCache; mounted queries keep showing data', async () => {

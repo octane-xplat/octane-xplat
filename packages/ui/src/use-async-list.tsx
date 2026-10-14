@@ -20,6 +20,9 @@ export function useAsyncList<T, C = string>(options: AsyncListOptions<T, C>): As
 	}
 
 	useStore(ref.current);
-	useEffect(() => ref.current!.reload(), []);
+	useEffect(() => {
+		void ref.current!.reload();
+	}, []);
+
 	return ref.current;
 }

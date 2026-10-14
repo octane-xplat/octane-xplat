@@ -844,6 +844,7 @@ export {
 
 export { platformQueryStorage } from './query-storage'
 export type {
+	CachedQuery,
 	QueryKey,
 	QueryKeyPart,
 	QueryStorageAdapter,

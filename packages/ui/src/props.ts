@@ -3229,10 +3229,14 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
 	isDisabled?: boolean
 	/** Loading state — shows the spinner and blocks presses. */
 	isLoading?: boolean
-	/** Keep the button interactive while a `clickAction` is pending. */
+	/** Keep the button interactive while a `clickAction` is pending — each
+	 *  press then starts another overlapping call without cancelling the
+	 *  in-flight one. */
 	isInterruptible?: boolean
 	/** Action run on press; pending promises show the loading spinner unless
-	 *  `isInterruptible` keeps presses live. */
+	 *  `isInterruptible` keeps presses live. Presses during a pending call
+	 *  are ignored (never queued); retrying a failed action is another
+	 *  press. The call's own promise is the completion handle to await. */
 	clickAction?: () => void | Promise<void>
 	/** Reports a `clickAction` failure — a thrown error or a rejected
 	 *  promise. When omitted, failures surface as uncaught asynchronous
