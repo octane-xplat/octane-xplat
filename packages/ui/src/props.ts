@@ -6749,7 +6749,8 @@ export interface OutlineItem {
  *  derivation is split by mechanism: `useOutlineFromMarkdown` and
  *  `useOutlineFromDoc` are portable; `useOutlineFromDOM` (live DOM
  *  observation) is web-only under `@octane-xplat/ui/web`; `useOutlineFromView`
- *  (view-tree snapshot) is the native/macOS form. */
+ *  (view-tree snapshot) ships under `@octane-xplat/ui/native` and
+ *  `@octane-xplat/ui/macos`. */
 export interface OutlineProps {
 	className?: any
 	style?: any

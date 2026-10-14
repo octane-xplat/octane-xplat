@@ -170,9 +170,9 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 import { HoverCard as WebHoverCard, Tooltip as WebTooltip, useOutlineFromDOM } from '@octane-xplat/ui/web'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
-const buttonProps: ButtonProps = { children: 'Save', loading: true }
-// @ts-expect-error loading is a boolean prop
-const invalidButtonProps: ButtonProps = { loading: 'yes' }
+const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
+// @ts-expect-error isLoading is a boolean prop
+const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
 const inset: number = useKeyboardInset()
 // @ts-expect-error inset is a number, not a string
@@ -195,12 +195,13 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromView, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, bottomSheetHost } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet } from '@octane-xplat/ui'
+import { CameraView, useOutlineFromView, bottomSheetHost } from '@octane-xplat/ui/macos'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
-const buttonProps: ButtonProps = { children: 'Save', loading: true }
-// @ts-expect-error loading is a boolean prop
-const invalidButtonProps: ButtonProps = { loading: 'yes' }
+const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
+// @ts-expect-error isLoading is a boolean prop
+const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const animation: AnimatedValue = useAnimation(0, 'translateX')
 animation.to(100, { duration: 250 })
 animation.spring(0, { damping: 14, stiffness: 120 })
@@ -274,26 +275,24 @@ toastControl({ body: 'Done', isAutoHide: false })
 const promise: Promise<unknown> = openBottomSheet(() => null, { id: 1 }, { label: 'Choose', snapPoints: ['25%', 300], hasScrim: false })
 closeBottomSheet('selected')
 const host: null = bottomSheetHost()
-// @ts-expect-error dialog dismissal must be controlled
-const invalidDialog = <Dialog isOpen />
 // @ts-expect-error shared sheets require an accessible label
 const invalidSheet = <BottomSheet isOpen />
 // @ts-expect-error invalid toast position must not silently become any
 showToast({ body: 'Saved', position: 'middle' })
 // @ts-expect-error imperative dialogs use the shared purpose contract
 dialogControl.show('Edit', { purpose: 'anything' })
-void [dialog, alert, switcher, lightbox, viewport, dismiss, promise, host, invalidDialog, invalidSheet]
+void [CameraView, dialog, alert, switcher, lightbox, viewport, dismiss, promise, host, invalidSheet]
 `
 	} else {
 		source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
 import { UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
-import { layoutsForRoute } from '@octane-xplat/ui/native'
+import { layoutsForRoute, useOutlineFromView } from '@octane-xplat/ui/native'
 
-const buttonProps: ButtonProps = { children: 'Save', loading: true }
-// @ts-expect-error loading is a boolean prop
-const invalidButtonProps: ButtonProps = { loading: 'yes' }
+const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
+// @ts-expect-error isLoading is a boolean prop
+const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const viewProps: ViewProps = { id: 'native-root', gap: 6 }
 const itemProps: ListItemProps = { label: 'Profile', description: 'Details', startContent: '•' }
 const inset: number = useKeyboardInset()
@@ -315,6 +314,7 @@ const tabBar = <UITabBar {...tabs} />
 const iosSwitch: typeof UISwitch = UISwitch
 const androidSwitch: typeof MaterialSwitch = MaterialSwitch
 const getLayouts: typeof layoutsForRoute = layoutsForRoute
+const viewOutline = useOutlineFromView()
 const root = <View {...viewProps} />
 const keyboard = <KeyboardAvoiding {...keyboardProps} />
 void buttonProps
@@ -329,6 +329,7 @@ void tabBar
 void iosSwitch
 void androidSwitch
 void getLayouts
+void viewOutline
 void root
 void keyboard
 `

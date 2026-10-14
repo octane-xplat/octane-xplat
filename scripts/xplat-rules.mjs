@@ -729,6 +729,16 @@ const PLATFORM_SUBPATHS = [
 		leaf: 'a native default module or .mobile.* leaf',
 	},
 	{
+		spec: '@octane-xplat/ui/macos',
+		ok: (f) => /\.macos\./.test(f),
+		leaf: '.macos.*',
+	},
+	{
+		spec: '@octane-xplat/ui/linux',
+		ok: (f) => /\.linux\./.test(f),
+		leaf: '.linux.*',
+	},
+	{
 		spec: '@octane-xplat/ui/web',
 		ok: (f) => isWebFile(f),
 		leaf: '.web.*',

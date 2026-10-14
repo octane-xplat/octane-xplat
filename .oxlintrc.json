@@ -75,7 +75,14 @@
 		"xplat/no-ts-imports-tsrx": [
 			"error",
 			{
-				"exclude": ["packages/ui/src/ios/", "packages/ui/src/android/", "packages/ui/src/web/"]
+				"exclude": [
+					"packages/ui/src/ios/",
+					"packages/ui/src/android/",
+					"packages/ui/src/web/",
+					"packages/ui/src/macos/",
+					"packages/ui/src/linux/",
+					"packages/ui/src/native/"
+				]
 			}
 		],
 		"xplat/signal-dollar-suffix": "error",

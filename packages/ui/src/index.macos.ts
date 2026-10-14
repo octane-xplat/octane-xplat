@@ -1,6 +1,7 @@
 // Experimental AppKit public surface. Components with a direct AppKit
-// equivalent use the host renderer; NativeScript-only features are exported
-// as visible unsupported leaves so the shared harness can still load them.
+// equivalent use the host renderer. The barrel exposes the same names as the
+// shared surface (`index.shared.ts`); AppKit-only contracts live under the
+// explicit `@octane-xplat/ui/macos` subpath instead.
 export { View } from './View.macos.tsrx'
 /** Vertical flow stack (Astryx `Stack` direction="vertical"). */
 export { VStack } from './VStack.macos.tsrx'
@@ -248,7 +249,6 @@ export {
 } from './power-search-config'
 
 export { WebView } from './WebView.macos.tsrx'
-export { CameraView } from './hosted-unsupported.macos.tsrx'
 export { Overlay, Popover } from './surfaces.macos.tsrx'
 export { Dialog, DialogHeader } from './Dialog.macos.tsrx'
 export { AlertDialog } from './AlertDialog.macos.tsrx'
@@ -388,7 +388,7 @@ export type {
 	CachedQueryOptions,
 } from './query-cache'
 
-export { openBottomSheet, closeBottomSheet, bottomSheetHost } from './bottom-sheet-service.macos'
+export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service.macos'
 
 export { Blockquote } from './Blockquote.macos.tsrx'
 export { Code } from './Code.macos.tsrx'
@@ -403,8 +403,6 @@ export { Timer } from './Timer.macos.tsrx'
 export { Citation } from './Citation.macos.tsrx'
 export { Outline } from './Outline.macos.tsrx'
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
-// AppKit view-tree outline discovery — the DOM form lives under `@octane-xplat/ui/web`.
-export { useOutlineFromView } from './outline-view.macos.tsrx'
 export {
 	parseOutlineFromMarkdown,
 	outlineFromDoc,
@@ -425,7 +423,10 @@ export {
 	syntaxTokenVarRef,
 } from './code-tokenizer'
 
-export type * from './props'
+// Type parity with the shared barrel — every type `@octane-xplat/ui` exposes
+// on the shared targets resolves here too, and no platform-internal props.ts
+// names leak into the conditioned root surface.
+export type * from './index.shared'
 
 // Chat shares the same portable contracts on AppKit; browser editing
 // behavior remains in its web leaves.

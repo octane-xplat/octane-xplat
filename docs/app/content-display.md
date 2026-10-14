@@ -156,11 +156,15 @@ export function WebExample() {
 On iOS/Android and macOS, `useOutlineFromView` walks the bound view tree
 once after mount (and again when the container view instance changes) and
 collects views with the `header` accessibility role — `Heading` sets it.
-That snapshot does not observe later tree changes, so pass explicit `items`
-or derive them from Markdown when headings change:
+Import it from the platform path — `@octane-xplat/ui/native` on iOS/Android,
+`@octane-xplat/ui/macos` on macOS. That snapshot does not observe later tree
+changes, so pass explicit `items` or derive them from Markdown when headings
+change:
 
 ```tsx
-import { View, Heading, Outline, useOutlineFromView } from '@octane-xplat/ui'
+import { View, Heading, Outline } from '@octane-xplat/ui'
+// iOS/Android: import { useOutlineFromView } from '@octane-xplat/ui/native'
+import { useOutlineFromView } from '@octane-xplat/ui/macos'
 import { useRef } from 'octane'
 
 export function Example() {

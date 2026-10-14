@@ -11,7 +11,8 @@ export { Tooltip } from '../Tooltip.web.tsrx'
 // DOM-specific discovery — heading outline from a live DOM subtree with
 // MutationObserver tracking. The portable derivations
 // (useOutlineFromMarkdown/useOutlineFromDoc) stay on the root barrel; the
-// native view-tree form is `useOutlineFromView` on the native/macOS root.
+// view-tree form `useOutlineFromView` lives on the explicit platform paths
+// `@octane-xplat/ui/native` (iOS/Android) and `@octane-xplat/ui/macos`.
 export { useOutlineFromDOM, outlineItemsFromDOM } from '../outline-dom.web.tsrx'
 export type { OutlineFromDOMOptions } from '../outline-dom.web.tsrx'
 

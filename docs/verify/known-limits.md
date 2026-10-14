@@ -362,6 +362,14 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   iOS/Android and macOS use `useOutlineFromView` for the same job (a
   view-tree snapshot — no mutation observation). The portable derivations
   `useOutlineFromMarkdown`/`useOutlineFromDoc` are unchanged. — post-0.14.0·desk.
+- **Target-only names moved off the `@octane-xplat/ui` root** — the root now
+  exports the same names on every target. `useOutlineFromView` moved to
+  `@octane-xplat/ui/native` (iOS/Android) and `@octane-xplat/ui/macos`;
+  macOS-only `bottomSheetHost` and the unsupported `CameraView` leaf moved to
+  `@octane-xplat/ui/macos`; `LinuxWindowHandle` moved to
+  `@octane-xplat/ui/linux`. The published CSS paths are unchanged:
+  `@octane-xplat/ui/theme/tokens.css` and `chrome.css` are now the only
+  `ui/theme/*` specifiers, matching the published export map. — post-0.14.0·desk.
 - **`FocusScope`, `useGridList`, and `useFocusWithin` report platform
   support explicitly** — `getFocusScopeCapabilities()`,
   `useGridList().isSupported`, and `useFocusWithin().isSubtreeTrackingSupported`

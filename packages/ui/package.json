@@ -66,7 +66,16 @@
 			"types": "./types/generated/web/index.d.ts",
 			"web": "./src/web/index.ts"
 		},
-		"./theme/*": "./src/theme/*"
+		"./macos": {
+			"types": "./types/generated/macos/index.d.ts",
+			"macos": "./src/macos/index.ts"
+		},
+		"./linux": {
+			"types": "./types/generated/linux/index.d.ts",
+			"linux": "./src/linux/index.ts"
+		},
+		"./theme/tokens.css": "./src/theme/tokens.css",
+		"./theme/chrome.css": "./src/theme/chrome.css"
 	},
 	"publishConfig": {
 		"exports": {
@@ -105,6 +114,14 @@
 			"./web": {
 				"types": "./types/generated/web/index.d.ts",
 				"web": "./dist/web/web/index.js"
+			},
+			"./macos": {
+				"types": "./types/generated/macos/index.d.ts",
+				"macos": "./src/macos/index.ts"
+			},
+			"./linux": {
+				"types": "./types/generated/linux/index.d.ts",
+				"linux": "./src/linux/index.ts"
 			},
 			"./theme/tokens.css": "./src/theme/tokens.css",
 			"./theme/chrome.css": "./src/theme/chrome.css"

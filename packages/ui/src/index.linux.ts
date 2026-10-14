@@ -5,6 +5,5 @@
 // shadow the same names in the star re-export.
 export * from './index.web'
 export { openWindow } from './windows.linux'
-export type { LinuxWindowHandle } from './windows.linux'
 export { useColorScheme, getColorScheme } from './theme/colorScheme.linux'
 export type { ColorScheme } from './theme/colorScheme.linux'

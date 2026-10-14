@@ -25,7 +25,7 @@ Markdown parser, clipboard package, image loader, or navigation system.
 
 - AC1: A shared content composition renders block quotations, inline and block code, source citations, metadata, and thumbnails through the documented component props.
 - AC2: Linear progress, status, timestamps, and elapsed timers expose labels and values; live updates and tooltip behavior follow the target contract.
-- AC3: An outline can be derived from Markdown or a baked Markdown document, while the platform-specific tree-discovery hooks — `useOutlineFromDOM` under `@octane-xplat/ui/web`, `useOutlineFromView` on native/macOS — and heading navigation limitations are clear for each target.
+- AC3: An outline can be derived from Markdown or a baked Markdown document, while the platform-specific tree-discovery hooks — `useOutlineFromDOM` under `@octane-xplat/ui/web`, `useOutlineFromView` under `@octane-xplat/ui/native` (iOS/Android) and `@octane-xplat/ui/macos` — and heading navigation limitations are clear for each target.
 - AC4: A maintained example exercises the composition without relying on target-only props.
 
 ## Documentation

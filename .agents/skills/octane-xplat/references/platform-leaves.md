@@ -46,6 +46,10 @@ in its matching `.ios` or `.android` file. A `.mobile` file may import a
 cross-platform native API only when that import loads safely on both iOS and
 Android. The package's `/native` subpath is NativeScript integration plumbing,
 not a filename suffix; `/web` resolves only under web/Linux conditions.
+`/macos` and `/linux` carry AppKit- and GTK-only contracts (for example
+`useOutlineFromView` on `/macos`, `LinuxWindowHandle` on `/linux`) that are
+deliberately kept off the shared root so `@octane-xplat/ui` exports the same
+names on every target.
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
