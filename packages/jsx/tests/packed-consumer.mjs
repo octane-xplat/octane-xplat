@@ -49,6 +49,17 @@ function run(command, args, cwd) {
 // Shared contract surface every condition must serve identically: core tags,
 // the compiler-produced #text entry, and the nine maintained extensions.
 const nativeSource = `
+
+const listTemplates: import('@octane-xplat/jsx/jsx-runtime').JSX.IntrinsicElements['listview'] = {
+ items: [{ name: 'Ada' }], itemTemplate: '<Label text="{{ name }}"/>',
+ itemTemplates: [{ key: 'default', createView: () => ({}) }],
+ onItemLoading: (event) => {
+  const index: number = event.index; void index; void event.view;
+  // @ts-expect-error ItemLoading is observation-only
+  event.view = {};
+ },
+};
+void listTemplates;
 const tree = (
 	<flexboxlayout className="row" style={{ padding: 4 }} flexDirection="row">
 		<label text="hi" whiteSpace="nowrap" />

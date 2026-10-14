@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(packageRoot, '../..')
 const directory = await mkdtemp(join(tmpdir(), 'xplat-macos-renderer-'))
+console.log('[packed renderer] consumer: ' + directory)
 const packs = join(directory, 'packs')
 const app = join(directory, 'consumer')
 await mkdir(packs)
@@ -50,6 +51,8 @@ for (const file of [
 	'Wrap.macos.tsx',
 	'Proxy.macos.tsx',
 	'Root.macos.tsx',
+	'ListView.macos.tsx',
+	'listview-lifecycle.ts',
 	'List.macos.tsx',
 	'list-lifecycle.ts',
 	'Time.macos.tsx',
@@ -88,7 +91,7 @@ const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	17,
+	18,
 	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem and TimePicker examples',
 )
 
@@ -231,6 +234,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_LISTPICKER_OK/)
 	assert.match(output, /PACKED_DATEPICKER_OK/)
 	assert.match(output, /PACKED_TIMEPICKER_OK/)
+	assert.match(output, /PACKED_LISTVIEW_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -294,6 +298,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(devOutput, /PACKED_LISTPICKER_HMR_OK/)
 		assert.match(devOutput, /PACKED_DATEPICKER_HMR_OK/)
 		assert.match(devOutput, /PACKED_TIMEPICKER_HMR_OK/)
+		assert.match(devOutput, /PACKED_LISTVIEW_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)

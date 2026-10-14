@@ -22,6 +22,7 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<listview id="hmr-listview" items={["First revision" + count$.get()]} renderItem={(item) => <label text={String(item)} style={{ height: 24 }} />} style={{ width: 200, height: 40 }} />
 			<segmentedbar id="hmr-item-bar" selectedIndex={count$.get()}><segmentedbaritem id="hmr-item" title="First revision" /><segmentedbaritem title={String(count$.get())} /></segmentedbar>
 			<segmentedbar id="hmr-segment" items={[{ title: "First revision" }, { title: "Retained" }]} selectedIndex={count$.get()} />
 			<progress id="hmr-progress" value={count$.get() * ("First revision".startsWith("First") ? 25 : 40)} maxValue={100} />

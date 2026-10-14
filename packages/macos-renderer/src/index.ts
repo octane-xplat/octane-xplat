@@ -12,6 +12,8 @@ import { disposeImage, updateImage } from './image'
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
+import { makeListView, updateListView, disposeListView } from './list-view'
+import { validateListProps } from './list-template'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -3193,6 +3195,7 @@ const SUPPORTED_TYPES = new Set([
 	'datepicker',
 	'timepicker',
 	'listpicker',
+	'listview',
 	'segmentedbar',
 	'segmentedbaritem',
 	'webview',
@@ -3215,6 +3218,20 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'listview') {
+		validateListProps(props ?? {}, (template) => template.validate((tag, values) => {
+			try { assertSupportedType(tag); validateNodeProps(tag, values) }
+			catch (error) { throw new TypeError('[macos-host] listview itemTemplate: ' + String(error)) }
+		}, (parent, child) => {
+			validateTextNesting(parent, child)
+			if (parent && (typeHasView(child) || child === 'proxyviewcontainer') && !VIEW_PARENT_TYPES.has(parent)) {
+				throw new TypeError('[macos-host] listview itemTemplate: <' + parent + '> cannot contain child views')
+			}
+		}))
+
+		if (props?.separatorColor != null) { nativeColor(props.separatorColor) }
+	}
+
 	if (type === 'segmentedbaritem' && props?.title != null && typeof props.title !== 'string') {
 		throw new Error('AppKit segmentedbaritem title must be a string')
 	}
@@ -3438,6 +3455,14 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.actionId = control.actionId
 				break
 			}
+			case 'listview':
+				node.view = makeListView({
+					createRoot: (host) => createMacOSRoot(host, { fontFamily: container.fontFamily }),
+					releaseOwnedRoot: (host) => ownedRoots.get(host)?.unmount(),
+					color: nativeColor,
+				}) as AppKitView
+
+				break
 			case 'listpicker': {
 				const control = makeListPicker(node)
 				node.view = control.view
@@ -4913,6 +4938,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
 	segmentedbaritem: ['title'],
 	segmentedbar: ['items', 'selectedIndex', 'style', 'className'],
+	listview: ['items', 'renderItem', 'itemTemplate', 'itemTemplates', 'separatorColor', 'style', 'className'],
 	listpicker: ['items', 'selectedIndex', 'style', 'className'],
 	timepicker: ['time', 'hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute', 'isEnabled', 'style', 'className'],
 	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
@@ -5182,6 +5208,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
 				else {console.warn('[macos-host] ignored segmentedbar prop ' + name)}
+
+				break
+			case 'listview':
+				if (['items', 'renderItem', 'itemTemplate', 'itemTemplates', 'separatorColor', 'onItemTap', 'onItemLoading', 'onLoadMoreItems', 'id'].includes(name)) { continue }
+				else if (name === 'style') { applyStyle(node, value) }
+				else if (name === 'className') { applyClassName(node, value) }
+				else if (name === 'accessible' || name.startsWith('accessibility')) { applyAccessibility(node, name, value) }
+				else if (name.startsWith('on') && value == null) { continue }
+				else { console.warn('[macos-host] ignored listview prop ' + name) }
 
 				break
 			case 'listpicker':
@@ -5527,6 +5562,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	if (node.type === 'segmentedbar') {syncSegmentedBar(node)}
 	if (node.type === 'listpicker') {syncListPicker(node)}
+	if (node.type === 'listview') { updateListView(node.view!, node.props) }
 	if (node.type === 'datepicker') {syncDatePicker(node, props)}
 	if (node.type === 'timepicker') {syncTimePicker(node, props)}
 	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
@@ -6070,6 +6106,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'listview') { throw new Error('AppKit <listview> takes item templates, not JSX children') }
 	if (parentType === 'segmentedbaritem') {throw new Error('AppKit <segmentedbaritem> takes title content, not JSX children')}
 	if (childType === 'segmentedbaritem' && parentType !== 'segmentedbar') {throw new Error('AppKit <segmentedbaritem> requires a segmentedbar parent')}
 	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
@@ -6308,6 +6345,7 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 }
 
 function destroy(node: ElementNode) {
+	if (node.type === 'listview' && node.view) { disposeListView(node.view) }
 	if (node.type === 'segmentedbaritem') {
 		detach(node.container, node)
 		node.props.title = undefined
@@ -7954,6 +7992,8 @@ appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet
 installPresentationBridge(appKitBridge, createMacOSRoot, fontFamilyForView)
 
+const ownedRoots = new WeakMap<NSView, UniversalRoot>()
+
 const rootFontFamilies = new WeakMap<object, string | undefined>()
 
 function fontFamilyForView(view: NSView | undefined): string | undefined {
@@ -7998,6 +8038,13 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	})
 
 	container.root = root
+	ownedRoots.set(hostView, root)
+	const unmount = root.unmount.bind(root)
+	root.unmount = () => {
+		if (ownedRoots.get(hostView) === root) { ownedRoots.delete(hostView) }
+		unmount()
+	}
+
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
 			findId(id: string) {

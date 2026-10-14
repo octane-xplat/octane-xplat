@@ -527,3 +527,13 @@ declare const NSTextFieldDelegate: any
 declare const NSTextFieldCell: NSClass<any>
 declare const NSSecureTextFieldCell: NSClass<any>
 declare const NSAutoresizingMaskOptions: { [key: string]: number }
+
+interface NSTableView extends NSControl { [key: string]: any }
+declare const NSTableView: NSClass<NSTableView>
+declare const NSTableColumn: any
+declare const NSTableViewDataSource: any
+declare const NSTableViewDelegate: any
+declare const NSTableViewColumnAutoresizingStyle: any
+declare const NSTableViewGridLineStyle: any
+declare const NSTableColumnResizingOptions: any
+declare const NSIndexSet: any

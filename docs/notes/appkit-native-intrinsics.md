@@ -22,12 +22,12 @@ All conditioned native declarations derive from that same map.
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
 | Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                                                                                                    | —                          |
-| Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
+| Collections       | `listview`                                                                                                                               | `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 29 core factories and 10 missing core hosts. `span` and
+There are now 30 core factories and 9 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 10 missing core hosts and nine missing raw extension hosts remain required.
+The 9 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -695,3 +695,77 @@ must adopt the resolved shared range contract before release. No mobile,
 visual, hardware or full parity qualification is claimed. The inherited common
 lifecycle/gesture/class/style/accessibility audit and full release gates remain
 open. This raw-host unit changes no recipe workflow.
+
+## ListView host
+
+ListView uses a scrolling AppKit table. `renderItem` is the primary template
+path: each recycled cell owns an Octane root, and rebinding diffs that root in
+place. Items accept arrays or an ItemsSource with `length` and `getItem(index)`;
+observable sources with `on`/`off` refresh on `change`. Removing items empties
+the table. Item-loading and tap payloads contain the list host, row index and
+read-only cell view; `onItemLoading` observes cells without replacing them.
+Load-more fires when AppKit presents the last row. Removing `separatorColor`
+restores AppKit's default separator color.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function ListExample() {
+	return (
+		<listview
+			items={['First', 'Second']}
+			renderItem={(item, index) => <label text={index + ': ' + String(item)} />}
+			separatorColor="#cccccc"
+			onItemLoading={(event) => console.log(event.index, event.view)}
+			onItemTap={(event) => console.log('Tapped', event.index)}
+			onLoadMoreItems={() => console.log('Last row presented')}
+			style={{ width: 240, height: 160 }}
+		/>
+	)
+}
+```
+
+String `itemTemplate` uses NativeScript Builder XML over the shared intrinsic
+vocabulary. Nested tags, declared attributes, item paths, `$value` and
+expressions evaluate at bind and rebind. Malformed XML, unknown tags and
+undeclared props throw TypeError before host allocation. Callable templates
+win over strings, and `renderItem` wins over both. A callable `itemTemplate`
+or a `createView()` entry in `itemTemplates` returns a host whose owning root
+is unmounted on rebind or release. Only the `default` key is reachable without
+an `itemTemplateSelector`; other keys throw TypeError.
+
+```ts
+import type { ListViewProps, HostObject } from '@octane-xplat/jsx/jsx-runtime'
+
+declare function createCellHost(): HostObject
+const xml: ListViewProps<HostObject> = {
+	items: [{ person: { name: 'Ada' }, count: 2 }],
+	itemTemplate: '<StackLayout><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></StackLayout>',
+}
+const factory: ListViewProps<HostObject> = {
+	items: ['Ada'],
+	itemTemplates: [{ key: 'default', createView: createCellHost }],
+}
+void xml
+void factory
+```
+
+Pinned binding-option and expression helpers come from NativeScript core
+9.1.3, with MIT attribution under the renderer's `src/vendor/listview`.
+Expression pipes retain NativeScript converter semantics; bindings match the
+whole attribute (no interpolation inside literal text). XML text nodes are
+ignored as in Builder; use `text` attributes. Style strings become style bags.
+Host creation and nesting use the existing AppKit registry. Tags awaiting
+AppKit implementation still fail explicitly. Live observable property
+bindings, two-way writeback and page-resource/visual-parent binding sources
+remain qualification gaps; item-source change notifications and explicit
+rebind evaluation are covered. Common inherited behavior, mobile execution,
+OS input, visual parity and full-target acceptance remain open.
+
+```ts
+import type { ListViewProps, HostObject } from '@octane-xplat/jsx/jsx-runtime'
+const options: ListViewProps<HostObject> = {
+	items: [{ count: 2, format: (value: number) => '#' + value }],
+	itemTemplate: '<Label text="{{ count | format }}"/>',
+}
+void options
+```

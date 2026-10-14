@@ -122,7 +122,7 @@ export interface ScrollEvent<TElement> extends NativeEvent<TElement> {
 /** Recycled-cell payloads (`itemLoading`, `itemTap`, `itemDisposing`). */
 export interface ItemEvent<TElement> extends NativeEvent<TElement> {
 	readonly index: number;
-	/** The recycled host cell — a platform view object upstream. */
+	/** The recycled host cell. Observation-only: replacing it is outside the shared contract. */
 	readonly view: HostObject;
 }
 
@@ -420,13 +420,20 @@ export interface TimePickerProps<TElement> {
 export interface ListViewProps<TElement> {
 	/** Upstream `any[] | ItemsSource`. */
 	items?: readonly unknown[] | HostObject;
-	/** Upstream `string | KeyedTemplate`. */
-	itemTemplate?: string | HostObject;
-	/** Upstream `KeyedTemplate[]`. */
-	itemTemplates?: readonly HostObject[] | HostObject;
+	/** Zero-argument host factory or NativeScript Builder XML over shared tags.
+	 * Bindings {{ path.sub }}, {{ expression }} and $value evaluate against the
+	 * item bindingContext on bind/rebind. Nested tags are supported. Malformed
+	 * XML, unknown tags and undeclared props throw TypeError. Live observable
+	 * bindings and two-way writeback remain an AppKit qualification gap.
+	 * Callable templates take precedence over strings; their host owns unmount
+	 * on rebind/release. renderItem takes precedence over all templates. */
+	itemTemplate?: string | (() => HostObject);
+	/** Zero-argument keyed host factories. Without itemTemplateSelector only
+	 * "default" is reachable; other keys throw TypeError at the prop boundary. */
+	itemTemplates?: readonly { key: string; createView: () => HostObject }[];
 	/**
 	 * Renders one row into a recycled cell. Takes precedence over
-	 * `itemTemplate`; the cell's own Octane root is diffed in place on rebind.
+	 * `itemTemplate`/`itemTemplates`; the cell's own Octane root is diffed in place on rebind.
 	 */
 	renderItem?: (item: any, index: number) => NativeNode;
 	separatorColor?: string | HostObject;

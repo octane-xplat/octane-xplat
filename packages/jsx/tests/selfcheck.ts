@@ -330,3 +330,16 @@ void invalidTimePicker
 // @ts-expect-error AppKit-only host configuration is outside the shared API
 const invalidTimeStyle: MacJSX.IntrinsicElements['timepicker'] = { datePickerStyle: 0 }
 void invalidTimeStyle
+
+
+const listTemplates: JSX.IntrinsicElements['listview'] = {
+ items: [{ name: 'Ada' }], itemTemplate: '<Label text="{{ name }}"/>',
+ itemTemplates: [{ key: 'default', createView: () => ({}) }],
+ onItemLoading: (event) => {
+  const index: number = event.index; void index; void event.view;
+  // @ts-expect-error ItemLoading is observation-only
+  event.view = {};
+ },
+};
+
+void listTemplates;

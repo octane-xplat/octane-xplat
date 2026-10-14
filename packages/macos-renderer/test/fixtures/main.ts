@@ -1,3 +1,4 @@
+import { checkListViewLifecycle } from './listview-lifecycle'
 import { checkTimeLifecycle } from './time-lifecycle'
 import { checkSegmentItemLifecycle } from './segment-item-lifecycle'
 import { checkSegmentLifecycle } from './segment-lifecycle'
@@ -216,6 +217,8 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 							const timeRoot = createMacOSRoot(nativeWindow.contentView)
 							try {await checkTimeLifecycle(timeRoot, nativeWindow)} finally {timeRoot.unmount()}
 
+							const listViewRoot = createMacOSRoot(nativeWindow.contentView)
+							try { await checkListViewLifecycle(listViewRoot, nativeWindow) } finally { listViewRoot.unmount() }
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {
 							console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)

@@ -22,6 +22,10 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedListView: any
+let retainedListViewCell: any
+let retainedListViewLabel: any
+let retainedListViewTable: any
 let retainedItem: any
 let retainedItemBar: any
 let retainedSegment: any
@@ -52,6 +56,9 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedListView = debug.findId('hmr-listview')
+			retainedListViewTable = retainedListView.documentView
+			retainedListViewCell = retainedListViewTable.viewAtColumnRowMakeIfNecessary(0, 0, true)
 			retainedItem = debug.findId('hmr-item')
 			retainedItemBar = debug.findId('hmr-item-bar')
 			retainedSegment = debug.findId('hmr-segment')
@@ -79,6 +86,7 @@ function reload() {
 			setTimeout(() => {
 				if ((Number(retainedActivity.alphaValue) === 0)) {console.error('PACKED_HMR_FAIL: busy signal did not start spinner')}
 				if (Number(retainedProgress.doubleValue) !== 25) {console.error('PACKED_HMR_FAIL: Progress signal did not update bar')}
+				retainedListViewLabel = retainedListViewCell.subviews.objectAtIndex(0)
 				console.log('HMR_CONSUMER_READY')
 			}, 60)
 		}, 60)
@@ -88,6 +96,7 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-listview') === retainedListView && retainedListView.documentView === retainedListViewTable && retainedListViewCell.subviews.objectAtIndex(0) === retainedListViewLabel && String(retainedListViewLabel.stringValue) === 'Second revision1' &&
 				debug.findId('hmr-item') === retainedItem && retainedItem.view === null && retainedItem.props.title === 'Second revision' && debug.findId('hmr-item-bar') === retainedItemBar && String(retainedItemBar.labelForSegment(0)) === 'Second revision' && String(retainedItemBar.labelForSegment(1)) === '1' && Number(retainedItemBar.selectedSegment) === 1 &&
 				debug.findId('hmr-segment') === retainedSegment && Number(retainedSegment.selectedSegment) === 1 && String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
 				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
@@ -130,6 +139,7 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedListView.superview || retainedListView.documentView != null || retainedListViewTable.delegate != null || retainedListViewTable.target != null || retainedListViewLabel.superview ||
 					retainedItem.parent || retainedItem.props.title !== undefined || retainedItemBar.superview || Number(retainedItemBar.segmentCount) !== 0 ||
 					retainedSegment.superview || retainedSegment.target != null || String(retainedSegment.action) !== '<null selector>' || Number(retainedSegment.segmentCount) !== 0 ||
 					retainedProgress.superview ||
@@ -173,6 +183,7 @@ function reload() {
 				console.log('PACKED_LISTPICKER_HMR_OK')
 				console.log('PACKED_TIMEPICKER_HMR_OK')
 				console.log('PACKED_DATEPICKER_HMR_OK')
+				console.log('PACKED_LISTVIEW_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')
