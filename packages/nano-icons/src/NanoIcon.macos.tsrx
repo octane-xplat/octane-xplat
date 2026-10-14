@@ -7,6 +7,7 @@ import {
 	resolveGlyphEntry,
 	type NanoGlyphMap,
 } from './glyphmap';
+
 import { nanoIconSetRegistry, resolveNanoIcon, type NanoIconSet } from './set';
 import type { NanoIconProps, NanoIconSetProps } from './props';
 
@@ -34,6 +35,7 @@ function applyHostProps(el: any, props: NanoIconProps) {
 	if (turns) {
 		layer.setValueForKeyPath(((turns * 90) % 360) * (Math.PI / 180), 'transform.rotation.z');
 	}
+
 	const sx = props.hFlip ? -1 : 1;
 	const sy = props.vFlip ? -1 : 1;
 	if (sx !== 1) layer.setValueForKeyPath(sx, 'transform.scale.x');
@@ -48,6 +50,7 @@ function charCacheFor(glyphMap: NanoGlyphMap) {
 		cache = createCharCache();
 		charCaches.set(glyphMap, cache);
 	}
+
 	return cache;
 }
 
@@ -99,6 +102,7 @@ export function NanoIcon(props: NanoIconProps) @{
 			warnedNames.add(props.name);
 			console.warn('[nano-icons] Unknown icon ' + props.name + ' — no registered set contains it');
 		}
+
 		return null;
 	}
 

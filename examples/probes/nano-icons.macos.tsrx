@@ -29,6 +29,7 @@ function glyphSnapshot(ctx: ProbeContext, id: string) {
 			layers.push({ codePoint: text.codePointAt(0) })
 		}
 	}
+
 	const frame = ctx.inspect(id).frame // inspect forces a layout pass
 	return {
 		layers,

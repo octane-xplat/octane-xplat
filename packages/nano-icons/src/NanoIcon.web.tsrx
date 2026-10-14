@@ -5,6 +5,7 @@ import {
 	resolveGlyphEntry,
 	type NanoGlyphMap,
 } from './glyphmap'
+
 import { useStore } from '@octane-xplat/ui'
 import { nanoIconSetRegistry, resolveNanoIcon, type NanoIconSet } from './set'
 import type { NanoIconProps, NanoIconSetProps } from './props'
@@ -38,7 +39,7 @@ function WebGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) {
 				position: 'relative',
 				width,
 				height: size,
-				lineHeight: 0,
+				lineHeight: '0px',
 				verticalAlign: 'middle',
 				flexShrink: 0,
 				transform,
@@ -57,7 +58,7 @@ function WebGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) {
 						fontWeight: 'normal',
 						fontStyle: 'normal',
 						fontSize: size,
-						lineHeight: 1,
+						lineHeight: size,
 						whiteSpace: 'pre',
 						color: resolveColor(i, srcColor),
 					}}
@@ -77,6 +78,7 @@ function charCacheFor(glyphMap: NanoGlyphMap) {
 		cache = createCharCache()
 		charCaches.set(glyphMap, cache)
 	}
+
 	return cache
 }
 
@@ -96,7 +98,9 @@ export function NanoIcon(props: NanoIconProps) {
 			warnedNames.add(props.name)
 			console.warn(`[nano-icons] Unknown icon "${props.name}" — no registered set contains it`)
 		}
+
 		return null
 	}
+
 	return <WebGlyphLayers {...props} glyphMap={resolved.set.glyphMap} />
 }

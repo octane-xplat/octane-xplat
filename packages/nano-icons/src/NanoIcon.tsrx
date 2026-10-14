@@ -8,6 +8,7 @@ import {
 	resolveGlyphEntry,
 	type NanoGlyphMap,
 } from './glyphmap';
+
 import { nanoIconSetRegistry, resolveNanoIcon, type NanoIconSet } from './set';
 import type { NanoIconProps, NanoIconSetProps } from './props';
 
@@ -30,6 +31,7 @@ function charCacheFor(glyphMap: NanoGlyphMap) {
 		cache = createCharCache();
 		charCaches.set(glyphMap, cache);
 	}
+
 	return cache;
 }
 
@@ -87,6 +89,7 @@ export function NanoIcon(props: NanoIconProps) @{
 			warnedNames.add(props.name);
 			console.warn('[nano-icons] Unknown icon ' + props.name + ' — no registered set contains it');
 		}
+
 		return null;
 	}
 
