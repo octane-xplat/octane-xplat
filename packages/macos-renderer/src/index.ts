@@ -30,6 +30,9 @@ import type {
 import { composeAttributedText, validateTextStyle } from './formatted-text'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
+import { NSAttributedString, NSAutoresizingMaskOptions, NSBackingStoreType, NSBezelStyle, NSBorderType, NSButton, NSButtonType, NSClickGestureRecognizer, NSColor, NSColorSpace, NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerStyle, NSEvent, NSFontAttributeName, NSForegroundColorAttributeName, NSImageView, NSLayoutAttribute, NSLineBreakMode, NSMenu, NSMenuItem, NSMutableParagraphStyle, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSPanGestureRecognizer, NSParagraphStyleAttributeName, NSPopover, NSPopoverBehavior, NSPopoverDidCloseNotification, NSRectEdge, NSScrollView, NSSecureTextField, NSSecureTextFieldCell, NSSlider, NSStackView, NSStackViewDistribution, NSStackViewGravity, NSTextAlignment, NSTextField, NSTextFieldCell, NSTextFieldDelegate, NSTextView, NSTextViewDelegate, NSTrackingArea, NSTrackingAreaOptions, NSUserInterfaceLayoutOrientation, NSView, NSViewBoundsDidChangeNotification, NSViewController, NSViewFrameDidChangeNotification, NSWindow, NSWindowDelegate, NSWindowStyleMask, NativeClass, WKWebView, interop } from '@octane-xplat/platform/macos'
+import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
+
 export { registerFontFamily } from './fonts'
 export { __tabItemProps } from './tab-view'
 
@@ -1509,7 +1512,7 @@ function setScrollAction(node: ElementNode, handler: ((event: any) => void) | un
 			console.error('[macos-event] scroll handler failed', error)
 		}
 
-		if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
+		if (((process.env as {[key: string]: string | undefined}).OCTANE_MACOS_AUTOMATION) === '1') {
 			node.scrollMetrics ??= { events: [] }
 			const sample = {
 				verticalOffset: event.verticalOffset,
@@ -8045,7 +8048,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		unmount()
 	}
 
-	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
+	if (((process.env as {[key: string]: string | undefined}).OCTANE_MACOS_AUTOMATION) === '1') {
 		const debug = {
 			findId(id: string) {
 				const node = [...container.nodes.values()].find((node) => node.props.id === id)

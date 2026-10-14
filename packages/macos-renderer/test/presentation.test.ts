@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { beforeEach, test } from 'node:test'
 import { installPresentationBridge, type SurfaceOptions } from '../src/presentation.ts'
+import { mockGlobals } from './mock-globals.ts'
 
 let bridge: any, nativeWindow: any, monitors: Set<any>, observers: Set<any>, roots: any[]
 class View {
@@ -52,36 +53,36 @@ beforeEach(() => {
 	monitors = new Set()
 	observers = new Set()
 	roots = []
-	globalThis.NSView = View
-	globalThis.NativeClass = () => {}
-	globalThis.NSColor = {
-		colorWithRedGreenBlueAlpha: () => ({ CGColor: {} }),
-		windowBackgroundColor: {},
-		controlBackgroundColor: {},
-	}
-
-	globalThis.NSEvent = {
-		addLocalMonitorForEventsMatchingMaskHandler: (_mask: number, fn: any) => {
-			monitors.add(fn)
-			return fn
+	mockGlobals({
+		NSView: View,
+		NativeClass: () => {},
+		NSColor: {
+			colorWithRedGreenBlueAlpha: () => ({ CGColor: {} }),
+			windowBackgroundColor: {},
+			controlBackgroundColor: {},
 		},
-		removeMonitor: (fn: any) => monitors.delete(fn),
-	}
-
-	globalThis.NSNotificationCenter = {
-		defaultCenter: {
-			addObserverForNameObjectQueueUsingBlock: (
-				_name: string,
-				_window: unknown,
-				_queue: unknown,
-				fn: () => void,
-			) => {
-				observers.add(fn)
+		NSEvent: {
+			addLocalMonitorForEventsMatchingMaskHandler: (_mask: number, fn: any) => {
+				monitors.add(fn)
 				return fn
 			},
-			removeObserver: (fn: () => void) => observers.delete(fn),
+			removeMonitor: (fn: any) => monitors.delete(fn),
 		},
-	}
+		NSNotificationCenter: {
+			defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock: (
+					_name: string,
+					_window: unknown,
+					_queue: unknown,
+					fn: () => void,
+				) => {
+					observers.add(fn)
+					return fn
+				},
+				removeObserver: (fn: () => void) => observers.delete(fn),
+			},
+		},
+	})
 
 	nativeWindow = {
 		firstResponder: { name: 'opener' },
@@ -96,7 +97,7 @@ beforeEach(() => {
 	})
 
 	nativeWindow.contentView.window = nativeWindow
-	globalThis.NSApplication = { sharedApplication: { keyWindow: nativeWindow } }
+	mockGlobals({ NSApplication: { sharedApplication: { keyWindow: nativeWindow } } })
 	bridge = {}
 	installPresentationBridge(
 		bridge,

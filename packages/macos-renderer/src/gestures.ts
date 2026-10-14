@@ -1,5 +1,7 @@
 /** Gesture ownership stays on the renderer's original NSView, including when
  * layout inserts a margin wrapper. No window-wide input monitor is needed. */
+
+import { NSClickGestureRecognizer, NSEvent, NSGestureRecognizer, NSGestureRecognizerDelegate, NSObject, NSPressGestureRecognizer, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
 interface GestureNode {
 	view: NSView | null
 	props: Record<string, any>

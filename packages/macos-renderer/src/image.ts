@@ -1,4 +1,6 @@
 /** Local and embedded sources avoid synchronous network work on AppKit's main thread. */
+
+import { NSData, NSImage, NSImageView, NSURL } from '@octane-xplat/platform/macos'
 export function loadImage(source: unknown): NSImage | null {
 	const src = String(source ?? '')
 	const match = /^data:[^,]*;base64,(.+)$/s.exec(src)

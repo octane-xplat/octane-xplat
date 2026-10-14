@@ -1,13 +1,10 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the text-control paths without loading the Objective-C bridge.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slice = (startMarker, endMarker) =>
 	source.slice(source.indexOf(startMarker), source.indexOf(endMarker))

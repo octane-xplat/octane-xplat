@@ -1,17 +1,14 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // applyProps merges each update into node.props — a prop dropped by a host
 // update kept its last value forever (recognizers, action handlers, scroll/
 // layout observers, and sync readers all consult node.props). The update path
 // injects explicit undefined clears for every dropped prop so removal restores
 // the documented default; `on*` drops additionally reach the unbind setters.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const at = (marker: string, from = 0) => source.indexOf(marker, from)
 const fn = (name: string) =>

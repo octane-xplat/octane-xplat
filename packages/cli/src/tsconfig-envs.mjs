@@ -82,7 +82,7 @@ export const TYPECHECK_ENVIRONMENTS = {
 		// source leans on. It must precede any @nativescript/types copy in the
 		// program (duplicate global classes are first-wins) — ambient files are
 		// emitted ahead of all env files for that reason.
-		ambient: ['typecheck-globals/macos.d.ts', '../../macos-renderer/src/appkit.d.ts'],
+		ambient: ['typecheck-globals/macos.d.ts', '../../macos-renderer/src/host-globals.d.ts'],
 	},
 	linux: {
 		compilerOptions: {

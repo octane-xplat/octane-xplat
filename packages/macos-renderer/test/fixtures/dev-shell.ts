@@ -4,6 +4,8 @@ import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
+import { NSApplication, NSView } from '@octane-xplat/platform/macos'
+
 
 globalThis.__xplatDevModules = {
 	'@octane-xplat/macos-renderer': renderer,

@@ -1,22 +1,23 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { disposeImage, loadImage, updateImage } from '../src/image.ts'
+import { mockGlobals } from './mock-globals.ts'
 
 test('embedded and local image sources decode without network access; empty sources clear', () => {
-	const old = { NSImage: globalThis.NSImage, NSData: globalThis.NSData, NSURL: globalThis.NSURL }
-	globalThis.NSImage = {
-		alloc: () => ({
-			initWithData: (data) => ({ data }),
-			initWithContentsOfFile: (path) => ({ path }),
-			initWithContentsOfURL: (url) => ({ url }),
-		}),
-	}
+	const restore = mockGlobals({
+		NSImage: {
+			alloc: () => ({
+				initWithData: (data) => ({ data }),
+				initWithContentsOfFile: (path) => ({ path }),
+				initWithContentsOfURL: (url) => ({ url }),
+			}),
+		},
+		NSData: {
+			alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
+		},
+		NSURL: { URLWithString: (value) => value },
+	})
 
-	globalThis.NSData = {
-		alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
-	}
-
-	globalThis.NSURL = { URLWithString: (value) => value }
 	try {
 		assert.deepEqual(loadImage('data:image/png;base64,YQ=='), {
 			data: { value: 'YQ==', options: 0 },
@@ -26,29 +27,29 @@ test('embedded and local image sources decode without network access; empty sour
 		assert.deepEqual(loadImage('file:///tmp/photo.png'), { url: 'file:///tmp/photo.png' })
 		assert.equal(loadImage(''), null)
 	} finally {
-		Object.assign(globalThis, old)
+		restore()
 	}
 })
 
 test('uncached sources decode off the caller path; cached, stale and disposed loads are guarded', async () => {
-	const old = { NSImage: globalThis.NSImage, NSData: globalThis.NSData, NSURL: globalThis.NSURL }
+	const restore = mockGlobals({
+		NSImage: {
+			alloc: () => ({
+				initWithData: (data) => ({ data }),
+				initWithContentsOfFile: (path) => {
+					decodes++
+					return { path }
+				},
+				initWithContentsOfURL: (url) => ({ url }),
+			}),
+		},
+		NSData: {
+			alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
+		},
+		NSURL: { URLWithString: (value) => value },
+	})
+
 	let decodes = 0
-	globalThis.NSImage = {
-		alloc: () => ({
-			initWithData: (data) => ({ data }),
-			initWithContentsOfFile: (path) => {
-				decodes++
-				return { path }
-			},
-			initWithContentsOfURL: (url) => ({ url }),
-		}),
-	}
-
-	globalThis.NSData = {
-		alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
-	}
-
-	globalThis.NSURL = { URLWithString: (value) => value }
 	const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 	try {
 		// A fresh source defers the decode instead of blocking the caller.
@@ -91,6 +92,6 @@ test('uncached sources decode off the caller path; cached, stale and disposed lo
 		updateImage(view, '')
 		assert.equal(view.image, null)
 	} finally {
-		Object.assign(globalThis, old)
+		restore()
 	}
 })

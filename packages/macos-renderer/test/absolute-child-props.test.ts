@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // GH#10: left/right/top/bottom are parent-directed layout props consumed by
 // layoutAbsoluteChildren for every absolutelayout child, but applyProps
@@ -11,9 +10,7 @@ import { runInNewContext } from 'node:vm'
 // children log "ignored prop". Under an absolutelayout parent the props
 // should apply silently and queue a layout reconcile; under other parents
 // they are genuinely dead and the warning should remain.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slice = source.slice(
 	source.indexOf('function applyProps'),

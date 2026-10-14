@@ -1,16 +1,13 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 import { validateTextStyle } from '../src/formatted-text.ts'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the production creation/command paths without the Objective-C
 // bridge. Failed commands must not leak action registrations, observers, or
 // WebView delegates, and invalid batches must reject before mutating.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const at = (marker: string, from = 0) => source.indexOf(marker, from)
 const fn = (name: string) =>

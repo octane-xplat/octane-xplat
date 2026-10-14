@@ -1,12 +1,11 @@
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { NSDatePicker } from '@octane-xplat/platform/macos'
+import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slice = source.slice(
 	source.indexOf('function attachDatePicker('),

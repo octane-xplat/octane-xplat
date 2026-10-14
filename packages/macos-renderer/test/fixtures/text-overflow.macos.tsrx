@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import 'octane/signals'
 import { useSignal$ } from 'octane/signals/client'
+import { NSParagraphStyleAttributeName } from '@octane-xplat/platform/macos'
+
 let change: (value: any) => void
 const full = 'A very long tab title with repeated words '.repeat(12)
 

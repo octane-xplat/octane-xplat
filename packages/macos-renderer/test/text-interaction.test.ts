@@ -1,12 +1,9 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 import { test } from 'node:test'
+import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const helpers = source.slice(
 	source.indexOf('function dispatchTextEvent('),

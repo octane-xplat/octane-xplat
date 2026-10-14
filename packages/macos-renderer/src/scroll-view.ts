@@ -1,4 +1,6 @@
 /** Internal scroll layout ownership. Sizes and offsets stay in AppKit points. */
+
+import { NSNotificationCenter, NSUserInterfaceLayoutOrientation, NSViewFrameDidChangeNotification } from '@octane-xplat/platform/macos'
 export function scrollAxes(props: Record<string, any>) {
 	const orientation = props.orientation ?? (props.horizontal === true ? 'horizontal' : 'vertical')
 	return { inline: orientation !== 'vertical', block: orientation !== 'horizontal' }

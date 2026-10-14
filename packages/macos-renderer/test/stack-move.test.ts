@@ -1,16 +1,13 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the diff-based stack move without the Objective-C bridge. Layout
 // re-syncs used to detach every arranged child; removing a first-responder
 // ancestor ends the live editing session, so unchanged children must never
 // be re-parented.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const program = source.slice(
 	source.indexOf('function stackViewsInGravity('),

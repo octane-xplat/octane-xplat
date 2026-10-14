@@ -1,46 +1,46 @@
 {
-	"extends": "../../tsconfig.base.json",
-	"compilerOptions": {
-		"jsxImportSource": "@octane-xplat/macos-renderer",
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
-		"allowJs": true,
-		"checkJs": false,
-		"paths": {
+	"extends": "../../tsconfig.base.json"
+"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/macos-renderer"
+"lib": [
+			"ESNext"
+"DOM"
+"DOM.Iterable"
+		]
+"allowJs": true
+"checkJs": false
+"paths": {
 			"@xplat/app": [
 				"../../packages/app/src/index.ts"
-			],
-			"@xplat/app/*": [
+			]
+"@xplat/app/*": [
 				"../../packages/app/src/*"
-			],
-			"@xplat/demos": [
+			]
+"@xplat/demos": [
 				"../../packages/demos/src/index.ts"
-			],
-			"@xplat/demos/*": [
+			]
+"@xplat/demos/*": [
 				"../../packages/demos/src/*"
-			],
-			"@octane-xplat/platform": [
+			]
+"@octane-xplat/platform": [
 				"../../packages/platform/src/index.ts"
-			],
-			"@octane-xplat/platform/*": [
+			]
+"@octane-xplat/platform/*": [
 				"../../packages/platform/src/*"
 			]
 		}
-	},
-	"include": [
-		"src/**/*",
-		"../../packages/*/src/**/*.d.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"dist",
-		"artifacts"
-	],
-	"files": [
-		"../../packages/macos-renderer/src/appkit.d.ts",
-		"../../packages/macos-renderer/types/index.d.ts"
+	}
+"include": [
+		"src/**/*"
+"../../packages/*/src/**/*.d.ts"
+	]
+"exclude": [
+		"node_modules"
+"dist"
+"artifacts"
+	]
+"files": [
+		"../../packages/macos-renderer/src/host-globals.d.ts"
+"../../packages/macos-renderer/types/index.d.ts"
 	]
 }

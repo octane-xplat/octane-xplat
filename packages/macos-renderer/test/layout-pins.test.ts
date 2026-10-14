@@ -1,16 +1,13 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise grid/absolute child placement without the Objective-C bridge.
 // Children are translates=false views, so layout must express each computed
 // rect as parent-anchored constraints — an imperative frame write is
 // discarded by the next Auto Layout solve.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const layout =
 	source.slice(

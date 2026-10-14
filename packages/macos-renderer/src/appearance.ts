@@ -1,5 +1,7 @@
 /** App-wide effective appearance. AppKit resolves both system mode and an
  * explicit NSApplication.appearance override; colors remain app-owned. */
+
+import { NSApplication, NSObject } from '@octane-xplat/platform/macos'
 export function installAppearanceBridge(bridge: Record<string, any>): void {
 	// Preserve an installed producer across module reloads and host customization.
 	if (bridge.getColorScheme && bridge.onAppearanceChange) {

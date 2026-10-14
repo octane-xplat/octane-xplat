@@ -1,15 +1,12 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // The NAPI runtime registers exposed keys verbatim. Preserve the action-site
 // arity check, but verify gesture registration against exact metadata keys and
 // prototype methods below. Arity alone does not establish native delivery.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const context = {
 	NSObject: class {},

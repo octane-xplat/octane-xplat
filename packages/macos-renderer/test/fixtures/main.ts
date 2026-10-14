@@ -18,6 +18,8 @@ import { checkWrapLifecycle } from './wrap-lifecycle'
 import { checkDockLifecycle } from './dock-lifecycle'
 import { checkContentLifecycle } from './content-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
+import { NSApplication, NSApplicationActivationPolicy, NSFont, NSStackViewGravity, NSUserInterfaceLayoutOrientation, NSWindow, NSWindowStyleMask } from '@octane-xplat/platform/macos'
+
 
 const app = NSApplication.sharedApplication
 app.setActivationPolicy(NSApplicationActivationPolicy.Regular)

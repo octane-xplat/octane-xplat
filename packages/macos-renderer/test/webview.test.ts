@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { mockGlobals } from './mock-globals.ts'
 
 class NativeObject {
 	static extend(methods) {
@@ -18,14 +19,15 @@ class NativeObject {
 	}
 }
 
-globalThis.dlopen = () => ({})
-globalThis.NSObject = NativeObject
-globalThis.NativeClass = () => {}
-globalThis.WKNavigationDelegate = {}
-globalThis.interop = { types: { void: {} } }
-globalThis.NSError = NativeObject
-globalThis.WKWebViewConfiguration = NativeObject
-globalThis.WKWebView = class extends NativeObject {
+mockGlobals({
+	dlopen: () => ({}),
+	NSObject: NativeObject,
+	NativeClass: () => {},
+	WKNavigationDelegate: {},
+	interop: { types: { void: {} } },
+	NSError: NativeObject,
+	WKWebViewConfiguration: NativeObject,
+	WKWebView: class extends NativeObject {
 	calls = []
 	pending = []
 	initWithFrameConfiguration() {
@@ -53,15 +55,16 @@ globalThis.WKWebView = class extends NativeObject {
 			this.calls.push(['script', script])
 		}
 	}
-}
+	},
 
-globalThis.NSBundle = { mainBundle: { resourcePath: '/bundle' } }
-globalThis.NSURL = {
-	fileURLWithPath: (path) => ({ isFileURL: true, path, URLByDeletingLastPathComponent: '/parent' }),
-	URLWithString: (url) => ({ absoluteString: url }),
-}
+	NSBundle: { mainBundle: { resourcePath: '/bundle' } },
+	NSURL: {
+		fileURLWithPath: (path) => ({ isFileURL: true, path, URLByDeletingLastPathComponent: '/parent' }),
+		URLWithString: (url) => ({ absoluteString: url }),
+	},
+	NSURLRequest: { requestWithURL: (url) => url },
+})
 
-globalThis.NSURLRequest = { requestWithURL: (url) => url }
 const { makeWebView, updateWebView, disposeWebView } = await import('../src/webview.ts')
 
 function fixture(props) {

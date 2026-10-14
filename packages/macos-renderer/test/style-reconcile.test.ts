@@ -1,16 +1,13 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise style/className reconciliation without the Objective-C bridge.
 // Removed style keys and dropped classes must put back the native state they
 // installed — a stale alphaValue, input-transparency, size constraint, or
 // background color survives on the view otherwise.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slices = [
 	source.slice(

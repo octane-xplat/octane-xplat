@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { installAppearanceBridge } from '../src/appearance.ts'
+import { mockGlobals } from './mock-globals.ts'
 
 test('standalone effective appearance is live, app-wide, and disposed', () => {
 	let system = 'light'
@@ -27,7 +28,7 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
 		},
 	}
 
-	Object.assign(globalThis, {
+	mockGlobals({
 		NSApplication: { sharedApplication: application },
 		NSObject: {
 			extend(methods: any) {

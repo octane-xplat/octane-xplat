@@ -299,6 +299,7 @@ function generate(platform, packageName) {
 	console.log(
 		`${platform}: ${globals.size} globals, ${namespaces.size} namespaces from ${files.length} files`,
 	)
+	return globals
 }
 
 // Scan a module-form decls file (like macos.decls.d.ts) for exported names
@@ -339,7 +340,7 @@ function collectModuleExports(file) {
 // macOS: our own decls module + the objc-node-api ambient globals (objc,
 // interop, NativeObject, NativeClass) — imported side-effect first so the
 // runtime globals exist before the exported consts bind them.
-function generateMacos() {
+function generateMacos(iosGlobals) {
 	const declsPath = join(outDir, 'macos.decls.d.ts')
 	const names = collectModuleExports(declsPath)
 	const objcApi = require_.resolve('@nativescript/objc-node-api/index.d.ts', {
@@ -384,6 +385,12 @@ function generateMacos() {
 		'',
 		LAZY,
 		'',
+		'// When the generated SDK ambient is in the program (macOS packages that',
+		'// include the renderer types/), names resolve to its strict surface;',
+		'// otherwise the loose module decls apply.',
+		"// prettier-ignore",
+		`type _Sdk<K extends string, F> = K extends keyof typeof globalThis ? (typeof globalThis)[K] extends abstract new (...args: any[]) => infer R ? R : (typeof globalThis)[K] : F`,
+		'',
 	]
 
 	const reexports = []
@@ -391,6 +398,12 @@ function generateMacos() {
 		if (f.value) {impl.push(`export const ${name}: typeof D.${name} = (globalThis as any).${name} ?? lazyGlobal('${name}')`)}
 		if (f.type) {
 			if (f.generic) {reexports.push(name)}
+			// Where the strict SDK ambient is loaded (the renderer's own
+			// program), resolve to it — shared ObjC names like NSObject/NSArray
+			// stay loose since iOS ambient also declares them.
+			else if (!iosGlobals.has(name)) {
+				impl.push(`export type ${name} = _Sdk<'${name}', D.${name}>`)
+			}
 			else {impl.push(`export type ${name} = D.${name}`)}
 		}
 	}
@@ -401,7 +414,7 @@ function generateMacos() {
 
 	// objc-node-api ambient globals
 	for (const [name, f] of [...globals.entries()].sort()) {
-		if (f.type) {impl.push(`export type ${name} = DA.${name}_t`)}
+		if (f.type) {impl.push(`export type ${name} = _Sdk<'${name}', DA.${name}_t>`)}
 		if (f.value) {impl.push(`export const ${name}: DA.${name}_c = (globalThis as any).${name} ?? lazyGlobal('${name}')`)}
 	}
 
@@ -414,6 +427,6 @@ function generateMacos() {
 }
 
 mkdirSync(outDir, { recursive: true })
-generate('ios', '@nativescript/types-ios')
+const iosGlobals = generate('ios', '@nativescript/types-ios')
 generate('android', '@nativescript/types-android')
-generateMacos()
+generateMacos(iosGlobals)

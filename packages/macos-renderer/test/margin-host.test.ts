@@ -1,17 +1,14 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise margin-host insertion and layout-observer migration without the
 // Objective-C bridge. NSStackView insertion indices are local to a gravity
 // area, and NSViewFrameDidChangeNotification observers must follow whichever
 // view the stack actually arranges (the margin host when margins wrap a
 // child).
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const fn = (name) => {
 	const start = source.indexOf(`function ${name}(`)

@@ -1,5 +1,7 @@
 /** Embedded document surface; deliberately has no app-shell service bridge. */
 // The minimal AppKit host links AppKit, so load WebKit before resolving classes.
+
+import { NSBundle, NSError, NSObject, NSURL, NSURLErrorFailingURLErrorKey, NSURLRequest, WKNavigationDelegate, WKWebView, WKWebViewConfiguration, interop } from '@octane-xplat/platform/macos'
 const webKit = dlopen('/System/Library/Frameworks/WebKit.framework/WebKit', 2)
 if (!webKit) {
 	throw new Error('Unable to load the system WebKit framework')

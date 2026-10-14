@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { configureScrollAxes, observeScrollGeometry } from '../src/scroll-view.ts'
+import { mockGlobals, sourceWithoutImports } from './mock-globals.ts'
 
 function fixture(flipped = false) {
 	const constraints: any[] = []
@@ -41,7 +42,7 @@ function fixture(flipped = false) {
 	}
 
 	const observers: any[] = []
-	Object.assign(globalThis, {
+	mockGlobals({
 		NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 		NSViewFrameDidChangeNotification: 'frame',
 		NSNotificationCenter: {
@@ -172,15 +173,11 @@ test('queued geometry work is cancelled on removal and flipped origin stays at z
 
 // Exercise the existing renderer scroll dispatch as well as the layout helper:
 // geometry work must not invent new scroll fields or call a stale handler.
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 
 test('existing onScroll event shape and latest callback survive replacement and removal', () => {
 	const { node, clip, observers } = fixture()
-	const source = stripTypeScriptTypes(
-		readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-	)
+	const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 	const start = source.indexOf('function setScrollAction(')
 	const code = source.slice(start, source.indexOf('\nconst layoutHandlers', start))

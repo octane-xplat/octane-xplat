@@ -1,4 +1,7 @@
 import type { UniversalRoot } from 'octane/universal/native'
+import { CABasicAnimation, NSAppearance, NSApplication, NSColor, NSEvent, NSNotificationCenter, NSNumber, NSView, NSWindow, NativeClass } from '@octane-xplat/platform/macos'
+import type { NSPoint } from '@octane-xplat/platform/macos'
+
 
 // Shared surfaces live in the declaring window, independently of its layout.
 // Kept separate from NSPopover and platform-authentic window sheets.

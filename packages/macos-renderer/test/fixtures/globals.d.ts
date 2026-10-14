@@ -1,7 +1,5 @@
-// Ambient host globals the packaged AppKit runtime injects, covering the
-// consumer's `tsc --noEmit` over main.ts and dev-shell.ts. The SDK surface
-// comes from the renderer's generated types.
-/// <reference types="@octane-xplat/macos-renderer/types" />
+// Host globals the packaged AppKit runtime injects. The AppKit class surface
+// is module-scoped now — sources import it from @octane-xplat/platform/macos.
 
 // Host-injected entry points and globals.
 declare function __hostRunFile(path: string): any

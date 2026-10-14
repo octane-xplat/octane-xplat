@@ -1,27 +1,25 @@
 import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
 import { registerFontFamily, resolveFont } from '../src/fonts.ts'
+import { mockGlobals } from './mock-globals.ts'
 
-const originalFont = globalThis.NSFont
-const originalManager = globalThis.NSFontManager
+let restore: () => void
 before(() => {
-	globalThis.NSFont = {
-		systemFontOfSizeWeight: (size, weight) => ({ family: 'system', size, weight }),
-		fontWithDescriptorSize: (descriptor, size) => ({ family: descriptor.family, size }),
-	}
-
-	globalThis.NSFontManager = {
-		sharedFontManager: {
-			fontWithFamilyTraitsWeightSize: (family, _traits, weight, size) =>
-				family === 'Installed' ? { family, weight, size } : null,
+	restore = mockGlobals({
+		NSFont: {
+			systemFontOfSizeWeight: (size, weight) => ({ family: 'system', size, weight }),
+			fontWithDescriptorSize: (descriptor, size) => ({ family: descriptor.family, size }),
 		},
-	}
+		NSFontManager: {
+			sharedFontManager: {
+				fontWithFamilyTraitsWeightSize: (family, _traits, weight, size) =>
+					family === 'Installed' ? { family, weight, size } : null,
+			},
+		},
+	})
 })
 
-after(() => {
-	globalThis.NSFont = originalFont
-	globalThis.NSFontManager = originalManager
-})
+after(() => restore())
 
 test('default system fonts respect size and CSS weights', () => {
 	assert.deepEqual(resolveFont(18), { family: 'system', size: 18, weight: 0 })

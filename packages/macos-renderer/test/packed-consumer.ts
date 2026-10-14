@@ -31,6 +31,7 @@ async function pack(root: string) {
 }
 
 const renderer = await pack(packageRoot)
+const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const cli = await pack(join(repo, 'packages/cli'))
 const create = await pack(join(repo, 'packages/create'))
@@ -118,6 +119,7 @@ await writeFile(
 			type: 'module',
 			dependencies: {
 				'@octane-xplat/macos-renderer': renderer,
+				'@octane-xplat/platform': platform,
 				'@octane-xplat/jsx': jsx,
 				'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 				octane: octaneVersion,
@@ -159,7 +161,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n`,
+	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n`,
 )
 
 await writeFile(

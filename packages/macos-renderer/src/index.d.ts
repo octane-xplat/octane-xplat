@@ -1,4 +1,6 @@
 import '@nativescript/macos-node-api'
+import { NSFontDescriptor, NSView } from '@octane-xplat/platform/macos'
+
 
 export * from 'octane/universal/native'
 export interface MacOSRootOptions {

@@ -1,3 +1,5 @@
+import { NSFont, NSFontDescriptor, NSFontManager } from '@octane-xplat/platform/macos'
+
 interface FontFace {
 	weight: number
 	descriptor: NSFontDescriptor

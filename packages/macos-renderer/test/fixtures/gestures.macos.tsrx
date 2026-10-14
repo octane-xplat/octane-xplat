@@ -2,6 +2,8 @@
 import { Pressable } from '../../../ui/src/Pressable.macos.tsrx'
 import { View } from '../../../ui/src/View.macos.tsrx'
 import { useState } from 'octane'
+import { NSClickGestureRecognizer, NSPanGestureRecognizer, NSPressGestureRecognizer } from '@octane-xplat/platform/macos'
+
 const events: any[] = []
 let disable: (value: boolean) => void
 export default function Case() {

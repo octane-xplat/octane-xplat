@@ -1,15 +1,12 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
 // applyProps warns `ignored <type> prop <name>` for any prop outside its
 // per-type whitelist, but left/right/top/bottom are consumed by the PARENT's
 // layoutAbsoluteChildren — the warning fires for props that take effect.
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const applyPropsSrc = source.slice(
 	source.indexOf('function applyProps'),

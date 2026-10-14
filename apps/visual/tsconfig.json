@@ -1,22 +1,22 @@
 {
 	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"moduleSuffixes": [
-			"",
-			".web",
-			".ios",
-			".android",
-			".mobile",
-			".native",
-			".macos",
-			".linux",
-			".windows"
-		],
-		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
-		"types": ["vitest-plugin-vis", "vite/client"]
-	},
-	"include": ["src", "vitest.config.ts"]
+		"target": "ES2022"
+"module": "ESNext"
+"moduleResolution": "Bundler"
+"moduleSuffixes": [
+			""
+".web"
+".ios"
+".android"
+".mobile"
+".native"
+".macos"
+".linux"
+".windows"
+		]
+"jsx": "react-jsx"
+"jsxImportSource": "octane"
+"types": ["vitest-plugin-vis", "vite/client"]
+	}
+"include": ["src", "vitest.config.ts"]
 }

@@ -1,12 +1,9 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/gestures.ts', import.meta.url), 'utf8'),
-).replaceAll('export ', '')
+const source = sourceWithoutImports(new URL('../src/gestures.ts', import.meta.url)).replaceAll('export ', '')
 
 function fixture() {
 	class Native {
@@ -186,9 +183,7 @@ test('swipe directions preserve NativeScript values and require a completed thre
 	assert.equal(swipeDirection({ state: 3, deltaX: 29, deltaY: 29 }), null)
 })
 
-const renderer = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
-)
+const renderer = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 function rendererFunction(name) {
 	const start = renderer.indexOf('function ' + name + '(')
