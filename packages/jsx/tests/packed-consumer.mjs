@@ -66,6 +66,7 @@ const tree = (
 		<listpicker items={["First", null, 42]} selectedIndex={1} onSelectedIndexChange={(event) => { const index: number = event.value; void index; void event.object }} ref={(view) => {void view; return () => {}}} />
 		<datepicker date={new Date(2026, 4, 10)} minDate="2026-05-01" maxDate={new Date(2026, 4, 31)} day={10} month={5} year={2026} onDateChange={(event) => { const value: Date = event.value; const old: Date | undefined = event.oldValue; void value; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
 		<segmentedbar items={[{ title: "First" }, { title: "Second" }]} selectedIndex={1} style={{ selectedBackgroundColor: "#ff0000" }} onSelectedIndexChange={(event) => { const index: number = event.value; const old: number | undefined = event.oldIndex; void index; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
+		<segmentedbar><segmentedbaritem title="Day" ref={(element) => { void element; return () => {} }} /><segmentedbaritem /></segmentedbar>
 		<progress value={12.5} maxValue={100} ref={(view) => { void view; return () => {} }} />
 		<activityindicator busy={true} ref={(view) => { void view; return () => {} }} />
 		<htmlview html="<b>Hello &amp; world</b>" style={{ fontSize: 18 }} ref={(view) => { void view; return () => {} }} />
@@ -109,7 +110,11 @@ void badListMode
 const badDate = <datepicker date={123} />
 // @ts-expect-error AppKit-only props must stay out of shared JSX
 const badDateStyle = <datepicker datePickerStyle={0} />
-// @ts-expect-error SegmentedBar index must be numeric
+// @ts-expect-error SegmentedBarItem title must be a string
+const badItemTitle = <segmentedbaritem title={1} />
+// @ts-expect-error Per-item enabled is not in the canonical contract
+const badItemEnabled = <segmentedbaritem enabled={false} />
+// @ts-expect-error Index must be numeric
 const badSegmentIndex = <segmentedbar selectedIndex="1" />
 // @ts-expect-error SegmentedBar items must be host objects
 const badSegmentItems = <segmentedbar items={["First"]} />
@@ -215,6 +220,14 @@ const lane = <>
 void lane
 `,
 	macos: `
+const item = <segmentedbar><segmentedbaritem title="Day" ref={(element) => {
+ if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView;
+ // @ts-expect-error Logical items do not allocate an NSView
+ element.addSubview(element)
+ }
+ return () => {}
+}} /></segmentedbar>
+void item
 const formatted = <label><formattedstring ref={(element) => {
  if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView; }
  return () => {}
@@ -241,6 +254,14 @@ const lane = <label
 void lane
 `,
 	both: `
+const item = <segmentedbar><segmentedbaritem title="Day" ref={(element) => {
+ if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView;
+ // @ts-expect-error Logical items do not allocate an NSView
+ element.addSubview(element)
+ }
+ return () => {}
+}} /></segmentedbar>
+void item
 const formatted = <label><formattedstring ref={(element) => {
  if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView; }
  return () => {}

@@ -296,3 +296,15 @@ void segmentedBar
 void badSegmentIndex
 void badSegmentItems
 void badSegmentMode
+
+const segmentItem: MacJSX.IntrinsicElements['segmentedbaritem'] = {
+ title: 'Day', ref: (element) => {if (element) { const absent: null = element.view; void absent }; return () => {}},
+}
+
+// @ts-expect-error Title is a string
+const badItemTitle: MacJSX.IntrinsicElements['segmentedbaritem'] = {title: 1}
+// @ts-expect-error Per-item enabled is not in the canonical shared contract
+const badItemEnabled: MacJSX.IntrinsicElements['segmentedbaritem'] = {enabled: false}
+void segmentItem
+void badItemTitle
+void badItemEnabled

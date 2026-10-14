@@ -21,13 +21,13 @@ All conditioned native declarations derive from that same map.
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`                                                                                                    | `segmentedbaritem`, `timepicker`                          |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`                                                                                                    | `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
 | Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 27 core factories and 12 missing core hosts. `span` and
+There are now 28 core factories and 11 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -577,9 +577,7 @@ export default function SegmentExample() {
 The selected background is a style property. Removing it restores NativeScript's
 blue default. The existing renderer color parser supports hex and rgb/rgba
 strings and rejects other formats explicitly. Item arrays use the canonical
-HostObject projection; structural title objects are accepted. The separate
-`segmentedbaritem` intrinsic remains unimplemented, so JSX item children are
-not qualified by this unit. The shared declarations and ref policy are unchanged.
+HostObject projection; structural title objects are accepted. The separate `segmentedbaritem` logical host is qualified below. The shared declarations and ref policy are unchanged.
 
 Maintained unit and packed public consumer checks cover ordered item updates,
 selection bounds, native action payloads and unchanged-event suppression,
@@ -591,3 +589,44 @@ is event-bridge evidence, not OS input. Inherited common lifecycle, gesture,
 class/style/accessibility and host-object policy gaps, mobile hardware, visual
 parity and full release acceptance remain open. This raw host changes no recipe
 workflow; the normalized UI SegmentedControl remains separate.
+
+
+## SegmentedBarItem logical host
+
+Put SegmentedBarItem children inside SegmentedBar to supply titles in JSX order.
+Each item owns one segment, including duplicate or empty titles. Updating `title`
+keeps the logical item and native parent; removing `title` restores an empty
+string. Items allocate no NSView and use the macOS `LogicalElement` ref policy.
+Supply title content through the prop, with no JSX children. Per-item `enabled`
+is outside the canonical contract.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useSignal$ } from 'octane/signals/client'
+
+export default function SegmentItemExample() {
+	const title$ = useSignal$('Day')
+	return (
+		<stacklayout>
+			<segmentedbar selectedIndex={0} style={{ width: 240, height: 32 }}>
+				<segmentedbaritem title={title$.get()} />
+				<segmentedbaritem title="Week" />
+			</segmentedbar>
+			<button text="Rename" onTap={() => title$.set('Today')} />
+		</stacklayout>
+	)
+}
+```
+
+Maintained units and the independent packed AppKit consumer check title updates
+and default restoration, ordered insertion and keyed moves, duplicate/empty
+slots, valid parent layout, replacement, removal, authored parent changes,
+logical identity, object/callback/nested-array refs, cleanup and root teardown.
+Retained-root HMR checks logical item and native parent identity, edited title,
+retained signal selection and disposal. Authored parent changes recreate the
+logical item; units additionally exercise physical reparenting. Conditioned
+packed declarations check logical refs without widening the shared props.
+The inherited common lifecycle/gesture/class/style/accessibility and host-object
+policy audit, mobile hardware, visual parity, OS input and full release gates
+remain open. This core unit changes no recipe workflow; the normalized UI
+SegmentedControl remains separate.

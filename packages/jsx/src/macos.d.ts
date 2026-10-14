@@ -12,7 +12,7 @@
  *
  * Types only — the compiler lowers JSX before any factory could run.
  */
-import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, FormattedStringProps, SpanProps } from './shared.js';
+import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, FormattedStringProps, SpanProps, SegmentedBarItemProps } from './shared.js';
 
 export * from './shared.js';
 
@@ -41,8 +41,9 @@ export interface LogicalElement {
 export declare namespace JSX {
 	type Element = NativeNode;
 	type ElementType = ElementTypeOf;
-	interface IntrinsicElements extends Omit<NativeElements<HostElement>, 'proxyviewcontainer' | 'formattedstring' | 'span'> {
+	interface IntrinsicElements extends Omit<NativeElements<HostElement>, 'proxyviewcontainer' | 'formattedstring' | 'span' | 'segmentedbaritem'> {
 		proxyviewcontainer: Attributes<LogicalElement>;
+		segmentedbaritem: Attributes<LogicalElement, SegmentedBarItemProps>;
 		formattedstring: Attributes<LogicalElement, FormattedStringProps>;
 		span: Attributes<LogicalElement, SpanProps>;
 	}

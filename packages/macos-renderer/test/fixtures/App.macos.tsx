@@ -22,6 +22,7 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<segmentedbar id="hmr-item-bar" selectedIndex={count$.get()}><segmentedbaritem id="hmr-item" title="First revision" /><segmentedbaritem title={String(count$.get())} /></segmentedbar>
 			<segmentedbar id="hmr-segment" items={[{ title: "First revision" }, { title: "Retained" }]} selectedIndex={count$.get()} />
 			<progress id="hmr-progress" value={count$.get() * ("First revision".startsWith("First") ? 25 : 40)} maxValue={100} />
 			<listpicker id="hmr-list" items={["First revision", "Retained"]} selectedIndex={count$.get()} />

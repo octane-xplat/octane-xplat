@@ -1803,13 +1803,19 @@ function notifySegmentedBarChange(node: ElementNode, value: number) {
 
 function syncSegmentedBar(node: ElementNode) {
 	const view = node.view! as NSSegmentedControl
-	const titles = Array.from(node.props.items ?? [], (item: any) => String(item.title ?? ''))
+	// Builder items precede authored children, matching NativeScript's append path.
+	const titles = [
+		...Array.from(node.props.items ?? [], (item: any) => String(item.title ?? '')),
+		...node.children.map((item) => item.props.title ?? ''),
+	]
+
 	if (!node.segmentedBarTitles || titles.length !== node.segmentedBarTitles.length || titles.some((title, index) => title !== node.segmentedBarTitles[index])) {
 		view.segmentCount = titles.length
 		for (const [index, title] of titles.entries()) {view.setLabelForSegment(title, index)}
 
 		node.segmentedBarTitles = titles
 		view.invalidateIntrinsicContentSize()
+		queueLayoutReconcile(node.container, node.parent)
 	}
 
 	if (!Object.is(node.segmentedBarInput, node.props.selectedIndex)) {
@@ -3094,6 +3100,7 @@ const SUPPORTED_TYPES = new Set([
 	'datepicker',
 	'listpicker',
 	'segmentedbar',
+	'segmentedbaritem',
 	'webview',
 	'image',
 	'span',
@@ -3101,7 +3108,7 @@ const SUPPORTED_TYPES = new Set([
 ])
 
 function typeHasView(type: string) {
-	return type !== '#text' && type !== 'span' && type !== 'formattedstring' && type !== 'proxyviewcontainer'
+	return type !== 'segmentedbaritem' && type !== '#text' && type !== 'span' && type !== 'formattedstring' && type !== 'proxyviewcontainer'
 }
 
 function assertSupportedType(type: string) {
@@ -3114,6 +3121,10 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'segmentedbaritem' && props?.title != null && typeof props.title !== 'string') {
+		throw new Error('AppKit segmentedbaritem title must be a string')
+	}
+
 	if (type === 'segmentedbar') {
 		if (props?.items != null && !Array.isArray(props.items)) {throw new Error('AppKit segmentedbar items must be an array')}
 		for (const item of props?.items ?? []) {
@@ -3390,6 +3401,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'proxyviewcontainer':
 			case 'formattedstring':
+			case 'segmentedbaritem':
 			case 'span':
 				break
 			default:
@@ -4788,6 +4800,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	segmentedbaritem: ['title'],
 	segmentedbar: ['items', 'selectedIndex', 'style', 'className'],
 	listpicker: ['items', 'selectedIndex', 'style', 'className'],
 	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
@@ -4839,6 +4852,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 	node.props = { ...node.props, ...props }
 	if (node.authoredProps || node.parent?.type === 'proxyviewcontainer' || node.type === 'proxyviewcontainer') {
 		node.authoredProps = { ...node.authoredProps, ...props }
+	}
+
+	if (node.type === 'segmentedbaritem') {
+		if (node.parent) {syncSegmentedBar(node.parent)}
+		return
 	}
 
 	if (node.type === 'proxyviewcontainer') {
@@ -5802,6 +5820,7 @@ function detach(container: RootContainer, node: ElementNode) {
 
 	queueLayoutReconcile(container, previousParent)
 	syncText(previousParent)
+	if (previousParent?.type === 'segmentedbar') {syncSegmentedBar(previousParent)}
 	node.parent = null
 	node.layoutParent = null
 }
@@ -5928,6 +5947,8 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'segmentedbaritem') {throw new Error('AppKit <segmentedbaritem> takes title content, not JSX children')}
+	if (childType === 'segmentedbaritem' && parentType !== 'segmentedbar') {throw new Error('AppKit <segmentedbaritem> requires a segmentedbar parent')}
 	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
 	if (parentType === 'segmentedbar' && childType !== 'segmentedbaritem') {throw new Error('AppKit <segmentedbar> accepts only segmentedbaritem children')}
 	if (parentType === 'listpicker') {throw new Error('AppKit <listpicker> cannot contain JSX children')}
@@ -6105,7 +6126,8 @@ function insert(
 
 		syncScheme(node)
 	} else {
-		syncText(parent)
+		if (parent?.type === 'segmentedbar') {syncSegmentedBar(parent)}
+		else {syncText(parent)}
 	}
 }
 
@@ -6158,9 +6180,19 @@ function remove(container: RootContainer, parentId: number | null, node: Element
 	queueLayoutReconcile(container, expectedParent)
 	node.parent = null
 	syncText(expectedParent)
+	if (expectedParent?.type === 'segmentedbar') {syncSegmentedBar(expectedParent)}
 }
 
 function destroy(node: ElementNode) {
+	if (node.type === 'segmentedbaritem') {
+		detach(node.container, node)
+		node.props.title = undefined
+	}
+
+	if (node.type === 'segmentedbar') {
+		for (const child of node.children.slice()) {detach(node.container, child)}
+	}
+
 	if (node.type === 'formattedstring' || node.type === 'span') {
 		detach(node.container, node)
 		for (const child of node.children.slice()) {detach(node.container, child)}
@@ -6363,7 +6395,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const existing = container.nodes.get(command.id)
 				const parentId = parentOf(command.id)
 				const parent = parentId == null ? null : known(parentId)
-				if (parent) {validateTextNesting(parent.type, command.type)}
+				validateTextNesting(parent?.type, command.type)
 				if (
 					[
 						'stacklayout',
@@ -6407,6 +6439,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				}
 
 				const parentId = command.parent as number | null
+				validateTextNesting(parentId === null ? undefined : known(parentId)?.type, entry.type)
 				if (parentId !== null) {
 					const parent = known(parentId)
 					validateTextNesting(parent?.type, entry.type)
@@ -6677,7 +6710,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	},
 	getPublicInstance(container, id) {
 		const node = container.nodes.get(id)
-		return node && ['proxyviewcontainer', 'formattedstring', 'span'].includes(node.type) ? node : (node?.view ?? null)
+		return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem'].includes(node.type) ? node : (node?.view ?? null)
 	},
 }
 
@@ -7838,7 +7871,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		const debug = {
 			findId(id: string) {
 				const node = [...container.nodes.values()].find((node) => node.props.id === id)
-				return node && ['proxyviewcontainer', 'formattedstring', 'span'].includes(node.type) ? node : (node?.view ?? null)
+				return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem'].includes(node.type) ? node : (node?.view ?? null)
 			},
 			measureParity(facets: readonly string[]) {
 				return measureParity(container, facets)

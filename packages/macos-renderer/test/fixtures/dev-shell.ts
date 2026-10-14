@@ -22,6 +22,8 @@ const hostView = NSView.alloc().initWithFrame({
 const root = renderer.createMacOSRoot(hostView)
 const debug = (root as any).__macosDebug
 let liveComponent: any
+let retainedItem: any
+let retainedItemBar: any
 let retainedSegment: any
 let retainedProgress: any
 let retainedList: any
@@ -49,6 +51,8 @@ function reload() {
 		liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
 		root.render(liveComponent, {})
 		setTimeout(() => {
+			retainedItem = debug.findId('hmr-item')
+			retainedItemBar = debug.findId('hmr-item-bar')
 			retainedSegment = debug.findId('hmr-segment')
 			retainedProgress = debug.findId('hmr-progress')
 			retainedList = debug.findId('hmr-list')
@@ -82,6 +86,7 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
+				debug.findId('hmr-item') === retainedItem && retainedItem.view === null && retainedItem.props.title === 'Second revision' && debug.findId('hmr-item-bar') === retainedItemBar && String(retainedItemBar.labelForSegment(0)) === 'Second revision' && String(retainedItemBar.labelForSegment(1)) === '1' && Number(retainedItemBar.selectedSegment) === 1 &&
 				debug.findId('hmr-segment') === retainedSegment && Number(retainedSegment.selectedSegment) === 1 && String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
 				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
 				debug.findId('hmr-list') === retainedList && Number(retainedList.indexOfSelectedItem) === 1 && String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
@@ -122,6 +127,7 @@ function reload() {
 			) {
 				root.unmount()
 				if (
+					retainedItem.parent || retainedItem.props.title !== undefined || retainedItemBar.superview || Number(retainedItemBar.segmentCount) !== 0 ||
 					retainedSegment.superview || retainedSegment.target != null || String(retainedSegment.action) !== '<null selector>' || Number(retainedSegment.segmentCount) !== 0 ||
 					retainedProgress.superview ||
 					retainedList.superview || retainedList.target != null || String(retainedList.action) !== '<null selector>' || Number(retainedList.numberOfItems) !== 0 ||
@@ -157,6 +163,7 @@ function reload() {
 				console.log('PACKED_FORMATTEDSTRING_HMR_OK')
 				console.log('PACKED_ACTIVITYINDICATOR_HMR_OK')
 				console.log('PACKED_SEGMENTEDBAR_HMR_OK')
+				console.log('PACKED_SEGMENTEDBARITEM_HMR_OK')
 				console.log('PACKED_PROGRESS_HMR_OK')
 				console.log('PACKED_HTMLVIEW_HMR_OK')
 				console.log('PACKED_LISTPICKER_HMR_OK')
