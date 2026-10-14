@@ -22,6 +22,7 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<htmlview id="hmr-html" html={"<b>First revision</b>" + String(count$.get())} style={{ fontSize: 18 }} />
 			<label id="hmr-formatted-parent"><formattedstring id="hmr-formatted" fontSize={18}><span text="First revision" /><span text={String(count$.get())} /></formattedstring></label>
 			<searchbar id="hmr-search" text="First revision" hint={String(count$.get())} />
 			<label id="count" style={{ fontSize: 22, fontWeight: 700 }}>

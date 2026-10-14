@@ -21,6 +21,7 @@ import type {
 } from 'octane/universal/native'
 
 import { composeAttributedText, validateTextStyle } from './formatted-text'
+import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 export { registerFontFamily } from './fonts'
 
@@ -2846,6 +2847,7 @@ const VIEW_PARENT_TYPES = new Set([
 const SUPPORTED_TYPES = new Set([
 	...VIEW_PARENT_TYPES,
 	'label',
+	'htmlview',
 	'#text',
 	'button',
 	'textfield',
@@ -2873,6 +2875,7 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'htmlview') {validateHtmlProps(props ?? {})}
 	if (type === 'span' || type === 'formattedstring') {
 		validateTextStyle(props ?? {}, nativeColor)
 		return
@@ -2897,7 +2900,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 			nativeColor(style.borderColor)
 		}
 
-		if (['label', 'textfield', 'textview', 'searchbar'].includes(type) && style.color != null) {
+		if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(type) && style.color != null) {
 			nativeColor(style.color)
 		}
 	}
@@ -3031,6 +3034,10 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
 				break
+			case 'htmlview':
+				node.view = makeLabel()
+				node.view.selectable = true
+				break
 			case 'label':
 				node.view = makeLabel()
 				break
@@ -3103,7 +3110,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			}
 		}
 
-		if (['label', 'textfield', 'textview', 'searchbar'].includes(type)) {
+		if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(type)) {
 			const textControl = node.view! as NSTextField | NSTextView
 			if (textControl.font) {
 				textControl.font = fontForFamilyStyle(textControl.font.pointSize, 400, container.fontFamily)
@@ -3302,7 +3309,7 @@ function applyThemeColors(node: ElementNode) {
 
 	node.scheme = nodeScheme(node)
 	const colors = SCHEME_COLORS[node.scheme]
-	if (['label', 'textfield', 'textview', 'searchbar'].includes(node.type)) {
+	if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)) {
 		view.textColor = nativeColor(node.styleColor ?? colors[node.colorSlot ?? 'text'])
 		if (node.type === 'label') {
 			setLabelText(node, String(view.stringValue ?? ''))
@@ -3466,7 +3473,7 @@ function syncNodeFont(node: ElementNode) {
 		node.styleFontSize ??
 		node.propFontSize ??
 		node.classFontSize ??
-		(node.type === 'label' ? 16 : 14)
+		(['label', 'htmlview'].includes(node.type) ? 16 : 14)
 
 	const weight = node.styleFontWeight ?? node.classFontWeight ?? 400
 	node.appliedFontWeight = String(weight)
@@ -3555,7 +3562,7 @@ function resetStyle(node: ElementNode, name: string) {
 		return
 	}
 
-	const textControl = ['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+	const textControl = ['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
 	if (name === 'pointerEvents') {
 		inputTransparentViews.delete(view)
 	} else if (name === 'objectFit' && node.type === 'image') {
@@ -3685,19 +3692,19 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			node.view!.imageScaling = imageScaling[String(value)] ?? 0
 		} else if (
 			name === 'fontSize' &&
-			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
 		) {
 			node.styleFontSize = value
 			syncNodeFont(node)
 		} else if (
 			name === 'fontFamily' &&
-			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
 		) {
 			node.styleFontFamily = String(value)
 			syncNodeFont(node)
 		} else if (
 			name === 'color' &&
-			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
 		) {
 			node.styleColor = String(value)
 			node.view!.textColor = nativeColor(value)
@@ -3752,7 +3759,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			node.view.alphaValue = Number(value)
 		} else if (
 			name === 'fontWeight' &&
-			['label', 'textfield', 'textview', 'searchbar'].includes(node.type)
+			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
 		) {
 			node.styleFontWeight = String(value)
 			syncNodeFont(node)
@@ -4100,6 +4107,20 @@ function syncLabelOverflow(node: ElementNode) {
 	view.invalidateIntrinsicContentSize()
 }
 
+function syncHtmlView(node: ElementNode) {
+	const view = node.view!
+	view.attributedStringValue = parseHtmlText(node.props.html ?? '', {
+		fontSize: Number(view.font.pointSize),
+		fontFamily: String(view.font.familyName),
+		fontWeight: node.appliedFontWeight ?? '400',
+		color: view.textColor,
+		style: node.props.style ?? {},
+	})
+
+	view.invalidateIntrinsicContentSize()
+	queueLayoutReconcile(node.container, node.parent)
+}
+
 function setLabelText(node: ElementNode, text: any) {
 	const lineHeight = Number(node.props?.style?.lineHeight)
 	if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
@@ -4435,7 +4456,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		}
 	}
 
-	if (node.type === 'label' && name === 'accessibilityLabel') {
+	if (['label', 'htmlview'].includes(node.type) && name === 'accessibilityLabel') {
 		node.view!.setAccessibilityLabel?.(String(value ?? ''))
 	}
 
@@ -4457,6 +4478,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 /** Sticky props each type's readers consult through node.props — a key
  *  dropped by a host update must read as removed, not stale. */
 const CLEAR_ON_UPDATE: Record<string, string[]> = {
+	htmlview: ['html', 'style', 'className'],
 	formattedstring: ['style', 'fontFamily', 'fontSize', 'color', 'backgroundColor'],
 	span: ['text', 'style', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textDecoration', 'color', 'backgroundColor'],
 	wraplayout: ['orientation', 'itemWidth', 'itemHeight'],
@@ -4704,6 +4726,22 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
+				}
+
+				break
+			case 'htmlview':
+				if (name === 'html' || name === 'id') {
+					continue // parse once after all font/color sources reconcile
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else {
+					console.warn('[macos-host] ignored htmlview prop ' + name)
 				}
 
 				break
@@ -4979,6 +5017,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 			setSizeConstraint(node, 'height', height)
 		}
 	}
+
+	if (node.type === 'htmlview') {syncHtmlView(node)}
 
 	if (node.type === 'searchbar') {
 		syncSearchBar(node, props)
@@ -5516,6 +5556,10 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
+	if (parentType === 'htmlview') {
+		throw new Error('AppKit <htmlview> takes html content, not JSX children')
+	}
+
 	if (parentType === 'formattedstring' && childType !== 'span') {
 		throw new Error('AppKit <formattedstring> accepts only span children')
 	}

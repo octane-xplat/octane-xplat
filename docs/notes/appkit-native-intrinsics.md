@@ -19,7 +19,7 @@ All conditioned native declarations derive from that same map.
 | Family            | Existing AppKit factories                                                                                                       | Missing raw AppKit hosts                                                                                                               |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
-| Text              | `label`, `span`, `formattedstring`                                                                                                                 | `htmlview`                                                                                                          |
+| Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
 | Controls          | `button`, `switch`, `slider`                                                                                                    | `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                          |
 | Collections       | —                                                                                                                               | `listview`, `tabview`, `tabviewitem`                                                                                                   |
@@ -27,7 +27,7 @@ All conditioned native declarations derive from that same map.
 | Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
 | Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 21 core factories and 18 missing core hosts. `span` and
+There are now 22 core factories and 17 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 18 missing core hosts and nine missing raw extension hosts remain required.
+The 17 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -359,3 +359,31 @@ do not promise identity across renderer parents. The inherited common
 lifecycle/gesture/class styling audit, broader color formats, host-object policy,
 mobile execution, OS input, visual parity and the complete release gates remain
 open. This unit changes no recipe workflow and makes no full parity claim.
+
+## HtmlView host
+
+HtmlView displays attributed HTML in a noneditable, selectable AppKit text field.
+The HTML importer handles inline markup, entities and links. Updating `html`
+keeps the same native ref; removing it clears the content. Font and color
+styles apply to the HTML body, and removing them restores the host defaults.
+Supply content through `html`, with no JSX children.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function HtmlExample() {
+	return (
+		<stacklayout>
+			<htmlview html="<b>Hello</b> &amp; welcome" style={{ fontSize: 20, color: '#2563eb', width: 240, height: 40 }} />
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and independent packed AppKit checks cover parsing, UTF8 text,
+HTML font traits and links, body styling, updates, clearing, style defaults,
+layout, keyed order, parent changes, replacement/removal, refs, cleanup and
+retained-root HMR. Authored JSX parent changes create a new host and clean the
+old ref; retained identity is checked within one parent. Shared declarations
+remain unchanged. The inherited common gesture/lifecycle/style audit, mobile
+execution, OS input, visual parity and complete release gates remain open.
+No recipe workflow changes in this core-host unit.

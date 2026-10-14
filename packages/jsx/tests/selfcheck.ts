@@ -209,3 +209,17 @@ void formatted
 // @ts-expect-error FormattedString fontSize is numeric
 const invalidFormatted: MacJSX.IntrinsicElements['formattedstring'] = { fontSize: '18' }
 void invalidFormatted
+
+const htmlView: MacJSX.IntrinsicElements['htmlview'] = {
+	html: '<b>Hello</b>',
+	style: { fontSize: 18 },
+	ref: (view) => { if (view) { view.removeFromSuperview() }; return () => {} },
+}
+
+void htmlView
+// @ts-expect-error HTML content is a string
+const invalidHtml: MacJSX.IntrinsicElements['htmlview'] = { html: 123 }
+// @ts-expect-error no AppKit-specific content prop
+const invalidHtmlText: MacJSX.IntrinsicElements['htmlview'] = { text: 'Hello' }
+void invalidHtml
+void invalidHtmlText
