@@ -5,7 +5,21 @@ vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
 import { ContextMenu } from './ContextMenu.web.tsrx'
 import { Breadcrumb } from './Breadcrumb.web.tsrx'
-import { DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuDivider, DropdownMenuSubMenu } from './MenuParts.web.tsrx'
+import { DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSubMenu } from './MenuParts.web.tsrx'
+import type { MenuOption, MoreMenuProps } from './props'
+
+const menuKinds: MenuOption[] = [
+	{ type: 'action', key: 'rename', label: 'Rename', onSelect() {} },
+	{ type: 'link', key: 'settings', label: 'Settings', href: '/settings' },
+	{ type: 'section', key: 'export', label: 'Export', items: [{ type: 'action', key: 'csv', label: 'CSV' }] },
+	{ type: 'separator', key: 'break' },
+]
+const actionOverflow: MoreMenuProps = { items: [{ type: 'action', key: 'share', label: 'Share' }] }
+// @ts-expect-error A link needs normal DropdownMenu navigation behavior.
+const invalidActionOverflow: MoreMenuProps = { items: [{ type: 'link', key: 'settings', href: '/settings' }] }
+// @ts-expect-error A section is a label and nested rows, never an action.
+const invalidSectionAction: MenuOption = { type: 'section', key: 'group', label: 'Group', items: [], onSelect() {} }
+void [menuKinds, actionOverflow, invalidActionOverflow, invalidSectionAction]
 
 const roots: ReturnType<typeof createRoot>[] = []
 function mount(Component: any, props: any) {
@@ -28,7 +42,7 @@ afterEach(() => { act(() => roots.splice(0).forEach((r) => r.unmount())); docume
 function Compound(props: any) @{
 	<DropdownMenu trigger="Actions" isOpen={props.open} onOpenChange={props.close}>
 		<DropdownMenuItem id="first" label="First" onSelect={props.pick} />
-		<DropdownMenuDivider />
+		<DropdownMenuSeparator />
 		<DropdownMenuItem id="disabled" label="Disabled" isDisabled onSelect={props.pick} />
 		<DropdownMenuCheckboxItem id="check" label="Archived" value={props.checked} onValueChange={props.check} />
 		<DropdownMenuRadioGroup label="Sort" value={props.value} onValueChange={props.radio}>
@@ -75,7 +89,7 @@ describe('menu family contracts', () => {
 
 	it('opens from the trigger with keyboard focus and returns focus after accepted root dismissal', () => {
 		const pick = vi.fn()
-		mount(DropdownMenu, { id: 'trigger', trigger: 'Actions', items: [{ key: 'one', label: 'One', onSelect: pick }, { key: 'two', label: 'Two' }] })
+		mount(DropdownMenu, { id: 'trigger', trigger: 'Actions', items: [{ type: 'action', key: 'one', label: 'One', onSelect: pick }, { type: 'action', key: 'two', label: 'Two' }] })
 		act(() => document.getElementById('trigger')!.focus())
 		key('ArrowUp'); expect(document.activeElement?.id).toBe('two')
 		key('Escape'); expect(document.activeElement?.id).toBe('trigger')
@@ -154,7 +168,7 @@ describe('menu family contracts', () => {
 
 	it('preserves legacy items and ContextMenu children and supports a visible trigger', () => {
 		const pick = vi.fn()
-		mount(ContextMenu, { children: 'Target', trigger: 'Actions', items: [{ key: 'legacy', label: 'Legacy', onSelect: pick }] })
+		mount(ContextMenu, { children: 'Target', trigger: 'Actions', items: [{ type: 'action', key: 'legacy', label: 'Legacy', onSelect: pick }] })
 		act(() => (document.querySelector('[role="button"]') as HTMLElement).click())
 		click('legacy'); expect(pick).toHaveBeenCalledTimes(1)
 		expect(document.querySelector('[role="menu"]')).toBeNull()
@@ -170,14 +184,14 @@ describe('menu family contracts', () => {
 	})
 
 	it('names the menu surface by its trigger', () => {
-		mount(DropdownMenu, { id: 'named-trigger', trigger: 'Actions', isOpen: true, items: [{ key: 'one', label: 'One' }] })
+		mount(DropdownMenu, { id: 'named-trigger', trigger: 'Actions', isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
 		const menu = document.querySelector('[role="menu"]') as HTMLElement
 		expect(menu.getAttribute('aria-labelledby')).toBe('named-trigger')
 		expect(menu.getAttribute('aria-label')).toBeNull()
 	})
 
 	it('names the menu surface by a generated trigger id when none is given', () => {
-		mount(DropdownMenu, { trigger: 'Actions', isOpen: true, items: [{ key: 'one', label: 'One' }] })
+		mount(DropdownMenu, { trigger: 'Actions', isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
 		const menu = document.querySelector('[role="menu"]') as HTMLElement
 		const labelledBy = menu.getAttribute('aria-labelledby')
 		expect(labelledBy).toBeTruthy()
@@ -196,5 +210,24 @@ describe('menu family contracts', () => {
 		}
 		mount(Harness, {})
 		expect(String(caught.error)).toContain('requires a menu')
+	})
+
+	it('types data rows by kind and honors action close overrides', () => {
+		const close = vi.fn()
+		mount(DropdownMenu, {
+			trigger: 'Kinds', isOpen: true, onOpenChange: close,
+			items: [
+				{ type: 'action', key: 'keep', label: 'Keep open', hasCloseOnSelect: false },
+				{ type: 'link', key: 'docs', label: 'Docs', href: '/docs', target: '_self' },
+				{ type: 'section', key: 'group', label: 'More', items: [{ type: 'action', key: 'nested', label: 'Nested' }] },
+				{ type: 'separator', key: 'split' },
+			],
+		})
+		expect(document.querySelector('a#docs')?.getAttribute('role')).toBe('menuitem')
+		expect(document.querySelector('a#docs')?.getAttribute('href')).toBe('/docs')
+		expect(document.getElementById('group')?.getAttribute('role')).toBe('group')
+		expect(document.getElementById('split')?.getAttribute('role')).toBe('separator')
+		click('keep')
+		expect(close).not.toHaveBeenCalled()
 	})
 })

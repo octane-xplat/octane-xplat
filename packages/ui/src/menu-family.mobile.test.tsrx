@@ -34,7 +34,7 @@ describe('native menu action contracts (object driver)', () => {
 		const close = vi.fn(), check = vi.fn(), radio = vi.fn(), disabled = vi.fn()
 		const items = [
 			{ key: 'check', label: 'Archived', type: 'checkbox' as const, value: false, onValueChange: check },
-			{ key: 'blocked', label: 'Disabled', isDisabled: true, onSelect: disabled },
+			{ type: 'action' as const, key: 'blocked', label: 'Disabled', isDisabled: true, onSelect: disabled },
 			{ key: 'sort', label: 'Sort', type: 'radio-group' as const, value: 'new', onValueChange: radio, items: [{ key: 'old', label: 'Oldest' }] },
 		]
 
@@ -107,7 +107,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const pick = vi.fn(), close = vi.fn()
 	try {
-		root.render(MacMenu as any, { isOpen: true, trigger: 'Actions', onOpenChange: close, items: [{ key: 'move', label: 'Move', items: [{ key: 'target', label: 'Target', onSelect: pick }] }] })
+		root.render(MacMenu as any, { isOpen: true, trigger: 'Actions', onOpenChange: close, items: [{ type: 'submenu', key: 'move', label: 'Move', items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }] }] })
 		flushUniversalSync(() => {})
 		await vi.waitFor(() => expect(popups).toHaveLength(1))
 		expect(show.mock.calls[0][0].anchor).toBeTruthy()

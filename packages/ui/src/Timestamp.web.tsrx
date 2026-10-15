@@ -75,21 +75,23 @@ function TimestampCard(props: { lines: readonly TimestampTooltipLine[] }) @{
 
 /** Timestamp — human-readable instant. `<time dateTime>` carries the ISO
  *  instant; relative formats announce the absolute `full` form via
- *  aria-label. 'auto' is relative below `autoThreshold` seconds, else
+ *  aria-label. 'auto' is relative below `autoThresholdSeconds`, else
  *  `date_time`. `isLive` re-renders on the relative cadence. `hasTooltip`
  *  opens the HoverCard with one row per tooltip entry. */
 export function Timestamp(props: TimestampProps) @{
 	const format = props.format ?? 'auto';
-	const autoThreshold = props.autoThreshold ?? DEFAULT_AUTO_THRESHOLD;
+	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD;
 	const hasTooltip = props.hasTooltip ?? true;
 	const isLive = props.isLive ?? false;
 	const isTimezoneShown = props.isTimezoneShown ?? false;
 
-	const date = parseTimestampValue(props.value);
+	const date = typeof props.value === 'number'
+		? parseTimestampValue(props.value, props.valueUnit!)
+		: parseTimestampValue(props.value);
 	const invalid = Number.isNaN(date.getTime());
 
 	const [now, setNow] = useState(() => new Date());
-	const relative = !invalid && isRelativeFormat(resolveTimestampFormat(format, (now.getTime() - date.getTime()) / 1000, autoThreshold));
+	const relative = !invalid && isRelativeFormat(resolveTimestampFormat(format, (now.getTime() - date.getTime()) / 1000, autoThresholdSeconds));
 
 	useEffect(() => {
 		if (!isLive || invalid || !relative) {
@@ -116,7 +118,7 @@ export function Timestamp(props: TimestampProps) @{
 	}, [isLive, invalid, relative, props.value]);
 
 	const diffSeconds = invalid ? 0 : (now.getTime() - date.getTime()) / 1000;
-	const resolved = resolveTimestampFormat(format, diffSeconds, autoThreshold);
+	const resolved = resolveTimestampFormat(format, diffSeconds, autoThresholdSeconds);
 	const text = invalid
 		? 'Invalid Date'
 		: formatTimestampText(date, resolved as Exclude<TimestampFormat, 'auto'>, now, undefined, isTimezoneShown);

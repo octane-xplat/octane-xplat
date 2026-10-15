@@ -34,7 +34,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
 
-	const lastEmitted = useRef<ISOTimeString | undefined>(undefined)
+	const lastEmitted = useRef<ISOTimeString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -53,13 +53,14 @@ export function TimeInput(inputProps: TimeInputProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISOTimeString | undefined) => {
+	const fireChange = (next: ISOTimeString | null | undefined) => {
 		if (isDisabled || isBusy) return
-		lastEmitted.current = next
-		props.onChange?.(next)
+		const emitted = next ?? null
+		lastEmitted.current = emitted
+		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(emitted), () => setBusy(false))
 		}
 	}
 

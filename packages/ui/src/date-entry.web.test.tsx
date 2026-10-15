@@ -54,6 +54,15 @@ describe('Calendar (web)', () => {
 		expect(change).toHaveBeenCalledWith('2026-03-15', expect.any(Date))
 	})
 
+	it('uses null as an explicit empty controlled selection', () => {
+		const { el, render } = mount(
+			<Calendar mode="single" value="2026-03-15" focusDate="2026-03-01" />,
+		)
+		expect(el.querySelector('[data-date="2026-03-15"]')?.classList.contains('vx-calendar-day--selected')).toBe(true)
+		render(<Calendar mode="single" value={null} focusDate="2026-03-01" />)
+		expect(el.querySelector('[data-date="2026-03-15"]')?.classList.contains('vx-calendar-day--selected')).toBe(false)
+	})
+
 	it('range mode anchors, normalizes order, and commits', () => {
 		const change = vi.fn()
 		const { el } = mount(<Calendar mode="range" onChange={change} focusDate="2026-03-01" />)
@@ -126,7 +135,17 @@ describe('DateInput (web)', () => {
 		)
 
 		click(el.querySelector('.vx-dateinput-clear')!)
-		expect(change).toHaveBeenCalledWith(undefined)
+		expect(change).toHaveBeenCalledWith(null)
+	})
+
+	it('keeps an explicitly controlled empty value after clearing', () => {
+		const change = vi.fn()
+		const { el, render } = mount(
+			<DateInput value="2026-03-25" onChange={change} presentation="popover" hasClear />,
+		)
+		click(el.querySelector('.vx-dateinput-clear')!)
+		render(<DateInput value={null} onChange={change} presentation="popover" hasClear />)
+		expect((el.querySelector('input') as HTMLInputElement).value).toBe('')
 	})
 })
 
@@ -139,6 +158,13 @@ describe('TimeInput (web)', () => {
 		expect(change).toHaveBeenCalledWith('14:30')
 		fireInput(input, '1430')
 		expect(change).toHaveBeenLastCalledWith('14:30')
+	})
+
+	it('reports null when the time field is cleared', () => {
+		const change = vi.fn()
+		const { el } = mount(<TimeInput value="14:30" onChange={change} presentation="text-input" hasClear />)
+		click(el.querySelector('.vx-timeinput-clear')!)
+		expect(change).toHaveBeenCalledWith(null)
 	})
 
 	it('steps by increment on arrow keys', () => {
@@ -169,7 +195,7 @@ describe('DateTimeInput (web)', () => {
 		)
 
 		click(el.querySelector('.vx-datetimeinput-clear')!)
-		expect(change).toHaveBeenCalledWith(undefined)
+		expect(change).toHaveBeenCalledWith(null)
 	})
 })
 

@@ -23,16 +23,18 @@ import { textRoleClasses } from './text-role';
  *  reachable via the accessible label — see docs/app/components.md). */
 export function Timestamp(props: TimestampProps) @{
 	const format = props.format ?? 'auto';
-	const autoThreshold = props.autoThreshold ?? DEFAULT_AUTO_THRESHOLD;
+	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD;
 	const isLive = props.isLive ?? false;
 	const isTimezoneShown = props.isTimezoneShown ?? false;
 
-	const date = parseTimestampValue(props.value);
+	const date = typeof props.value === 'number'
+		? parseTimestampValue(props.value, props.valueUnit!)
+		: parseTimestampValue(props.value);
 	const invalid = Number.isNaN(date.getTime());
 
 	const [now, setNow] = useState(() => new Date());
 	const diffSeconds = invalid ? 0 : (now.getTime() - date.getTime()) / 1000;
-	const resolved = resolveTimestampFormat(format, diffSeconds, autoThreshold);
+	const resolved = resolveTimestampFormat(format, diffSeconds, autoThresholdSeconds);
 	const relative = !invalid && isRelativeFormat(resolved);
 
 	useEffect(() => {

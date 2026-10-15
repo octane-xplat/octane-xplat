@@ -2,7 +2,7 @@ import { useState } from 'octane';
 import {
 	Accordion, Alert, AppShell, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
 	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
-	ContextMenu, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuDivider,
+	ContextMenu, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuSeparator,
 	DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, DropdownMenuItem, EmptyState, FieldGroup, Field, Heading,
 	FormLayout, InputGroup, InputGroupText, MobileNav, NavHeadingMenu,
 	NavHeadingMenuItem, NavIcon, NumberInput, InputRating, Typeahead, Tokenizer,
@@ -12,6 +12,7 @@ import {
 	TabMenu, Table, Text, TextInput, Timeline, Toolbar, TopNav, TopNavHeading,
 	TopNavItem, TreeList, User, View, registerIcons,
 } from '@octane-xplat/ui';
+import type { MenuActionData } from '@octane-xplat/ui';
 
 registerIcons({
 	'menu-dot': { svg: 'M12 5v.01M12 12v.01M12 19v.01' },
@@ -46,10 +47,10 @@ export function ComponentsDemo() @{
 	const [menuSort, setMenuSort] = useState('newest');
 	const [lastMenu, setLastMenu] = useState('—');
 	const [lastCtx, setLastCtx] = useState('—');
-	const [num, setNum] = useState(2);
+	const [num, setNum] = useState<number | null>(2);
 	const [pin, setPin] = useState('');
 	const [fruits, setFruits] = useState<string[]>(['apple']);
-	const [fruit, setFruit] = useState<string | string[] | null>('apple');
+	const [fruit, setFruit] = useState<string | null>('apple');
 	const [assignee, setAssignee] = useState<{ id: string; label: string } | null>({ id: 'apple', label: 'Apple' });
 	const [tags, setTags] = useState<Array<{ id: string; label: string }>>([{ id: 'one', label: 'One' }]);
 	const [rating, setRating] = useState(3);
@@ -63,10 +64,10 @@ export function ComponentsDemo() @{
 	const [activePanel, setActivePanel] = useState('overview');
 	const [overflowCount, setOverflowCount] = useState(0);
 
-	const menuItems = [
-		{ key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
-		{ key: 'dup', label: 'Duplicate', onSelect: () => setLastMenu('dup') },
-		{ key: 'del', label: 'Delete', isDisabled: true, onSelect: () => setLastMenu('del') },
+	const menuItems: MenuActionData[] = [
+		{ type: 'action', key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
+		{ type: 'action', key: 'dup', label: 'Duplicate', onSelect: () => setLastMenu('dup') },
+		{ type: 'action', key: 'del', label: 'Delete', isDisabled: true, onSelect: () => setLastMenu('del') },
 	];
 
 	<View className="controls-demo gap-4">
@@ -110,7 +111,7 @@ export function ComponentsDemo() @{
 			<Text className="font-bold">Menus</Text>
 			<HStack className="items-center gap-4">
 				<DropdownMenu trigger={<Text className="chip">Menu ▾</Text>} items={menuItems}>
-					<DropdownMenuDivider />
+					<DropdownMenuSeparator />
 					<DropdownMenuCheckboxItem label="Show archived" value={menuArchived} onValueChange={setMenuArchived} />
 					<DropdownMenuRadioGroup label="Sort by" value={menuSort} onValueChange={setMenuSort}>
 						<DropdownMenuRadioItem label="Newest first" value="newest" />
@@ -154,7 +155,7 @@ export function ComponentsDemo() @{
 			</FormLayout>
 			<FieldGroup label="Sign up">
 				<Tokenizer label="Tags" searchSource={demoSelectionSource} value={tags} onChange={setTags} placeholder="Add tag…" hasCreate={true} />
-				<Field label="Quantity" status={num > 5 ? { type: 'error', message: 'Too many' } : undefined}>
+				<Field label="Quantity" status={num !== null && num > 5 ? { type: 'error', message: 'Too many' } : undefined}>
 					<NumberInput value={num} onValueChange={setNum} min={0} max={9} />
 				</Field>
 				<Field label="PIN">
@@ -168,12 +169,13 @@ export function ComponentsDemo() @{
 			<Text className="font-bold">Selector / Rating / CheckboxList</Text>
 			<Selector
 				options={[{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]}
+				selectionMode="single"
 				value={fruit}
 				onValueChange={setFruit}
 				placeholder="Pick a fruit"
 				searchable={true}
 			/>
-			<MultiSelector label="Fruits" options={[{ value: 'apple', label: 'Apple', group: 'Fruit', description: 'Crisp and sweet' }, { value: 'banana', label: 'Banana', group: 'Fruit' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]} value={fruits} onValueChange={setFruits} searchable hasSelectAll triggerDisplay="count" hasClear />
+			<MultiSelector selectionMode="multiple" label="Fruits" options={[{ value: 'apple', label: 'Apple', group: 'Fruit', description: 'Crisp and sweet' }, { value: 'banana', label: 'Banana', group: 'Fruit' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]} value={fruits} onValueChange={setFruits} searchable hasSelectAll triggerDisplay="count" hasClear />
 			<Typeahead label="Fruit" searchSource={demoSelectionSource} value={assignee} onChange={setAssignee} placeholder="Pick a fruit" />
 			<InputRating value={rating} onValueChange={setRating} />
 			<CheckboxList

@@ -2,7 +2,7 @@
 // formatInstant.ts, formatRelativeTime.ts, and tooltipEntries.ts. Intl is a
 // universal-runtime API (platform-notes i18n row), so the module is identical
 // on web and native.
-import type { TimestampFormat, TimestampTooltipEntry, TimestampTooltipFormat } from './props'
+import type { ISOInstantString, TimestampFormat, TimestampTooltipEntry, TimestampTooltipFormat, TimestampValueUnit } from './props'
 export type { TimestampTooltipEntry, TimestampTooltipFormat } from './props'
 
 /** A rendered tooltip line for the Timestamp hover card. */
@@ -360,13 +360,18 @@ export function formatTooltipLines(
 /** Seconds threshold for 'auto' format: below this, relative; else date_time. */
 export const DEFAULT_AUTO_THRESHOLD = 7 * DAY
 
-/** Parse the `Timestamp.value` contract: number < 1e12 = Unix seconds,
- *  larger = ms; strings parse as dates (ISO 8601 recommended). */
-export function parseTimestampValue(value: string | number): Date {
+/** Parse a zone-bearing instant string or a numeric Unix timestamp with an
+ *  explicit unit. Numbers are never interpreted by magnitude. */
+export function parseTimestampValue(value: ISOInstantString): Date
+export function parseTimestampValue(value: number, unit: TimestampValueUnit): Date
+export function parseTimestampValue(value: ISOInstantString | number, unit?: TimestampValueUnit): Date {
 	if (typeof value === 'number') {
-		return new Date(value < 1e12 ? value * 1000 : value)
+		if (unit === 'unix-seconds') return new Date(value * 1000)
+		if (unit === 'unix-milliseconds') return new Date(value)
+		return new Date(Number.NaN)
 	}
 
+	if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return new Date(Number.NaN)
 	return new Date(value)
 }
 
@@ -402,10 +407,10 @@ export function isAbsoluteFormat(
 export function resolveTimestampFormat(
 	format: TimestampFormat,
 	diffSeconds: number,
-	autoThreshold: number,
+	autoThresholdSeconds: number,
 ): TimestampFormat {
 	return format === 'auto'
-		? Math.abs(diffSeconds) <= autoThreshold
+		? Math.abs(diffSeconds) <= autoThresholdSeconds
 			? 'relative'
 			: 'date_time'
 		: format

@@ -5,10 +5,11 @@ import { pushDeepLink } from './route.macos'
 
 export function Link(props: LinkProps) @{
 	<Pressable
+		id={props.id}
 		className={props.className}
 		style={props.style}
-		accessibilityRole="link"
-		onPress={() => pushDeepLink(props.href)}
+		accessibilityRole={props.accessibilityRole ?? 'link'}
+		onPress={() => { props.onPress?.(); pushDeepLink(props.href) }}
 	>
 		{props.children}
 	</Pressable>

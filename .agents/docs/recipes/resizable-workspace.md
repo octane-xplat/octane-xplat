@@ -16,12 +16,12 @@ The reader can preserve useful actions during overflow, resize or collapse panel
 
 - AC1: The reader can place controls in toolbar slots, label the toolbar, and choose the keyboard orientation.
 - AC2: The reader can render overflow items, tune the visible count and collapse direction, and handle membership changes.
-- AC3: The reader can use `useResizable` with pixel or percentage sizing, bounds, snapping, collapse, and a matching `ResizeHandle` direction.
+- AC3: The reader can use `useResizable` with dip (CSS pixel on web) numeric sizes, explicit `Npx`/`N%` strings, bounded percentages, snapping, collapse, and a matching `ResizeHandle` direction. Stack spacing tokens remain 4-dip steps.
 - AC4: The reader can save and restore sizes and identify the AppKit in-memory limitation separately from web, iOS, and Android persistence.
 
 ## Documentation
 
 - AC1: [Add toolbar actions and responsive overflow](../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow) documents toolbar slots and focus behavior.
 - AC2: [Add toolbar actions and responsive overflow](../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow) covers item measurement and overflow callbacks.
-- AC3: [Resize a region](../../../docs/app/navigation-ui.md#resize-a-region) includes a complete example and region controls.
+- AC3: [Resize a region](../../../docs/app/navigation-ui.md#resize-a-region) includes a complete example and region controls, and [UI API migrations](../../../docs/app/ui-api-migrations.md#explicit-units) summarizes layout and token units.
 - AC4: [Resize a region](../../../docs/app/navigation-ui.md#resize-a-region) records platform persistence and desktop implementation coverage.

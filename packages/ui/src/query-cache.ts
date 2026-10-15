@@ -22,7 +22,7 @@
  * - `persist` opts a query into durable snapshots through a pluggable
  *   `QueryStorageAdapter` (`platformQueryStorage`, or an app adapter such as
  *   idb-keyval on web). The envelope carries a compatibility `version`, the
- *   save time for `maxAge`/`staleTime` policies, and an app-resolved `scope`
+ *   Unix-millisecond save time for `maxAgeMs`/`staleTimeMs` policies, and an app-resolved `scope`
  *   (e.g. the auth boundary) — the app owns the policy, the cache owns the
  *   mechanics.
  *
@@ -81,9 +81,9 @@ export interface QueryStorageAdapter {
 
 /**
  * Opt-in durable snapshots for one `cachedQuery$` family. The envelope is
- * `{ v: version, t: savedAt, d: data }` under storage key
+ * `{ v: version, t: savedAtMs, d: data }` under storage key
  * `xplat:query:<scope>:<canonical key>`. Apps layer their policy on top:
- * `version` is the schema/app/API compatibility bump, `maxAge` the TTL, and
+ * `version` is the schema/app/API compatibility bump, `maxAgeMs` the TTL, and
  * `scope` the resolved auth boundary (return `null` to leave the query
  * memory-only for that boundary).
  */
@@ -91,13 +91,14 @@ export interface QueryPersistence {
 	readonly storage: QueryStorageAdapter
 	readonly version: string | number
 	/** Milliseconds a stored snapshot stays restorable. Default: no expiry. */
-	readonly maxAge?: number
+	readonly maxAgeMs?: number
 	/** Resolved at each read/write; `null` skips persistence for this call. */
 	readonly scope?: () => string | null
 }
 
 /**
- * Options for a cached query — `key`, `ttl` (ms), storage `adapter`, stale policy.
+ * Options for a cached query — key identity, millisecond freshness duration,
+ * persistence adapter, and stale policy.
  */
 export interface CachedQueryOptions<T = unknown> {
 	/**
@@ -105,7 +106,7 @@ export interface CachedQueryOptions<T = unknown> {
 	 * a request. Default `0`: mounting or selecting a stale entry serves the
 	 * cached value and revalidates in the background.
 	 */
-	readonly staleTime?: number
+	readonly staleTimeMs?: number
 	readonly persist?: QueryPersistence
 	/**
 	 * Distinguishes same-family declarations inside one scope. Without it,
@@ -132,7 +133,7 @@ interface CacheEntry<T = unknown> {
 	readonly elements: readonly string[]
 	value: T | undefined
 	hasValue: boolean
-	fetchedAt: number
+	fetchedAtMs: number
 	invalidated: boolean
 	inflight: Promise<T> | undefined
 	controller: AbortController | undefined
@@ -270,7 +271,7 @@ function entryFor<T>(
 			elements,
 			value: undefined,
 			hasValue: false,
-			fetchedAt: 0,
+			fetchedAtMs: 0,
 			invalidated: false,
 			inflight: undefined,
 			controller: undefined,
@@ -372,7 +373,7 @@ function persistWrite(entry: CacheEntry): void {
 		return
 	}
 
-	const envelope = JSON.stringify({ v: persist.version, t: entry.fetchedAt, d: entry.value })
+	const envelope = JSON.stringify({ v: persist.version, t: entry.fetchedAtMs, d: entry.value })
 	try {
 		Promise.resolve(persist.storage.set(storageKey(scope, entry), envelope)).catch(() => {})
 	} catch {
@@ -416,14 +417,14 @@ async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 			typeof envelope !== 'object' ||
 			envelope.v !== persist.version ||
 			typeof envelope.t !== 'number' ||
-			(persist.maxAge !== undefined && Date.now() - envelope.t > persist.maxAge)
+			(persist.maxAgeMs !== undefined && Date.now() - envelope.t > persist.maxAgeMs)
 		) {
 			throw new Error('stale envelope')
 		}
 
 		entry.value = envelope.d as T
 		entry.hasValue = true
-		entry.fetchedAt = envelope.t
+		entry.fetchedAtMs = envelope.t
 	} catch {
 		try {
 			await persist.storage.remove(storageKey(scope, entry))
@@ -486,7 +487,7 @@ function startFetch<A, T>(
 			entry.value = value
 			entry.hasValue = true
 			entry.invalidated = false
-			entry.fetchedAt = Date.now()
+			entry.fetchedAtMs = Date.now()
 			persistWrite(entry)
 			republish(cache, 'serve', (elements) => elementsEqual(elements, entry.elements))
 		},
@@ -512,7 +513,7 @@ function loadThroughCache<A, T>(
 	context: QueryContext<T>,
 ): T | PromiseLike<T> {
 	const entry = entryFor<T>(cache, elements, options?.persist)
-	const staleTime = options?.staleTime ?? 0
+	const staleTimeMs = options?.staleTimeMs ?? 0
 	const mode = loadMode
 
 	if (entry.inflight !== undefined) {
@@ -525,7 +526,7 @@ function loadThroughCache<A, T>(
 		}
 
 		const timeStale =
-			staleTime !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAt >= staleTime
+			staleTimeMs !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAtMs >= staleTimeMs
 
 		const stale = entry.invalidated || timeStale
 		if (!stale && mode !== 'forced') {
@@ -547,7 +548,7 @@ function loadThroughCache<A, T>(
 			await restoreEntry(entry)
 			if (entry.hasValue) {
 				const timeStale =
-					staleTime !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAt >= staleTime
+					staleTimeMs !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAtMs >= staleTimeMs
 
 				if (!entry.invalidated && !timeStale) {
 					return entry.value!

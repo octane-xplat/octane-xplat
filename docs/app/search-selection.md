@@ -14,8 +14,8 @@ export function Example() {
 	const options = [{ value: 'sfo', label: 'San Francisco' }]
 	return (
 		<>
-			<Selector label="Region" options={options} defaultValue="sfo" />
-			<MultiSelector label="Regions" options={options} defaultValue={['sfo']} />
+			<Selector selectionMode="single" label="Region" options={options} defaultValue="sfo" />
+			<MultiSelector selectionMode="multiple" label="Regions" options={options} defaultValue={['sfo']} />
 		</>
 	)
 }
@@ -42,33 +42,35 @@ export const source = createStaticSource(
 ## Choose from a finite list
 
 Use `Selector` (`Select`) for one key, or `MultiSelector` for an array of keys.
-These controls filter the supplied list locally; remote query scheduling and
-free-text creation belong in `Typeahead` and `Tokenizer`.
+`selectionMode` determines both the value and the change callback: `single`
+uses one string or `null`, while `multiple` always uses a string array. The
+`MultiSelector` preset only accepts `multiple`. These controls filter the
+supplied list locally; remote query scheduling and free-text creation belong
+in `Typeahead` and `Tokenizer`.
 
 ```tsx
 import { useState } from 'octane'
-import { MultiSelector } from '@octane-xplat/ui'
+import { Selector } from '@octane-xplat/ui'
 
 export function Example() {
-	const [regions, setRegions] = useState<string[]>([])
+	const [region, setRegion] = useState<string | null>(null)
 	const options = [
 		{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' },
 		{ value: 'nyc', label: 'New York', group: 'East' },
 	]
 	return (
-		<MultiSelector
-			label="Regions"
+		<Selector
+			selectionMode="single"
+			label="Region"
 			options={options}
-			value={regions}
-			onValueChange={setRegions}
+			value={region}
+			onValueChange={setRegion}
 			searchable
-			hasSelectAll
-			triggerDisplay="count"
 			changeAction={async (next) => {
 				console.log('Save', next)
 			}}
 			onChangeError={(error) => console.log(error)}
-			htmlName="regions"
+			htmlName="region"
 		/>
 	)
 }
@@ -86,7 +88,7 @@ import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
 	return (
-		<MultiSelector
+		<MultiSelector selectionMode="multiple"
 			label="Regions"
 			options={[{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' }]}
 			searchable
@@ -116,7 +118,7 @@ import { MultiSelector } from '@octane-xplat/ui'
 export function Example() {
 	const [regions, setRegions] = useState<string[]>([])
 	return (
-		<MultiSelector
+		<MultiSelector selectionMode="multiple"
 			label="Regions"
 			options={[{ value: 'sfo', label: 'San Francisco' }]}
 			value={regions}
@@ -147,7 +149,7 @@ import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
 	return (
-		<MultiSelector
+		<MultiSelector selectionMode="multiple"
 			label="Regions"
 			options={[
 				{ value: 'sfo', label: 'San Francisco' },

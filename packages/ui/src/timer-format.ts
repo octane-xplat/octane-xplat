@@ -21,8 +21,8 @@ export function resolveTimerFormat(format: TimerFormat | undefined): TimerFormat
 	return format === 'clock' ? 'clock' : 'elapsed'
 }
 
-export function elapsedMilliseconds(now: number, startTime: number): number {
-	return Math.max(0, now - startTime)
+export function elapsedMilliseconds(now: number, startTimeMs: number): number {
+	return Math.max(0, now - startTimeMs)
 }
 
 export function timerPresentation(elapsedMs: number, format: TimerFormat): TimerPresentation {
@@ -65,15 +65,15 @@ export function timerPresentation(elapsedMs: number, format: TimerFormat): Timer
 
 /** Ms until the next visible change — also the cadence the tick loop uses.
  *  Elapsed mode relaxes to once a minute past the hour mark; a future
- *  startTime schedules the first tick for the start boundary. */
+ *  startTimeMs schedules the first tick for the start boundary. */
 export function msUntilNextChange(
 	now: number,
-	startTime: number,
+	startTimeMs: number,
 	elapsedMs: number,
 	format: TimerFormat,
 ): number {
-	if (now < startTime) {
-		return Math.min(startTime - now + ONE_SECOND_MS, MAX_TIMEOUT_MS)
+	if (now < startTimeMs) {
+		return Math.min(startTimeMs - now + ONE_SECOND_MS, MAX_TIMEOUT_MS)
 	}
 
 	const precision =

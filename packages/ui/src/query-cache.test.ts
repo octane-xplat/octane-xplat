@@ -161,7 +161,7 @@ describe('cachedQuery$', () => {
 
 	it('prefix-invalidation reaches all selections; exact matches only one', async () => {
 		const { calls, load } = recording()
-		const options = { staleTime: 60_000 }
+		const options = { staleTimeMs: 60_000 }
 		const one = screen(() => cachedQuery$(['inv-scoped'], () => 'one', load, options))
 		const two = screen(() => cachedQuery$(['inv-scoped'], () => 'two', load, options))
 		screen(() => one.latest())
@@ -175,9 +175,9 @@ describe('cachedQuery$', () => {
 		expect(calls[2].selection).toBe('one')
 	})
 
-	it('forces a fetch on refetch even inside staleTime', async () => {
+	it('forces a fetch on refetch even inside staleTimeMs', async () => {
 		const { calls, load } = recording()
-		const query = screen(() => cachedQuery$(['forced'], () => 'x', load, { staleTime: 60_000 }))
+		const query = screen(() => cachedQuery$(['forced'], () => 'x', load, { staleTimeMs: 60_000 }))
 		screen(() => query.latest())
 		await settle()
 		screen(() => query.latest())
@@ -189,14 +189,14 @@ describe('cachedQuery$', () => {
 		expect(calls).toHaveLength(2)
 	})
 
-	it('serves fresh entries to new scopes within staleTime without fetching', async () => {
+	it('serves fresh entries to new scopes within staleTimeMs without fetching', async () => {
 		const { calls, load } = recording()
-		const first = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTime: 60_000 }))
+		const first = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }))
 		screen(() => first.latest())
 		await settle()
 		expect(calls).toHaveLength(1)
 
-		const second = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTime: 60_000 }))
+		const second = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }))
 		screen(() => second.latest())
 		await settle()
 		screen(() => expect(second.latest()).toBe('v1'))
@@ -216,7 +216,7 @@ describe('cachedQuery$', () => {
 		await settle()
 		screen(() => expect(first.latest()).toBe('v1'))
 
-		// Default staleTime 0: a new reader gets the stale value immediately,
+		// Default staleTimeMs 0: a new reader gets the stale value immediately,
 		// then the background revalidation republishes it to both owners.
 		const second = screen(() => cachedQuery$(['swr'], () => 'x', load))
 		screen(() => second.latest())
@@ -392,7 +392,7 @@ describe('persistence', () => {
 		const { calls, load } = recording()
 		const query = screen(() =>
 			cachedQuery$(['persisted'], () => 'x', load, {
-				staleTime: 60_000,
+				staleTimeMs: 60_000,
 				persist: persistence(storage),
 			}),
 		)
@@ -434,7 +434,7 @@ describe('persistence', () => {
 		const { calls, load } = recording()
 		const query = screen(() =>
 			cachedQuery$(['persisted-version'], () => 'x', load, {
-				persist: { ...persistence(storage), version: 'v2', maxAge: 60_000 },
+				persist: { ...persistence(storage), version: 'v2', maxAgeMs: 60_000 },
 			}),
 		)
 
@@ -484,11 +484,11 @@ describe('persistence', () => {
 		const persist = {
 			storage,
 			version: 'v1' as const,
-			maxAge: undefined as number | undefined,
+			maxAgeMs: undefined as number | undefined,
 			scope: () => boundary,
 		}
 
-		const options = { staleTime: 60_000, persist }
+		const options = { staleTimeMs: 60_000, persist }
 
 		// Under user-2 the user-1 record is invisible — a fresh request runs
 		// and persists under user-2's namespace instead.

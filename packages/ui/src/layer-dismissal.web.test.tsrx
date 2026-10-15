@@ -28,7 +28,7 @@ function escape(options: KeyboardEventInit = {}) {
 
 function Nested(props: { dialog: boolean; menu: boolean; closeDialog: any; closeMenu: any; purpose?: any }) @{
 	<Dialog isOpen={props.dialog} onOpenChange={props.closeDialog} purpose={props.purpose} accessibilityLabel="Outer">
-		<DropdownMenu isOpen={props.menu} onOpenChange={props.closeMenu} trigger="Menu" items={[{ key: 'one', label: 'One' }]} />
+		<DropdownMenu isOpen={props.menu} onOpenChange={props.closeMenu} trigger="Menu" items={[{ type: 'action', key: 'one', label: 'One' }]} />
 	</Dialog>
 }
 

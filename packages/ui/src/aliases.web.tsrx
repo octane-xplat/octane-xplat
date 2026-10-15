@@ -1,12 +1,10 @@
 import { Select } from './Select.web.tsrx'
 import type { MultiSelectorProps } from './props'
 
-/** SelectMenu — multi-select anchored listbox (Select with `multiple`). */
+/** SelectMenu — multi-select anchored listbox (`Selector` with selectionMode="multiple"). */
 export function SelectMenu(props: MultiSelectorProps) @{
 	return <Select
 		{...props}
-		multiple={true}
-		onValueChange={(value) => props.onValueChange?.(Array.isArray(value) ? value : [])}
-		changeAction={props.changeAction ? (value) => props.changeAction?.(Array.isArray(value) ? value : []) : undefined}
+		selectionMode="multiple"
 	/>
 }

@@ -765,7 +765,7 @@ export function adjustTime(
 // Combined date-time values
 // ---------------------------------------------------------------------------
 
-export function splitDateTime(dt: ISODateTimeString | undefined): {
+export function splitDateTime(dt: ISODateTimeString | null | undefined): {
 	date?: ISODateString
 	time?: ISOTimeString
 } {
@@ -807,38 +807,11 @@ export function currentISOTime(includeSeconds = false): ISOTimeString {
 /** Which surface collects the value. `text-input` is TimeInput-only. */
 export type ResolvedInputSurface = 'typed' | 'popover' | 'sheet' | 'native'
 
-/** Map the deprecated `nativePicker` vocabulary onto `presentation`
- *  (`touch` → adaptive-native, `always` → native, `never` → the Astryx
- *  surface: bottom-sheet for pickers, text-input for TimeInput). */
-export function presentationFromNativePicker(
-	nativePicker: 'touch' | 'always' | 'never' | undefined,
-	kind: 'date' | 'time' | 'datetime',
-): import('./props').InputPresentation | undefined {
-	if (nativePicker === undefined) {
-		return undefined
-	}
-
-	switch (nativePicker) {
-		case 'touch':
-			return 'adaptive-native'
-		case 'always':
-			return 'native'
-		case 'never':
-			return kind === 'time' ? 'text-input' : 'adaptive-bottom-sheet'
-	}
-}
-
-/** `presentation` wins over the deprecated `nativePicker`. */
+/** Resolve the single public surface-selection strategy to its documented default. */
 export function effectivePresentation(
-	presentation: string | undefined,
-	nativePicker: 'touch' | 'always' | 'never' | undefined,
-	kind: 'date' | 'time' | 'datetime',
+	presentation: import('./props').InputPresentation | undefined,
 ): import('./props').InputPresentation {
-	return (
-		(presentation as import('./props').InputPresentation | undefined) ??
-		presentationFromNativePicker(nativePicker, kind) ??
-		'adaptive-native'
-	)
+	return presentation ?? 'adaptive-native'
 }
 
 /**

@@ -91,7 +91,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	// Time picked before a date exists — combined on the date commit.
 	const [timeDraft, setTimeDraft] = useState<ISOTimeString | undefined>(undefined)
 
-	const lastEmitted = useRef<ISODateTimeString | undefined>(undefined)
+	const lastEmitted = useRef<ISODateTimeString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -128,18 +128,19 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateTimeString | undefined) => {
+	const fireChange = (next: ISODateTimeString | null | undefined) => {
 		if (isDisabled || isBusy) return
-		lastEmitted.current = next
-		const parts = splitDateTime(next)
+		const emitted = next ?? null
+		lastEmitted.current = emitted
+		const parts = splitDateTime(emitted)
 		setAnnouncement(parts.date && parts.time
 			? messages.selected(`${formatDateValue(parts.date, 'date_long', locale)} ${formatDisplay(parts.time, hasSeconds)}`)
 			: messages.cleared)
 
-		props.onChange?.(next)
+		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(emitted), () => setBusy(false))
 		}
 	}
 
@@ -158,7 +159,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const commitTime = (time: ISOTimeString | undefined) => {
 		if (time === undefined) {
 			setTimeDraft(undefined)
-			if (shown !== undefined) fireChange(undefined)
+			if (shown != null) fireChange(null)
 			return
 		}
 
@@ -188,7 +189,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		if (datePending == null) return
 		if (!isDateValid) setAnnouncement(messages.invalidDate)
 		if (!datePending.trim()) {
-			if (shown != null) fireChange(undefined)
+			if (shown != null) fireChange(null)
 		} else {
 			const parsed = parseDateInput(datePending, locale)
 			if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
@@ -332,7 +333,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		const raw = (e.target.value ?? '') as string
 		if (lastDateCommit.current === raw) return
 		lastDateCommit.current = raw
-		if (!raw) { fireChange(undefined); return }
+		if (!raw) { fireChange(null); return }
 		const parsed = parseDateInput(raw, locale)
 		if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
 	}
@@ -351,7 +352,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		setDatePending(null)
 		setTimePending(null)
 		setTimeDraft(undefined)
-		fireChange(undefined)
+		fireChange(null)
 		dateInput.current?.focus({ preventScroll: true })
 	}
 
@@ -609,7 +610,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 export function DateTimeInput(props: DateTimeInputProps) @{
 	const inField = useContext(FieldContext) != null
 	const isTouch = useCoarsePointer()
-	const effective = effectivePresentation(props.presentation, props.nativePicker, 'datetime')
+	const effective = effectivePresentation(props.presentation)
 	const surface = resolveInputSurface(effective, isTouch)
 	const nativeFallback = surface === 'native' && effective !== 'native' && (
 		!!props.hasSeconds || (props.timeIncrement ?? 1) !== 1 || props.timeOptionInterval !== undefined

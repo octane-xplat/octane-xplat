@@ -1,10 +1,11 @@
 import { useContext, useId, useMemo, useRef, useState } from 'octane'
-import type { MenuItemProps, MenuCheckboxItemProps, MenuRadioItemProps, MenuRadioGroupProps, MenuDividerProps, MenuSubMenuProps, MenuSurfaceProps } from './props'
+import type { MenuItemProps, MenuLinkProps, MenuSectionProps, MenuCheckboxItemProps, MenuRadioItemProps, MenuRadioGroupProps, MenuSeparatorProps, MenuSubMenuProps, MenuSurfaceProps } from './props'
 import { MenuRadioContext, MenuRadioProvider, useDropdownMenuContext } from './menu-context'
 import { View } from './View.web.tsrx'
 import { Text } from './Text.web.tsrx'
 import { Pressable } from './Pressable.web.tsrx'
 import { Icon } from './Icon.web.tsrx'
+import { Link } from './Link.web.tsrx'
 import { Separator } from './Separator.web.tsrx'
 import { Popover } from './Popover.web.tsrx'
 import { MenuSurface } from './MenuSurface.web.tsrx'
@@ -15,7 +16,7 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 	const select = () => {
 		if (props.isDisabled) return
 		props.onSelect?.()
-		menu.closeMenu()
+		if (props.hasCloseOnSelect !== false) menu.closeMenu()
 	}
 
 	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
@@ -88,8 +89,32 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 	</Pressable>
 }
 
-export function DropdownMenuDivider(props: MenuDividerProps) @{
+export function DropdownMenuSeparator(props: MenuSeparatorProps) @{
 	<Separator {...props} />
+}
+
+/** @deprecated Use `DropdownMenuSeparator`. */
+export function DropdownMenuDivider(props: MenuSeparatorProps) @{
+	<DropdownMenuSeparator {...props} />
+}
+
+export function DropdownMenuSection(props: MenuSectionProps) @{
+	<View id={props.id} accessibilityRole="group" accessibilityLabel={props.label}>{props.children}</View>
+}
+
+export function DropdownMenuLink(props: MenuLinkProps) @{
+	const menu = useDropdownMenuContext()
+	if (!menu) throw new Error('DropdownMenuLink requires a menu — render it inside DropdownMenu or ContextMenu')
+	const select = () => {
+		props.onSelect?.()
+		if (props.hasCloseOnSelect !== false) menu.closeMenu()
+	}
+
+	<Link id={props.id} href={props.href} target={props.target} accessibilityRole="menuitem" onPress={select} className={props.className} style={props.style}>
+		{props.icon && <Icon name={props.icon} />}
+		<Text className="vx-menu-item-label">{props.label}</Text>
+		{props.description && <Text>{props.description}</Text>}{props.endContent}
+	</Link>
 }
 
 export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
@@ -132,12 +157,14 @@ export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
 /** Convert legacy data into the same stateful components as compound content. */
 export function MenuData(props: Pick<MenuSurfaceProps, 'items'>) @{
 	<>
-		{props.items?.map((item) => item.type === 'divider' ? <DropdownMenuDivider id={item.key} />
+		{props.items?.map((item) => item.type === 'separator' ? <DropdownMenuSeparator id={item.key} />
+			: item.type === 'section' ? <DropdownMenuSection id={item.key} label={item.label}><MenuData items={item.items} /></DropdownMenuSection>
 			: item.type === 'radio-group' ? <DropdownMenuRadioGroup label={item.label ?? 'Options'} value={typeof item.value === 'string' ? item.value : undefined} onValueChange={item.onValueChange} isDisabled={item.isDisabled} hasCloseOnSelect={item.hasCloseOnSelect}>
 				{item.items?.map((option) => <DropdownMenuRadioItem id={option.key} label={option.label} value={typeof option.value === 'string' ? option.value : option.key} isDisabled={option.isDisabled} onSelect={option.onSelect} />)}
 			</DropdownMenuRadioGroup>
 			: item.type === 'checkbox' ? <DropdownMenuCheckboxItem {...item} id={item.key} label={item.label} value={item.value === true} onValueChange={item.onValueChange} isDisabled={item.isDisabled} />
-			: item.items ? <DropdownMenuSubMenu {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />
-			: <DropdownMenuItem {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />)}
+			: item.type === 'submenu' ? <DropdownMenuSubMenu {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />
+			: item.type === 'link' ? <DropdownMenuLink {...item} id={item.key} label={item.label ?? item.href} />
+			: <DropdownMenuItem {...item} id={item.key} label={item.label ?? item.key} isDisabled={item.isDisabled} />)}
 	</>
 }

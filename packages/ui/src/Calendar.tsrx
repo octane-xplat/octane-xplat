@@ -42,8 +42,8 @@ export function Calendar(props: CalendarProps) @{
 	const messages = dateMessages(props.messages)
 
 	const controlled = props.value !== undefined
-	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(props.defaultValue as ISODateString | DateRange | undefined)
-	const currentValue: ISODateString | DateRange | undefined = controlled ? props.value : internalValue
+	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(props.defaultValue ?? undefined)
+	const currentValue: ISODateString | DateRange | undefined = controlled ? props.value ?? undefined : internalValue
 
 	const [rangeAnchor, setRangeAnchor] = useState<ISODateString | null>(null)
 	const [announcement, setAnnouncement] = useState('')

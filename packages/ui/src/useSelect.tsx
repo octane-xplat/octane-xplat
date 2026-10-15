@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'octane'
-import type { SelectOption, SelectProps } from './props'
+import type { SelectMultipleProps, SelectOption, SelectProps, SelectSingleProps } from './props'
 import {
 	filterSelectOptions,
 	groupSelectOptions,
@@ -19,6 +19,7 @@ export function useSelect(props: SelectProps) {
 	const pendingRef = useRef(false)
 	const alive = useRef(true)
 	const blocked = props.isDisabled || props.isReadOnly
+	const multiple = props.selectionMode === 'multiple'
 	const requestedOpen = props.open ?? internalOpen
 	const open = requestedOpen && !blocked
 	const selected =
@@ -87,9 +88,8 @@ export function useSelect(props: SelectProps) {
 		}
 
 		const previous = selected
-		const value = current.multiple ? keys : (keys[0] ?? null)
-		const action = current.changeAction
-		if (action) {
+		const hasAction = current.changeAction !== undefined
+		if (hasAction) {
 			pendingRef.current = true
 			setPending(keys)
 		}
@@ -99,8 +99,16 @@ export function useSelect(props: SelectProps) {
 		}
 
 		try {
-			current.onValueChange?.(value)
-			await action?.(value)
+			if (current.selectionMode === 'multiple') {
+				const multipleProps = current as SelectMultipleProps
+				multipleProps.onValueChange?.(keys)
+				await multipleProps.changeAction?.(keys)
+			} else {
+				const singleProps = current as SelectSingleProps
+				const value = keys[0] ?? null
+				singleProps.onValueChange?.(value)
+				await singleProps.changeAction?.(value)
+			}
 		} catch (error) {
 			if (!alive.current) {
 				return
@@ -112,7 +120,11 @@ export function useSelect(props: SelectProps) {
 					setInternalValue(previous)
 				}
 
-				nextProps.onValueChange?.(nextProps.multiple ? previous : (previous[0] ?? null))
+				if (nextProps.selectionMode === 'multiple') {
+					(nextProps as SelectMultipleProps).onValueChange?.(previous)
+				} else {
+					(nextProps as SelectSingleProps).onValueChange?.(previous[0] ?? null)
+				}
 			}
 
 			nextProps.onChangeError?.(error)
@@ -130,14 +142,14 @@ export function useSelect(props: SelectProps) {
 		}
 
 		void report(
-			props.multiple
+			multiple
 				? selected.includes(option.value)
 					? selected.filter((value) => value !== option.value)
 					: [...selected, option.value]
 				: [option.value],
 		)
 
-		if (!props.multiple) {
+		if (!multiple) {
 			setOpen(false)
 		}
 	}
@@ -153,7 +165,7 @@ export function useSelect(props: SelectProps) {
 	}
 
 	const selectAll = () => {
-		if (!props.multiple || !props.hasSelectAll || blocked || pendingRef.current) {
+		if (props.selectionMode !== 'multiple' || !props.hasSelectAll || blocked || pendingRef.current) {
 			return
 		}
 
@@ -166,8 +178,8 @@ export function useSelect(props: SelectProps) {
 	}))
 
 	const triggerText = items.length
-		? (props.formatValue?.(items) ??
-			(props.multiple && props.triggerDisplay === 'count'
+		? ((props.selectionMode === 'multiple' ? props.formatValue?.(items) : undefined) ??
+			(multiple && props.selectionMode === 'multiple' && props.triggerDisplay === 'count'
 				? `${items.length} selected`
 				: items.map((item) => item.label).join(', ')))
 		: (props.placeholder ?? '')
@@ -180,7 +192,7 @@ export function useSelect(props: SelectProps) {
 		? 'Loading…'
 		: query
 			? `${shown.length} results. ${shown.length ? '' : emptyText}`
-			: props.multiple
+			: multiple
 				? `${selected.length} selected`
 				: ''
 

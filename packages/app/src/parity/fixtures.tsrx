@@ -388,6 +388,7 @@ function PinInputFixture() @{
 function SelectFixture() @{
 	<Selector
 		className="parity-select-root"
+		selectionMode="single"
 		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
 		value="small"
 		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
@@ -397,6 +398,7 @@ function SelectFixture() @{
 function SelectMenuFixture() @{
 	<MultiSelector
 		className="parity-selectmenu-root"
+		selectionMode="multiple"
 		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
 		value={['small']}
 		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
@@ -498,7 +500,7 @@ function DropdownMenuFixture() @{
 		className="parity-dropdown-trigger"
 		style={{ width: 160, height: 32, backgroundColor: '#f5f5f5' }}
 		trigger={<Text>Actions</Text>}
-		items={[{ key: 'edit', label: 'Edit' }, { key: 'delete', label: 'Delete' }]}
+		items={[{ type: 'action', key: 'edit', label: 'Edit' }, { type: 'action', key: 'delete', label: 'Delete' }]}
 	/>
 }
 
@@ -506,7 +508,7 @@ function ContextMenuFixture() @{
 	<ContextMenu
 		className="parity-contextmenu-root"
 		style={{ width: 180, height: 56, backgroundColor: '#f5f5f5' }}
-		items={[{ key: 'copy', label: 'Copy' }]}
+		items={[{ type: 'action', key: 'copy', label: 'Copy' }]}
 	>
 		<View className="parity-contextmenu-target" style={{ width: 144, height: 28 }} />
 	</ContextMenu>

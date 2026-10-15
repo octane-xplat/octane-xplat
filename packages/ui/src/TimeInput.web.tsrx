@@ -86,7 +86,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const [isComposing, setIsComposing] = useState(false)
 	const [announcement, setAnnouncement] = useState('')
 
-	const lastEmitted = useRef<ISOTimeString | undefined>(undefined)
+	const lastEmitted = useRef<ISOTimeString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -108,14 +108,15 @@ function TimeInputControl(inputProps: CoreProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISOTimeString | undefined) => {
+	const fireChange = (next: ISOTimeString | null | undefined) => {
 		if (isDisabled || isBusy) return
-		lastEmitted.current = next
-		setAnnouncement(next ? messages.selected(formatDisplay(next, hasSeconds)) : messages.cleared)
-		props.onChange?.(next)
+		const emitted = next ?? null
+		lastEmitted.current = emitted
+		setAnnouncement(emitted ? messages.selected(formatDisplay(emitted, hasSeconds)) : messages.cleared)
+		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(emitted), () => setBusy(false))
 		}
 	}
 
@@ -147,7 +148,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		if (pendingInput == null) return
 		if (!isPendingValid) setAnnouncement(messages.invalidTime)
 		if (!pendingInput.trim()) {
-			if (shown != null) fireChange(undefined)
+			if (shown != null) fireChange(null)
 		} else {
 			commitParsed(parseTimeInput(pendingInput, hasSeconds))
 		}
@@ -177,7 +178,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const clear = (e?: any) => {
 		e?.stopPropagation?.()
 		setPendingInput(null)
-		fireChange(undefined)
+		fireChange(null)
 		if (surface !== 'native') input.current?.focus({ preventScroll: true })
 	}
 
@@ -186,7 +187,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		const raw = (e.target.value ?? '') as string
 		if (lastCommit.current === raw) return
 		lastCommit.current = raw
-		if (!raw) { if (value !== undefined) fireChange(undefined); return }
+		if (!raw) { if (value != null) fireChange(null); return }
 		const parsed = parseTimeInput(raw, true)
 		if (!parsed || !isTimeInRange(parsed, props.min, props.max)) return
 		const normalized = formatISOTime(parseISOTime(parsed)!, hasSeconds)
@@ -317,7 +318,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		{surface === 'sheet' ? (
 			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a time'} height="hug" className="vx-timeinput-sheet">
 				<TimeWheelPanel
-					value={shown}
+					value={shown ?? undefined}
 					hasSeconds={hasSeconds}
 					hourFormat={props.hourFormat ?? '12h'}
 					min={props.min}
@@ -339,7 +340,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 export function TimeInput(props: TimeInputProps) @{
 	const inField = useContext(FieldContext) != null
 	const isTouch = useCoarsePointer()
-	const effective = effectivePresentation(props.presentation, props.nativePicker, 'time')
+	const effective = effectivePresentation(props.presentation)
 	let surface = resolveInputSurface(effective, isTouch)
 	if (surface === 'popover') surface = 'typed'
 	// Released fallback: adaptive resolution (and deprecated `always`) keep

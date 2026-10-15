@@ -9,6 +9,16 @@ const options = [
 	{ value: 'banana', label: 'Banana' },
 ]
 
+const singleContract: SelectorProps = { options, selectionMode: 'single', value: null }
+const multipleContract: SelectorProps = { options, selectionMode: 'multiple', value: [] }
+// @ts-expect-error Single selection accepts one key or null, never an array.
+const invalidSingleContract: SelectorProps = { options, selectionMode: 'single', value: ['apple'] }
+// @ts-expect-error Multiple selection requires array values.
+const invalidMultipleContract: SelectorProps = { options, selectionMode: 'multiple', value: 'apple' }
+// @ts-expect-error Bulk selection is only available in multiple mode.
+const invalidSingleBulkContract: SelectorProps = { options, selectionMode: 'single', hasSelectAll: true }
+void [singleContract, multipleContract, invalidSingleContract, invalidMultipleContract, invalidSingleBulkContract]
+
 const cleanups: (() => void)[] = []
 afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
 
@@ -49,5 +59,13 @@ describe('Select package-root boundary', () => {
 		act(() => (host.querySelector('.vx-select-trigger') as HTMLElement).click())
 		act(() => (document.querySelectorAll('[role="option"]')[1] as HTMLElement).click())
 		expect(onValueChange).toHaveBeenLastCalledWith(['banana'])
+	})
+
+	it('accepts an explicit multiple mode with array callback values', () => {
+		const onValueChange = vi.fn()
+		const host = mount(<Selector label="Choices" options={options} selectionMode="multiple" onValueChange={onValueChange} />)
+		act(() => (host.querySelector('.vx-select-trigger') as HTMLElement).click())
+		act(() => (document.querySelectorAll('[role="option"]')[0] as HTMLElement).click())
+		expect(onValueChange).toHaveBeenLastCalledWith(['apple'])
 	})
 })

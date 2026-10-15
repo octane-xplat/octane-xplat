@@ -476,6 +476,9 @@ export {
 
 export {
 	DropdownMenuItem,
+	DropdownMenuLink,
+	DropdownMenuSection,
+	DropdownMenuSeparator,
 	DropdownMenuDivider,
 	DropdownMenuCheckboxItem,
 	DropdownMenuRadioGroup,
@@ -485,6 +488,9 @@ export {
 
 export {
 	DropdownMenuItem as ContextMenuItem,
+	DropdownMenuLink as ContextMenuLink,
+	DropdownMenuSection as ContextMenuSection,
+	DropdownMenuSeparator as ContextMenuSeparator,
 	DropdownMenuDivider as ContextMenuDivider,
 	DropdownMenuCheckboxItem as ContextMenuCheckboxItem,
 	DropdownMenuRadioGroup as ContextMenuRadioGroup,
@@ -494,6 +500,9 @@ export {
 
 export {
 	DropdownMenuItem as BreadcrumbMenuItem,
+	DropdownMenuLink as BreadcrumbMenuLink,
+	DropdownMenuSection as BreadcrumbMenuSection,
+	DropdownMenuSeparator as BreadcrumbMenuSeparator,
 	DropdownMenuDivider as BreadcrumbMenuDivider,
 	DropdownMenuCheckboxItem as BreadcrumbMenuCheckboxItem,
 	DropdownMenuRadioGroup as BreadcrumbMenuRadioGroup,
@@ -506,21 +515,31 @@ export type {
 	MenuOption,
 	MenuItemData,
 	MenuActionData,
+	MenuLinkData,
+	MenuSectionData,
+	MenuSeparatorData,
+	MenuSubMenuData,
 	MenuDividerData,
 	MenuCheckboxData,
 	MenuRadioOptionData,
 	MenuRadioGroupData,
 	MenuItemProps,
+	MenuLinkProps,
+	MenuSectionProps,
 	MenuCheckboxItemProps,
 	MenuRadioGroupProps,
 	MenuRadioItemProps,
 	MenuDividerProps,
+	MenuSeparatorProps,
 	MenuSubMenuProps,
 	MenuContextValue,
 } from './props'
 
 export type {
 	MenuItemProps as DropdownMenuItemProps,
+	MenuLinkProps as DropdownMenuLinkProps,
+	MenuSectionProps as DropdownMenuSectionProps,
+	MenuSeparatorProps as DropdownMenuSeparatorProps,
 	MenuDividerProps as DropdownMenuDividerProps,
 	MenuCheckboxItemProps as DropdownMenuCheckboxItemProps,
 	MenuRadioGroupProps as DropdownMenuRadioGroupProps,
@@ -530,6 +549,9 @@ export type {
 
 export type {
 	MenuItemProps as ContextMenuItemProps,
+	MenuLinkProps as ContextMenuLinkProps,
+	MenuSectionProps as ContextMenuSectionProps,
+	MenuSeparatorProps as ContextMenuSeparatorProps,
 	MenuDividerProps as ContextMenuDividerProps,
 	MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
 	MenuRadioGroupProps as ContextMenuRadioGroupProps,
@@ -539,6 +561,9 @@ export type {
 
 export type {
 	MenuItemProps as BreadcrumbMenuItemProps,
+	MenuLinkProps as BreadcrumbMenuLinkProps,
+	MenuSectionProps as BreadcrumbMenuSectionProps,
+	MenuSeparatorProps as BreadcrumbMenuSeparatorProps,
 	MenuDividerProps as BreadcrumbMenuDividerProps,
 	MenuCheckboxItemProps as BreadcrumbMenuCheckboxItemProps,
 	MenuRadioGroupProps as BreadcrumbMenuRadioGroupProps,

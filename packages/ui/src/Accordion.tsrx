@@ -9,8 +9,8 @@ import { Collapsible } from './Collapsible';
  *  Controlled via `open` (key, or keys with `multiple`), uncontrolled via
  *  `defaultOpen`. */
 export function Accordion(props: AccordionProps) @{
-	const normalize = (v: string | string[] | undefined) =>
-		v === undefined ? [] : Array.isArray(v) ? v : [v];
+	const normalize = (v: string | string[] | null | undefined) =>
+		v == null ? [] : Array.isArray(v) ? v : [v];
 
 	const [internal, setInternal] = useState<string[]>(normalize(props.defaultOpen));
 	const controlled = props.open !== undefined;
@@ -18,7 +18,8 @@ export function Accordion(props: AccordionProps) @{
 
 	const report = (keys: string[]) => {
 		if (!controlled) setInternal(keys);
-		props.onOpenChange?.(props.multiple ? keys : keys[0]);
+		if (props.multiple) props.onOpenChange?.(keys)
+		else props.onOpenChange?.(keys[0] ?? null)
 	};
 
 	const toggle = (key: string, next: boolean) => {

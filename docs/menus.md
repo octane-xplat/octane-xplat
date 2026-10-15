@@ -6,15 +6,15 @@ same menu parts on web, iOS, Android, and macOS.
 
 ## Start with actions
 
-A menu item calls `onSelect` when chosen and closes the menu. Existing data
-arrays still work:
+A menu item calls `onSelect` when chosen and closes the menu. Data-driven rows
+now include an explicit kind; mark command rows as `action`:
 
 ```tsx
 <DropdownMenu
 	trigger={<Text>Actions</Text>}
 	items={[
-		{ key: 'rename', label: 'Rename', onSelect: rename },
-		{ key: 'remove', label: 'Remove', isDisabled: true },
+		{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
+		{ type: 'action', key: 'remove', label: 'Remove', isDisabled: true },
 	]}
 />
 ```
@@ -32,7 +32,7 @@ radio group represents one choice from a named set.
 ```tsx
 import { useState } from 'octane';
 import {
-  DropdownMenu, DropdownMenuItem, DropdownMenuDivider,
+  DropdownMenu, DropdownMenuItem, DropdownMenuSeparator,
   DropdownMenuCheckboxItem, DropdownMenuRadioGroup,
   DropdownMenuRadioItem, DropdownMenuSubMenu, Text,
 } from '@octane-xplat/ui';
@@ -45,7 +45,7 @@ function ViewActions() @{
     <DropdownMenuCheckboxItem
       label="Show archived" value={archived} onValueChange={setArchived}
     />
-    <DropdownMenuDivider />
+    <DropdownMenuSeparator />
     <DropdownMenuRadioGroup label="Sort by" value={sort} onValueChange={setSort}>
       <DropdownMenuRadioItem label="Newest first" value="newest" />
       <DropdownMenuRadioItem label="Oldest first" value="oldest" />
@@ -65,13 +65,14 @@ radio group to change that behavior. A radio group can own its state with
 Checkbox state belongs to the caller: its `value` changes only when the caller
 updates it. Choosing the already selected radio does not report a value change.
 
-Submenus accept the same children or a nested `items` array. Data rows can also
-use `type: 'divider'`, `type: 'checkbox'` with a boolean `value`, or
-`type: 'radio-group'` with `label`, string `value`, `onValueChange`, and `items`.
+Submenus accept the same children or a nested `items` array. Data rows use an
+explicit `type`: `action` runs a command, `link` navigates, `section` groups
+nested rows, and `separator` divides them. `checkbox` rows take a boolean
+`value`; `radio-group` rows take a string `value`, `onValueChange`, and `items`.
 Each radio option uses its string `value`, falling back to its `key`.
 `items` and compound children can coexist; data rows come first. Annotate new
-data arrays as `MenuOption[]` to check each choice's value and callback types;
-the extendable `MenuItem` interface remains available to existing callers.
+arrays as `MenuOption[]` to check each row kind and its callback types. The old
+`MenuItem` type remains as a deprecated alias for the discriminated union.
 
 ## Own open state
 
@@ -84,17 +85,24 @@ A close callback is a request. The menu stays mounted until you update
 the menu owns visibility and can start open with `defaultOpen`.
 A submenu uses `isOpen`, `defaultOpen`, and `onOpenChange` in the same way.
 
-Selecting a nested action requests closure of the whole menu. Escape and
-outside dismissal close the top surface first. Menus inherit the shared layer
+Selecting a nested action closes the whole menu by default; setting
+`hasCloseOnSelect={false}` keeps that menu open. Escape and outside dismissal
+close the top surface first. Menus inherit the shared layer
 registry and Popover positioning; they do not install another Escape handler.
 `placement` and `alignment` on the root control the inherited Popover.
 The inherited macOS Popover does not guarantee custom alignment or offset.
+
+```tsx
+<DropdownMenu trigger={<Text>Actions</Text>}>
+	<DropdownMenuItem label="Save draft" onSelect={saveDraft} hasCloseOnSelect={false} />
+</DropdownMenu>
+```
 
 ## Context actions on touch and keyboard
 
 `ContextMenu` keeps `children` as the content you act on. Supply actions using
 `items`, or compound parts using `menu`. The `ContextMenuItem`,
-`ContextMenuDivider`, `ContextMenuCheckboxItem`, `ContextMenuRadioGroup`,
+`ContextMenuSeparator`, `ContextMenuCheckboxItem`, `ContextMenuRadioGroup`,
 `ContextMenuRadioItem`, and `ContextMenuSubMenu` exports reuse the dropdown
 implementations and state ownership.
 
@@ -102,7 +110,7 @@ implementations and state ownership.
 <ContextMenu
 	trigger={<Text>Actions</Text>}
 	accessibilityLabel="Open file actions"
-	items={[{ key: 'rename', label: 'Rename', onSelect: rename }]}
+	items={[{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename }]}
 >
 	<Text>report.txt</Text>
 </ContextMenu>
@@ -147,7 +155,7 @@ menu trigger. The current page remains visible.
 
 `overflowLabel` names the overflow trigger (default: More ancestors).
 `overflowMenu` adds compound actions after hidden ancestors. The
-`BreadcrumbMenuItem`, `BreadcrumbMenuDivider`, `BreadcrumbMenuCheckboxItem`,
+`BreadcrumbMenuItem`, `BreadcrumbMenuSeparator`, `BreadcrumbMenuCheckboxItem`,
 `BreadcrumbMenuRadioGroup`, `BreadcrumbMenuRadioItem`, and `BreadcrumbMenuSubMenu`
 exports use the same implementations as the other menu families.
 

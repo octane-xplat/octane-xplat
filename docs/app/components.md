@@ -15,6 +15,8 @@ navigation, tab strips, overflow, and resizing,
 for device APIs. Platform-authentic widgets (no parity promised) live behind
 `@octane-xplat/ui/ios`, `/android`, and `/web` — see
 [primitives](primitives.md#the-components-you-reach-for-first).
+For changed selection, date, number, timestamp, and duration props, see the
+[UI API migration guide](ui-api-migrations.md).
 `KeyboardAvoiding` is available from every root entry. It adjusts around the
 software keyboard on iOS and Android; web, Linux, macOS, and Windows keep a
 neutral column wrapper.
@@ -107,6 +109,11 @@ export function Example() {
 | `Spacer`           | Flexible gap filler                                                                        |                                                                           |
 | `SafeArea`         | Insets-aware container                                                                     | `edges`                                                                   |
 | `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere | `enabled`, `keyboardVerticalOffset`                                       |
+
+`Stack`, `Center`, `Section`, and `FormLayout` gap and padding props use
+spacing steps: each step is 4 dips (CSS pixels on web). Numeric sizes are dips
+too; CSS lengths remain strings. The [styling guide](styling.md) shows the
+shared styling options.
 
 ## Text
 
@@ -210,7 +217,7 @@ export function Example() {
 | `ButtonGroup`                                           | Connected action row                                             | `label`, `orientation`, `size`, `isDisabled`                                 |
 | `ToggleButton`, `ToggleButtonGroup`                     | Pressed action and toggle group                                  | `isPressed`, `value`, `onChange`, `type`                                     |
 | `ClickableCard`, `SelectableCard`                       | Action/navigation card or controlled selection                   | `label`, `href`, `isSelected`, `onChange`                                    |
-| `MoreMenu`                                              | Icon-only overflow menu                                          | `items`, `label`, `placement`, `alignment`                                   |
+| `MoreMenu`                                              | Icon-only overflow menu for action rows                           | `items`, `label`, `placement`, `alignment`                                   |
 | `DateInput`, `TimeInput`                                | ISO date or wall-clock time fields with adaptive picker surfaces | `value`, `onChange`, `min`, `max`, `presentation`                            |
 | `DateTimeInput`                                         | Combined ISO local date-time field                               | `value`, `onChange`, `min`, `max`, `presentation`                            |
 | `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                         |
@@ -223,13 +230,13 @@ export function Example() {
 | `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
 | `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
 | `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                             |
-| `Selector`                                              | Single-option picker                                             | `options`, `value`, `searchable`, `isDisabled`                               |
-| `MultiSelector`                                         | Multiple-option picker                                           | `options`, `value`, `searchable`, `isDisabled`                               |
+| `Selector`                                              | Single or multiple-option picker                                 | `selectionMode`, `options`, `value`, `onValueChange`, `searchable`            |
+| `MultiSelector`                                         | Multiple-option picker preset                                    | `options`, `value`, `onValueChange`, `searchable`, `isDisabled`               |
 | `Typeahead`                                             | Searchable single selection field                                | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`                     |
 | `Tokenizer`                                             | Searchable multi-selection token field                           | `searchSource`, `value`, `onChange`, `hasCreate`                             |
 | `Token`                                                 | Removable or interactive entity chip                             | `label`, `color`, `onRemove`, `onClick`, `href`                              |
 | `ComplexSelector`                                       | Field trigger with a custom anchored picker surface              | `value`, `children`, `changeAction`, `variant`                               |
-| `NumberInput`                                           | Numeric entry with bounds                                        | `value`, `defaultValue`, `min`, `max`, `step`, `onValueChange`               |
+| `NumberInput`                                           | Numeric entry with bounds; `null` is empty                        | `value`, `defaultValue`, `min`, `max`, `step`, `onValueChange`               |
 | `PinInput`                                              | Fixed-length code/PIN entry                                      | `length`, `onValueChange`, `onComplete`, `secure`                            |
 
 | `InputRating` | Tappable 1..max rating row | `value`, `max`, `icon`, `onValueChange` |
@@ -239,7 +246,8 @@ export function Example() {
 
 Date controls use portable ISO strings: `YYYY-MM-DD`, `HH:MM[:SS]`, and
 `YYYY-MM-DDTHH:MM[:SS]`. Date-time strings have no timezone suffix; they
-represent local wall-clock values. `presentation="native"` uses the browser
+represent local wall-clock values. Empty values and clear callbacks use
+`null`. `presentation="native"` uses the browser
 input on web and the shared calendar/time sheet on iOS and Android. Choose
 `bottom-sheet`, `popover`, or adaptive presentations when the surface should
 stay consistent across targets. `DateRangeInput` uses `{start, end}` ISO dates
@@ -395,7 +403,7 @@ registerIndicators({ check: SelectionMark })
 | Component                                  | What it is                                               | Key props                                                       |
 | ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------- |
 | `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                               |
-| `Accordion`                                | List of expanding items                                  | `items`, `multiple`, `open`, `onOpenChange`                     |
+| `Accordion`                                | List of expanding items                                  | `items`, single key/null or `multiple` key array, `onOpenChange` |
 | `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedKey`, `onSelectionChange`                      |
 | `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`               |
 | `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                      |
@@ -459,8 +467,8 @@ export function Example() {
 | `ProgressBar`                      | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`                                        |
 | `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `label`, `children`                                          |
 | `StatusDot`                        | Accessible colored status signal             | `variant`, `label`, `isPulsing`, `tooltip`                              |
-| `Timestamp`                        | Localized relative or absolute instant       | `value`, `format`, `isLive`, `hasTooltip`                               |
-| `Timer`                            | Live elapsed duration                        | `startTime`, `format`, `type`, `size`                                   |
+| `Timestamp`                        | Localized relative or absolute instant       | `value`, `valueUnit` (numeric values), `format`, `isLive`                |
+| `Timer`                            | Live elapsed duration                        | `startTimeMs` (Unix ms), `format`, `type`, `size`                        |
 | `Outline`                          | Navigable heading outline                    | `items`, `activeId`, `hasScrollOnClick`                                 |
 | `Spinner`                          | Self-drawn loading indicator                 |                                                                         |
 

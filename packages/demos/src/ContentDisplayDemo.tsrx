@@ -44,7 +44,7 @@ export function ContentDisplayDemo() @{
 		</MetadataList>
 		<Thumbnail alt="Release artwork" label="Release artwork" onPress={() => console.log('[probe] thumbnail pressed')} />
 		<ProgressBar label="Upload" value={68} hasValueLabel={true} marks={[{ value: 50, label: 'Halfway' }]} />
-		<Text>Elapsed <Timer startTime={Date.now() - 65000} format="clock" /></Text>
+		<Text>Elapsed <Timer startTimeMs={Date.now() - 65000} format="clock" /></Text>
 		<Heading level={3}>Article outline</Heading>
 		<Outline items={outline} hasScrollOnClick={false} />
 		<Citation source={{ title: 'Release notes', url: 'https://example.com/releases' }} number={1} />

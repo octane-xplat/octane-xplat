@@ -22,7 +22,7 @@ export function Breadcrumb(props: BreadcrumbProps) @{
 	>
 		@for (const e of visible.map((item, i) => ({ item, i })); key e.i) {
 			<flexboxlayout className="vx-breadcrumb-item">
-				{e.i === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger={<label text="…" />} accessibilityLabel={props.overflowLabel ?? 'More ancestors'} items={overflow.map((item, index) => ({ key: `ancestor-${index}`, label: item.label, onSelect: item.onSelect, isDisabled: !item.onSelect }))}>{props.overflowMenu}</DropdownMenu>}
+				{e.i === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger={<label text="…" />} accessibilityLabel={props.overflowLabel ?? 'More ancestors'} items={overflow.map((item, index) => ({ type: 'action' as const, key: `ancestor-${index}`, label: item.label, onSelect: item.onSelect, isDisabled: !item.onSelect }))}>{props.overflowMenu}</DropdownMenu>}
 				{e.i > 0 ? <label className="vx-breadcrumb-sep" text={sep} /> : null}
 				{e.item.onSelect
 					? <label className="vx-breadcrumb-link" text={e.item.label} onTap={e.item.onSelect} />

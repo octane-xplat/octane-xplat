@@ -9,9 +9,9 @@ function toLocalDate(date: Date): ISODateString {
 
 /** Demonstrates the shared ISO date contract with the adaptive calendar. */
 export function NativeDatePickerDemo() @{
-	const [appointment, setAppointment] = useState<ISODateTimeString | undefined>('2026-10-02T10:00')
+	const [appointment, setAppointment] = useState<ISODateTimeString | null>('2026-10-02T10:00')
 	const [range, setRange] = useState<DateRange | null>(null)
-	const [value, setValue] = useState<ISODateString | undefined>(toLocalDate(new Date(Date.now() + 86400000)))
+	const [value, setValue] = useState<ISODateString | null>(toLocalDate(new Date(Date.now() + 86400000)))
 
 	<View className="controls-demo gap-4">
 		<Heading>Date input</Heading>
@@ -44,7 +44,7 @@ export function NativeDatePickerDemo() @{
 			]}
 		/>
 		<Text>{range ? `Booking: ${range.start} – ${range.end}` : 'Booking unset'}</Text>
-		<Pressable onPress={() => { setValue(undefined); setRange(null) }}>
+		<Pressable onPress={() => { setValue(null); setAppointment(null); setRange(null) }}>
 			<Text>Reset dates</Text>
 		</Pressable>
 	</View>

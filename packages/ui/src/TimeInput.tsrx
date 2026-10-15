@@ -45,7 +45,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
 
-	const lastEmitted = useRef<ISOTimeString | undefined>(undefined)
+	const lastEmitted = useRef<ISOTimeString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -64,13 +64,14 @@ function TimeInputControl(inputProps: CoreProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISOTimeString | undefined) => {
+	const fireChange = (next: ISOTimeString | null | undefined) => {
 		if (isDisabled || isBusy) return
-		lastEmitted.current = next
-		props.onChange?.(next)
+		const emitted = next ?? null
+		lastEmitted.current = emitted
+		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(emitted), () => setBusy(false))
 		}
 	}
 
@@ -92,7 +93,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		if (hasDateComposition(input.current)) return
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
-			if (shown != null) fireChange(undefined)
+			if (shown != null) fireChange(null)
 		} else {
 			commitParsed(parseTimeInput(pendingInput, hasSeconds))
 		}
@@ -174,7 +175,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				</Pressable>
 			)}
 			{props.hasClear && shown != null && !isDisabled && !isBusy
-				? <Pressable className="vx-timeinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'time'}`} onPress={() => { setPendingInput(null); fireChange(undefined); if (input.current) writeText(input.current, '') }}><label text="×" /></Pressable>
+				? <Pressable className="vx-timeinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'time'}`} onPress={() => { setPendingInput(null); fireChange(null); if (input.current) writeText(input.current, '') }}><label text="×" /></Pressable>
 				: null}
 			{statusText != null
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
@@ -183,7 +184,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		{surface === 'sheet' ? (
 			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a time'} height="hug" className="vx-timeinput-sheet">
 				<TimeWheelPanel
-					value={shown}
+					value={shown ?? undefined}
 					hasSeconds={hasSeconds}
 					hourFormat={props.hourFormat ?? '12h'}
 					min={props.min}
@@ -205,7 +206,7 @@ function TimeInputControl(inputProps: CoreProps) @{
  */
 export function TimeInput(props: TimeInputProps) @{
 	const inField = useContext(FieldContext) != null
-	const effective = effectivePresentation(props.presentation, props.nativePicker, 'time')
+	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)
 	const surface: 'typed' | 'sheet' = resolved === 'sheet' || resolved === 'native' ? 'sheet' : 'typed'
 	const cid = useId()

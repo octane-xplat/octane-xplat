@@ -91,7 +91,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	const [announcement, setAnnouncement] = useState('')
 	const [rejected, setRejected] = useState<string | null>(null)
 
-	const lastEmitted = useRef<ISODateString | undefined>(undefined)
+	const lastEmitted = useRef<ISODateString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -118,7 +118,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateString | undefined) => {
+	const fireChange = (next: ISODateString | null) => {
 		if (isDisabled || isBusy) return
 		lastEmitted.current = next
 		setAnnouncement(next ? messages.selected(formatValue(next)) : messages.cleared)
@@ -157,7 +157,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		setIsFocused(false)
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
-			if (shown !== undefined && shown !== null) fireChange(undefined)
+			if (shown !== undefined && shown !== null) fireChange(null)
 		} else {
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
@@ -182,7 +182,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					setRejected(commitParsed(parseDateInput(pendingInput, locale)) ? null : pendingInput)
 				} else {
 					setRejected(null)
-					fireChange(undefined)
+					fireChange(null)
 				}
 
 				setPendingInput(null)
@@ -205,7 +205,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		e?.stopPropagation?.()
 		setPendingInput(null)
 		setRejected(null)
-		fireChange(undefined)
+		fireChange(null)
 		if (surface !== 'native') input.current?.focus({ preventScroll: true })
 	}
 
@@ -220,7 +220,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		const raw = (e.target.value ?? '') as string
 		if (lastCommit.current === raw) return
 		lastCommit.current = raw
-		if (!raw) { setRejected(null); if (value !== undefined) fireChange(undefined); return }
+		if (!raw) { setRejected(null); if (value != null) fireChange(null); return }
 		const parsed = parseDateInput(raw, locale)
 		if (!parsed || isDateDisabled(parsed)) { setRejected(raw); return }
 		setRejected(null)
@@ -395,12 +395,11 @@ function DateInputControl(inputProps: CoreProps) @{
 /** Date entry field — ISO `value`, typed text + calendar. `presentation`
  *  picks the surface: `popover` (typed field + calendar), `bottom-sheet`,
  *  `native` (`<input type=date>` with the shared format painted over it), or
- *  the `adaptive-*` pointer-driven pair. Deprecated `nativePicker` maps onto
- *  the same surfaces (`presentation` wins). */
+ *  the `adaptive-*` pointer-driven pair. */
 export function DateInput(props: DateInputProps) @{
 	const inField = useContext(FieldContext) != null
 	const isTouch = useCoarsePointer()
-	const effective = effectivePresentation(props.presentation, props.nativePicker, 'date')
+	const effective = effectivePresentation(props.presentation)
 	const surface = resolveInputSurface(effective, isTouch)
 	const cid = useId()
 

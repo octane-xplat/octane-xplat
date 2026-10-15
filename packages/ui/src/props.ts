@@ -239,11 +239,13 @@ export interface GridProps extends AccessibilityProps {
 	id?: string
 }
 
-/** Astryx spacing scale — `step * 4` dips. Shared by `Stack`, `Center`,
+/** Astryx spacing scale — `step * 4` density-independent pixels (dips;
+ *  CSS pixels on web). Shared by `Stack`, `Center`,
  *  `Section`, and `FormLayout` gap/padding props. */
 export type SpacingStep = 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10
 
-/** Numbers are dips (px on web); strings are used as-is ('100%', '12em'). */
+/** Numeric sizes are dips (CSS pixels on web); strings are CSS lengths used
+ *  as-is (for example `'100%'` or `'12em'`). */
 export type SizeValue = number | string
 
 /** Flow direction for `Stack` — also selects which of `hAlign`/`vAlign` is
@@ -280,8 +282,8 @@ export interface StackPaddingProps {
 	paddingBlockEnd?: SpacingStep
 }
 
-/** Explicit size constraints shared by the flow layout components. Numbers
- *  are dips (px on web); strings pass through as CSS-ish lengths. */
+/** Explicit size constraints shared by the flow layout components. Numeric
+ *  sizes are dips (CSS pixels on web); strings are CSS lengths used as-is. */
 export interface StackSizeProps {
 	width?: SizeValue
 	height?: SizeValue
@@ -931,6 +933,10 @@ export type ISOTimeString =
  *  wall-clock values, not instants. */
 export type ISODateTimeString = `${ISODateString}T${ISOTimeString}`
 
+/** ISO 8601 instant with an explicit UTC marker or numeric offset.
+ *  Unlike `ISODateTimeString`, this value identifies one point on the timeline. */
+export type ISOInstantString = `${ISODateString}T${ISOTimeString}${'' | `.${number}`}${'Z' | `${'+' | '-'}${number}${number}:${number}${number}`}`
+
 /** Weekday index — `0` is Sunday (the `Date.getDay()` ordering). Used by `weekStartsOn` on Calendar and the date inputs.
  */
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
@@ -984,12 +990,6 @@ export type TimeInputPresentation = InputPresentation
 /** Picker surfaces a `DateTimeInput` can open — see `InputPresentation`.
  */
 export type DateTimeInputPresentation = PickerPresentation
-
-/** @deprecated Prefer `presentation`; kept for upstream source parity —
- *  `touch` → `adaptive-native`, `always` → `native`, `never` →
- *  `adaptive-bottom-sheet` (`text-input` for TimeInput). `presentation`
- *  wins when both are set. */
-export type NativePickerPolicy = 'touch' | 'always' | 'never'
 
 /** Imperative calendar navigation — obtained via `ref`.
  *
@@ -1080,8 +1080,10 @@ interface CalendarBaseProps extends DateLocaleProps {
  */
 export interface CalendarSingleProps extends CalendarBaseProps {
 	mode?: 'single'
-	value?: ISODateString
-	defaultValue?: ISODateString
+	/** A selected local calendar date, or `null` for an explicitly empty calendar. */
+	value?: ISODateString | null
+	/** Initial selected date; `null` starts with no selected date. */
+	defaultValue?: ISODateString | null
 	/** Fires with the ISO day plus a local-midnight `Date` convenience. */
 	onChange?: (value: ISODateString, valueAsDate: Date) => void
 }
@@ -1090,8 +1092,10 @@ export interface CalendarSingleProps extends CalendarBaseProps {
  */
 export interface CalendarRangeProps extends CalendarBaseProps {
 	mode: 'range'
-	value?: DateRange
-	defaultValue?: DateRange
+	/** A selected local date range, or `null` for an explicitly empty calendar. */
+	value?: DateRange | null
+	/** Initial selected range; `null` starts with no selected range. */
+	defaultValue?: DateRange | null
 	onChange?: (value: DateRange) => void
 }
 
@@ -1107,6 +1111,8 @@ export interface CalendarRangeProps extends CalendarBaseProps {
  *
  * <Calendar mode="range" value={range} onChange={setRange} maxRangeSpan={14} />
  * ```
+ * `null` is an explicit empty value; omitting `value` leaves selection
+ * uncontrolled. The change callback reports selections, not clears.
  * @see CalendarSingleProps, CalendarRangeProps, DateInputProps.
  */
 export type CalendarProps = CalendarSingleProps | CalendarRangeProps
@@ -1144,15 +1150,6 @@ export type DateTimeInputTimeIncrement = 1 | 5 | 10 | 15 | 30
 /** Allowed cadences (minutes) for `DateTimeInput`'s preset-time option list.
  */
 export type DateTimeInputTimeOptionInterval = 5 | 10 | 15 | 30 | 60
-/** Astryx name for the deprecated `nativePicker` policy — see `NativePickerPolicy`. @deprecated Use `presentation`.
- */
-export type DateInputNativePicker = NativePickerPolicy
-/** Astryx name for the deprecated `nativePicker` policy — see `NativePickerPolicy`. @deprecated Use `presentation`.
- */
-export type TimeInputNativePicker = NativePickerPolicy
-/** Astryx name for the deprecated `nativePicker` policy — see `NativePickerPolicy`. @deprecated Use `presentation`.
- */
-export type DateTimeInputNativePicker = NativePickerPolicy
 /** Astryx name for `FieldStatus` on `DateInput`.
  */
 export type DateInputStatus = FieldStatus
@@ -1177,7 +1174,8 @@ export type DateRangeInputStatus = FieldStatus
 /** Astryx name for `FieldStatusType` on `DateRangeInput`.
  */
 export type DateRangeInputStatusType = FieldStatusType
-/** Typed date entry + calendar. The default `presentation` is
+/** Typed date entry + calendar. `null` is the explicit empty value; omitting
+ *  `value` leaves the field uncontrolled. The default `presentation` is
  *  `adaptive-native`: fine pointers get the typed field + calendar popover,
  *  coarse pointers the platform picker (web) or the self-drawn sheet
  *  (native).
@@ -1198,11 +1196,11 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
-	value?: ISODateString
-	onChange?: (value: ISODateString | undefined) => void
+	value?: ISODateString | null
+	onChange?: (value: ISODateString | null) => void
 	/** Async follow-up after `onChange`; the field stays busy until it
 	 *  resolves. */
-	changeAction?: (value: ISODateString | undefined) => void | Promise<void>
+	changeAction?: (value: ISODateString | null) => void | Promise<void>
 	min?: ISODateString
 	max?: ISODateString
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
@@ -1212,8 +1210,6 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	hasClear?: boolean
 	hasAutoFocus?: boolean
 	presentation?: DateInputPresentation
-	/** @deprecated Use `presentation`; `presentation` wins when both set. */
-	nativePicker?: DateInputNativePicker
 	placeholder?: string
 	ref?: Octane.Ref<TextInputHandle>
 	/** Calendar popover pane count. Ignored by the `native` surface.
@@ -1225,7 +1221,11 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	web?: PlatformProps
 }
 
-/** Wall-clock time entry (`ISOTimeString`, `HH:MM[:SS]`). Controlled by `value`+`onChange` (commits report `undefined` when the field clears); `hasSeconds` adds a seconds segment, `increment` is the arrow-key minute step, and `presentation` picks the surface — including `'text-input'` for typed entry with no picker. `nativePicker` is deprecated; use `presentation`.
+/** Wall-clock time entry (`ISOTimeString`, `HH:MM[:SS]`). `null` is the
+ *  explicit empty value; omitting `value` leaves the field uncontrolled.
+ *  `hasSeconds` adds a seconds segment, `increment` is the arrow-key minute
+ *  step, and `presentation` picks the surface — including `'text-input'` for
+ *  typed entry with no picker.
  *
  * @example
  * ```tsx
@@ -1243,9 +1243,9 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
-	value?: ISOTimeString
-	onChange?: (value: ISOTimeString | undefined) => void
-	changeAction?: (value: ISOTimeString | undefined) => void | Promise<void>
+	value?: ISOTimeString | null
+	onChange?: (value: ISOTimeString | null) => void
+	changeAction?: (value: ISOTimeString | null) => void | Promise<void>
 	min?: ISOTimeString
 	max?: ISOTimeString
 	/** Include a seconds segment. @default false */
@@ -1258,9 +1258,6 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	increment?: number
 	/** @default 'adaptive-native' */
 	presentation?: TimeInputPresentation
-	/** @deprecated Use `presentation`; `presentation` wins when both set.
-	 *  `never` maps to `text-input`. */
-	nativePicker?: TimeInputNativePicker
 	placeholder?: string
 	ref?: Octane.Ref<TextInputHandle>
 	ios?: PlatformProps
@@ -1269,7 +1266,8 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 }
 
 /** Date and time under one label — a date segment and a time segment whose
- *  commits combine into the ISODateTimeString value.
+ *  commits combine into the local `ISODateTimeString` value. `null` is the
+ *  explicit empty value; omitting `value` leaves it uncontrolled.
  *
  * @example
  * ```tsx
@@ -1287,12 +1285,13 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
-	value?: ISODateTimeString
-	onChange: (value: ISODateTimeString | undefined) => void
-	changeAction?: (value: ISODateTimeString | undefined) => void | Promise<void>
-	/** Earliest selectable instant — constrains the calendar and (when the
-	 *  picked day equals `min`'s day) the time segment. */
+	value?: ISODateTimeString | null
+	onChange: (value: ISODateTimeString | null) => void
+	changeAction?: (value: ISODateTimeString | null) => void | Promise<void>
+	/** Earliest selectable local date-time — constrains the calendar and (when
+	 *  the picked day equals `min`'s day) the time segment. */
 	min?: ISODateTimeString
+	/** Latest selectable local date-time. */
 	max?: ISODateTimeString
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
 	hasSeconds?: boolean
@@ -1313,8 +1312,6 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	timeLabel?: string
 	/** @default 'adaptive-native' */
 	presentation?: DateTimeInputPresentation
-	/** @deprecated Use `presentation`; `presentation` wins when both set. */
-	nativePicker?: DateTimeInputNativePicker
 	ref?: Octane.Ref<TextInputHandle>
 	/** Calendar pane count on the popover/sheet surface. @default 1 */
 	numberOfMonths?: 1 | 2
@@ -3765,8 +3762,14 @@ export interface RouteBoundaryProps {
  * @see NavLinkProps.
  */
 export interface LinkProps {
+	id?: string
 	href: string
 	target?: string
+	/** Override the platform link role when composing a link into another
+	 *  interaction pattern such as a menu. */
+	accessibilityRole?: 'link' | 'menuitem'
+	/** Runs when the user activates the link, before navigation. */
+	onPress?: () => void
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
@@ -4429,20 +4432,34 @@ export interface AccordionItemSpec {
  * ```
  * @see AccordionItemSpec, CollapsibleProps.
  */
-export interface AccordionProps {
+export interface AccordionBaseProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
 	items: AccordionItemSpec[]
-	multiple?: boolean
-	open?: string | string[]
-	defaultOpen?: string | string[]
-	onOpenChange?: (open: string | string[]) => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** Single-open disclosure state. `null` means that no section is open. */
+export interface AccordionSingleProps extends AccordionBaseProps {
+	multiple?: false
+	open?: string | null
+	defaultOpen?: string | null
+	onOpenChange?: (open: string | null) => void
+}
+
+/** Multi-open disclosure state. */
+export interface AccordionMultipleProps extends AccordionBaseProps {
+	multiple: true
+	open?: string[]
+	defaultOpen?: string[]
+	onOpenChange?: (open: string[]) => void
+}
+
+export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
 
 /** Self-drawn checkbox — box + check mark, identical pixels across targets.
  *
@@ -4570,18 +4587,49 @@ export interface MenuItemData {
 	hasCloseOnSelect?: boolean
 }
 
-/** A plain actionable menu row (`MenuItemData` with `type` omitted or `'item'`); `items` nests a submenu.
- */
+/** An action menu row. */
 export interface MenuActionData extends MenuItemData {
-	type?: 'item'
-	items?: MenuItem[]
+	type: 'action'
+	items?: never
+	href?: never
 }
 
-/** A separator row in menu data — `type: 'divider'`; other fields are ignored.
- */
-export interface MenuDividerData extends MenuItemData {
-	type: 'divider'
+/** A link row that retains normal link navigation. */
+export interface MenuLinkData extends MenuItemData {
+	type: 'link'
+	href: string
+	target?: string
+	isDisabled?: never
+	items?: never
 }
+
+/** A non-actionable, accessible group of nested menu rows. */
+export interface MenuSectionData extends MenuItemData {
+	type: 'section'
+	label: string
+	items: MenuOption[]
+	icon?: never
+	isDisabled?: never
+	onSelect?: never
+	hasCloseOnSelect?: never
+	href?: never
+}
+
+/** A semantic separator with no label or activation behavior. */
+export interface MenuSeparatorData {
+	key: string
+	type: 'separator'
+	label?: never
+	icon?: never
+	isDisabled?: never
+	onSelect?: never
+	hasCloseOnSelect?: never
+	items?: never
+	href?: never
+}
+
+/** @deprecated Use `MenuSeparatorData` with `type: 'separator'`. */
+export type MenuDividerData = MenuSeparatorData
 
 /** A toggleable menu row — `type: 'checkbox'`, caller-owned `value`, `onValueChange` requests the next state.
  */
@@ -4606,17 +4654,19 @@ export interface MenuRadioGroupData extends MenuItemData {
 	items: MenuRadioOptionData[]
 }
 
-/** Typed choices and nested rows extend the legacy action-array contract. */
-export type MenuOption = MenuActionData | MenuDividerData | MenuCheckboxData | MenuRadioGroupData
-
-/** Extendable legacy row contract. Prefer MenuOption for typed choice data. */
-export interface MenuItem extends MenuItemData {
-	type?: 'item' | 'divider' | 'checkbox' | 'radio-group'
-	items?: MenuItem[]
-	value?: boolean | string
-	/** Legacy rows can represent either kind of choice. Compound props are strictly typed. */
-	onValueChange?: (value: boolean | string) => void
+/** A submenu row that owns a separately rendered menu surface. */
+export interface MenuSubMenuData extends MenuItemData {
+	type: 'submenu'
+	items: MenuOption[]
+	onSelect?: never
+	href?: never
 }
+
+/** Public menu data union: each row kind has an explicit discriminant. */
+export type MenuOption = MenuActionData | MenuLinkData | MenuSectionData | MenuSeparatorData | MenuCheckboxData | MenuRadioGroupData | MenuSubMenuData
+
+/** @deprecated Use `MenuOption`, whose entry kinds have explicit discriminants. */
+export type MenuItem = MenuOption
 
 /** One row in a compound menu (`DropdownMenu`/`ContextMenu` children) — `label`, optional `icon`/`description`/`endContent`, `isDisabled`, `onSelect`; `hasCloseOnSelect` keeps the menu open after selection when false.
  */
@@ -4633,6 +4683,20 @@ export interface MenuItemProps {
 	isDisabled?: boolean
 	onSelect?: () => void
 	hasCloseOnSelect?: boolean
+}
+
+/** Props for an actionable link inside a menu. */
+export interface MenuLinkProps extends Omit<MenuItemProps, 'onSelect' | 'isDisabled'> {
+	href: string
+	target?: string
+	onSelect?: () => void
+}
+
+/** Accessible, non-actionable group inside a menu. */
+export interface MenuSectionProps {
+	id?: string
+	label: string
+	children?: Renderable
 }
 
 /** A compound-menu checkbox row — `value` is caller-owned, `onValueChange` requests the next state.
@@ -4664,17 +4728,20 @@ export interface MenuRadioGroupProps {
 
 /** A separator between compound-menu rows.
  */
-export interface MenuDividerProps {
+export interface MenuSeparatorProps {
 	id?: string
 	className?: ClassName
 	style?: StyleProp
 }
 
+/** @deprecated Use `MenuSeparatorProps`. */
+export type MenuDividerProps = MenuSeparatorProps
+
 /** A compound-menu row that opens a nested menu — `children` or `items` supply the submenu; `isOpen`/`defaultOpen`/`onOpenChange` own its visibility.
  */
 export interface MenuSubMenuProps extends MenuItemProps {
 	children?: Renderable
-	items?: MenuItem[]
+	items?: MenuOption[]
 	isOpen?: boolean
 	defaultOpen?: boolean
 	onOpenChange?: (isOpen: boolean) => void
@@ -4689,7 +4756,7 @@ export interface MenuContextValue {
 
 /** Internal surface contract shared by every renderer. */
 export interface MenuSurfaceProps {
-	items?: MenuItem[]
+	items?: MenuOption[]
 	children?: Renderable
 	closeMenu(): void
 	closeLevel?: () => void
@@ -4711,9 +4778,9 @@ export interface MenuSurfaceProps {
  * <DropdownMenu
  * 	trigger={<Button label="Actions" />}
  * 	items={[
- * 		{ key: 'rename', label: 'Rename', onSelect: rename },
- * 		{ type: 'divider', key: 'd' },
- * 		{ key: 'delete', label: 'Delete', onSelect: remove },
+ * 		{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
+ * 		{ type: 'separator', key: 'd' },
+ * 		{ type: 'action', key: 'delete', label: 'Delete', onSelect: remove },
  * 	]}
  * />
  * ```
@@ -4731,7 +4798,7 @@ export interface DropdownMenuProps {
 	triggerClassName?: ClassName
 	/** Additional class for the inherited Popover surface. */
 	menuClassName?: ClassName
-	items?: MenuItem[]
+	items?: MenuOption[]
 	children?: Renderable
 	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
 	isOpen?: boolean
@@ -4751,7 +4818,7 @@ export interface DropdownMenuProps {
  * ```tsx
  * import { ContextMenu, Text } from '@octane-xplat/ui'
  *
- * <ContextMenu items={[{ key: 'copy', label: 'Copy', onSelect: copy }]}>
+ * <ContextMenu items={[{ type: 'action', key: 'copy', label: 'Copy', onSelect: copy }]}>
  * 	<Text>{row}</Text>
  * </ContextMenu>
  * ```
@@ -5001,13 +5068,16 @@ export interface InputNumberProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	value?: number
-	defaultValue?: number
+	/** Controlled number; `null` is the explicit empty value. */
+	value?: number | null
+	/** Initial number or empty value for uncontrolled use. */
+	defaultValue?: number | null
 	min?: number
 	max?: number
 	step?: number
 	placeholder?: string
-	onValueChange?: (value: number) => void
+	/** Requests a number or `null` when the input is cleared. */
+	onValueChange?: (value: number | null) => void
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -5050,7 +5120,8 @@ export interface SelectOption {
 }
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
- *  `multiple` keeps the listbox open and reports string[]; `searchable`
+ *  `selectionMode` determines the selected value and change-event shape;
+ *  `searchable`
  *  puts a normalized TextInput filter at the top of the listbox.
  *
  * @example
@@ -5068,28 +5139,17 @@ export interface SelectOption {
  * ```
  * @see SelectOption, MultiSelectorProps — `MultiSelector` is the multi-select preset.
  */
-export interface SelectProps extends FieldControlProps {
+export interface SelectBaseProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
 	options: SelectOption[]
-	value?: string | string[] | null
-	defaultValue?: string | string[] | null
-	multiple?: boolean
 	searchable?: boolean
 	/** Called when the local filter changes, including reset on close. */
 	onChangeQuery?: (query: string) => void
 	searchPlaceholder?: string
 	emptyText?: string
 	emptySearchText?: string
-	/** Show bulk selection of the visible enabled options in multiple mode. */
-	hasSelectAll?: boolean
-	selectAllLabel?: string
-	/** Multi-value trigger summary. @default 'labels' */
-	triggerDisplay?: 'labels' | 'count'
-	formatValue?: (items: { value: string; label: string }[]) => string
-	/** Async commit after onValueChange. Blocks edits until settled. */
-	changeAction?: (value: string | string[] | null) => void | Promise<void>
 	/** Called after rejected commits have reconciled the selection. */
 	onChangeError?: (error: unknown) => void
 	/** Web form name; native keeps selection in application state. */
@@ -5100,7 +5160,6 @@ export interface SelectProps extends FieldControlProps {
 	open?: boolean
 	defaultOpen?: boolean
 	onOpenChange?: (open: boolean) => void
-	onValueChange?: (value: string | string[] | null) => void
 	onClear?: () => void
 	hasClear?: boolean
 	placement?: PopoverPlacement
@@ -5109,6 +5168,39 @@ export interface SelectProps extends FieldControlProps {
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** Single-value Selector contract. `null` means no selected option. */
+export interface SelectSingleProps extends SelectBaseProps {
+	selectionMode?: 'single'
+	value?: string | null
+	defaultValue?: string | null
+	onValueChange?: (value: string | null) => void
+	/** Async commit after `onValueChange`. Blocks edits until settled. */
+	changeAction?: (value: string | null) => void | Promise<void>
+	hasSelectAll?: never
+	selectAllLabel?: never
+	triggerDisplay?: never
+	formatValue?: never
+}
+
+/** Multi-value Selector contract. Its callback always receives the selected
+ *  values as an array, including an empty array after clearing. */
+export interface SelectMultipleProps extends SelectBaseProps {
+	selectionMode: 'multiple'
+	value?: string[]
+	defaultValue?: string[]
+	onValueChange?: (value: string[]) => void
+	/** Show bulk selection of the visible enabled options. */
+	hasSelectAll?: boolean
+	selectAllLabel?: string
+	/** Multi-value trigger summary. @default 'labels' */
+	triggerDisplay?: 'labels' | 'count'
+	formatValue?: (items: { value: string; label: string }[]) => string
+	/** Async commit after `onValueChange`. Blocks edits until settled. */
+	changeAction?: (value: string[]) => void | Promise<void>
+}
+
+export type SelectProps = SelectSingleProps | SelectMultipleProps
 
 // ---------- Astryx parity: typeahead + token selection ----------
 
@@ -5787,8 +5879,8 @@ export interface NavigationMenuProps {
 	web?: PlatformProps
 }
 
-/** Static command entry; existing MenuItem callsites remain valid. */
-export interface CommandPaletteMenuItem extends MenuItem {
+/** Static action entry for CommandPalette's search results. */
+export interface CommandPaletteMenuItem extends MenuItemData {
 	group?: string
 	keywords?: string[]
 	description?: string
@@ -7905,7 +7997,7 @@ export interface OverflowItem {
  * import { OverflowList, Tab, MoreMenu } from '@octane-xplat/ui'
  *
  * <OverflowList
- * 	overflowRenderer={(items) => <MoreMenu items={items.map((i) => ({ key: String(i.index), label: `Item ${i.index}` }))} />}
+ * 	overflowRenderer={(items) => <MoreMenu items={items.map((i) => ({ type: 'action', key: String(i.index), label: `Item ${i.index}` }))} />}
  * >
  * 	{tabs}
  * </OverflowList>
@@ -7945,14 +8037,16 @@ export interface OverflowListProps extends LayoutChildProps {
  */
 export type ResizableDirection = 'horizontal' | 'vertical'
 
-/** A pixel bound for a percentage size — `pixel(240)`. */
+/** A pixel bound for a percentage size — `pixel(240)`. The number is dips
+ *  (CSS pixels on web). */
 export interface ResizablePixelSize {
 	readonly type: 'pixel'
 	readonly value: number
 }
 
 /** A percentage with exactly one pixel floor or ceiling —
- *  `percent(50, {min: pixel(200)})`. */
+ *  `percent(50, {min: pixel(200)})`. The number is a percentage of its
+ *  resize basis; the optional pixel bound is dips (CSS pixels on web). */
 export type ResizablePercentSize = {
 	readonly type: 'percent'
 	readonly value: number
@@ -7961,8 +8055,8 @@ export type ResizablePercentSize = {
 	| { readonly min?: never; readonly max: ResizablePixelSize }
 )
 
-/** A resizable size: px number, exact `Npx`/`N%` strings, `pixel(n)`, or
- *  `percent(n, {min|max})`. Basis-dependent values resolve once against the
+/** A resizable size: numeric dips (CSS pixels on web), exact `Npx`/`N%`
+ *  strings, `pixel(n)`, or `percent(n, {min|max})`. Basis-dependent values resolve once against the
  *  `containerRef` element (or the viewport/screen when omitted).
  *
  * @see pixel, percent — the constructors for bounded sizes.
@@ -7986,15 +8080,18 @@ export interface ResizableMaxConfig {
 	maxSize?: ResizableSize
 }
 
-/** Per-region sizing behavior — `defaultSize`, `collapsible`, `collapsedSize` drag threshold (px, default 40), `snaps` snap points, `shrinkOrder` cascade priority (lower shrinks first).
+/** Per-region sizing behavior — `defaultSize`, `collapsible`, `collapsedSize`
+ *  drag threshold in dips (CSS pixels on web, default 40), `snaps` sizes in
+ *  the same unit, and `shrinkOrder` cascade priority (lower shrinks first).
  */
 export interface ResizableRegionSizing {
 	defaultSize?: ResizableSize
 	/** Whether this region can collapse to 0 (default false). */
 	collapsible?: boolean
-	/** Size in px/dips below which a drag collapses the region (default 40). */
+	/** Size in dips (CSS pixels on web) below which a drag collapses the region
+	 *  (default 40). */
 	collapsedSize?: number
-	/** Sizes to snap to during resize. */
+	/** Snap sizes in dips (CSS pixels on web). */
 	snaps?: number[]
 	/** Cascade priority — lower numbers shrink first in multi-region layouts. */
 	shrinkOrder?: number
@@ -8007,8 +8104,11 @@ export type ResizableRegionConfig = ResizableRegionSizing & ResizableMinConfig &
 /** Simplified resize config accepted by a component's `resizable` prop
  *  (e.g. `SideNav`). */
 export interface ResizableConfig {
+	/** Numeric widths are dips (CSS pixels on web). */
 	defaultWidth?: number
+	/** Numeric width bound in dips (CSS pixels on web). */
 	minWidth?: number
+	/** Numeric width bound in dips (CSS pixels on web). */
 	maxWidth?: number
 	/** Persistence key — localStorage on web, ApplicationSettings on
 	 *  native; in-memory only on the AppKit desktop leaf. */
@@ -8357,15 +8457,17 @@ export type MoreMenuPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
  * ```tsx
  * import { MoreMenu } from '@octane-xplat/ui'
  *
- * <MoreMenu items={[{ key: 'share', label: 'Share', onSelect: share }]} />
+ * <MoreMenu items={[{ type: 'action', key: 'share', label: 'Share', onSelect: share }]} />
  * ```
- * @see MenuItem, DropdownMenuProps.
+ * @see MenuActionData, DropdownMenuProps.
  */
 export interface MoreMenuProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	items: MenuItem[]
+	/** This compact overflow menu contains action rows only. Use DropdownMenu
+	 *  for links, sections, separators, and other row kinds. */
+	items: MenuActionData[]
 	/** Accessible label for the trigger. @default 'More options' */
 	label?: string
 	/** Trigger button variant. @default 'ghost' */
@@ -9204,13 +9306,10 @@ export type NumberInputProps = InputNumberProps
 export type SelectorProps = SelectProps
 /** Props accepted by `MultiSelector`. */
 export type MultiSelectorProps = Omit<
-	SelectProps,
-	'multiple' | 'value' | 'defaultValue' | 'onValueChange' | 'changeAction'
+	SelectMultipleProps,
+	'selectionMode'
 > & {
-	value?: string[]
-	defaultValue?: string[]
-	onValueChange?: (value: string[]) => void
-	changeAction?: (value: string[]) => void | Promise<void>
+	selectionMode?: 'multiple'
 }
 
 /** Props accepted by `Breadcrumbs`. */
@@ -9558,22 +9657,14 @@ export interface TimestampTooltipEntry {
 	isCopyable?: boolean
 }
 
-/** Timestamp — human-readable instant with relative/absolute formats.
- *
- * @example
- * ```tsx
- * import { Timestamp } from '@octane-xplat/ui'
- *
- * <Timestamp value={createdAt} format="relative" isLive />
- * ```
- * @see TimestampFormat, TimestampTooltipEntry — `value` is Unix seconds (or ISO 8601); no magnitude guessing beyond the fixed 1e12 ms boundary.
- */
-export interface TimestampProps {
+/** Units for numeric `Timestamp.value`. */
+export type TimestampValueUnit = 'unix-seconds' | 'unix-milliseconds'
+
+/** Shared display props for the two explicit Timestamp value forms. */
+export interface TimestampBaseProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	/** The instant to display: Unix seconds (or ms > 1e12) or an ISO 8601 string. */
-	value: string | number
 	/**
 	 * - 'auto': relative for recent times, `date_time` for older (default)
 	 * - 'relative': "2 hours ago" / 'relative_short': "2h ago"
@@ -9584,7 +9675,7 @@ export interface TimestampProps {
 	format?: TimestampFormat
 	/** Seconds threshold for 'auto' to switch from relative to date_time.
 	 *  @default 604800 (7 days) */
-	autoThreshold?: number
+	autoThresholdSeconds?: number
 	/** Show the hover card with the full absolute time on pointer targets.
 	 *  Touch targets never mount the card. @default true */
 	hasTooltip?: boolean
@@ -9609,18 +9700,34 @@ export interface TimestampProps {
 	web?: PlatformProps
 }
 
+/** Timestamp — human-readable instant with relative/absolute formats.
+ *
+ * @example
+ * ```tsx
+ * import { Timestamp } from '@octane-xplat/ui'
+ *
+ * <Timestamp value={createdAt} format="relative" isLive />
+ * ```
+ * @see TimestampFormat, TimestampTooltipEntry, TimestampValueUnit. ISO values
+ *  must carry a timezone; numeric values require an explicit unit.
+ */
+export type TimestampProps = TimestampBaseProps & (
+	| { value: ISOInstantString; valueUnit?: never }
+	| { value: number; valueUnit: TimestampValueUnit }
+)
+
 /** Timer duration text modes: 'elapsed' = "4m 05s" / 'clock' = "4:05". */
 export type TimerFormat = 'elapsed' | 'clock'
 
-/** Timer — live elapsed duration since `startTime` (or mount).
+/** Timer — live elapsed duration since `startTimeMs` (or mount).
  *
  * @example
  * ```tsx
  * import { Timer } from '@octane-xplat/ui'
  *
- * <Timer startTime={startedAt} format="elapsed" />
+ * <Timer startTimeMs={startedAt} format="elapsed" />
  * ```
- * @see TimestampProps — `startTime` is Unix **milliseconds**.
+ * @see TimestampProps — `startTimeMs` and generated timestamps use Unix milliseconds.
  */
 export interface TimerProps {
 	className?: ClassName
@@ -9628,7 +9735,7 @@ export interface TimerProps {
 	id?: string
 	/** Unix time in milliseconds when the measured operation began. Omit to
 	 *  count from this Timer's mount. */
-	startTime?: number
+	startTimeMs?: number
 	/** @default 'elapsed' */
 	format?: TimerFormat
 	/** Semantic text type. @default 'supporting' */

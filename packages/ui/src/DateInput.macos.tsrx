@@ -35,7 +35,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
 
-	const lastEmitted = useRef<ISODateString | undefined>(undefined)
+	const lastEmitted = useRef<ISODateString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -57,7 +57,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateString | undefined) => {
+	const fireChange = (next: ISODateString | null) => {
 		if (isDisabled || isBusy) return
 		lastEmitted.current = next
 		props.onChange?.(next)
@@ -84,7 +84,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 		if (hasDateComposition(input.current)) return
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
-			if (shown != null) fireChange(undefined)
+			if (shown != null) fireChange(null)
 		} else {
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
@@ -148,7 +148,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				accessibilityState={{ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid }}
 			/>
 			{props.hasClear && shown != null && !isDisabled && !isBusy
-				? <Pressable className="vx-dateinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`} onPress={() => { setPendingInput(null); fireChange(undefined) }}><label text="×" /></Pressable>
+				? <Pressable className="vx-dateinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`} onPress={() => { setPendingInput(null); fireChange(null) }}><label text="×" /></Pressable>
 				: null}
 			{statusText != null
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />

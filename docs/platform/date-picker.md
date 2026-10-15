@@ -20,7 +20,7 @@ import { Field, DateInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | undefined>(
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>(
 		'2026-10-02',
 	)
 	return (
@@ -39,7 +39,11 @@ Date fields use strings such as `2026-10-02` (`YYYY-MM-DD`). Time fields use
 are calendar and wall-clock values, not JavaScript timestamps. Date constraints
 receive local-midnight `Date` values. `Calendar` supports single selection or
 inclusive `{ start, end }` ranges. `DateRangeInput` commits the same range
-shape and uses `null` to clear.
+shape and uses `null` to clear. `Calendar` accepts `null` as an explicitly
+empty controlled selection; it reports picked values through `onChange`.
+`DateInput`, `TimeInput`, and `DateTimeInput` also report `null` when cleared;
+`undefined` means no controlled value was provided. An instant is separate:
+it must include `Z` or a numeric UTC offset.
 
 ```tsx
 import { DateInput, TimeInput, DateTimeInput, Calendar, DateRangeInput } from '@octane-xplat/ui'
@@ -59,6 +63,7 @@ export function Example() {
 				value={{ start: '2026-10-02', end: '2026-10-05' }}
 				onChange={(range) => console.log(range)}
 			/>
+			<Calendar value={null} />
 			<DateRangeInput label="Trip" value={null} onChange={(range) => console.log(range)} />
 		</>
 	)
@@ -75,7 +80,7 @@ import { Field, DateInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | undefined>(
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>(
 		'2026-10-02',
 	)
 	return (
@@ -137,10 +142,10 @@ import { DateInput, TimeInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | undefined>(
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>(
 		'2026-10-02',
 	)
-	const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | undefined>('14:30')
+	const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | null>('14:30')
 	return (
 		<>
 			<DateInput label="Date" presentation="native" value={date} onChange={setDate} />

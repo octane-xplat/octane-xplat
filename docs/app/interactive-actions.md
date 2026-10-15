@@ -76,9 +76,9 @@ export function Example() {
 `MoreMenu.presentation="adaptive"` uses a bottom sheet on iOS/Android and on
 web viewports at or below 768 px with a coarse primary pointer. AppKit currently
 uses the bottom sheet for both `adaptive` and explicit `bottom-sheet`. `start`/`end` placement maps to physical left/right and does not mirror for RTL; AppKit's
-inline popover surface does not apply alignment. The current `items` shape
-contains actions only, so upstream separator and nested-menu rows are not
-represented.
+inline popover surface does not apply alignment. `MoreMenu` is for compact
+action rows. Use `DropdownMenu` when rows need links, sections, separators, or
+choices.
 
 ```tsx
 import { MoreMenu } from '@octane-xplat/ui'
@@ -90,7 +90,7 @@ export function Example() {
 			presentation="adaptive"
 			placement="bottom"
 			alignment="end"
-			items={[{ key: 'duplicate', label: 'Duplicate', onSelect: () => console.log('Duplicated') }]}
+			items={[{ type: 'action', key: 'duplicate', label: 'Duplicate', onSelect: () => console.log('Duplicated') }]}
 		/>
 	)
 }

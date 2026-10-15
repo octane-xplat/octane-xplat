@@ -16,7 +16,7 @@ export default function SelectProbe() @{
 
 	<VStack>
 		<Selector id="select-single" label="Fruit" options={options} value={value} onValueChange={setValue} hasClear />
-		<Selector multiple id="select-multiple" label="Fruits" options={options} value={values} onValueChange={(next) => setValues(Array.isArray(next) ? next : [])} hasSelectAll triggerDisplay="count" searchable />
+		<Selector selectionMode="multiple" id="select-multiple" label="Fruits" options={options} value={values} onValueChange={setValues} hasSelectAll triggerDisplay="count" searchable />
 		<Text id="select-value">{String(value)}</Text>
 		<Text id="select-values">{values.join(',')}</Text>
 	</VStack>

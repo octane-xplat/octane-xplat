@@ -20,7 +20,7 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC4: A reader can use `ComplexSelector`'s named render context to render custom content, commit values, close the surface, and reflect/revert an asynchronous action.
 - AC5: A reader can account for web-only key events and form inputs, the native remove-button fallback, portable `ref`, and experimental macOS support.
 
-- AC6: A reader can use a finite-list Selector or MultiSelector with local grouped filtering, filtered enabled-item bulk selection, pending/rejected commits, form submission, and explicit native keyboard limits.
+- AC6: A reader can use finite-list Selector with `selectionMode` tied to a string-or-null single value or string-array multiple value, or use the `MultiSelector` multiple preset, with local grouped filtering, filtered enabled-item bulk selection, pending/rejected commits, form submission, and explicit native keyboard limits.
 
 - AC7: A reader can build a static or remote CommandPalette with groups, disabled entries, loading/empty/error states, cancellation and close/reopen cleanup, and understands desktop highlight versus mobile tap/submit behavior, macOS modal dismissal and focus return, and keyboard-highlight scrolling.
 
@@ -32,6 +32,6 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC4: [Build a custom picker](../../../docs/app/search-selection.md#build-a-custom-picker).
 - AC5: [Platform boundaries](../../../docs/app/search-selection.md#platform-boundaries) and [known limits](../../../docs/verify/known-limits.md).
 
-- AC6: [Choose from a finite list](../../../docs/app/search-selection.md#choose-from-a-finite-list), [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../../../examples/probes/select.tsrx).
+- AC6: [Choose from a finite list](../../../docs/app/search-selection.md#choose-from-a-finite-list), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../../../examples/probes/select.tsrx).
 
 - AC7: [Search commands across targets](../../../docs/app/command-palette.md), [maintained demo](../../../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../../../docs/app/command-palette.md#platform-boundaries-and-verification), and [the nonvisual AppKit host case](../../../packages/ui/tests/command-palette-host.macos.tsrx).

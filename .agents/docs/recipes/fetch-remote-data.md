@@ -28,7 +28,7 @@ Rouzer route tree are outside this recipe's scope.
 - AC5: The reader knows the native footguns: `$`-suffix naming, the per-module `octane/signals` runtime import, `useStore` for non-signal state, and that module-level queries avoid the cross-root context limit.
 - AC6: The reader can choose between a module-level and a screen-owned `query$` for route-param-driven data, and knows the stacked-navigation hazard of copying route params into shared selector signals during render.
 - AC7: The reader can pass cancellation to the transport, rely on unmount retiring component-owned requests and subscriptions, and prevent an obsolete response from replacing a later selection.
-- AC8: The reader can share a query's result across screens through one `QueryClient`, isolate same-key entries and invalidation in another client, use the app-wide default helpers when sharing is intended, and persist records with version, max-age, and an explicit storage scope.
+- AC8: The reader can share a query's result across screens through one `QueryClient`, isolate same-key entries and invalidation in another client, use the app-wide default helpers when sharing is intended, and persist records with version, millisecond `maxAgeMs`, and an explicit storage scope. Millisecond stale windows use `staleTimeMs`.
 
 ## Documentation
 
@@ -39,4 +39,4 @@ Rouzer route tree are outside this recipe's scope.
 - AC5: [Rules that bite on native](../../../docs/app/data.md#rules-that-bite-on-native).
 - AC6: [Module scope vs screen scope](../../../docs/app/data.md#module-scope-vs-screen-scope).
 - AC7: [Module scope vs screen scope](../../../docs/app/data.md#module-scope-vs-screen-scope), [maintained data probe](../../../packages/app/src/data-probe.tsrx), and [lifecycle regression trace](../../../packages/app/src/data-trace.ts).
-- AC8: [The shared query cache](../../../docs/app/data.md#the-shared-query-cache).
+- AC8: [The shared query cache](../../../docs/app/data.md#the-shared-query-cache) and [UI API migrations](../../../docs/app/ui-api-migrations.md#explicit-units).

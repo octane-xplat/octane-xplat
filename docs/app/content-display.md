@@ -346,12 +346,17 @@ export function Example() {
 `Timestamp` absolute formats use `Intl` and an optional named time zone. Live
 relative timestamps and timers update on their own intervals. Hover cards and
 mark tooltips are pointer affordances; touch targets do not show them. Keep
-essential status in visible or accessible labels.
+essential status in visible or accessible labels. An ISO timestamp value must
+include `Z` or a UTC offset; numeric values name Unix seconds or milliseconds
+with `valueUnit`. `Timer.startTimeMs` is Unix milliseconds, while
+`autoThresholdSeconds` is a duration in seconds.
 
 ```tsx
 import { Timestamp, Timer } from '@octane-xplat/ui'
 
 export function Example() {
+	const createdAtMs = Date.now()
+	const startedAtMs = Date.now()
 	return (
 		<>
 			<Timestamp
@@ -360,7 +365,8 @@ export function Example() {
 				tooltipEntries={[{ timezoneID: 'UTC', format: 'full', label: 'UTC' }]}
 			/>
 			<Timestamp value="2026-10-01T12:00:00Z" format="relative" isLive />
-			<Timer format="clock" />
+			<Timestamp value={createdAtMs} valueUnit="unix-milliseconds" />
+			<Timer startTimeMs={startedAtMs} format="clock" />
 		</>
 	)
 }

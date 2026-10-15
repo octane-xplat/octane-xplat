@@ -74,11 +74,10 @@ describe('time values', () => {
 })
 
 describe('presentation resolution', () => {
-	it('maps deprecated nativePicker onto presentation', () => {
-		expect(effectivePresentation(undefined, 'touch', 'date')).toBe('adaptive-native')
-		expect(effectivePresentation(undefined, 'always', 'date')).toBe('native')
-		expect(effectivePresentation(undefined, 'never', 'date')).toBe('adaptive-bottom-sheet')
-		expect(effectivePresentation('popover', 'always', 'date')).toBe('popover')
+	it('uses one presentation strategy with an adaptive-native default', () => {
+		expect(effectivePresentation(undefined)).toBe('adaptive-native')
+		expect(effectivePresentation('native')).toBe('native')
+		expect(effectivePresentation('popover')).toBe('popover')
 	})
 })
 

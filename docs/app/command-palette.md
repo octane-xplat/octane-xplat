@@ -3,11 +3,11 @@
 > Use one command search contract with a keyboard palette on web and macOS
 > and a touch-first search sheet on iOS and Android.
 
-`CommandPalette` accepts either static `items` or a `searchSource`. Existing
-`MenuItem` arrays still work. Supply stable, unique keys/IDs and keep `open`
-controlled with `onOpenChange`; omitting the callback does not provide an
-uncontrolled opener. An internal close also hides the current surface and
-invalidates pending results. Set `open` false before reopening it.
+`CommandPalette` accepts either static `CommandPaletteMenuItem` rows or a
+`searchSource`. Supply stable, unique keys/IDs and keep `open` controlled with
+`onOpenChange`; omitting the callback does not provide an uncontrolled opener.
+An internal close also hides the current surface and invalidates pending
+results. Set `open` false before reopening it.
 
 ## Static commands
 

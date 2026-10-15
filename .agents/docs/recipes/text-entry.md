@@ -2,7 +2,7 @@
 
 ID: text-entry
 Targets: web, ios, android, macos
-Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoiding, useKeyboardInset, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onSubmit, Sheet, Overlay
+Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, NumberInput, TextInputHandle, KeyboardAvoiding, useKeyboardInset, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onValueChange, onSubmit, Sheet, Overlay
 
 ## Starting point
 
@@ -22,6 +22,7 @@ space through form and overlay lifecycles.
 - AC6: `InputGroup` provides one label/description/status for joined prefix or suffix content and its input; group size is a default that an explicit child size overrides, disabled state reaches members, and the web group is named by its visible label.
 - AC4: Focus and blur handles release/restore editing focus, and software-keyboard avoidance keeps the final field reachable, including overlays opened with the keyboard already visible.
 - AC7: A reader can consume a numeric keyboard inset with documented units and platform scope, avoid double-padding an Android resized window, and understand multiple-reader cleanup, resize restoration, and actual-host verification limits.
+- AC8: `NumberInput` uses `null` as the explicit empty value and reports `null` on clear; omitted values retain uncontrolled behavior.
 - AC5: Modal focus cannot escape into background content; close/restoration and nested modal isolation are covered independently on each target. Exiting Presence content cannot accept input or remain in assistive navigation.
 
 ## Documentation
@@ -33,6 +34,7 @@ space through form and overlay lifecycles.
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
 - AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../../../packages/ui/src/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mjs).
 - AC6: [Building screens: grouped fields](../../../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
+- AC8: [Component input contracts](../../../docs/app/components.md#inputs), [UI API migrations](../../../docs/app/ui-api-migrations.md#empty-values-and-time-domains), and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
 ## macOS verification
 

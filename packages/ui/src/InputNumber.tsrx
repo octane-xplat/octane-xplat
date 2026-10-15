@@ -18,7 +18,7 @@ export function InputNumber(props: InputNumberProps) @{
 	const clamp = (n: number) =>
 		Math.min(props.max ?? Infinity, Math.max(props.min ?? -Infinity, n));
 
-	const setValue = (n: number) => {
+	const setValue = (n: number | null) => {
 		if (isBlocked) return;
 		if (!controlled) setInternal(n);
 		props.onValueChange?.(n);
@@ -42,7 +42,8 @@ export function InputNumber(props: InputNumberProps) @{
 			value={value == null ? '' : String(value)}
 			onChange={(text: string) => {
 				const n = parseFloat(text);
-				if (text === '' || !isNaN(n)) setValue(clamp(text === '' ? 0 : n));
+				if (text === '') setValue(null)
+				else if (!isNaN(n)) setValue(clamp(n))
 			}}
 		/>
 		<Pressable className="vx-inputnumber-step" disabled={isBlocked} onPress={() => stepBy(1)} accessibilityLabel="Increment">

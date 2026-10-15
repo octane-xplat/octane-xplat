@@ -571,8 +571,8 @@ Everything from `query$` still applies — `.get()` suspends,
 same states, `.refetch()`/`.retry()`/`.reset()` force a fresh request. A new
 reader of a stale entry sees the cached value right away while a background
 request refreshes it; `snapshot().refreshing` is `true` during that
-refresh. `staleTime` widens the window where a fresh entry is served without
-any request at all.
+refresh. `staleTimeMs` widens the window, in milliseconds, where a fresh entry
+is served without any request at all.
 
 ```ts
 // src/queries.ts — serve the cached record for up to a minute before
@@ -581,7 +581,7 @@ export const user$ = cachedQuery$(
 	['user'],
 	() => openUserId$.get(),
 	(id, { signal }) => api.user.get({ id, signal }),
-	{ staleTime: 60_000 },
+	{ staleTimeMs: 60_000 },
 )
 ```
 
@@ -672,11 +672,12 @@ const rename$ = action$(async (operation, name: string) => {
 
 `persist` opts a query into durable snapshots — records that survive an app
 restart. It's per-query and off by default. The envelope stored under each
-key is `{ v, t, d }`: your compatibility **version**, the save **t**ime, and
-the **d**ata. `maxAge` expires old records, and `scope` names the boundary
-the records belong to — typically the signed-in account — evaluated on each
-read and write. Return `null` from `scope` to keep the query memory-only for
-that boundary, and clear the cache before the boundary changes.
+key is `{ v, t, d }`: your compatibility **version**, the save **t**ime in
+Unix milliseconds, and the **d**ata. `maxAgeMs` expires old records after a
+duration in milliseconds, and `scope` names the boundary the records belong to
+— typically the signed-in account — evaluated on each read and write. Return
+`null` from `scope` to keep the query memory-only for that boundary, and clear
+the cache before the boundary changes.
 
 ```ts
 // src/queries.ts
@@ -688,11 +689,11 @@ export const user$ = cachedQuery$(
 	() => openUserId$.get(),
 	(id, { signal }) => api.user.get({ id, signal }),
 	{
-		staleTime: 60_000,
+		staleTimeMs: 60_000,
 		persist: {
 			storage: platformQueryStorage,
 			version: 'user-v1', // bump when the record shape changes
-			maxAge: 24 * 60 * 60 * 1000,
+			maxAgeMs: 24 * 60 * 60 * 1000,
 			scope: () => currentAccountId(), // your auth layer answers this
 		},
 	},

@@ -8,9 +8,11 @@ import { SelectView } from './SelectView.tsrx'
 export function Select(inputProps: SelectProps) @{
 	const props = useFieldControlProps(inputProps)
 	const state = useSelect(props)
+	const { selectionMode, ...viewProps } = props
 
 	<SelectView
-		{...props}
+		{...viewProps}
+		multiple={selectionMode === 'multiple'}
 		open={state.open}
 		query={state.query}
 		selected={state.selected}

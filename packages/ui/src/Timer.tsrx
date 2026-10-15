@@ -12,17 +12,17 @@ import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { textRoleClasses } from './text-role';
 
-/** Timer — live elapsed duration label since `startTime` (ms; defaults to
+/** Timer — live elapsed duration label since `startTimeMs` (ms; defaults to
  *  mount). Native has no `<time>` element — the ISO 8601 duration rides on
  *  `accessibilityValue`. Tick cadence follows the displayed precision. */
 export function Timer(props: TimerProps) @{
 	const format = resolveTimerFormat(props.format);
 	const startRef = useRef<number>(0);
 	if (startRef.current === 0) {
-		startRef.current = props.startTime ?? Date.now();
+		startRef.current = props.startTimeMs ?? Date.now();
 	}
 
-	const startTime = props.startTime ?? startRef.current;
+	const startTimeMs = props.startTimeMs ?? startRef.current;
 
 	const [now, setNow] = useState(() => Date.now());
 
@@ -32,11 +32,11 @@ export function Timer(props: TimerProps) @{
 		const tick = () => {
 			if (cancelled) return;
 			const at = Date.now();
-			const elapsed = elapsedMilliseconds(at, startTime);
+			const elapsed = elapsedMilliseconds(at, startTimeMs);
 			timer = setTimeout(() => {
 				setNow(Date.now());
 				tick();
-			}, msUntilNextChange(at, startTime, elapsed, format));
+			}, msUntilNextChange(at, startTimeMs, elapsed, format));
 		};
 
 		tick();
@@ -44,9 +44,9 @@ export function Timer(props: TimerProps) @{
 			cancelled = true;
 			if (timer !== undefined) clearTimeout(timer);
 		};
-	}, [startTime, format]);
+	}, [startTimeMs, format]);
 
-	const elapsed = elapsedMilliseconds(now, startTime);
+	const elapsed = elapsedMilliseconds(now, startTimeMs);
 	const { dateTime, text } = timerPresentation(elapsed, format);
 	const roleClasses = textRoleClasses({
 		type: props.type ?? 'supporting',

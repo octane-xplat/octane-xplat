@@ -20,7 +20,7 @@ export function Breadcrumb(props: BreadcrumbProps) @{
 	>
 		{visible.map((item: any, i: number) => (
 			<span key={i} className="vx-breadcrumb-item">
-				{i === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger="…" accessibilityLabel={props.overflowLabel ?? 'More ancestors'} items={overflow.map((item, index) => ({ key: `ancestor-${index}`, label: item.label, onSelect: item.onSelect, isDisabled: !item.onSelect }))}>{props.overflowMenu}</DropdownMenu>}
+				{i === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger="…" accessibilityLabel={props.overflowLabel ?? 'More ancestors'} items={overflow.map((item, index) => ({ type: 'action' as const, key: `ancestor-${index}`, label: item.label, onSelect: item.onSelect, isDisabled: !item.onSelect }))}>{props.overflowMenu}</DropdownMenu>}
 				{i > 0 ? <span className="vx-breadcrumb-sep" aria-hidden="true">{sep}</span> : null}
 				{item.onSelect
 					? <span className="vx-breadcrumb-link" role="link" tabIndex={0} onClick={item.onSelect} onKeyDown={(e: any) => { if (e.key === 'Enter') item.onSelect?.(); }}>{item.label}</span>

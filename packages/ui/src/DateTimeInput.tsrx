@@ -61,7 +61,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const [busy, setBusy] = useState(false)
 	const [timeDraft, setTimeDraft] = useState<ISOTimeString | undefined>(undefined)
 
-	const lastEmitted = useRef<ISODateTimeString | undefined>(undefined)
+	const lastEmitted = useRef<ISODateTimeString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -94,13 +94,14 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateTimeString | undefined) => {
+	const fireChange = (next: ISODateTimeString | null | undefined) => {
 		if (isDisabled || isBusy) return
-		lastEmitted.current = next
-		props.onChange?.(next)
+		const emitted = next ?? null
+		lastEmitted.current = emitted
+		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(emitted), () => setBusy(false))
 		}
 	}
 
@@ -119,7 +120,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const commitTime = (time: ISOTimeString | undefined) => {
 		if (time === undefined) {
 			setTimeDraft(undefined)
-			if (shown !== undefined) fireChange(undefined)
+			if (shown != null) fireChange(null)
 			return
 		}
 
@@ -145,7 +146,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		if (hasDateComposition(dateInput.current)) return
 		if (datePending == null) return
 		if (!datePending.trim()) {
-			if (shown != null) fireChange(undefined)
+			if (shown != null) fireChange(null)
 		} else {
 			const parsed = parseDateInput(datePending, locale)
 			if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
@@ -209,7 +210,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		setDatePending(null)
 		setTimePending(null)
 		setTimeDraft(undefined)
-		fireChange(undefined)
+		fireChange(null)
 		if (dateInput.current) writeText(dateInput.current, '')
 		if (timeInput.current) writeText(timeInput.current, '')
 		dateInput.current?.focus?.()
@@ -391,7 +392,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
  *  `adaptive-*` resolve to the self-drawn sheet on iOS/Android. */
 export function DateTimeInput(props: DateTimeInputProps) @{
 	const inField = useContext(FieldContext) != null
-	const effective = effectivePresentation(props.presentation, props.nativePicker, 'datetime')
+	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)
 	const surface: 'popover' | 'sheet' = resolved === 'popover' || resolved === 'typed' ? 'popover' : 'sheet'
 	const cid = useId()

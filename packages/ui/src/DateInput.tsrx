@@ -46,7 +46,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
 
-	const lastEmitted = useRef<ISODateString | undefined>(undefined)
+	const lastEmitted = useRef<ISODateString | null | undefined>(undefined)
 	const value = props.value
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
@@ -68,7 +68,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateString | undefined) => {
+	const fireChange = (next: ISODateString | null) => {
 		if (isDisabled || isBusy) return
 		lastEmitted.current = next
 		props.onChange?.(next)
@@ -95,7 +95,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		if (hasDateComposition(input.current)) return
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
-			if (shown != null) fireChange(undefined)
+			if (shown != null) fireChange(null)
 		} else {
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
@@ -121,7 +121,7 @@ function DateInputControl(inputProps: CoreProps) @{
 
 	const clear = () => {
 		setPendingInput(null)
-		fireChange(undefined)
+		fireChange(null)
 		if (input.current) writeText(input.current, '')
 		input.current?.focus?.()
 	}
@@ -253,7 +253,7 @@ function DateInputControl(inputProps: CoreProps) @{
  */
 export function DateInput(props: DateInputProps) @{
 	const inField = useContext(FieldContext) != null
-	const effective = effectivePresentation(props.presentation, props.nativePicker, 'date')
+	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)
 	const surface: 'popover' | 'sheet' = resolved === 'popover' || resolved === 'typed' ? 'popover' : 'sheet'
 	const cid = useId()

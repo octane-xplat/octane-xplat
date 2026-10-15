@@ -9,7 +9,7 @@ import { Pressable } from './Pressable';
  * @see LinkProps, NavLinkProps.
  */
 export function Link(props: LinkProps) @{
-	<Pressable className={props.className} onPress={() => { Utils.openUrl(props.href); }}>
+	<Pressable id={props.id} accessibilityRole={props.accessibilityRole ?? 'link'} className={props.className} style={props.style} onPress={() => { props.onPress?.(); Utils.openUrl(props.href); }}>
 		<flexboxlayout flexDirection="row">{props.children}</flexboxlayout>
 	</Pressable>
 }

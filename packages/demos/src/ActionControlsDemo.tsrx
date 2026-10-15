@@ -22,8 +22,8 @@ export function ActionControlsDemo() @{
 			<ToggleButton value="grid" label="Grid" />
 		</ToggleButtonGroup>
 		<MoreMenu label="More document actions" items={[
-			{ key: 'duplicate', label: 'Duplicate', onSelect: () => setMessage('Duplicated') },
-			{ key: 'archive', label: 'Archive', onSelect: () => setMessage('Archived') },
+			{ type: 'action', key: 'duplicate', label: 'Duplicate', onSelect: () => setMessage('Duplicated') },
+			{ type: 'action', key: 'archive', label: 'Archive', onSelect: () => setMessage('Archived') },
 		]} />
 		<ClickableCard label="Open collection" onPress={() => setMessage('Collection opened')}>
 			<Text>Open collection</Text>

@@ -2,7 +2,7 @@
 
 ID: interactive-actions
 Targets: web, ios, android, macos
-Related APIs: Button, IconButton, ButtonGroup, ToggleButton, ToggleButtonGroup, ClickableCard, SelectableCard, MoreMenu, Pressable
+Related APIs: Button, IconButton, ButtonGroup, ToggleButton, ToggleButtonGroup, ClickableCard, SelectableCard, MoreMenu, MenuActionData, Pressable
 
 ## Starting point
 
@@ -19,7 +19,7 @@ or an overflow action menu across supported targets.
 ## Acceptance criteria
 
 - AC1: A maintained example shows Button, IconButton, ToggleButton, and ButtonGroup composition; ButtonGroup size is a default that a child's explicit size overrides, while group disabled state is enforced.
-- AC2: The guide explains single/multiple toggle-group state and MoreMenu presentation.
+- AC2: The guide explains single/multiple toggle-group state and MoreMenu presentation, with its action-only rows explicitly discriminated as `action`.
 - AC3: The guide explains card selection/navigation semantics and web/native link differences.
 - AC4: The guide documents Button legacy prop migration and pending action behavior.
 - AC5: A reader can use the default UI icon registry without a provider or isolate custom glyphs with an `IconRegistryProvider`; built-ins remain available and late registrations do not redraw mounted icons.

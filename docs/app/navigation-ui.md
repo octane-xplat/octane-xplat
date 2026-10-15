@@ -242,9 +242,10 @@ export function Actions() {
 
 `useResizable` creates one region or a keyed set of regions. Pass the returned
 `region.props` to the matching `ResizeHandle`; `direction` must match on both.
-Sizes are px/dip numbers or exact `Npx`/`N%` strings. `pixel()` and
-`percent()` create explicit pixel sizes and percentages with a pixel floor or
-ceiling.
+Numbers and `pixel()` bounds are dips (CSS pixels on web); exact `Npx` strings
+name pixels and `N%` strings name percentages. `percent()` takes a value from
+0 to 100 and needs one pixel floor or ceiling. A spacing step used by `Stack`
+is 4 dips, so it is a scale value rather than a pixel measurement.
 
 ```tsx
 import { useRef } from 'octane'
