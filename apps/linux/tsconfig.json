@@ -68,6 +68,7 @@
 		"**/node_modules",
 		"../../packages/*/src/vendor",
 		"../../packages/create/template",
+		"../../packages/create/library-template",
 		"../../packages/lingui/tests"
 	],
 	"files": [

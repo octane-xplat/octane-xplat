@@ -135,6 +135,7 @@
 		"../../packages/*/vitest.*.config.*",
 		"../../packages/*/src/vendor",
 		"../../packages/create/template",
+		"../../packages/create/library-template",
 		"../../packages/lingui/tests",
 		"../../packages/*/dist",
 		"../../packages/*/types",

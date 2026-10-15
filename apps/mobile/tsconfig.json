@@ -108,6 +108,7 @@
 		"../../packages/**/*.test.*",
 		"../../packages/*/src/vendor",
 		"../../packages/create/template",
+		"../../packages/create/library-template",
 		"../../packages/lingui/tests",
 		"../../packages/*/test",
 		"../../packages/*/tests",
