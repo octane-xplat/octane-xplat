@@ -95,7 +95,15 @@ export default async function nativeCaseConfig(project, target) {
 				// split sibling chunks (they'd never reach the app). Disabling
 				// code splitting still keeps dynamic imports lazy, so per-module
 				// import probes keep independent pass/fail reporting.
-				output: { codeSplitting: false },
+				output: {
+					codeSplitting: false,
+					// The host bundles Core once and exposes its package entry to
+					// isolated cases. Core re-exports these same property objects;
+					// reuse that entry instead of requiring an unregistered submodule.
+					paths: {
+						'@nativescript/core/ui/styling/style-properties': '@nativescript/core',
+					},
+				},
 			},
 		},
 	}

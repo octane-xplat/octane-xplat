@@ -231,6 +231,50 @@ test('native probe resolves gesturehandler and its pnpm runtime dependency', asy
 	)
 })
 
+test('native cases reuse host Core for external style property imports', async () => {
+	const { mkdtemp, writeFile, rm } = await import('node:fs/promises')
+	const { tmpdir } = await import('node:os')
+	const { join } = await import('node:path')
+	const { repo, importFrom } = await import('./probe/project.mjs')
+	const { default: nativeCaseConfig } = await import('./probe/native-case.config.mjs')
+	const project = join(repo, 'apps/mobile')
+	const { build } = await importFrom(project, 'vite')
+	const work = await mkdtemp(join(tmpdir(), 'xplat-probe-core-test-'))
+	try {
+		const entry = join(work, 'case.mjs')
+		await writeFile(
+			entry,
+			[
+				"export { paddingTopProperty } from '@nativescript/core/ui/styling/style-properties'",
+				"export { View } from '@nativescript/core'",
+			].join('\n'),
+		)
+		const config = await nativeCaseConfig(project, 'ios')
+		const result = await build({
+			...config,
+			configFile: false,
+			logLevel: 'silent',
+			build: { ...config.build, write: false, lib: { entry, formats: ['cjs'] } },
+		})
+		const chunk = (Array.isArray(result) ? result : [result])
+			.flatMap((entry) => entry.output)
+			.find((output) => output.type === 'chunk')
+		const core = { paddingTopProperty: {}, View: class View {} }
+		const required = []
+		const module = { exports: {} }
+		new Function('module', 'exports', 'require', chunk.code)(module, module.exports, (id) => {
+			required.push(id)
+			assert.equal(id, '@nativescript/core')
+			return core
+		})
+		assert.ok(required.length > 0)
+		assert.equal(module.exports.paddingTopProperty, core.paddingTopProperty)
+		assert.equal(module.exports.View, core.View)
+	} finally {
+		await rm(work, { recursive: true })
+	}
+})
+
 test('only allowlisted web host diagnostics can pass with recorded errors', async () => {
 	const message = 'ResizeObserver loop completed with undelivered notifications.'
 	for (const [target, messages, status] of [
