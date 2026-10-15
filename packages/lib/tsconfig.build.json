@@ -2,6 +2,7 @@
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"noEmit": false,
+		"allowImportingTsExtensions": false,
 		"declaration": true,
 		"declarationDir": "types/generated",
 		"outDir": "dist",
