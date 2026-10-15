@@ -261,6 +261,7 @@ export type {
 	ComplexSelectorVariant,
 	PinInputProps,
 	SearchableItem,
+	SearchRequest,
 	SearchSource,
 	CreateStaticSourceOptions,
 	SelectOption,
