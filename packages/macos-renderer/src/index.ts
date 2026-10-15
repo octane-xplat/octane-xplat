@@ -30,7 +30,7 @@ import type {
 import { composeAttributedText, validateTextStyle } from './formatted-text'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
-import { NSAttributedString, NSAutoresizingMaskOptions, NSBackingStoreType, NSBezelStyle, NSBorderType, NSButton, NSButtonType, NSClickGestureRecognizer, NSColor, NSColorSpace, NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerStyle, NSEvent, NSFontAttributeName, NSForegroundColorAttributeName, NSImageView, NSLayoutAttribute, NSLineBreakMode, NSMenu, NSMenuItem, NSMutableParagraphStyle, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSPanGestureRecognizer, NSParagraphStyleAttributeName, NSPopover, NSPopoverBehavior, NSPopoverDidCloseNotification, NSRectEdge, NSScrollView, NSSecureTextField, NSSecureTextFieldCell, NSSlider, NSStackView, NSStackViewDistribution, NSStackViewGravity, NSTextAlignment, NSTextField, NSTextFieldCell, NSTextFieldDelegate, NSTextView, NSTextViewDelegate, NSTrackingArea, NSTrackingAreaOptions, NSUserInterfaceLayoutOrientation, NSView, NSViewBoundsDidChangeNotification, NSViewController, NSViewFrameDidChangeNotification, NSWindow, NSWindowDelegate, NSWindowOrderingMode, NSWindowStyleMask, NativeClass, WKWebView, interop } from '@octane-xplat/platform/macos'
+import { NSAttributedString, NSAutoresizingMaskOptions, NSBackingStoreType, NSBezelStyle, NSBorderType, NSButton, NSButtonType, NSClickGestureRecognizer, NSColor, NSColorSpace, NSControlSize, NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerMode, NSDatePickerStyle, NSEvent, NSFontAttributeName, NSForegroundColorAttributeName, NSImageView, NSLayoutAttribute, NSLineBreakMode, NSMenu, NSMenuItem, NSMutableParagraphStyle, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSPanGestureRecognizer, NSParagraphStyleAttributeName, NSPopover, NSPopoverBehavior, NSPopoverDidCloseNotification, NSPopUpButton, NSProgressIndicator, NSProgressIndicatorStyle, NSRectEdge, NSScrollView, NSSearchField, NSSecureTextField, NSSecureTextFieldCell, NSSegmentedControl, NSSegmentSwitchTracking, NSSlider, NSStackView, NSStackViewDistribution, NSStackViewGravity, NSTextAlignment, NSTextField, NSTextFieldCell, NSTextFieldDelegate, NSTextView, NSTextViewDelegate, NSTrackingArea, NSTrackingAreaOptions, NSUserInterfaceLayoutOrientation, NSView, NSViewBoundsDidChangeNotification, NSViewController, NSViewFrameDidChangeNotification, NSWindow, NSWindowDelegate, NSWindowOrderingMode, NSWindowStyleMask, NativeClass, WKWebView, interop } from '@octane-xplat/platform/macos'
 import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
 
 export { registerFontFamily } from './fonts'
@@ -690,6 +690,7 @@ class RootLayoutView extends NSView {
 		NativeClass(this)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	get intrinsicContentSize() {
 		return rootNaturalSize(rootLayoutNodesByView.get(this))
 	}
@@ -3068,7 +3069,7 @@ function layoutRootChildren(parent: ElementNode | undefined) {
 	const children = (parent.projectedChildren ?? parent.children).filter((child) => child.view)
 	const views = children.map(layoutView)
 	const native = parent.view.subviews
-	const count = typeof native?.count === 'function' ? native.count() : native?.count
+	const count = native?.count
 	const actual = Array.from({ length: Number(count ?? 0) }, (_, i) =>
 		native.objectAtIndex(i),
 	).filter((view) => views.includes(view))
@@ -3514,6 +3515,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'htmlview':
 				node.view = makeLabel()
+				// @ts-ignore selectable is writable on NSTextView; generated decl marks it readonly.
 				node.view.selectable = true
 				break
 			case 'label':
@@ -3580,6 +3582,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				textField.delegate = buttonActionTarget
 				textField.target = buttonActionTarget
 				if (type === 'searchbar') {
+					// @ts-ignore clearing the action needs null; generated decl types it non-null.
 					textField.action = null
 				} else {
 					textField.action = 'textFieldSubmitted:'

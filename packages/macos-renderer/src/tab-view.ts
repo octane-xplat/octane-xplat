@@ -1,4 +1,5 @@
 import type { ElementNode, AppKitView } from './index'
+import { NSAttributedString, NSBundle, NSColor, NSFontAttributeName, NSForegroundColorAttributeName, NSImage, NSObject, NSTabView, NSTabViewDelegate, NSTabViewItem, NSURL, NSURLSession, NSView } from '@octane-xplat/platform/macos'
 import { registerGestureClass } from './gestures'
 import { defineUniversalComponent } from 'octane/universal/native'
 import { loadImage } from './image'

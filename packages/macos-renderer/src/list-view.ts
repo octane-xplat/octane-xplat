@@ -6,6 +6,9 @@ import {
 	type UniversalRoot,
 } from 'octane/universal/native'
 
+import { NSIndexSet, NSObject, NSScrollView, NSTableColumn, NSTableColumnResizingOptions, NSTableView, NSTableViewColumnAutoresizingStyle, NSTableViewDataSource, NSTableViewDelegate, NSTableViewGridLineStyle, NSView, interop } from '@octane-xplat/platform/macos'
+import type { NSColor } from '@octane-xplat/platform/macos'
+
 import { listFactory, parseListTemplate } from './list-template'
 
 type View = NSView & Record<string, any>
@@ -84,7 +87,7 @@ function bind(state: ListState, cell: Cell, index: number) {
 	cell.index = index
 	cell.host.bindingContext = item
 	if (mode === 'factory') {
-		const host = factory!()
+		const host = factory!() as View
 		if (!(host instanceof NSView)) {
 			throw new TypeError(
 				'[macos-host] listview template factory must return an AppKit NSView host',
