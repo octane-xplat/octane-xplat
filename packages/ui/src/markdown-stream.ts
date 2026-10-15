@@ -16,7 +16,8 @@
 // shared by reference across calls. Only the tail reparses per chunk.
 
 import { parseMdNodesMarked, mdInlineLen, WORD_CHAR } from './markdown-parse'
-import type { MdNode } from './props'
+import { parseMdDoc } from './markdown-parse'
+import type { MdDoc, MdNode } from './props'
 
 /** Mutable cache for `parseMarkdownIncremental`. Create per logical doc
  *  (e.g. per message) — a state reused for a wholesale different input
@@ -437,4 +438,50 @@ export function markdownTextLength(nodes: MdNode[]): number {
 	}
 
 	return n
+}
+
+/** One logical Markdown stream. Results are MdDoc v1 snapshots; treat shared
+ * nodes as immutable. append() takes only the new chunk, never cumulative text. */
+export interface MarkdownStreamParser {
+	append(chunk: string): MdDoc
+	/** Clear all source and cached blocks; return an empty document. */
+	reset(): MdDoc
+	/** Parse the complete source literally, including unfinished markup.
+	 * Idempotent; append after finish throws until reset is called. */
+	finish(): MdDoc
+}
+
+/** Create an independent stream with private incremental parsing state. */
+export function createMarkdownStreamParser(): MarkdownStreamParser {
+	let state = createMarkdownIncrementalState()
+	let source = ''
+	let finished = false
+	let document: MdDoc = { kind: 'octane-xplat/md', v: 1, children: [] }
+	return {
+		append(chunk) {
+			if (finished) throw new Error('Markdown stream is finished; call reset() before append().')
+			if (chunk === '') return document
+			source += chunk
+			document = {
+				kind: 'octane-xplat/md',
+				v: 1,
+				children: parseMarkdownIncremental(source, state),
+			}
+			return document
+		},
+		reset() {
+			state = createMarkdownIncrementalState()
+			source = ''
+			finished = false
+			document = { kind: 'octane-xplat/md', v: 1, children: [] }
+			return document
+		},
+		finish() {
+			if (!finished) {
+				document = parseMdDoc(source)
+				finished = true
+			}
+			return document
+		},
+	}
 }

@@ -108,12 +108,75 @@ than appended, the cache resets and reparses whole.
 `vx-md-fade` span that fades in once on web — suppressed under
 `prefers-reduced-motion` — and renders settled on native.
 
-The same machinery is exported for custom renderers: `parseMdDoc` /
-`parseMdNodes` for one-shot parsing, `createMarkdownIncrementalState` +
-`parseMarkdownIncremental` for the settled-prefix cache, and
-`computeBoundaries` / `computeSegments` / `markdownTextLength` for boundary
-tracking. These are ports of the incremental parser and streaming segmentation
-in upstream Astryx's `Markdown`, narrowed to the local grammar.
+For a custom renderer, use the parser at `@octane-xplat/ui/markdown`.
+Pass only each new chunk to `append`, and render the returned document with
+`<Markdown data={document} />`. Call `finish` when the stream ends: it parses
+unfinished markup literally, just like a full parse. After finishing, call
+`reset` before appending another message.
+
+```ts
+import { createMarkdownStreamParser, outlineFromDoc } from '@octane-xplat/ui/markdown'
+
+const parser = createMarkdownStreamParser()
+parser.append('# Release notes\n\n')
+const document = parser.append('Hello **world')
+const headings = outlineFromDoc(document)
+const finalDocument = parser.finish()
+parser.reset()
+```
+
+The result is a readable `MdDoc` v1 object, shared with baked routes. Its block
+and inline nodes use `t` to identify their kind. Treat returned nodes as
+immutable: settled blocks can be shared between snapshots. Each parser owns
+one independent stream; an empty append returns the current snapshot.
+
+```ts
+import { parseMdDoc, type MdDoc } from '@octane-xplat/ui/markdown'
+
+const document: MdDoc = parseMdDoc('# Hello')
+// { kind: 'octane-xplat/md', v: 1,
+//   children: [{ t: 'h', depth: 1, children: [{ t: 'text', text: 'Hello' }] }] }
+const headings = document.children.filter((block) => block.t === 'h')
+```
+
+### Migrate custom streaming renderers
+
+Replace the root-imported `createMarkdownIncrementalState` /
+`parseMarkdownIncremental` sequence with `createMarkdownStreamParser` at
+`/markdown`. Cache fields, `trimStreamingArtifacts`, `computeBoundaries`,
+`computeSegments`, `markdownTextLength`, `MdTextSegment`, and
+`SYNC_TOKENIZE_THRESHOLD` are private. Cumulative-source integrations should
+append the new suffix, or reset and append the replacement source after an edit.
+
+```ts
+import { createMarkdownStreamParser } from '@octane-xplat/ui/markdown'
+
+const parser = createMarkdownStreamParser()
+let previous = ''
+function update(source: string) {
+	if (!source.startsWith(previous)) {
+		parser.reset()
+		previous = ''
+	}
+	const document = parser.append(source.slice(previous.length))
+	previous = source
+	return document
+}
+```
+
+Syntax utilities also live at `/markdown`. `SyntaxToken` uses line-relative,
+inclusive-start/exclusive-end UTF-16 offsets; `CodeToken` and `CodeTokenizer`
+use absolute source offsets, including newlines. Custom tokenizers must use
+one of the exported `SyntaxTokenType` names. The conversion splits tokens
+that cross line boundaries; unknown languages return no highlighted tokens.
+
+```ts
+import { flatTokensToLines, tokenize, type CodeTokenizer } from '@octane-xplat/ui/markdown'
+
+const custom: CodeTokenizer = (code) => [{ type: 'comment', start: 0, end: code.length }]
+const lines = flatTokensToLines(custom('hello', 'text'), 'hello')
+const highlighted = tokenize('const ready = true', 'typescript')
+```
 
 > Runtime evidence: convergence (every-character chunking → identical AST as
 > the full parse), withholding, and settled-block reference stability are

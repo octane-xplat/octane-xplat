@@ -2,13 +2,13 @@
 // ported from the Astryx CodeBlock/tokenizer.ts contract (same languages,
 // token types, thresholds, and output shapes). Pure string/regex work: safe
 // on every target.
-import type { SyntaxToken, TokenLine } from './props'
+import type { CodeToken, SyntaxToken, TokenLine } from './props'
 export type { SyntaxToken, TokenLine } from './props'
 
 type LangDef = {
-	patterns: { type: string; regex: RegExp; anchored: RegExp }[]
+	patterns: { type: SyntaxTokenType; regex: RegExp; anchored: RegExp }[]
 	/** Token type matching the element's default text color (skipped in output). */
-	defaultType: string
+	defaultType: SyntaxTokenType
 }
 
 const langCache = new Map<string, LangDef | null>()
@@ -58,7 +58,7 @@ function buildLanguageUncached(lang: string): LangDef | null {
 
 function buildLanguagePatterns(
 	lang: string,
-): { patterns: { type: string; regex: RegExp }[]; defaultType: string } | null {
+): { patterns: { type: SyntaxTokenType; regex: RegExp }[]; defaultType: SyntaxTokenType } | null {
 	switch (lang) {
 		case 'typescript':
 		case 'javascript':
@@ -460,10 +460,7 @@ export async function tokenizeStreaming(
  * (line-relative offsets). For backwards compatibility with custom
  * tokenizers that return the old format.
  */
-export function flatTokensToLines(
-	tokens: { type: string; start: number; end: number }[],
-	code: string,
-): TokenLine[] {
+export function flatTokensToLines(tokens: CodeToken[], code: string): TokenLine[] {
 	const lineStarts: number[] = [0]
 	for (let i = 0; i < code.length; i++) {
 		if (code[i] === '\n') {
@@ -479,12 +476,15 @@ export function flatTokensToLines(
 			lineIdx++
 		}
 
-		const lineStart = lineStarts[lineIdx]
-		result[lineIdx].push({
-			type: token.type,
-			start: token.start - lineStart,
-			end: token.end - lineStart,
-		})
+		for (let index = lineIdx; index < lineStarts.length; index++) {
+			const lineStart = lineStarts[index]
+			if (lineStart >= token.end) break
+			const lineEnd = index + 1 < lineStarts.length ? lineStarts[index + 1] - 1 : code.length
+			const start = Math.max(token.start, lineStart)
+			const end = Math.min(token.end, lineEnd)
+			if (start < end)
+				result[index].push({ type: token.type, start: start - lineStart, end: end - lineStart })
+		}
 	}
 
 	return result

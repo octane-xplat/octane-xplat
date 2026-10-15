@@ -75,7 +75,23 @@
 			"linux": "./src/linux/index.ts"
 		},
 		"./theme/tokens.css": "./src/theme/tokens.css",
-		"./theme/chrome.css": "./src/theme/chrome.css"
+		"./theme/chrome.css": "./src/theme/chrome.css",
+		"./markdown": {
+			"web": {
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./src/markdown/index.web.ts"
+			},
+			"macos": {
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./src/markdown/index.macos.ts"
+			},
+			"linux": {
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./src/markdown/index.web.ts"
+			},
+			"types": "./types/generated/markdown/index.d.ts",
+			"default": "./src/markdown/index.ts"
+		}
 	},
 	"publishConfig": {
 		"exports": {
@@ -124,7 +140,23 @@
 				"linux": "./src/linux/index.ts"
 			},
 			"./theme/tokens.css": "./src/theme/tokens.css",
-			"./theme/chrome.css": "./src/theme/chrome.css"
+			"./theme/chrome.css": "./src/theme/chrome.css",
+			"./markdown": {
+				"web": {
+					"types": "./types/generated/markdown/index.d.ts",
+					"default": "./dist/web/markdown/index.js"
+				},
+				"macos": {
+					"types": "./types/generated/markdown/index.d.ts",
+					"default": "./src/markdown/index.macos.ts"
+				},
+				"linux": {
+					"types": "./types/generated/markdown/index.d.ts",
+					"default": "./src/markdown/index.web.ts"
+				},
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./dist/native/markdown/index.js"
+			}
 		}
 	},
 	"scripts": {

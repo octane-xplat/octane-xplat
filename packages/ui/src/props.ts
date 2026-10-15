@@ -7208,9 +7208,10 @@ export interface CodeProps {
 	web?: PlatformProps
 }
 
-/** One syntax token with line-relative offsets (0 = start of line). */
+/** One syntax token. start/end are UTF-16 code-unit offsets relative to
+ * its line; start is inclusive and end is exclusive. */
 export interface SyntaxToken {
-	type: string
+	type: import('./code-tokenizer').SyntaxTokenType
 	start: number
 	end: number
 }
@@ -7218,13 +7219,16 @@ export interface SyntaxToken {
 /** Per-line token structure returned by `tokenize`/`tokenizeAsync`. */
 export type TokenLine = SyntaxToken[]
 
-/** Custom tokenizer contract for `CodeBlock.tokenizer` — absolute offsets in,
- *  split per line internally (legacy flat form, converted by
- *  `flatTokensToLines`). */
-export type CodeTokenizer = (
-	code: string,
-	language: string,
-) => { type: string; start: number; end: number }[]
+/** A custom token with inclusive start/exclusive end UTF-16 offsets in the
+ * complete source (including newlines), rather than offsets in one line. */
+export interface CodeToken {
+	type: import('./code-tokenizer').SyntaxTokenType
+	start: number
+	end: number
+}
+
+/** Custom tokenizer contract for CodeBlock: absolute source offsets. */
+export type CodeTokenizer = (code: string, language: string) => CodeToken[]
 
 /** Portable syntax-theme override for one CodeBlock. Token keys are the
  *  `--color-syntax-*` suffixes (keyword, string, comment, number, function,

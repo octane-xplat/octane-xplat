@@ -49,6 +49,16 @@
 					"source": "src/linux/index.ts",
 					"runtime": "./src/linux/index.ts",
 					"types": "./types/generated/linux/index.d.ts"
+				},
+				"./markdown": {
+					"source": "src/markdown/index.ts",
+					"runtime": [
+						"./dist/web/markdown/index.js",
+						"./dist/native/markdown/index.js",
+						"./src/markdown/index.macos.ts",
+						"./src/markdown/index.web.ts"
+					],
+					"types": "./types/generated/markdown/index.d.ts"
 				}
 			}
 		}

@@ -41,16 +41,6 @@ export { Text } from './Text'
 export { Markdown, MarkdownScreen } from './Markdown'
 export type { MdDoc, MdNode, MdInline, MarkdownProps, MarkdownDataProps, MarkdownTextProps, MarkdownScreenProps } from './props'
 export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
-export {
-	createMarkdownIncrementalState,
-	parseMarkdownIncremental,
-	trimStreamingArtifacts,
-	computeBoundaries,
-	computeSegments,
-	markdownTextLength,
-} from './markdown-stream'
-
-export type { MarkdownIncrementalState, MdTextSegment } from './markdown-stream'
 export { RichText, RichTextSpan } from './RichText'
 export { Pressable } from './Pressable'
 export { Button } from './Button'
@@ -1025,7 +1015,6 @@ export {
 	tokenizeAsync,
 	tokenizeStreaming,
 	flatTokensToLines,
-	SYNC_TOKENIZE_THRESHOLD,
 	TOKEN_TYPES,
 	syntaxTokenVar,
 	syntaxTokenVarRef,
