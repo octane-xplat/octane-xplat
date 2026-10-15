@@ -741,6 +741,8 @@ export {
 	defineRoutes,
 	mergeRouteManifests,
 	manifestToJson,
+	formatRouteDiagnostic,
+	RouteManifestError,
 } from './route-table'
 
 export type {
@@ -755,6 +757,8 @@ export type {
 	Route,
 	RouteBoundaryProps,
 	RouteContext,
+	RouteDiagnostic,
+	RouteDiagnosticCode,
 	RouteErrorBoundaryProps,
 	RouteFor,
 	RouteHead,

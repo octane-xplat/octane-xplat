@@ -2926,6 +2926,75 @@ export interface RouteJson {
 	errorBoundary: boolean
 }
 
+// ---------- route diagnostics ----------
+
+/** Stable, machine-readable identifiers for route-contract diagnostics.
+ *  `RouteManifestError.issues` carries them and the matching console
+ *  warnings embed the same code, so tooling can key off either channel.
+ *  Codes are additive — consumers must tolerate values added later. */
+export type RouteDiagnosticCode =
+	/** The same route name was produced twice in one authoring pass —
+	 *  fatal in `defineRoutes`/`deriveRouteManifest`. */
+	| 'route/duplicate-name'
+	/** A `defineRoutes` spec (or a field on it) violates its declared
+	 *  shape — fatal. */
+	| 'route/invalid-spec'
+	/** A route has no usable screen component — fatal for specs, a
+	 *  skipped-file warning for route-dir files. */
+	| 'route/missing-screen'
+	/** A route file exports several component-shaped candidates with no
+	 *  default or `screen` export to disambiguate — skipped-file warning. */
+	| 'route/ambiguous-screen'
+	/** A route-file metadata export is present but the wrong shape —
+	 *  warning; the export is ignored. */
+	| 'route/invalid-export'
+	/** A `*` segment sits mid-pattern where it reads as a literal —
+	 *  warning. */
+	| 'route/mid-path-catchall'
+	/** A `dataMode: 'baked'` route also carries a runtime loader —
+	 *  warning; the baked path wins. */
+	| 'route/baked-with-loader'
+	/** A `dataMode: 'baked'` route has no baked data — warning at define
+	 *  time, thrown `RouteManifestError` at push time. */
+	| 'route/missing-baked-data'
+	/** A layout key no route nests beneath — warning; the layout never
+	 *  renders. */
+	| 'route/unmatched-layout'
+	/** A `layouts` key was normalized (edge slashes stripped) —
+	 *  warning. */
+	| 'route/normalized-layout-key'
+	/** A same-name route lost a manifest merge — warning; registration
+	 *  order is the documented override channel. */
+	| 'route/shadowed-name'
+	/** A required `:param` had no value when a URL was built —
+	 *  warning; the literal segment survives in the path. */
+	| 'route/missing-param'
+	/** A param value needed JSON encoding (or failed it) — warning. */
+	| 'route/non-scalar-param'
+	/** `pushRoute` named a route with no registered screen — warning;
+	 *  the push is dropped. */
+	| 'route/unregistered-screen'
+	/** `pushRoute`/`popRoute` named a stack with no registered Frame —
+	 *  warning; the operation is dropped. */
+	| 'route/unregistered-stack'
+	/** A modal push found no live presenter — warning; the push is
+	 *  dropped. */
+	| 'route/no-presenter'
+
+/** One route-contract failure, structured for repair: `path` locates the
+ *  offending input — `routes[2].screen` for a `defineRoutes` spec, a file
+ *  path for the route dir, or a route/stack name for navigation.
+ *  `expected` is the shape the contract requires there and `hint` names
+ *  the smallest correct edit. `detail` carries what was actually found —
+ *  the received value or the colliding source. */
+export interface RouteDiagnostic {
+	code: RouteDiagnosticCode
+	path: string
+	expected: string
+	hint: string
+	detail?: string
+}
+
 // ---------- programmatic route typing ----------
 
 /** Phantom key carrying a `defineRoutes` manifest's spec-derived route

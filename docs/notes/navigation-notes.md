@@ -137,7 +137,13 @@ layouts})` builds a `RouteManifest` from data instead of files —
   base manifest while `addRoutes(manifest)` pushes an overlay layer that
   survives later re-registration (routes.gen HMR). On a same-name collision
   the later manifest wins and warns once — `mergeRouteManifests(a, b)` is
-  the pre-registration equivalent, with `b` winning. Both leaves rebuild
+  the pre-registration equivalent, with `b` winning. Duplicates inside one
+  authoring pass are rejected instead: `defineRoutes` (same-name specs) and
+  `deriveRouteManifest` (same-rank file collisions) throw a
+  `RouteManifestError` whose `issues` carry `RouteDiagnostic`
+  `{code, path, expected, hint}` — the same codes the non-fatal warnings
+  (`route/missing-baked-data`, `route/unmatched-layout`,
+  `route/invalid-export`, …) embed in their console text. Both leaves rebuild
   the merged tables (`screens`/`routes`/`layouts`/`loaders`) and web
   re-parses the current URL so a newly matching path resolves. Generated
   `RouteName`/`RouteParams`/`routes.screens` stay file-route-only — dynamic

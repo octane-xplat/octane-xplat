@@ -16,9 +16,18 @@ import { useSyncExternalStore } from 'octane'
  *  Back (popstate or popRoute) dismisses it. */
 
 export type { Route } from './props'
-import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
+import type {
+	Route,
+	RouteHead,
+	RouteManifest,
+	RouteMeta,
+	ScreenTable,
+	TypedRoute,
+} from './props'
+
 import {
 	buildRoutePath,
+	formatRouteDiagnostic,
 	layoutChain,
 	linkPath,
 	matchUrl,
@@ -534,7 +543,16 @@ export function currentModalRoute(): Route | null {
 export function pushDeepLink(url: string): boolean {
 	const r = matchUrl(routes, linkPath(url))
 	if (!r || !screenFor(r.name)) {
-		console.warn(`[octane-xplat] pushDeepLink('${url}') dropped — no route matches.`)
+		console.warn(
+			formatRouteDiagnostic({
+				code: 'route/unregistered-screen',
+				path: `screens['${r?.name ?? url}']`,
+				detail: `pushDeepLink('${url}') dropped — no route matches`,
+				expected: 'a manifest route matching the URL, with a registered screen',
+				hint: 'register the route via registerRoutes/defineRoutes or fix the link',
+			}),
+		)
+
 		return false
 	}
 

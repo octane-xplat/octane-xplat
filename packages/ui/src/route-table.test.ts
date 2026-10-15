@@ -16,12 +16,14 @@ import {
 	buildRoutePath,
 	defineRoutes,
 	deriveRouteManifest,
+	formatRouteDiagnostic,
 	layoutChain,
 	linkPath,
 	manifestToJson,
 	matchRoute,
 	matchUrl,
 	mergeRouteManifests,
+	RouteManifestError,
 } from './route-table'
 
 const C = (n: string) => Object.assign(() => null, { displayName: n })
@@ -73,6 +75,39 @@ describe('deriveRouteManifest', () => {
 	it('skips a suffix that is not in the prefer list', () => {
 		const m = manifest({ './app/x.ios.tsrx': { X: C('x') } }, ['android', 'mobile'])
 		expect(m.screens.x).toBeUndefined()
+	})
+
+	it('rejects same-rank files producing one route name', () => {
+		try {
+			manifest({
+				'./app/detail.tsrx': { D: C('A') },
+				'./app/detail.tsx': { D: C('B') },
+			})
+
+			expect.unreachable()
+		} catch (e) {
+			const err = e as RouteManifestError
+			expect(err).toBeInstanceOf(RouteManifestError)
+			expect(err.issues).toHaveLength(1)
+			expect(err.issues[0]).toMatchObject({
+				code: 'route/duplicate-name',
+				path: './app/detail.tsx',
+			})
+
+			expect(err.issues[0]!.detail).toContain('./app/detail.tsrx')
+		}
+	})
+
+	it('warns with a code when a metadata export is the wrong shape', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const m = manifest({
+			'./app/detail.tsrx': { D: C('A'), beforeLoad: 'yes', dataMode: 'warm' },
+		})
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('route/invalid-export'))
+		expect(m.routes[0]!.beforeLoad).toBeUndefined()
+		expect(m.routes[0]!.dataMode).toBeUndefined()
+		warn.mockRestore()
 	})
 
 	it('picks default export, then screen, then single function export', () => {
@@ -557,9 +592,113 @@ describe('defineRoutes', () => {
 		expect(layoutChain(m.layouts, 'guides/:slug').map((c) => c.displayName)).toEqual(['GuideShell'])
 	})
 
-	it('warns and skips a non-component screen', () => {
-		const m = defineRoutes([{ path: 'bad', screen: { default: C('B') } as any }])
-		expect(m.screens.bad).toBeUndefined()
+	it('rejects a non-component screen with a coded issue', () => {
+		try {
+			defineRoutes([{ path: 'bad', screen: { default: C('B') } as any }])
+			expect.unreachable()
+		} catch (e) {
+			const err = e as RouteManifestError
+			expect(err).toBeInstanceOf(RouteManifestError)
+			expect(err.issues).toHaveLength(1)
+			expect(err.issues[0]).toMatchObject({
+				code: 'route/missing-screen',
+				path: 'routes[0].screen',
+				expected: 'a component function',
+			})
+
+			expect(err.message).toContain('route/missing-screen')
+		}
+	})
+
+	it('rejects duplicate route names, reporting every collision at once', () => {
+		try {
+			defineRoutes([
+				{ path: 'a', screen: C('A') },
+				{ path: 'docs/[id]', screen: C('Doc') },
+				{ path: 'a/index', screen: C('A2') }, // normalizes to 'a'
+				{ path: 'docs/:id', screen: C('Doc2') }, // same name as docs/[id]
+			])
+
+			expect.unreachable()
+		} catch (e) {
+			const err = e as RouteManifestError
+			expect(err).toBeInstanceOf(RouteManifestError)
+
+			expect(err.issues.map((i) => i.code)).toEqual([
+				'route/duplicate-name',
+				'route/duplicate-name',
+			])
+
+			expect(err.issues[0]).toMatchObject({ path: 'routes[2].path' })
+			expect(err.issues[0]!.detail).toContain("routes[0] ('a')")
+			expect(err.issues[1]).toMatchObject({ path: 'routes[3].path' })
+		}
+	})
+
+	it('rejects malformed spec fields with field paths and expected shapes', () => {
+
+		try {
+			defineRoutes([
+				{ path: 'ok', screen: C('Ok') },
+				{
+					path: 'bad',
+					screen: C('Bad'),
+					presentation: 'sideways',
+					dataMode: 'warm',
+					head: 42,
+				} as any,
+				{ screen: C('NoPath') } as any,
+			])
+
+			expect.unreachable()
+
+		} catch (e) {
+			const err = e as RouteManifestError
+			expect(err.issues.map((i) => i.path)).toEqual([
+				'routes[1].presentation',
+				'routes[1].dataMode',
+				'routes[1].head',
+				'routes[2].path',
+			])
+
+			expect(err.issues[0]!.expected).toBe("'push' | 'modal' | 'fade'")
+		}
+	})
+
+	it('warns when a baked spec has no baked data in the set', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const m = defineRoutes([{ path: 'gone', screen: C('Gone'), dataMode: 'baked' }])
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('route/missing-baked-data'))
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining("routes[0].dataMode"))
+		expect(m.routes[0]!.dataMode).toBe('baked')
+		warn.mockRestore()
+	})
+
+	it('warns when a layouts key matches no route', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		defineRoutes({
+			routes: [{ path: 'guides/:slug', screen: C('Guide') }],
+			layouts: { guid: C('TypoShell') },
+		})
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('route/unmatched-layout'))
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining("layouts['guid']"))
+		warn.mockRestore()
+	})
+
+	it('formats a diagnostic with code, path, expected shape, and hint', () => {
+		expect(
+			formatRouteDiagnostic({
+				code: 'route/missing-screen',
+				path: 'routes[0].screen',
+				detail: 'received object',
+				expected: 'a component function',
+				hint: 'pass the component itself',
+			}),
+		).toBe(
+			'[octane-xplat] route/missing-screen routes[0].screen — received object; expected a component function. pass the component itself',
+		)
 	})
 
 	it('brands literal route names, params, and presentations onto the manifest type', () => {
@@ -631,11 +770,25 @@ describe('defineRoutes', () => {
 		expect(await m.loaders!.live({})).toBe('live-data')
 	})
 
-	it('a baked route with no baked entry throws like a loader failure', () => {
+	it('a baked route with no baked entry throws a coded error like a loader failure', () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {}) // expected route/missing-baked-data
 		const m = defineRoutes([{ path: 'gone', screen: C('Gone'), dataMode: 'baked' }])
+		vi.restoreAllMocks()
 		// commitRoute wraps the call in Promise.resolve().then() — a sync
 		// throw becomes a rejection there, landing as the screen's error prop.
-		expect(() => m.loaders!.gone({})).toThrow(/no baked data/)
+		try {
+			m.loaders!.gone({})
+			expect.unreachable()
+		} catch (e) {
+			const err = e as RouteManifestError
+			expect(err).toBeInstanceOf(RouteManifestError)
+			expect(err.issues[0]).toMatchObject({
+				code: 'route/missing-baked-data',
+				path: "baked['gone']",
+			})
+
+			expect(err.message).toMatch(/no baked data/)
+		}
 	})
 
 	it('baked reads the owning manifest through merges', async () => {

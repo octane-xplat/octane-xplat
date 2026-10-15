@@ -278,10 +278,10 @@ const GuideScreen = screenFor('guides')
 ```
 
 **Precedence is registration order.** On a same-name collision the later
-manifest wins and a console warning names both sources — deliberate
-overrides layer on top, accidental ones are loud. Merge the dynamic
-manifest first (`mergeRouteManifests(dynamic, routes)`) if file routes
-should win.
+manifest wins and a coded console warning (`route/shadowed-name`) names
+both sources — deliberate overrides layer on top, accidental ones are
+loud. Merge the dynamic manifest first
+(`mergeRouteManifests(dynamic, routes)`) if file routes should win.
 
 ```tsx
 import { defineRoutes, mergeRouteManifests, registerRoutes, Text } from '@octane-xplat/ui'
@@ -296,6 +296,43 @@ const files = defineRoutes({ routes: [{ path: 'guide', screen: FileGuide }] })
 const dynamic = defineRoutes({ routes: [{ path: 'guide', screen: DynamicGuide }] })
 registerRoutes(mergeRouteManifests(dynamic, files)) // FileGuide wins.
 ```
+
+**Invalid definitions fail fast.** `defineRoutes` and
+`deriveRouteManifest` reject input that can't produce a working route:
+two specs (or two same-rank route files) that resolve to the same name, a
+spec missing `path` or `screen`, or a field with the wrong shape all
+throw a `RouteManifestError` listing every problem found — not just the
+first — as `issues`, each with a stable `code`, the offending field
+`path`, the `expected` shape, and a `hint` naming the smallest fix:
+
+```tsx
+import { defineRoutes, RouteManifestError, Text } from '@octane-xplat/ui'
+
+function Guide() {
+	return <Text>Guide</Text>
+}
+function OtherGuide() {
+	return <Text>Other guide</Text>
+}
+
+try {
+	defineRoutes([
+		{ path: 'guide', screen: Guide },
+		{ path: 'guide/index', screen: OtherGuide }, // also 'guide'
+	])
+} catch (e) {
+	if (e instanceof RouteManifestError) {
+		e.issues[0]?.code // 'route/duplicate-name'
+		e.issues[0]?.path // 'routes[1].path'
+	}
+}
+```
+
+Missing prerequisites warn instead of throwing — the route registers, and
+the warning's code and field path say what's needed: a `dataMode: 'baked'`
+spec with no `baked` entry (`route/missing-baked-data`), a layout key no
+route nests under (`route/unmatched-layout`), or a metadata export with
+the wrong shape (`route/invalid-export`).
 
 Literal paths are typed at the callsite — `defineRoutes` infers route
 names, params, and presentations from each `path` string, and the returned

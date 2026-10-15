@@ -327,7 +327,11 @@ export {
 	defineRoutes,
 	mergeRouteManifests,
 	manifestToJson,
+	formatRouteDiagnostic,
+	RouteManifestError,
 } from './route-table'
+
+export type { RouteDiagnostic, RouteDiagnosticCode } from './props'
 
 export { createStore } from './store'
 export type { Store, ReadableStore, StoreSnapshot } from './store'

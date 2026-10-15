@@ -34,6 +34,7 @@
 
 import type {
 	Route,
+	RouteDiagnostic,
 	RouteManifest,
 	RouteManifestJson,
 	RouteMeta,
@@ -41,6 +42,38 @@ import type {
 	RouteSpecSet,
 	SpecRouteInfo,
 } from './props'
+
+/** Single-line rendering of a RouteDiagnostic — the text console warnings
+ *  carry verbatim and `RouteManifestError` aggregates line per issue. */
+export function formatRouteDiagnostic(d: RouteDiagnostic): string {
+	return (
+		`[octane-xplat] ${d.code} ${d.path} — ` +
+		(d.detail ? `${d.detail}; ` : '') +
+		`expected ${d.expected}. ${d.hint}`
+	)
+}
+
+function warnDiagnostic(d: RouteDiagnostic): void {
+	console.warn(formatRouteDiagnostic(d))
+}
+
+/** Thrown when route authoring input violates the manifest contract —
+ *  `issues` lists every violation found in one pass, so a `defineRoutes`
+ *  call with three bad specs reports all three at once rather than
+ *  failing edit-by-edit. */
+export class RouteManifestError extends Error {
+	readonly issues: readonly RouteDiagnostic[]
+	constructor(issues: RouteDiagnostic | readonly RouteDiagnostic[]) {
+		const list = Array.isArray(issues) ? issues : [issues]
+		super(
+			'invalid route definitions:\n' +
+				list.map((i) => '  ' + formatRouteDiagnostic(i)).join('\n'),
+		)
+
+		this.name = 'RouteManifestError'
+		this.issues = list
+	}
+}
 
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
@@ -89,9 +122,13 @@ function segmentParams(segments: readonly string[]): string[] {
 function warnOnStraySplat(segments: readonly string[], file: string): void {
 	const at = segments.findIndex((s) => s.startsWith('*'))
 	if (at !== -1 && at !== segments.length - 1) {
-		console.warn(
-			`[octane-xplat] route '${segments.join('/')}' (${file}) has a catch-all segment mid-path — '*' only captures at the end of a pattern and is a literal here`,
-		)
+		warnDiagnostic({
+			code: 'route/mid-path-catchall',
+			path: file,
+			detail: `'${segments.join('/')}' has a catch-all segment mid-path`,
+			expected: "'*' as the last segment — a mid-path '*' is a literal segment",
+			hint: 'move the catch-all to the end of the path or give the segment a param name',
+		})
 	}
 }
 
@@ -113,9 +150,13 @@ function bakedLookup(manifest: () => RouteManifest | undefined, name: string) {
 			return baked[name]
 		}
 
-		throw new Error(
-			`[octane-xplat] baked route '${name}' has no baked data — run \`xplat routes\` to regenerate`,
-		)
+		throw new RouteManifestError({
+			code: 'route/missing-baked-data',
+			path: `baked['${name}']`,
+			detail: `baked route '${name}' has no baked data`,
+			expected: "a baked-map entry for every dataMode: 'baked' route",
+			hint: "run `xplat routes` to regenerate, or pass baked data on the manifest",
+		})
 	}
 }
 
@@ -152,16 +193,36 @@ function pick(mod: any, file: string): any {
 		return mod[fns[0]]
 	}
 
-	console.warn(
-		'[octane-xplat] route file ' +
-			file +
-			(fns.length
-				? ` has ${fns.length} component-shaped exports (${fns.join(', ')}) — add a default or 'screen' export`
-				: ' has no component export') +
-			' — skipped',
-	)
+	warnDiagnostic({
+		code: fns.length ? 'route/ambiguous-screen' : 'route/missing-screen',
+		path: file,
+		detail: fns.length
+			? `${fns.length} component-shaped exports (${fns.join(', ')})`
+			: 'no component export found',
+		expected: "a default or 'screen' component export",
+		hint: fns.length
+			? "add a default or 'screen' export naming the component — the file is skipped until then"
+			: 'export the screen component — the file is skipped until then',
+	})
 
 	return undefined
+}
+
+/** Diagnostic for a route-file export present but the wrong shape —
+ *  the contract names the field, the export is ignored until it matches. */
+function invalidExport(
+	file: string,
+	field: string,
+	value: unknown,
+	expected: string,
+): RouteDiagnostic {
+	return {
+		code: 'route/invalid-export',
+		path: `${file}:${field}`,
+		detail: `received ${Array.isArray(value) ? 'array' : typeof value}`,
+		expected,
+		hint: `fix or remove the '${field}' export — it is ignored until it matches`,
+	}
 }
 
 export function deriveRouteManifest(
@@ -170,12 +231,13 @@ export function deriveRouteManifest(
 	dir = 'app',
 ): RouteManifest {
 	const prefix = dir.replace(/^\.?\/?/, '').replace(/\/+$/, '') + '/'
-	// name → best candidate so far (lowest rank wins; ties warn).
+	// name → best candidate so far (lowest rank wins; ties are rejected).
 	const seen = new Map<string, { rank: number; meta: RouteMeta; component: any }>()
 	const layoutRank = new Map<string, number>()
+	const layoutFiles = new Map<string, string>()
 	const layouts: Record<string, any> = {}
 	const loaders: RouteManifest['loaders'] = {}
-	const warned = new Set<string>()
+	const issues: RouteDiagnostic[] = []
 	const self: { m?: RouteManifest } = {}
 
 	for (const key of Object.keys(files).sort()) {
@@ -212,6 +274,16 @@ export function deriveRouteManifest(
 			const d = parts.slice(0, -1).join('/')
 			const prev = layoutRank.get(d)
 			if (prev !== undefined && prev <= rank) {
+				if (prev === rank) {
+					issues.push({
+						code: 'route/duplicate-name',
+						path: key,
+						detail: `layouts['${d}'] is also produced by ${layoutFiles.get(d)}`,
+						expected: 'one _layout file per directory at the same platform rank',
+						hint: 'rename or remove one file, or give one a platform suffix (.web/.ios/...) so `prefer` ranks them',
+					})
+				}
+
 				continue
 			}
 
@@ -219,6 +291,7 @@ export function deriveRouteManifest(
 			if (component) {
 				layouts[d] = component
 				layoutRank.set(d, rank)
+				layoutFiles.set(d, key)
 			}
 
 			continue
@@ -241,47 +314,80 @@ export function deriveRouteManifest(
 
 		warnOnStraySplat(segments, key)
 
-		const dataMode = files[key]?.dataMode
+		const mod = files[key]
+		const dataMode = mod?.dataMode
 		if (dataMode === 'baked' || dataMode === 'live') {
 			meta.dataMode = dataMode
+		} else if (dataMode !== undefined) {
+			warnDiagnostic({
+				code: 'route/invalid-export',
+				path: `${key}:dataMode`,
+				detail: `received ${JSON.stringify(dataMode)}`,
+				expected: "'live' | 'baked'",
+				hint: "fix or remove the 'dataMode' export — it is ignored until it matches",
+			})
 		}
 
-		const loader = files[key]?.loader
+		const loader = mod?.loader
 		if (meta.dataMode === 'baked') {
 			meta.loader = bakedLookup(() => self.m, name)
 			if (typeof loader === 'function') {
-				console.warn(
-					`[octane-xplat] baked route '${name}' also exports a loader — move it to a .loader.ts sibling so its imports stay out of the bundle`,
-				)
+				warnDiagnostic({
+					code: 'route/baked-with-loader',
+					path: `${key}:loader`,
+					detail: `baked route '${name}' also exports a loader`,
+					expected: "build-time data in a '.loader.ts' sibling",
+					hint: 'move the loader to a .loader.ts sibling so its imports stay out of the bundle',
+				})
 			}
 		} else if (typeof loader === 'function') {
 			meta.loader = loader
+		} else if (loader !== undefined) {
+			warnDiagnostic(invalidExport(key, 'loader', loader, '(params) => data'))
 		}
 
-		const beforeLoad = files[key]?.beforeLoad
+		const beforeLoad = mod?.beforeLoad
 		if (typeof beforeLoad === 'function') {
 			meta.beforeLoad = beforeLoad
+		} else if (beforeLoad !== undefined) {
+			warnDiagnostic(
+				invalidExport(key, 'beforeLoad', beforeLoad, '(args) => RouteContext | void'),
+			)
 		}
 
-		const errorBoundary = files[key]?.ErrorBoundary
+		const errorBoundary = mod?.ErrorBoundary
 		if (typeof errorBoundary === 'function') {
 			meta.errorBoundary = errorBoundary
+		} else if (errorBoundary !== undefined) {
+			warnDiagnostic(
+				invalidExport(
+					key,
+					'ErrorBoundary',
+					errorBoundary,
+					'(props: RouteErrorBoundaryProps) => Renderable',
+				),
+			)
 		}
 
-		if (
-			files[key]?.head &&
-			(typeof files[key].head === 'object' || typeof files[key].head === 'function')
-		) {
-			meta.head = files[key].head
+		const head = mod?.head
+		if (head && (typeof head === 'object' || typeof head === 'function')) {
+			meta.head = head
+		} else if (head !== undefined) {
+			warnDiagnostic(
+				invalidExport(key, 'head', head, 'a RouteHead object or (params) => RouteHead'),
+			)
 		}
 
 		const prev = seen.get(name)
 		if (prev && prev.rank <= rank) {
-			if (prev.rank === rank && !warned.has(name)) {
-				warned.add(name)
-				console.warn(
-					`[octane-xplat] route '${name}' is defined by both ${prev.meta.file} and ${key} — keeping ${prev.meta.file}`,
-				)
+			if (prev.rank === rank) {
+				issues.push({
+					code: 'route/duplicate-name',
+					path: key,
+					detail: `route '${name}' is also produced by ${prev.meta.file}`,
+					expected: 'one file per route name at the same platform rank',
+					hint: 'rename or remove one file, or give one a platform suffix (.web/.ios/...) so `prefer` ranks them',
+				})
 			}
 
 			continue
@@ -291,6 +397,10 @@ export function deriveRouteManifest(
 		if (component) {
 			seen.set(name, { rank, meta, component })
 		}
+	}
+
+	if (issues.length) {
+		throw new RouteManifestError(issues)
 	}
 
 	const screens: RouteManifest['screens'] = {}
@@ -305,6 +415,7 @@ export function deriveRouteManifest(
 
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.
 	routes.sort(bySpecificity)
+	warnOnUnmatchedLayouts(layouts, routes)
 
 	const manifest = { screens, routes, layouts, loaders }
 	self.m = manifest
@@ -323,6 +434,26 @@ function bySpecificity(a: RouteMeta, b: RouteMeta): number {
 		b.segments.reduce((n, s) => n + weight(s), 0) - a.segments.reduce((n, s) => n + weight(s), 0) ||
 		a.name.localeCompare(b.name)
 	)
+}
+
+/** A layout dir wraps only routes nested beneath it ('' is the app shell
+ *  and always applies) — a key no route name falls under is dead config,
+ *  usually a mistyped path. */
+function warnOnUnmatchedLayouts(
+	layouts: Record<string, any>,
+	routes: readonly RouteMeta[],
+): void {
+	for (const dir of Object.keys(layouts)) {
+		if (dir && !routes.some((r) => r.name.startsWith(dir + '/'))) {
+			warnDiagnostic({
+				code: 'route/unmatched-layout',
+				path: `layouts['${dir}']`,
+				detail: `no route nests under '${dir}/'`,
+				expected: 'a layouts key that prefixes at least one route name',
+				hint: `fix the key or remove the entry — a layout only wraps routes beneath its directory`,
+			})
+		}
+	}
 }
 
 /** Normalize a programmatic `path` into manifest segments using the
@@ -346,8 +477,13 @@ const mergeWarned = new Set<string>()
  *  programmatic half of the route contract (host frameworks derive specs
  *  from their own sources, e.g. `readdirSync` over a content dir). Each
  *  spec's `path` uses the route-dir vocabulary; `layouts` keys are path
- *  prefixes playing the `_layout` role. Same-name duplicates inside the
- *  set keep the later entry with a warn, matching merge precedence.
+ *  prefixes playing the `_layout` role. Contract failures are diagnosed
+ *  with a stable code, field path, expected shape, and repair hint:
+ *  same-name duplicates inside the set and malformed specs throw a
+ *  `RouteManifestError` carrying every issue found, while missing
+ *  prerequisites (e.g. a baked spec with no `baked` entry) warn. To
+ *  override a route from another manifest, use `mergeRouteManifests` —
+ *  registration order is precedence there.
  *
  *  The return is branded with the spec-derived route types — read them
  *  with `ManifestRouteParams`/`ManifestRouteNames`/
@@ -356,28 +492,216 @@ const mergeWarned = new Set<string>()
 export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 	input: Specs | (Omit<RouteSpecSet, 'routes'> & { routes: Specs }),
 ): RouteManifest & SpecRouteInfo<Specs> {
-	const set = (Array.isArray(input) ? { routes: input } : input) as RouteSpecSet
-	const specs = set.routes
+	const raw = Array.isArray(input) ? { routes: input } : input
+	const specs =
+		raw && typeof raw === 'object' && 'routes' in raw
+			? (raw as RouteSpecSet).routes
+			: undefined
+
+	const issues: RouteDiagnostic[] = []
+
+	if (!Array.isArray(specs)) {
+		throw new RouteManifestError({
+			code: 'route/invalid-spec',
+			path: 'routes',
+			detail: `received ${specs === null ? 'null' : typeof specs}`,
+			expected: 'a RouteSpec array — { routes: [...] } or a bare array',
+			hint: 'each spec needs at least a path and a screen component',
+		})
+	}
+
+	const set = raw as RouteSpecSet
 	const extra = set.layouts
 
 	const screens: RouteManifest['screens'] = {}
 	const layouts: RouteManifest['layouts'] = {}
 	const metas = new Map<string, RouteMeta>()
-	const warned = new Set<string>()
+	const firstSpecAt = new Map<string, number>()
 	const self: { m?: RouteManifest } = {}
 
-	for (const [key, layout] of Object.entries(extra ?? {})) {
+	if (extra !== undefined && (typeof extra !== 'object' || extra === null || Array.isArray(extra))) {
+		issues.push({
+			code: 'route/invalid-spec',
+			path: 'layouts',
+			detail: `received ${Array.isArray(extra) ? 'array' : typeof extra}`,
+			expected: 'a Record of path-prefix → layout component',
+			hint: 'pass layouts: { docs: DocsShell } or remove the field',
+		})
+	}
+
+	if (
+		set.baked !== undefined &&
+		(typeof set.baked !== 'object' || set.baked === null || Array.isArray(set.baked))
+	) {
+		issues.push({
+			code: 'route/invalid-spec',
+			path: 'baked',
+			detail: `received ${Array.isArray(set.baked) ? 'array' : typeof set.baked}`,
+			expected: "a Record of route name → baked data, keyed by each dataMode: 'baked' route",
+			hint: `pass baked: { '<route-name>': data }`,
+		})
+	}
+
+	const layoutEntries =
+		extra && typeof extra === 'object' && !Array.isArray(extra) ? Object.entries(extra) : []
+
+	for (const [key, layout] of layoutEntries) {
 		const dir = key.replace(/^\/+|\/+$/g, '')
 		if (dir !== key) {
-			console.warn(`[octane-xplat] layout key '${key}' normalized to '${dir}'`)
+			warnDiagnostic({
+				code: 'route/normalized-layout-key',
+				path: `layouts['${key}']`,
+				detail: `normalized to '${dir}'`,
+				expected: 'a route-dir path without leading or trailing slashes',
+				hint: `write the key as '${dir}'`,
+			})
+		}
+
+		if (typeof layout !== 'function') {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `layouts['${dir}']`,
+				detail: `received ${Array.isArray(layout) ? 'array' : typeof layout}`,
+				expected: 'a layout component function',
+				hint: 'pass the component itself — layouts: { docs: DocsShell }',
+			})
+
+			continue
 		}
 
 		layouts[dir] = layout
 	}
 
-	for (const spec of specs) {
+	for (const [i, spec] of specs.entries()) {
+		const at = `routes[${i}]`
+		const before = issues.length
+		if (!spec || typeof spec !== 'object') {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: at,
+				detail: `received ${spec === null ? 'null' : typeof spec}`,
+				expected: 'a RouteSpec object',
+				hint: 'each spec needs at least a path and a screen component',
+			})
+
+			continue
+		}
+
+		if (typeof spec.path !== 'string') {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.path`,
+				detail: `received ${typeof spec.path}`,
+				expected: "a string like 'docs/:slug' ('' or 'index' names the root route)",
+				hint: 'set path to the route-dir-style path this spec defines',
+			})
+
+			continue
+		}
+
 		const segments = specSegments(spec.path)
 		const name = segments.join('/') || 'index'
+
+		const firstAt = firstSpecAt.get(name)
+		if (firstAt !== undefined) {
+			issues.push({
+				code: 'route/duplicate-name',
+				path: `${at}.path`,
+				detail: `route '${name}' is already defined by routes[${firstAt}] ('${specs[firstAt]?.path}')`,
+				expected: 'a unique route name per defineRoutes call',
+				hint: `rename or remove one spec — to override a route from another manifest use mergeRouteManifests, where the later manifest wins`,
+			})
+		} else {
+			firstSpecAt.set(name, i)
+		}
+
+		if (typeof spec.screen !== 'function') {
+			issues.push({
+				code: 'route/missing-screen',
+				path: `${at}.screen`,
+				detail: `received ${Array.isArray(spec.screen) ? 'array' : typeof spec.screen}`,
+				expected: 'a component function',
+				hint: 'pass the component itself — screen: MyScreen, not a module or element',
+			})
+		}
+
+		if (
+			spec.presentation !== undefined &&
+			!['push', 'modal', 'fade'].includes(spec.presentation)
+		) {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.presentation`,
+				detail: `received ${JSON.stringify(spec.presentation)}`,
+				expected: "'push' | 'modal' | 'fade'",
+				hint: 'fix the value or remove the field — push is the default',
+			})
+		}
+
+		if (
+			spec.dataMode !== undefined &&
+			spec.dataMode !== 'live' &&
+			spec.dataMode !== 'baked'
+		) {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.dataMode`,
+				detail: `received ${JSON.stringify(spec.dataMode)}`,
+				expected: "'live' | 'baked'",
+				hint: 'fix the value or remove the field — live is the default',
+			})
+		}
+
+		if (spec.loader !== undefined && typeof spec.loader !== 'function') {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.loader`,
+				detail: `received ${typeof spec.loader}`,
+				expected: '(params) => data',
+				hint: 'pass a loader function or remove the field',
+			})
+		}
+
+		if (spec.beforeLoad !== undefined && typeof spec.beforeLoad !== 'function') {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.beforeLoad`,
+				detail: `received ${typeof spec.beforeLoad}`,
+				expected: '(args) => RouteContext | void',
+				hint: 'pass a guard function or remove the field',
+			})
+		}
+
+		if (spec.errorBoundary !== undefined && typeof spec.errorBoundary !== 'function') {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.errorBoundary`,
+				detail: `received ${typeof spec.errorBoundary}`,
+				expected: '(props: RouteErrorBoundaryProps) => Renderable',
+				hint: 'pass a boundary component or remove the field',
+			})
+		}
+
+		if (
+			spec.head !== undefined &&
+			typeof spec.head !== 'object' &&
+			typeof spec.head !== 'function'
+		) {
+			issues.push({
+				code: 'route/invalid-spec',
+				path: `${at}.head`,
+				detail: `received ${typeof spec.head}`,
+				expected: 'a RouteHead object or (params) => RouteHead',
+				hint: 'pass { title, meta } or a params function, or remove the field',
+			})
+		}
+
+		// A spec that failed its contract contributes nothing — keep scanning
+		// so one throw reports every bad spec in the set.
+		if (issues.length !== before) {
+			continue
+		}
+
 		const meta: RouteMeta = {
 			name,
 			segments,
@@ -386,7 +710,7 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			presentation: spec.presentation,
 		}
 
-		warnOnStraySplat(segments, meta.file)
+		warnOnStraySplat(segments, `${at}.path`)
 
 		if (spec.dataMode) {
 			meta.dataMode = spec.dataMode
@@ -395,9 +719,23 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 		if (spec.dataMode === 'baked') {
 			meta.loader = bakedLookup(() => self.m, name)
 			if (spec.loader) {
-				console.warn(
-					`[octane-xplat] baked route '${name}' also carries a loader — bake it in the host and pass the result via 'baked' so its code stays out of the bundle`,
-				)
+				warnDiagnostic({
+					code: 'route/baked-with-loader',
+					path: `${at}.loader`,
+					detail: `baked route '${name}' also carries a loader`,
+					expected: "build-time data passed via the set's 'baked' map",
+					hint: 'bake it in the host and pass the result via baked so its code stays out of the bundle',
+				})
+			}
+
+			if (!set.baked || !Object.prototype.hasOwnProperty.call(set.baked, name)) {
+				warnDiagnostic({
+					code: 'route/missing-baked-data',
+					path: `${at}.dataMode`,
+					detail: `baked route '${name}' has no baked data in the set`,
+					expected: `a baked['${name}'] entry`,
+					hint: `pass baked: { '${name}': ... } on the set, or assign manifest.baked before the route is pushed`,
+				})
 			}
 		} else if (spec.loader) {
 			meta.loader = spec.loader
@@ -415,23 +753,12 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			meta.head = spec.head
 		}
 
-		if (metas.has(name) && !warned.has(name)) {
-			warned.add(name)
-			console.warn(
-				`[octane-xplat] route '${name}' is defined twice — keeping the later spec (${meta.file})`,
-			)
-		}
-
-		if (typeof spec.screen !== 'function') {
-			console.warn(
-				`[octane-xplat] route '${name}' has no component — 'screen' must be a component function, not a module`,
-			)
-
-			continue
-		}
-
 		metas.set(name, meta)
 		screens[name] = spec.screen
+	}
+
+	if (issues.length) {
+		throw new RouteManifestError(issues)
 	}
 
 	const routes = [...metas.values()].sort(bySpecificity)
@@ -441,6 +768,8 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			loaders[meta.name] = meta.loader
 		}
 	}
+
+	warnOnUnmatchedLayouts(layouts, routes)
 
 	const manifest = { screens, routes, layouts, loaders, baked: set.baked }
 	self.m = manifest
@@ -469,9 +798,13 @@ export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifes
 			const prev = winners.get(meta.name)
 			if (prev && !mergeWarned.has(meta.name)) {
 				mergeWarned.add(meta.name)
-				console.warn(
-					`[octane-xplat] route '${meta.name}' is defined by both ${prev.file} and ${meta.file} — keeping ${meta.file}`,
-				)
+				warnDiagnostic({
+					code: 'route/shadowed-name',
+					path: meta.name,
+					detail: `route '${meta.name}' is defined by both ${prev.file} and ${meta.file} — keeping ${meta.file}`,
+					expected: 'unique names, or deliberate precedence by registration order',
+					hint: `rename one route if both should exist; to keep the earlier one, reorder the merge`,
+				})
 			}
 
 			winners.set(meta.name, meta)
@@ -636,7 +969,13 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 			}
 
 			if (v === undefined) {
-				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`)
+				warnDiagnostic({
+					code: 'route/missing-param',
+					path: `params.${p}`,
+					detail: `route '${r.name}' was pushed without a value for '${s}'`,
+					expected: `a string/number/boolean at params.${p}`,
+					hint: `pass params: { ${p}: ... } — without it the URL keeps the literal '${s}' segment`,
+				})
 			}
 
 			return [encodeURIComponent(encodeRouteParam(v, r.name, p))]
@@ -673,16 +1012,24 @@ function encodeRouteParam(value: unknown, routeName: string, key: string): strin
 		return String(value ?? '')
 	}
 
-	console.warn(
-		`[octane-xplat] route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`,
-	)
+	warnDiagnostic({
+		code: 'route/non-scalar-param',
+		path: `params.${key}`,
+		detail: `route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`,
+		expected: 'a string, number, or boolean param value',
+		hint: 'pass a scalar or accept the JSON round-trip — generated route types keep callers on scalars',
+	})
 
 	try {
 		return JSON_PARAM_PREFIX + JSON.stringify(value)
 	} catch {
-		console.warn(
-			`[octane-xplat] route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`,
-		)
+		warnDiagnostic({
+			code: 'route/non-scalar-param',
+			path: `params.${key}`,
+			detail: `route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`,
+			expected: 'a JSON-serializable param value',
+			hint: 'pass a scalar — cyclic or opaque values cannot cross the URL',
+		})
 
 		return ''
 	}

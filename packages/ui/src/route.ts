@@ -24,6 +24,7 @@ import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks'
 import {
 	buildRoutePath,
+	formatRouteDiagnostic,
 	layoutChain,
 	linkPath,
 	matchUrl,
@@ -33,7 +34,14 @@ import {
 
 import { RouteHost } from './route-host'
 import { modalPresenter } from './modal-presenter'
-import type { Route, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
+import type {
+	Route,
+	RouteDiagnostic,
+	RouteManifest,
+	RouteMeta,
+	ScreenTable,
+	TypedRoute,
+} from './props'
 
 export type { Route } from './props'
 
@@ -117,13 +125,13 @@ function emit() {
 	listeners.forEach((l) => l())
 }
 
-function warnOnce(key: string, msg: string): void {
+function warnOnce(key: string, d: RouteDiagnostic): void {
 	if (warned.has(key)) {
 		return
 	}
 
 	warned.add(key)
-	console.warn('[octane-xplat] ' + msg)
+	console.warn(formatRouteDiagnostic(d))
 }
 
 /** Attach the route-store emission hook once per frame. `navigatedTo`
@@ -378,10 +386,13 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 
 	const C = screenFor(r.name)
 	if (!C) {
-		warnOnce(
-			'screen:' + r.name,
-			`pushRoute('${r.name}') dropped — '${r.name}' isn't in the screen table. Call registerScreens({ ${r.name}: ... }) at boot.`,
-		)
+		warnOnce('screen:' + r.name, {
+			code: 'route/unregistered-screen',
+			path: `screens['${r.name}']`,
+			detail: `pushRoute('${r.name}') dropped — no screen is registered under that name`,
+			expected: 'a screen table entry for every pushed route name',
+			hint: `call registerScreens({ ${r.name}: ... }) or registerRoutes(manifest) at boot`,
+		})
 
 		return
 	}
@@ -408,7 +419,13 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		if (presenter) {
 			pushModal(presenter, { ...r, presentation }, C)
 		} else {
-			warnOnce('modal:' + r.name, `modal route '${r.name}' dropped — no loaded presenter Frame.`)
+			warnOnce('modal:' + r.name, {
+				code: 'route/no-presenter',
+				path: `stacks['${r.stack}']`,
+				detail: `modal route '${r.name}' dropped — no loaded presenter Frame`,
+				expected: 'a Frame on the target stack (or root) ready to present',
+				hint: 'boot with a Frame as the app root or register the stack first',
+			})
 		}
 
 		return
@@ -445,8 +462,20 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		warnOnce(
 			'stack:' + r.stack,
 			r.stack === 'root'
-				? `pushRoute('${r.name}') dropped — no root Frame. Boot with a Frame as the app root (Application.run create() returning new Frame) or call registerStack('root', frame).`
-				: `pushRoute('${r.name}') dropped — no stack '${r.stack}' is registered. Named stacks come from TabSpec.stack on <Tabs> or registerStack('${r.stack}', frame).`,
+				? {
+						code: 'route/unregistered-stack' as const,
+						path: "stacks['root']",
+						detail: `pushRoute('${r.name}') dropped — no root Frame`,
+						expected: 'a Frame as the app root or a registered root stack',
+						hint: "boot with a Frame as the app root (Application.run create() returning new Frame) or call registerStack('root', frame)",
+					}
+				: {
+						code: 'route/unregistered-stack' as const,
+						path: `stacks['${r.stack}']`,
+						detail: `pushRoute('${r.name}') dropped — no stack '${r.stack}' is registered`,
+						expected: 'a named stack backed by a Frame',
+						hint: `named stacks come from TabSpec.stack on <Tabs> or registerStack('${r.stack}', frame)`,
+					},
 		)
 
 		return
@@ -526,10 +555,13 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 
 	const presenter = modalPresenter(frame)
 	if (!presenter) {
-		warnOnce(
-			'modal-presenter:' + r.name,
-			`modal route '${r.name}' dropped — no live presenter. The stack's currentPage is mid-navigation; retry once the transition settles.`,
-		)
+		warnOnce('modal-presenter:' + r.name, {
+			code: 'route/no-presenter',
+			path: `stacks['${r.stack}']`,
+			detail: `modal route '${r.name}' dropped — no live presenter`,
+			expected: 'a stack whose currentPage is not mid-navigation',
+			hint: 'retry once the in-flight transition settles',
+		})
 
 		entry.dismiss()
 		root.unmount?.()
@@ -613,7 +645,14 @@ export function popRoute(stack = 'root'): void {
 
 	const frame = resolveStack(stack)
 	if (!frame) {
-		warnOnce('pop:' + stack, `popRoute('${stack}') dropped — no such stack is registered.`)
+		warnOnce('pop:' + stack, {
+			code: 'route/unregistered-stack',
+			path: `stacks['${stack}']`,
+			detail: `popRoute('${stack}') dropped — no such stack is registered`,
+			expected: 'a named stack backed by a Frame',
+			hint: `named stacks come from TabSpec.stack on <Tabs> or registerStack('${stack}', frame)`,
+		})
+
 		return
 	}
 
@@ -680,7 +719,14 @@ export function currentModalRoute(): Route | null {
 export function pushDeepLink(url: string): boolean {
 	const r = matchUrl(routes, linkPath(url))
 	if (!r || !screenFor(r.name)) {
-		warnOnce('link:' + url, `pushDeepLink('${url}') dropped — no route matches.`)
+		warnOnce('link:' + url, {
+			code: 'route/unregistered-screen',
+			path: `screens['${r?.name ?? url}']`,
+			detail: `pushDeepLink('${url}') dropped — no route matches`,
+			expected: 'a manifest route matching the URL, with a registered screen',
+			hint: 'register the route via registerRoutes/defineRoutes or fix the link',
+		})
+
 		return false
 	}
 
