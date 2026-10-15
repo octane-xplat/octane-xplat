@@ -39,5 +39,28 @@ describe('IconRegistryProvider (web)', () => {
 			</IconRegistryProvider>
 		)
 		expect(el.querySelector('path')?.getAttribute('d')).toBe('M1 1h2v2H1z')
+
+		const direct = mount(<Icon name="scoped-test-icon" registry={first} />)
+		expect(direct.el.querySelector('path')?.getAttribute('d')).toBe('M1 1h2v2H1z')
+	})
+
+	it('uses a glyph registered after mount on later renders, not the mounted icon', () => {
+		const registry = createIconRegistry()
+		const first = mount(
+			<IconRegistryProvider value={registry}>
+				<Icon name="late-test-icon" />
+			</IconRegistryProvider>
+		)
+		expect(first.el.querySelector('path')).toBeNull()
+
+		registry.registerIcon('late-test-icon', { svg: 'M2 2h3v3H2z' })
+		expect(first.el.querySelector('path')).toBeNull()
+
+		const later = mount(
+			<IconRegistryProvider value={registry}>
+				<Icon name="late-test-icon" />
+			</IconRegistryProvider>
+		)
+		expect(later.el.querySelector('path')?.getAttribute('d')).toBe('M2 2h3v3H2z')
 	})
 })
