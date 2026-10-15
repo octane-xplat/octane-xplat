@@ -46,6 +46,9 @@ const ns = vi.hoisted(() => {
 				list!.splice(index, 1)
 			}
 		}
+		notify(event: { eventName: string }) {
+			this._emit(event.eventName, event)
+		}
 		_emit(name: string, data?: any) {
 			const listeners = [...(this._listeners.get(name) ?? [])]
 			for (const cb of listeners) {
