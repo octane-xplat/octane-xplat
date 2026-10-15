@@ -144,8 +144,17 @@ void value
 
 	const includedDeclaration = join(packageRoot, 'src/IncludedDeclaration.d.ts')
 	const declarationReader = join(packageRoot, 'src/DeclarationReader.ts')
+	const declarationIndex = join(packageRoot, 'src/declaration-input-index/index.d.ts')
 	try {
-		writeFileSync(includedDeclaration, 'export interface Included { value: string }\n')
+		mkdirSync(dirname(declarationIndex), { recursive: true })
+		writeFileSync(declarationIndex, 'export interface PublicInput { value: string }\n')
+		writeFileSync(
+			includedDeclaration,
+			`export interface Included { value: string }
+export type PublicSurface = typeof import('./declaration-input-index/index')
+`,
+		)
+
 		writeFileSync(
 			declarationReader,
 			`import type { Included } from './IncludedDeclaration'
@@ -156,7 +165,10 @@ export function readIncluded(value: Included): Included { return value }
 		run('pnpm', ['typegen'], packageRoot)
 		assert.equal(
 			readFileSync(join(packageRoot, 'types/generated/IncludedDeclaration.d.ts'), 'utf8'),
-			readFileSync(includedDeclaration, 'utf8'),
+			readFileSync(includedDeclaration, 'utf8').replace(
+				"'./declaration-input-index/index'",
+				"'./declaration-input-index/index.js'",
+			),
 		)
 
 		assert.match(
@@ -169,6 +181,7 @@ export function readIncluded(value: Included): Included { return value }
 			includedDeclaration,
 			'export interface Included { value: string; extra?: number }\n',
 		)
+
 		const staleInput = spawnSync(
 			process.execPath,
 			[
@@ -185,6 +198,7 @@ export function readIncluded(value: Included): Included { return value }
 	} finally {
 		rmSync(includedDeclaration, { force: true })
 		rmSync(declarationReader, { force: true })
+		rmSync(dirname(declarationIndex), { recursive: true, force: true })
 	}
 
 	run('pnpm', ['typegen'], packageRoot)

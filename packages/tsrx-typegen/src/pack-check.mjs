@@ -134,7 +134,7 @@ function expandTarget(target, files, packageRoot) {
 		const path = relative(packageRoot, file).replaceAll('\\', '/')
 		// Extensionless source exports let the app choose platform siblings.
 		// Their wildcard captures are module stems, not source extensions.
-		if (extensionless && (!codeTarget(path) || !extname(path))) {
+		if (!codeTarget(path) || (extensionless && !extname(path))) {
 			return []
 		}
 

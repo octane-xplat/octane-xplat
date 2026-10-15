@@ -82,6 +82,7 @@ try {
 			exports: {
 				'.': { types: './types/service.d.ts', default: './src/service' },
 				'./*': { types: './types/*.d.ts', default: './src/*' },
+				'./*.ts': { types: './types/*.d.ts', default: './src/*.ts' },
 			},
 		}),
 		'src/service.ts': 'export const value = 1\n',
@@ -89,6 +90,7 @@ try {
 		'src/hook.tsrx': 'export function hook() { return 1 }\n',
 		'src/hook.web.tsrx': 'export function hook() { return 2 }\n',
 		'src/asset.json': '{}\n',
+		'src/manual.d.ts': 'export interface Manual { value: string }\n',
 		'types/service.d.ts': 'export declare const value: number\n',
 		'types/service.web.d.ts': 'export declare const value: number\n',
 		'types/hook.d.ts': 'export declare function hook(): number\n',

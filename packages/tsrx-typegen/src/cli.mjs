@@ -529,7 +529,7 @@ function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, run
 
 			const declaration = relative(outputDir, target)
 			const runtimeExtension = runtimeByDeclaration.get(declaration) ?? '.js'
-			const isIndex = /[\\/]index\.d\.[cm]?ts$/.test(target)
+			const isIndex = dirname(target) === targetStem
 			const baseSpecifier = specifier.endsWith('/') ? specifier.slice(0, -1) : specifier
 			replacement = isIndex
 				? `${baseSpecifier}/index${runtimeExtension}`
