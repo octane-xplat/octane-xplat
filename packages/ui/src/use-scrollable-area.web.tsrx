@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'octane';
+import type { CSSProperties } from 'octane/jsx-runtime';
 import type {
+	HostElement,
 	ScrollAxisState,
 	ScrollableAreaState,
 	UseScrollableAreaOptions,
+	UseScrollableAreaContentProps,
 	UseScrollableAreaResult,
+	UseScrollableAreaViewportProps,
 } from './props';
 
 const EPS = 1;
@@ -18,7 +22,9 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
  * into caller props. The getters compose their internal ref with the caller's `ref`, for either
  * a host element or a shared primitive.
  */
-export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseScrollableAreaResult {
+export function useScrollableArea<TElement = HostElement>(
+	options: UseScrollableAreaOptions = {},
+): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block';
 	const keyboardAccess = options.keyboardAccess;
 	const overscroll = options.overscroll ?? 'allow';
@@ -102,7 +108,10 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 	}, [measure]);
 
 	const getViewportProps = useCallback(
-		(props: Record<string, any> = {}): Record<string, any> => {
+		function getViewportProps<P extends object = {}>(
+			props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
+		): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>;
 			const owner = keyboardAccess?.owner ?? 'content';
 			const scrollable = state.inline.isScrollable || state.block.isScrollable;
 			const viewportTabbed =
@@ -123,17 +132,17 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 					: undefined;
 
 			return {
-				...props,
-				ref: [bindViewport, props.ref],
-				role: props.role ?? (viewportTabbed ? (role ?? 'group') : role),
-				'aria-label': props['aria-label'] ?? (viewportTabbed ? label : undefined),
-				tabIndex: props.tabIndex ?? (viewportTabbed ? 0 : undefined),
+				...input,
+				ref: [bindViewport, input.ref],
+				role: input.role ?? (viewportTabbed ? (role ?? 'group') : role),
+				'aria-label': input['aria-label'] ?? (viewportTabbed ? label : undefined),
+				tabIndex: input.tabIndex ?? (viewportTabbed ? 0 : undefined),
 				style: {
 					overflowX: axis === 'inline' || axis === 'both' ? 'auto' : 'clip',
 					overflowY: axis === 'block' || axis === 'both' ? 'auto' : 'clip',
 					overscrollBehaviorX: overscroll === 'contain' ? 'contain' : undefined,
 					overscrollBehaviorY: overscroll === 'contain' ? 'contain' : undefined,
-					...(props.style as any),
+					...(input.style as CSSProperties),
 				},
 				'data-scrollable-x': state.inline.isScrollable || undefined,
 				'data-scrollable-y': state.block.isScrollable || undefined,
@@ -143,29 +152,32 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 				'data-at-end-y': state.block.atEnd || undefined,
 				'data-sticky-containment':
 					stickyContainment === 'always' || scrollable ? 'true' : undefined,
-			};
+			} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>;
 		},
 		[axis, keyboardAccess, overscroll, stickyContainment, state, bindViewport],
 	);
 
 	const getContentProps = useCallback(
-		(props: Record<string, any> = {}): Record<string, any> => {
+		function getContentProps<P extends object = {}>(
+			props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
+		): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>;
 			const owner = keyboardAccess?.owner ?? 'content';
 			const scrollable = state.inline.isScrollable || state.block.isScrollable;
 			const contentTabbed =
 				owner === 'content' || (owner === 'contentOrViewport' && !scrollable);
 
 			return {
-				...props,
-				ref: [bindContent, props.ref],
-				role: props.role ?? (contentTabbed ? 'group' : undefined),
+				...input,
+				ref: [bindContent, input.ref],
+				role: input.role ?? (contentTabbed ? 'group' : undefined),
 				'aria-label':
-					props['aria-label'] ??
+					input['aria-label'] ??
 					(contentTabbed && keyboardAccess && 'label' in keyboardAccess
 						? keyboardAccess.label
 						: undefined),
-				tabIndex: props.tabIndex ?? (contentTabbed ? 0 : undefined),
-			};
+				tabIndex: input.tabIndex ?? (contentTabbed ? 0 : undefined),
+			} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>;
 		},
 		[keyboardAccess, state, bindContent],
 	);

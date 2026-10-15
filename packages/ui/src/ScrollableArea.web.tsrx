@@ -82,7 +82,7 @@ function scrollableAreaHandle(viewport: { current: HTMLElement | null }): Scroll
  *  relative wrapper hosts the scroller plus the self-drawn indicator
  *  strip; refresh.web.ts owns the gesture. Only the block axis pulls. */
 function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
-	const area = useScrollableArea({
+	const area = useScrollableArea<HTMLDivElement>({
 		axis: props.axis,
 		overscroll: props.overscroll,
 		stickyContainment: props.stickyContainment,
@@ -129,6 +129,8 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 
 				applyEscapeProps(el, props);
 			}, viewportRef], [props.ios, props.android, props.web, viewportRef]);
+	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined;
+	const contentStyle = typeof content.style === 'object' ? content.style : undefined;
 
 	<div {...layoutChildProps(props, { ...(props.style as any) })} className={['vx-refresh-wrap', props.className]}>
 		<div
@@ -148,14 +150,14 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 			data-testid={props.testID}
 			className={['vx-scrollable', viewport.className]}
 			style={{
-				...viewport.style,
+				...viewportStyle,
 				width: size(props.width),
 				height: size(props.height),
 				maxWidth: size(props.maxWidth),
 				minHeight: size(props.minHeight),
 			}}
 		>
-			<div {...content} ref={contentRef} className={['vx-scrollable-content', content.className]} style={{ ...content.style, ...contentPadding(props) }}>
+			<div {...content} ref={contentRef} className={['vx-scrollable-content', content.className]} style={{ ...contentStyle, ...contentPadding(props) }}>
 				{props.children}
 			</div>
 		</div>
@@ -179,7 +181,7 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 }
 
 function ScrollableAreaCore(props: ScrollableAreaProps) @{
-	const area = useScrollableArea({
+	const area = useScrollableArea<HTMLDivElement>({
 		axis: props.axis,
 		overscroll: props.overscroll,
 		stickyContainment: props.stickyContainment,
@@ -198,6 +200,8 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 				viewportEl.current = el;
 				applyEscapeProps(el, props);
 			}, viewportRef), [props.ios, props.android, props.web, viewportRef]);
+	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined;
+	const contentStyle = typeof content.style === 'object' ? content.style : undefined;
 
 	<div
 		{...viewport}
@@ -206,7 +210,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 		data-testid={props.testID}
 		className={['vx-scrollable', props.className]}
 		style={{
-			...viewport.style,
+			...viewportStyle,
 			...outer.style,
 			width: size(props.width) ?? outer.style?.width,
 			height: size(props.height) ?? outer.style?.height,
@@ -219,7 +223,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 			{...content}
 			ref={contentRef}
 			className={['vx-scrollable-content', content.className]}
-			style={{ ...content.style, ...contentPadding(props) }}
+			style={{ ...contentStyle, ...contentPadding(props) }}
 		>
 			{props.children}
 		</div>

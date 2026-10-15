@@ -1,13 +1,21 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useLayoutEffect, useRef, useState } from 'octane'
-import type { UseScrollableAreaOptions, UseScrollableAreaResult } from './props'
+import type {
+	HostElement,
+	UseScrollableAreaContentProps,
+	UseScrollableAreaOptions,
+	UseScrollableAreaResult,
+	UseScrollableAreaViewportProps,
+} from './props'
 import { refList } from './ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
 import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 
 /** Measures the live AppKit viewport on scroll and layout. Layout measurements
  * update state without directly invoking the caller scroll handler. */
-export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseScrollableAreaResult {
+export function useScrollableArea<TElement = HostElement>(
+	options: UseScrollableAreaOptions = {},
+): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block'
 	const axisRef = useRef(axis)
 	axisRef.current = axis
@@ -53,22 +61,38 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 
 	useLayoutEffect(() => { measure() }, [axis, measure])
 
-	const getViewportProps = useCallback((props: Record<string, any> = {}) => {
-		caller.current = props
-		if (viewportRefs.current.caller !== props.ref) {
-			viewportRefs.current = { caller: props.ref, refs: refList(bindViewport, props.ref) }
+	const getViewportProps = useCallback(function getViewportProps<P extends object = {}>(
+		props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
+	): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement> {
+		const input = (props ?? {}) as Record<string, any>
+		caller.current = input
+		if (viewportRefs.current.caller !== input.ref) {
+			viewportRefs.current = { caller: input.ref, refs: refList(bindViewport, input.ref) }
 		}
 
-		return { ...props, ref: viewportRefs.current.refs, orientation: axisRef.current === 'inline' ? 'horizontal' : axisRef.current === 'both' ? 'both' : 'vertical', onScroll, onLayoutChanged }
+		return {
+			...input,
+			ref: viewportRefs.current.refs,
+			orientation: axisRef.current === 'inline' ? 'horizontal' : axisRef.current === 'both' ? 'both' : 'vertical',
+			onScroll,
+			onLayoutChanged,
+		} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>
 	}, [bindViewport, onScroll, onLayoutChanged])
 
-	const getContentProps = useCallback((props: Record<string, any> = {}) => {
-		contentCaller.current = props
-		if (contentRefs.current.caller !== props.ref) {
-			contentRefs.current = { caller: props.ref, refs: refList(bindContent, props.ref) }
+	const getContentProps = useCallback(function getContentProps<P extends object = {}>(
+		props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
+	): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement> {
+		const input = (props ?? {}) as Record<string, any>
+		contentCaller.current = input
+		if (contentRefs.current.caller !== input.ref) {
+			contentRefs.current = { caller: input.ref, refs: refList(bindContent, input.ref) }
 		}
 
-		return { ...props, ref: contentRefs.current.refs, onLayoutChanged: onContentLayoutChanged }
+		return {
+			...input,
+			ref: contentRefs.current.refs,
+			onLayoutChanged: onContentLayoutChanged,
+		} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>
 	}, [bindContent, onContentLayoutChanged])
 
 	// The caller runs in the same event scope, before its batched render.

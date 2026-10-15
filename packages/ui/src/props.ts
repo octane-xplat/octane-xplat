@@ -26,33 +26,57 @@ export type HostElement = unknown
 /** Per-platform escape bag of host attributes, applied after shared props. */
 export type PlatformProps = Record<string, unknown>
 
+/** A component function whose props vary by the owning slot. Method syntax
+ *  keeps custom components with narrower props assignable to open slots. */
+type ComponentFunction<Props> = {
+	bivarianceHack(props: Props): Renderable
+}['bivarianceHack']
+
+/** Shared scroll hooks preserve platform event objects without normalizing
+ *  the DOM, NativeScript, and AppKit payloads into a misleading shape. */
+type ScrollableAreaEventHandler = {
+	bivarianceHack(event: unknown): void
+}['bivarianceHack']
+
 /** A component reference — a function component or (web) an intrinsic tag
  *  name. The contract for `as`-style customization slots. */
-export type ElementType = string | ((props: any) => any)
+export type ElementType = string | ComponentFunction<object>
 
 /** A function component usable from JSX — `P` plus Octane's JSX attributes
  *  (`key`). The contract for `components`-style override slots. */
-export type ElementComponent<P> = (props: P & Octane.Attributes) => any
+export type ElementComponent<P> = (props: P & Octane.Attributes) => Renderable
 
 /** Props delivered to components mounted imperatively by `openModal` /
  *  `openBottomSheet`, or by `Modal`'s `component` prop: `params` plus a
- *  `close` that resolves the host with an optional result. `params` is
- *  whatever the caller passed — the mounted component declares its own
- *  shape. */
-export interface HostedComponentProps {
-	params: any
+ *  `close` that resolves the host with an optional result. Supply the
+ *  component's parameter shape as `TParams`; `params` is `undefined` when
+ *  the caller opens the surface without one.
+ *
+ * @example
+ * ```tsx
+ * import { Text } from '@octane-xplat/ui'
+ * import type { HostedComponentProps } from '@octane-xplat/ui'
+ *
+ * type EditParams = { id: number }
+ * function EditForm({ params }: HostedComponentProps<EditParams>) {
+ * 	return <Text>{params?.id ?? 'New item'}</Text>
+ * }
+ * ```
+ */
+export interface HostedComponentProps<TParams = unknown> {
+	params: TParams | undefined
 	close(result?: unknown): void
 }
 
 /** A component mounted on a dedicated root — `openModal`/`openBottomSheet`
  *  arguments and `Modal`'s `component` prop. */
-export type HostedComponent = (props: HostedComponentProps) => any
+export type HostedComponent<TParams = unknown> = ComponentFunction<HostedComponentProps<TParams>>
 
 /** A route screen component — receives the route's params as props. */
-export type ScreenComponent = (props: any) => any
+export type ScreenComponent = ComponentFunction<Record<string, unknown>>
 
 /** A route layout component — renders the route subtree through `children`. */
-export type LayoutComponent = (props: { children?: Renderable }) => any
+export type LayoutComponent = ComponentFunction<{ children?: Renderable }>
 
 // ---------- gestures ----------
 
@@ -1432,11 +1456,11 @@ export interface PlatformListProps<T = unknown> extends RefreshProps {
 }
 
 /** Props accepted by `UITableView` (`@octane-xplat/ui/ios`). */
-export type UITableViewProps<T = any> = PlatformWidgetProps<PlatformListProps<T>>
+export type UITableViewProps<T = unknown> = PlatformWidgetProps<PlatformListProps<T>>
 /** Handle exposed by `UITableView`'s `ref` (`@octane-xplat/ui/ios`). */
 export type UITableViewHandle = PlatformListHandle
 /** Props accepted by `RecyclerView` (`@octane-xplat/ui/android`). */
-export type RecyclerViewProps<T = any> = PlatformWidgetProps<PlatformListProps<T>>
+export type RecyclerViewProps<T = unknown> = PlatformWidgetProps<PlatformListProps<T>>
 /** Handle exposed by `RecyclerView`'s `ref` (`@octane-xplat/ui/android`). */
 export type RecyclerViewHandle = PlatformListHandle
 
@@ -1493,24 +1517,64 @@ export interface UseScrollableAreaOptions {
 	stickyContainment?: ScrollStickyContainment
 }
 
-/** `useScrollableArea` result — `getViewportProps`/`getContentProps` merge the behavior's refs/attrs onto the two boxes, and `state` exposes live per-axis overflow/edge flags.
+/** Props returned for the viewport box by `useScrollableArea`.
+ *  `TElement` identifies the host receiving the composed ref and defaults to
+ *  `HostElement` when the caller does not need host-specific ref typing. */
+export interface UseScrollableAreaViewportProps<TElement = HostElement> {
+	ref: Octane.Ref<TElement>
+	className?: ClassName
+	style?: StyleProp
+	onScroll?: ScrollableAreaEventHandler
+	onLayoutChanged?: ScrollableAreaEventHandler
+	role?: string
+	'aria-label'?: string
+	tabIndex?: number
+	orientation?: 'horizontal' | 'vertical' | 'both'
+	'data-scrollable-x'?: boolean
+	'data-scrollable-y'?: boolean
+	'data-at-start-x'?: boolean
+	'data-at-end-x'?: boolean
+	'data-at-start-y'?: boolean
+	'data-at-end-y'?: boolean
+	'data-sticky-containment'?: string
+}
+
+/** Props returned for the observed content box by `useScrollableArea`. */
+export interface UseScrollableAreaContentProps<TElement = HostElement> {
+	ref: Octane.Ref<TElement>
+	className?: ClassName
+	style?: StyleProp
+	onLayoutChanged?: ScrollableAreaEventHandler
+	role?: string
+	'aria-label'?: string
+	tabIndex?: number
+}
+
+/** `useScrollableArea` result — the getters merge behavior-owned props into
+ *  each box and preserve any additional caller props. `TElement` lets a
+ *  platform leaf or consumer specify the host receiving each composed ref.
  *
  * @example
  * ```tsx
  * import { useScrollableArea } from '@octane-xplat/ui'
  *
- * const area = useScrollableArea({ axis: 'block' })
+ * const area = useScrollableArea<HTMLElement>({ axis: 'block' })
+ * const content = <span>Scrollable content</span>
  * <div {...area.getViewportProps()}>
  * 	<div {...area.getContentProps()}>{content}</div>
  * </div>
  * ```
  */
-export interface UseScrollableAreaResult {
+export interface UseScrollableAreaResult<TElement = HostElement> {
 	/** Merges behavior-owned props (ref/role/tabIndex/overflow/data attrs)
 	 *  into caller props for the viewport element or native scroll view. */
-	getViewportProps(props?: Record<string, unknown>): Record<string, any>
+	getViewportProps<P extends object = {}>(
+		props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
+	): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>
 	/** Merges the observed-content marker + ref into the content box props. */
-	getContentProps(props?: Record<string, unknown>): Record<string, any>
+	getContentProps<P extends object = {}>(
+		props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
+	): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>
 	/** Live per-axis overflow/edge state. */
 	state: ScrollableAreaState
 }
@@ -1527,7 +1591,7 @@ export interface ScrollableAreaHandle {
 	/** The platform scroll viewport (`HTMLElement` / NS `ScrollView` / AppKit
 	 *  `NSScrollView`) — escape hatch for anything the shared contract does
 	 *  not cover. */
-	native: any
+	native: HostElement
 }
 
 /** A native scroll viewport with axis-aware accessibility (Astryx
@@ -1614,7 +1678,7 @@ export interface VirtualListHandle {
 	/** The platform scroll view (`HTMLElement` / NS `ScrollView` / AppKit
 	 *  `NSScrollView`) — escape hatch for anything the shared contract does
 	 *  not cover. */
-	native: any
+	native: HostElement
 }
 
 /** Shared virtualized vertical list. Item keys must be unique and stable
@@ -2995,9 +3059,9 @@ export interface ModalHandle extends Promise<ModalOpenResult> {
  * modal.close() // or await it for the close result
  * ```
  */
-export type OpenModal = (
-	component: HostedComponent,
-	params?: Record<string, unknown>,
+export type OpenModal = <TParams>(
+	component: HostedComponent<TParams>,
+	params?: TParams,
 	options?: ModalOpenOptions,
 ) => ModalHandle
 
@@ -3142,9 +3206,9 @@ export interface BottomSheetHandle extends Promise<ModalOpenResult> {
  * const result = await openBottomSheet(ShareSheet, { docId })  // ShareSheet: your component
  * ```
  */
-export type OpenBottomSheet = (
-	component: HostedComponent,
-	params?: Record<string, unknown>,
+export type OpenBottomSheet = <TParams>(
+	component: HostedComponent<TParams>,
+	params?: TParams,
 	options?: BottomSheetOpenOptions,
 ) => BottomSheetHandle
 

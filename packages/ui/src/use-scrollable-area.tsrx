@@ -2,9 +2,12 @@
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type {
 	ScrollAxisState,
+	HostElement,
 	ScrollableAreaState,
 	UseScrollableAreaOptions,
+	UseScrollableAreaContentProps,
 	UseScrollableAreaResult,
+	UseScrollableAreaViewportProps,
 } from './props';
 
 const EPS = 1;
@@ -20,7 +23,9 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
  * containment to own on native, so `keyboardAccess`, `overscroll`, and
  * `stickyContainment` are accepted but inert.
  */
-export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseScrollableAreaResult {
+export function useScrollableArea<TElement = HostElement>(
+	options: UseScrollableAreaOptions = {},
+): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block';
 	const viewportRef = useRef<any>(null);
 	const contentRef = useRef<any>(null);
@@ -91,18 +96,28 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 	useEffect(() => () => detachRef.current?.(), []);
 
 	const getViewportProps = useCallback(
-		(props: Record<string, any> = {}): Record<string, any> => ({
-			...props,
-			ref: [bindViewport, props.ref],
-		}),
+		function getViewportProps<P extends object = {}>(
+			props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
+		): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>;
+			return {
+				...input,
+				ref: [bindViewport, input.ref],
+			} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>;
+		},
 		[bindViewport],
 	);
 
 	const getContentProps = useCallback(
-		(props: Record<string, any> = {}): Record<string, any> => ({
-			...props,
-			ref: [bindContent, props.ref],
-		}),
+		function getContentProps<P extends object = {}>(
+			props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
+		): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>;
+			return {
+				...input,
+				ref: [bindContent, input.ref],
+			} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>;
+		},
 		[bindContent],
 	);
 
