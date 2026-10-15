@@ -1,20 +1,22 @@
 import { useState } from 'octane'
-import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/table'
+import { DataGrid, type DataGridFeatures, type Row, type TableState } from '@octane-xplat/table'
 import { View, Text } from '@octane-xplat/ui'
 import { GridHost } from './host'
 import { selectionState, rowPosition, scrollBody } from './selection-host'
 import type { ProbeContext } from '../../../scripts/probe/context'
 
-const data = Array.from({ length: 60 }, (_, index) => ({ id: String(index), name: `Record ${index + 1}` }))
+type GridRow = { id: string; name: string }
+
+const data: GridRow[] = Array.from({ length: 60 }, (_, index) => ({ id: String(index), name: `Record ${index + 1}` }))
 const columns = [{ accessorKey: 'name', header: 'Name' }]
 
 /** Real VirtualList and platform controls; no screenshot or OS-input claims. */
 export default function SelectionGrid() {
 	const [rowSelection, setRowSelection] = useState<TableState<DataGridFeatures>['rowSelection']>({ absent: true })
 	return <GridHost><View style={{ height: 340 }}>
-		<DataGrid id="selection" data={data} columns={columns} getRowId={(row: { id: string }) => row.id}
-			getRowLabel={(row: { original: { name: string } }) => row.original.name} showRowSelection showPagination
-			state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection, enableRowSelection: (row: { id: string }) => row.id !== '1' }}
+		<DataGrid id="selection" data={data} columns={columns} getRowId={(row: GridRow) => row.id}
+			getRowLabel={(row: Row<DataGridFeatures, GridRow>) => row.original.name} showRowSelection showPagination
+			state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection, enableRowSelection: (row: Row<DataGridFeatures, GridRow>) => row.id !== '1' }}
 			initialState={{ pagination: { pageIndex: 0, pageSize: 30 } }}
 			renderEmpty={() => <Text>No results</Text>} />
 	</View></GridHost>

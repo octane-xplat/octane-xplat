@@ -1,11 +1,13 @@
-import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/table'
+import { DataGrid, type DataGridFeatures, type Row, type TableState } from '@octane-xplat/table'
 import { useState } from 'octane'
 import { View, Text } from '@octane-xplat/ui'
 import { pan } from './gesture'
 import { GridHost } from './host'
 import type { ProbeContext } from '../../../scripts/probe/context'
 
-const data = [
+type GridRow = { id: string; name: string; count: number }
+
+const data: GridRow[] = [
 	{ id: 'a', name: 'Alice', count: 1 },
 	{ id: 'b', name: 'Bob', count: 2 },
 	{ id: 'c', name: 'Charlie', count: 3 },
@@ -33,18 +35,18 @@ export default function InteractiveGrid() {
 					id="grid"
 					data={data}
 					columns={columns}
-					getRowId={(row: { id: string }) => row.id}
+					getRowId={(row: GridRow) => row.id}
 					showGlobalFilter
 					showColumnFilters
 					showPagination
 					showRowSelection
-					getRowLabel={(row: { original: { name: string } }) => row.original.name}
+					getRowLabel={(row: Row<DataGridFeatures, GridRow>) => row.original.name}
 					state={{ rowSelection }}
 					showColumnSettings
 					resizableColumns
 					reorderableColumns
 					initialState={{ pagination: { pageIndex: 0, pageSize: 2 } }}
-					options={{ enableRowSelection: (row: { id: string }) => row.id !== 'b', onRowSelectionChange: setRowSelection }}
+					options={{ enableRowSelection: (row: Row<DataGridFeatures, GridRow>) => row.id !== 'b', onRowSelectionChange: setRowSelection }}
 					renderEmpty={() => <Text id="grid-empty">No matching rows</Text>}
 				/>
 			</View>
