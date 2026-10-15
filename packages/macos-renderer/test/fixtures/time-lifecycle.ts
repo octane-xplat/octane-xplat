@@ -1,3 +1,5 @@
+import { NSDate, NSDatePicker, NSDatePickerElementFlags } from '@octane-xplat/platform/macos'
+
 import TimePicker, { timeRef, timeRefEvents, timeChanges } from './Time'
 
 export async function checkTimeLifecycle(root: any, nativeWindow: any) {

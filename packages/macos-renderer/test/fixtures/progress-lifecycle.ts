@@ -1,5 +1,7 @@
 import Progress, { progressRef, progressRefEvents } from './Progress'
 
+import { NSControlSize, NSProgressIndicator, NSProgressIndicatorStyle } from '@octane-xplat/platform/macos'
+
 export async function checkProgressLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (condition: boolean, message: string) => {

@@ -1,5 +1,7 @@
 import DatePicker, { dateRef, dateRefEvents, dateChanges } from './Date'
 
+import { NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerStyle } from '@octane-xplat/platform/macos'
+
 export async function checkDateLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (value: boolean, message: string) => {

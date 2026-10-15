@@ -1,5 +1,7 @@
 import Activity, { activityRef, activityRefEvents } from './Activity'
 
+import { NSControlSize, NSProgressIndicator, NSProgressIndicatorStyle } from '@octane-xplat/platform/macos'
+
 export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (value: boolean, message: string) => {

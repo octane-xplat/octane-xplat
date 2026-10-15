@@ -1,5 +1,7 @@
 import Html, { htmlRef, htmlRefEvents } from './Html'
 
+import { NSFontAttributeName, NSFontTraitMask, NSForegroundColorAttributeName, NSLinkAttributeName } from '@octane-xplat/platform/macos'
+
 export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (value: boolean, message: string) => {

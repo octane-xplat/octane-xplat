@@ -1,3 +1,5 @@
+import { NSApplication, NSIndexSet, NSScrollView, NSTableRowView, NSTableView } from '@octane-xplat/platform/macos'
+
 import ListView, {
 	listViewRef,
 	listViewRefs,

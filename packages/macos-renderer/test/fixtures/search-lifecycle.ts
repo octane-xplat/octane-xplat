@@ -1,5 +1,7 @@
 import Search, { searchRefs, searchRefEvents, searchEvents } from './Search'
 
+import { NSSearchField, NSStackViewGravity } from '@octane-xplat/platform/macos'
+
 export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (condition: boolean, message: string) => {

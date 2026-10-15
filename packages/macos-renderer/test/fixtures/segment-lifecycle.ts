@@ -1,3 +1,5 @@
+import { NSControlSize, NSSegmentedControl, NSSegmentSwitchTracking } from '@octane-xplat/platform/macos'
+
 import SegmentedBar, { segmentRef, segmentRefEvents, segmentChanges } from './Segment'
 
 export async function checkSegmentLifecycle(root: any, nativeWindow: any) {

@@ -1,5 +1,7 @@
 import Formatted, { formattedRef, spanRef, formattedRefEvents } from './Formatted'
 
+import { NSBackgroundColorAttributeName, NSFontAttributeName, NSFontTraitMask, NSForegroundColorAttributeName, NSStrikethroughStyleAttributeName, NSUnderlineStyleAttributeName } from '@octane-xplat/platform/macos'
+
 export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (value: boolean, message: string) => {
