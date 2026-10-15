@@ -12,7 +12,15 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 	const { open, pending } = props.state;
 	const { triggerId, contentId, anchor } = props;
 	const setOpen = props.onOpenChange;
-	const content = props.children(props.state.value, props.onChange, () => setOpen(false), { isOpen: open, isBusy: pending || Boolean(props.isLoading), triggerId, contentId });
+	const content = props.children({
+		value: props.state.value,
+		onChange: props.onChange,
+		close: () => setOpen(false),
+		isOpen: open,
+		isBusy: pending || Boolean(props.isLoading),
+		triggerId,
+		contentId,
+	});
 
 	const trigger = <Pressable
 		id={triggerId}

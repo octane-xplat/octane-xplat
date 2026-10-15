@@ -235,7 +235,7 @@ export function Example() {
 | `InputRating` | Tappable 1..max rating row | `value`, `max`, `icon`, `onValueChange` |
 | `Chip` | Selectable/removable chip | `selected`, `onSelect`, `onRemove` |
 | `Field`, `FieldGroup` | Labeled field wrapper / labeled field group | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
-| `Item` | Settings-style row | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
+| `Item` | Settings-style row | `label`, `description`, `startContent`, `endContent`, `isDisabled`, `onPress` |
 
 Date controls use portable ISO strings: `YYYY-MM-DD`, `HH:MM[:SS]`, and
 `YYYY-MM-DDTHH:MM[:SS]`. Date-time strings have no timezone suffix; they
@@ -464,16 +464,43 @@ export function Example() {
 | `Outline`                          | Navigable heading outline                    | `items`, `activeId`, `hasScrollOnClick`                                 |
 | `Spinner`                          | Self-drawn loading indicator                 |                                                                         |
 
-`Table` and `TreeList` keep your row type through the whole API: `rows`,
-`renderCell`, `onRowPress`, and `idKey` on `Table` all work with your row
-objects, `columns` keys must be fields on the row type, and `TreeList`
-accepts any node type with `key`, `label`, and `children`. Item identity uses the shared `Key` domain (`string | number`) —
-the same one `useListData`, `useTreeData`, and `GridList` selection report —
-so a key returned by a store means the same thing to a view. `TreeList`
-expands and selects by key: `expandedKeys`/`defaultExpandedKeys`/
-`onExpandedChange` own the open set, and `selectionMode` plus `selectedKeys`/
-`defaultSelectedKeys`/`onSelectionChange` select leaf rows — parent rows
-always expand on press, and `onAction` reports leaf activation.
+`Table` keeps your row type through `rows`, `renderCell`, `onRowPress`, and
+`idKey`; each column key must name a field on the row. The `renderCell`
+callback receives a `TableCellRenderProps` context with the row, column, and
+current row index:
+
+```tsx
+import { Table, Text } from '@octane-xplat/ui'
+
+type Product = { name: string; stock: number }
+
+export function Example() {
+	const rows: Product[] = [{ name: 'Notebook', stock: 4 }]
+	return (
+		<Table
+			columns={[{ key: 'name' }, { key: 'stock' }]}
+			rows={rows}
+			renderCell={({ row, column, rowIndex }) => (
+				<Text>{rowIndex + 1}. {String(row[column.key])}</Text>
+			)}
+		/>
+	)
+}
+```
+
+**Migrating existing code:** `renderCell` now receives one named context
+instead of three positional arguments. Change
+`renderCell={(row, column, rowIndex) => ...}` to
+`renderCell={({ row, column, rowIndex }) => ...}`.
+
+`TreeList` accepts any node type with `key`, `label`, and `children`. Item
+identity uses the shared `Key` domain (`string | number`) — the same one
+`useListData`, `useTreeData`, and `GridList` selection report — so a key
+returned by a store means the same thing to a view. `TreeList` expands and
+selects by key: `expandedKeys`/`defaultExpandedKeys`/`onExpandedChange` own
+the open set, and `selectionMode` plus `selectedKeys`/`defaultSelectedKeys`/
+`onSelectionChange` select leaf rows — parent rows always expand on press,
+and `onAction` reports leaf activation.
 
 ```tsx
 import { TreeList } from '@octane-xplat/ui'

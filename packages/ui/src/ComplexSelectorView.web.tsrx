@@ -28,7 +28,15 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 		{props.isLoading || pending ? <span className="vx-complex-selector-spinner" role="status" aria-label="Loading" /> : null}
 	</button>;
 
-	const content = <div id={contentId} role="dialog">{props.children(props.state.value, props.onChange, () => setOpen(false), { isOpen: open, isBusy: pending || Boolean(props.isLoading), triggerId, contentId })}</div>;
+	const content = <div id={contentId} role="dialog">{props.children({
+		value: props.state.value,
+		onChange: props.onChange,
+		close: () => setOpen(false),
+		isOpen: open,
+		isBusy: pending || Boolean(props.isLoading),
+		triggerId,
+		contentId,
+	})}</div>;
 	const label = props.label != null && !props.isLabelHidden
 		? <label className="vx-field-label" htmlFor={triggerId}>{props.isRequired && !props.isOptional ? `${props.label} *` : props.isOptional ? `${props.label} (Optional)` : props.label}</label>
 		: null;

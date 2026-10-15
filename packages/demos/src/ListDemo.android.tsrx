@@ -22,21 +22,21 @@ const INITIAL_ROWS: DemoRow[] = [
 const renderDemoRow = (item: DemoRow) => @{
 	@if (item.kind === 'notice') {
 		<Item id={'list-row-' + item.id} className="list-demo-row list-demo-notice">
-			<Item.Leading><Text className="list-demo-badge">Info</Text></Item.Leading>
+			<Item.StartContent><Text className="list-demo-badge">Info</Text></Item.StartContent>
 			<Item.Content>
 				<Text className="list-demo-title">{item.title}</Text>
-				<Item.Supporting>{item.detail}</Item.Supporting>
+				<Item.Description>{item.detail}</Item.Description>
 			</Item.Content>
-			<Item.Trailing><Text>›</Text></Item.Trailing>
+			<Item.EndContent><Text>›</Text></Item.EndContent>
 		</Item>
 	} @else {
 		<Item
 			id={'list-row-' + item.id}
 			className="list-demo-row list-demo-event"
-			leading={<Text className="list-demo-badge">Event</Text>}
-			title={item.title}
-			supportingText={item.detail}
-			trailing={<Text>›</Text>}
+			startContent={<Text className="list-demo-badge">Event</Text>}
+			label={item.title}
+			description={item.detail}
+			endContent={<Text>›</Text>}
 		/>
 	}
 };
@@ -68,8 +68,8 @@ export function ListDemo() @{
 			<Text>{items.length + ' rows · scroll to load more'}</Text>
 		</HStack>
 		<FieldGroup label="Preferences">
-			<Item title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
-			<Item title="Managed setting" supportingText="Set by your organization" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} />
+			<Item label="Email updates" description="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} endContent={<Text>{updates ? 'On' : 'Off'}</Text>} />
+			<Item label="Managed setting" description="Set by your organization" accessibilityLabel="Managed setting" isDisabled onPress={() => setUpdates(!updates)} />
 		</FieldGroup>
 		<RecyclerView
 			id="list-demo-list"

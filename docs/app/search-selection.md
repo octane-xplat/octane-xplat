@@ -330,8 +330,10 @@ export function Example() {
 ## Build a custom picker
 
 `ComplexSelector` owns the labeled trigger, open state, and anchored surface.
-Its `children` render function receives the current value, a commit callback,
-a close callback, and `{ isOpen, isBusy, triggerId, contentId }`:
+Its `children` render function receives one `ComplexSelectorRenderProps`
+context. The context names the (optimistic) `value`, the `onChange` commit
+callback, `close`, and the render-state fields `isOpen`, `isBusy`, `triggerId`,
+and `contentId`:
 
 ```tsx
 import { ComplexSelector, Pressable, Text } from '@octane-xplat/ui'
@@ -349,11 +351,11 @@ export function Example() {
 			}}
 			triggerLabel={color}
 		>
-			{(value, commit, close, state) => (
+			{({ value, onChange, close, isBusy }) => (
 				<Pressable
-					disabled={state.isBusy}
+					disabled={isBusy}
 					onPress={() => {
-						commit('blue')
+						onChange('blue')
 						close()
 					}}
 				>
@@ -395,8 +397,8 @@ export function Example() {
 				console.log(next)
 			}}
 		>
-			{(value, commit) => (
-				<Pressable onPress={() => commit('blue')}>
+			{({ value, onChange }) => (
+				<Pressable onPress={() => onChange('blue')}>
 					<Text>{value} → blue</Text>
 				</Pressable>
 			)}
@@ -404,6 +406,11 @@ export function Example() {
 	)
 }
 ```
+
+**Migrating existing code:** `children` previously took four positional
+parameters — `(value, onChange, close, state) => …`. It now takes one object,
+such as `({ value, onChange, close, isOpen, isBusy }) => …`; fields formerly
+accessed through `state` are direct fields on that object.
 
 ## Platform boundaries
 

@@ -2,7 +2,7 @@
 
 ID: search-and-token-entry
 Targets: web, ios, android, macos
-Related APIs: @octane-xplat/ui, Select, Selector, MultiSelector, SelectOption, hasSelectAll, triggerDisplay, changeAction, SearchableItem, SearchSource, createStaticSource, BaseTypeahead, Typeahead, TypeaheadItem, Token, Tokenizer, ComplexSelector, CommandPalette, CommandPaletteItem, CommandPaletteMenuItem, hasEntriesOnFocus, minQueryLength, maxMenuItems, hasCreate, tokenOverflowBehavior, htmlName, ref
+Related APIs: @octane-xplat/ui, Select, Selector, MultiSelector, SelectOption, hasSelectAll, triggerDisplay, changeAction, SearchableItem, SearchSource, createStaticSource, BaseTypeahead, Typeahead, TypeaheadItem, Token, Tokenizer, ComplexSelector, ComplexSelectorRenderProps, CommandPalette, CommandPaletteItem, CommandPaletteMenuItem, hasEntriesOnFocus, minQueryLength, maxMenuItems, hasCreate, tokenOverflowBehavior, htmlName, ref
 
 ## Starting point
 
@@ -17,7 +17,7 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC1: A reader can build a `SearchSource` for static or remote items, show optional bootstrap results, group results, and bound/debounce queries while stale async responses are discarded.
 - AC2: A reader can use `Typeahead` with controlled selection, accessible field text, clear/edit/restore behavior, custom result content, and a disabled reason.
 - AC3: A reader can use `Tokenizer` to add, remove, cap, create, and overflow tokens, and knows which fields serialize into a browser form.
-- AC4: A reader can use `ComplexSelector` to render custom content, commit values, close the surface, and reflect/revert an asynchronous action.
+- AC4: A reader can use `ComplexSelector`'s named render context to render custom content, commit values, close the surface, and reflect/revert an asynchronous action.
 - AC5: A reader can account for web-only key events and form inputs, the native remove-button fallback, portable `ref`, and experimental macOS support.
 
 - AC6: A reader can use a finite-list Selector or MultiSelector with local grouped filtering, filtered enabled-item bulk selection, pending/rejected commits, form submission, and explicit native keyboard limits.

@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 import { ComplexSelector } from './ComplexSelector.web.tsrx'
 import { ComplexSelectorView } from './ComplexSelectorView.web.tsrx'
-import type { ComplexSelectorHandle, ComplexSelectorRenderState } from './props'
+import type { ComplexSelectorHandle, ComplexSelectorRenderProps } from './props'
 
 const cleanups: (() => void)[] = []
 afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
@@ -22,10 +22,12 @@ it.each([
 	{ open: true, pending: false, value: 'saved' },
 	{ open: true, pending: true, value: 'optimistic' },
 ])('renders resolved trigger and surface state %o', (state) => {
-	let resolved: ComplexSelectorRenderState | undefined
+	let resolved: ComplexSelectorRenderProps<string> | undefined
 	let value: string | undefined
+	const changes = vi.fn()
+	const opened = vi.fn()
 	const host = mount(<ComplexSelectorView label="Pick" value="saved" triggerId="trigger" contentId="content" anchor={{ current: null }} state={state} onChange={() => {}} onOpenChange={() => {}}>
-		{(next, _commit, _close, renderState) => { value = next; resolved = renderState; return <span>{next}</span> }}
+		{(context) => { value = context.value; resolved = context; return <span>{context.value}</span> }}
 	</ComplexSelectorView>)
 
 	const trigger = host.querySelector('button')!
@@ -34,7 +36,15 @@ it.each([
 	expect(Boolean(host.querySelector('.vx-complex-selector-spinner'))).toBe(state.pending)
 	if (!state.open) return
 	expect(value).toBe(state.value)
-	expect(resolved).toEqual({ isOpen: state.open, isBusy: state.pending, triggerId: 'trigger', contentId: 'content' })
+	expect(resolved).toMatchObject({
+		value: state.value,
+		isOpen: state.open,
+		isBusy: state.pending,
+		triggerId: 'trigger',
+		contentId: 'content',
+	})
+	expect(typeof resolved?.onChange).toBe('function')
+	expect(typeof resolved?.close).toBe('function')
 	// Trigger intentionally reflects the consumer value; only the surface is optimistic.
 	expect(trigger.textContent).toContain('saved')
 })
@@ -45,26 +55,26 @@ it('maps imperative open, optimistic pending, rejection rollback and close to th
 	const opened = vi.fn()
 	let reject!: (reason?: any) => void
 	const action = new Promise<void>((_resolve, fail) => { reject = fail })
-	let commit!: (value: string) => void
+	let context!: ComplexSelectorRenderProps<string>
 	let resolvedValue = ''
-	let resolved!: ComplexSelectorRenderState
 	const host = mount(<ComplexSelector label="Pick" value="saved" ref={ref} onChange={changes} onOpenChange={opened} changeAction={() => action}>
-		{(value, change, _close, state) => { resolvedValue = value; commit = change; resolved = state; return <span>{value}</span> }}
+		{(renderProps) => { resolvedValue = renderProps.value; context = renderProps; return <span>{renderProps.value}</span> }}
 	</ComplexSelector>)
 
 	act(() => ref.current!.open())
 	expect(ref.current!.isOpen()).toBe(true)
-	await act(async () => { commit('next'); await Promise.resolve() })
+	await act(async () => { context.onChange('next'); await Promise.resolve() })
 	expect(resolvedValue).toBe('next')
 	expect(document.querySelector('[role="dialog"]')?.textContent).toBe('next')
-	expect(resolved.isBusy).toBe(true)
+	expect(context.isBusy).toBe(true)
 	expect(host.querySelector('button')!.disabled).toBe(true)
 	await act(async () => { reject(new Error('rejected')); await action.catch(() => {}); await Promise.resolve() })
 	expect(resolvedValue).toBe('saved')
 	expect(document.querySelector('[role="dialog"]')?.textContent).toBe('saved')
-	expect(resolved.isBusy).toBe(false)
+	expect(context.isBusy).toBe(false)
 	expect(changes.mock.calls).toEqual([['next'], ['saved']])
-	act(() => ref.current!.close())
+	act(() => context.close())
+	expect(ref.current!.isOpen()).toBe(false)
 	expect(opened.mock.calls).toEqual([[true], [false]])
 	expect(document.activeElement).toBe(host.querySelector('button'))
 })

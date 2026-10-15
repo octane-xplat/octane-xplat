@@ -114,10 +114,10 @@ function ListItemStandardFixture() @{
 	<Item
 		id="parity-listitem-root"
 		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
-		title="Event title"
-		supportingText="6:30 PM / 2 tickets"
-		leading={<Text className="parity-listitem-leading-text">A</Text>}
-		trailing={<Text className="parity-listitem-trailing-text">&gt;</Text>}
+		label="Event title"
+		description="6:30 PM / 2 tickets"
+		startContent={<Text className="parity-listitem-leading-text">A</Text>}
+		endContent={<Text className="parity-listitem-trailing-text">&gt;</Text>}
 	/>
 }
 
@@ -647,8 +647,8 @@ function ListItemFixture() @{
 	<Item
 		className="parity-list-item-root"
 		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
-		title="Settings"
-		supportingText="Account"
+		label="Settings"
+		description="Account"
 	/>
 }
 

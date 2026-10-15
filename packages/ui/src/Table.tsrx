@@ -37,7 +37,7 @@ export function Table<T extends object = Record<string, any>>(props: TableProps<
 				>
 					@for (const col of props.columns; key col.key) {
 						<flexboxlayout className="vx-table-cell" style={cellStyle(col)}>
-							{props.renderCell ? props.renderCell(e.row, col, e.ri) : <label text={String((e.row as Record<Key, unknown>)[col.key] ?? '')} />}
+							{props.renderCell ? props.renderCell({ row: e.row, column: col, rowIndex: e.ri }) : <label text={String((e.row as Record<Key, unknown>)[col.key] ?? '')} />}
 						</flexboxlayout>
 					}
 				</flexboxlayout>

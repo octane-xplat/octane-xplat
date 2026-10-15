@@ -3724,22 +3724,25 @@ export interface FieldGroupProps {
 	web?: PlatformProps
 }
 
-/** Shared settings/navigation row, exported as `Item`. Use the four
- *  shorthand props for common rows, or `Item.Leading`/`Content`/
- *  `Supporting`/`Trailing` children when the row needs custom composition.
- *  This is the pre-parity settings row; the Astryx `Item` contract
- *  (label/description/startContent/endContent) is a separate family's
- *  migration — `ListItem` inside `List` carries its own row layout. */
+/** Shared settings/navigation row, exported as `Item`. Its label,
+ *  description, startContent, and endContent roles match `ListItem`; use
+ *  `Item.StartContent`/`Content`/`Description`/`EndContent` for custom
+ *  composition. `Item` is standalone, while `ListItem` reads list marker
+ *  and density context from its parent `List`. */
 export interface ItemProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	title?: Renderable
-	supportingText?: Renderable
-	leading?: Renderable
-	trailing?: Renderable
+	/** Primary row text or rich content. */
+	label?: Renderable
+	/** Secondary text under the label. */
+	description?: Renderable
+	/** Content before the label/description column. */
+	startContent?: Renderable
+	/** Content after the label/description column. */
+	endContent?: Renderable
 	onPress?: () => void
-	disabled?: boolean
+	isDisabled?: boolean
 	children?: Renderable
 }
 
@@ -3750,10 +3753,10 @@ export interface ItemSlotProps {
 
 export interface ItemComponent {
 	(props: ItemProps): unknown
-	Leading: (props: ItemSlotProps) => unknown
+	StartContent: (props: ItemSlotProps) => unknown
 	Content: (props: ItemSlotProps) => unknown
-	Supporting: (props: ItemSlotProps) => unknown
-	Trailing: (props: ItemSlotProps) => unknown
+	Description: (props: ItemSlotProps) => unknown
+	EndContent: (props: ItemSlotProps) => unknown
 }
 
 /** InputNumber — normalized TextInput (number keyboard) flanked by −/+
@@ -4163,6 +4166,15 @@ export interface ComplexSelectorRenderState {
 	contentId: string
 }
 
+/** Named context passed to `ComplexSelector`'s `children` render function.
+ *  `value` is optimistic while `changeAction` is pending; `onChange`
+ *  commits a value and `close` closes the surface. */
+export interface ComplexSelectorRenderProps<Value> extends ComplexSelectorRenderState {
+	value: Value
+	onChange: (value: Value) => void
+	close: () => void
+}
+
 /** Imperative handle delivered through ComplexSelector's `ref`. Drives the
  *  same popover machinery as the trigger — prefer it over mirroring open
  *  state in the parent. */
@@ -4175,10 +4187,10 @@ export interface ComplexSelectorHandle {
 }
 
 /** ComplexSelector — a field + trigger + anchored surface for rich custom
- *  pickers. `children` is a render function receiving the (optimistic)
- *  value, a commit callback, a close callback, and the render state; the
- *  component owns the trigger, popover, focus restore, and async
- *  `changeAction` flow. */
+ *  pickers. `children` is a render function receiving one named context
+ *  with the (optimistic) value, commit and close callbacks, and render
+ *  state fields; the component owns the trigger, popover, focus restore,
+ *  and async `changeAction` flow. */
 export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4189,12 +4201,7 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	/** Async action run after `onChange`; the surface reports `isBusy` and
 	 *  renders `value` optimistically until it settles. */
 	changeAction?: (value: Value) => void | Promise<void>
-	children: (
-		value: Value,
-		onChange: (value: Value) => void,
-		close: () => void,
-		state: ComplexSelectorRenderState,
-	) => Renderable
+	children: (context: ComplexSelectorRenderProps<Value>) => Renderable
 	/** Trigger content while closed; falls back to `placeholder`. */
 	triggerLabel?: Renderable
 	placeholder?: Renderable
@@ -4416,11 +4423,19 @@ export interface TableColumn<K extends Key = Key> {
 	align?: 'left' | 'center' | 'right'
 }
 
+/** Named context passed to `Table`'s `renderCell`. `rowIndex` is the row's
+ *  current position, not a stable identity; use `idKey` to identify rows. */
+export interface TableCellRenderProps<T extends object = Record<string, unknown>> {
+	row: T
+	column: TableColumn<keyof T & Key>
+	rowIndex: number
+}
+
 /** Table — self-drawn grid via rows + cells. Bounded and unvirtualized:
  *  large datasets belong to the platform UITableView/RecyclerView
  *  subpaths, not this component. The row generic flows through
  *  `columns`, `renderCell`, `idKey`, and `onRowPress`, so rows keep their
- *  element type and column keys stay row fields; `rowIndex` arguments
+ *  element type and column keys stay row fields; `rowIndex` values
  *  are positional, not identity. */
 export interface TableProps<T extends object = Record<string, unknown>> {
 	className?: ClassName
@@ -4428,8 +4443,9 @@ export interface TableProps<T extends object = Record<string, unknown>> {
 	id?: string
 	columns: readonly TableColumn<keyof T & Key>[]
 	rows: readonly T[]
-	/** Cell override — default renders `row[col.key]` as text. */
-	renderCell?: (row: T, column: TableColumn<keyof T & Key>, rowIndex: number) => Renderable
+	/** Cell override — receives a `TableCellRenderProps` context; default
+	 *  renders `row[column.key]` as text. */
+	renderCell?: (cell: TableCellRenderProps<T>) => Renderable
 	/** Stable row `Key` — a row field name or an extractor (Astryx `idKey`).
 	 *  Defaults to the row's `id` or `key` property, then its index. The
 	 *  index fallback is positional — supply `idKey` or an `id`/`key` field

@@ -2,7 +2,7 @@ import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
 import { Pressable } from './Pressable.web.tsrx'
 import { Text } from './Text.web.tsrx'
 
-function Leading(props: ItemSlotProps) @{
+function StartContent(props: ItemSlotProps) @{
 	<div className={['vx-item-leading', props.className]}>{props.children}</div>
 }
 
@@ -10,11 +10,11 @@ function Content(props: ItemSlotProps) @{
 	<div className={['vx-item-content', props.className]}>{props.children}</div>
 }
 
-function Supporting(props: ItemSlotProps) @{
+function Description(props: ItemSlotProps) @{
 	<Text className={['vx-item-supporting', props.className]}>{props.children}</Text>
 }
 
-function Trailing(props: ItemSlotProps) @{
+function EndContent(props: ItemSlotProps) @{
 	<div className={['vx-item-trailing', props.className]}>{props.children}</div>
 }
 
@@ -24,27 +24,27 @@ function ItemView(props: ItemProps) @{
 		className={['vx-item', props.className]}
 		style={props.style}
 		onPress={props.onPress}
-		disabled={props.disabled}
+		disabled={props.isDisabled}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole ?? (props.onPress ? 'button' : 'text')}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityState={props.accessibilityState}
 	>
-		{props.leading != null ? <Leading>{props.leading}</Leading> : null}
-		{props.title != null || props.supportingText != null ? (
+		{props.startContent != null ? <StartContent>{props.startContent}</StartContent> : null}
+		{props.label != null || props.description != null ? (
 			<Content>
-				{props.title != null ? <Text className="vx-item-title">{props.title}</Text> : null}
-				{props.supportingText != null ? <Supporting>{props.supportingText}</Supporting> : null}
+				{props.label != null ? <Text className="vx-item-title">{props.label}</Text> : null}
+				{props.description != null ? <Description>{props.description}</Description> : null}
 			</Content>
 		) : null}
 		{props.children}
-		{props.trailing != null ? <Trailing>{props.trailing}</Trailing> : null}
+		{props.endContent != null ? <EndContent>{props.endContent}</EndContent> : null}
 	</Pressable>
 }
 
 export const Item = Object.assign(ItemView, {
-	Leading,
+	StartContent,
 	Content,
-	Supporting,
-	Trailing,
+	Description,
+	EndContent,
 }) as ItemComponent

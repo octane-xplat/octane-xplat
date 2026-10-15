@@ -299,10 +299,11 @@ export function Example() {
 ### Reusable rows
 
 `Item` is a reusable, self-drawn row for settings, preferences, and
-compact navigation lists. Use `leading`, `title`, `supportingText`, and
-`trailing` for the common shape, or compose `Leading`, `Content`,
-`Supporting`, and `Trailing` slots for richer content. It works by itself or
-inside `FieldGroup`; the row owns its layout and press behavior, while
+compact navigation lists. Use `startContent`, `label`, `description`, and
+`endContent` for the common shape, or compose `StartContent`, `Content`,
+`Description`, and `EndContent` slots for richer content. These content roles
+match `ListItem`. `Item` works by itself or inside `FieldGroup`; the row owns
+its layout and press behavior, while
 `FieldGroup` remains the field container. See the maintained
 [ListDemo](../../packages/demos/src/ListDemo.tsrx) for both forms. Press a row
 with an action and verify one callback; disable it and verify the action
@@ -315,35 +316,42 @@ export function Example() {
 	return (
 		<FieldGroup>
 			<Item
-				title="Notifications"
-				supportingText="Daily reminders"
-				leading={<Text>•</Text>}
-				trailing={<Text>Off</Text>}
+				label="Notifications"
+				description="Daily reminders"
+				startContent={<Text>•</Text>}
+				endContent={<Text>Off</Text>}
 				onPress={() => console.log('Open reminders')}
 			/>
 			<Item>
-				<Item.Leading>
+				<Item.StartContent>
 					<Text>•</Text>
-				</Item.Leading>
+				</Item.StartContent>
 				<Item.Content>
 					<Text>Account</Text>
-					<Item.Supporting>Profile settings</Item.Supporting>
+					<Item.Description>Profile settings</Item.Description>
 				</Item.Content>
-				<Item.Trailing>
+				<Item.EndContent>
 					<Text>›</Text>
-				</Item.Trailing>
+				</Item.EndContent>
 			</Item>
+			<Item label="Managed setting" isDisabled onPress={() => console.log('Not called')} />
 		</FieldGroup>
 	)
 }
 ```
+
+**Migrating existing code:** Rename `title` to `label`, `supportingText` to
+`description`, `leading` to `startContent`, `trailing` to `endContent`, and
+`disabled` to `isDisabled`. Rename the compound slots `Item.Leading`,
+`Item.Supporting`, and `Item.Trailing` to `Item.StartContent`,
+`Item.Description`, and `Item.EndContent`; `Item.Content` stays the same.
 
 `List` and `ListItem` describe bounded content, such as a short set of steps
 or notices. `List` is rendered in full and is not a data-windowing or native
 OS-list wrapper; use `VirtualList` for long collections and the `ui/ios` or
 `ui/android` subpath when OS list behavior is required. `listStyle` selects
 `none`, `disc`, `circle`, or `decimal` markers; `ListItem` supplies its label,
-optional description, leading and trailing content, and optional action or
+optional description, start and end content, and optional action or
 link. Native leaves draw markers and dividers because NativeScript has no
 matching semantic list element. The shared [ListDemo](../../packages/demos/src/ListDemo.tsrx)
 shows content `List` separately from settings `Item`.

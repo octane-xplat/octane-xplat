@@ -37,7 +37,7 @@ export function Table<T extends object = Record<string, any>>(props: TableProps<
 				>
 					{props.columns.map((col) => (
 						<div key={col.key} className="vx-table-cell" role="cell" style={cellStyle(col)}>
-							{props.renderCell ? props.renderCell(row, col, ri) : String((row as Record<Key, unknown>)[col.key] ?? '')}
+							{props.renderCell ? props.renderCell({ row, column: col, rowIndex: ri }) : String((row as Record<Key, unknown>)[col.key] ?? '')}
 						</div>
 					))}
 				</div>
