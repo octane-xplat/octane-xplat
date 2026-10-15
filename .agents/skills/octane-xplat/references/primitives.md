@@ -118,6 +118,39 @@ export function PackingToggle() {
   `HoverCard` and `Tooltip` are shared root exports; qualify pointer/touch
   behavior per target and keep essential information in visible content.
 
+## Contracts that differ from DOM/React habits
+
+- **Removing a prop restores its default.** A prop that disappears between
+  renders — or is passed `undefined`/`null` — resets to the value it holds
+  when never supplied (per-key inside `style` too), on web, iOS, Android,
+  and macOS. `null` is never an explicit neutral: pass `''`, `0`, or
+  `false` when the documented default isn't the value you want.
+- **`on*` props re-commit every render** — inline closures always read
+  current state. A listener you attach yourself (`view.on('pan', fn)` in an
+  effect or ref callback) binds once at mount and keeps the mount-render
+  closure; read live state through a ref or `useEffectEvent`, and clean it
+  up on detach.
+- **`ref` is the binding prop** (`bind` was removed — see
+  docs/app/primitives.md#migrate-from-bind). `View`/`Pressable` forward the
+  host view; controls expose documented handles instead
+  (`TextInputHandle` = `focus`/`blur`/`native`). On native the handle can
+  arrive before the view's OS peer is `loaded` — gate peer-specific work on
+  load, not ref assignment.
+- **`Grid` places children by forwarded props.** `row`/`col` are
+  zero-based; a composite cell must spread its placement props onto its own
+  root view or it auto-places. `gap` was removed — space children with
+  margins. Insertion/removal re-places batched on a microtask, so reading
+  coordinates synchronously after a setter is too early.
+- **Text controls report the new string.** `TextInput`'s `onChange` gets
+  `value: string`, not an event; controlled `value` writes suppress their
+  own echo. `useKeyboardInset()` returns the keyboard inset in dips — zero
+  on web/desktop, and on Android it leases window resize, so don't also add
+  it as padding there or you double-avoid.
+- **Hosted surfaces normalize the frame, not the content.** `WebView`,
+  `Video`, `CameraView` render engine-owned pixels — identical props,
+  different engine behavior per target. Check `docs/verify/known-limits.md`
+  before promising parity.
+
 ## Conventions
 
 - `className` composes with each leaf's own `vx-*` class; use `cx()` for

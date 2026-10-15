@@ -43,6 +43,18 @@ export function Details() {
 }
 ```
 
+## Context stops at native overlay roots
+
+Shared `Dialog`/`BottomSheet`/`Overlay` and the platform modal widgets mount a
+**separate Octane root on native** — `useContext` inside overlay content does
+not see the presenter's providers, and reading context in the new root does
+not recover them. Theme classes are forwarded; app context is not. Pass
+values in as props, or read a module-scope store that each root subscribes
+to. Declarative overlays render through a DOM portal on web and retain the
+declaring context (imperative services like `openBottomSheet` mount their
+own root on every target) — write to the stricter native rule so both
+behave.
+
 ## `openSheet(Component, props)` / `closeSheet()`
 
 `openBottomSheet(Component, props)` is the current shared service name.

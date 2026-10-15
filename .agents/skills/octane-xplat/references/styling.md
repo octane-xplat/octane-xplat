@@ -48,6 +48,15 @@ native root. See `styling/tokens.md` for the inventory.
 import '@octane-xplat/ui/theme/tokens.css'
 ```
 
+- **`tokens.css` is required structure**, not decoration — it carries the
+  normalization and layout rules components rely on, and omitting it breaks
+  geometry. `chrome.css` is the optional decoration layer (default colors,
+  borders, fonts); import it after `tokens.css`, before the app's own CSS.
+- **Use JS `import` for stylesheets.** CSS `@import` bypasses the native
+  preset's px-to-DIP rewrite, so rules pulled in that way land unscaled.
+- The experimental macOS AppKit renderer supports a smaller set of named
+  styles — check `docs/verify/known-limits.md` before promising a property.
+
 ## Dark mode
 
 System-driven by default (`prefers-color-scheme` / NS system appearance

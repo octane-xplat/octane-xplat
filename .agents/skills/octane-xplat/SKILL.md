@@ -18,7 +18,10 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
    native leaves must start with `/** @jsxImportSource @nativescript-community/octane */`
    on line 1 — nothing may precede it, including imports.
 3. **Hooks only in `.tsx`/`.tsrx` inside a renderer include glob.** Plain
-   `.ts` helpers don't get hook slotting OR forbidden-global validation.
+   `.ts` helpers don't get hook slotting OR forbidden-global validation —
+   a hook imported from a `.ts` file binds a second runtime whose
+   dispatcher never runs. In `.tsrx`, effects infer deps from closure
+   reads; an effect that only writes needs explicit deps.
 4. **Static styles = `className`; dynamic = `style` objects.** No inline
    string styles, no `<style>` tags.
 5. **Prop types live in `packages/ui/src/props.ts`** — the single source
@@ -27,6 +30,14 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
 6. **Cross-root state uses module-scope stores** (`useSyncExternalStore`).
    A class or context on one root never reaches another root (pushed
    pages, modals, sheets are separate trees on native).
+   - **Reads subscribe or they go stale.** The universal renderer retains
+     unchanged-prop children, so every non-signal store reader calls
+     `useStore(store)` (`createStore`/`useStore` are exported from
+     `@octane-xplat/ui/data`, not the root barrel) — `store.getSnapshot()`
+     is a one-time read.
+   - **Signal readers carry their own runtime import.** Keep signal names
+     suffixed `$` and add `import 'octane/signals'` to every file that
+     reads one, even if it only receives the signal from elsewhere.
 7. **The unsuffixed module is the native default.** Add a `.web.ts` sibling
    when browser code imports a native-only module; use `.mobile.ts` for a
    shared iOS/Android override and `.ios.ts`/`.android.ts` for OS-only code.

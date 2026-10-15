@@ -26,6 +26,11 @@ suffixes.
 1. A file speaks ONE element vocabulary. Browser implementations use DOM
    intrinsics in `.web` files; NativeScript implementations use NS intrinsics
    in `.mobile`, `.ios`, `.android`, or the unsuffixed native default.
+   - **Import the unsuffixed basename** (`import { Card } from './Card'`) and
+     let the resolver pick — never name a platform suffix in a shared import.
+     Runtime branching (`isNative`, `Platform.OS`) swaps values inside one
+     file; it cannot change which renderer owns the file or mix `<div>` with
+     `<gridlayout>`. Divergent element vocabulary must be a file split.
 2. **No DOM globals in native implementations** — `scripts/check-no-dom.mjs`
    and lint enforce this. The browser-specific module owns `document`,
    `window`, `localStorage`, `HTMLElement`, and other DOM APIs.
