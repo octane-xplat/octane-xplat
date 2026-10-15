@@ -28,7 +28,12 @@ function emitter() {
 			}
 		},
 		count() {
-			return [...listeners.values()].reduce((n, group) => n + group.size, 0)
+			let count = 0
+			for (const group of listeners.values()) {
+				count += group.size
+			}
+
+			return count
 		},
 	}
 }
@@ -47,15 +52,31 @@ function load({
 	const activity = { getIntent: () => ({ getDataString: () => intentUrl }) }
 	app.android.foregroundActivity = activity
 	const exports = {}
-	vm.runInNewContext(native, {
-		exports,
-		require: () => ({
-			Application: app,
-			Utils: { android: { getCurrentActivity: () => activity }, openUrl: launch },
-		}),
-		android: { net: { Uri: { parse: (s) => s } } },
+	const platformAndroid = { net: { Uri: { parse: (s) => s } } }
+	const platformIOS = {
 		NSURL: { URLWithString: (s) => (s === 'invalid' ? null : s) },
 		NSObject: { extend: () => ({ new: () => ({}) }) },
+		UIApplication: { sharedApplication: {} },
+	}
+
+	vm.runInNewContext(native, {
+		exports,
+		require: (id) => {
+			if (id === '@octane-xplat/platform/android') {
+				return { android: platformAndroid }
+			}
+
+			if (id === '@octane-xplat/platform/ios') {
+				return platformIOS
+			}
+
+			return {
+				Application: app,
+				Utils: { android: { getCurrentActivity: () => activity }, openUrl: launch },
+			}
+		},
+		android: platformAndroid,
+		...platformIOS,
 		ASWebAuthenticationPresentationContextProviding: {},
 		ASWebAuthenticationSessionErrorCode: { CanceledLogin: 1 },
 		ASWebAuthenticationSession: {

@@ -121,7 +121,19 @@ function createPlayer() {
 	}
 
 	const module = { exports: {} }
-	vm.runInNewContext(compiled, { ...globals, exports: module.exports, module })
+	vm.runInNewContext(compiled, {
+		...globals,
+		exports: module.exports,
+		module,
+		require: (specifier) => {
+			if (specifier === '@octane-xplat/platform/ios') {
+				return globals
+			}
+
+			throw new Error(`Unexpected module: ${specifier}`)
+		},
+	})
+
 	return {
 		player: module.exports.createAudioPlayer(),
 		commands,

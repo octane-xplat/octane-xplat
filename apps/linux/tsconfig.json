@@ -72,6 +72,6 @@
 		"../../packages/lingui/tests"
 	],
 	"files": [
-		"../../packages/macos-renderer/src/appkit.d.ts"
+		"../../packages/macos-renderer/src/host-globals.d.ts"
 	]
 }

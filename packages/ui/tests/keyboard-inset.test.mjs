@@ -16,10 +16,21 @@ const compiled = ts.transpile(
 function load(application, globals = {}) {
 	const context = vm.createContext({
 		exports: {},
-		require: () => ({
-			Application: application,
-			Utils: { layout: { toDeviceIndependentPixels: (px) => px / 2 } },
-		}),
+		require: (specifier) => {
+			switch (specifier) {
+				case '@nativescript/core':
+					return {
+						Application: application,
+						Utils: { layout: { toDeviceIndependentPixels: (px) => px / 2 } },
+					}
+				case '@octane-xplat/platform/android':
+					return { android: globals.android }
+				case '@octane-xplat/platform/ios':
+					return globals
+				default:
+					throw new Error(`Unexpected module: ${specifier}`)
+			}
+		},
 		...globals,
 	})
 

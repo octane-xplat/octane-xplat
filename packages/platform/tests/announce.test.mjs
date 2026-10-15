@@ -72,7 +72,20 @@ test('AppKit notification has the exact text and medium priority on every reques
 		NSAccessibilityPriorityLevel: { Medium: 50 },
 	}
 
-	vm.runInNewContext(source.replace('export function', 'function'), context)
+	const parsed = ts.createSourceFile(
+		'accessibility.ts',
+		source,
+		ts.ScriptTarget.Latest,
+		true,
+		ts.ScriptKind.TS,
+	)
+
+	const script = parsed.statements
+		.filter((statement) => !ts.isImportDeclaration(statement))
+		.map((statement) => statement.getText(parsed))
+		.join('\n')
+
+	vm.runInNewContext(script.replace('export function', 'function'), context)
 	const app = {}
 	context.announceAppKit('', app)
 	context.announceAppKit(' \n', app)

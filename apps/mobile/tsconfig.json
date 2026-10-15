@@ -96,8 +96,7 @@
 		"../../packages/**/*"
 	],
 	"files": [
-		"../../packages/macos-renderer/src/appkit.d.ts",
-		"../../packages/macos-renderer/src/appkit-ambient.d.ts",
+		"../../packages/macos-renderer/src/host-globals.d.ts",
 		"./references.d.ts",
 		"./types/globals.d.ts"
 	],

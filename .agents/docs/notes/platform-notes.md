@@ -245,3 +245,41 @@ UI effects, and audio playback.
 > `platform` interfaces should be defined in `.ts` (no hooks at the interface
 > layer); hook-shaped accessors (`useSafeAreaInsets`) live in `.tsx` wrappers
 > inside the renderer glob.
+
+### iOS global bindings
+
+The NativeScript iOS metadata getter can abort app startup when a declared
+global function has no runtime symbol. The packed consumer smoke exposed this
+for `CGVectorMake` (a CoreGraphics `CG_INLINE` with no NativeScript shim) and
+`NSMakeCollectable` on the iOS 27 simulator. It also aborts while reading
+`TNSWidgetsVersionString`: the type package declares a string, while the
+NativeScript iOS header exposes a C `const unsigned char[]`. Simulator startup
+probes also crash while reading `UIGraphicsImageRendererContext`,
+`UIGraphicsImageRendererFormat`, and the CoreFoundation sentinel
+`kCFAllocatorUseContext`. The iOS type generator therefore defers every global
+function lookup and these observed unsafe value bindings until they are used:
+
+```ts
+export const NSMakeCollectable: D.NSMakeCollectable_c = lazyGlobal('NSMakeCollectable')
+export const TNSWidgetsVersionString: D.TNSWidgetsVersionString_c = lazyGlobal('TNSWidgetsVersionString')
+export const UIGraphicsImageRendererContext: D.UIGraphicsImageRendererContext_c = lazyGlobal('UIGraphicsImageRendererContext')
+export const UIGraphicsImageRendererFormat: D.UIGraphicsImageRendererFormat_c = lazyGlobal('UIGraphicsImageRendererFormat')
+export const kCFAllocatorUseContext: D.kCFAllocatorUseContext_c = lazyGlobal('kCFAllocatorUseContext')
+```
+
+Importing the iOS type module no longer probes these globals. Calling a
+function binding still asks NativeScript to resolve it and remains unsupported
+when the runtime has no implementation. Reading these bindings still asks
+NativeScript to resolve them and may fail when runtime metadata does not
+support their native representation. The regression test is
+`packages/platform/tests/ios-types.test.mjs`.
+
+Evidence: packed consumer smoke runs on iOS 27 reported `CGVectorMake` missing
+from CoreGraphics, `NSMakeCollectable` missing from Foundation, and aborts at
+the `TNSWidgetsVersionString`, two UIKit renderer class, and
+`kCFAllocatorUseContext` exports (lab experiments). The
+[NativeScript type declaration](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/types-ios/src/lib/ios/objc-x86_64/objc%21CoreGraphics.d.ts#L3411)
+and [iOS runtime inline shims](https://github.com/NativeScript/ios-runtime/blob/9.1.0/src/NativeScript/inlineFunctions.js#L1-L13)
+confirm the CoreGraphics declaration and available shim list (desk source).
+The [TNSWidgets header](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/platforms/ios/TNSWidgets.xcframework/ios-arm64_x86_64-simulator/TNSWidgets.framework/Headers/TNSWidgets.h#L15)
+confirms the C array declaration (desk source).

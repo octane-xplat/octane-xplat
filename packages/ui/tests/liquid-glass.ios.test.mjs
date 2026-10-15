@@ -45,6 +45,8 @@ function fixture(glassSupported) {
 		Utils: { supportsGlass: () => glassSupported },
 	}
 
+	const blurEffect = { effectWithStyle: (style) => ({ kind: 'blur', style }) }
+
 	const context = vm.createContext({
 		exports: {},
 		require: (name) => {
@@ -52,9 +54,13 @@ function fixture(glassSupported) {
 				return core
 			}
 
+			if (name === '@octane-xplat/platform/ios') {
+				return { UIBlurEffect: blurEffect }
+			}
+
 			throw new Error(`Unexpected import: ${name}`)
 		},
-		UIBlurEffect: { effectWithStyle: (style) => ({ kind: 'blur', style }) },
+		UIBlurEffect: blurEffect,
 	})
 
 	vm.runInContext(compiled, context)

@@ -243,13 +243,20 @@ function native(ios) {
 	}
 
 	const app = { idleTimerDisabled: false }
+	const platformAndroid = {
+		view: { WindowManager: { LayoutParams: { FLAG_KEEP_SCREEN_ON: 128 } } },
+	}
+
+	const platformIOS = { UIApplication: { sharedApplication: app } }
 	const { api } = load(
 		'keep-awake',
 		{
-			UIApplication: { sharedApplication: app },
-			android: { view: { WindowManager: { LayoutParams: { FLAG_KEEP_SCREEN_ON: 128 } } } },
+			UIApplication: platformIOS.UIApplication,
+			android: platformAndroid,
 		},
 		{
+			'@octane-xplat/platform/android': { android: platformAndroid },
+			'@octane-xplat/platform/ios': platformIOS,
 			'@nativescript/core': {
 				Application,
 				isIOS: ios,

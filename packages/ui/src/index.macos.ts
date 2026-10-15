@@ -65,6 +65,7 @@ export {
 	registerIndicators,
 	indicatorScope,
 } from './indicators'
+
 export { useIndicator } from './use-indicator'
 
 export type {
@@ -327,39 +328,6 @@ export { Outline } from './Outline.macos.tsrx'
 // on the shared targets resolves here too, and no platform-internal props.ts
 // names leak into the conditioned root surface.
 export type * from './index.shared'
-
-// Chat shares the same portable contracts on AppKit; browser editing
-// behavior remains in its web leaves.
-export {
-	ChatComposer,
-	ChatComposerDrawer,
-	ChatComposerInput,
-	ChatComposerTokenElement,
-	ChatDictationButton,
-	ChatLayout,
-	ChatLayoutScrollButton,
-	ChatMessage,
-	ChatMessageBubble,
-	ChatMessageList,
-	ChatMessageMetadata,
-	ChatSendButton,
-	ChatSystemMessage,
-	ChatTokenizedText,
-	ChatToolCalls,
-	createChatComposerDraft,
-	deserializeChatComposerDraft,
-	deserializeChatComposerToken,
-	serializeChatComposerDraft,
-	serializeChatComposerToken,
-	useChatComposerContext,
-	useChatComposerTokens,
-	useChatDictation,
-	useChatLayoutContext,
-	useChatNewMessages,
-	useChatPasteAsToken,
-	useChatStreamScroll,
-	useSpeechRecognition,
-} from './index.shared'
 
 export {
 	DropdownMenuItem,

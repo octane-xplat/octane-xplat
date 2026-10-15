@@ -26,6 +26,7 @@ async function load({ camera = {}, imagePicker = {}, application = {}, globals =
 			knownFolders: { temp: () => ({ path: '/tmp' }) },
 			path: { join: (...parts) => parts.join('/') },
 		},
+		'@octane-xplat/platform/android': { android: globals.android },
 		'./types': {},
 	}
 

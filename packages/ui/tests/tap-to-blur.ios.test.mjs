@@ -13,6 +13,15 @@ const compiled = ts.transpile(source, {
 
 test('iOS tap-to-blur registers lazily without NativeClass and reuses its native class', () => {
 	const context = vm.createContext({ exports: {} })
+	const ios = new Proxy({}, { get: (_target, name) => context[name] })
+	context.require = (specifier) => {
+		if (specifier === '@octane-xplat/platform/ios') {
+			return ios
+		}
+
+		throw new Error(`Unexpected module: ${specifier}`)
+	}
+
 	vm.runInContext(compiled, context)
 	const { attachTapToBlur } = context.exports
 	const registrations = []
