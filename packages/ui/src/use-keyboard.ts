@@ -14,11 +14,17 @@ export interface KeyboardEvent {
 	stopPropagation(): void
 }
 
+/**
+ * Options for `useKeyboard` — portable key press/release handlers.
+ */
 export interface UseKeyboardOptions {
 	onKeyDown?: (event: KeyboardEvent) => void
 	onKeyUp?: (event: KeyboardEvent) => void
 }
 
+/**
+ * `useKeyboard` result — `keyboardProps` to spread onto the host.
+ */
 export interface UseKeyboardResult {
 	/** DOM focusable elements on web/Linux; no shared native key bridge yet. */
 	readonly isSupported: boolean

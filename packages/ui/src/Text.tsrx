@@ -23,6 +23,11 @@ function TextScope(props: { children?: any }) {
 	return InText({ value: true, children: props.children });
 }
 
+/**
+ * Text run — the shared typography leaf. Import from `@octane-xplat/ui`.
+ *
+ * @see TextProps.
+ */
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
 	const fontWeightValue = String((props.style as any)?.fontWeight ?? '').toLowerCase();

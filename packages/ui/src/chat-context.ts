@@ -30,10 +30,20 @@ export function useChatListContext(): ChatListContextValue | null {
 	return useContext(ChatListContext)
 }
 
+/**
+ * Reads the enclosing `ChatComposer` state/actions for custom composer slots.
+ *
+ * @see ChatComposerContextValue.
+ */
 export function useChatComposerContext(): ChatComposerContextValue | null {
 	return useContext(ChatComposerContext)
 }
 
+/**
+ * Reads the enclosing `ChatLayout`'s scroll wiring — `scrollContainerRef`/`contentRef`.
+ *
+ * @see ChatLayoutContextValue.
+ */
 export function useChatLayoutContext(): ChatLayoutContextValue | null {
 	return useContext(ChatLayoutContext)
 }

@@ -12,6 +12,11 @@ import { attachTapToBlur } from "./tap-to-blur";
 // a later sibling's invisible area eats taps meant for earlier ones
 // (measured: pushed demo pages' header Row got the full 670pt root height,
 // dead under the content View's overlap). One inner child = one bounds slot.
+/**
+ * Route-level container providing the screen's safe-area/status context. Import from `@octane-xplat/ui`.
+ *
+ * @see ScreenProps, SafeAreaProps.
+ */
 export function Screen(props: ScreenProps) @{
 	<rootlayout
 		id={props.id}

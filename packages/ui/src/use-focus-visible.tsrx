@@ -8,6 +8,11 @@ export function useFocusVisible(): { isFocusVisible: boolean } {
 	return { isFocusVisible: false };
 }
 
+/**
+ * Global modality check — whether focus should show the visible-focus ring right now (keyboard modality).
+ *
+ * @see useFocusRing.
+ */
 export function isFocusVisible(): boolean {
 	return false;
 }

@@ -10,6 +10,9 @@ export interface UseClipboardOptions {
 	onCopy?: (success: boolean) => void
 }
 
+/**
+ * `useClipboard` result — `copy(text)` and `isSupported`.
+ */
 export interface UseClipboardResult {
 	/** Copy text and notify onCopy before resolving the copyText boolean result. */
 	copy(): Promise<boolean>
@@ -18,6 +21,11 @@ export interface UseClipboardResult {
 	}
 }
 
+/**
+ * Copy text to the clipboard — resolves a boolean for success.
+ *
+ * @see UseClipboardResult.
+ */
 export function useClipboard(options: UseClipboardOptions): UseClipboardResult {
 	const copy = async () => {
 		let success = false

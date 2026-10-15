@@ -511,6 +511,11 @@ export const TOKEN_TYPES = [
 	'variable',
 ] as const
 
+/**
+ * Token kinds `tokenize`/`tokenizeAsync` emit — keyword, string, comment, number, function, type, variable, operator, constant, tag, attribute, property, punctuation.
+ *
+ * @see SyntaxToken, CodeToken.
+ */
 export type SyntaxTokenType = (typeof TOKEN_TYPES)[number]
 
 /** CSS custom property carrying a token type's color. */

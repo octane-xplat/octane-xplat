@@ -12,12 +12,19 @@ export interface UseLandmarkOptions {
 	label?: string
 }
 
+/** Props `useLandmark` returns to spread on the landmark host — the resolved
+ *  ARIA role plus label and ref wiring. */
 export interface LandmarkProps {
 	accessibilityRole: string
 	accessibilityLabel?: string
 	ref?: Octane.Ref<any>
 }
 
+/**
+ * Landmark navigation wiring (React Aria `useLandmark`) — keyboard jumps between landmarks on web.
+ *
+ * @see FocusScopeProps.
+ */
 export function useLandmark(options: UseLandmarkOptions): { landmarkProps: LandmarkProps } {
 	return {
 		landmarkProps: {

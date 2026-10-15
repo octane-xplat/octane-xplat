@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'octane';
 import { Application, Screen } from '@nativescript/core';
 
+/**
+ * Current device safe-area insets in dips — `{ top, right, bottom, left }`.
+ */
 export interface SafeAreaInsets { top: number; right: number; bottom: number; left: number; }
 
 function androidActivity(): any {

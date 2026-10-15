@@ -4,6 +4,11 @@ import type { HeadingProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from './platformProps';
 
+/**
+ * Semantic heading (level 1–6). Import from `@octane-xplat/ui`.
+ *
+ * @see HeadingProps.
+ */
 export function Heading(props: HeadingProps) @{
 	const level = props.level ?? 2;
 

@@ -20,13 +20,22 @@ import {
 
 import type { ReadableStore } from './props'
 
+/**
+ * Sort request for list stores — `column` key and `direction`.
+ */
 export interface SortDescriptor {
 	column: Key
 	direction: 'ascending' | 'descending'
 }
 
+/**
+ * Async list lifecycle — idle/loading/loadingMore/sorting/error states.
+ */
 export type LoadingState = 'loading' | 'loadingMore' | 'sorting' | 'filtering' | 'error' | 'idle'
 
+/**
+ * Arguments to an `AsyncList` `load` — `filterText`, `sortDescriptor`, `cursor` for the next page, and an `AbortSignal` for cancellation.
+ */
 export interface AsyncListLoadContext<C> {
 	filterText: string
 	sortDescriptor?: SortDescriptor
@@ -34,12 +43,18 @@ export interface AsyncListLoadContext<C> {
 	signal: AbortSignal
 }
 
+/**
+ * An `AsyncList` loader's page result — `items`, optional `cursor` (next page), optional `selectedKeys`.
+ */
 export interface AsyncListLoadResult<T, C> {
 	items: T[]
 	cursor?: C
 	selectedKeys?: Selection | Iterable<Key>
 }
 
+/**
+ * Options for `useAsyncList`/`createAsyncList` — required `load`, optional client `sort`, `initial*` state (read once), `getKey`. Without `sort`, sorting reloads through `load` (server-side).
+ */
 export interface AsyncListOptions<T, C = string> {
 	load: (state: AsyncListLoadContext<C>) => Promise<AsyncListLoadResult<T, C>>
 	/** Client-side sort; when omitted, sort() reloads through `load` with the
@@ -55,6 +70,9 @@ export interface AsyncListOptions<T, C = string> {
 	getKey?: (item: T) => Key
 }
 
+/**
+ * Immutable snapshot of an `AsyncListData` — `items`, `filterText`, `selectedKeys`, `sortDescriptor`, `loadingState`, and `error`.
+ */
 export interface AsyncListSnapshot<T> {
 	readonly items: readonly T[]
 	readonly filterText: string
@@ -67,6 +85,9 @@ export interface AsyncListSnapshot<T> {
 	readonly hasMore: boolean
 }
 
+/**
+ * React Aria `useAsyncList`-compatible store — paged `load`, optional client `sort`, filter text, selection, and `reload`/`loadMore`. The reactive read is `useAsyncList`/`useStore`.
+ */
 export interface AsyncListData<T>
 	extends ReadableStore<AsyncListSnapshot<T>>,
 		Omit<ListData<T>, 'getSnapshot' | 'subscribe' | 'setFilterText'> {

@@ -9,6 +9,9 @@ import type { ReadableStore } from './props'
 
 export type { Key, Selection }
 
+/**
+ * One node in a `TreeData` store — wraps the item `value` with `key`, `parentKey`, and resolved `children`.
+ */
 export interface TreeNode<T> {
 	readonly key: Key
 	readonly parentKey: Key | null
@@ -16,6 +19,9 @@ export interface TreeNode<T> {
 	readonly children: readonly TreeNode<T>[]
 }
 
+/**
+ * Options for `useTreeData`/`createTreeData` — `initialItems`, `initialSelectedKeys`, `getKey`, `getChildren`. `initial*` values are read once at store creation.
+ */
 export interface TreeDataOptions<T> {
 	/** All `initial*` options are read once, when the store is created —
 	 *  `useTreeData` builds the store on first render and ignores later
@@ -26,11 +32,17 @@ export interface TreeDataOptions<T> {
 	getChildren?: (item: T) => Iterable<T>
 }
 
+/**
+ * Immutable snapshot of a `TreeData` — nodes and expansion at read time.
+ */
 export interface TreeSnapshot<T> {
 	readonly items: readonly TreeNode<T>[]
 	readonly selectedKeys: Selection
 }
 
+/**
+ * Reactive tree collection store backing `TreeList` — tree `items` plus `selectedKeys`, with insert/remove/move/update mutators and keyed `getItem`/`getChildren`. Mirrors React Aria's useTreeData; the reactive read is `useTreeData`/`useStore` — property reads on the store itself do not subscribe.
+ */
 export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
 	/** Snapshot reads — they never subscribe; `useTreeData`/`useStore` is
 	 *  the reactive read. */

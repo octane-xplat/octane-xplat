@@ -3,6 +3,11 @@ import type { ButtonGroupProps } from './props'
 import { ButtonGroupProvider } from './button-group-context'
 import { cx } from '@octane-xplat/lib'
 
+/**
+ * Connected button row — shared surface, one tab stop, arrow-key navigation on web. Import from `@octane-xplat/ui`.
+ *
+ * @see ButtonGroupProps.
+ */
 export function ButtonGroup(props: ButtonGroupProps) @{
 	const orientation = props.orientation ?? 'horizontal'
 	const value = { orientation, isDisabled: !!props.isDisabled, size: props.size ?? 'md', position: 'only' as const }

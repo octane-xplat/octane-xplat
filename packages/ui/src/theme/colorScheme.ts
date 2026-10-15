@@ -4,6 +4,11 @@ import { Application } from '@nativescript/core'
 export type { ColorScheme } from '../props'
 import type { ColorScheme } from '../props'
 
+/**
+ * Reads the resolved color scheme — 'light' or 'dark'.
+ *
+ * @see ColorScheme, getThemePreference.
+ */
 export function getColorScheme(): ColorScheme {
 	// systemAppearance() is deprecated in favor of primaryWindow, but the
 	// primary window isn't guaranteed during early boot — fall back.

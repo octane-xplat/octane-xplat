@@ -13,6 +13,11 @@ import type { Store, StoreSnapshot } from './props'
 
 export type { ReadableStore, Store, StoreSnapshot } from './props'
 
+/**
+ * Create a writable reactive `Store`. Reads via `useStore` stay live on every target; writing calls `set`/`update`.
+ *
+ * @see Store, ReadableStore, useStore.
+ */
 export function createStore<T>(initial: T): Store<T> {
 	let value = initial
 	const listeners = new Set<() => void>()

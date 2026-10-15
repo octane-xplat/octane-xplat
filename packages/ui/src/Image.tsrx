@@ -106,6 +106,11 @@ function clipImageHost(host: any): void {
 	});
 }
 
+/**
+ * Raster image with placeholder/fallback handling. Import from `@octane-xplat/ui`.
+ *
+ * @see ImageProps for src grammar, sizing, and fit.
+ */
 export function Image(props: ImageProps) @{
 	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null;
 	const srcString = sources ? '' : (props.src as string);

@@ -47,6 +47,9 @@ function getWeekNumber(iso: ISODateString): number {
 // Month grid
 // ---------------------------------------------------------------------------
 
+/**
+ * One cell of a `CalendarMonthGrid` — ISO `date` plus in-range/in-month/selected flags.
+ */
 export interface CalendarDay {
 	readonly date: PlainDate
 	readonly iso: ISODateString
@@ -60,6 +63,9 @@ export interface CalendarDay {
 	readonly isLastWeekOfMonth: boolean
 }
 
+/**
+ * A computed month for `Calendar` — weeks of `CalendarDay` cells.
+ */
 export interface CalendarMonthGrid {
 	readonly year: number
 	readonly month: number

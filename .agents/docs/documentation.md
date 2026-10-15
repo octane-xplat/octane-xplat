@@ -117,6 +117,36 @@ docs. A link to another example does not replace the paragraph's snippet.
 Review API explanations paragraph by paragraph: is the usage shown, is the
 code valid, and is this how we recommend writing it?
 
+## Declaration comments
+
+Every public export reachable from a package barrel — components, prop
+interfaces, types, hooks, services, and utilities — carries a doc comment
+beside its declaration. Coding agents read these directly; an answer beside
+the declaration beats scattered prose. For `packages/ui`, that means every
+export in `props.ts` and every declaration re-exported through
+`index.shared.ts` or a platform subpath.
+
+A declaration comment covers, as applicable:
+
+- What the type/component represents and which package/subpath owns it.
+- Defaults as `@default` — cite the resolved value, not "optional".
+- Units explicitly: px/dips, spacing steps (1 step = 4px/dip), milliseconds,
+  percentages, ISO dates/times, Unix seconds vs milliseconds.
+- Platform divergence and unsupported behavior — name the target and what
+  happens instead (explicit subset, capability result, or failure).
+- Errors/diagnostics and fallback behavior where applicable.
+- Prerequisites and related APIs via `@see`.
+- One minimal `@example` on composable component props and public
+  operations, importing from the canonical path (`@octane-xplat/ui` or the
+  owning subpath, never a relative file). Snippets follow the same validity
+  rules as docs prose — verify them with a typecheck.
+- Migration aliases and legacy names get `@deprecated` naming the canonical
+  replacement, both on the declaration and on its barrel re-export.
+
+Internal plumbing stays out of the comment unless it is part of the public
+contract (for example, `_`-prefixed fields exported for hand-built
+integrations).
+
 ## Workflow coverage
 
 [Recipes](../../recipes/README.md) define the non-trivial developer workflows that

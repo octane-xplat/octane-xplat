@@ -12,6 +12,9 @@ export interface UseGridListOptions {
 	rowSelector?: string;
 }
 
+/**
+ * `useGridList` result — resolved selection, item count, `isSupported` flag, and the handlers/ref the leaf wires up.
+ */
 export interface UseGridListResult {
 	gridRef: Octane.Ref<any>
 	/** Whether the grid keyboard-navigation machinery is wired. Arrow-key
@@ -24,6 +27,11 @@ export interface UseGridListResult {
 	}
 }
 
+/**
+ * Internal machinery behind `GridList` — returns selection/keyboard state plus `isSupported` (false for grid keyboard nav on native). Prefer the `GridList` component; this hook is for custom integrations.
+ *
+ * @see GridListProps.
+ */
 export function useGridList(options: UseGridListOptions = {}): UseGridListResult {
 	return { gridRef: useRef(null), isSupported: false, gridProps: {} }
 }

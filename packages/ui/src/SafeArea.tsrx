@@ -11,6 +11,11 @@ import {
 	resolveSafeAreaEdges,
 } from './inset-consumption';
 
+/**
+ * Insets content away from notches/system bars by consuming the given edges. Import from `@octane-xplat/ui`.
+ *
+ * @see SafeAreaProps, useSafeAreaInsets.
+ */
 export function SafeArea(props: SafeAreaProps) @{
 	const measured = useSafeAreaInsets();
 	const ancestor = useContext(ConsumedInsetsContext);

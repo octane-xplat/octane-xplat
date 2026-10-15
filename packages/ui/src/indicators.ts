@@ -31,6 +31,11 @@ export const defaultIndicators: { [N in IndicatorName]: IndicatorComponent<Indic
 const overrides = createStore<IndicatorRegistry>({})
 export const indicatorOverrides: ReadableStore<IndicatorRegistry> = overrides
 
+/**
+ * Replace one named indicator visual (e.g. 'checkbox', 'radio', 'check'). The component is checked against the family's state space.
+ *
+ * @see IndicatorName, IndicatorProps, IndicatorComponent.
+ */
 export function registerIndicator<N extends IndicatorName>(
 	name: N,
 	component: IndicatorComponent<IndicatorMap[N]>,
@@ -38,6 +43,11 @@ export function registerIndicator<N extends IndicatorName>(
 	overrides.update((prev) => ({ ...prev, [name]: component }) as IndicatorRegistry)
 }
 
+/**
+ * Register several indicator replacements at once — `Partial<Record<IndicatorName, IndicatorComponent>>`.
+ *
+ * @see registerIndicator.
+ */
 export function registerIndicators(registry: IndicatorRegistry): void {
 	overrides.update((prev) => {
 		const next = { ...prev } as Record<string, IndicatorComponent>

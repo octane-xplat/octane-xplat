@@ -21,6 +21,11 @@ function ringSvg(size: number, strokeWidth: number, ratio: number, color: string
 	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">${track}${arc}</svg>`;
 }
 
+/**
+ * Circular gauge for a measured quantity (storage, rating) — not task progress. Import from `@octane-xplat/ui`.
+ *
+ * @see MeterProps; ProgressBarProps for operations.
+ */
 export function Meter(props: MeterProps) @{
 	const min = props.minValue ?? 0;
 	const max = props.maxValue ?? props.max ?? 100;

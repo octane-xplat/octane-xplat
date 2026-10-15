@@ -101,10 +101,27 @@ export function createIconRegistry(): IconRegistry {
  */
 export const defaultIconRegistry = createIconRegistry()
 
+/**
+ * Register one icon glyph under a name for `Icon`/`icon` props.
+ *
+ * @see IconGlyph, registerIcons, IconProps.
+ */
 export function registerIcon(name: string, glyph: IconGlyph): void {
 	defaultIconRegistry.registerIcon(name, glyph)
 }
 
+/**
+ * Register a name→glyph map for `Icon`/`icon` props.
+ *
+ * @example
+ * ```tsx
+ * import { registerIcons, Icon } from '@octane-xplat/ui'
+ *
+ * registerIcons({ 'xplat-search': { markup: '<svg/>' } })
+ * <Icon name="xplat-search" />
+ * ```
+ * @see IconGlyph, IconRegistry.
+ */
 export function registerIcons(record: Record<string, IconGlyph>): void {
 	defaultIconRegistry.registerIcons(record)
 }

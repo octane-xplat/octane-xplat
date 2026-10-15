@@ -185,6 +185,24 @@ export type GridTrack = number | 'auto' | '*' | `${number}` | `${number}*`
  *  `[Grid]` diagnostic and treats the token as `'auto'`. */
 export type GridTrackList = string | readonly GridTrack[]
 
+/** Track-based container (Astryx `Grid`). `rows`/`columns` take the bounded
+ *  `GridTrackList` grammar; children place themselves with `LayoutChildProps`
+ *  `row`/`col`/`rowSpan`/`colSpan` (zero-based) or flow into free cells in
+ *  row order. Track tokens outside the grammar report a `[Grid]` diagnostic
+ *  and fall back to `'auto'`. For main-axis flow use `Stack`; for overlap
+ *  use `Absolute`.
+ *
+ *  @example
+ *  ```tsx
+ *  import { Grid, View } from '@octane-xplat/ui'
+ *
+ *  <Grid rows="auto,*" columns={[120, '*']}>
+ *  	<View row={0} col={0} rowSpan={2}>{nav}</View>
+ *  	<View row={0} col={1}>{header}</View>
+ *  	<View row={1} col={1}>{content}</View>
+ *  </Grid>
+ *  ```
+ *  @see GridTrackList for the track grammar, LayoutChildProps for placement. */
 export interface GridProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -204,6 +222,8 @@ export type SpacingStep = 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10
 /** Numbers are dips (px on web); strings are used as-is ('100%', '12em'). */
 export type SizeValue = number | string
 
+/** Flow direction for `Stack` — also selects which of `hAlign`/`vAlign` is
+ *  the main axis. */
 export type StackDirection = 'horizontal' | 'vertical'
 
 /** Main-axis alignment — mirrors `justify-content` (start/center/end plus
@@ -218,6 +238,7 @@ export type StackCrossAlignment = 'start' | 'center' | 'end' | 'stretch'
  *  cross-axis when vertical). */
 export type StackAlignment = StackMainAlignment | StackCrossAlignment
 
+/** `Stack` line wrapping — mirrors CSS `flex-wrap`. @default 'nowrap' */
 export type StackWrap = 'nowrap' | 'wrap' | 'wrap-reverse'
 
 /** Padding props shared by the flow layout components. Per edge, most
@@ -235,6 +256,8 @@ export interface StackPaddingProps {
 	paddingBlockEnd?: SpacingStep
 }
 
+/** Explicit size constraints shared by the flow layout components. Numbers
+ *  are dips (px on web); strings pass through as CSS-ish lengths. */
 export interface StackSizeProps {
 	width?: SizeValue
 	height?: SizeValue
@@ -247,7 +270,19 @@ export interface StackSizeProps {
  *  main/cross axis by direction; `justify`/`align` are the CSS-named aliases.
  *  `as` picks the web element tag; native always renders the platform
  *  container (no semantic HTML exists there). `isScrollable` wraps content
- *  in a ScrollView on native and overflow:auto on web. */
+ *  in a ScrollView on native and overflow:auto on web.
+ *
+ *  @example
+ *  ```tsx
+ *  import { Stack, Heading, FormLayout } from '@octane-xplat/ui'
+ *
+ *  <Stack direction="vertical" gap={2} padding={4} vAlign="start">
+ *  	<Heading>Settings</Heading>
+ *  	<FormLayout>{fields}</FormLayout>
+ *  </Stack>
+ *  ```
+ *  @see HStackProps and VStackProps for the axis-locked presets,
+ *  StackItemProps for per-child overrides, AbsoluteProps for overlap. */
 export interface StackProps extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -272,13 +307,27 @@ export interface StackProps extends StackPaddingProps, StackSizeProps, Accessibi
 	onSwipe?: (e: SwipeEvent) => void
 }
 
+/** Cross-axis self-alignment for a `StackItem` — mirrors `align-self`. */
 export type StackItemCrossAlignSelf = 'start' | 'center' | 'end' | 'stretch'
+/** `StackItem` sizing on the main axis: `'static'` keeps content size,
+ *  `'fill'` grows into the stack's remaining space (shared evenly). */
 export type StackItemSize = 'static' | 'fill'
 
 /** Per-child overrides inside a `Stack`. `size="fill"` grows into the
  *  remaining space (splits evenly between fill siblings). On web the item
  *  carries the flex `min-width/min-height: 0` reset so a fill child can
- *  become a scroll region; native flex children already shrink to zero. */
+ *  become a scroll region; native flex children already shrink to zero.
+ *
+ *  @example
+ *  ```tsx
+ *  import { Stack, StackItem } from '@octane-xplat/ui'
+ *
+ *  <Stack direction="horizontal">
+ *  	<StackItem>{sidebar}</StackItem>
+ *  	<StackItem size="fill">{detail}</StackItem>
+ *  </Stack>
+ *  ```
+ *  @see StackProps */
 export interface StackItemProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -300,19 +349,53 @@ export interface StackItemProps extends AccessibilityProps {
 }
 
 /** Horizontal flow stack — `Stack` with `direction="horizontal"`. `hAlign`
- *  is the main axis, `vAlign` the cross axis. */
+ *  is the main axis, `vAlign` the cross axis.
+ *
+ * @example
+ * ```tsx
+ * import { HStack, Icon, Text } from '@octane-xplat/ui'
+ *
+ * <HStack gap={2} vAlign="center">
+ * 	<Icon name="check" />
+ * 	<Text>{label}</Text>
+ * </HStack>
+ * ```
+ * @see StackProps, VStackProps. */
 export interface HStackProps extends Omit<StackProps, 'direction' | 'hAlign' | 'vAlign'> {
 	hAlign?: StackMainAlignment
 	vAlign?: StackCrossAlignment
 }
 
 /** Vertical flow stack — `Stack` with `direction="vertical"`. `vAlign` is
- *  the main axis, `hAlign` the cross axis. */
+ *  the main axis, `hAlign` the cross axis.
+ *
+ * @example
+ * ```tsx
+ * import { VStack } from '@octane-xplat/ui'
+ *
+ * <VStack gap={3} padding={4}>
+ * 	{rows}
+ * </VStack>
+ * ```
+ * @see StackProps, HStackProps. */
 export interface VStackProps extends Omit<StackProps, 'direction' | 'hAlign' | 'vAlign'> {
 	hAlign?: StackCrossAlignment
 	vAlign?: StackMainAlignment
 }
 
+/** Overlap layer — children position themselves with `LayoutChildProps` `left`/`top` (dips, measured from the container's top-left) or `dock` to an edge; later siblings paint above earlier ones. For main-axis flow use `Stack`; for track placement use `Grid`.
+ *
+ * @example
+ * ```tsx
+ * import { Absolute, View } from '@octane-xplat/ui'
+ *
+ * <Absolute>
+ * 	<View left={12} top={12}>{badge}</View>
+ * 	<View dock="bottom">{caption}</View>
+ * </Absolute>
+ * ```
+ * @see StackProps for flow layout, GridProps for tracks.
+ */
 export interface AbsoluteProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -326,7 +409,17 @@ export interface AbsoluteProps extends AccessibilityProps {
 /** Interactive glass surface — the element root IS the platform's glass
  *  effect view (NS `LiquidGlass`, a UIVisualEffectView hosting children).
  *  Real material on iOS 26+; inert layout on Android and older iOS;
- *  backdrop-filter approximation on web. */
+ *  backdrop-filter approximation on web.
+ *
+ * @example
+ * ```tsx
+ * import { LiquidGlass } from '@octane-xplat/ui/ios'
+ *
+ * <LiquidGlass variant="regular" interactive>
+ * 	{content}
+ * </LiquidGlass>
+ * ```
+ * @see GlassConfig, LiquidGlassContainerProps. */
 export interface LiquidGlassProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -346,7 +439,18 @@ export interface LiquidGlassProps extends LayoutChildProps {
 
 /** Merged-glass region — sibling glass elements inside morph together
  *  across `spacing` dips (NS `LiquidGlassContainer`, an AbsoluteLayout:
- *  children position via left/top). */
+ *  children position via left/top).
+ *
+ * @example
+ * ```tsx
+ * import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
+ *
+ * <LiquidGlassContainer spacing={16}>
+ * 	<LiquidGlass left={0} top={0}>{a}</LiquidGlass>
+ * 	<LiquidGlass left={64} top={0}>{b}</LiquidGlass>
+ * </LiquidGlassContainer>
+ * ```
+ * @see LiquidGlassProps, GlassConfig. */
 export interface LiquidGlassContainerProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -359,6 +463,20 @@ export interface LiquidGlassContainerProps extends LayoutChildProps {
 	web?: PlatformProps
 }
 
+/** Flexible empty space inside a `Stack` — grows along the main axis to push siblings apart (flex-grow:1). Takes no children; fixed gaps belong in the container's `gap`/`padding`.
+ *
+ * @example
+ * ```tsx
+ * import { HStack, Spacer, Text } from '@octane-xplat/ui'
+ *
+ * <HStack>
+ * 	<Text>Inbox</Text>
+ * 	<Spacer />
+ * 	<Text>{count}</Text>
+ * </HStack>
+ * ```
+ * @see StackProps
+ */
 export interface SpacerProps {
 	className?: ClassName
 	style?: StyleProp
@@ -399,6 +517,18 @@ export interface AccessibilityProps {
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 }
 
+/** Neutral host container — a `div` on web, a NativeScript view on iOS/Android, an AppKit view on macOS. Carries the shared layout-child, flex, accessibility, and test-id props; parent layouts consume the placement metadata (`row`/`col`, `dock`, `left`/`top`, `flexGrow`). The escape bags `ios`/`android`/`web` apply after shared props.
+ *
+ * @example
+ * ```tsx
+ * import { View } from '@octane-xplat/ui'
+ *
+ * <View style={{ borderRadius: 8 }} gap={8}>
+ * 	{children}
+ * </View>
+ * ```
+ * @see StackProps for flow layout, AccessibilityProps, LayoutChildProps.
+ */
 export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -414,6 +544,8 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps, Accessi
 	web?: PlatformProps
 }
 
+/** The `Row` leaf's contract — the same layout/flex prop set as `View`. `Row` itself is not exported on the public barrel; use `HStack` (or `Stack` with `direction="horizontal"`) for horizontal flow. Exported for wrappers that forward to the leaf.
+ */
 export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -454,6 +586,16 @@ export type Role =
 	| 'menuitemradio'
 	| 'meter'
 
+/** Text label — a `span`-class text host (NS `Label`/`TextView` on native). `numberOfLines` truncates with an ellipsis (web uses line-clamp); `ellipsize` shrinks the box instead of wrapping. Typography comes from `className`/theme tokens; use `Heading` for semantic levels and `RichText`/`RichTextSpan` for mixed-format runs.
+ *
+ * @example
+ * ```tsx
+ * import { Text } from '@octane-xplat/ui'
+ *
+ * <Text numberOfLines={2}>{summary}</Text>
+ * ```
+ * @see HeadingProps, RichTextProps.
+ */
 export interface TextProps extends LayoutChildProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -482,7 +624,18 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
 }
 
 /** Inline rich text container. Children should be RichTextSpan components so
- * the native leaf can preserve each run as a NativeScript Span. */
+ * the native leaf can preserve each run as a NativeScript Span.
+ *
+ * @example
+ * ```tsx
+ * import { RichText, RichTextSpan } from '@octane-xplat/ui'
+ *
+ * <RichText>
+ * 	<RichTextSpan>Plain </RichTextSpan>
+ * 	<RichTextSpan style={{ fontWeight: 'bold' }}>bold</RichTextSpan>
+ * </RichText>
+ * ```
+ * @see RichTextSpanProps, TextProps. */
 export interface RichTextProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -497,7 +650,8 @@ export interface RichTextProps extends LayoutChildProps {
 }
 
 /** One styled or tappable inline run inside RichText. `text` is an explicit
- * native-safe escape hatch; a single string child is also accepted. */
+ * native-safe escape hatch; a single string child is also accepted.
+ * @see RichTextProps for the enclosing container and a composition example. */
 export interface RichTextSpanProps {
 	className?: ClassName
 	style?: StyleProp
@@ -510,6 +664,18 @@ export interface RichTextSpanProps {
 	web?: PlatformProps
 }
 
+/** Portable interaction primitive — a host view that reports `onPress` (tap/click/Enter), `onLongPress` (~500ms hold), `onDoublePress`, press lifecycle (`onPressIn`/`onPressOut`), and gesture events (`onPan`, native-only `onSwipe`). `disabled` suppresses activation; `hitSlop` expands the tappable area in dips. Prefer `Button` for labeled actions — Pressable is the unstyled base.
+ *
+ * @example
+ * ```tsx
+ * import { Pressable, Text } from '@octane-xplat/ui'
+ *
+ * <Pressable onPress={select} accessibilityRole="button">
+ * 	<Text>{title}</Text>
+ * </Pressable>
+ * ```
+ * @see ButtonProps, PanEvent.
+ */
 export interface PressableProps extends LayoutChildProps, FlexContainerProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -547,12 +713,16 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
 	web?: PlatformProps
 }
 
+/** Imperative handle delivered through `ref` on `TextInput`, `TextArea`, and `SearchInput` — `focus`/`blur` plus `native`, the raw platform host (HTMLInputElement on web, NS TextField/TextView on native) for escape-hatch access.
+ */
 export interface TextInputHandle {
 	focus(): void
 	blur(): void
 	native: HostElement
 }
 
+/** Severity of a field status message — `'warning'`, `'error'`, or `'success'`; drives the status glyph and tone.
+ */
 export type FieldStatusType = 'warning' | 'error' | 'success'
 
 /** Portable validation status shared by field controls. */
@@ -561,6 +731,8 @@ export interface FieldStatus {
 	message?: string
 }
 
+/** Shared control size scale for field controls (`'sm' | 'md' | 'lg'`). Drives height, text size, and padding; a `FieldGroup`/`ButtonGroup` context can supply it when the prop is unset.
+ */
 export type FieldControlSize = 'sm' | 'md' | 'lg'
 
 /** How a field status message is placed (Astryx parity):
@@ -571,7 +743,11 @@ export type FieldControlSize = 'sm' | 'md' | 'lg'
  *    surfaces — `tooltip` degrades to `detached` there. */
 export type FieldStatusVariant = 'attached' | 'detached' | 'tooltip'
 
-/** Shared, platform-neutral field vocabulary. */
+/** Shared, platform-neutral field vocabulary — label, description, status,
+ *  required/disabled/loading state, and sizing. Carried by every field
+ *  control (`TextInput`, `Switch`, `Select`, date inputs, ...).
+ *  @see TextInputProps for a concrete control and preferred composition,
+ *  FieldStatus for the `status` shape. */
 export interface FieldControlProps {
 	label?: string
 	description?: string
@@ -599,6 +775,16 @@ export interface FieldControlProps {
 	width?: number | string
 }
 
+/** Single-line text entry (chrome-reset OS control). State is controlled by `value`+`onChange` or uncontrolled via `defaultValue`; `value` wins when both are set, `onChange` reports every user edit, and `onSubmit` fires on the return key (see `returnKeyType`). `secure` masks input; `hasClear` adds a clear affordance that fires `onChange('')` then `onClear`. The field vocabulary (`label`, `description`, `status`, `isDisabled`, ...) comes from `FieldControlProps`; the `ref` handle is `TextInputHandle`.
+ *
+ * @example
+ * ```tsx
+ * import { TextInput } from '@octane-xplat/ui'
+ *
+ * <TextInput label="Email" value={email} onChange={setEmail} keyboardType="email" />
+ * ```
+ * @see FieldControlProps for the field vocabulary, TextAreaProps for multi-line, SearchInputProps for search.
+ */
 export interface TextInputProps extends FieldControlProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -631,6 +817,16 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	web?: PlatformProps
 }
 
+/** Multi-line text entry — `TextInput` minus the clear affordance. `rows` sets the height in text rows; `autoGrow` grows with content up to `maxRows` rows (native TextViews grow by default, so `autoGrow` is what keeps the platforms matching). Submit semantics differ: native fires `onSubmit` only when `returnKeyType` is `done`/`send` (other keys insert newlines), web on Cmd/Ctrl+Enter.
+ *
+ * @example
+ * ```tsx
+ * import { TextArea } from '@octane-xplat/ui'
+ *
+ * <TextArea label="Notes" value={notes} onChange={setNotes} autoGrow maxRows={8} />
+ * ```
+ * @see TextInputProps.
+ */
 export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClear'> {
 	/** Submit on native only when `returnKeyType` is `done` or `send`; other
 	 * returns insert newlines because TextView emits returnPress per newline.
@@ -654,7 +850,15 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
  *  affordance, normalized: the web leaf is `<input type="search">` with the
  *  engine's own clear button hidden (the leaf draws the same one native
  *  gets), the native leaf is a styled TextField with `returnKeyType`
- *  `'search'`. Not UISearchBar — OS search chrome is deliberately absent. */
+ *  `'search'`. Not UISearchBar — OS search chrome is deliberately absent.
+ *
+ * @example
+ * ```tsx
+ * import { SearchInput } from '@octane-xplat/ui'
+ *
+ * <SearchInput placeholder="Search…" value={query} onChange={setQuery} onSubmit={runSearch} />
+ * ```
+ * @see TextInputProps. */
 export interface SearchInputProps extends FieldControlProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -703,7 +907,11 @@ export type ISOTimeString =
  *  wall-clock values, not instants. */
 export type ISODateTimeString = `${ISODateString}T${ISOTimeString}`
 
+/** Weekday index — `0` is Sunday (the `Date.getDay()` ordering). Used by `weekStartsOn` on Calendar and the date inputs.
+ */
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+/** Three-letter weekday name accepted by `weekStartsOn` as an alternative to the numeric `DayOfWeek`.
+ */
 export type DayOfWeekName = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'
 
 /** Inclusive ISO date range. */
@@ -740,9 +948,17 @@ export type InputPresentation =
 	| 'adaptive-bottom-sheet'
 	| 'adaptive-native'
 
+/** `InputPresentation` minus `'text-input'` — the surfaces available to inputs that always open a picker.
+ */
 export type PickerPresentation = Exclude<InputPresentation, 'text-input'>
+/** Picker surfaces a `DateInput` can open — see `InputPresentation` for each value's meaning.
+ */
 export type DateInputPresentation = PickerPresentation
+/** Surfaces a `TimeInput` can open, including `'text-input'` (typed entry only, no picker). See `InputPresentation`.
+ */
 export type TimeInputPresentation = InputPresentation
+/** Picker surfaces a `DateTimeInput` can open — see `InputPresentation`.
+ */
 export type DateTimeInputPresentation = PickerPresentation
 
 /** @deprecated Prefer `presentation`; kept for upstream source parity —
@@ -751,7 +967,17 @@ export type DateTimeInputPresentation = PickerPresentation
  *  wins when both are set. */
 export type NativePickerPolicy = 'touch' | 'always' | 'never'
 
-/** Imperative calendar navigation — obtained via `ref`. */
+/** Imperative calendar navigation — obtained via `ref`.
+ *
+ * @example
+ * ```tsx
+ * import { Calendar, type CalendarHandle } from '@octane-xplat/ui'
+ *
+ * const cal = useRef<CalendarHandle>()
+ * cal.current?.navigateTo('2026-06-01')
+ * <Calendar ref={cal} value={day} onChange={setDay} />
+ * ```
+ */
 export interface CalendarHandle {
 	navigateTo(date: ISODateString): void
 }
@@ -826,6 +1052,8 @@ interface CalendarBaseProps extends DateLocaleProps {
 	web?: PlatformProps
 }
 
+/** Single-day `Calendar` — `value`/`defaultValue`/`onChange` carry one `ISODateString`; `onChange` also passes a local-midnight `Date` convenience. `mode` may be omitted (`'single'` is the default).
+ */
 export interface CalendarSingleProps extends CalendarBaseProps {
 	mode?: 'single'
 	value?: ISODateString
@@ -834,6 +1062,8 @@ export interface CalendarSingleProps extends CalendarBaseProps {
 	onChange?: (value: ISODateString, valueAsDate: Date) => void
 }
 
+/** Range `Calendar` — `mode="range"` is required; `value`/`defaultValue`/`onChange` carry an inclusive `DateRange`. `minRangeSpan`/`maxRangeSpan` bound the selectable span.
+ */
 export interface CalendarRangeProps extends CalendarBaseProps {
 	mode: 'range'
 	value?: DateRange
@@ -843,37 +1073,99 @@ export interface CalendarRangeProps extends CalendarBaseProps {
 
 /** A self-drawn month calendar — same value model on every target. Keyboard
  *  grid navigation is web; native hardware-key delivery is not implemented. Native cells announce through
- *  `accessibility*` props rather than ARIA. */
+ *  `accessibility*` props rather than ARIA.
+ *
+ * @example
+ * ```tsx
+ * import { Calendar } from '@octane-xplat/ui'
+ *
+ * <Calendar value={day} onChange={(iso) => setDay(iso)} min="2026-01-01" />
+ *
+ * <Calendar mode="range" value={range} onChange={setRange} maxRangeSpan={14} />
+ * ```
+ * @see CalendarSingleProps, CalendarRangeProps, DateInputProps.
+ */
 export type CalendarProps = CalendarSingleProps | CalendarRangeProps
 
+/** Built-in closed-field date formats: `'date'` (short), `'date_long'`, `'date_weekday'`, `'system_date'` (the platform's own short-date style). A custom mapper `(iso) => string` is also accepted.
+ */
 export type SharedDateFormat = 'date' | 'date_long' | 'date_weekday' | 'system_date'
 
 // Public Astryx names stay available even where the shared field layer owns
 // the underlying type contract.
+/** Astryx name for `FieldControlSize` on `DateInput`.
+ */
 export type DateInputSize = FieldControlSize
+/** Astryx name for `FieldControlSize` on `TimeInput`.
+ */
 export type TimeInputSize = FieldControlSize
+/** Astryx name for `FieldControlSize` on `DateTimeInput`.
+ */
 export type DateTimeInputSize = FieldControlSize
+/** Astryx name for `FieldControlSize` on `DateRangeInput`.
+ */
 export type DateRangeInputSize = FieldControlSize
+/** Closed-field format for `DateInput` — a `SharedDateFormat` name or `(iso: ISODateString) => string`.
+ */
 export type DateInputFormat = SharedDateFormat
+/** Clock convention for `TimeInput` — `'12h'` (AM/PM) or `'24h'`. @default '12h'
+ */
 export type TimeInputHourFormat = '12h' | '24h'
+/** Clock convention for `DateTimeInput`'s time segment — same values as `TimeInputHourFormat`.
+ */
 export type DateTimeInputHourFormat = TimeInputHourFormat
+/** Allowed arrow-key minute steps for `DateTimeInput`'s time segment (minutes). @default 1
+ */
 export type DateTimeInputTimeIncrement = 1 | 5 | 10 | 15 | 30
+/** Allowed cadences (minutes) for `DateTimeInput`'s preset-time option list.
+ */
 export type DateTimeInputTimeOptionInterval = 5 | 10 | 15 | 30 | 60
+/** Astryx name for the deprecated `nativePicker` policy — see `NativePickerPolicy`. @deprecated Use `presentation`.
+ */
 export type DateInputNativePicker = NativePickerPolicy
+/** Astryx name for the deprecated `nativePicker` policy — see `NativePickerPolicy`. @deprecated Use `presentation`.
+ */
 export type TimeInputNativePicker = NativePickerPolicy
+/** Astryx name for the deprecated `nativePicker` policy — see `NativePickerPolicy`. @deprecated Use `presentation`.
+ */
 export type DateTimeInputNativePicker = NativePickerPolicy
+/** Astryx name for `FieldStatus` on `DateInput`.
+ */
 export type DateInputStatus = FieldStatus
+/** Astryx name for `FieldStatusType` on `DateInput`.
+ */
 export type DateInputStatusType = FieldStatusType
+/** Astryx name for `FieldStatus` on `TimeInput`.
+ */
 export type TimeInputStatus = FieldStatus
+/** Astryx name for `FieldStatusType` on `TimeInput`.
+ */
 export type TimeInputStatusType = FieldStatusType
+/** Astryx name for `FieldStatus` on `DateTimeInput`.
+ */
 export type DateTimeInputStatus = FieldStatus
+/** Astryx name for `FieldStatusType` on `DateTimeInput`.
+ */
 export type DateTimeInputStatusType = FieldStatusType
+/** Astryx name for `FieldStatus` on `DateRangeInput`.
+ */
 export type DateRangeInputStatus = FieldStatus
+/** Astryx name for `FieldStatusType` on `DateRangeInput`.
+ */
 export type DateRangeInputStatusType = FieldStatusType
 /** Typed date entry + calendar. The default `presentation` is
  *  `adaptive-native`: fine pointers get the typed field + calendar popover,
  *  coarse pointers the platform picker (web) or the self-drawn sheet
- *  (native). */
+ *  (native).
+ *
+ * @example
+ * ```tsx
+ * import { DateInput } from '@octane-xplat/ui'
+ *
+ * <DateInput label="Due" value={due} onChange={setDue} min="2026-01-01" hasClear />
+ * ```
+ * @see CalendarProps, DateRangeInputProps, InputPresentation.
+ */
 export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -909,6 +1201,16 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	web?: PlatformProps
 }
 
+/** Wall-clock time entry (`ISOTimeString`, `HH:MM[:SS]`). Controlled by `value`+`onChange` (commits report `undefined` when the field clears); `hasSeconds` adds a seconds segment, `increment` is the arrow-key minute step, and `presentation` picks the surface — including `'text-input'` for typed entry with no picker. `nativePicker` is deprecated; use `presentation`.
+ *
+ * @example
+ * ```tsx
+ * import { TimeInput } from '@octane-xplat/ui'
+ *
+ * <TimeInput label="Starts" value={start} onChange={setStart} increment={15} />
+ * ```
+ * @see DateInputProps, InputPresentation.
+ */
 export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -943,7 +1245,16 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 }
 
 /** Date and time under one label — a date segment and a time segment whose
- *  commits combine into the ISODateTimeString value. */
+ *  commits combine into the ISODateTimeString value.
+ *
+ * @example
+ * ```tsx
+ * import { DateTimeInput } from '@octane-xplat/ui'
+ *
+ * <DateTimeInput label="Starts at" value={startsAt} onChange={setStartsAt} timeOptionInterval={15} />
+ * ```
+ * @see DateInputProps, TimeInputProps.
+ */
 export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -990,7 +1301,16 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 }
 
 /** Trigger + range calendar. Always controlled: `value` is the committed
- *  range or null, `onChange` reports commits and clears. */
+ *  range or null, `onChange` reports commits and clears.
+ *
+ * @example
+ * ```tsx
+ * import { DateRangeInput } from '@octane-xplat/ui'
+ *
+ * <DateRangeInput label="Trip" value={trip} onChange={setTrip} />
+ * ```
+ * @see DateRange, DateRangePreset, CalendarProps.
+ */
 export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1074,7 +1394,17 @@ export interface PlatformListHandle {
 }
 
 /** Props for platform-authentic list widgets (`UITableView`/`RecyclerView`).
- *  Shared content `List` has its own `ListProps` below. */
+ *  Shared content `List` has its own `ListProps` below.
+ *
+ * @example
+ * ```tsx
+ * import { UITableView } from '@octane-xplat/ui/ios'
+ * import { Item } from '@octane-xplat/ui'
+ *
+ * <UITableView items={rows} renderItem={(row) => <Item>{row.name}</Item>} onRefresh={reload} refreshing={reloading} />
+ * ```
+ * @see VirtualListProps for the shared virtualized list.
+ */
 export interface PlatformListProps<T = unknown> extends RefreshProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1134,6 +1464,8 @@ export type ScrollKeyboardAccess =
 	| { owner: 'viewport'; label: string; role?: 'group' | 'region' }
 	| { owner: 'contentOrViewport'; label: string; role?: 'group' | 'region' }
 
+/** Live per-axis overflow/edge state — `isScrollable`, `atStart`, `atEnd`. Part of `ScrollableAreaState`.
+ */
 export interface ScrollAxisState {
 	/** The axis currently overflows its viewport on an allowed axis. */
 	isScrollable: boolean
@@ -1143,11 +1475,15 @@ export interface ScrollAxisState {
 	atEnd: boolean
 }
 
+/** Live scroll state of a `ScrollableArea` viewport, keyed by logical axis (`inline`/`block`). Returned by `useScrollableArea` and readable for edge effects or scroll-affordance UI.
+ */
 export interface ScrollableAreaState {
 	inline: ScrollAxisState
 	block: ScrollAxisState
 }
 
+/** Options for `useScrollableArea` — allowed logical `axis` (default `'block'`), `overscroll` chaining, `stickyContainment`, and web-only `keyboardAccess` tab-stop ownership.
+ */
 export interface UseScrollableAreaOptions {
 	/** Logical axis or axes where scrolling is allowed. @default 'block' */
 	axis?: ScrollAxis
@@ -1157,6 +1493,18 @@ export interface UseScrollableAreaOptions {
 	stickyContainment?: ScrollStickyContainment
 }
 
+/** `useScrollableArea` result — `getViewportProps`/`getContentProps` merge the behavior's refs/attrs onto the two boxes, and `state` exposes live per-axis overflow/edge flags.
+ *
+ * @example
+ * ```tsx
+ * import { useScrollableArea } from '@octane-xplat/ui'
+ *
+ * const area = useScrollableArea({ axis: 'block' })
+ * <div {...area.getViewportProps()}>
+ * 	<div {...area.getContentProps()}>{content}</div>
+ * </div>
+ * ```
+ */
 export interface UseScrollableAreaResult {
 	/** Merges behavior-owned props (ref/role/tabIndex/overflow/data attrs)
 	 *  into caller props for the viewport element or native scroll view. */
@@ -1187,7 +1535,18 @@ export interface ScrollableAreaHandle {
  *  inside a content box. Pull-to-refresh props (`refreshing`, `onRefresh`,
  *  `refreshThreshold`) are an xplat extension with no upstream equivalent —
  *  they only apply on the block axis on web/iOS/Android. macOS does not
- *  support pull-to-refresh; use an app-owned refresh action. */
+ *  support pull-to-refresh; use an app-owned refresh action.
+ *
+ * @example
+ * ```tsx
+ * import { ScrollableArea } from '@octane-xplat/ui'
+ *
+ * <ScrollableArea axis="block" refreshing={reloading} onRefresh={reload}>
+ * 	{rows}
+ * </ScrollableArea>
+ * ```
+ * @see VirtualListProps for keyed virtualized content, useScrollableArea for the hook form.
+ */
 export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1260,7 +1619,16 @@ export interface VirtualListHandle {
 
 /** Shared virtualized vertical list. Item keys must be unique and stable
  *  across inserts and reorders. Rows outside the rendered window unmount;
- *  keep durable row state keyed by item identity outside the row component. */
+ *  keep durable row state keyed by item identity outside the row component.
+ *
+ * @example
+ * ```tsx
+ * import { VirtualList, ListItem } from '@octane-xplat/ui'
+ *
+ * <VirtualList items={items} renderItem={(item) => <ListItem label={item.name} />} />
+ * ```
+ * @see VirtualListHandle for scroll seeks, ListProps for a non-virtualized list.
+ */
 export interface VirtualListProps<T = unknown> extends LayoutChildProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1284,6 +1652,8 @@ export interface VirtualListProps<T = unknown> extends LayoutChildProps, Accessi
 	web?: PlatformProps
 }
 
+/** Imperative handle on `WebView` — `reload`, frame-local `goBack`/`goForward`, `stopLoading`, and `native` for the raw platform view.
+ */
 export interface WebViewHandle {
 	/** Re-request the current document. */
 	reload(): void
@@ -1295,6 +1665,8 @@ export interface WebViewHandle {
 	native: HostElement
 }
 
+/** Payload for `WebView`'s `onLoad`/`onError` — `url` where the platform reports one (absent for `html` documents); `error` only on the failure path.
+ */
 export interface WebViewLoadEvent {
 	/** The loaded document URL when the platform reports one — absent for
 	 *  `html` documents. */
@@ -1303,6 +1675,8 @@ export interface WebViewLoadEvent {
 	error?: string
 }
 
+/** Document size reported to `WebView.onLayoutContent` — CSS px on web, dips/points on native.
+ */
 export interface WebViewContentSize {
 	width: number
 	height: number
@@ -1355,7 +1729,16 @@ interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
  *  `addJavascriptInterface` have different page-side contracts, so a
  *  shared one would be fake parity — reach it through the escape bags.
  *
- *  Exactly one source is required: `src` or `html`. */
+ *  Exactly one source is required: `src` or `html`.
+ *
+ * @example
+ * ```tsx
+ * import { WebView } from '@octane-xplat/ui'
+ *
+ * <WebView src="https://example.com" onError={(e) => report(e.error)} />
+ * ```
+ * @see WebViewHandle.
+ */
 export type WebViewProps = WebViewBaseProps &
 	(
 		| {
@@ -1398,6 +1781,8 @@ export type ImageContentFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-dow
  *  percentage of the free space along that axis, or 'center' (= '50%'). */
 export type ImageContentPositionValue = number | `${number}%` | 'center'
 
+/** Object form of `Image.contentPosition` — name one horizontal and one vertical edge with a dip or percentage offset.
+ */
 export interface ImageContentPositionObject {
 	top?: ImageContentPositionValue
 	right?: ImageContentPositionValue
@@ -1405,6 +1790,8 @@ export interface ImageContentPositionObject {
 	left?: ImageContentPositionValue
 }
 
+/** Keyword form of `Image.contentPosition` — CSS `object-position` spellings (`'center'`, `'top left'`, ...).
+ */
 export type ImageContentPositionString =
 	| 'center'
 	| 'top'
@@ -1434,6 +1821,16 @@ export type ImageContentPosition = ImageContentPositionObject | ImageContentPosi
  *  assignment. */
 export type ImageDecoding = 'async' | 'sync'
 
+/** Bitmap image (chrome-reset OS image view). `src` takes a `res://name`, `~/` bundle path, file path, URL, `data:` URI, or a resolution-qualified `ImageSourceLike[]` (closest pixel count wins — the `srcset` model). `contentFit`/`contentPosition` follow CSS `object-fit`/`object-position`; `placeholder` paints inside the same view while loading; `alt` names meaningful images (omit for decorative).
+ *
+ * @example
+ * ```tsx
+ * import { Image } from '@octane-xplat/ui'
+ *
+ * <Image src="https://example.com/photo.jpg" alt="Trailhead" style={{ width: 120, height: 80 }} />
+ * ```
+ * @see ImageSourceLike, ImageContentFit, ImageContentPosition.
+ */
 export interface ImageProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1482,6 +1879,17 @@ export interface ImageProps extends LayoutChildProps {
 	web?: PlatformProps
 }
 
+/** The app-level screen shell — the native root layout overlay and sheet services mount onto (RootLayout), and the web page container. One per screen; route screens render inside it.
+ *
+ * @example
+ * ```tsx
+ * import { Screen, VStack } from '@octane-xplat/ui'
+ *
+ * <Screen>
+ * 	<VStack padding={4}>{content}</VStack>
+ * </Screen>
+ * ```
+ */
 export interface ScreenProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1499,6 +1907,16 @@ export interface ScreenProps {
  *  react-native-safe-area-context vocabulary. */
 export type SafeAreaEdge = 'top' | 'right' | 'bottom' | 'left'
 
+/** Container that consumes system safe-area insets as padding. `edges` selects which edges (default all four); each inset is consumed once — nested SafeAreas pad only for what's left, and `KeyboardAvoiding` subtracts a consumed bottom inset. `edges={[]}` makes it neutral; `ignoreSafeArea` is the deprecated spelling of that.
+ *
+ * @example
+ * ```tsx
+ * import { SafeArea } from '@octane-xplat/ui'
+ *
+ * <SafeArea edges={['top', 'bottom']}>{screen}</SafeArea>
+ * ```
+ * @see KeyboardAvoidingProps, useSafeAreaInsets.
+ */
 export interface SafeAreaProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1526,7 +1944,19 @@ export interface SafeAreaProps {
  *  inset an enclosing `SafeArea` already consumed is subtracted — the two
  *  never double-count. Targets without a software keyboard (web, macOS)
  *  keep the neutral column wrapper and accept `enabled`/
- *  `keyboardVerticalOffset` as inert props. */
+ *  `keyboardVerticalOffset` as inert props.
+ *
+ * @example
+ * ```tsx
+ * import { KeyboardAvoiding, ChatMessageList, ChatComposer } from '@octane-xplat/ui'
+ *
+ * <KeyboardAvoiding>
+ * 	<ChatMessageList />
+ * 	<ChatComposer />
+ * </KeyboardAvoiding>
+ * ```
+ * @see useKeyboardInset for reading the raw inset.
+ */
 export interface KeyboardAvoidingProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1551,6 +1981,15 @@ export interface UseKeyboardInsetOptions {
 	enabled?: boolean
 }
 
+/** Slide-over drawer (self-drawn). `main`/`drawer` are the two surfaces; `open`+`onDismiss` control visibility (`defaultOpen` for uncontrolled), and a backdrop tap fires `onDismiss`. For OS-authentic drawers use `SideDrawer` (`ui/ios`) or `DrawerLayout` (`ui/android`).
+ *
+ * @example
+ * ```tsx
+ * import { Drawer, NavigationMenu, View } from '@octane-xplat/ui'
+ *
+ * <Drawer open={open} onDismiss={() => setOpen(false)} main={<View />} drawer={<NavigationMenu items={navItems} />} />
+ * ```
+ */
 export interface DrawerProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1574,6 +2013,16 @@ export type SideDrawerProps = PlatformWidgetProps<DrawerProps>
 /** Props accepted by `DrawerLayout` (`@octane-xplat/ui/android`). */
 export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
 
+/** Shared self-drawn switch — identical pixels on every target (the `Switch` parity class). Controlled `checked`+`onCheckedChange`, or uncontrolled `defaultChecked`; field vocabulary (`label`, `status`, `isDisabled`) via `FieldControlProps`. For the OS widget use `UISwitch`/`MaterialSwitch`.
+ *
+ * @example
+ * ```tsx
+ * import { Switch } from '@octane-xplat/ui'
+ *
+ * <Switch label="Notifications" checked={enabled} onCheckedChange={setEnabled} />
+ * ```
+ * @see PlatformSwitchProps.
+ */
 export interface SwitchProps extends FieldControlProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1601,7 +2050,16 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
  *  `disabledMessage`, and the `accessibility*` names resolve to the widget's
  *  spoken name and hint — an enclosing `Field` supplies the same through
  *  context. Visible label, status, sizing, and validation chrome live on
- *  `Field`, not on the widget itself. */
+ *  `Field`, not on the widget itself.
+ *
+ * @example
+ * ```tsx
+ * import { UISwitch } from '@octane-xplat/ui/ios'
+ *
+ * <UISwitch checked={on} onCheckedChange={setOn} label="Wi-Fi" />
+ * ```
+ * @see SwitchProps for the self-drawn shared switch.
+ */
 export interface PlatformSwitchProps extends TestIDProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1634,6 +2092,15 @@ export type UISwitchProps = PlatformWidgetProps<PlatformSwitchProps>
 /** Props accepted by `MaterialSwitch` (`@octane-xplat/ui/android`). */
 export type MaterialSwitchProps = PlatformWidgetProps<PlatformSwitchProps>
 
+/** Loading spinner — self-drawn ring with a `busy` flag (exported as `ActivityIndicator`; `Spinner` on the macOS barrel). OS-authentic forms: `UIActivityIndicatorView` (iOS), `CircularProgressIndicator` (Android).
+ *
+ * @example
+ * ```tsx
+ * import { Spinner } from '@octane-xplat/ui'
+ *
+ * <Spinner busy={loading} />
+ * ```
+ */
 export interface ActivityIndicatorProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1654,7 +2121,16 @@ export type CircularProgressIndicatorProps = PlatformWidgetProps<ActivityIndicat
  *  Exposes the `meter` accessibility role (`role="meter progressbar"` on web,
  *  matching the React Aria fallback spelling; NativeScript's role enum has no
  *  meter so `progressBar` is the platform fallback, AppKit reports
- *  AXLevelIndicator). */
+ *  AXLevelIndicator).
+ *
+ * @example
+ * ```tsx
+ * import { Meter } from '@octane-xplat/ui'
+ *
+ * <Meter value={6} maxValue={10} valueLabel="6 GB of 10 GB used" accessibilityLabel="Storage" />
+ * ```
+ * @see ProgressBarProps for task progress.
+ */
 export interface MeterProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1678,6 +2154,15 @@ export interface MeterProps {
 	accessibilityLabel?: string
 }
 
+/** Value slider — `value` clamped to [`minValue`,`maxValue`] (defaults 0–100), `onValueChange` reports user drags. Shared contract for the self-drawn `Slider` and the OS widgets `UISlider`/`SeekBar`.
+ *
+ * @example
+ * ```tsx
+ * import { Slider } from '@octane-xplat/ui'
+ *
+ * <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
+ * ```
+ */
 export interface SliderProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1749,6 +2234,16 @@ export type IconName = keyof IconNameRegistry extends never
 	? BuiltinIconName | (string & {})
 	: BuiltinIconName | (keyof IconNameRegistry & string)
 
+/** A registered icon glyph — `name` is a built-in `xplat-*` id or an app-registered `IconName`. Unregistered names render nothing. `size` (dips) and `color` style the glyph; `accessibilityLabel` makes a meaningful icon audible (omit for decorative). `registry` overrides the lookup scope — prefer `IconRegistryProvider` for groups.
+ *
+ * @example
+ * ```tsx
+ * import { Icon } from '@octane-xplat/ui'
+ *
+ * <Icon name="xplat-search" size={16} />
+ * ```
+ * @see IconRegistry, IconGlyph, IconName.
+ */
 export interface IconProps {
 	className?: ClassName
 	id?: string
@@ -1793,11 +2288,31 @@ export interface IconRegistry {
 	getIcon(name: string): IconGlyph | undefined
 }
 
+/** Provides an `IconRegistry` to descendant `Icon`s and icon-reading controls — scope app icon sets without touching the global registry.
+ *
+ * @example
+ * ```tsx
+ * import { IconRegistryProvider, createIconRegistry } from '@octane-xplat/ui'
+ *
+ * const icons = createIconRegistry()
+ * <IconRegistryProvider value={icons}>{app}</IconRegistryProvider>
+ * ```
+ */
 export interface IconRegistryProviderProps {
 	value: IconRegistry
 	children?: Renderable
 }
 
+/** Semantic section heading — `level` (1–6) is the semantic level, not a size; visual size comes from `className`/theme. Web renders `h1`–`h6`; native reports the `header` accessibility trait.
+ *
+ * @example
+ * ```tsx
+ * import { Heading } from '@octane-xplat/ui'
+ *
+ * <Heading level={2}>Details</Heading>
+ * ```
+ * @see TextProps.
+ */
 export interface HeadingProps {
 	className?: ClassName
 	style?: StyleProp
@@ -1811,6 +2326,18 @@ export interface HeadingProps {
 
 // ---------- overlays ----------
 
+/** Low-level layer — a dimmed, dismissible surface over the screen (`open`/`defaultOpen`/`onDismiss`, `shadeCover` for the tap-to-dismiss shade). `Dialog` is the complete modal path; use `Overlay` when building a custom modal surface.
+ *
+ * @example
+ * ```tsx
+ * import { Overlay, Card } from '@octane-xplat/ui'
+ *
+ * <Overlay open={open} onDismiss={() => setOpen(false)} shadeCover>
+ * 	<Card>{content}</Card>
+ * </Overlay>
+ * ```
+ * @see DialogProps, PopoverProps.
+ */
 export interface OverlayProps extends TestIDProps {
 	/** Accessible name for the modal content surface. */
 	accessibilityLabel?: string
@@ -1831,9 +2358,12 @@ export interface OverlayProps extends TestIDProps {
 	web?: PlatformProps
 }
 
+/** Side of the anchor the popover opens on — `'top' | 'bottom' | 'left' | 'right'`.
+ */
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right'
 /** Cross-axis alignment for anchored layers — 'start' (the historical
- *  default) keeps the panel flush with the anchor's start edge. */
+ *  default) keeps the panel flush with the anchor's start edge.
+ */
 export type PopoverAlignment = 'start' | 'center' | 'end'
 
 /** A platform-neutral ref to the host view or element that owns a popover. */
@@ -1841,6 +2371,22 @@ export interface PopoverAnchorRef {
 	readonly current: unknown
 }
 
+/** Anchored floating panel — `anchor` is a ref to the owning host (commonly a `ref` on a View); `open`/`defaultOpen`/`onDismiss` own visibility, `placement`/`alignment`/`offset` position it (offset in dips, default 8). `dismissOnOutsideTap`/`dismissOnEscape` control light-dismiss; `finalFocusRef` picks the focus-return target. For the hook form with render props use `useLayer`.
+ *
+ * @example
+ * ```tsx
+ * import { Popover, Button } from '@octane-xplat/ui'
+ *
+ * const anchor = useRef()
+ * <>
+ * 	<Button ref={anchor} label="Filter" />
+ * 	<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom">
+ * 		{panel}
+ * 	</Popover>
+ * </>
+ * ```
+ * @see PopoverAnchorRef, useLayer, HoverCardProps.
+ */
 export interface PopoverProps {
 	/** Ref to a native view or web element, commonly populated by `ref`. */
 	anchor: PopoverAnchorRef
@@ -1908,6 +2454,8 @@ export interface FixedLayerOptions extends LayerBaseOptions {
 	mode: 'fixed'
 }
 
+/** `useLayer` options — `mode: 'context'` positions relative to a bound anchor (`ContextLayerOptions`), `mode: 'fixed'` positions at explicit coordinates (`FixedLayerOptions`).
+ */
 export type LayerOptions = ContextLayerOptions | FixedLayerOptions
 
 /** Render props for `useLayer` context mode — `render(children, props)`. */
@@ -1983,12 +2531,25 @@ export interface FixedLayerReturn extends LayerReturnBase {
 	render: (children: Renderable, props: FixedRenderProps) => Renderable
 }
 
+/** `useLayer` result — `ContextLayerReturn` for anchor-relative mode (bind `ref` to the anchor, `render` content into the layer), `FixedLayerReturn` for fixed coordinates.
+ */
 export type LayerReturn = ContextLayerReturn | FixedLayerReturn
 
 /** Hover/focus-triggered floating card (Astryx `HoverCard`). The trigger is
  *  `children`; `content` is the card body. Pointer hover opens after
  *  `delay`, focus opens per `focusTrigger`, and on touch platforms a tap on
- *  a non-action trigger opens the card per `touchTrigger`. */
+ *  a non-action trigger opens the card per `touchTrigger`.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCard, Text } from '@octane-xplat/ui'
+ *
+ * <HoverCard content={<Text>{bio}</Text>} placement="below" delay={200}>
+ * 	<Text>{name}</Text>
+ * </HoverCard>
+ * ```
+ * @see useHoverCard for the headless form, TooltipProps for a passive hint.
+ */
 export interface HoverCardProps {
 	id?: string
 	/** Trigger content. */
@@ -2035,11 +2596,21 @@ export interface HoverCardProps {
 	web?: PlatformProps
 }
 
+/** Side of the trigger the card opens on — logical `'above'|'below'|'start'|'end'` (inline sides mirror under RTL on web). @default 'above'
+ */
 export type HoverCardPlacement = 'above' | 'below' | 'start' | 'end'
+/** Cross-axis alignment of the card against its trigger. @default 'center'
+ */
 export type HoverCardAlignment = 'start' | 'center' | 'end'
+/** When keyboard focus opens the card — `'auto'` only for naturally focusable triggers (native: never), `'always'`, `'never'`. @default 'auto'
+ */
 export type HoverCardFocusTrigger = 'auto' | 'always' | 'never'
+/** Tap behavior on touch platforms — `'auto'` opens unless the trigger has its own action (web detects controls; native treats `'auto'` as `'tap'`), `'tap'` always opens, `'none'` never. @default 'auto'
+ */
 export type HoverCardTouchTrigger = 'auto' | 'tap' | 'none'
 
+/** Options for `useHoverCard` — placement/alignment, `delay`/`hideDelay` (ms), `focusTrigger`/`touchTrigger`, `isEnabled`, accessible `label`, open-state (`isOpen`/`isDefaultOpen`), and `onShow`/`onHide` notifications.
+ */
 export interface HoverCardOptions {
 	placement?: HoverCardPlacement
 	alignment?: HoverCardAlignment
@@ -2085,7 +2656,16 @@ export interface HoverCardReturn {
  *  Pointer platforms show the hint after hover/focus intent (web adds
  *  `aria-describedby` + Escape/scroll dismissal; macOS presents an anchored
  *  NSPopover). Touch targets render the trigger and never mount the hint —
- *  keep essential information out of `content`. */
+ *  keep essential information out of `content`.
+ *
+ * @example
+ * ```tsx
+ * import { Tooltip, Icon } from '@octane-xplat/ui'
+ *
+ * <Tooltip trigger={<Icon name="xplat-wrench" />} content="Settings" />
+ * ```
+ * @see HoverCardProps for interactive rich content.
+ */
 export interface TooltipProps {
 	id?: string
 	trigger: Renderable
@@ -2106,15 +2686,33 @@ export interface TooltipProps {
 
 /** Toast status type — controls the surface tone and live-region urgency
  *  (web: `role="status"`/polite for info, `role="alert"`/assertive for
- *  error; error toasts default to not auto-hiding). */
+ *  error; error toasts default to not auto-hiding).
+ */
 export type ToastType = 'info' | 'error'
 
-/** Edge the toast stack anchors to (Astryx `ToastViewport` positions). */
+/** Edge the toast stack anchors to (Astryx `ToastViewport` positions).
+ */
 export type ToastPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd'
 
+/** Why a toast hid — `'auto'` (the `autoHideDuration` timer) or `'manual'` (explicit dismissal).
+ */
 export type ToastDismissReason = 'auto' | 'manual'
+/** What a second toast with the same `uniqueID` does — `'overwrite'` replaces in place (default), `'ignore'` suppresses the new one.
+ */
 export type ToastCollisionBehavior = 'overwrite' | 'ignore'
 
+/** One toast's content and behavior for `showToast`/`useToast().show`/`handle.update` — `body`/`endContent`/`renderContent` are the content sources (use one; `renderContent` owns the layout), `type` picks info vs error tone (error defaults to persistent), `autoHideDuration` is ms (default 5000), `uniqueID`+`collisionBehavior` handle repeats, `position`/`anchor`/`placement` override where it lands. Requires a `ToastViewport` — when none is mounted the leaf auto-mounts one at `bottomEnd`.
+ *
+ * @example
+ * ```tsx
+ * import { showToast } from '@octane-xplat/ui'
+ *
+ * const toast = showToast({ body: 'Saved', type: 'info' })
+ * toast.update({ body: 'Syncing…' }) // same identity, new content
+ * toast.dismiss()
+ * ```
+ * @see ToastHandle, ToastViewportProps.
+ */
 export interface ToastOptions {
 	/** Toast body — text or rendered nodes. */
 	body?: Renderable
@@ -2158,7 +2756,8 @@ export interface ToastOptions {
 export type ToastDismissFn = () => void
 
 /** Values passed to a custom toast content renderer — see
- *  `ToastOptions.renderContent`. */
+ *  `ToastOptions.renderContent`.
+ */
 export interface ToastContentRenderProps {
 	/** Primary message content, as passed to the toast call. */
 	body: Renderable
@@ -2209,7 +2808,18 @@ export interface ToastEntry {
 }
 
 /** The toast stack container. Render once at the app root — it hosts every
- *  toast pushed through `useToast()`/`showToast`. */
+ *  toast pushed through `useToast()`/`showToast`.
+ *
+ * @example
+ * ```tsx
+ * import { ToastViewport, showToast } from '@octane-xplat/ui'
+ *
+ * // render once at the app root, then push toasts from anywhere
+ * <ToastViewport position="bottomEnd" />
+ * showToast({ body: 'Saved' })
+ * ```
+ * @see ToastOptions, ToastHandle.
+ */
 export interface ToastViewportProps {
 	/** Edge the stack grows from. @default 'bottomEnd' */
 	position?: ToastPosition
@@ -2230,7 +2840,16 @@ export interface ToastViewportProps {
 }
 
 /** Inline toast card — the same surface ToastViewport renders. Useful for
- *  pinned/inline notifications outside the stack. */
+ *  pinned/inline notifications outside the stack.
+ *
+ * @example
+ * ```tsx
+ * import { Toast } from '@octane-xplat/ui'
+ *
+ * <Toast type="error" body="Upload failed" />
+ * ```
+ * @see ToastViewportProps for the queued stack.
+ */
 export interface ToastProps {
 	/** @default 'info' */
 	type?: ToastType
@@ -2266,6 +2885,8 @@ export interface MeasureBounds {
 	height: number
 }
 
+/** Options for `useMeasure` — `observe` (default true) re-measures on layout/resize/scroll/content-size changes; `false` takes a single read once the host lays out.
+ */
 export interface UseMeasureOptions {
 	/** Re-measure on layout, resize, ancestor scroll, and content-size
 	 *  changes; `false` takes a single read once the host lays out.
@@ -2273,6 +2894,16 @@ export interface UseMeasureOptions {
 	observe?: boolean
 }
 
+/** `useMeasure` result — `ref` attaches to a leaf's `ref` prop; `bounds` is the latest `MeasureBounds` in app-surface dips, or `null` until the host reports a usable layout (the readiness signal).
+ *
+ * @example
+ * ```tsx
+ * import { useMeasure, View } from '@octane-xplat/ui'
+ *
+ * const { ref, bounds } = useMeasure()
+ * <View ref={ref}>{bounds ? `${bounds.width}×${bounds.height}` : 'measuring…'}</View>
+ * ```
+ */
 export interface MeasureResult {
 	/** Attach to a `View`'s (or any leaf's) `ref` prop; receives the
 	 *  platform host (`HostElement` — `HTMLElement` on web, the native
@@ -2284,6 +2915,19 @@ export interface MeasureResult {
 	bounds: MeasureBounds | null
 }
 
+/** Native modal sheet/dialog — the contract shared by `UIModal` (`@octane-xplat/ui/ios`), `MaterialDialog` (`@octane-xplat/ui/android`), and `openModal`. `open`/`defaultOpen`/`onClose` own visibility; `presentation` picks sheet/fullscreen/dialog chrome; `component`+`params` render a hosted component on the modal's own root (context/theme do not cross) — `component` beats `children` when both are set. `onClose` reports the result value.
+ *
+ * @example
+ * ```tsx
+ * import { UIModal } from '@octane-xplat/ui/ios'
+ * import { FormLayout } from '@octane-xplat/ui'
+ *
+ * <UIModal open={open} onClose={(result) => setOpen(false)} presentation="sheet">
+ * 	<FormLayout>{fields}</FormLayout>
+ * </UIModal>
+ * ```
+ * @see ModalHandle, OpenModal.
+ */
 export interface ModalProps {
 	/** Controlled visibility — pair with `onClose`. */
 	open?: boolean
@@ -2325,14 +2969,32 @@ export type ModalOpenResult = unknown
 /** Owning handle for one imperative modal opened by `openModal`. It is the
  *  completion promise — `await` resolves with the value passed to
  *  `close(result)` or the presented component's own `close` — plus an
- *  instance-scoped close, so concurrent modals dispose independently. */
+ *  instance-scoped close, so concurrent modals dispose independently.
+ *
+ * @example
+ * ```tsx
+ * import { openModal } from '@octane-xplat/ui/ios'
+ * import { Text } from '@octane-xplat/ui'
+ *
+ * const result = await openModal(() => <Text>Delete item?</Text>, { id: 3 }, { presentation: 'sheet' })
+ * ```
+ */
 export interface ModalHandle extends Promise<ModalOpenResult> {
 	/** Close this modal, resolving the handle with `result`. Idempotent —
 	 *  a user dismissal or an earlier close wins. */
 	close(result?: ModalOpenResult): void
 }
 
-/** Public function shape of the imperative modal service. */
+/** Public function shape of the imperative modal service.
+ *
+ * @example
+ * ```tsx
+ * import { openModal } from '@octane-xplat/ui/ios'
+ *
+ * const modal = openModal(EditForm, { id })  // EditForm: your screen component
+ * modal.close() // or await it for the close result
+ * ```
+ */
 export type OpenModal = (
 	component: HostedComponent,
 	params?: Record<string, unknown>,
@@ -2352,7 +3014,18 @@ export type BottomSheetSnapPoint = number | string
  *  document-body layer (web). Unlike a routed modal, content stays inside
  *  the app window. When nested inside `BottomSheetSwitcher`, `sheetId`
  *  registers the panel under the switcher's shared host instead of opening
- *  its own overlay. */
+ *  its own overlay.
+ *
+ * @example
+ * ```tsx
+ * import { BottomSheet } from '@octane-xplat/ui'
+ *
+ * <BottomSheet isOpen={open} onOpenChange={setOpen} label="Share" snapPoints={['50%']}>
+ * 	{shareForm}
+ * </BottomSheet>
+ * ```
+ * @see BottomSheetSwitcherProps for panels that share one host, openBottomSheet for the imperative service.
+ */
 export interface BottomSheetProps {
 	/** Standalone controlled visibility — pair with `onOpenChange`.
 	 *  Required for standalone use unless `defaultOpen` seeds uncontrolled
@@ -2403,7 +3076,19 @@ export interface BottomSheetProps {
 /** Shared host for a group of `BottomSheet` panels — exactly one child
  *  sheet (by `sheetId`) is visible under `activeSheet`, and sheet changes
  *  animate between panels in the same host instead of closing and
- *  reopening. A null `activeSheet` closes the host. */
+ *  reopening. A null `activeSheet` closes the host.
+ *
+ * @example
+ * ```tsx
+ * import { BottomSheetSwitcher, BottomSheet } from '@octane-xplat/ui'
+ *
+ * <BottomSheetSwitcher activeSheet={sheet} onActiveSheetChange={setSheet}>
+ * 	<BottomSheet sheetId="edit" label="Edit">{editForm}</BottomSheet>
+ * 	<BottomSheet sheetId="share" label="Share">{shareForm}</BottomSheet>
+ * </BottomSheetSwitcher>
+ * ```
+ * @see BottomSheetProps.
+ */
 export interface BottomSheetSwitcherProps {
 	/** Controlled selection — the `sheetId` currently shown, or null for
 	 *  closed. Pair with `onActiveSheetChange`. */
@@ -2448,7 +3133,15 @@ export interface BottomSheetHandle extends Promise<ModalOpenResult> {
 
 /** Imperative sheet: mounts `component` on a dedicated root in a bottom
  *  sheet and returns its handle — awaiting it resolves with the value
- *  passed to `close(result)`. The component receives `{ params, close }`. */
+ *  passed to `close(result)`. The component receives `{ params, close }`.
+ *
+ * @example
+ * ```tsx
+ * import { openBottomSheet } from '@octane-xplat/ui'
+ *
+ * const result = await openBottomSheet(ShareSheet, { docId })  // ShareSheet: your component
+ * ```
+ */
 export type OpenBottomSheet = (
 	component: HostedComponent,
 	params?: Record<string, unknown>,
@@ -2482,7 +3175,19 @@ export interface DialogPosition {
 /** Modal panel on the enclosing RootLayout (native) or a document-body
  *  `<dialog>` layer (web). The trigger is NOT part of the component —
  *  callers own `isOpen` and restore focus to `finalFocusRef` or the
- *  previously-focused element. */
+ *  previously-focused element.
+ *
+ * @example
+ * ```tsx
+ * import { Dialog, DialogHeader, Button } from '@octane-xplat/ui'
+ *
+ * <Dialog isOpen={open} onOpenChange={setOpen}>
+ * 	<DialogHeader title="Rename" onOpenChange={setOpen} />
+ * 	{form}
+ * </Dialog>
+ * ```
+ * @see DialogHeaderProps, AlertDialogProps for confirmations, useImperativeDialog.
+ */
 export interface DialogProps extends AccessibilityProps {
 	/** Controlled visibility — pair with `onOpenChange`. Omit for
 	 *  uncontrolled use via `defaultOpen`. */
@@ -2525,7 +3230,10 @@ export interface DialogProps extends AccessibilityProps {
  *  `onOpenChange` is supplied. In modal mode the web leaf puts
  *  `data-autofocus` on the title so it lands initial focus when no
  *  in-dialog control is marked; `aria-labelledby` points at it when no
- *  explicit accessible name is given. */
+ *  explicit accessible name is given.
+ *
+ * @see DialogProps — renders the title row (and close affordance) inside it.
+ */
 export interface DialogHeaderProps {
 	title?: Renderable
 	subtitle?: Renderable
@@ -2548,9 +3256,14 @@ export interface DialogHeaderProps {
 	web?: PlatformProps
 }
 
-/** Options accepted by `useImperativeDialog().show()`. */
+/** Options accepted by `useImperativeDialog().show()`.
+ *
+ * @see useImperativeDialog — `show(children, options)` takes these.
+ */
 export type DialogOptions = Omit<DialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange' | 'children'>
 
+/** Return of `useImperativeDialog` — `show(children, options)` opens, `hide` closes, `isOpen` reflects state, and `element` is the dialog node to render in the tree.
+ */
 export interface ImperativeDialogReturn {
 	/** Opens the dialog with arbitrary content. */
 	show: (children: Renderable, options?: DialogOptions) => void
@@ -2562,7 +3275,23 @@ export interface ImperativeDialogReturn {
 
 /** Confirmation dialog (Astryx `AlertDialog`) — a dialog whose action is
  *  potentially destructive. Renders title/description plus Cancel and a
- *  single action button. Web maps to `role="alertdialog"`. */
+ *  single action button. Web maps to `role="alertdialog"`.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialog } from '@octane-xplat/ui'
+ *
+ * <AlertDialog
+ * 	isOpen={confirming}
+ * 	onOpenChange={setConfirming}
+ * 	title="Delete draft?"
+ * 	description="This cannot be undone."
+ * 	actionLabel="Delete"
+ * 	onAction={deleteDraft}
+ * />
+ * ```
+ * @see DialogProps, useImperativeAlertDialog.
+ */
 export interface AlertDialogProps {
 	/** Controlled visibility — pair with `onOpenChange`. Omit for
 	 *  uncontrolled use via `defaultOpen`. */
@@ -2599,6 +3328,8 @@ export interface AlertDialogProps {
 	web?: PlatformProps
 }
 
+/** Return of `useImperativeAlertDialog` — `show(options)` opens with `AlertDialogProps` minus the visibility props, `hide` closes, `element` is the dialog node to render.
+ */
 export interface ImperativeAlertDialogReturn {
 	/** Opens the dialog with the given confirmation content. */
 	show: (options: Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>) => void
@@ -2611,7 +3342,18 @@ export interface ImperativeAlertDialogReturn {
 // ---------- carousel ----------
 
 /** Imperative carousel controls (Astryx `CarouselHandle`). Returned through
- *  the component's standard Octane `ref`. */
+ *  the component's standard Octane `ref`.
+ *
+ * @example
+ * ```tsx
+ * import { Carousel, Button, type CarouselHandle } from '@octane-xplat/ui'
+ * import { useRef } from 'octane'
+ *
+ * const carousel = useRef<CarouselHandle>()
+ * <Carousel ref={carousel}>{slides}</Carousel>
+ * <Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
+ * ```
+ */
 export interface CarouselHandle {
 	scrollNext(): void
 	scrollPrev(): void
@@ -2623,7 +3365,18 @@ export interface CarouselHandle {
 /** One labelled slide group inside a `Carousel` — plain children are
  *  wrapped automatically, so `items` is not needed; `Carousel` wraps each
  *  top-level child in an `aria-roledescription="slide"` group (web) /
- *  labelled container (native). */
+ *  labelled container (native).
+ *
+ * @example
+ * ```tsx
+ * import { Carousel, Image } from '@octane-xplat/ui'
+ *
+ * <Carousel label="Screenshots" hasButtons hasSnap>
+ * 	{shots.map((s) => <Image key={s.id} src={s.url} alt={s.name} />)}
+ * </Carousel>
+ * ```
+ * @see CarouselHandle for imperative paging.
+ */
 export interface CarouselProps extends AccessibilityProps {
 	/** Accessible name for the region (web `aria-label` on
 	 *  `aria-roledescription="carousel"`; native `accessibilityLabel`). */
@@ -2659,8 +3412,12 @@ export interface CarouselProps extends AccessibilityProps {
 
 // ---------- lightbox ----------
 
+/** Kind of a `LightboxMedia` entry — `'image'` (default) or `'video'` (real player on web only; native reports it unsupported).
+ */
 export type LightboxMediaType = 'image' | 'video'
 
+/** One `Lightbox` entry — `src` URI, required `alt` description, optional `caption`, and `type`.
+ */
 export interface LightboxMedia {
 	src: string
 	/** Accessible description of the media (web `alt`). */
@@ -2673,7 +3430,20 @@ export interface LightboxMedia {
 /** Full-screen media viewer (Astryx `Lightbox`). Navigates a `media` array
  *  with prev/next controls, arrow keys (web), and swipe (native);
  *  pinch/double-click zoom applies to images only. `type: 'video'` renders
- *  a real player only on web — native reports it unsupported. */
+ *  a real player only on web — native reports it unsupported.
+ *
+ * @example
+ * ```tsx
+ * import { Lightbox } from '@octane-xplat/ui'
+ *
+ * <Lightbox
+ * 	isOpen={viewing}
+ * 	onOpenChange={setViewing}
+ * 	media={[{ src: photo.url, alt: photo.name }]}
+ * />
+ * ```
+ * @see LightboxMedia, useLightbox.
+ */
 export interface LightboxProps {
 	isOpen: boolean
 	onOpenChange: (isOpen: boolean) => void
@@ -2699,13 +3469,18 @@ export interface LightboxProps {
 }
 
 /** Props spread onto a media element that should open the lightbox on
- *  press/click. */
+ *  press/click.
+ *
+ * @see UseLightboxReturn.getTriggerProps — these props come from `useLightbox`.
+ */
 export interface LightboxTriggerProps {
 	onPress?: () => void
 	/** Web cursor hint + native accessibility hint. */
 	web?: PlatformProps
 }
 
+/** Options for `useLightbox` — the `media` array, controlled `index`/`onIndexChange` or `defaultIndex`, and zoom/autoplay flags matching `LightboxProps`.
+ */
 export interface UseLightboxOptions {
 	media: LightboxMedia[]
 	index?: number
@@ -2716,6 +3491,8 @@ export interface UseLightboxOptions {
 	finalFocusRef?: { current: HostElement | null }
 }
 
+/** `useLightbox` result — `open(index)`/`close`, live `isOpen`/`index`, and `element`: the `Lightbox` node to render in the tree.
+ */
 export interface UseLightboxReturn {
 	/** Open at `index` (default 0). */
 	open: (index?: number) => void
@@ -2730,6 +3507,8 @@ export interface UseLightboxReturn {
 	getTriggerProps: (index: number) => LightboxTriggerProps
 }
 
+/** One `Tabs` entry — `title` plus `render()` for the pane; `key` is the stable selection/ARIA identity (defaults to position). `icon` is a registered `IconName`; platform tab bars consume its `src`/`font`/`text` forms. `stack` names a parallel navigation stack whose pushed routes render inside the pane.
+ */
 export interface TabSpec {
 	/** Stable identity for this tab — selection (`selectedKey`), the
 	 *  web tab↔panel ARIA linkage, and pane reconciliation all use it.
@@ -2751,6 +3530,23 @@ export interface TabSpec {
 	stack?: string
 }
 
+/** Self-drawn tab strip + panes (Astryx `Tabs`). `tabs` supplies `TabSpec`s; selection is controlled by `selectedKey`+`onSelectionChange` or uncontrolled via `defaultSelectedKey`, keyed by `TabSpec.key`. The index spellings (`selectedIndex`, `onSelectedIndexChanged`) are deprecated aliases. `resolveScreen` renders pushed routes inside `stack` panes.
+ *
+ * @example
+ * ```tsx
+ * import { Tabs, Text } from '@octane-xplat/ui'
+ *
+ * <Tabs
+ * 	tabs={[
+ * 		{ key: 'inbox', title: 'Inbox', render: () => <Text>Inbox</Text> },
+ * 		{ key: 'sent', title: 'Sent', render: () => <Text>Sent items</Text> },
+ * 	]}
+ * 	selectedKey={tab}
+ * 	onSelectionChange={setTab}
+ * />
+ * ```
+ * @see TabSpec, TabListProps for a standalone strip, PlatformTabsProps for the OS tab bars.
+ */
 export interface TabsProps {
 	className?: ClassName
 	style?: StyleProp
@@ -2781,6 +3577,8 @@ export type PlatformTabSpec = Omit<TabSpec, 'icon'> & {
 	icon?: string
 }
 
+/** The OS tab bars' contract — `TabsProps` with `PlatformTabSpec` items (icon may be a registered name or a native asset string from `PlatformIcon.select`). Consumed by `UITabBar` (`ui/ios`) and `BottomNavigationView` (`ui/android`); each pane with `stack` hosts a real navigation Frame natively.
+ */
 export type PlatformTabsProps = Omit<TabsProps, 'tabs'> & {
 	tabs: readonly PlatformTabSpec[]
 	ios?: PlatformProps
@@ -2794,6 +3592,8 @@ export type BottomNavigationViewProps = PlatformWidgetProps<PlatformTabsProps>
 
 // ---------- routes ----------
 
+/** A resolved navigation destination — `stack` (the owning stack), `name` (the route id), `params`, optional `presentation` ('push' default, 'modal' own root, 'fade' push-with-fade), `hash` fragment (web), and loader/beforeLoad results (`loaderData`/`loaderError`/`context`). Produced by `routeFor`/`currentRoute`/matchers; consumed by `pushRoute` and `NavLink`.
+ */
 export interface Route {
 	stack: string
 	name: string
@@ -2826,6 +3626,8 @@ export interface Route {
 /** Values shared by a route guard and the screen it admits. */
 export type RouteContext = Record<string, unknown>
 
+/** Arguments to a route's `beforeLoad` export — resolved `params` plus the accumulated `context` from upstream guards.
+ */
 export interface BeforeLoadArgs<
 	Params extends Record<string, unknown> = Record<string, unknown>,
 > {
@@ -2833,12 +3635,17 @@ export interface BeforeLoadArgs<
 	context: RouteContext
 }
 
+/** Route guard signature — runs before a route commits; returns `RouteContext` merged into the screen's props (and `useRoute().context`), or nothing. Async allowed; a thrown/redirect result aborts the navigation.
+ */
 export type BeforeLoad<Params extends Record<string, unknown> = Record<string, unknown>> = (
 	args: BeforeLoadArgs<Params>,
 ) => RouteContext | void | Promise<RouteContext | void>
 
 /** The deliberately small cross-platform head surface. `meta` keys become
- * web `<meta name="..." content="...">` tags; native consumes `title`. */
+ * web `<meta name="..." content="...">` tags; native consumes `title`.
+ *
+ * @see RouteHeadFn, RouteHeadExport.
+ */
 export interface RouteHead {
 	title?: string
 	meta?: Record<string, string>
@@ -2851,6 +3658,8 @@ export interface RouteHeadFn<Params extends Record<string, unknown> = Record<str
 	(params: Params): RouteHead
 }
 
+/** A route module's `head` export — a static `RouteHead` or a `RouteHeadFn` computed from the route's params.
+ */
 export type RouteHeadExport<Params extends Record<string, unknown> = Record<string, unknown>> =
 	| RouteHead
 	| RouteHeadFn<Params>
@@ -2871,13 +3680,26 @@ export interface RouteErrorBoundaryProps {
  *  rendered subtree in its declared `ErrorBoundary`. `boundary` is the
  *  route's declared boundary component (receives
  *  `RouteErrorBoundaryProps`); `route` is the committed Route passed
- *  through to it. */
+ *  through to it.
+ *
+ * @see RouteErrorBoundaryProps — the props the declared boundary receives.
+ */
 export interface RouteBoundaryProps {
 	boundary?: (props: RouteErrorBoundaryProps) => Renderable
 	route: Route
 	children?: Renderable
 }
 
+/** Anchor to a URL — external links and web navigation; `href` is the destination, `target` the browsing context (web `_blank` etc.). For in-app route navigation prefer `NavLink`, which type-checks destinations against the route schema.
+ *
+ * @example
+ * ```tsx
+ * import { Link } from '@octane-xplat/ui'
+ *
+ * <Link href="https://example.com/docs">Docs</Link>
+ * ```
+ * @see NavLinkProps.
+ */
 export interface LinkProps {
 	href: string
 	target?: string
@@ -2886,6 +3708,16 @@ export interface LinkProps {
 	children?: Renderable
 }
 
+/** In-app navigation link — `route` is a `TypedRoute` checked against the registered schema (`AppRoutes`); runtime-computed destinations assert via `TypedRoute(...)`. Preserves browser link semantics (real `<a>` on web) while pushing the route natively.
+ *
+ * @example
+ * ```tsx
+ * import { NavLink } from '@octane-xplat/ui'
+ *
+ * <NavLink route={{ name: 'settings', stack: 'root', params: {} }}>Settings</NavLink>
+ * ```
+ * @see LinkProps, TypedRoute, Route.
+ */
 export interface NavLinkProps {
 	/** Destination the link pushes — checked against the registered route
 	 *  schema (see `AppRoutes`/`TypedRoute`). Runtime-computed destinations
@@ -3024,6 +3856,8 @@ export interface RouteManifestJson {
 	routes: RouteJson[]
 }
 
+/** Serializable form of a `Route`/`route manifest` entry — used by `manifestToJson`, deep links, and persisted navigation state.
+ */
 export interface RouteJson {
 	name: string
 	/** Colon-syntax path — 'docs/:slug', '' for the root index. */
@@ -3221,6 +4055,8 @@ type SpecPresentations<S> = S extends {
 	? { [N in RouteNameOfPath<P>]: Pr }
 	: {}
 
+/** name → declared presentation map inferred from a `defineRoutes` spec list — pairs with `RouteParamsFromSpecs` inside `SpecRouteInfo`.
+ */
 export type RoutePresentationsFromSpecs<Specs extends readonly RouteSpec[]> = UnionToIntersection<
 	SpecPresentations<Specs[number]>
 >
@@ -3245,8 +4081,12 @@ export type ManifestRouteParams<M> = M extends {
 	? P
 	: {}
 
+/** Route names a `defineRoutes` manifest's brand contributes — `never` for an untagged `RouteManifest` (file-route names still flow through `AppRoutes`).
+ */
 export type ManifestRouteNames<M> = keyof ManifestRouteParams<M> & string
 
+/** name → presentation map extracted from a `defineRoutes` manifest brand — `{}` for untagged manifests.
+ */
 export type ManifestRoutePresentations<M> = M extends {
 	readonly [specRouteTypes]: { presentations: infer P }
 }
@@ -3305,6 +4145,17 @@ export type RouteFor<Params, Name extends keyof Params & string = keyof Params &
  *  `matchUrl`, `hrefFor` — keep the realized `Route` shape instead. */
 export type TypedRoute<Name extends AppRouteName = AppRouteName> = RouteFor<AppRouteParams, Name>
 
+/** Options for `openWindow` — `data` handed to the window's content resolver (native/macOS/Linux; ignored on web), `url` for web/Linux, `kind` presentation semantics ('regular' independent, 'dialog' modal-to-parent, 'popup' non-activating panel; unsupported kinds fall back to 'regular'), `title`, `size` (px/dips), and `parent` owner.
+ *
+ * @example
+ * ```ts
+ * import { openWindow } from '@octane-xplat/ui'
+ *
+ * const win = openWindow({ data: { docId }, title: 'Preview', size: { width: 480, height: 640 } })
+ * await win?.closed
+ * ```
+ * @see WindowHandle.
+ */
 export interface OpenWindowOptions {
 	/** Data handed to the new window's content resolver. Delivered on
 	 *  native (`WindowContentResolver` request data), macOS (the
@@ -3409,7 +4260,16 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 
  *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
  *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `clickAction`,
  *  `isInterruptible`) — each state and action has one spelling.
- *  `clickAction` failures report through `onActionError`. */
+ *  `clickAction` failures report through `onActionError`.
+ *
+ * @example
+ * ```tsx
+ * import { Button } from '@octane-xplat/ui'
+ *
+ * <Button label="Save" variant="primary" clickAction={save} onActionError={showError} />
+ * ```
+ * @see PressableProps for the interaction base, IconButtonProps, ButtonGroupProps.
+ */
 export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'> {
 	/** Visible label text; `children` takes precedence when both are set. */
 	label?: string
@@ -3452,7 +4312,18 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
 }
 
 /** Collapsible shows/hides `children` behind a `trigger`. Controlled via
- *  `open`/`onOpenChange` or uncontrolled via `defaultOpen`. */
+ *  `open`/`onOpenChange` or uncontrolled via `defaultOpen`.
+ *
+ * @example
+ * ```tsx
+ * import { Collapsible, Text } from '@octane-xplat/ui'
+ *
+ * <Collapsible trigger={<Text>Advanced</Text>} open={open} onOpenChange={setOpen}>
+ * 	{details}
+ * </Collapsible>
+ * ```
+ * @see AccordionProps for a labelled multi-section form.
+ */
 export interface CollapsibleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3470,6 +4341,8 @@ export interface CollapsibleProps {
 	web?: PlatformProps
 }
 
+/** One `Accordion` section — stable `key` (selection identity), `header` row content, `content` body, `disabled`.
+ */
 export interface AccordionItemSpec {
 	key: string
 	header?: Renderable
@@ -3478,7 +4351,20 @@ export interface AccordionItemSpec {
 }
 
 /** Accordion — a list of Collapsibles. `open` is the open key (or keys with
- *  `multiple`); omit it for uncontrolled via `defaultOpen`. */
+ *  `multiple`); omit it for uncontrolled via `defaultOpen`.
+ *
+ * @example
+ * ```tsx
+ * import { Accordion, Text } from '@octane-xplat/ui'
+ *
+ * <Accordion
+ * 	items={[{ key: 'faq-1', header: 'Shipping?', content: <Text>{answer}</Text> }]}
+ * 	open={open}
+ * 	onOpenChange={setOpen}
+ * />
+ * ```
+ * @see AccordionItemSpec, CollapsibleProps.
+ */
 export interface AccordionProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3494,7 +4380,16 @@ export interface AccordionProps {
 	web?: PlatformProps
 }
 
-/** Self-drawn checkbox — box + check mark, identical pixels across targets. */
+/** Self-drawn checkbox — box + check mark, identical pixels across targets.
+ *
+ * @example
+ * ```tsx
+ * import { CheckboxInput } from '@octane-xplat/ui'
+ *
+ * <CheckboxInput label="Subscribe" checked={subscribed} onCheckedChange={setSubscribed} />
+ * ```
+ * @see CheckboxGroupProps (`CheckboxList`) for multi-choice lists.
+ */
 export interface CheckboxProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3520,13 +4415,29 @@ export interface CheckboxProps extends FieldControlProps {
 	web?: PlatformProps
 }
 
+/** One option of `RadioList`/`SegmentedControl` — `value` is the selection identity, `label` the text, `isDisabled` blocks the single option.
+ */
 export interface RadioOption {
 	value: string
 	label?: string
 	isDisabled?: boolean
 }
 
-/** Self-drawn radio group — dot options in a column/row. */
+/** Self-drawn radio group — dot options in a column/row.
+ *
+ * @example
+ * ```tsx
+ * import { RadioList } from '@octane-xplat/ui'
+ *
+ * <RadioList
+ * 	label="Size"
+ * 	options={[{ value: 's', label: 'Small' }, { value: 'l', label: 'Large' }]}
+ * 	value={size}
+ * 	onValueChange={setSize}
+ * />
+ * ```
+ * @see SegmentedControlProps, SelectProps (`Selector`).
+ */
 export interface RadioGroupProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3551,7 +4462,20 @@ export interface RadioGroupProps extends FieldControlProps {
  *  one selected (UISegmentedControl / Material segmented-button shape, no OS
  *  chrome). `value`/`onValueChange` for controlled, `defaultValue` for
  *  uncontrolled; `disabled` on the group or per-option. Sizes come from
- *  className, matching the Button family. */
+ *  className, matching the Button family.
+ *
+ * @example
+ * ```tsx
+ * import { SegmentedControl } from '@octane-xplat/ui'
+ *
+ * <SegmentedControl
+ * 	options={[{ value: 'list', label: 'List' }, { value: 'grid', label: 'Grid' }]}
+ * 	value={mode}
+ * 	onValueChange={setMode}
+ * />
+ * ```
+ * @see RadioGroupProps (`RadioList`).
+ */
 export interface SegmentedControlProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3582,25 +4506,35 @@ export interface MenuItemData {
 	hasCloseOnSelect?: boolean
 }
 
+/** A plain actionable menu row (`MenuItemData` with `type` omitted or `'item'`); `items` nests a submenu.
+ */
 export interface MenuActionData extends MenuItemData {
 	type?: 'item'
 	items?: MenuItem[]
 }
 
+/** A separator row in menu data — `type: 'divider'`; other fields are ignored.
+ */
 export interface MenuDividerData extends MenuItemData {
 	type: 'divider'
 }
 
+/** A toggleable menu row — `type: 'checkbox'`, caller-owned `value`, `onValueChange` requests the next state.
+ */
 export interface MenuCheckboxData extends MenuItemData {
 	type: 'checkbox'
 	value: boolean
 	onValueChange?: (value: boolean) => void
 }
 
+/** One choice inside a `MenuRadioGroupData` — `value` is its selection identity.
+ */
 export interface MenuRadioOptionData extends MenuItemData {
 	value?: string
 }
 
+/** A single-choice group in menu data — `type: 'radio-group'`, shared `value`/`onValueChange`, `items` of `MenuRadioOptionData`.
+ */
 export interface MenuRadioGroupData extends MenuItemData {
 	type: 'radio-group'
 	value?: string
@@ -3620,6 +4554,8 @@ export interface MenuItem extends MenuItemData {
 	onValueChange?: (value: boolean | string) => void
 }
 
+/** One row in a compound menu (`DropdownMenu`/`ContextMenu` children) — `label`, optional `icon`/`description`/`endContent`, `isDisabled`, `onSelect`; `hasCloseOnSelect` keeps the menu open after selection when false.
+ */
 export interface MenuItemProps {
 	id?: string
 	ref?: Octane.Ref<HostElement>
@@ -3635,16 +4571,22 @@ export interface MenuItemProps {
 	hasCloseOnSelect?: boolean
 }
 
+/** A compound-menu checkbox row — `value` is caller-owned, `onValueChange` requests the next state.
+ */
 export interface MenuCheckboxItemProps extends MenuItemProps {
 	/** Caller-owned checked state; updates are requested through onValueChange. */
 	value: boolean
 	onValueChange?: (value: boolean) => void
 }
 
+/** One choice inside a compound `MenuRadioGroup` — `value` is the selection identity.
+ */
 export interface MenuRadioItemProps extends MenuItemProps {
 	value: string
 }
 
+/** A single-choice group inside a compound menu — `label` is its required accessible name; `value`/`defaultValue`/`onValueChange` own selection; children are `MenuRadioItem`s.
+ */
 export interface MenuRadioGroupProps {
 	/** Required accessible name for this set of choices. */
 	label: string
@@ -3656,12 +4598,16 @@ export interface MenuRadioGroupProps {
 	children?: Renderable
 }
 
+/** A separator between compound-menu rows.
+ */
 export interface MenuDividerProps {
 	id?: string
 	className?: ClassName
 	style?: StyleProp
 }
 
+/** A compound-menu row that opens a nested menu — `children` or `items` supply the submenu; `isOpen`/`defaultOpen`/`onOpenChange` own its visibility.
+ */
 export interface MenuSubMenuProps extends MenuItemProps {
 	children?: Renderable
 	items?: MenuItem[]
@@ -3670,6 +4616,8 @@ export interface MenuSubMenuProps extends MenuItemProps {
 	onOpenChange?: (isOpen: boolean) => void
 }
 
+/** Menu context available to descendants — `closeMenu()` dismisses the whole menu; `menuSize` is the inherited size.
+ */
 export interface MenuContextValue {
 	closeMenu(): void
 	menuSize: 'sm' | 'md' | 'lg'
@@ -3690,7 +4638,23 @@ export interface MenuSurfaceProps {
 	labelledBy?: string
 }
 
-/** Both data rows and compound children use the same menu contracts. */
+/** Both data rows and compound children use the same menu contracts.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenu, Button } from '@octane-xplat/ui'
+ *
+ * <DropdownMenu
+ * 	trigger={<Button label="Actions" />}
+ * 	items={[
+ * 		{ key: 'rename', label: 'Rename', onSelect: rename },
+ * 		{ type: 'divider', key: 'd' },
+ * 		{ key: 'delete', label: 'Delete', onSelect: remove },
+ * 	]}
+ * />
+ * ```
+ * @see MenuItem, MenuOption, ContextMenuProps.
+ */
 export interface DropdownMenuProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3717,14 +4681,33 @@ export interface DropdownMenuProps {
 	web?: PlatformProps
 }
 
-/** Long press/right click, with an optional visible trigger for touch access. */
+/** Long press/right click, with an optional visible trigger for touch access.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenu, Text } from '@octane-xplat/ui'
+ *
+ * <ContextMenu items={[{ key: 'copy', label: 'Copy', onSelect: copy }]}>
+ * 	<Text>{row}</Text>
+ * </ContextMenu>
+ * ```
+ * @see DropdownMenuProps.
+ */
 export interface ContextMenuProps extends Omit<DropdownMenuProps, 'children'> {
 	children?: Renderable
 	/** Compound menu content (children remain the context target). */
 	menu?: Renderable
 }
 
-/** Badge — inline label chip. Pure composition, unstyled beyond layout. */
+/** Badge — inline label chip. Pure composition, unstyled beyond layout.
+ *
+ * @example
+ * ```tsx
+ * import { Badge } from '@octane-xplat/ui'
+ *
+ * <Badge>{count} new</Badge>
+ * ```
+ */
 export interface BadgeProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3736,7 +4719,15 @@ export interface BadgeProps {
 	web?: PlatformProps
 }
 
-/** Hairline rule between content. */
+/** Hairline rule between content.
+ *
+ * @example
+ * ```tsx
+ * import { Divider } from '@octane-xplat/ui'
+ *
+ * <Divider />
+ * ```
+ */
 export interface SeparatorProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3748,7 +4739,15 @@ export interface SeparatorProps {
 	web?: PlatformProps
 }
 
-/** Skeleton — placeholder block shown while content loads. */
+/** Skeleton — placeholder block shown while content loads.
+ *
+ * @example
+ * ```tsx
+ * import { Skeleton } from '@octane-xplat/ui'
+ *
+ * <Skeleton width={120} height={16} />
+ * ```
+ */
 export interface SkeletonProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3761,7 +4760,16 @@ export interface SkeletonProps {
 	web?: PlatformProps
 }
 
-/** Avatar — circular image with a text fallback. */
+/** Avatar — circular image with a text fallback.
+ *
+ * @example
+ * ```tsx
+ * import { Avatar } from '@octane-xplat/ui'
+ *
+ * <Avatar src={user.photo} alt={user.name} fallback="AL" size={32} />
+ * ```
+ * @see AvatarGroupProps, UserProps.
+ */
 export interface AvatarProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3777,7 +4785,18 @@ export interface AvatarProps {
 	web?: PlatformProps
 }
 
-/** AvatarGroup — overlapping row of avatars with an optional `+N` overflow. */
+/** AvatarGroup — overlapping row of avatars with an optional `+N` overflow.
+ *
+ * @example
+ * ```tsx
+ * import { AvatarGroup, Avatar } from '@octane-xplat/ui'
+ *
+ * <AvatarGroup max={4}>
+ * 	{members.map((m) => <Avatar key={m.id} src={m.photo} fallback={m.initials} />)}
+ * </AvatarGroup>
+ * ```
+ * @see AvatarProps.
+ */
 export interface AvatarGroupProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3795,7 +4814,18 @@ export interface AvatarGroupProps {
 // ---------- form field layer (Phase 2) ----------
 
 /** FormField wraps a control with a label, description, and validation status.
- *  Children is the control element. */
+ *  Children is the control element.
+ *
+ * @example
+ * ```tsx
+ * import { Field, TextInput } from '@octane-xplat/ui'
+ *
+ * <Field label="Email" description="We never share it" status={{ type: 'error', message: 'Required' }}>
+ * 	<TextInput value={email} onChange={setEmail} />
+ * </Field>
+ * ```
+ * @see FieldControlProps — standalone controls carry the same vocabulary inline.
+ */
 export interface FormFieldProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3820,7 +4850,19 @@ export interface FormFieldProps extends FieldControlProps {
 	web?: PlatformProps
 }
 
-/** FieldGroup — labeled group of related fields (role=group). */
+/** FieldGroup — labeled group of related fields (role=group).
+ *
+ * @example
+ * ```tsx
+ * import { FieldGroup, TextInput } from '@octane-xplat/ui'
+ *
+ * <FieldGroup label="Address">
+ * 	<TextInput placeholder="Street" />
+ * 	<TextInput placeholder="City" />
+ * </FieldGroup>
+ * ```
+ * @see FormFieldProps (`Field`).
+ */
 export interface FieldGroupProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3836,7 +4878,16 @@ export interface FieldGroupProps {
  *  description, startContent, and endContent roles match `ListItem`; use
  *  `Item.StartContent`/`Content`/`Description`/`EndContent` for custom
  *  composition. `Item` is standalone, while `ListItem` reads list marker
- *  and density context from its parent `List`. */
+ *  and density context from its parent `List`.
+ *
+ * @example
+ * ```tsx
+ * import { Item, Icon } from '@octane-xplat/ui'
+ *
+ * <Item label="Notifications" description="Push and email" startContent={<Icon name="xplat-error" />} onPress={open} />
+ * ```
+ * @see ItemComponent for the slot composition, ListItemProps for list-context rows.
+ */
 export interface ItemProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3854,11 +4905,15 @@ export interface ItemProps extends AccessibilityProps {
 	children?: Renderable
 }
 
+/** Props of the `Item` slot components (`Item.StartContent`/`Content`/`Description`/`EndContent`) — `className` plus children.
+ */
 export interface ItemSlotProps {
 	className?: ClassName
 	children?: Renderable
 }
 
+/** The `Item` export's callable shape — the row component plus its named slot components (`StartContent`, `Content`, `Description`, `EndContent`) for custom composition.
+ */
 export interface ItemComponent {
 	(props: ItemProps): unknown
 	StartContent: (props: ItemSlotProps) => unknown
@@ -3869,7 +4924,15 @@ export interface ItemComponent {
 
 /** InputNumber — normalized TextInput (number keyboard) flanked by −/+
  *  steppers. `value`/`onValueChange` for controlled, `defaultValue` for
- *  uncontrolled. `step` defaults to 1; `min`/`max` clamp. */
+ *  uncontrolled. `step` defaults to 1; `min`/`max` clamp.
+ *
+ * @example
+ * ```tsx
+ * import { NumberInput } from '@octane-xplat/ui'
+ *
+ * <NumberInput label="Quantity" value={qty} onValueChange={setQty} min={0} max={99} step={1} />
+ * ```
+ */
 export interface InputNumberProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3887,7 +4950,15 @@ export interface InputNumberProps extends FieldControlProps {
 }
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
- *  `onComplete` fires when all `length` cells are filled. */
+ *  `onComplete` fires when all `length` cells are filled.
+ *
+ * @example
+ * ```tsx
+ * import { PinInput } from '@octane-xplat/ui'
+ *
+ * <PinInput label="Code" length={6} onComplete={verify} />
+ * ```
+ */
 export interface PinInputProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3902,6 +4973,8 @@ export interface PinInputProps extends FieldControlProps {
 	web?: PlatformProps
 }
 
+/** One `Selector`/`MultiSelector` option — `value` is the selection identity, `label` the shown text (defaults to `value`), `group` a shared heading, `description` supporting text (not matched by search), `isDisabled` blocks it.
+ */
 export interface SelectOption {
 	value: string
 	label?: string
@@ -3914,7 +4987,23 @@ export interface SelectOption {
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` keeps the listbox open and reports string[]; `searchable`
- *  puts a normalized TextInput filter at the top of the listbox. */
+ *  puts a normalized TextInput filter at the top of the listbox.
+ *
+ * @example
+ * ```tsx
+ * import { Selector, MultiSelector } from '@octane-xplat/ui'
+ *
+ * <Selector
+ * 	label="Assignee"
+ * 	options={people.map((p) => ({ value: p.id, label: p.name }))}
+ * 	value={assignee}
+ * 	onValueChange={setAssignee}
+ * />
+ *
+ * <MultiSelector options={tags} value={selected} onValueChange={setSelected} />
+ * ```
+ * @see SelectOption, MultiSelectorProps — `MultiSelector` is the multi-select preset.
+ */
 export interface SelectProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -3962,7 +5051,10 @@ export interface SelectProps extends FieldControlProps {
 /** Minimal item contract for search results feeding the Typeahead family.
  *  `element` is a pre-rendered node that takes priority over `renderItem` and
  *  the default TypeaheadItem row; a string `auxiliaryData.group` groups
- *  results under a shared heading. */
+ *  results under a shared heading.
+ *
+ * @see SearchSource — the search contract these items arrive through; createStaticSource builds one from an array.
+ */
 export interface SearchableItem<TAuxData = unknown> {
 	id: string
 	label: string
@@ -3973,13 +5065,38 @@ export interface SearchableItem<TAuxData = unknown> {
 /** Supplies items to Typeahead/Tokenizer. `search` runs on (debounced) query
  *  changes, `bootstrap` on focus when `hasEntriesOnFocus` is set, and
  *  `cancel` aborts superseded in-flight work — optional; without it stale
- *  results are discarded when they resolve. */
+ *  results are discarded when they resolve.
+ *
+ * @example
+ * ```ts
+ * import { createStaticSource } from '@octane-xplat/ui'
+ *
+ * // static list — or hand-write search/bootstrap/cancel
+ * const source = createStaticSource([
+ * 	{ id: '1', label: 'Ada' },
+ * 	{ id: '2', label: 'Grace' },
+ * ])
+ * ```
+ * @see createStaticSource, SearchableItem.
+ */
 export interface SearchSource<T extends SearchableItem = SearchableItem> {
 	search(query: string): Promise<T[]> | T[]
 	bootstrap(): Promise<T[]> | T[]
 	cancel?(): void
 }
 
+/** Options for `createStaticSource` — `keywords(item)` supplies extra matched terms alongside `label`.
+ *
+ * @example
+ * ```ts
+ * import { createStaticSource } from '@octane-xplat/ui'
+ *
+ * const source = createStaticSource(items, {
+ * 	keywords: (item) => [item.id],
+ * })
+ * ```
+ * @see SearchSource.
+ */
 export interface CreateStaticSourceOptions<T extends SearchableItem = SearchableItem> {
 	/** Extra search terms per item, matched alongside `label`. */
 	keywords?: (item: T) => string[]
@@ -3987,7 +5104,10 @@ export interface CreateStaticSourceOptions<T extends SearchableItem = Searchable
 
 /** Imperative handle for the text input inside the Typeahead family,
  *  delivered through `ref`. `setQuery` rewrites the field's query text —
- *  it backs Typeahead's click-to-edit. */
+ *  it backs Typeahead's click-to-edit.
+ *
+ * @see BaseTypeaheadProps.ref.
+ */
 export interface TypeaheadInputHandle {
 	focus(): void
 	blur(): void
@@ -4010,12 +5130,28 @@ export interface TypeaheadKeyEvent {
 	preventDefault(): void
 }
 
+/** `onKeyDown` signature for the typeahead-family input — receives `TypeaheadKeyEvent`; web fires it before internal navigation (`preventDefault` suppresses), iOS/Android never emit it.
+ */
 export type TypeaheadKeyDownHandler = (event: TypeaheadKeyEvent) => void
 
 /** BaseTypeahead — the unstyled combobox engine under Typeahead and
  *  Tokenizer: bare input + search/bootstrap + keyboard navigation + an
  *  anchored result listbox. It renders no field chrome; callers supply the
- *  visible wrapper and pass `anchor` for dropdown positioning. */
+ *  visible wrapper and pass `anchor` for dropdown positioning.
+ *
+ * @example
+ * ```tsx
+ * import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+ *
+ * <BaseTypeahead
+ * 	searchSource={source}
+ * 	value={picked}
+ * 	onChange={setPicked}
+ * 	placeholder="Search…"
+ * />
+ * ```
+ * @see TypeaheadProps for the field-chromed version.
+ */
 export interface BaseTypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
@@ -4077,7 +5213,17 @@ export interface BaseTypeaheadProps<
 /** Typeahead — single-selection search-as-you-type field. Renders its Field
  *  chrome (label/description/status), the input wrapper, and the selected
  *  value as a Token over the input; click the token to edit (blur or Escape
- *  restores it). */
+ *  restores it).
+ *
+ * @example
+ * ```tsx
+ * import { Typeahead, createStaticSource } from '@octane-xplat/ui'
+ *
+ * const people = createStaticSource([{ id: '1', label: 'Ada' }])
+ * <Typeahead label="Assignee" searchSource={people} value={assignee} onChange={setAssignee} />
+ * ```
+ * @see BaseTypeaheadProps for the unstyled engine, TokenizerProps for multi-select.
+ */
 export interface TypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
@@ -4116,6 +5262,8 @@ export interface TypeaheadProps<
 	labelTooltip?: string
 }
 
+/** Default result-row content for the Typeahead family — `item`, optional leading `icon`/`description`, `isDisabled`, presentational `group` label. Swap via `renderItem` on `BaseTypeahead`/`Typeahead`/`Tokenizer`.
+ */
 export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
 	className?: ClassName
 	style?: StyleProp
@@ -4149,13 +5297,24 @@ export type TokenColor =
 	| 'pink'
 	| 'gray'
 
+/** Astryx name for `FieldControlSize` on `Token`.
+ */
 export type TokenSize = FieldControlSize
 
 /** Token — inline chip for an entity: label + optional icon, end content,
  *  and a remove affordance. `onClick` makes the whole chip a button;
  *  `href` makes it a link (web `<a>`, native opens the URL); with both
  *  `href` and `onRemove` the link and the remove button render as siblings
- *  and the rest of the chip surface activates the link. */
+ *  and the rest of the chip surface activates the link.
+ *
+ * @example
+ * ```tsx
+ * import { Token } from '@octane-xplat/ui'
+ *
+ * <Token label={user.name} color="blue" onRemove={() => remove(user.id)} />
+ * ```
+ * @see TokenizerProps — a field of editable tokens.
+ */
 export interface TokenProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4192,6 +5351,8 @@ export type TokenizerChange<T extends SearchableItem = SearchableItem> =
 	| { item: T; type: 'remove' }
 	| { type: 'reorder' }
 
+/** Astryx name for `FieldControlSize` on `Tokenizer`.
+ */
 export type TokenizerSize = FieldControlSize
 
 /** Token overflow when the field is too narrow: 'none' wraps (default);
@@ -4211,7 +5372,22 @@ export interface TokenizerHandle {
 /** Tokenizer — multi-select field: Token chips + a BaseTypeahead input.
  *  Selecting adds a token and clears the query; Backspace on an empty input
  *  removes the last token (pointer platforms — native fields emit no key
- *  events); `hasCreate` offers a "Create \"…\"" entry for free text. */
+ *  events); `hasCreate` offers a "Create \"…\"" entry for free text.
+ *
+ * @example
+ * ```tsx
+ * import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+ *
+ * <Tokenizer
+ * 	label="Tags"
+ * 	searchSource={tagSource}
+ * 	value={tags}
+ * 	onChange={(items, change) => setTags(items)}
+ * 	hasCreate
+ * />
+ * ```
+ * @see TokenProps, TokenizerChange.
+ */
 export interface TokenizerProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
@@ -4263,7 +5439,11 @@ export interface TokenizerProps<
 	web?: PlatformProps
 }
 
+/** Trigger chrome for `ComplexSelector` — `'input'` (field styling) or `'ghost'`.
+ */
 export type ComplexSelectorVariant = 'input' | 'ghost'
+/** Astryx name for `FieldControlSize` on `ComplexSelector`.
+ */
 export type ComplexSelectorSize = FieldControlSize
 
 /** Render state passed to the ComplexSelector surface builder. */
@@ -4298,7 +5478,24 @@ export interface ComplexSelectorHandle {
  *  pickers. `children` is a render function receiving one named context
  *  with the (optimistic) value, commit and close callbacks, and render
  *  state fields; the component owns the trigger, popover, focus restore,
- *  and async `changeAction` flow. */
+ *  and async `changeAction` flow.
+ *
+ * @example
+ * ```tsx
+ * import { ComplexSelector, RadioList } from '@octane-xplat/ui'
+ *
+ * <ComplexSelector label="Color" value={color} onChange={setColor}>
+ * 	{({ value, onChange, close }) => (
+ * 		<RadioList
+ * 			options={colors}
+ * 			value={value}
+ * 			onValueChange={(c) => { onChange(c); close() }}
+ * 		/>
+ * 	)}
+ * </ComplexSelector>
+ * ```
+ * @see ComplexSelectorRenderProps for the children context, ComplexSelectorHandle.
+ */
 export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4332,7 +5529,15 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	web?: PlatformProps
 }
 
-/** InputRating — row of tappable glyphs reporting a 1..max score. */
+/** InputRating — row of tappable glyphs reporting a 1..max score.
+ *
+ * @example
+ * ```tsx
+ * import { InputRating } from '@octane-xplat/ui'
+ *
+ * <InputRating label="Rating" value={stars} onValueChange={setStars} max={5} />
+ * ```
+ */
 export interface InputRatingProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4349,7 +5554,21 @@ export interface InputRatingProps extends FieldControlProps {
 	web?: PlatformProps
 }
 
-/** CheckboxGroup — multi-select list of self-drawn checkboxes. */
+/** CheckboxGroup — multi-select list of self-drawn checkboxes.
+ *
+ * @example
+ * ```tsx
+ * import { CheckboxList } from '@octane-xplat/ui'
+ *
+ * <CheckboxList
+ * 	label="Channels"
+ * 	options={[{ value: 'push' }, { value: 'email' }]}
+ * 	value={channels}
+ * 	onValueChange={setChannels}
+ * />
+ * ```
+ * @see CheckboxProps (`CheckboxInput`), RadioGroupProps.
+ */
 export interface CheckboxGroupProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4372,13 +5591,24 @@ export interface CheckboxGroupProps extends FieldControlProps {
 
 // ---------- navigation & wayfinding (Phase 3) ----------
 
+/** One `Breadcrumbs` trail entry — `label` plus `onSelect` to navigate; the last item renders as the current location.
+ */
 export interface BreadcrumbItem {
 	label: string
 	onSelect?: () => void
 }
 
 /** Breadcrumb — ancestor trail. Items render as pressable links separated
- *  by `separator` (default /). */
+ *  by `separator` (default /).
+ *
+ * @example
+ * ```tsx
+ * import { Breadcrumbs } from '@octane-xplat/ui'
+ *
+ * <Breadcrumbs items={[{ label: 'Docs', onSelect: toDocs }, { label: 'Guide' }]} />
+ * ```
+ * @see BreadcrumbItem.
+ */
 export interface BreadcrumbProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4396,7 +5626,15 @@ export interface BreadcrumbProps {
 	web?: PlatformProps
 }
 
-/** Pagination — prev/next + a windowed run of page buttons around `page`. */
+/** Pagination — prev/next + a windowed run of page buttons around `page`.
+ *
+ * @example
+ * ```tsx
+ * import { Pagination } from '@octane-xplat/ui'
+ *
+ * <Pagination page={page} pageCount={total} onPageChange={setPage} />
+ * ```
+ */
 export interface PaginationProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4413,6 +5651,8 @@ export interface PaginationProps {
 	web?: PlatformProps
 }
 
+/** One `Stepper` entry — stable `key`, `label`, optional `icon` (registered `IconName`), `disabled` blocks tapping it.
+ */
 export interface StepperStep {
 	key: string
 	label?: string
@@ -4422,7 +5662,16 @@ export interface StepperStep {
 }
 
 /** Stepper — numbered step row. Steps before `current` show a done mark;
- *  tapping a non-disabled step calls `onStepChange`. */
+ *  tapping a non-disabled step calls `onStepChange`.
+ *
+ * @example
+ * ```tsx
+ * import { Stepper } from '@octane-xplat/ui'
+ *
+ * <Stepper steps={[{ key: 'account' }, { key: 'profile' }, { key: 'done' }]} current={step} />
+ * ```
+ * @see StepperStep.
+ */
 export interface StepperProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4436,6 +5685,8 @@ export interface StepperProps {
 	web?: PlatformProps
 }
 
+/** One `NavigationMenu` entry — `key`, `label`, optional `icon`, `href` link target (real anchor on web; route-table activation on native), `active` marks the current item, `onSelect` handles custom activation.
+ */
 export interface NavigationMenuItem {
 	key: string
 	label?: string
@@ -4450,7 +5701,16 @@ export interface NavigationMenuItem {
 }
 
 /** NavigationMenu — row (or column) of nav items; mostly a desktop/web
- *  idiom — the mobile equivalent is Tabs/Drawer. */
+ *  idiom — the mobile equivalent is Tabs/Drawer.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenu } from '@octane-xplat/ui'
+ *
+ * <NavigationMenu items={[{ key: 'home', label: 'Home', href: '/' }, { key: 'docs', label: 'Docs', href: '/docs' }]} />
+ * ```
+ * @see NavigationMenuItem.
+ */
 export interface NavigationMenuProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4483,7 +5743,20 @@ export interface CommandPaletteItem extends SearchableItem {
 
 /** Searchable commands. Desktop Enter activates the highlighted enabled item;
  * mobile Search submits the query and taps activate rows. Sources own ranking
- * and bootstrap entries. Closing invalidates pending work and resets the query. */
+ * and bootstrap entries. Closing invalidates pending work and resets the query.
+ *
+ * @example
+ * ```tsx
+ * import { CommandPalette } from '@octane-xplat/ui'
+ *
+ * <CommandPalette
+ * 	open={open}
+ * 	onOpenChange={setOpen}
+ * 	items={[{ key: 'reload', label: 'Reload data', onSelect: reload, shortcut: '⌘R' }]}
+ * />
+ * ```
+ * @see CommandPaletteItem, CommandPaletteMenuItem, SearchSource.
+ */
 export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPaletteItem> {
 	className?: ClassName
 	style?: StyleProp
@@ -4544,7 +5817,21 @@ export interface TableCellRenderProps<T extends object = Record<string, unknown>
  *  subpaths, not this component. The row generic flows through
  *  `columns`, `renderCell`, `idKey`, and `onRowPress`, so rows keep their
  *  element type and column keys stay row fields; `rowIndex` values
- *  are positional, not identity. */
+ *  are positional, not identity.
+ *
+ * @example
+ * ```tsx
+ * import { Table } from '@octane-xplat/ui'
+ *
+ * <Table
+ * 	columns={[{ key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }]}
+ * 	rows={users}
+ * 	idKey="id"
+ * 	onRowPress={(row) => open(row.id)}
+ * />
+ * ```
+ * @see TableColumn, TableCellRenderProps; VirtualListProps for large datasets.
+ */
 export interface TableProps<T extends object = Record<string, unknown>> {
 	className?: ClassName
 	style?: StyleProp
@@ -4566,6 +5853,8 @@ export interface TableProps<T extends object = Record<string, unknown>> {
 	web?: PlatformProps
 }
 
+/** One `Timeline` entry — see `TimelineProps` for the shared content slots.
+ */
 export interface TimelineItem {
 	key: string
 	title?: string
@@ -4575,7 +5864,16 @@ export interface TimelineItem {
 	icon?: IconName
 }
 
-/** Timeline — vertical list of events with dot + connector. */
+/** Timeline — vertical list of events with dot + connector.
+ *
+ * @example
+ * ```tsx
+ * import { Timeline } from '@octane-xplat/ui'
+ *
+ * <Timeline items={[{ key: '1', title: 'Created', time: '9:00' }, { key: '2', title: 'Shipped', time: '14:30' }]} />
+ * ```
+ * @see TimelineItem.
+ */
 export interface TimelineProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4601,7 +5899,20 @@ export interface TreeListNode {
  *  the shared state contract: `expandedKeys`/`onExpandedChange` for the
  *  controlled form, `defaultExpandedKeys` to seed the uncontrolled form.
  *  Leaf rows can hold a keyed selection under `selectionMode`, matching
- *  `GridList`; `onAction` fires on leaf activation either way. */
+ *  `GridList`; `onAction` fires on leaf activation either way.
+ *
+ * @example
+ * ```tsx
+ * import { TreeList } from '@octane-xplat/ui'
+ *
+ * <TreeList
+ * 	nodes={[{ key: 'src', label: 'src', children: [{ key: 'app', label: 'app' }] }]}
+ * 	expandedKeys={expanded}
+ * 	onExpandedChange={setExpanded}
+ * />
+ * ```
+ * @see TreeListNode, useTreeData for the store-backed form.
+ */
 export interface TreeProps<T extends TreeListNode = TreeListNode> {
 	className?: ClassName
 	style?: StyleProp
@@ -4632,7 +5943,16 @@ export interface TreeProps<T extends TreeListNode = TreeListNode> {
 }
 
 /** Alert — status callout. `tone` maps to a class modifier; error tone
- *  gets role=alert on web, others role=status. */
+ *  gets role=alert on web, others role=status.
+ *
+ * @example
+ * ```tsx
+ * import { Alert } from '@octane-xplat/ui'
+ *
+ * <Alert tone="warning" title="Trial ends soon">{upgradeLink}</Alert>
+ * ```
+ * @see BannerProps, EmptyProps.
+ */
 export interface AlertProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4651,7 +5971,17 @@ export interface AlertProps {
  *  background variants. `variant` names map to `vx-card--{name}` class hooks:
  *  'default' (bordered), 'muted', 'transparent', and the tint set
  *  (blue/cyan/gray/green/orange/pink/purple/red/teal/yellow) ship in
- *  chrome.css; custom variant names still produce a class an app can skin. */
+ *  chrome.css; custom variant names still produce a class an app can skin.
+ *
+ * @example
+ * ```tsx
+ * import { Card, Text } from '@octane-xplat/ui'
+ *
+ * <Card header={<Text>Account</Text>} footer={actions} padding={4}>
+ * 	{content}
+ * </Card>
+ * ```
+ */
 export interface CardProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4672,7 +6002,15 @@ export interface CardProps {
 }
 
 /** Chip — small action/filter element: pressable, optional selected state,
- *  optional ✕ remove affordance. */
+ *  optional ✕ remove affordance.
+ *
+ * @example
+ * ```tsx
+ * import { Chip } from '@octane-xplat/ui'
+ *
+ * <Chip selected={active} onSelect={toggle} onRemove={clear}>{tag}</Chip>
+ * ```
+ */
 export interface ChipProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4688,7 +6026,15 @@ export interface ChipProps {
 	web?: PlatformProps
 }
 
-/** Kbd — keyboard key glyph (⌘K styling hook). */
+/** Kbd — keyboard key glyph (⌘K styling hook).
+ *
+ * @example
+ * ```tsx
+ * import { Kbd } from '@octane-xplat/ui'
+ *
+ * <Kbd>⌘K</Kbd>
+ * ```
+ */
 export interface KbdProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4699,7 +6045,17 @@ export interface KbdProps {
 	web?: PlatformProps
 }
 
-/** Empty — empty-state block: icon + title + description + actions. */
+/** Empty — empty-state block: icon + title + description + actions.
+ *
+ * @example
+ * ```tsx
+ * import { EmptyState, Button } from '@octane-xplat/ui'
+ *
+ * <EmptyState icon="xplat-doc-image" title="No results" description="Try a different query">
+ * 	<Button label="Clear filters" clickAction={clear} />
+ * </EmptyState>
+ * ```
+ */
 export interface EmptyProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4714,7 +6070,16 @@ export interface EmptyProps {
 	web?: PlatformProps
 }
 
-/** Banner — inline notice strip with optional dismiss. */
+/** Banner — inline notice strip with optional dismiss.
+ *
+ * @example
+ * ```tsx
+ * import { Banner } from '@octane-xplat/ui'
+ *
+ * <Banner icon="xplat-warning" onDismiss={dismiss}>Offline — changes will sync later.</Banner>
+ * ```
+ * @see AlertProps.
+ */
 export interface BannerProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4728,7 +6093,16 @@ export interface BannerProps {
 	web?: PlatformProps
 }
 
-/** User — avatar + name/description row. */
+/** User — avatar + name/description row.
+ *
+ * @example
+ * ```tsx
+ * import { User } from '@octane-xplat/ui'
+ *
+ * <User name={user.name} description={user.role} src={user.photo} onSelect={openProfile} />
+ * ```
+ * @see AvatarProps.
+ */
 export interface UserProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4744,7 +6118,16 @@ export interface UserProps {
 	web?: PlatformProps
 }
 
-/** ProgressGroup — stacked labeled Meter rows. */
+/** ProgressGroup — stacked labeled Meter rows.
+ *
+ * @example
+ * ```tsx
+ * import { ProgressGroup } from '@octane-xplat/ui'
+ *
+ * <ProgressGroup items={[{ key: 'cpu', label: 'CPU', value: 40 }, { key: 'mem', label: 'Memory', value: 72 }]} />
+ * ```
+ * @see MeterProps, ProgressBarProps.
+ */
 export interface ProgressGroupProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4763,7 +6146,10 @@ export type ChatMessageSender = 'user' | 'assistant' | 'system'
 
 /** Data-side description of a chat message. Presentation components accept
  *  the same fields as props; this type lets agents store/transmit messages
- *  without coupling to rendering. */
+ *  without coupling to rendering.
+ *
+ * @see ChatMessageListProps.messages — the data-driven form.
+ */
 export interface ChatMessageData {
 	id?: string
 	sender: ChatMessageSender
@@ -4780,18 +6166,40 @@ export interface ChatMessageData {
 	name?: Renderable
 }
 
-/** Visual density shared across the chat family. */
+/** Visual density shared across the chat family.
+ *
+ * @see ChatMessageListProps.density.
+ */
 export type ChatDensity = 'compact' | 'balanced' | 'spacious'
 
 /** ChatComposer accepts the same density scale; kept as its own alias so the
- *  public name matches upstream. */
+ *  public name matches upstream.
+ *
+ * @see ChatDensity.
+ */
 export type ChatComposerDensity = ChatDensity
 
-/** Delivery state shown by ChatMessageMetadata. */
+/** Delivery state shown by ChatMessageMetadata.
+ *
+ * @see ChatMessageMetadataProps.status.
+ */
 export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'error'
 
 /** Sender context wrapper for one message. Renders the optional avatar, name,
- *  children (usually ChatMessageBubble), and trailing metadata column. */
+ *  children (usually ChatMessageBubble), and trailing metadata column.
+ *
+ * @example
+ * ```tsx
+ * import { ChatMessage, ChatMessageBubble, ChatMessageMetadata } from '@octane-xplat/ui'
+ *
+ * <ChatMessage sender="user">
+ * 	<ChatMessageBubble name="Alec" metadata={<ChatMessageMetadata timestamp="9:41" />}>
+ * 		{body}
+ * 	</ChatMessageBubble>
+ * </ChatMessage>
+ * ```
+ * @see ChatMessageBubbleProps, ChatMessageListProps.
+ */
 export interface ChatMessageProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4813,6 +6221,8 @@ export interface ChatMessageProps {
 	web?: PlatformProps
 }
 
+/** Bubble chrome — `'filled'` (tinted surface) or `'ghost'` (flat).
+ */
 export type ChatMessageBubbleVariant = 'filled' | 'ghost'
 
 /** Styled content container — the chat bubble. Reads sender/density from the
@@ -4851,6 +6261,8 @@ export interface ChatMessageMetadataProps {
 	web?: PlatformProps
 }
 
+/** System-message presentation — see `ChatSystemMessageProps`.
+ */
 export type ChatSystemMessageVariant = 'default' | 'divider'
 
 /** Centered system/notice row — date separators, "conversation started".
@@ -4874,7 +6286,20 @@ export interface ChatSystemMessageProps {
  *  the scroll-to-bottom button are owned by ChatLayout or useChatStreamScroll.
  *
  *  Supply either `children` for full JSX control or `messages` + `renderMessage`
- *  for a data-driven list. */
+ *  for a data-driven list.
+ *
+ * @example
+ * ```tsx
+ * import { ChatMessageList, EmptyState } from '@octane-xplat/ui'
+ *
+ * <ChatMessageList
+ * 	messages={messages}
+ * 	scrollToTopAction={loadOlder}
+ * 	emptyState={<EmptyState title="No messages" />}
+ * />
+ * ```
+ * @see ChatMessageProps, ChatLayoutProps — the layout owns auto-scroll.
+ */
 export interface ChatMessageListProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4899,6 +6324,8 @@ export interface ChatMessageListProps {
 	web?: PlatformProps
 }
 
+/** Lifecycle of a tool-call row — `'pending' | 'running' | 'complete' | 'error'`; gates which fields render (`duration` on complete, `errorMessage` on error). An omitted status reads as `'complete'`.
+ */
 export type ChatToolCallStatus = 'pending' | 'running' | 'complete' | 'error'
 
 interface ChatToolCallItemBase {
@@ -4938,7 +6365,16 @@ export type ChatToolCallItem = ChatToolCallItemBase &
 	)
 
 /** Tool-call list — one call renders inline; several collapse behind a
- *  summary header showing the latest call and the count. */
+ *  summary header showing the latest call and the count.
+ *
+ * @example
+ * ```tsx
+ * import { ChatToolCalls } from '@octane-xplat/ui'
+ *
+ * <ChatToolCalls calls={[{ name: 'read', status: 'complete', duration: '0.3s' }]} />
+ * ```
+ * @see ChatToolCallItem — `status` gates which fields render.
+ */
 export interface ChatToolCallsProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4956,10 +6392,15 @@ export interface ChatToolCallsProps {
 
 // --- composer ---
 
+/** Composer status line shown under the field — `{ type: 'error' | 'warning', message? }`.
+ */
 export type ChatComposerStatus = { type: 'error' | 'warning'; message?: string }
 
 /** Portable key event for the composer input — the seam for app-specific key
- *  handling. `native` carries the platform event (KeyboardEvent on web). */
+ *  handling. `native` carries the platform event (KeyboardEvent on web).
+ *
+ * @see ChatComposerInputProps.onKeyDown.
+ */
 export interface ChatComposerKeyEvent {
 	key: string
 	shiftKey: boolean
@@ -4975,7 +6416,10 @@ export interface ChatComposerKeyEvent {
 
 /** A pasted/dropped file. On web `native` is the browser `File`; native
  *  paste/drop file delivery is platform-dependent and may never fire —
- *  treat this as web-real, native-best-effort. */
+ *  treat this as web-real, native-best-effort.
+ *
+ * @see ChatComposerInputProps paste/drop seams.
+ */
 export interface ChatComposerFile {
 	name: string
 	/** MIME type ('' when unknown). */
@@ -4984,13 +6428,18 @@ export interface ChatComposerFile {
 	native?: unknown
 }
 
-/** Portable paste event handed to ChatComposerInput.onPaste. */
+/** Portable paste event handed to ChatComposerInput.onPaste.
+ *
+ * @see ChatComposerInputProps.onPaste, useChatPasteAsToken.
+ */
 export interface ChatComposerPasteEvent {
 	preventDefault(): void
 	/** The platform event (ClipboardEvent on web; undefined on native). */
 	native?: unknown
 }
 
+/** Tone palette for a `ChatComposerTokenBadge` chip — 'neutral' plus the status and hue names.
+ */
 export type ChatComposerTokenVariant =
 	| 'neutral'
 	| 'info'
@@ -5008,7 +6457,10 @@ export type ChatComposerTokenVariant =
 	| 'yellow'
 
 /** Badge-configured token — renders as an inline chip; `value` is what
- *  serializes into the submitted string. */
+ *  serializes into the submitted string.
+ *
+ * @see ChatComposerToken, serializeChatComposerToken.
+ */
 export interface ChatComposerTokenBadge {
 	value: string
 	label?: Renderable
@@ -5017,7 +6469,10 @@ export interface ChatComposerTokenBadge {
 	icon?: IconName
 }
 
-/** Custom-rendered token — full control over the chip's content. */
+/** Custom-rendered token — full control over the chip's content.
+ *
+ * @see ChatComposerToken — `render` does not serialize; persist the `ChatComposerTokenCustomData` half.
+ */
 export interface ChatComposerTokenCustom {
 	value: string
 	render: () => Renderable
@@ -5026,7 +6481,10 @@ export interface ChatComposerTokenCustom {
 /** A token (mention, pasted blob, command argument) embedded in the
  *  composer value. Web renders it as a non-editable inline chip inside the
  *  field; native keeps tokens in a chip row above the field and serializes
- *  them at their recorded insertion offset. */
+ *  them at their recorded insertion offset.
+ *
+ * @see ChatComposerTokenBadge, ChatComposerTokenCustom, ChatComposerTokenData for the serializable form.
+ */
 export type ChatComposerToken = ChatComposerTokenBadge | ChatComposerTokenCustom
 
 /** Serializable representation of a token that can cross storage boundaries.
@@ -5040,28 +6498,41 @@ export interface ChatComposerTokenBadgeData {
 	icon?: IconName
 }
 
+/** Serializable form of a custom composer token — `kind: 'custom'` plus the serialized `value`; its render function is restored on load via `deserializeChatComposerToken`.
+ */
 export interface ChatComposerTokenCustomData {
 	kind: 'custom'
 	value: string
 }
 
+/** Serializable token union (`badge` | `custom`) — the `tokens` half of `ChatComposerDraftData`.
+ */
 export type ChatComposerTokenData = ChatComposerTokenBadgeData | ChatComposerTokenCustomData
 
 /** Serializable composer draft — text plus the token table needed to render
- *  and re-edit it. */
+ *  and re-edit it.
+ *
+ * @see serializeChatComposerDraft / deserializeChatComposerDraft for the JSON-safe form.
+ */
 export interface ChatComposerDraft {
 	text: string
 	tokens: ChatComposerToken[]
 }
 
 /** A draft that has been reduced to plain JSON. `tokens` carry only the data
- *  half of each token; render functions are recovered on load. */
+ *  half of each token; render functions are recovered on load.
+ *
+ * @see serializeChatComposerDraft / deserializeChatComposerDraft.
+ */
 export interface ChatComposerDraftData {
 	text: string
 	tokens: ChatComposerTokenData[]
 }
 
-/** Item shape for trigger-menu sources — the portable SearchableItem. */
+/** Item shape for trigger-menu sources — the portable SearchableItem.
+ *
+ * @see SearchableItem — same shape; used by composer trigger sources.
+ */
 export interface ChatComposerTriggerItem<TAuxData = unknown> {
 	id: string
 	label: string
@@ -5116,6 +6587,8 @@ export interface ChatComposerInputControl {
 	focus(): void
 }
 
+/** Composer context read via `useChatComposerContext` inside `ChatComposer` slots — `value`/`draft`, `onChange`/`onDraftChange`, `onSend`, `placeholder`, `isDisabled`, `isStopShown`, `canSend`, cancel. `onSubmit` is the deprecated `onSend` alias.
+ */
 export interface ChatComposerContextValue {
 	value: string
 	draft: ChatComposerDraft
@@ -5183,6 +6656,8 @@ export interface ChatComposerInputProps {
 	web?: PlatformProps
 }
 
+/** Props for `ChatComposerTokenElement` — renders one `ChatComposerToken` chip (`token` is required).
+ */
 export interface ChatComposerTokenElementProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5239,7 +6714,16 @@ export interface ChatSendButtonProps {
  *
  *  State: provide either the legacy `value`/`onChange` string props or the
  *  structured `draft`/`onDraftChange` props. Actions: use `onSend` to submit
- *  and `onCancel` to stop; `onSubmit`/`onStop` remain as migration aliases. */
+ *  and `onCancel` to stop; `onSubmit`/`onStop` remain as migration aliases.
+ *
+ * @example
+ * ```tsx
+ * import { ChatComposer } from '@octane-xplat/ui'
+ *
+ * <ChatComposer value={draft} onChange={setDraft} onSend={send} placeholder="Message…" />
+ * ```
+ * @see ChatComposerProps slots and useChatComposerContext.
+ */
 export interface ChatComposerProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5324,6 +6808,8 @@ export interface ChatLayoutProps {
 	web?: PlatformProps
 }
 
+/** The floating 'scroll to bottom' pill rendered by `ChatLayout` — `isVisible` toggles it, `label` expands it, `onPress` scrolls.
+ */
 export interface ChatLayoutScrollButtonProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5337,6 +6823,8 @@ export interface ChatLayoutScrollButtonProps {
 	web?: PlatformProps
 }
 
+/** Options for `scrollToBottom` — `behavior: 'instant'` jumps in one frame; `'spring'` (default) animates (web spring, NS animated scroll; reduced-motion web jumps instantly).
+ */
 export interface ChatScrollToBottomOptions {
 	/** 'instant' jumps in one frame (open/restore); default 'spring' animates
 	 *  (web spring, NS animated scroll). Reduced-motion web jumps instantly. */
@@ -5344,7 +6832,10 @@ export interface ChatScrollToBottomOptions {
 }
 
 /** Owns a scroll container's follow-the-stream behavior. `scrollRef` points
- *  at the DOM scroller on web or the bound NS ScrollView on native. */
+ *  at the DOM scroller on web or the bound NS ScrollView on native.
+ *
+ * @see UseChatStreamScrollReturn — the hook owns ChatLayout's follow-the-stream behavior.
+ */
 export interface UseChatStreamScrollOptions {
 	scrollRef: { current?: HostElement | null }
 	enabled?: boolean
@@ -5360,6 +6851,8 @@ export interface UseChatStreamScrollOptions {
 	mass?: number
 }
 
+/** `useChatStreamScroll` result — `isScrolledUp`/`isLocked` state, `scrollToBottom`/`scrollToMessage`/`scrollToLastMessage` seeks, `lock`/`unlock` follow control, and `scrollIfLocked` to call on content growth.
+ */
 export interface UseChatStreamScrollReturn {
 	isScrolledUp: boolean
 	isLocked: boolean
@@ -5373,6 +6866,8 @@ export interface UseChatStreamScrollReturn {
 	scrollToLastMessage(): void
 }
 
+/** Options for `useChatNewMessages` — `isLocked` (locked scroll means new arrivals don't flag) and `onResize` fired on content height changes.
+ */
 export interface UseChatNewMessagesOptions {
 	/** When the scroll is locked, new arrivals don't flag — the user is
 	 *  already at the bottom. */
@@ -5381,6 +6876,8 @@ export interface UseChatNewMessagesOptions {
 	onResize?: () => void
 }
 
+/** `useChatNewMessages` result — `hasNewMessages` flag, `dismiss()`, and `contentRef` to attach to the message-list content element (ResizeObserver on web, layoutChanged on native).
+ */
 export interface UseChatNewMessagesReturn {
 	hasNewMessages: boolean
 	dismiss(): void
@@ -5398,6 +6895,8 @@ export interface UseChatPasteAsTokenOptions {
 	toToken?: (text: string) => ChatComposerToken
 }
 
+/** `useChatPasteAsToken` result — `onPaste(event, text)` to wire into `ChatComposerInput`'s paste seam; returns true when the paste became a token.
+ */
 export interface UseChatPasteAsTokenReturn {
 	/** Wire as ChatComposerInput's pasteAsToken/onPaste — true means the
 	 *  paste became a token. */
@@ -5405,12 +6904,17 @@ export interface UseChatPasteAsTokenReturn {
 }
 
 /** Token bookkeeping inside a composer input. `editableRef` is the editable
- *  div on web; on native it's the host object the native input installs. */
+ *  div on web; on native it's the host object the native input installs.
+ *
+ * @see UseChatComposerTokensReturn.
+ */
 export interface UseChatComposerTokensOptions {
 	editableRef: { current?: HostElement | null }
 	onEmitChange(): void
 }
 
+/** One mounted token chip inside a composer input — `id`, the `span` host the web portal renders into, and the `token` data.
+ */
 export interface TokenPortal {
 	id: string
 	/** The non-editable span web portals render into (DOM element). */
@@ -5418,6 +6922,8 @@ export interface TokenPortal {
 	token: ChatComposerToken
 }
 
+/** `useChatComposerTokens` result — `tokenPortals` to render, `insertToken`/`expandToken` editing ops, `handleKeyDown`/`handlePaste` interception (web events), `cleanupPortals`.
+ */
 export interface UseChatComposerTokensReturn {
 	tokenPortals: TokenPortal[]
 	expandToken(id: string): void
@@ -5431,6 +6937,8 @@ export interface UseChatComposerTokensReturn {
 
 // --- dictation (web SpeechRecognition; unsupported on native — isSupported:false) ---
 
+/** Options for `useSpeechRecognition` — `lang`, `continuous`, `interimResults`, `transformTranscript`, and transcript/start/end/error callbacks. Web SpeechRecognition only — native reports `isSupported: false` and never starts.
+ */
 export interface UseSpeechRecognitionOptions {
 	lang?: string
 	continuous?: boolean
@@ -5444,6 +6952,8 @@ export interface UseSpeechRecognitionOptions {
 	onEnd?: () => void
 }
 
+/** `useSpeechRecognition` result — `isSupported` (check first; false on native), `isListening`/`isSpeaking`, `volume`/`bands`/`rawBands` metering, `interimTranscript`, and `start`/`stop`/`abort`/`toggle`.
+ */
 export interface UseSpeechRecognitionReturn {
 	isSupported: boolean
 	isListening: boolean
@@ -5458,6 +6968,8 @@ export interface UseSpeechRecognitionReturn {
 	toggle(): void
 }
 
+/** Options for `useChatDictation` — `UseSpeechRecognitionOptions` plus `hasSounds` (web start/stop cues) and `inputRef` to pipe transcripts into a `ChatComposerInput`.
+ */
 export interface UseChatDictationOptions extends UseSpeechRecognitionOptions {
 	/** Start/stop audio cues (default false). Web only. */
 	hasSounds?: boolean
@@ -5466,9 +6978,14 @@ export interface UseChatDictationOptions extends UseSpeechRecognitionOptions {
 	inputRef?: { current: ChatComposerInputHandle | null }
 }
 
+/** `useChatDictation` result — the `UseSpeechRecognitionReturn` surface; `isSupported` is false on native.
+ */
 export interface UseChatDictationReturn extends UseSpeechRecognitionReturn {}
 
-/** Mic button bound to a useChatDictation/useSpeechRecognition result. */
+/** Mic button bound to a useChatDictation/useSpeechRecognition result.
+ *
+ * @see useChatDictation — pass its return as `dictation`.
+ */
 export interface ChatDictationButtonProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5489,10 +7006,14 @@ export interface ChatMessageContextValue {
 	density: ChatDensity
 }
 
+/** Density context `ChatMessageList` provides to descendants — `{ density }`.
+ */
 export interface ChatListContextValue {
 	density: ChatDensity
 }
 
+/** Scroll wiring `ChatLayout` provides — `scrollContainerRef` (the scroller host) and `contentRef` (attach to the list content for size observation).
+ */
 export interface ChatLayoutContextValue {
 	/** The scrollable container — DOM element on web, NS ScrollView natively. */
 	scrollContainerRef: { current?: HostElement | null }
@@ -5520,6 +7041,15 @@ export type NavLinkComponentType = ElementType
 
 // ----- NavIcon -----
 
+/** Circular icon button for navigation chrome (Astryx `NavIcon`) — `icon` is an element or registered `IconName` rendered through `Icon`.
+ *
+ * @example
+ * ```tsx
+ * import { NavIcon } from '@octane-xplat/ui'
+ *
+ * <NavIcon icon="xplat-search" />
+ * ```
+ */
 export interface NavIconProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5534,6 +7064,8 @@ export interface NavIconProps extends LayoutChildProps {
 
 // ----- Toolbar -----
 
+/** Astryx name for `NavElementSize` on `Toolbar`.
+ */
 export type ToolbarSize = NavElementSize
 
 /** Painted chrome behind the toolbar row — mirrors the upstream Section
@@ -5541,6 +7073,16 @@ export type ToolbarSize = NavElementSize
  *  (secondary wash). */
 export type ToolbarVariant = 'transparent' | 'section' | 'muted'
 
+/** Chrome row with `startContent`/`centerContent`/`endContent` slots (Astryx `Toolbar`). `label` is a required accessible name; `size` sets row height, `gap` the intra-slot spacing (spacing steps), `orientation` the arrow-key direction on web and layout axis elsewhere, `variant`/`dividers` the painted chrome.
+ *
+ * @example
+ * ```tsx
+ * import { Toolbar, Button } from '@octane-xplat/ui'
+ *
+ * <Toolbar label="Editor" startContent={<Button label="Back" />} endContent={<Button label="Save" variant="primary" />} />
+ * ```
+ * @see ToolbarSize, ToolbarVariant.
+ */
 export interface ToolbarProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5575,7 +7117,11 @@ export interface ToolbarProps extends LayoutChildProps {
 
 // ----- TabList / Tab / TabMenu -----
 
+/** Astryx name for `NavElementSize` on `TabList`.
+ */
 export type TabListSize = NavElementSize
+/** `TabList` sizing — `'hug'` wraps each tab's content, `'fill'` stretches tabs equally across the strip.
+ */
 export type TabListLayout = 'hug' | 'fill'
 /** Resolved semantics: `nav` landmark (default) or the WAI-ARIA `tabs`
  *  pattern under `role="tablist"`. */
@@ -5583,6 +7129,8 @@ export type TabListPattern = 'nav' | 'tabs'
 /** Strip overflow behavior — `auto` currently always resolves to `scroll`. */
 export type TabListOverflow = 'auto' | 'scroll' | 'visible'
 
+/** Context `TabList` provides to `Tab`/`TabMenu` children — current `value`, `onChange`, `size`, `layout`, and resolved `pattern` (nav landmark vs ARIA tabs).
+ */
 export interface TabListContextValue {
 	value: string
 	onChange: (value: string) => void
@@ -5591,6 +7139,19 @@ export interface TabListContextValue {
 	pattern: TabListPattern
 }
 
+/** Standalone tab strip (Astryx `TabList`) — children are `Tab`/`TabMenu`; `value`+`onChange` own selection by the tab's `value`. `layout` picks hug/fill, `hasDivider` the bottom rail, `role="tablist"` selects the WAI-ARIA tabs pattern (else it's a nav landmark), `overflow` controls strip overflow (`auto` resolves to `scroll`).
+ *
+ * @example
+ * ```tsx
+ * import { TabList, Tab } from '@octane-xplat/ui'
+ *
+ * <TabList value={tab} onChange={setTab}>
+ * 	<Tab value="overview" label="Overview" />
+ * 	<Tab value="specs" label="Specs" />
+ * </TabList>
+ * ```
+ * @see TabProps, TabMenuProps, TabsProps for the strip+panels component.
+ */
 export interface TabListProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5624,6 +7185,10 @@ export interface TabListProps extends LayoutChildProps {
 	web?: PlatformProps
 }
 
+/** One `TabList` tab — `value` matches the list's selected value; `label` is required (hide it with `isLabelHidden`). `href` makes it a link (real anchor on web; route-table activation on native — ignored under the `tablist` pattern); `panelId` links it to its panel via `aria-controls`. `icon`/`selectedIcon`/`endContent` fill the slots; `as` swaps the link element on web.
+ *
+ * @see TabListProps.
+ */
 export interface TabProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5658,6 +7223,8 @@ export interface TabProps {
 	web?: PlatformProps
 }
 
+/** One `TabMenu` dropdown option — `value`, `label`, optional leading `icon`.
+ */
 export interface TabMenuOption {
 	value: string
 	label: string
@@ -5690,6 +7257,8 @@ export type AppShellBreakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'none'
  *  nav + elevated surface content. */
 export type AppShellVariant = 'wash' | 'surface' | 'section' | 'elevated'
 
+/** AppShell's mobile-nav configuration — `hasToggle` auto-renders the hamburger (default true; place `MobileNavToggle` yourself when false), `isOpen`/`onOpenChange` control the drawer, `content` replaces the auto drawer, `breakpoint` sets where mobile nav activates (default `md`, `none` disables), `defaultIsMobile` is the SSR/first-paint hint.
+ */
 export interface MobileNavConfig {
 	/** Auto-render the hamburger toggle (default true). `false` → place
 	 *  `MobileNavToggle` yourself. */
@@ -5709,6 +7278,8 @@ export interface MobileNavConfig {
 	defaultIsMobile?: boolean
 }
 
+/** Context `AppShell` publishes (read via `useAppShellMobile`) — `isMobile`, drawer state (`isMobileNavOpen`, `mobileNavId`), open/close/toggle operations, and `isMobileNavEnabled`/`hasAutoToggle`.
+ */
 export interface AppShellMobileContextValue {
 	isMobile: boolean
 	isMobileNavOpen: boolean
@@ -5721,6 +7292,19 @@ export interface AppShellMobileContextValue {
 	hasAutoToggle: boolean
 }
 
+/** Application shell — top-nav + content frame with a `variant` background treatment, `banner` slot, `contentPadding` (spacing steps), `height` fill/auto, and `mobileNav` config that swaps the nav for a drawer below a width breakpoint.
+ *
+ * @example
+ * ```tsx
+ * import { AppShell, TopNav } from '@octane-xplat/ui'
+ *
+ * <AppShell variant="section" mobileNav={{ breakpoint: 'md' }}>
+ * 	<TopNav label="App">{items}</TopNav>
+ * 	{content}
+ * </AppShell>
+ * ```
+ * @see MobileNavConfig, TopNavProps, SideNavProps.
+ */
 export interface AppShellProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5752,9 +7336,26 @@ export interface AppShellProps extends LayoutChildProps {
 
 // ----- TopNav -----
 
+/** Resolved `TopNav` presentation — `'default'` desktop bar, `'mobile-bar'`, or `'drawer'`; read via `useTopNavRenderMode` inside nav content.
+ */
 export type TopNavRenderMode = 'default' | 'mobile-bar' | 'drawer'
+/** Named `TopNav` slot — `'start' | 'center' | 'end'`.
+ */
 export type TopNavSlot = 'start' | 'center' | 'end'
 
+/** Top navigation bar (Astryx `TopNav`) — `heading` (typically `TopNavHeading`), `startContent`/`centerContent`/`endContent` slots (`children` aliases `startContent`), `label` for the nav landmark. Inside `AppShell` it renders as the mobile bar/drawer under the breakpoint.
+ *
+ * @example
+ * ```tsx
+ * import { TopNav, TopNavItem, TopNavHeading } from '@octane-xplat/ui'
+ *
+ * <TopNav
+ * 	heading={<TopNavHeading heading="Acme" headingHref="/" />}
+ * 	startContent={<TopNavItem label="Docs" href="/docs" />}
+ * />
+ * ```
+ * @see TopNavHeadingProps, TopNavItemProps, AppShellProps.
+ */
 export interface TopNavProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5776,6 +7377,10 @@ export interface TopNavProps {
 	web?: PlatformProps
 }
 
+/** The brand/heading block inside `TopNav` — `logo`, `heading`/`superheading`/`subheading` (+Href links), `headerEndContent`, and `menu` for a heading popover (typically `NavHeadingMenu`, chevron added). `as` swaps the link element on web.
+ *
+ * @see TopNavProps, NavHeadingMenuProps.
+ */
 export interface TopNavHeadingProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5800,6 +7405,10 @@ export interface TopNavHeadingProps {
 	web?: PlatformProps
 }
 
+/** One `TopNav` link/action — `label` required (visible text, or aria name under `isIconOnly`), `href` navigation (anchor attrs `target`/`rel`/`download`/`referrerPolicy` are web-only), `isSelected`/`isDisabled`, `icon`, `size`, `onClick`.
+ *
+ * @see TopNavProps.
+ */
 export interface TopNavItemProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5831,6 +7440,8 @@ export interface TopNavItemProps {
 	web?: PlatformProps
 }
 
+/** One `TopNavMenu` data row — `title`, `description`, `icon`, `href`, `onClick`.
+ */
 export interface TopNavMenuItemData {
 	title: string
 	description?: string
@@ -5840,7 +7451,10 @@ export interface TopNavMenuItemData {
 }
 
 /** Trigger that opens a menu popover on hover (pointer platforms) or
- *  press. */
+ *  press.
+ *
+ * @see TopNavMenuItemData — the data form; `TopNavMegaMenu` for a composed panel.
+ */
 export interface TopNavMenuProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5856,6 +7470,8 @@ export interface TopNavMenuProps {
 	web?: PlatformProps
 }
 
+/** A `TopNav` trigger that opens a wide mega-menu — `items` (`TopNavMegaMenuItem` children or custom content), `featured` panel, hover `delay`/`hideDelay` (ms) on pointer platforms, `onOpenChange`.
+ */
 export interface TopNavMegaMenuProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5874,6 +7490,8 @@ export interface TopNavMegaMenuProps {
 	web?: PlatformProps
 }
 
+/** One `TopNavMegaMenu` entry — `title`, `description`, `icon`, `href`/`onClick` activation, `as` link override (web).
+ */
 export interface TopNavMegaMenuItemProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5889,6 +7507,8 @@ export interface TopNavMegaMenuItemProps {
 	web?: PlatformProps
 }
 
+/** The featured card inside `TopNavMegaMenu` — `title`, `description`, decorative `image`/`imageAlt`, `linkLabel`/`linkHref`, `children`.
+ */
 export interface TopNavMegaMenuFeaturedCardProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5909,15 +7529,23 @@ export interface TopNavMegaMenuFeaturedCardProps {
 
 // ----- SideNav -----
 
+/** Resolved `SideNav` presentation — `'default'` rail, `'topbar'`, `'drawer'`, or `'drawer-content'`; read via `useSideNavRenderMode`.
+ */
 export type SideNavRenderMode = 'default' | 'topbar' | 'drawer' | 'drawer-content'
+/** Astryx name for `NavElementSize` on nav items.
+ */
 export type NavItemSize = NavElementSize
 
+/** Live collapse state shared from a `SideNav` — `isCollapsed`, `toggle()`, `isCollapsible`.
+ */
 export interface SideNavCollapseState {
 	isCollapsed: boolean
 	toggle: () => void
 	isCollapsible: boolean
 }
 
+/** Collapse behavior for `SideNav` — `defaultIsCollapsed` (uncontrolled) or `isCollapsed`+`onCollapsedChange` (controlled), `hasButton` renders the built-in collapse affordance (default true), `buttonLabel` names it.
+ */
 export interface SideNavCollapsibleConfig {
 	defaultIsCollapsed?: boolean
 	isCollapsed?: boolean
@@ -5928,6 +7556,8 @@ export interface SideNavCollapsibleConfig {
 	buttonLabel?: string
 }
 
+/** `SideNavCollapsibleConfig` with the controlled fields required — `isCollapsed` + `onCollapsedChange`.
+ */
 export interface SideNavControlledCollapsible extends SideNavCollapsibleConfig {
 	isCollapsed: boolean
 	onCollapsedChange: (isCollapsed: boolean) => void
@@ -5939,6 +7569,20 @@ export interface SideNavImperativeCollapseHandle {
 	getCollapseState: () => SideNavCollapseState | null
 }
 
+/** Side navigation rail (Astryx `SideNav`) — `header`/`topContent`/`children`/`footer`/`footerIcons` slots, `collapsible` (true for defaults or a config; controlled via `isCollapsed`+`onCollapsedChange`), `resizable` inline-end drag handle, `label` landmark name.
+ *
+ * @example
+ * ```tsx
+ * import { SideNav, SideNavItem, SideNavSection, SideNavHeading } from '@octane-xplat/ui'
+ *
+ * <SideNav header={<SideNavHeading heading="Acme" />} collapsible>
+ * 	<SideNavSection title="Main">
+ * 		<SideNavItem label="Home" href="/" />
+ * 	</SideNavSection>
+ * </SideNav>
+ * ```
+ * @see SideNavCollapsibleConfig, SideNavItemProps, SideNavSectionProps.
+ */
 export interface SideNavProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5969,6 +7613,8 @@ export interface SideNavProps extends LayoutChildProps {
 	web?: PlatformProps
 }
 
+/** A titled group inside `SideNav` — `title` (+`subtitle`, `endContent`), `isHeaderHidden` keeps the title accessible but invisible; children are `SideNavItem`s.
+ */
 export interface SideNavSectionProps {
 	className?: ClassName
 	style?: StyleProp
@@ -5985,6 +7631,8 @@ export interface SideNavSectionProps {
 	web?: PlatformProps
 }
 
+/** The brand/heading block inside `SideNav` — `icon`, `heading`/`superheading`/`subheading` (+Href), `headerEndContent`, `menu` heading popover (typically `NavHeadingMenu`), `as` link override on web.
+ */
 export interface SideNavHeadingProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6008,6 +7656,10 @@ export interface SideNavHeadingProps {
 	web?: PlatformProps
 }
 
+/** One `SideNav` row — `label` required; `href`/`onClick` activation; `icon`/`selectedIcon`; `isSelected`/`isDisabled`; `endContent` passive trailing content; `actions` row-level controls (hidden while collapsed); `children` sub-items with their own `collapsible` config; `size`.
+ *
+ * @see SideNavProps, SideNavSectionProps.
+ */
 export interface SideNavItemProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6045,6 +7697,8 @@ export interface SideNavItemProps {
 	web?: PlatformProps
 }
 
+/** The rail collapse/expand button — reads the enclosing `SideNav`'s collapse state; `collapsible` passes a controlled `SideNavControlledCollapsible` only when the button renders outside its SideNav. `label` switches icon-only → text+chevron.
+ */
 export interface SideNavCollapseButtonProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6065,6 +7719,18 @@ export interface SideNavCollapseButtonProps {
 
 // ----- MobileNav -----
 
+/** Drawer-form navigation (Astryx `MobileNav`) — `header` (string → heading, or an element), drawer `side` ('start'/'end'/'auto'), `width` in dips, `isOpen`/`onOpenChange` (managed by AppShell context inside a shell), `label`. Preferred usage is via `AppShell`'s `mobileNav` config rather than standalone.
+ *
+ * @example
+ * ```tsx
+ * import { MobileNav, SideNavItem } from '@octane-xplat/ui'
+ *
+ * <MobileNav isOpen={open} onOpenChange={setOpen} header="Acme">
+ * 	<SideNavItem label="Home" href="/" />
+ * </MobileNav>
+ * ```
+ * @see MobileNavConfig, AppShellProps.
+ */
 export interface MobileNavProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6089,6 +7755,8 @@ export interface MobileNavProps extends LayoutChildProps {
 	web?: PlatformProps
 }
 
+/** The hamburger button that opens the `MobileNav` drawer — `children` replace the glyph, `label` names it (default 'Open navigation'). Auto-rendered by `AppShell` unless `mobileNav.hasToggle` is false.
+ */
 export interface MobileNavToggleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6104,8 +7772,12 @@ export interface MobileNavToggleProps {
 
 // ----- NavHeadingMenu (upstream NavMenu module) -----
 
+/** Astryx name for `NavElementSize` on `NavHeadingMenu`.
+ */
 export type NavHeadingMenuSize = NavElementSize
 
+/** Context `NavHeadingMenu` provides to its items — inherited `size` and `closeMenu()`.
+ */
 export interface NavHeadingMenuContextValue {
 	size: NavHeadingMenuSize
 	closeMenu: () => void
@@ -6116,6 +7788,8 @@ export interface NavHeadingCloseContextValue {
 	closeMenu: () => void
 }
 
+/** Menu popover content for `TopNavHeading`/`SideNavHeading` (`menu` slot) — `NavHeadingMenuItem` children, separators, or custom content; `size`, `minWidth` override (dips).
+ */
 export interface NavHeadingMenuProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6131,6 +7805,8 @@ export interface NavHeadingMenuProps {
 	web?: PlatformProps
 }
 
+/** One `NavHeadingMenu` row — `label` required, `icon`, `description`, `href`/`onClick` activation, `isDisabled`.
+ */
 export interface NavHeadingMenuItemProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6148,6 +7824,8 @@ export interface NavHeadingMenuItemProps {
 
 // ----- OverflowList -----
 
+/** One collapsed `OverflowList` entry handed to `overflowRenderer`/`onOverflowChange` — the caller's `child` element plus its original `index`.
+ */
 export interface OverflowItem {
 	/** The caller-supplied element for this item. */
 	child: Renderable
@@ -6156,7 +7834,20 @@ export interface OverflowItem {
 }
 
 /** Renders a measured subset of `children`; items that exceed the row (or a
- *  configured count cap) collapse into the `overflowRenderer` indicator. */
+ *  configured count cap) collapse into the `overflowRenderer` indicator.
+ *
+ * @example
+ * ```tsx
+ * import { OverflowList, Tab, MoreMenu } from '@octane-xplat/ui'
+ *
+ * <OverflowList
+ * 	overflowRenderer={(items) => <MoreMenu items={items.map((i) => ({ key: String(i.index), label: `Item ${i.index}` }))} />}
+ * >
+ * 	{tabs}
+ * </OverflowList>
+ * ```
+ * @see OverflowItem.
+ */
 export interface OverflowListProps extends LayoutChildProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6186,6 +7877,8 @@ export interface OverflowListProps extends LayoutChildProps {
 
 // ----- Resizable -----
 
+/** Axis a resize runs along — `'horizontal'` (width) or `'vertical'` (height); a `ResizeHandle`'s direction must match its region's.
+ */
 export type ResizableDirection = 'horizontal' | 'vertical'
 
 /** A pixel bound for a percentage size — `pixel(240)`. */
@@ -6206,7 +7899,10 @@ export type ResizablePercentSize = {
 
 /** A resizable size: px number, exact `Npx`/`N%` strings, `pixel(n)`, or
  *  `percent(n, {min|max})`. Basis-dependent values resolve once against the
- *  `containerRef` element (or the viewport/screen when omitted). */
+ *  `containerRef` element (or the viewport/screen when omitted).
+ *
+ * @see pixel, percent — the constructors for bounded sizes.
+ */
 export type ResizableSize =
 	| number
 	| `${number}px`
@@ -6214,14 +7910,20 @@ export type ResizableSize =
 	| ResizablePixelSize
 	| ResizablePercentSize
 
+/** The `minSize` half of a region config — a `ResizableSize` floor.
+ */
 export interface ResizableMinConfig {
 	minSize?: ResizableSize
 }
 
+/** The `maxSize` half of a region config — a `ResizableSize` ceiling.
+ */
 export interface ResizableMaxConfig {
 	maxSize?: ResizableSize
 }
 
+/** Per-region sizing behavior — `defaultSize`, `collapsible`, `collapsedSize` drag threshold (px, default 40), `snaps` snap points, `shrinkOrder` cascade priority (lower shrinks first).
+ */
 export interface ResizableRegionSizing {
 	defaultSize?: ResizableSize
 	/** Whether this region can collapse to 0 (default false). */
@@ -6234,6 +7936,8 @@ export interface ResizableRegionSizing {
 	shrinkOrder?: number
 }
 
+/** Full config for one `useResizable` region — sizing (`ResizableRegionSizing`) plus `minSize`/`maxSize` bounds.
+ */
 export type ResizableRegionConfig = ResizableRegionSizing & ResizableMinConfig & ResizableMaxConfig
 
 /** Simplified resize config accepted by a component's `resizable` prop
@@ -6251,6 +7955,8 @@ export interface ResizableConfig {
 	onCollapseChange?: (isCollapsed: boolean) => void
 }
 
+/** Options for single-region `useResizable` — `containerRef` (the element percentages resolve against; viewport/screen when omitted), `direction`, `autoSaveId` persistence key, collapse state (`defaultIsCollapsed` or `isCollapsed`+`onCollapseChange`), `onSizeChange`.
+ */
 export interface UseResizableSingleOptions {
 	/** Element/view a percentage resolves against — `{ current }` shaped. */
 	containerRef?: { current: HostElement | null }
@@ -6263,8 +7969,12 @@ export interface UseResizableSingleOptions {
 	onCollapseChange?: (isCollapsed: boolean) => void
 }
 
+/** Single-region `useResizable` config — `ResizableRegionConfig` sizing plus `UseResizableSingleOptions` host wiring.
+ */
 export type UseResizableSingleConfig = ResizableRegionConfig & UseResizableSingleOptions
 
+/** Multi-region `useResizable` config — named `regions` map (`Record<string, ResizableRegionConfig>`), shared `direction`/`containerRef`/`autoSaveId`.
+ */
 export interface UseResizableMultiConfig {
 	direction?: ResizableDirection
 	containerRef?: { current: HostElement | null }
@@ -6294,6 +8004,8 @@ export interface ResizableProps {
 	_isResizableProps: true
 }
 
+/** One live region from multi-region `useResizable` — current `size` (px/dips), `isCollapsed`, `collapse`/`expand`/`resize` operations, and `props` to spread into a `ResizeHandle`.
+ */
 export interface ResizableRegion {
 	/** Current size in px/dips. */
 	size: number
@@ -6305,6 +8017,8 @@ export interface ResizableRegion {
 	props: ResizableProps
 }
 
+/** The drag handle between resizable regions — `resizable` takes the `ResizableProps` a `useResizable` region emits (or a component's `resizable` config object); `direction` must match the region's axis.
+ */
 export interface ResizeHandleProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6341,7 +8055,16 @@ export interface ResizeHandleProps {
 
 /** Icon-only button — `label` is the accessible name and doubles as the
  *  hover/focus tooltip on pointer targets. `icon` is required: a node or a
- *  registered icon name. */
+ *  registered icon name.
+ *
+ * @example
+ * ```tsx
+ * import { IconButton } from '@octane-xplat/ui'
+ *
+ * <IconButton icon="xplat-close" label="Close" clickAction={close} />
+ * ```
+ * @see ButtonProps.
+ */
 export interface IconButtonProps extends Omit<
 	ButtonProps,
 	'children' | 'endContent' | 'isIconOnly' | 'label'
@@ -6350,6 +8073,8 @@ export interface IconButtonProps extends Omit<
 	label: string
 }
 
+/** Axis of a `ButtonGroup`/`ToggleButtonGroup` — `'horizontal'` (default) or `'vertical'`.
+ */
 export type ButtonGroupOrientation = 'horizontal' | 'vertical'
 
 /** Shared context Button (and grouped trigger components) read inside a
@@ -6362,7 +8087,19 @@ export interface ButtonGroupContextValue {
 
 /** Connected button row — shared surface, squared inner edges, single tab
  *  stop with arrow-key navigation on web. Children are Buttons/IconButtons/
- *  ToggleButtons or a DropdownMenu trigger member. */
+ *  ToggleButtons or a DropdownMenu trigger member.
+ *
+ * @example
+ * ```tsx
+ * import { ButtonGroup, Button } from '@octane-xplat/ui'
+ *
+ * <ButtonGroup label="File actions">
+ * 	<Button label="Save" />
+ * 	<Button label="Revert" />
+ * </ButtonGroup>
+ * ```
+ * @see ButtonGroupContextValue, ButtonGroupOrientation.
+ */
 export interface ButtonGroupProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6385,7 +8122,16 @@ export interface ButtonGroupProps {
 /** Toggle button — pressed state with `isPressed`/`onPressedChange`, an
  *  optional `pressedChangeAction` run through Button's action transition, and
  *  `pressedIcon` for outline→filled swaps. Inside a ToggleButtonGroup the
- *  group owns pressed state via `value`. */
+ *  group owns pressed state via `value`.
+ *
+ * @example
+ * ```tsx
+ * import { ToggleButton } from '@octane-xplat/ui'
+ *
+ * <ToggleButton label="Bold" isPressed={bold} onPressedChange={setBold} />
+ * ```
+ * @see ToggleButtonGroupProps for grouped selection.
+ */
 export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant' | 'clickAction'> {
 	label: string
 	isPressed?: boolean
@@ -6430,13 +8176,37 @@ export interface ToggleButtonGroupMultipleProps extends ToggleButtonGroupBasePro
 	onChange: (value: string[]) => void
 }
 
+/** `ToggleButtonGroup` — single-select (`type: 'single'` default, `value: string | null`; tapping the active member deselects) or multi-select (`type: 'multiple'`, `value: string[]`). Members are `ToggleButton`s keyed by their `value` prop.
+ *
+ * @example
+ * ```tsx
+ * import { ToggleButtonGroup, ToggleButton } from '@octane-xplat/ui'
+ *
+ * <ToggleButtonGroup label="Align" value={align} onChange={setAlign}>
+ * 	<ToggleButton value="left" label="Left" />
+ * 	<ToggleButton value="right" label="Right" />
+ * </ToggleButtonGroup>
+ * ```
+ * @see ToggleButtonGroupSingleProps, ToggleButtonGroupMultipleProps, ToggleButtonProps.
+ */
 export type ToggleButtonGroupProps = ToggleButtonGroupSingleProps | ToggleButtonGroupMultipleProps
 
 /** Interactive card for navigation or action targets. The whole surface is
  *  one press/click target; nested interactive children (buttons, links) still
  *  work independently. `href` gives real link semantics on web (modifier and
  *  middle clicks open a new tab; unsafe URL schemes are refused) and opens
- *  the platform browser on native. */
+ *  the platform browser on native.
+ *
+ * @example
+ * ```tsx
+ * import { ClickableCard, Text } from '@octane-xplat/ui'
+ *
+ * <ClickableCard label="Open report" href={`/reports/${id}`}>
+ * 	<Text>{title}</Text>
+ * </ClickableCard>
+ * ```
+ * @see SelectableCardProps, CardProps.
+ */
 export interface ClickableCardProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6463,7 +8233,18 @@ export interface ClickableCardProps {
 }
 
 /** Toggle-selection card — same surface contract as ClickableCard with a
- *  checked/selected semantic instead of an action. */
+ *  checked/selected semantic instead of an action.
+ *
+ * @example
+ * ```tsx
+ * import { SelectableCard, Text } from '@octane-xplat/ui'
+ *
+ * <SelectableCard label="Basic plan" isSelected={plan === 'basic'} onChange={() => setPlan('basic')}>
+ * 	<Text>{details}</Text>
+ * </SelectableCard>
+ * ```
+ * @see ClickableCardProps.
+ */
 export interface SelectableCardProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6487,6 +8268,8 @@ export interface SelectableCardProps {
 	web?: PlatformProps
 }
 
+/** Menu side of the `MoreMenu` trigger — logical (`above`/`below`/`start`/`end`) or physical (`left`/`right`/`top`/`bottom`) sides. @default 'below'
+ */
 export type MoreMenuPlacement =
 	| 'above'
 	| 'below'
@@ -6496,13 +8279,24 @@ export type MoreMenuPlacement =
 	| 'right'
 	| PopoverPlacement
 
+/** Menu alignment along the placement axis — `PopoverAlignment`. @default 'start'
+ */
 export type MoreMenuAlignment = PopoverAlignment
 /** 'popover' anchors the menu to the trigger; 'bottom-sheet' docks it in the
  *  bottom sheet; 'adaptive' resolves to bottom-sheet on coarse-pointer/touch
  *  targets and popover elsewhere. @default 'popover' */
 export type MoreMenuPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
 
-/** Overflow menu — icon-only three-dot trigger feeding a DropdownMenu. */
+/** Overflow menu — icon-only three-dot trigger feeding a DropdownMenu.
+ *
+ * @example
+ * ```tsx
+ * import { MoreMenu } from '@octane-xplat/ui'
+ *
+ * <MoreMenu items={[{ key: 'share', label: 'Share', onSelect: share }]} />
+ * ```
+ * @see MenuItem, DropdownMenuProps.
+ */
 export interface MoreMenuProps {
 	className?: ClassName
 	style?: StyleProp
@@ -6536,16 +8330,22 @@ export interface MoreMenuProps {
 // Reuse the shared SearchableItem and SearchSource contracts from Typeahead.
 
 // Operator value kinds — what editor a filter value uses.
+/** PowerSearch operator that takes no value (e.g. 'is empty').
+ */
 export interface EmptyOperatorValue {
 	readonly type: 'empty'
 }
 
+/** PowerSearch operator taking one string; `searchSource` supplies completions, `isArbitraryStringAllowed` permits free text.
+ */
 export interface StringOperatorValue {
 	readonly type: 'string'
 	readonly searchSource?: SearchSource
 	readonly isArbitraryStringAllowed?: boolean
 }
 
+/** PowerSearch operator taking a string list — `searchSource` completions, `isArbitraryStringAllowed` free entries, `tokenization` paste rules.
+ */
 export interface StringListOperatorValue {
 	readonly type: 'string_list'
 	readonly searchSource?: SearchSource
@@ -6553,6 +8353,8 @@ export interface StringListOperatorValue {
 	readonly tokenization?: OperatorTokenizationConfig
 }
 
+/** PowerSearch operator taking an integer, optionally `minValue`/`maxValue` bounded with `units` label.
+ */
 export interface IntegerOperatorValue {
 	readonly type: 'integer'
 	readonly minValue?: number
@@ -6560,6 +8362,8 @@ export interface IntegerOperatorValue {
 	readonly units?: string
 }
 
+/** PowerSearch operator taking a float, optionally `minValue`/`maxValue` bounded with `units` label.
+ */
 export interface FloatOperatorValue {
 	readonly type: 'float'
 	readonly minValue?: number
@@ -6567,18 +8371,24 @@ export interface FloatOperatorValue {
 	readonly units?: string
 }
 
+/** PowerSearch operator taking a wall-clock time string, optionally `minValue`/`maxValue` bounded.
+ */
 export interface TimeOperatorValue {
 	readonly type: 'time'
 	readonly minValue?: string
 	readonly maxValue?: string
 }
 
+/** PowerSearch operator taking an absolute date — `isDateOnly` drops the time part.
+ */
 export interface DateAbsoluteOperatorValue {
 	readonly type: 'date_absolute'
 	/** Date-only editing without a time part. */
 	readonly isDateOnly?: boolean
 }
 
+/** PowerSearch operator taking a relative date expression — `isPastAllowed`/`isFutureAllowed` gate direction (default both true).
+ */
 export interface DateRelativeOperatorValue {
 	readonly type: 'date_relative'
 	/** @default true */
@@ -6587,28 +8397,38 @@ export interface DateRelativeOperatorValue {
 	readonly isFutureAllowed?: boolean
 }
 
+/** PowerSearch operator taking a `DateTimeRange` — `intervalDatePresets`/`relativeDatePresets` supply quick picks.
+ */
 export interface DateRangeOperatorValue {
 	readonly type: 'date_range'
 	readonly intervalDatePresets?: ReadonlyArray<DateRangeFilterPreset>
 	readonly relativeDatePresets?: ReadonlyArray<RelativeDateFilterPreset>
 }
 
+/** One fixed choice for enum-valued PowerSearch operators — `value`, `label`, optional `icon`.
+ */
 export interface EnumItem {
 	readonly value: string
 	readonly label: string
 	readonly icon?: Renderable
 }
 
+/** PowerSearch operator taking one `EnumItem.value` from `values`.
+ */
 export interface EnumOperatorValue {
 	readonly type: 'enum'
 	readonly values: ReadonlyArray<EnumItem>
 }
 
+/** PowerSearch operator taking several `EnumItem.value`s from `values`.
+ */
 export interface EnumListOperatorValue {
 	readonly type: 'enum_list'
 	readonly values: ReadonlyArray<EnumItem>
 }
 
+/** PowerSearch operator taking a list of entity picks — `searchSource` resolves them, `tokenization` handles pastes, `renderItem` customizes rows.
+ */
 export interface EntityListOperatorValue {
 	readonly type: 'entity_list'
 	readonly searchSource?: SearchSource
@@ -6626,6 +8446,8 @@ export interface CustomOperatorEditorProps {
 	isDisabled?: boolean
 }
 
+/** PowerSearch operator with a caller-supplied editor — `Editor` gets `CustomOperatorEditorProps`; `getString` renders the stored JSON value as token text.
+ */
 export interface CustomOperatorValue {
 	readonly type: 'custom'
 	/** Caller editor component: `{value, onChange, placeholder, isDisabled}`. */
@@ -6634,10 +8456,14 @@ export interface CustomOperatorValue {
 	readonly getString: (value: string) => string
 }
 
+/** PowerSearch operator taking a nested filter list (`FilterValueNested`).
+ */
 export interface NestedOperatorValue {
 	readonly type: 'nested'
 }
 
+/** Union of every PowerSearch operator value kind — discriminated on `type`; determines the editor a filter value uses.
+ */
 export type OperatorValue =
 	| EmptyOperatorValue
 	| StringOperatorValue
@@ -6655,81 +8481,113 @@ export type OperatorValue =
 	| NestedOperatorValue
 
 // Stored filter values.
+/** Stored PowerSearch value: none (empty operators).
+ */
 export interface FilterValueEmpty {
 	readonly type: 'empty'
 }
 
+/** Stored PowerSearch value: one string.
+ */
 export interface FilterValueString {
 	readonly type: 'string'
 	readonly value: string
 }
 
+/** Stored PowerSearch value: a string list.
+ */
 export interface FilterValueStringList {
 	readonly type: 'string_list'
 	readonly value: ReadonlyArray<string>
 }
 
+/** Stored PowerSearch value: an integer.
+ */
 export interface FilterValueInteger {
 	readonly type: 'integer'
 	readonly value: number
 }
 
+/** Stored PowerSearch value: a float.
+ */
 export interface FilterValueFloat {
 	readonly type: 'float'
 	readonly value: number
 }
 
+/** Stored PowerSearch value: a wall-clock time string.
+ */
 export interface FilterValueTime {
 	readonly type: 'time'
 	readonly value: string
 }
 
+/** Stored PowerSearch value: an instant as `unixSeconds`.
+ */
 export interface FilterValueDateAbsolute {
 	readonly type: 'date_absolute'
 	readonly unixSeconds: number
 }
 
+/** Stored PowerSearch value: a relative-date expression string.
+ */
 export interface FilterValueDateRelative {
 	readonly type: 'date_relative'
 	readonly value: string
 }
 
+/** Stored PowerSearch value: a `DateTimeRange`.
+ */
 export interface FilterValueDateRange {
 	readonly type: 'date_range'
 	readonly value: DateTimeRange
 }
 
+/** Stored PowerSearch value: one enum `value`.
+ */
 export interface FilterValueEnum {
 	readonly type: 'enum'
 	readonly value: string
 }
 
+/** Stored PowerSearch value: enum `value`s.
+ */
 export interface FilterValueEnumList {
 	readonly type: 'enum_list'
 	readonly value: ReadonlyArray<string>
 }
 
+/** An entity pick stored in a filter — `id`, `label`, optional `photo`.
+ */
 export interface PowerSearchEntity {
 	readonly id: string
 	readonly label: string
 	readonly photo?: string
 }
 
+/** Stored PowerSearch value: picked `PowerSearchEntity` items.
+ */
 export interface FilterValueEntityList {
 	readonly type: 'entity_list'
 	readonly value: ReadonlyArray<PowerSearchEntity>
 }
 
+/** Stored PowerSearch value: a custom operator's JSON string.
+ */
 export interface FilterValueCustom {
 	readonly type: 'custom'
 	readonly value: string
 }
 
+/** Stored PowerSearch value: a nested `PowerSearchFilter` list.
+ */
 export interface FilterValueNested {
 	readonly type: 'nested'
 	readonly value: ReadonlyArray<PowerSearchFilter>
 }
 
+/** Union of every stored PowerSearch filter value — discriminated on `type`, mirroring `OperatorValue`.
+ */
 export type FilterValue =
 	| FilterValueEmpty
 	| FilterValueString
@@ -6746,6 +8604,8 @@ export type FilterValue =
 	| FilterValueCustom
 	| FilterValueNested
 
+/** Paste tokenization for list-valued operators — `regex` splits pasted text, `sort` orders the tokens.
+ */
 export interface OperatorTokenizationConfig {
 	/** Regex applied to pasted text. */
 	readonly regex?: string
@@ -6753,6 +8613,8 @@ export interface OperatorTokenizationConfig {
 	readonly sort?: boolean
 }
 
+/** One endpoint of a `DateTimeRange` — `NOW`, an `ABSOLUTE` instant (`unixSeconds`), or `RELATIVE` (`backValue`+`unit`, optional `anchorKey`).
+ */
 export type DateTimeRangePart =
 	| { readonly type: 'NOW' }
 	| { readonly type: 'ABSOLUTE'; readonly unixSeconds: number }
@@ -6763,22 +8625,30 @@ export type DateTimeRangePart =
 			readonly anchorKey?: string
 	  }
 
+/** An absolute-or-relative time range — `start`/`end` as `DateTimeRangePart`s; the stored form for `date_range` filters and presets.
+ */
 export interface DateTimeRange {
 	readonly start: DateTimeRangePart
 	readonly end: DateTimeRangePart
 }
 
+/** A named absolute-range quick pick — `label` + `DateTimeRange` value.
+ */
 export interface DateRangeFilterPreset {
 	readonly label: string
 	readonly value: DateTimeRange
 }
 
+/** A named relative-range quick pick — `label` + relative expression `value`.
+ */
 export interface RelativeDateFilterPreset {
 	readonly label: string
 	readonly value: string
 }
 
 // Config vocabulary.
+/** Shared operator fields — `key` (identity) and `value` (the `OperatorValue` editor kind).
+ */
 export interface PowerSearchOperatorBase {
 	readonly key: string
 	readonly value: OperatorValue
@@ -6798,8 +8668,12 @@ export interface PowerSearchOperatorWithI18nKey extends PowerSearchOperatorBase 
 	readonly label?: never
 }
 
+/** A field operator — label inline (`PowerSearchOperatorWithLabel`) or via the i18n catalog (`PowerSearchOperatorWithI18nKey`); never both.
+ */
 export type PowerSearchOperator = PowerSearchOperatorWithLabel | PowerSearchOperatorWithI18nKey
 
+/** One searchable field — `key`, `label`, its `operators`, `defaultOperator`, `group`/`description`/`typeaheadAliases` for browsing and matching.
+ */
 export interface PowerSearchField {
 	readonly key: string
 	readonly label: string
@@ -6818,6 +8692,10 @@ export interface PowerSearchField {
 	readonly isValueMatchAllowed?: boolean
 }
 
+/** Field/operator schema driving `PowerSearch` — `name`, `fields`, and `contentSearchFieldKey` (the field free text binds to). Build it with `createPowerSearchConfig` to keep `filters`/`onChange` typed to the declared combinations.
+ *
+ * @see PowerSearchField, PowerSearchOperator, createPowerSearchConfig.
+ */
 export interface PowerSearchConfig {
 	readonly name: string
 	readonly fields: ReadonlyArray<PowerSearchField>
@@ -6825,6 +8703,8 @@ export interface PowerSearchConfig {
 	readonly contentSearchFieldKey?: string
 }
 
+/** One committed filter — `field`/`operator` keys plus a typed `value`; `isReadOnly` blocks editing. With a config from `createPowerSearchConfig`, use `PowerSearchFilterFor<C>` to constrain combinations to the declared schema.
+ */
 export interface PowerSearchFilter {
 	readonly field: string
 	readonly operator: string
@@ -6833,6 +8713,8 @@ export interface PowerSearchFilter {
 	readonly isReadOnly?: boolean
 }
 
+/** An in-progress filter inside the editor — `field` required, `operator`/`value` optional until complete.
+ */
 export interface PartialFilter {
 	readonly field: string
 	readonly operator?: string
@@ -6840,14 +8722,21 @@ export interface PartialFilter {
 	readonly isReadOnly?: boolean
 }
 
+/** What a `PowerSearch` `onChange` reports — `'add'`, `'edit'`, or `'remove'`, with the filter index.
+ */
 export type PowerSearchChangeType = 'add' | 'edit' | 'remove'
 
-/** Imperative typeahead handle exposed through `handleRef`. */
+/** Imperative typeahead handle exposed through `handleRef`.
+ *
+ * @see PowerSearchProps.handleRef.
+ */
 export interface PowerSearchHandle {
 	focusTypeahead(): void
 	blurTypeahead(): void
 }
 
+/** Suggestion metadata inside `PowerSearchItem.auxiliaryData` — which field/operator/value/filter index an entry refers to, and its browse `group`.
+ */
 export interface PowerSearchAuxData {
 	readonly fieldKey: string
 	readonly operatorKey?: string
@@ -6856,11 +8745,18 @@ export interface PowerSearchAuxData {
 	readonly group?: string
 }
 
+/** A `PowerSearch` suggestion row — `SearchableItem` carrying `PowerSearchAuxData`.
+ */
 export type PowerSearchItem = SearchableItem<PowerSearchAuxData>
 
+/** Size scale for the `PowerSearch` bar — `'sm' | 'md' | 'lg'`.
+ */
 export type PowerSearchSize = 'sm' | 'md' | 'lg'
 
-/** Props for a custom token pill (`components[type].Token`). */
+/** Props for a custom token pill (`components[type].Token`).
+ *
+ * @see PowerSearchComponents — supply a `Token` override per operator type.
+ */
 export interface PowerSearchTokenProps {
 	readonly config: PowerSearchConfig
 	readonly filter: PowerSearchFilter
@@ -6889,11 +8785,15 @@ export interface PowerSearchEditorProps {
  *  same contract `components[type].Editor` overrides receive. */
 export type PowerSearchFilterEditorProps = PowerSearchEditorProps
 
+/** Per-operator-type component overrides — `Token` (the filter pill) and/or `Editor` (the popover editor).
+ */
 export interface PowerSearchComponentOverride {
 	readonly Token?: ElementComponent<PowerSearchTokenProps>
 	readonly Editor?: ElementComponent<PowerSearchEditorProps>
 }
 
+/** `PowerSearch.components` — maps an `OperatorValue['type']` to its `Token`/`Editor` overrides.
+ */
 export type PowerSearchComponents = Partial<
 	Record<OperatorValue['type'], PowerSearchComponentOverride>
 >
@@ -6903,7 +8803,21 @@ export type PowerSearchComponents = Partial<
  *  A `config` built by `createPowerSearchConfig` carries its field
  *  definitions, so `filters`/`onChange` only accept field/operator/value
  *  combinations the config declares (see `PowerSearchFilterFor`); a
- *  hand-built `PowerSearchConfig` keeps the loose `PowerSearchFilter`. */
+ *  hand-built `PowerSearchConfig` keeps the loose `PowerSearchFilter`.
+ *
+ * @example
+ * ```tsx
+ * import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
+ *
+ * const { config } = createPowerSearchConfig([
+ * 	{ key: 'name', type: 'string', label: 'Name' },
+ * 	{ key: 'status', type: 'enum', label: 'Status', enumValues: [{ value: 'open', label: 'Open' }] },
+ * ] as const)
+ *
+ * <PowerSearch config={config} filters={filters} onChange={(next) => setFilters(next)} />
+ * ```
+ * @see PowerSearchConfig, PowerSearchFilterFor, PowerSearchComponents.
+ */
 export interface PowerSearchProps<C extends PowerSearchConfig = PowerSearchConfig>
 	extends FieldControlProps {
 	className?: ClassName
@@ -6970,6 +8884,8 @@ export interface FieldDefinition<
 	readonly enumValues?: ReadonlyArray<EnumItem>
 }
 
+/** Field kinds `createPowerSearchConfig` accepts — string, number, boolean, date, enum, enum_list, string_list.
+ */
 export type PowerSearchFieldType =
 	| 'string'
 	| 'number'
@@ -6979,6 +8895,8 @@ export type PowerSearchFieldType =
 	| 'enum_list'
 	| 'string_list'
 
+/** Maps a `PowerSearchFieldType` to its stored JS value type — drives `InferData` and typed filter values.
+ */
 export type PowerSearchFieldTypeToJS = {
 	string: string
 	number: number
@@ -7107,6 +9025,8 @@ export type PowerSearchFilterFor<Source> = Source extends {
 
 // ---------- theme ----------
 
+/** Resolved color scheme — `'light' | 'dark'`. See `useColorScheme`/`getColorScheme` for reading it and `setThemePreference` for the user's preference.
+ */
 export type ColorScheme = 'light' | 'dark'
 
 // ---------- collection identity ----------
@@ -7181,6 +9101,19 @@ export interface ReadableStore<T> {
 	subscribe(notify: () => void): () => void
 }
 
+/** A writable reactive store (from `createStore`) — `ReadableStore` plus `set(value)` for assignment and `update(fn)` for computed writes. Reads through `useStore` stay reactive on every target.
+ *
+ * @example
+ * ```ts
+ * import { createStore, useStore } from '@octane-xplat/ui'
+ *
+ * const count = createStore(0)
+ * count.update((n) => n + 1)
+ * // in a component:
+ * const n = useStore(count)
+ * ```
+ * @see ReadableStore, StoreSnapshot, createStore.
+ */
 export interface Store<T> extends ReadableStore<T> {
 	/** Assign a value. Updaters belong to `update` — a function passed here
 	 *  is stored as the value, never invoked. */
@@ -7260,7 +9193,15 @@ export type TextColor = 'primary' | 'secondary' | 'disabled' | 'placeholder' | '
 /** Font weight axis shared by Timestamp/Timer. */
 export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
 
-/** Blockquote — styled quotation with optional `cite` attribution. */
+/** Blockquote — styled quotation with optional `cite` attribution.
+ *
+ * @example
+ * ```tsx
+ * import { Blockquote } from '@octane-xplat/ui'
+ *
+ * <Blockquote cite="Design notes">{quote}</Blockquote>
+ * ```
+ */
 export interface BlockquoteProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7281,7 +9222,16 @@ export type CodeColor = 'primary' | 'secondary' | 'inherit'
 export type CodeSize = 'inherit'
 
 /** Code — inline monospace run. Standalone renders a mono chip; nested
- *  inside `Text`/`RichText` it stays an inline run on every target. */
+ *  inside `Text`/`RichText` it stays an inline run on every target.
+ *
+ * @example
+ * ```tsx
+ * import { Code, Text } from '@octane-xplat/ui'
+ *
+ * <Text>Run <Code>pnpm dev</Code> to start.</Text>
+ * ```
+ * @see CodeBlockProps for multi-line display.
+ */
 export interface CodeProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7330,7 +9280,16 @@ export interface SyntaxThemeOverride {
 	tokens: Record<string, string | [light: string, dark: string]>
 }
 
-/** CodeBlock — read-only syntax-highlighted code display. */
+/** CodeBlock — read-only syntax-highlighted code display.
+ *
+ * @example
+ * ```tsx
+ * import { CodeBlock } from '@octane-xplat/ui'
+ *
+ * <CodeBlock code={source} language="typescript" title="example.ts" hasLineNumbers />
+ * ```
+ * @see CodeTokenizer, SyntaxThemeOverride.
+ */
 export interface CodeBlockProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7404,10 +9363,21 @@ export interface ProgressBarVariantMap {
 	error: true
 }
 
+/** `ProgressBar` tone — keys of `ProgressBarVariantMap` (accent/success/warning/neutral/error); augment the map to add variants.
+ */
 export type ProgressBarVariant = keyof ProgressBarVariantMap
 
 /** ProgressBar — linear determinate or indeterminate progress. `Meter` stays
- *  the ring form; this is the bar. */
+ *  the ring form; this is the bar.
+ *
+ * @example
+ * ```tsx
+ * import { ProgressBar } from '@octane-xplat/ui'
+ *
+ * <ProgressBar label="Uploading" value={done} max={total} hasValueLabel />
+ * ```
+ * @see MeterProps for a static gauge, ProgressGroupProps.
+ */
 export interface ProgressBarProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7453,9 +9423,19 @@ export interface StatusDotVariantMap {
 	neutral: true
 }
 
+/** `StatusDot` tone — keys of `StatusDotVariantMap` (success/warning/error/accent/neutral); augment the map to add variants.
+ */
 export type StatusDotVariant = keyof StatusDotVariantMap
 
-/** StatusDot — small colored status signal. */
+/** StatusDot — small colored status signal.
+ *
+ * @example
+ * ```tsx
+ * import { StatusDot } from '@octane-xplat/ui'
+ *
+ * <StatusDot variant="success" label="Operational" />
+ * ```
+ */
 export interface StatusDotProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7514,7 +9494,16 @@ export interface TimestampTooltipEntry {
 	isCopyable?: boolean
 }
 
-/** Timestamp — human-readable instant with relative/absolute formats. */
+/** Timestamp — human-readable instant with relative/absolute formats.
+ *
+ * @example
+ * ```tsx
+ * import { Timestamp } from '@octane-xplat/ui'
+ *
+ * <Timestamp value={createdAt} format="relative" isLive />
+ * ```
+ * @see TimestampFormat, TimestampTooltipEntry — `value` is Unix seconds (or ISO 8601); no magnitude guessing beyond the fixed 1e12 ms boundary.
+ */
 export interface TimestampProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7559,7 +9548,16 @@ export interface TimestampProps {
 /** Timer duration text modes: 'elapsed' = "4m 05s" / 'clock' = "4:05". */
 export type TimerFormat = 'elapsed' | 'clock'
 
-/** Timer — live elapsed duration since `startTime` (or mount). */
+/** Timer — live elapsed duration since `startTime` (or mount).
+ *
+ * @example
+ * ```tsx
+ * import { Timer } from '@octane-xplat/ui'
+ *
+ * <Timer startTime={startedAt} format="elapsed" />
+ * ```
+ * @see TimestampProps — `startTime` is Unix **milliseconds**.
+ */
 export interface TimerProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7596,7 +9594,16 @@ export interface CitationSource {
 	icon?: Renderable
 }
 
-/** Citation — a superscript number or labelled chip referencing a source. */
+/** Citation — a superscript number or labelled chip referencing a source.
+ *
+ * @example
+ * ```tsx
+ * import { Citation } from '@octane-xplat/ui'
+ *
+ * <Citation number={1} source={{ title: 'Spec', url: 'https://example.com/spec' }} />
+ * ```
+ * @see CitationSource.
+ */
 export interface CitationProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7618,9 +9625,23 @@ export interface MetadataListLabelConfig {
 	width?: number | string
 }
 
+/** `MetadataList` column policy — `'single'` (default), `'multi'` (auto-fill), or a fixed column count.
+ */
 export type MetadataListColumns = 'multi' | 'single' | number
 
-/** MetadataList — read-only labeled key/value list (definition list). */
+/** MetadataList — read-only labeled key/value list (definition list).
+ *
+ * @example
+ * ```tsx
+ * import { MetadataList, MetadataListItem } from '@octane-xplat/ui'
+ *
+ * <MetadataList title="Details">
+ * 	<MetadataListItem label="Created">{created}</MetadataListItem>
+ * 	<MetadataListItem label="Owner">{owner}</MetadataListItem>
+ * </MetadataList>
+ * ```
+ * @see MetadataListItemProps, MetadataListColumns.
+ */
 export interface MetadataListProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7646,7 +9667,10 @@ export interface MetadataListProps {
 	web?: PlatformProps
 }
 
-/** One label/value row inside a `MetadataList`. */
+/** One label/value row inside a `MetadataList`.
+ *
+ * @see MetadataListProps — render inside it.
+ */
 export interface MetadataListItemProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7661,7 +9685,15 @@ export interface MetadataListItemProps {
 	web?: PlatformProps
 }
 
-/** Thumbnail — square image preview with loading/error/remove states. */
+/** Thumbnail — square image preview with loading/error/remove states.
+ *
+ * @example
+ * ```tsx
+ * import { Thumbnail } from '@octane-xplat/ui'
+ *
+ * <Thumbnail src={file.preview} label={file.name} onPress={open} onRemove={remove} />
+ * ```
+ */
 export interface ThumbnailProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7709,7 +9741,17 @@ export interface OutlineItem {
  *  `useOutlineFromDoc` are portable; `useOutlineFromDOM` (live DOM
  *  observation) is web-only under `@octane-xplat/ui/web`; `useOutlineFromView`
  *  (view-tree snapshot) ships under `@octane-xplat/ui/nativescript` and
- *  `@octane-xplat/ui/macos`. */
+ *  `@octane-xplat/ui/macos`.
+ *
+ * @example
+ * ```tsx
+ * import { Outline, useOutlineFromMarkdown } from '@octane-xplat/ui'
+ *
+ * const items = useOutlineFromMarkdown(doc)
+ * <Outline items={items} activeId={active} onActiveIdChange={setActive} />
+ * ```
+ * @see OutlineItem — the item sources each live on their own subpath (see above).
+ */
 export interface OutlineProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7750,7 +9792,10 @@ export interface OutlineProps {
 
 /** One inline run inside a Markdown paragraph/heading/list/quote — the
  *  serialized shape `xplat routes` bakes for `.md` routes and the runtime
- *  `text` parser emits. */
+ *  `text` parser emits.
+ *
+ * @see MdDoc — canonical import '@octane-xplat/ui/markdown'.
+ */
 export type MdInline =
 	| { t: 'text'; text: string }
 	| { t: 'code'; text: string }
@@ -7760,7 +9805,10 @@ export type MdInline =
 
 /** One block in a Markdown doc. `MdNode` covers what the renderer lowers to
  *  shared primitives; `MdInline` covers text runs inside paragraphs, lists,
- *  and quotes. */
+ *  and quotes.
+ *
+ * @see MdDoc, MdInline — canonical import '@octane-xplat/ui/markdown'.
+ */
 export type MdNode =
 	| { t: 'h'; depth: 1 | 2 | 3 | 4 | 5 | 6; children: MdInline[] }
 	| { t: 'p'; children: MdInline[] }
@@ -7769,6 +9817,10 @@ export type MdNode =
 	| { t: 'quote'; children: MdInline[] }
 	| { t: 'hr' }
 
+/** A parsed Markdown document — the versioned AST (`kind: 'octane-xplat/md'`, `v: 1`) produced by `parseMdDoc`/`createMarkdownStreamParser` and consumed by `Markdown`'s `data` prop. Canonical import: `@octane-xplat/ui/markdown` (root re-export is a migration alias).
+ *
+ * @see MdNode, MdInline, MarkdownDataProps.
+ */
 export interface MdDoc {
 	kind: 'octane-xplat/md'
 	v: 1
@@ -7777,7 +9829,10 @@ export interface MdDoc {
 
 /** `Markdown` with a pre-parsed document — the `MdDoc` AST baked by route
  *  codegen (`routes.gen.data` for a `.md` route). No parser ships in the
- *  bundle for this source, so `isStreaming`/`fadeIn` do not apply. */
+ *  bundle for this source, so `isStreaming`/`fadeIn` do not apply.
+ *
+ * @see MarkdownProps — the union this feeds; canonical import '@octane-xplat/ui/markdown'.
+ */
 export interface MarkdownDataProps {
 	data: MdDoc
 	text?: never
@@ -7786,7 +9841,10 @@ export interface MarkdownDataProps {
 }
 
 /** `Markdown` with raw source parsed at runtime by the package's built-in
- *  subset parser (see docs/content-display.md for the grammar). */
+ *  subset parser (see docs/content-display.md for the grammar).
+ *
+ * @see MarkdownProps — the union this feeds; canonical import '@octane-xplat/ui/markdown'.
+ */
 export interface MarkdownTextProps {
 	text: string
 	data?: never
@@ -7804,12 +9862,26 @@ export interface MarkdownTextProps {
 
 /** `Markdown` — renders a Markdown doc with the shared vocabulary. Exactly
  *  one source: `data` (a baked `MdDoc` AST) or `text` (raw source parsed at
- *  runtime). */
+ *  runtime).
+ *
+ * @example
+ * ```tsx
+ * import { Markdown } from '@octane-xplat/ui/markdown'
+ *
+ * <Markdown text={source} isStreaming />
+ * // or a pre-parsed doc (e.g. a baked .md route):
+ * <Markdown data={doc} />
+ * ```
+ * @see MarkdownDataProps, MarkdownTextProps, createMarkdownStreamParser.
+ */
 export type MarkdownProps = MarkdownDataProps | MarkdownTextProps
 
 /** `MarkdownScreen` — the route screen codegen mounts for `.md` route
  *  files; `data` is the route's baked doc (like any route loader result)
- *  and `error` a load failure surfaced to the screen. */
+ *  and `error` a load failure surfaced to the screen.
+ *
+ * @see MarkdownProps — canonical import '@octane-xplat/ui/markdown'.
+ */
 export interface MarkdownScreenProps {
 	data?: MdDoc
 	error?: unknown
@@ -7823,6 +9895,16 @@ export interface MarkdownScreenProps {
  *  so it is inert there. */
 export type CenterAxis = 'both' | 'horizontal' | 'vertical'
 
+/** `Center` — centers children on `axis` ('both' default, or 'horizontal'/'vertical'); `isInline` renders inline-flex on web (inert on native). Carries the stack padding/size props.
+ *
+ * @example
+ * ```tsx
+ * import { Center } from '@octane-xplat/ui'
+ *
+ * <Center axis="both">{content}</Center>
+ * ```
+ * @see StackProps.
+ */
 export interface CenterProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7840,8 +9922,22 @@ export interface CenterProps extends StackPaddingProps, StackSizeProps, Accessib
 /** `Section` — a banded container with a surface/transparent/muted
  *  background, spacing-scale padding, and optional edge dividers. */
 export type SectionVariant = 'section' | 'transparent' | 'muted'
+/** Edge a `Section` divider paints on — physical `top`/`bottom` or logical `start`/`end` (native maps them to left/right).
+ */
 export type SectionDividerSide = 'top' | 'bottom' | 'start' | 'end'
 
+/** `Section` — a banded container: `variant` picks the background ('section' default, 'transparent', 'muted'), `padding` is spacing steps (default 4 = 16px), `dividers` paint hairlines on the given edges.
+ *
+ * @example
+ * ```tsx
+ * import { Section } from '@octane-xplat/ui'
+ *
+ * <Section variant="muted" padding={6} dividers={['top']}>
+ * 	{content}
+ * </Section>
+ * ```
+ * @see SectionVariant, SectionDividerSide.
+ */
 export interface SectionProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7862,7 +9958,15 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
 /** `VisuallyHidden` — children stay in the accessibility tree but render
  *  invisible. No className/style: styling a hidden node is a mistake. On
  *  native there is no offscreen-a11y primitive; the leaf renders a 1dip,
- *  opacity-0 container (screen-reader exposure is best-effort). */
+ *  opacity-0 container (screen-reader exposure is best-effort).
+ *
+ * @example
+ * ```tsx
+ * import { VisuallyHidden } from '@octane-xplat/ui'
+ *
+ * <VisuallyHidden>Results update as you type</VisuallyHidden>
+ * ```
+ */
 export interface VisuallyHiddenProps extends AccessibilityProps {
 	children?: Renderable
 	id?: string
@@ -7894,7 +9998,16 @@ export interface FocusScopeCapabilities {
  *  focused element on unmount (`restoreFocus`). Focus containment is a web
  *  keyboard convention; the native leaf renders a plain accessible
  *  container and the three behavior flags are inert —
- *  `getFocusScopeCapabilities()` reports which flags the target honors. */
+ *  `getFocusScopeCapabilities()` reports which flags the target honors.
+ *
+ * @example
+ * ```tsx
+ * import { FocusScope } from '@octane-xplat/ui'
+ *
+ * <FocusScope contain restoreFocus autoFocus>{dialogBody}</FocusScope>
+ * ```
+ * @see FocusScopeCapabilities — check it before relying on the flags off-web.
+ */
 export interface FocusScopeProps extends AccessibilityProps {
 	children?: Renderable
 	id?: string
@@ -7919,8 +10032,21 @@ export interface FocusScopeProps extends AccessibilityProps {
  *  media-level concern — on native `fit="contain"`/`"center"` center the
  *  child without cropping hints). */
 export type AspectRatioShape = 'rectangle' | 'ellipse'
+/** How an `AspectRatio` child fills the box — `'cover'`, `'contain'`, or `'center'` (the latter two center without cropping hints on native).
+ */
 export type AspectRatioFit = 'cover' | 'contain' | 'center'
 
+/** `AspectRatio` — sizes its box from width / `ratio` (required, e.g. 16/9). `shape="ellipse"` clips to an ellipse; `fit` controls how the child fills. Web uses CSS `aspect-ratio`; native measures the laid-out width.
+ *
+ * @example
+ * ```tsx
+ * import { AspectRatio, Image } from '@octane-xplat/ui'
+ *
+ * <AspectRatio ratio={16 / 9}>
+ * 	<Image src={poster.url} />
+ * </AspectRatio>
+ * ```
+ */
 export interface AspectRatioProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7939,6 +10065,8 @@ export interface AspectRatioProps extends AccessibilityProps {
 
 // ---------- Astryx parity: forms ----------
 
+/** `FormLayout` arrangement — `'vertical'` (default), `'horizontal'` equal columns, `'horizontal-labels'` label left of each control.
+ */
 export type FormLayoutDirection = 'vertical' | 'horizontal' | 'horizontal-labels'
 
 /** Which state a form treats as its default — only the *exception* carries
@@ -7953,7 +10081,19 @@ export type FormOptionality = 'optional' | 'required'
  *  'horizontal' gives equal-width columns on web and a `*`-column grid on
  *  native; 'horizontal-labels' puts each field's label left of its control
  *  (a per-field row on native — the web grid's shared label column and
- *  480px collapse have no native analog). */
+ *  480px collapse have no native analog).
+ *
+ * @example
+ * ```tsx
+ * import { FormLayout, Field, TextInput } from '@octane-xplat/ui'
+ *
+ * <FormLayout>
+ * 	<Field label="Name"><TextInput value={name} onChange={setName} /></Field>
+ * 	<Field label="Email"><TextInput value={email} onChange={setEmail} /></Field>
+ * </FormLayout>
+ * ```
+ * @see FormLayoutDirection, FormFieldProps (`Field`).
+ */
 export interface FormLayoutProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7968,12 +10108,26 @@ export interface FormLayoutProps extends AccessibilityProps {
 	defaultOptionality?: FormOptionality
 }
 
+/** Size scale for `InputGroup` — `'sm' | 'md' | 'lg'`.
+ */
 export type InputGroupSize = 'sm' | 'md' | 'lg'
 
 /** `InputGroup` — a labeled group joining an input with prefix/suffix
  *  addons into one visually connected control. Renders a `Field` around a
  *  `role="group"` row (web) / grouped row (native). Member inputs pick up
- *  group styling through `useInputGroup()`. */
+ *  group styling through `useInputGroup()`.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
+ *
+ * <InputGroup label="Price">
+ * 	<InputGroupText>$</InputGroupText>
+ * 	<TextInput value={price} onChange={setPrice} />
+ * </InputGroup>
+ * ```
+ * @see InputGroupTextProps.
+ */
 export interface InputGroupProps extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7991,7 +10145,10 @@ export interface InputGroupProps extends FieldControlProps {
 }
 
 /** `InputGroupText` — a prefix/suffix text or icon segment inside
- *  `InputGroup` ('$', 'https://', units). */
+ *  `InputGroup` ('$', 'https://', units).
+ *
+ * @see InputGroupProps — renders a prefix/suffix segment inside it.
+ */
 export interface InputGroupTextProps {
 	className?: ClassName
 	style?: StyleProp
@@ -8005,16 +10162,32 @@ export interface InputGroupTextProps {
 
 // ---------- Astryx parity: content lists ----------
 
+/** Row density for `List`/`ListItem` — `'compact' | 'balanced' | 'spacious'` (default 'balanced').
+ */
 export type ListDensity = 'compact' | 'balanced' | 'spacious'
 /** Marker style — 'decimal' renders an ordered list (`<ol>` on web) with
  *  numbered markers, 'disc'/'circle' render bullet markers, 'none' none. */
 export type ListMarkerStyle = 'none' | 'disc' | 'circle' | 'decimal'
+/** `List` marker style — alias of `ListMarkerStyle` ('none' default, 'disc', 'circle', 'decimal').
+ */
 export type ListStyle = ListMarkerStyle
 
 /** `List` — a vertical content list (NOT a virtualized data list — that's
  *  `VirtualList`). Children are `ListItem`s. Renders semantic `ul`/`ol` on
  *  web; a column container on native (NativeScript has no list role —
- *  marker/divider visuals are drawn by the leaf instead). */
+ *  marker/divider visuals are drawn by the leaf instead).
+ *
+ * @example
+ * ```tsx
+ * import { List, ListItem } from '@octane-xplat/ui'
+ *
+ * <List hasDividers>
+ * 	<ListItem label="General" onPress={openGeneral} />
+ * 	<ListItem label="Account" onPress={openAccount} />
+ * </List>
+ * ```
+ * @see ListItemProps, VirtualListProps for large data sets.
+ */
 export interface ListProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -8046,7 +10219,10 @@ export interface ListProps extends AccessibilityProps {
  *  interactive (invisible button/anchor on web, tap handling on native).
  *  `delegateRef` points at a nested control that owns keyboard access and
  *  the action — the row forwards surface presses to it and adds no second
- *  stop (upstream `interactiveRef`). */
+ *  stop (upstream `interactiveRef`).
+ *
+ * @see ListProps — render inside it.
+ */
 export interface ListItemProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -8080,7 +10256,22 @@ export interface ListItemProps extends AccessibilityProps {
  *  count) and a wrapping flexboxlayout of Pressable cells on native.
  *  Selection mirrors RA: `selectionMode` gates it, `selectedKeys` is the
  *  controlled form (`'all' | Iterable<Key>`), `onAction` fires on
- *  activation whether or not selection is enabled. */
+ *  activation whether or not selection is enabled.
+ *
+ * @example
+ * ```tsx
+ * import { GridList, Image } from '@octane-xplat/ui'
+ *
+ * <GridList
+ * 	items={photos}
+ * 	renderItem={(p) => <Image src={p.url} />}
+ * 	selectionMode="multiple"
+ * 	selectedKeys={selected}
+ * 	onSelectionChange={setSelected}
+ * />
+ * ```
+ * @see Selection, Key — selection contract; `useGridList` reports `isSupported` for grid keyboard nav.
+ */
 export interface GridListProps<T = unknown> extends LayoutChildProps, AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
@@ -8144,15 +10335,26 @@ export interface IndicatorFamilyMap {
 	multiSelection: 'unchecked' | 'checked' | 'indeterminate'
 }
 
+/** Indicator state-space family — keys of `IndicatorFamilyMap` ('singleSelection', 'multiSelection').
+ */
 export type IndicatorFamily = keyof IndicatorFamilyMap & string
+/** The drawable states of an indicator family — `'unchecked' | 'checked'`, plus `'indeterminate'` for `multiSelection`.
+ */
 export type IndicatorState<F extends IndicatorFamily = IndicatorFamily> = IndicatorFamilyMap[F]
+/** Indicator glyph size — `'sm' | 'md'` (default 'md').
+ */
 export type IndicatorSize = 'sm' | 'md'
+/** Which edge a control places its indicator on — `'start' | 'end'`.
+ */
 export type IndicatorPosition = 'start' | 'end'
 
 /** Props every indicator accepts. Indicators are decorative — the owning
  *  control keeps role/focus/state; the indicator renders `aria-hidden` on
  *  web and draws the picture for `state`. `children` replaces the state
- *  mark inside the indicator chrome (busy spinners). */
+ *  mark inside the indicator chrome (busy spinners).
+ *
+ * @see IndicatorMap, IndicatorComponent — register replacements with `registerIndicator`/`registerIndicators`.
+ */
 export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
 	className?: ClassName
 	style?: StyleProp
@@ -8168,6 +10370,8 @@ export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
 	children?: Renderable
 }
 
+/** A replacement indicator's signature — renders `IndicatorProps<F>` for its family.
+ */
 export type IndicatorComponent<F extends IndicatorFamily = IndicatorFamily> = (
 	props: IndicatorProps<F>,
 ) => Renderable
@@ -8182,7 +10386,11 @@ export interface IndicatorMap {
 	checkbox: 'multiSelection'
 }
 
+/** The replaceable indicator names — keys of `IndicatorMap` ('check', 'radio', 'checkbox').
+ */
 export type IndicatorName = keyof IndicatorMap & string
+/** The `IndicatorName`s belonging to one `IndicatorFamily`.
+ */
 export type IndicatorNameOfFamily<F extends IndicatorFamily> = {
 	[N in IndicatorName]: IndicatorMap[N] extends F ? N : never
 }[IndicatorName]

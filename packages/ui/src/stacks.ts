@@ -10,11 +10,21 @@ import { Application, Frame } from '@nativescript/core'
 const stacks = new Map<string, Frame>()
 const regListeners = new Set<(name: string, frame: Frame) => void>()
 
+/**
+ * Register a named navigation stack (its root `Frame`/`Outlet`) so `pushRoute`/`NavLink` can target it.
+ *
+ * @see getStack, Route.
+ */
 export function registerStack(name: string, frame: Frame): void {
 	stacks.set(name, frame)
 	regListeners.forEach((l) => l(name, frame))
 }
 
+/**
+ * Look up a registered navigation stack by name.
+ *
+ * @see registerStack.
+ */
 export function getStack(name: string): Frame | undefined {
 	const registered = stacks.get(name)
 	if (registered) {

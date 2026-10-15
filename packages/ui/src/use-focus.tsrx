@@ -21,6 +21,11 @@ export interface UseFocusOptions {
 	onFocusChange?: (isFocused: boolean) => void
 }
 
+/**
+ * Focus a host element on demand or mount — returns the ref callback + focused state.
+ *
+ * @see useFocusWithin, useFocusRing.
+ */
 export function useFocus(options: UseFocusOptions = {}) {
 	const latest = useRef(options);
 	latest.current = options;
@@ -40,6 +45,9 @@ export function useFocus(options: UseFocusOptions = {}) {
 	};
 }
 
+/**
+ * `useFocusRing` result — `isFocusVisible`/`isFocused`/`focusProps`.
+ */
 export interface UseFocusRingResult {
 	isFocused: boolean
 	/** Focused AND the last input was keyboard-modality (web); always false on native. */
@@ -47,6 +55,11 @@ export interface UseFocusRingResult {
 	focusProps: { onFocus: () => void; onBlur: () => void }
 }
 
+/**
+ * Focus-visible ring state for a host element (RA parity) — `isFocusVisible` only for keyboard focus.
+ *
+ * @see UseFocusRingResult.
+ */
 export function useFocusRing(): UseFocusRingResult {
 	const [isFocused, setFocused] = useState(false);
 	const { isFocusVisible } = useFocusVisible();

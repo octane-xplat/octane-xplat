@@ -1,3 +1,22 @@
+// @octane-xplat/ui — the portable component library: one element vocabulary
+// for web, iOS/Android, macOS, and Linux. Import everything below from the
+// package root:
+//
+//   import { Stack, TextInput } from '@octane-xplat/ui'
+//
+// Canonical subpaths:
+//   @octane-xplat/ui/markdown      — Markdown components, parsing, streaming,
+//                                    outlines, and syntax tokenization.
+//   @octane-xplat/ui/ios           — iOS-authentic widgets (UISwitch, UITableView…).
+//   @octane-xplat/ui/android       — Android-authentic widgets (MaterialSwitch…).
+//   @octane-xplat/ui/nativescript  — shared iOS/Android plumbing.
+//   @octane-xplat/ui/web           — DOM-only contracts (web/linux builds).
+//   @octane-xplat/ui/macos         — AppKit-specific contracts.
+//   @octane-xplat/ui/linux         — GTK-specific contracts.
+//
+// The Markdown-family re-exports on this barrel are kept for compatibility
+// and marked @deprecated — prefer the `/markdown` subpath for new code.
+
 // Foundations and common controls
 export { View } from './View'
 /** Vertical flow stack (Astryx `Stack` with direction="vertical"). */
@@ -38,8 +57,14 @@ export type {
 export { setTranslate } from './translate'
 export { Spacer } from './Spacer'
 export { Text } from './Text'
+/** @deprecated Import `Markdown` and `MarkdownScreen` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { Markdown, MarkdownScreen } from './Markdown'
+/** @deprecated Import these types from `@octane-xplat/ui/markdown`.
+ *  These aliases will be removed. */
 export type { MdDoc, MdNode, MdInline, MarkdownProps, MarkdownDataProps, MarkdownTextProps, MarkdownScreenProps } from './props'
+/** @deprecated Import `parseMdDoc`, `parseMdNodes`, and `mdInlineText` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
 export { RichText, RichTextSpan } from './RichText'
 export { Pressable } from './Pressable'
@@ -1008,26 +1033,33 @@ export { Timestamp } from './Timestamp'
 export { Timer } from './Timer'
 export { Citation } from './Citation'
 export { Outline } from './Outline'
+/** @deprecated Import `useOutlineFromMarkdown` and `useOutlineFromDoc` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
+/** @deprecated Import `parseOutlineFromMarkdown` and `outlineFromDoc` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
+export { parseOutlineFromMarkdown, outlineFromDoc } from './outline-utils'
 export {
-	parseOutlineFromMarkdown,
-	outlineFromDoc,
 	markdownHeadings,
 	inlineMarkdownText,
 	slugify,
 	uniqueSlug,
 } from './outline-utils'
 
+/** @deprecated Import the syntax tokenizer from `@octane-xplat/ui/markdown`.
+ *  These aliases will be removed. */
 export {
 	tokenize,
 	tokenizeAsync,
 	tokenizeStreaming,
 	flatTokensToLines,
 	TOKEN_TYPES,
-	syntaxTokenVar,
-	syntaxTokenVarRef,
 } from './code-tokenizer'
 
+export { syntaxTokenVar, syntaxTokenVarRef } from './code-tokenizer'
+
+/** @deprecated Import `SyntaxTokenType` from `@octane-xplat/ui/markdown`.
+ *  This alias will be removed. */
 export type { SyntaxTokenType } from './code-tokenizer'
 export type {
 	BlockquoteProps,

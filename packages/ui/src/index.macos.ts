@@ -222,7 +222,11 @@ export { HoverCard } from './HoverCard.tsrx'
 export { useHoverCard } from './use-hover-card.tsrx'
 export { useLayer } from './use-layer.tsrx'
 export { Tooltip } from './Tooltip.tsrx'
+/** @deprecated Import `Markdown` and `MarkdownScreen` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { Markdown, MarkdownScreen } from './Markdown.tsrx'
+/** @deprecated Import `parseMdDoc`, `parseMdNodes`, and `mdInlineText` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
@@ -410,25 +414,30 @@ export { Timestamp } from './Timestamp.macos.tsrx'
 export { Timer } from './Timer.macos.tsrx'
 export { Citation } from './Citation.macos.tsrx'
 export { Outline } from './Outline.macos.tsrx'
+/** @deprecated Import `useOutlineFromMarkdown` and `useOutlineFromDoc` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
+/** @deprecated Import `parseOutlineFromMarkdown` and `outlineFromDoc` from
+ *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
+export { parseOutlineFromMarkdown, outlineFromDoc } from './outline-utils'
 export {
-	parseOutlineFromMarkdown,
-	outlineFromDoc,
 	markdownHeadings,
 	inlineMarkdownText,
 	slugify,
 	uniqueSlug,
 } from './outline-utils'
 
+/** @deprecated Import the syntax tokenizer from `@octane-xplat/ui/markdown`.
+ *  These aliases will be removed. */
 export {
 	tokenize,
 	tokenizeAsync,
 	tokenizeStreaming,
 	flatTokensToLines,
 	TOKEN_TYPES,
-	syntaxTokenVar,
-	syntaxTokenVarRef,
 } from './code-tokenizer'
+
+export { syntaxTokenVar, syntaxTokenVarRef } from './code-tokenizer'
 
 // Type parity with the shared barrel — every type `@octane-xplat/ui` exposes
 // on the shared targets resolves here too, and no platform-internal props.ts

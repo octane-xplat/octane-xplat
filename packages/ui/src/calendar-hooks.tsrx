@@ -26,12 +26,23 @@ import {
 	type CalendarMonthGrid,
 } from './calendar-core'
 
+/**
+ * Options for `useCalendarConstraints` — `min`/`max` ISO dates bounding selection.
+ */
 export interface UseCalendarConstraintsOptions extends CalendarConstraintsInput {}
 
+/**
+ * `useCalendarConstraints` result — clamp/is-disabled helpers applied to day cells.
+ */
 export interface UseCalendarConstraintsReturn {
 	isDateDisabled: (date: PlainDate) => boolean
 }
 
+/**
+ * Selectable-range constraints for `Calendar` — clamps/blocks dates outside `min`/`max`.
+ *
+ * @see UseCalendarConstraintsOptions.
+ */
 export function useCalendarConstraints(options: UseCalendarConstraintsOptions): UseCalendarConstraintsReturn {
 	const isDateDisabled = useMemo(
 		() => createDateDisabledCheck(options),
@@ -41,6 +52,9 @@ export function useCalendarConstraints(options: UseCalendarConstraintsOptions): 
 	return { isDateDisabled }
 }
 
+/**
+ * Options for `useCalendarDays` — visible month plus constraint inputs.
+ */
 export interface UseCalendarDaysOptions {
 	year: number
 	month: number
@@ -49,8 +63,16 @@ export interface UseCalendarDaysOptions {
 	locale?: string
 }
 
+/**
+ * `useCalendarDays` result — the computed `CalendarMonthGrid`.
+ */
 export type UseCalendarDaysReturn = CalendarMonthGrid
 
+/**
+ * Month-grid day cells for `Calendar` — `useCalendarDays` computes the visible `CalendarMonthGrid`.
+ *
+ * @see UseCalendarDaysOptions, UseCalendarDaysReturn, CalendarDay.
+ */
 export function useCalendarDays(options: UseCalendarDaysOptions): CalendarMonthGrid {
 	return useMemo(
 		() => buildMonthGrid(options.year, options.month, options.weekStartsOn, options.hasVariableRowCount, options.locale),
@@ -58,6 +80,9 @@ export function useCalendarDays(options: UseCalendarDaysOptions): CalendarMonthG
 	)
 }
 
+/**
+ * Options for `useCalendarNavigation` — current month plus constraint bounds.
+ */
 export interface UseCalendarNavigationOptions {
 	numberOfMonths?: 1 | 2
 	min?: ISODateString
@@ -69,6 +94,9 @@ export interface UseCalendarNavigationOptions {
 	value?: ISODateString | DateRange
 }
 
+/**
+ * `useCalendarNavigation` result — `prevMonth`/`nextMonth`/current-month state.
+ */
 export interface UseCalendarNavigationReturn {
 	/** First-of-month basis for the leading pane. */
 	baseMonth: PlainDate
@@ -78,6 +106,11 @@ export interface UseCalendarNavigationReturn {
 	navigateTo(date: ISODateString): void
 }
 
+/**
+ * Month navigation for `Calendar` — prev/next plus range clamping.
+ *
+ * @see UseCalendarNavigationOptions.
+ */
 export function useCalendarNavigation(options: UseCalendarNavigationOptions): UseCalendarNavigationReturn {
 	const numberOfMonths = options.numberOfMonths ?? 1
 	const controlled = options.focusDate !== undefined

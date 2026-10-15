@@ -6,6 +6,11 @@ import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from './platformProps';
 import { glyphSvgMarkup, isSvgSrc, svgSource } from './svg';
 
+/**
+ * Renders a glyph registered via `registerIcons`. Import from `@octane-xplat/ui`.
+ *
+ * @see IconProps, IconGlyph, registerIcon.
+ */
 export function Icon(props: IconProps) @{
 	const inheritedRegistry = useIconRegistry();
 	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry);

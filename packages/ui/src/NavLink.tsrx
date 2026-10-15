@@ -4,6 +4,11 @@ import { Pressable } from './Pressable';
 import { pushRoute, useRoute } from './route';
 import { cx } from '@octane-xplat/lib';
 
+/**
+ * In-app navigation link — destination type-checked against the registered route schema. Import from `@octane-xplat/ui`.
+ *
+ * @see NavLinkProps, TypedRoute.
+ */
 export function NavLink(props: NavLinkProps) @{
 	const current = useRoute(props.route.stack);
 	const active = !!current

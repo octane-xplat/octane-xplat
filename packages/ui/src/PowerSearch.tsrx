@@ -6,6 +6,11 @@ import { PowerSearchFilterEditor } from './PowerSearchFilterEditor'
 import { createInternalConfig, createPowerSearchSource } from './power-search-config'
 import { PowerSearchView } from './PowerSearchView.tsrx'
 
+/**
+ * Structured filter bar — field/operator/value tokens over a `PowerSearchConfig`. Import from `@octane-xplat/ui`.
+ *
+ * @see PowerSearchProps, createPowerSearchConfig.
+ */
 export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(props: PowerSearchProps<C>) @{
 	const [query, setQuery] = useState('')
 	const [editing, setEditing] = useState<{filter:PartialFilter; index:number} | null>(null)

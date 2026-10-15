@@ -44,6 +44,11 @@ function ItemView(props: ItemProps) @{
 	</Pressable>
 }
 
+/**
+ * Settings/navigation row with `Item.StartContent`/`Content`/`Description`/`EndContent` slots. Import from `@octane-xplat/ui`.
+ *
+ * @see ItemProps, ListItemProps for the list-context row.
+ */
 export const Item = Object.assign(ItemView, {
 	StartContent,
 	Content,

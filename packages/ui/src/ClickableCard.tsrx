@@ -5,6 +5,11 @@ import { cx } from '@octane-xplat/lib'
 import { sanitizeUrl } from './safe-url'
 import { Utils } from '@nativescript/core'
 
+/**
+ * Card whose whole surface is a press/link target; nested interactive children still work. `href` keeps real link semantics on web. Import from `@octane-xplat/ui`.
+ *
+ * @see ClickableCardProps, SelectableCardProps.
+ */
 export function ClickableCard(props: ClickableCardProps) @{
 	const activate = () => { if (props.isDisabled) return; if (props.href) { const url = sanitizeUrl(props.href); if (url) Utils.openUrl(url) }; props.onPress?.() }
 

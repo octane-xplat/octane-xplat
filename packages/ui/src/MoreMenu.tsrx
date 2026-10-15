@@ -15,6 +15,11 @@ function popoverPlacement(placement?: MoreMenuPlacement): any {
 	return placement
 }
 
+/**
+ * Icon-only 'more' overflow trigger feeding a DropdownMenu surface. Import from `@octane-xplat/ui`.
+ *
+ * @see MoreMenuProps, MenuItem.
+ */
 export function MoreMenu(props: MoreMenuProps) @{
 	const [localOpen,setLocalOpen]=useState(false)
 	const MenuItemView: any = Pressable

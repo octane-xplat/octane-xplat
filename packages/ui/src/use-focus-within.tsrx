@@ -14,6 +14,9 @@ export interface UseFocusWithinOptions {
 	onFocusWithinChange?: (isFocusWithin: boolean) => void
 }
 
+/**
+ * `useFocusWithin` result — `isFocusWithin` + handlers to spread.
+ */
 export interface UseFocusWithinResult {
 	focusWithinProps: {
 		onFocus: (event?: unknown) => void
@@ -26,6 +29,11 @@ export interface UseFocusWithinResult {
 	isSubtreeTrackingSupported: boolean
 }
 
+/**
+ * Focus-within state — true while focus is inside the bound subtree.
+ *
+ * @see UseFocusWithinResult.
+ */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
 	const latest = useRef(options);
 	latest.current = options;

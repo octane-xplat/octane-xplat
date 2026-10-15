@@ -8,6 +8,9 @@ import type { Key, ReadableStore, Selection } from './props'
 
 export type { Key, Selection }
 
+/**
+ * Options for `useListData`/`createListData` — `initialItems`, `initialSelectedKeys`, `initialFilterText`, `getKey`, `filter`. `initial*` values are read once at store creation.
+ */
 export interface ListDataOptions<T> {
 	/** All `initial*` options are read once, when the store is created —
 	 *  `useListData` builds the store on first render and ignores later
@@ -19,12 +22,18 @@ export interface ListDataOptions<T> {
 	filter?: (item: T, filterText: string) => boolean
 }
 
+/**
+ * Immutable snapshot of a `ListData` — filtered `items`, `filterText`, `selectedKeys`.
+ */
 export interface ListSnapshot<T> {
 	readonly items: readonly T[]
 	readonly filterText: string
 	readonly selectedKeys: Selection
 }
 
+/**
+ * Reactive list collection store — `items`, `filterText`, and `selectedKeys` with the React Aria `useListData` mutator set (insert/remove/move/update). Reads go through `useListData`/`useStore`; direct property reads are non-reactive snapshots.
+ */
 export interface ListData<T> extends ReadableStore<ListSnapshot<T>> {
 	/** Items after applying `filter` with the current `filterText` — a
 	 *  snapshot read, not a subscription; `useListData`/`useStore` is the

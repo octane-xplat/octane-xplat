@@ -8,6 +8,11 @@ import { gridTrackListToSpec } from './grid-tracks';
 
 let warnedAboutGap = false;
 
+/**
+ * Two-dimensional track layout — children take `row`/`col`/`rowSpan`/`colSpan` placement props. Import from `@octane-xplat/ui`.
+ *
+ * @see GridProps for the track grammar, diagnostics, and an example; LayoutChildProps for placement.
+ */
 export function Grid(props: GridProps) @{
 	const grid = useRef<any>(null);
 	const deprecatedGap = (props as GridProps & { gap?: number | string }).gap;

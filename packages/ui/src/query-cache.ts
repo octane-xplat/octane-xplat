@@ -70,6 +70,9 @@ export type QueryKeyPart =
  */
 export type QueryKey = readonly QueryKeyPart[]
 
+/**
+ * Persistence adapter for the query cache — `get`/`set`/`remove` so cached queries survive reloads.
+ */
 export interface QueryStorageAdapter {
 	get(key: string): string | null | undefined | PromiseLike<string | null | undefined>
 	set(key: string, value: string): void | PromiseLike<void>
@@ -93,6 +96,9 @@ export interface QueryPersistence {
 	readonly scope?: () => string | null
 }
 
+/**
+ * Options for a cached query — `key`, `ttl` (ms), storage `adapter`, stale policy.
+ */
 export interface CachedQueryOptions<T = unknown> {
 	/**
 	 * Milliseconds a cache entry stays fresh — new readers are served without
@@ -784,6 +790,9 @@ class CachedQuerySignal<T> implements CachedQuery<T> {
 	}
 }
 
+/**
+ * Filter for `invalidateQueries` — key prefix/exact match.
+ */
 export interface InvalidateQueriesOptions {
 	/** Match only the exact key; default invalidates the key's whole subtree. */
 	readonly exact?: boolean
@@ -816,6 +825,9 @@ function invalidateQueriesIn(
 	republish(cache, 'normal', matches)
 }
 
+/**
+ * Filter for `clearQueryCache` — which entries to drop.
+ */
 export interface ClearQueryCacheOptions {
 	readonly exact?: boolean
 }

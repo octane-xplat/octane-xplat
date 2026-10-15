@@ -26,6 +26,11 @@ export function setThemePreference(p: ThemePreference) {
 	}
 }
 
+/**
+ * Reads the stored theme preference ('light'/'dark'/unset → system).
+ *
+ * @see ColorScheme, getColorScheme.
+ */
 export function getThemePreference(): ThemePreference {
 	return preference
 }

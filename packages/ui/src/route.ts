@@ -97,10 +97,20 @@ export function addRoutes(manifest: RouteManifest): void {
 	rebuildRegistry()
 }
 
+/**
+ * Return the layout components wrapping a route — root `_layout` first, innermost last.
+ *
+ * @see RouteMeta, RouteManifest.
+ */
 export function layoutsForRoute(name: string): any[] {
 	return layoutChain(routeLayouts, name)
 }
 
+/**
+ * Resolve a route name to its registered screen component (the `registerScreens` table / manifest screens).
+ *
+ * @see registerScreens, RouteManifest.
+ */
 export function screenFor(name: string): ScreenTable[string] | undefined {
 	return screens[name]
 }
@@ -365,6 +375,11 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 	}
 }
 
+/**
+ * Throw inside a route `loader`/`beforeLoad` to abort the navigation and push a different `Route`.
+ *
+ * @see BeforeLoad, Route.
+ */
 export function redirect(r: Route): never {
 	throw new RouteRedirect(r)
 }
@@ -741,6 +756,11 @@ export function hrefFor(r: Route): string {
 	return buildRoutePath(routes, r)
 }
 
+/**
+ * Reads the committed `Route` for the current screen — `name`, `params`, `loaderData`/`error`, `context`.
+ *
+ * @see Route, RouteContext.
+ */
 export function useRoute(stack: string): Route | null {
 	return useSyncExternalStore(
 		(cb) => {
@@ -767,6 +787,11 @@ export function canGoBack(stack = 'root'): boolean {
 	return !!frame?.backStack?.length
 }
 
+/**
+ * Whether the current stack can pop — drives back-button disabled state.
+ *
+ * @see useRoute, popRoute.
+ */
 export function useCanGoBack(stack = 'root'): boolean {
 	return useSyncExternalStore(
 		(cb) => {

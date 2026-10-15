@@ -5,6 +5,11 @@ import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-
 import { Button } from './Button.tsrx'
 import { cx } from '@octane-xplat/lib'
 
+/**
+ * Button with a pressed state (`isPressed`/`onPressedChange`), optional `pressedChangeAction`, and `pressedIcon`. Inside `ToggleButtonGroup` the group owns state via `value`. Import from `@octane-xplat/ui`.
+ *
+ * @see ToggleButtonProps, ToggleButtonGroupProps.
+ */
 export function ToggleButton(props: ToggleButtonProps) @{
 	const group = useToggleButtonGroup()
 	const [localPressed, setLocalPressed] = useState(!!props.isPressed)
@@ -25,6 +30,11 @@ export function ToggleButton(props: ToggleButtonProps) @{
 	<Button {...props} variant={pressed ? 'secondary' : 'ghost'} isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className)} />
 }
 
+/**
+ * Keyed single- or multi-select group of `ToggleButton`s. Import from `@octane-xplat/ui`.
+ *
+ * @see ToggleButtonGroupProps.
+ */
 export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 	const type = props.type ?? 'single'
 	const controlled = props.value

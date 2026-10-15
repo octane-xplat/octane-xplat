@@ -225,6 +225,11 @@ function invalidExport(
 	}
 }
 
+/**
+ * Build a `RouteManifest` from route-dir files or programmatic specs — emits `screens`/`routes`/`layouts` plus diagnostics.
+ *
+ * @see RouteManifest, RouteMeta, RouteDiagnostic, defineRoutes.
+ */
 export function deriveRouteManifest(
 	files: Record<string, any>,
 	prefer: readonly string[],
