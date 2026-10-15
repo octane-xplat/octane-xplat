@@ -29,6 +29,10 @@ export async function xplatMacOS(env, options = {}) {
 			tabItemContentRoots(),
 			octane({
 				hmr: options.hmr ?? false,
+				// The generated platform type surface (types/macos*) is ~8MB of
+				// pure binding declarations with no JSX/hooks — compiling it
+				// dominates the transform budget for no benefit.
+				exclude: ['types/macos', ...(options.exclude ?? [])],
 				renderers: {
 					registry: {
 						macos: {
