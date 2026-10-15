@@ -236,12 +236,14 @@ export function Example() {
    and context-menu leaves do so on Android/iOS, and AppKitSheet does so on
    macOS. ShaderEffect portals its iOS content into the SwiftUI host. Android
    `BottomNavigationView` panes and recycled Pager cells also portal and pass
-   context/update probes, as do iOS `UITabBar` panes. The iOS Pager path is
-   implemented but remains runtime-unqualified because its isolated probe
-   cannot resolve the upstream `style-properties` module before assertions.
-   Imperative service roots, router-created modal routes, and AppKit
-   `tabviewitem`/`listview` content remain independent; pass data through
-   params or shared state there. (See primitives.md.)
+   context/update probes, as do iOS `UITabBar` panes and Pager cells. The iOS
+   Pager probe covers initial context, live updates, and a programmatic page
+   change; it does not qualify OS swipes.
+   Imperative service roots, router-created Pages/modal routes, AppKit
+   `tabviewitem`, and platform list cells remain independent; pass data through
+   params or shared state there. See the
+   [remaining boundary solutions](portal-boundaries.md) for the proposed
+   ownership APIs and cutover requirements.
 2. **Android hardware back** must feed the router — intercept
    `activityBackPressed`, map to history/frame pop, allow per-screen override
    (confirm-dialog flows).

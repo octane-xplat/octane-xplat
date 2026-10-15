@@ -1509,12 +1509,11 @@ into native hosts, so they retain the declaring Octane tree's context and live
 context updates. The host still needs its own theme classes because native
 view-tree classes do not cross the host boundary. Android `BottomNavigationView`
 panes and Pager cells, and iOS `UITabBar` panes, also portal from their
-declaring tree; the Android tab/Pager and iOS tab probes verify context
-inheritance and live updates. Pager's iOS portal path is implemented but not
-runtime-qualified: its isolated probe stops before assertions because the
-upstream pager package's `style-properties` module cannot be resolved.
+declaring tree; Android and iOS tab/Pager probes verify context inheritance and
+live updates. The iOS Pager probe also verifies that changing pages delivers
+the current provider value to the next page's cell; OS swipes remain untested.
 The imperative `openModal`/`openBottomSheet` component roots, route-created modal roots and
-pushed Pages, AppKit `tabviewitem` content, and AppKit list cells remain
+pushed Pages, AppKit `tabviewitem` content, and platform list cells remain
 independent roots; pass values through props/params or a shared store there.
 For the optional `@octane-xplat/sheet` and `@octane-xplat/context-menu` leaves,
 Android and iOS content portals preserve context; the sheet's macOS content
