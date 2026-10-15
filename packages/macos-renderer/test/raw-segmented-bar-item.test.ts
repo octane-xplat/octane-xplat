@@ -14,8 +14,8 @@ const fn = (name: string) => {
 function fixture() {
 	const noop = () => {}
 	const api = runInNewContext(
-		source.slice(source.indexOf('const CLEAR_ON_UPDATE'), source.indexOf('\nfunction clearOnUpdate')) + '\n' +
-		['validateBatch', 'typeHasView', 'syncSegmentedBar', 'notifySegmentedBarChange', 'validateNodeProps', 'validateTextNesting', 'clearOnUpdate', 'staleEventClears', 'applyProps', 'applyCommand', 'insert', 'detach', 'remove', 'destroy'].map(fn).join('\n') + '\n({insert,remove,destroy,applyCommand,validateNodeProps,validateTextNesting,validateBatch})',
+		source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps(')) + '\n' +
+		['validateBatch', 'typeHasView', 'syncSegmentedBar', 'notifySegmentedBarChange', 'validateNodeProps', 'validateTextNesting', 'droppedPropClears', 'applyProps', 'applyCommand', 'insert', 'detach', 'remove', 'destroy'].map(fn).join('\n') + '\n({insert,remove,destroy,applyCommand,validateNodeProps,validateTextNesting,validateBatch})',
 		{
 			assertSupportedType: noop, validateProxyTree: noop,
 			setControlAction: noop, queueLayoutReconcile: noop, syncText: noop,

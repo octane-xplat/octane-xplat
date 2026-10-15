@@ -28,10 +28,15 @@ carried on the package (#62).
    props re-commit their handler every render through a stable listener id
    (no stale closures, no re-subscribe churn); listeners bound by hand in an
    effect or ref callback (`view.on('pan', fn)`) attach once — read live
-   state through a ref or `useEffectEvent`. Non-event props dropped by a
-   later render keep their last value on the native drivers (updates merge;
-   `undefined` is "not supplied", never a reset) — dropped `on*` handlers do
-   unbind on both drivers.
+   state through a ref or `useEffectEvent`. Host updates carry the complete
+   next-prop bag, so a prop dropped by a later render restores its documented
+   default on every driver: the DOM renderer removes it, the NativeScript
+   driver resets through `unsetValue` (plain fields restore their captured
+   pre-prop value), and the macOS driver injects an `undefined` clear into the
+   merged prop bag. `undefined` is elided by the runtime — omitting a prop and
+   passing `prop={undefined}` are identical — and `null` behaves as unset
+   unless the prop's contract declares a nullable value. Dropped `on*`
+   handlers unbind on every driver.
 8. Shared `@octane-xplat/ui` delivers same props → same pixels. Every
    shared component carries a normalization class (see
    `docs/start/architecture.md`): `self-drawn` (`Switch`, `Slider`,

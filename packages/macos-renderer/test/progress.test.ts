@@ -19,10 +19,10 @@ function controlFixture() {
 		sizeToFit() { calls.push('size') },
 	}
 
-	const constants = source.slice(source.indexOf('const CLEAR_ON_UPDATE'), source.indexOf('\nfunction clearOnUpdate'))
+	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
 	const api = runInNewContext(
 		constants + '\n' + ['makeProgress', 'syncProgress', 'validateNodeProps',
-			'clearOnUpdate', 'staleEventClears', 'applyProps', 'applyCommand'].map(fn).join('\n') +
+			'droppedPropClears', 'applyProps', 'applyCommand'].map(fn).join('\n') +
 			'\n({makeProgress,validateNodeProps,applyProps,applyCommand})',
 		{
 			NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },

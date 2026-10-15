@@ -66,13 +66,16 @@ patchedDependencies:
   # device verbatim and the HTTP loader throws `Cannot find module`, deadlocking dev boot
   # before any boot recording can bundle the dep.
   "@nativescript/vite@8.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.17.patch
-  # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
-  # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
-  # listeners. Aligns intrinsic ref types with Octane callback cleanup and nested arrays
-  # with optional entries. Advertises the implemented visibility capability so committed
-  # suspense bodies can be retained while pending. Preserves authored Grid row/col/span
-  # metadata independently of NativeScript defaults and computed auto-placement, notifying
-  # Grid when placement props change.
+  # Driver treats a prop dropped from an update's complete prop bag — or set to
+  # `undefined`/`null` — as a removal and restores the documented default:
+  # Property/CssProperty setters get `unsetValue`, plain fields restore the captured
+  # pre-prop value, and applied `style` keys diff per key. A never-applied `undefined` still
+  # skips the write since NativeScript native setters coerce it (e.g. editable →
+  # ios.userInteractionEnabled = NO). Aligns intrinsic ref types with Octane callback
+  # cleanup and nested arrays with optional entries. Advertises the implemented visibility
+  # capability so committed suspense bodies can be retained while pending. Preserves
+  # authored Grid row/col/span metadata independently of NativeScript defaults and computed
+  # auto-placement, notifying Grid when placement props change.
   "@nativescript-community/octane@0.2.4": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.4.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

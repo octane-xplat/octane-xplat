@@ -22,10 +22,10 @@ function fixture() {
 		invalidateIntrinsicContentSize() {},
 	}
 
-	const constants = source.slice(source.indexOf('const CLEAR_ON_UPDATE'), source.indexOf('\nfunction clearOnUpdate'))
+	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
 	const api = runInNewContext(constants + '\n' + [
 		'makeSegmentedBar', 'notifySegmentedBarChange', 'syncSegmentedBar', 'validateNodeProps',
-		'clearOnUpdate', 'staleEventClears', 'applyProps', 'applyCommand',
+		'droppedPropClears', 'applyProps', 'applyCommand',
 	].map(fn).join('\n') + '\n({makeSegmentedBar,validateNodeProps,applyProps,applyCommand})', {
 		NSSegmentedControl: { segmentedControlWithLabelsTrackingModeTargetAction: (_labels: any, _mode: any, target: any, action: any) => {view.target = target; view.action = action; return view} },
 		NSSegmentSwitchTracking: { SelectOne: 0 }, nativeColor: (value: any) => value,

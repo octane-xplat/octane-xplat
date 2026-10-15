@@ -22,10 +22,10 @@ function fixture() {
 		invalidateIntrinsicContentSize() {},
 	}
 
-	const constants = source.slice(source.indexOf('const CLEAR_ON_UPDATE'), source.indexOf('\nfunction clearOnUpdate'))
+	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
 	const api = runInNewContext(constants + '\n' + [
 		'makeListPicker', 'notifyListPickerChange', 'syncListPicker', 'validateNodeProps',
-		'clearOnUpdate', 'staleEventClears', 'applyProps', 'applyCommand',
+		'droppedPropClears', 'applyProps', 'applyCommand',
 	].map(fn).join('\n') + '\n({makeListPicker,validateNodeProps,applyProps,applyCommand})', {
 		NSPopUpButton: { alloc: () => ({ initWithFramePullsDown: () => view }) },
 		NSMenuItem: { alloc: () => ({ initWithTitleActionKeyEquivalent: (title: string) => ({ title }) }) },

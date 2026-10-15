@@ -341,13 +341,12 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   callback) binds once at mount and keeps the mount-render closure: read
   live state through a ref, or wrap the handler in octane's `useEffectEvent`
   so the stable binding dispatches the latest function. — post-0.14.0·desk.
-- **A dropped non-event prop keeps its last value on native.** Host updates
-  merge into the previous prop bag — `undefined` means "not supplied", not
-  "reset" — so a removed prop stays stale on iOS, Android, and macOS. Keep
-  the key present with an explicit neutral value when a prop can toggle
-  (`placeholder={on ? 'x' : ''}`). Dropped `on*` handlers are the exception:
-  both native drivers unbind them (renderer `listener: null` commands on
-  iOS/Android, injected clears on macOS). — post-0.14.0·desk.
+- **A dropped prop restores its documented default; `null` is not a distinct
+  contract.** Removing an attribute between renders — or passing
+  `prop={undefined}` / `prop={null}` — returns the host property to the same
+  value it holds when never supplied, key-by-key inside `style` objects too.
+  `null` cannot stand in for an explicit neutral value: pass `''`, `0`, or
+  `false` where the default differs. — post-0.14.0·desk.
 - **Literal `@{` in JSX text** parses as a code block: evaluated and
   discarded on web, a compile error on native. Write `{'@'}{expr}` —
   `<Text>{'@'}{user.handle}</Text>` renders `@handle`. Upstream fix

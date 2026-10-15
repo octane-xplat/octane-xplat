@@ -20,8 +20,8 @@ function controlFixture() {
 
 	const view: any = { sizeToFit() {}, removeFromSuperview() {} }
 	const constants = source.slice(
-		source.indexOf('const CLEAR_ON_UPDATE'),
-		source.indexOf('\nfunction clearOnUpdate'),
+		source.indexOf('function droppedPropClears('),
+		source.indexOf('\nfunction applyProps('),
 	)
 
 	const api = runInNewContext(
@@ -33,8 +33,7 @@ function controlFixture() {
 				'notifyDateChange',
 				'syncDatePicker',
 				'validateNodeProps',
-				'clearOnUpdate',
-				'staleEventClears',
+				'droppedPropClears',
 				'applyProps',
 				'applyCommand',
 			]

@@ -79,8 +79,7 @@ function fixture() {
 			'validateNodeProps',
 			'applyCommand',
 			'applyProps',
-			'clearOnUpdate',
-			'staleEventClears',
+			'droppedPropClears',
 		]
 			.map(fn)
 			.join('\n') +

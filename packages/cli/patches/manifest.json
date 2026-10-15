@@ -35,8 +35,8 @@
 			"file": "@nativescript-community__octane@0.2.4.patch",
 			"upstreamPR": "https://github.com/nativescript-community/octane/pull/14",
 			"scope": "runtime",
-			"why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners. Aligns intrinsic ref types with Octane callback cleanup and nested arrays with optional entries. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending. Preserves authored Grid row/col/span metadata independently of NativeScript defaults and computed auto-placement, notifying Grid when placement props change.",
-			"dropWhen": "@nativescript-community/octane ships the undefined-skip, visibility capability, and Octane-compatible intrinsic ref types Grid authored placement metadata and change notifications are supported upstream."
+			"why": "Driver treats a prop dropped from an update's complete prop bag \u2014 or set to `undefined`/`null` \u2014 as a removal and restores the documented default: Property/CssProperty setters get `unsetValue`, plain fields restore the captured pre-prop value, and applied `style` keys diff per key. A never-applied `undefined` still skips the write since NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO). Aligns intrinsic ref types with Octane callback cleanup and nested arrays with optional entries. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending. Preserves authored Grid row/col/span metadata independently of NativeScript defaults and computed auto-placement, notifying Grid when placement props change.",
+			"dropWhen": "@nativescript-community/octane ships removal-reset prop semantics, the undefined-skip, visibility capability, Octane-compatible intrinsic ref types, and Grid authored placement metadata with change notifications upstream."
 		},
 		{
 			"specifier": "@nativescript-community/vite-octane@0.2.1",

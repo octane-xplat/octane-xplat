@@ -4952,55 +4952,26 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 	}
 }
 
-/** Sticky props each type's readers consult through node.props — a key
- *  dropped by a host update must read as removed, not stale. */
-const CLEAR_ON_UPDATE: Record<string, string[]> = {
-	tabview: ['items', 'selectedIndex', 'style', 'className'],
-	tabviewitem: ['title', 'iconSource', 'style', '__tabContent'],
-	segmentedbaritem: ['title'],
-	segmentedbar: ['items', 'selectedIndex', 'style', 'className'],
-	listview: ['items', 'renderItem', 'itemTemplate', 'itemTemplates', 'separatorColor', 'style', 'className'],
-	listpicker: ['items', 'selectedIndex', 'style', 'className'],
-	timepicker: ['time', 'hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute', 'isEnabled', 'style', 'className'],
-	datepicker: ['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'style', 'className'],
-	activityindicator: ['busy', 'style', 'className'],
-	progress: ['value', 'maxValue', 'style', 'className'],
-	htmlview: ['html', 'style', 'className'],
-	formattedstring: ['style', 'fontFamily', 'fontSize', 'color', 'backgroundColor'],
-	span: ['text', 'style', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textDecoration', 'color', 'backgroundColor'],
-	wraplayout: ['orientation', 'itemWidth', 'itemHeight'],
-	docklayout: ['stretchLastChild'],
-	contentview: ['horizontalAlignment', 'verticalAlignment'],
-	stacklayout: [
-		'orientation',
-		'horizontalAlignment',
-		'verticalAlignment',
-		'onTap',
-		'onClick',
-		'onPress',
-	],
-	label: ['maxLines', 'whiteSpace', 'textOverflow'],
-	webview: ['html', 'src'],
-	textfield: ['secure', 'returnKeyType', 'placeholderTextColor'],
-	textview: ['returnKeyType'],
-	searchbar: ['text', 'hint'],
-	scrollview: ['orientation', 'horizontal', 'scrollBarIndicatorVisible'],
-}
-
-function clearOnUpdate(type: string): PropBag {
-	const names = CLEAR_ON_UPDATE[type]
-	return names ? Object.fromEntries(names.map((name) => [name, undefined])) : {}
-}
-
-/** Bound `on*` props dropped by a host update must unbind — the merge
- *  otherwise leaves the stale closure firing (CLEAR_ON_UPDATE predates this
- *  sweep and stays for the non-callback sticky props). Only function-valued
- *  names count: a `onX={undefined}` prop never bound a handler. */
-function staleEventClears(props: PropBag, next: PropBag): PropBag {
+/** Host updates carry the complete next prop bag, but applyProps merges — a
+ *  key that vanishes would keep its last value forever. Every dropped key
+ *  with a recorded value gets an explicit `undefined` clear: node.props then
+ *  reads it as removed and each handler resets the native state the prop
+ *  installed (sync readers consult the merged bag; writers map `?? default`).
+ *  A prior `undefined`/`null` applied nothing, so it needs no clear. */
+function droppedPropClears(node: ElementNode, next: PropBag): PropBag {
 	const clears: PropBag = {}
-	for (const name of Object.keys(props)) {
-		if (name.startsWith('on') && typeof props[name] === 'function' && !(name in next)) {
+	for (const name of Object.keys(node.props)) {
+		if (node.props[name] != null && !(name in next)) {
 			clears[name] = undefined
+		}
+	}
+
+	const authored = node.authoredProps
+	if (authored !== undefined) {
+		for (const name of Object.keys(authored)) {
+			if (authored[name] != null && !(name in next) && !(name in clears)) {
+				clears[name] = undefined
+			}
 		}
 	}
 
@@ -5120,7 +5091,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
-				} else if (name !== 'id') {
+				} else if (name !== 'id' && value !== undefined) {
 					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
 				}
 
@@ -5134,7 +5105,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyClassName(node, value)
 				} else if (name === 'id') {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored stack prop ' + name)
 				}
 
@@ -5182,7 +5153,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					].includes(name)
 				) {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored flexboxlayout prop ' + name)
 				}
 
@@ -5206,7 +5177,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else if (['rows', 'columns'].includes(name)) {
 					queueLayoutReconcile(node.container, node)
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored gridlayout prop ' + name)
 				}
 
@@ -5222,7 +5193,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					continue
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored absolutelayout prop ' + name)
 				}
 
@@ -5233,7 +5204,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
-				else {console.warn('[macos-host] ignored tabview prop ' + name)}
+				else if (value !== undefined) {console.warn('[macos-host] ignored tabview prop ' + name)}
 
 				break
 			case 'segmentedbar':
@@ -5242,7 +5213,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
-				else {console.warn('[macos-host] ignored segmentedbar prop ' + name)}
+				else if (value !== undefined) {console.warn('[macos-host] ignored segmentedbar prop ' + name)}
 
 				break
 			case 'listview':
@@ -5251,7 +5222,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') { applyClassName(node, value) }
 				else if (name === 'accessible' || name.startsWith('accessibility')) { applyAccessibility(node, name, value) }
 				else if (name.startsWith('on') && value == null) { continue }
-				else { console.warn('[macos-host] ignored listview prop ' + name) }
+				else if (value !== undefined) { console.warn('[macos-host] ignored listview prop ' + name) }
 
 				break
 			case 'listpicker':
@@ -5260,7 +5231,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
-				else {console.warn('[macos-host] ignored listpicker prop ' + name)}
+				else if (value !== undefined) {console.warn('[macos-host] ignored listpicker prop ' + name)}
 
 				break
 			case 'timepicker':
@@ -5269,7 +5240,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
-				else {console.warn('[macos-host] ignored timepicker prop ' + name)}
+				else if (value !== undefined) {console.warn('[macos-host] ignored timepicker prop ' + name)}
 
 				break
 			case 'datepicker':
@@ -5278,7 +5249,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
-				else {console.warn('[macos-host] ignored datepicker prop ' + name)}
+				else if (value !== undefined) {console.warn('[macos-host] ignored datepicker prop ' + name)}
 
 				break
 			case 'progress':
@@ -5287,7 +5258,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
-				else {console.warn('[macos-host] ignored progress prop ' + name)}
+				else if (value !== undefined) {console.warn('[macos-host] ignored progress prop ' + name)}
 
 				break
 			case 'activityindicator':
@@ -5301,7 +5272,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored activityindicator prop ' + name)
 				}
 
@@ -5317,7 +5288,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored htmlview prop ' + name)
 				}
 
@@ -5341,7 +5312,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored label prop ' + name)
 				}
 
@@ -5368,7 +5339,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id') {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored button prop ' + name)
 				}
 
@@ -5395,7 +5366,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					if (typeof value === 'function') {
 						console.warn('[macos-host] ' + name + ' is unsupported on ScrollView')
 					}
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored scrollview prop ' + name)
 				}
 
@@ -5420,7 +5391,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyAccessibility(node, name, value)
 				} else if (name.startsWith('on') && value == null) {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored searchbar prop ' + name)
 				}
 
@@ -5479,7 +5450,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					continue
 				} else if (['keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)) {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored text control prop ' + name)
 				}
 
@@ -5495,7 +5466,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id') {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored switch prop ' + name)
 				}
 
@@ -5515,7 +5486,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id') {
 					continue
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored slider prop ' + name)
 				}
 
@@ -5544,7 +5515,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'accessibilityLabel') {
 					node.view!.accessibilityLabel = String(value ?? '')
 					node.view!.accessibilityElement = !!value
-				} else {
+				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored image prop ' + name)
 				}
 
@@ -6763,32 +6734,10 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// mid-update so the bookkeeping doesn't claim unapplied props.
 			const previousProps = node.props
 			try {
-				// Host updates carry the complete current prop bag, but
-				// applyProps merges — a dropped key stays stale for node.props
-				// readers. Inject explicit clears for every sticky prop so a
-				// removed key restores its default.
-				const childClears =
-					node.type === 'proxyviewcontainer' ||
-					node.parent?.type === 'proxyviewcontainer' ||
-					node.layoutParent
-						? Object.fromEntries(
-								[...PROXY_LAYOUT_PROPS, 'visibility', 'horizontalAlignment', 'verticalAlignment']
-									.filter(
-										(name) =>
-											node.props[name] !== undefined || node.authoredProps?.[name] !== undefined,
-									)
-									.map((name) => [name, undefined]),
-							)
-						: node.parent?.type === 'docklayout'
-							? { dock: undefined, horizontalAlignment: undefined, verticalAlignment: undefined }
-							: ['contentview', 'wraplayout', 'rootlayout'].includes(node.parent?.type ?? '')
-								? { horizontalAlignment: undefined, verticalAlignment: undefined }
-								: {}
-
+				// Host updates carry the complete current prop bag; a key that
+				// vanished must read as removed and reset what it installed.
 				applyProps(node, {
-					...staleEventClears(node.props, command.props),
-					...clearOnUpdate(node.type),
-					...childClears,
+					...droppedPropClears(node, command.props),
 					...command.props,
 				})
 			} catch (error) {

@@ -20,8 +20,8 @@ function fixture() {
 			slice('function makeSearchBar(', 'function makeSwitch('),
 			slice('function invokeAction(', 'class ButtonActionTarget'),
 			slice('function setControlAction(', '/** `isEnabled`/`editable`'),
-			slice('const CLEAR_ON_UPDATE', 'function applyProps('),
-			'({ makeSearchBar, syncSearchBar, notifySearchTextChange, ButtonActionTarget, setTextSubmitAction, clearOnUpdate, staleEventClears })',
+			slice('function droppedPropClears(', 'function applyProps('),
+			'({ makeSearchBar, syncSearchBar, notifySearchTextChange, ButtonActionTarget, setTextSubmitAction, droppedPropClears })',
 		].join('\n'),
 		{
 			NSObject: class {},
@@ -126,12 +126,14 @@ test('SearchBar text/hint updates and removed props restore defaults on the same
 	f.syncSearchBar(f.node, f.node.props)
 	assert.equal(f.view.stringValue, 'one')
 	assert.equal(f.view.placeholderString, 'Find')
-	const update = { ...f.clearOnUpdate('searchbar'), text: 'two' }
+	const next = { text: 'two', onTextChange: f.node.props.onTextChange }
+	const update = { ...f.droppedPropClears(f.node, next), ...next }
 	f.node.props = { ...f.node.props, ...update }
 	f.syncSearchBar(f.node, update)
 	assert.equal(f.view.stringValue, 'two')
 	assert.equal(f.view.placeholderString, '')
-	const clear = f.clearOnUpdate('searchbar')
+	const keep = { onTextChange: f.node.props.onTextChange }
+	const clear = { ...f.droppedPropClears(f.node, keep), ...keep }
 	f.node.props = { ...f.node.props, ...clear }
 	f.syncSearchBar(f.node, clear)
 	assert.equal(f.view.stringValue, '')
@@ -149,7 +151,7 @@ test('SearchBar binds current handlers and removed handlers stay silent', () => 
 	f.node.props.onTextChange = () => events.push('new')
 	f.view.stringValue = 'two'
 	f.target.controlTextDidChange({ object: f.view })
-	f.node.props = { ...f.node.props, ...f.staleEventClears(f.node.props, {}) }
+	f.node.props = { ...f.node.props, ...f.droppedPropClears(f.node, {}) }
 	f.setTextSubmitAction(f.node, undefined)
 	f.view.stringValue = 'three'
 	f.target.controlTextDidChange({ object: f.view })

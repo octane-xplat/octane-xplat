@@ -32,7 +32,7 @@ const slices = [
 	fn('destroy'),
 	fn('validateTextNesting'),
 	fn('validateBatch'),
-	source.slice(at('const CLEAR_ON_UPDATE'), at('\nfunction applyProps(')),
+	source.slice(at('function droppedPropClears('), at('\nfunction applyProps(')),
 	source.slice(at('function applyCommand('), at('\nconst macOSDriver')),
 	source.slice(at('const macOSDriver'), at('\nconst round')),
 ].join('\n')

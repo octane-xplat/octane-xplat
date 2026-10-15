@@ -4,10 +4,11 @@ import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
-// applyProps merges each update into node.props — an `on*` prop dropped by a
-// host update left a bound closure firing the stale handler (recognizers,
-// action handlers, scroll/layout observers all read node.props). The update
-// path must inject explicit undefined clears for every dropped callback prop.
+// applyProps merges each update into node.props — a prop dropped by a host
+// update kept its last value forever (recognizers, action handlers, scroll/
+// layout observers, and sync readers all consult node.props). The update path
+// injects explicit undefined clears for every dropped prop so removal restores
+// the documented default; `on*` drops additionally reach the unbind setters.
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
@@ -25,7 +26,7 @@ const slices = [
 	fn('typeHasView'),
 	fn('assertSupportedType'),
 	fn('validateNodeProps'),
-	source.slice(at('const CLEAR_ON_UPDATE'), at('\nfunction applyProps(')),
+	source.slice(at('function droppedPropClears('), at('\nfunction applyProps(')),
 	source.slice(at('function applyCommand('), at('\nconst macOSDriver')),
 ].join('\n')
 
@@ -119,6 +120,28 @@ test('control and text event props clear on every element type', () => {
 			`${cases[index][0]} dropped ${prop} must clear`,
 		)
 	})
+})
+
+test('a dropped non-event prop clears to undefined on update', () => {
+	const fx = fixture()
+	existingNode(fx.container, 20, 'searchbar', { text: 'query', hint: 'search' })
+	existingNode(fx.container, 21, 'label', { maxLines: 2, text: 'hi' })
+
+	fx.applyCommand(fx.container, { op: 'update', id: 20, props: { text: 'query' } })
+	fx.applyCommand(fx.container, { op: 'update', id: 21, props: { text: 'hi' } })
+
+	assert.equal(fx.applied[0].hint, undefined)
+	assert.equal(fx.applied[1].maxLines, undefined)
+})
+
+test('keys that applied nothing get no clear', () => {
+	const fx = fixture()
+	existingNode(fx.container, 22, 'label', { maxLines: undefined, whiteSpace: null, text: 'hi' })
+
+	fx.applyCommand(fx.container, { op: 'update', id: 22, props: { text: 'hi' } })
+
+	assert.equal('maxLines' in fx.applied[0], false)
+	assert.equal('whiteSpace' in fx.applied[0], false)
 })
 
 test('onLayoutChanged clears on any element type', () => {
@@ -224,4 +247,20 @@ test('applyProps routes cleared control events to their unbind setters', () => {
 	assert.equal(ctx.setControlAction.calls.at(-1)[1], undefined)
 	assert.equal(ctx.setTextSubmitAction.calls.at(-1)[0], field.node)
 	assert.equal(ctx.setTextSubmitAction.calls.at(-1)[1], undefined)
+})
+
+// A cleared prop has nothing left to apply — an unhandled name must not warn
+// as "ignored" when it arrives as a removal.
+test('applyProps warns on an unknown value but not on its clear', () => {
+	const { node, applyProps } = applyPropsFixture('flexboxlayout')
+	const warnings: any[][] = []
+	applyPropsSandbox.console = { warn: (...args: any[]) => warnings.push(args) }
+	try {
+		applyProps(node, { bogusProp: 5 })
+		applyProps(node, { bogusProp: undefined })
+	} finally {
+		applyPropsSandbox.console = console
+	}
+
+	assert.equal(warnings.length, 1)
 })
