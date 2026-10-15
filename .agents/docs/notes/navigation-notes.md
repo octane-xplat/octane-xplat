@@ -234,9 +234,11 @@ export function Example() {
    qualified.** Shared UI overlay children and declarative platform-modal
    content portals from the declaring tree on iOS/Android; the optional
    platform sheet/context-menu leaves do so on Android. Their current iOS
-   implementations use independent roots. Imperative service roots and
-   router-created modal routes remain independent; pass data through params
-   or shared state there. (See primitives.md.)
+   implementations use independent roots. AppKitSheet also uses an independent
+   root; its macOS portal probe fails because the current renderer declares no
+   portal capability. Imperative service roots and router-created modal routes
+   remain independent; pass data through params or shared state there. (See
+   primitives.md.)
 2. **Android hardware back** must feed the router — intercept
    `activityBackPressed`, map to history/frame pop, allow per-screen override
    (confirm-dialog flows).

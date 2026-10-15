@@ -233,7 +233,35 @@ export function Actions() {
   no detents or drag handles on macOS — the window sizes to the
   content's fitting size and `onDismissed` fires when the sheet ends
   (close button, Esc, or `open`→false). The content subtree mounts as
-  its own octane root inside the sheet window via `createMacOSRoot`.
+  its own octane root inside the sheet window via `createMacOSRoot`. The
+  current macOS renderer does not declare Octane's portal capability; a
+  runtime probe failed before the portal child mounted. Provider context from
+  the declaring tree therefore does not cross into `AppKitSheet`. Read values
+  in the declaring component and pass them through the content closure:
+
+  ```tsx
+  /** @jsxImportSource @octane-xplat/macos-renderer */
+  // AccountSheet.macos.tsrx
+  import { AppKitSheet } from '@octane-xplat/sheet/macos'
+  import { Text } from '@octane-xplat/ui'
+  import { createContext, useContext } from 'octane'
+
+  const AccountName = createContext('Guest')
+  const AccountNameProvider: any = AccountName
+
+  function AccountSheetForName() {
+      const accountName = useContext(AccountName)
+      return <AppKitSheet open content={() => <Text>{accountName}</Text>} />
+  }
+
+  export function AccountPage() {
+      return (
+        <AccountNameProvider value="Avery">
+          <AccountSheetForName />
+        </AccountNameProvider>
+      )
+  }
+  ```
 
 ## Port notes — what carried over
 
