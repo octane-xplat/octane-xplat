@@ -135,7 +135,7 @@ panel. AppKit escape bags remain unsupported by that experimental leaf.
 Try the demo's static fuzzy palette and remote palette: query `preferences`,
 query `fail` for its error/Retry path, select an enabled row, cancel, and reopen.
 Test your own remote source with out-of-order responses and close during loading.
-See the [implementation plan](../notes/command-palette-plan.md) for the follow-up work.
+See the [implementation plan](../../.agents/design/command-palette-plan.md) for the follow-up work.
 
 On macOS, the palette opens as a sheet attached to the calling window. Cancel,
 selection, or Escape closes it and returns focus to the calling window. The
@@ -145,6 +145,6 @@ PageDown reveals the last enabled result; PageUp returns to the first. Use
 
 For a repeatable nonvisual macOS check, run the
 [maintained host case](../../packages/ui/tests/command-palette-host.macos.tsrx)
-with the command in the [implementation plan](../notes/command-palette-plan.md#remaining-work).
+with the command in the [implementation plan](../../.agents/design/command-palette-plan.md#remaining-work).
 It checks modal attachment, native field focus, scrolling, text notifications,
 dismissal, callback counts, and reopen without capturing images.

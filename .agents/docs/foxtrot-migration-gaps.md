@@ -120,7 +120,7 @@ Additional implementation evidence: [editor props](../../packages/tiptap/src/typ
 [files](../../packages/files/src/files.ts),
 [query storage](../../packages/ui/src/query-storage.ts),
 [known limits](../../docs/verify/known-limits.md),
-[optional-service qualification](../../docs/notes/optional-service-qualification.md),
+[optional-service qualification](notes/optional-service-qualification.md),
 [DnD evidence](../../packages/dnd-kit/README.md#limits-and-verification).
 
 Coverage: analysis only; no public behavior, recipes, or maintained examples

@@ -50,4 +50,4 @@ the app's NativeScript config. Web maps onto the Vibration API, which
 many desktop browsers expose but ignore.
 
 Guide: [Media services](../../docs/platform/media-services.md); per-target
-availability: [platform notes](../../docs/notes/platform-notes.md).
+availability: [platform notes](../../.agents/docs/notes/platform-notes.md).

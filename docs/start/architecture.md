@@ -144,7 +144,7 @@ export function Example() {
 ```
 
 If you are adding components to the framework, the
-[architecture notes](../notes/architecture-notes.md#normalization-classes-how-a-shared-component-gets-classified)
+[architecture notes](../../.agents/design/architecture-notes.md#normalization-classes-how-a-shared-component-gets-classified)
 explain how these labels are assigned and checked.
 
 ## What belongs in a screen
@@ -214,5 +214,5 @@ export function Count() {
 
 For server data, use a query and show loading and error content while it
 runs. [Fetching data](../app/data.md) covers queries, sharing, cancellation, and
-retry. The [architecture notes](../notes/architecture-notes.md) cover compiler and
+retry. The [architecture notes](../../.agents/design/architecture-notes.md) cover compiler and
 renderer details for framework contributors.

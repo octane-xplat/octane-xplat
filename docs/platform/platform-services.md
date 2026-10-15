@@ -643,7 +643,7 @@ capture requests no microphone access. `saveToGallery: true` rejects before
 permission or UI; macOS library saving is unavailable. Width and height resize
 the returned JPEG; aspect ratio is preserved by default. Mac cameras use the
 default available device; front/rear hints have no AppKit lens mapping.
-Movies use the separate [camera session workflow](camera-movie.md).
+Movies use the separate [camera session workflow](../../.agents/docs/recipes/camera-movie.md).
 
 ```json
 {
@@ -825,7 +825,7 @@ To check the integration on a configured app:
 callback/cancel/error behavior with mocked NativeScript APIs. It does not qualify
 system-browser behavior or a real relying-party exchange on iOS/Android.
 Incoming-link routing after authentication belongs to the
-[incoming-links recipe](../../recipes/incoming-links.md).
+[incoming-links recipe](../../.agents/docs/recipes/incoming-links.md).
 
 ### Provider SDK sign-in (Apple / Google)
 
@@ -1115,5 +1115,5 @@ Do not import `navigator`, `document`, NativeScript classes, or OS-specific
 plugins into a shared screen. If the service does not exist yet, add its
 shared contract and web/native leaves rather than adding a one-off conditional.
 
-See the [platform notes](../notes/platform-notes.md) for the complete capability map,
+See the [platform notes](../../.agents/docs/notes/platform-notes.md) for the complete capability map,
 accessibility mapping, and native typing details.

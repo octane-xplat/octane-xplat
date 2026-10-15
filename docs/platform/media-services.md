@@ -495,13 +495,13 @@ probe now uses two sample tracks and displays the current track ID. Seek near
 the end of the first track and expect `sample-two`; leave the owning screen
 and verify its playback resources are released. These background, lock-screen,
 interruption, and route checks still need device evidence.
-The [audio](../../recipes/audio-playback.md),
-[haptics](../../recipes/advanced-haptics.md), and [sound](../../recipes/ui-sounds.md)
+The [audio](../../.agents/docs/recipes/audio-playback.md),
+[haptics](../../.agents/docs/recipes/advanced-haptics.md), and [sound](../../.agents/docs/recipes/ui-sounds.md)
 recipes track those gaps separately from the API overview.
 
 ## Validation status
 
-Use [optional-service qualification](../notes/optional-service-qualification.md) for the
+Use [optional-service qualification](../../.agents/docs/notes/optional-service-qualification.md) for the
 current target-by-target evidence and remaining checks. The nonvisual Chromium
 probe exercises real browser file-input reads, playback, pause/seek, two-track
 advancement, effect voice limits, stopping and teardown. It does not verify

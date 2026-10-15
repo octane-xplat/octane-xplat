@@ -1,5 +1,5 @@
 // Numeric x.y.z only — OTA manifests reject prerelease/build suffixes so the
-// compare stays a three-integer check (documented in docs/notes/ota-process.md).
+// compare stays a three-integer check (documented in .agents/docs/notes/ota-process.md).
 
 const VERSION_RE = /^(\d+)\.(\d+)\.(\d+)$/
 

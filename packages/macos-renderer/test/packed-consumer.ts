@@ -89,7 +89,7 @@ for (const file of [
 }
 
 // Keep the contributor example checked by the same independent consumer.
-const ledger = await readFile(join(repo, 'docs/notes/appkit-native-intrinsics.md'), 'utf8')
+const ledger = await readFile(join(repo, '.agents/docs/notes/appkit-native-intrinsics.md'), 'utf8')
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,

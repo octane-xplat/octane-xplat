@@ -291,4 +291,4 @@ web element in the same ref. This does not qualify iOS Safari or actual
 screen-reader navigation. Native modal VoiceOver/TalkBack navigation and
 return focus also remain unverified. See
 [text-entry guidance](../app/text-entry.md#release-and-restore-focus) and
-[input readiness evidence](../notes/input-readiness-notes.md).
+[input readiness evidence](../../.agents/docs/notes/input-readiness-notes.md).

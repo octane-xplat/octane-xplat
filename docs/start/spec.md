@@ -36,7 +36,7 @@ you can add phone targets after the first screen works.
 | iOS     | The starter uses native iOS views and device features through NativeScript.                                 | A Mac, Xcode, and [NativeScript setup](toolchain.md#run-on-ios-and-android). Real-device and release builds also need signing.              |
 | Android | The starter uses native Android views and device features through NativeScript.                             | Android development tools, JDK 21, and an emulator or device; see [phone setup](toolchain.md#run-on-ios-and-android).                       |
 | macOS   | Experimental native AppKit app or system WebView app; separate from the starter.                            | Apple Silicon, macOS 13.5+, and separate app configuration. See [macOS setup](../../apps/macos/README.md).                                  |
-| Windows | Experimental WinUI 3 app; separate from the starter. UI support is incomplete.                              | A Windows host and preview dependencies; see [Windows setup](../platform/windows-setup.md) and [current limits](../notes/windows-notes.md). |
+| Windows | Experimental WinUI 3 harness in the framework repository; not available in the app starter. UI support is incomplete. | No supported downstream setup is provided yet; see [Windows status](../platform/windows-setup.md).                                            |
 | Linux   | Experimental app displaying web content in WebKitGTK; exercised on Ubuntu 24.04. Separate from the starter. | A Linux host with WebKitGTK and separate package settings; see [Linux packaging](../platform/linux-package.md).                             |
 
 An **emulator** or **simulator** lets you run a phone app on your computer.
@@ -56,7 +56,7 @@ This does not set a minimum browser-version
 floor or qualify iOS Safari and screen readers; apps must define those targets
 for their own releases. Browser APIs and device services remain feature-specific
 boundaries in [known limits](../verify/known-limits.md) and
-[optional-service qualification](../notes/optional-service-qualification.md).
+[optional-service qualification](../../.agents/docs/notes/optional-service-qualification.md).
 The same local run executes the keyboard/focus fixture in Chromium, Firefox,
 and WebKit; Chromium also inspects the accessibility tree through CDP. A
 separate `@octane-xplat/sheet/web` runtime check runs in all three engines.
@@ -111,7 +111,7 @@ the app, and the build selects the file for that platform. See
 [building screens](../app/primitives.md) and [styling](../app/styling.md) for examples.
 Sharing code still requires trying the result on each platform you use.
 
-The [showcase record](../notes/demos.md#product-showcase) lists the framework's demo
+The [showcase record](../../.agents/design/demos.md#product-showcase) lists the framework's demo
 checks. It is useful background when evaluating support; your own app
 needs checks for the features it uses.
 
@@ -124,5 +124,5 @@ TypeScript is the language you or your agent writes the app in.
 Xplat supplies the shared components, device services, and project setup.
 
 Read [how an app fits together](architecture.md) when you want to understand
-where the pieces live. The [framework notes](../notes/framework-notes.md) explain
+where the pieces live. The [framework notes](../../.agents/docs/notes/framework-notes.md) explain
 the compiler and other internals for framework contributors.

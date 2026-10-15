@@ -182,7 +182,7 @@ export const AGENT_COMMANDS = [
 			{
 				flag: 'corpus',
 				type: 'enum',
-				values: ['guide', 'recipe', 'design-note'],
+				values: ['guide', 'recipe', 'design-note', 'implementation-note'],
 				default: 'guide',
 				desc: 'Documentation corpus (default: guide)',
 			},

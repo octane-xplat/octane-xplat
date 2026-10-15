@@ -965,6 +965,6 @@ const win = openWindow({ data: { listId: 'trip' } })
 // win?.closed resolves when the window closes; win?.close() closes it.
 ```
 
-The [navigation notes](../notes/navigation-notes.md) explain native containers, modal
+The [navigation notes](../../.agents/docs/notes/navigation-notes.md) explain native containers, modal
 roots, deep links, Android tab-stack limits, and the platform-specific
 tradeoffs.

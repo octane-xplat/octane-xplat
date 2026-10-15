@@ -1,9 +1,9 @@
 import { rankOf, slugFor, titleOf } from './doc-meta'
 
-// Doc corpus — the framework's own docs/**/*.md, imported raw at build time.
-// Subdirectories organize by audience; slugs stay flat basenames so site
-// paths don't encode the folder layout.
-const files = import.meta.glob(['../../../docs/**/*.md', '!../../../docs/evidence/**'], {
+// Reader-facing doc corpus — docs/**/*.md, imported raw at build time.
+// Subdirectories organize by topic; slugs stay flat basenames so site paths
+// don't encode the folder layout.
+const files = import.meta.glob('../../../docs/**/*.md', {
 	query: '?raw',
 	import: 'default',
 	eager: true,
@@ -15,12 +15,10 @@ export interface DocPage {
 	id: string
 	title: string
 	md: string
-	/** Corpus-relative dir ('', 'start', 'app', 'platform', 'verify', 'notes'). */
+	/** Corpus-relative directory, such as 'start', 'app', 'platform', or 'verify'. */
 	dir: string
 	/** Sidebar section — the index doc joins 'start'. */
 	section: string
-	/** guides = reader-facing framework docs; notes = design record. */
-	group: 'guides' | 'notes'
 }
 
 const seen = new Set<string>()
@@ -43,28 +41,18 @@ export const DOCS: DocPage[] = Object.entries(files)
 			md: md as string,
 			dir,
 			section: dir || 'start',
-			group: (dir === 'notes' ? 'notes' : 'guides') as DocPage['group'],
 		}
 	})
 	.sort((a, b) => {
-		if (a.group !== b.group) {
-			return a.group === 'guides' ? -1 : 1
-		}
-
 		const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
 		return d || a.slug.localeCompare(b.slug)
 	})
 
-// Route for a doc — the two indexes pin short paths ('/' and '/notes'),
-// other notes ride the 'notes' stack so URLs read /notes/<slug>.
+// The introduction uses '/'; all other guides use their flat slug path.
 export function routeForDoc(doc: DocPage | undefined) {
 	if (!doc || doc.slug === 'README') {
 		return { stack: 'root', name: '', params: {} }
 	}
 
-	if (doc.slug === 'notes') {
-		return { stack: 'root', name: 'notes', params: {} }
-	}
-
-	return { stack: doc.group === 'notes' ? 'notes' : 'root', name: doc.slug, params: {} }
+	return { stack: 'root', name: doc.slug, params: {} }
 }

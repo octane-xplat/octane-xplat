@@ -35,7 +35,7 @@ For non-secret preferences, use `storage` from
 [`@octane-xplat/platform`](../platform/README.md) instead.
 
 Guide: [Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../docs/notes/platform-notes.md).
+per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
 
 ## macOS AppKit
 

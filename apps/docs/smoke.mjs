@@ -261,50 +261,20 @@ assert(
 	),
 )
 
-assert(
-	'sidebar has one design-notes entry',
-	Boolean(sideItem('Design notes')) && !sideItem('Navigation notes'),
-)
-
-async function openNote(slug) {
-	sideItem('Design notes')?.click()
-	await settle()
-
-	;[...root.querySelectorAll('.doc a')]
-		.find((a) => a.getAttribute('href') === docPath(slug, 'notes'))
-		?.click()
-
-	await settle()
-}
-
 for (const path of walkDocs('../../docs')) {
 	const rel = relative('../../docs', path)
 	const dir = dirname(rel) === '.' ? '' : dirname(rel)
 	const slug = slugFor(dir, basename(rel, '.md'))
-	const group = dir === 'notes' ? 'notes' : 'guides'
 	const title = titleOf(slug, readFileSync(path, 'utf8'))
-	if (group === 'guides' || slug === 'notes') {
-		sideItem(title)?.click()
-		await settle()
-	} else {
-		await openNote(slug)
-	}
+	sideItem(title)?.click()
+	await settle()
 
 	assert(
 		`page ${slug}`,
-		window.location.pathname === docPath(slug, group) &&
+		window.location.pathname === docPath(slug) &&
 			root.querySelector('.doc .h1')?.textContent === title,
 	)
 }
-
-await openNote('navigation-notes')
-const labLink = [...root.querySelectorAll('.doc a')].find((a) => a.textContent === 'lab log')
-assert(
-	'same-page fragment stays local',
-	labLink?.getAttribute('href') === '#lab-log' && !labLink.hasAttribute('target'),
-)
-
-assert('same-page heading exists', Boolean(root.querySelector('#lab-log')))
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,
 // and select the top hit — it should route to that doc (+anchor).

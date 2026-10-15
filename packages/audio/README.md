@@ -64,6 +64,6 @@ export async function playTrack(source: string) {
 For short UI sounds use [`@octane-xplat/sounds`](../sounds/README.md).
 
 Guide: [Media services](../../docs/platform/media-services.md); per-target
-availability: [platform notes](../../docs/notes/platform-notes.md). Exercised by
+availability: [platform notes](../../.agents/docs/notes/platform-notes.md). Exercised by
 the harness `MediaServices` screen
 ([`packages/app/src/MediaServices.tsrx`](../app/src/MediaServices.tsrx)).

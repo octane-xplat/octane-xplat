@@ -43,7 +43,7 @@ if ((await geolocation.ensure()) === 'granted') {
 ```
 
 Guide: [Using device features](../../docs/platform/platform-services.md)
-per-target availability: [platform notes](../../docs/notes/platform-notes.md).
+per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
 ([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).
 

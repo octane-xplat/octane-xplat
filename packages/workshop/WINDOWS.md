@@ -24,8 +24,9 @@ The report names NativeScript configuration, Windows application resources,
 installed NativeScript/compiler packages, an exact Windows runtime declaration,
 and (on Windows) .NET SDK 10 or newer and Developer Mode. Passing these checks
 does not establish compatible package versions or working rendering. The
-[experimental Windows harness](../../apps/windows/README.md) describes the
-current preview pins and host setup; it is not workshop qualification.
+[Windows support status](../../docs/platform/windows-setup.md) explains the
+current downstream limits; the repository's private harness does not qualify
+the workshop.
 
 ## Inspect story applicability
 

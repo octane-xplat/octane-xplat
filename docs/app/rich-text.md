@@ -214,7 +214,7 @@ export function Notes() {
 ## Ordinary editing subset by platform
 
 For the current status of every decision #101 contract row on Web, Android,
-and iOS for both packages, see the [editor capability declarations](../notes/editor-capabilities.md).
+and iOS for both packages, see the [editor capability declarations](../../.agents/docs/notes/editor-capabilities.md).
 The package-level `supported` flag means an editing surface exists on that
 target; it does not qualify each contract row.
 
@@ -280,7 +280,7 @@ The iOS leaf now mounts AztecEditor-iOS through its Swift facade. Its earlier
 and unsupported-format queries. It does not establish keyboard input, IME,
 paste, selection-restoring history, or accessibility. Native builds and
 object-driver suites remain separate evidence; see the
-[iOS capability declarations](../notes/editor-capabilities.md#ios).
+[iOS capability declarations](../../.agents/docs/notes/editor-capabilities.md#ios).
 
 ## Web engine extensions
 

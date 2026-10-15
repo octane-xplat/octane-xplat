@@ -1,6 +1,6 @@
 // Generate llms.txt + llms-full.txt into dist/ (run after `vite build`).
-// Guides are the agent-facing corpus; the design notes stay link-only — an
-// agent needs them only when debugging framework internals, not app code.
+// Only reader-facing docs/ content is exported. Internal records stay in the
+// repository's .agents/ documentation tree.
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -32,7 +32,7 @@ function rewriteLinks(md, dir, slugs) {
 		const slug = docSlugFor(href, dir)
 		if (slug && slugs.has(slug)) {
 			const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
-			return `](${BASE}${docPath(slug, slugs.get(slug))}${hash})`
+			return `](${BASE}${docPath(slug)}${hash})`
 		}
 
 		const path = repoPathFor(href, dir)
@@ -63,22 +63,17 @@ for await (const path of walk(docsDir)) {
 		slug,
 		title: titleOf(slug, md),
 		purpose: purposeOf(md),
-		guide: dir !== 'notes',
 		md,
 		dir: dir === '.' ? '' : dir,
 	})
 }
 
 docs.sort((a, b) => {
-	if (a.guide !== b.guide) {
-		return a.guide ? -1 : 1
-	}
-
 	const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
 	return d || a.slug.localeCompare(b.slug)
 })
 
-const slugs = new Map(docs.map((d) => [d.slug, d.guide ? 'guides' : 'notes']))
+const slugs = new Set(docs.map((d) => d.slug))
 
 const HEADER = `# Xplat docs
 
@@ -103,13 +98,13 @@ export function Counter() {
 `
 
 const link = (d) =>
-	`- [${d.title}](${BASE}${docPath(d.slug, 'guides')})${d.purpose ? `: ${d.purpose}` : ''}`
+	`- [${d.title}](${BASE}${docPath(d.slug)})${d.purpose ? `: ${d.purpose}` : ''}`
 
 const guideLinks = GROUPS.map(
 	(g) =>
 		`### ${g.label}\n\n` +
 		docs
-			.filter((d) => d.guide && (d.dir || 'start') === g.dir)
+			.filter((d) => (d.dir || 'start') === g.dir)
 			.map(link)
 			.join('\n'),
 ).join('\n\n')
@@ -122,19 +117,19 @@ ${guideLinks}
 ## Optional
 
 - [All guides, one file](${BASE}/llms-full.txt): every guide inlined in reading order.
-- [Design notes](${BASE}/notes): the design record — status, decisions, open questions, per-topic implementation notes. Consult when debugging framework internals or checking why a constraint exists; not needed for app work.
+- [Design records](${REPO}/tree/main/.agents/design): decisions, proposals, research, and open questions for framework contributors.
+- [Implementation documentation](${REPO}/tree/main/.agents/docs): contributor guidance, implementation notes, recipes, parity records, and platform investigations.
 - [Changelog](${REPO}/blob/main/CHANGELOG.md): per-release changes and upgrading notes.
 - [Repository](${REPO})
 - [npm: @octane-xplat/ui](https://www.npmjs.com/package/@octane-xplat/ui)
 `
 
 const body = docs
-	.filter((d) => d.guide)
 	.map((d) => rewriteLinks(d.md, d.dir, slugs).trim())
 	.join('\n\n---\n\n')
 
 const full = `${HEADER}
-The complete guides follow in reading order, separated by --- lines. The design notes are intentionally excluded — an agent needs them only when debugging the framework itself; they are at ${BASE}/notes when required.
+The complete app-building guides follow in reading order, separated by --- lines. Framework implementation notes and design records are maintained in the repository under .agents/ and are not part of this corpus.
 
 ---
 
@@ -145,5 +140,5 @@ await mkdir(outDir, { recursive: true })
 await writeFile(join(outDir, 'llms.txt'), llms)
 await writeFile(join(outDir, 'llms-full.txt'), full)
 console.log(
-	`llms.txt + llms-full.txt → ${outDir} (${docs.filter((d) => d.guide).length} guides, ${docs.filter((d) => !d.guide).length} notes linked only)`,
+	`llms.txt + llms-full.txt → ${outDir} (${docs.length} guides)`,
 )

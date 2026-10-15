@@ -126,11 +126,11 @@ function SpanText(props: { s: Span; dir: string }) @{
 		const doc = docFor(s.href, props.dir);
 		if (doc) {
 			const hash = s.href.includes('#') ? s.href.slice(s.href.indexOf('#')) : '';
-			return <a className={cls} href={docPath(doc.slug, doc.group) + hash} onClick={(e: MouseEvent) => {
+			return <a className={cls} href={docPath(doc.slug) + hash} onClick={(e: MouseEvent) => {
 				if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 				e.preventDefault();
 				pushRoute(routeForDoc(doc));
-				if (hash) history.replaceState(history.state, '', docPath(doc.slug, doc.group) + hash);
+				if (hash) history.replaceState(history.state, '', docPath(doc.slug) + hash);
 				resetDocScroll();
 			}}>{s.text}</a>;
 		}

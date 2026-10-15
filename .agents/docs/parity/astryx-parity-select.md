@@ -1,6 +1,6 @@
 # Select audit against Astryx’s selector family
 
-Follow-up: [implementation plan](../../../docs/notes/select-implementation-plan.md) and
+Follow-up: [implementation plan](../../design/select-implementation-plan.md) and
 [finite-list usage](../../../docs/app/search-selection.md#choose-from-a-finite-list) document the
 subsequent foundations. Findings below describe the audited baseline.
 

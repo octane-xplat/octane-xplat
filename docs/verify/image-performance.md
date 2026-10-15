@@ -13,7 +13,7 @@ the fixes from smallest to largest. It is written for people and coding agents.
 The mechanism below was verified by reading the NativeScript source
 (`desk-source`), not measured on a device — the profiling steps are how you
 collect the runtime evidence for your app. The [expo-image
-study](../notes/expo-image-study.md) compares this pipeline to expo-image and
+study](../../.agents/design/expo-image-study.md) compares this pipeline to expo-image and
 is the background record for the advice here.
 
 ## When to suspect the image pipeline
@@ -289,7 +289,7 @@ the plugin path are the working options.
 
 ## See also
 
-- [expo-image study](../notes/expo-image-study.md) — the evidence this guide
+- [expo-image study](../../.agents/design/expo-image-study.md) — the evidence this guide
   is based on: decode-to-view-size, cache sizing, prefetch semantics, and the
   leaf-package plan.
 - [Known limits](known-limits.md) — per-platform behavior tables, including

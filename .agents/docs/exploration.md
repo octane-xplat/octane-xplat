@@ -5,8 +5,7 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 ## Exploration loop
 
-Per Silo topic, in phase order (see `docs/exploration-path.md` or
-`docs/README.md`):
+Per Silo topic, move through these phases in order:
 
 **question → hypotheses → evidence (source read or experiment) → decision →
 spec delta in the domain doc → ledger updates → commit.**
@@ -17,7 +16,9 @@ Rules of the road:
   needing a running app stay queued until the prototype harness exists — the
   probe app is most of the prototype anyway.
 - **Docs carry conclusions; Silo carries state.** A Silo row is
-  statement+rationale+refs, not narrative. The design lives in `docs/`.
+  statement+rationale+refs, not narrative. Design records live in
+  [`.agents/design/`](../design/README.md); implementation records live in
+  [`.agents/docs/`](README.md).
 - **Commit frequently** — after each resolved-question batch or topic
   completion. Commits are the rewind points. Conventional Commits (`docs:`,
   `silo:`-adjacent state is external — repo commits cover doc changes only).

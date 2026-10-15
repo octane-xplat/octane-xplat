@@ -42,7 +42,7 @@ For queued music/podcast playback use
 [`@octane-xplat/haptics`](../haptics/README.md).
 
 Guide: [Media services](../../docs/platform/media-services.md); per-target
-availability: [platform notes](../../docs/notes/platform-notes.md).
+availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
 
 macOS requires the AppKit host's Foundation and AVFoundation APIs. Without them,
 construction is safe, capabilities report unsupported, loads reject, and plays

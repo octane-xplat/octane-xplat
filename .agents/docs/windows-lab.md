@@ -1,8 +1,9 @@
 # Windows host lab log
 
 Internal test record. Keep machine-specific setup and raw failure details here;
-the public setup and support guidance lives in [`docs/platform/windows-setup.md`](../../docs/platform/windows-setup.md)
-and [`docs/notes/windows-notes.md`](../../docs/notes/windows-notes.md).
+the public status page is [`docs/platform/windows-setup.md`](../../docs/platform/windows-setup.md),
+the contributor runbook is [`windows-test-host.md`](windows-test-host.md), and
+design rationale lives in [`.agents/design/windows-notes.md`](../design/windows-notes.md).
 
 ## Host
 

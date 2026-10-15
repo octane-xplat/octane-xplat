@@ -39,4 +39,4 @@ metadata; without the identity or the metadata, the leaf reports
 
 Guide: [Send a local notification](../../docs/platform/local-notifications.md);
 [Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../docs/notes/platform-notes.md).
+per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).

@@ -481,7 +481,7 @@ The maintained [data probe](../../packages/app/src/data-probe.tsrx) and
 [trace](../../packages/app/src/data-trace.ts) exercise independent queries,
 pending/error/retry/refetch/reset, cancellation, stale settlement, and
 cross-root signals with a controlled transport. Per-target execution evidence
-belongs in [testing notes](../notes/testing-notes.md#data-lifecycle-regressions).
+belongs in [testing notes](../../.agents/docs/notes/testing-notes.md#data-lifecycle-regressions).
 `query$` does not automatically refetch or pause on app background/resume;
 wire an app lifecycle event to the owning query's `refetch()` if needed.
 

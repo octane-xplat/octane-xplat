@@ -92,7 +92,8 @@ reference material to give your coding agent, see
 [Agent context and versions](start/toolchain.md#agent-context-and-versions).
 
 If you're extending or debugging the framework itself, open the
-[design notes](notes/README.md). They collect decisions, implementation records,
-and past experiments; you can leave that detail until you need it.
+[design notes](../.agents/design/README.md). They collect decisions, proposals,
+and design research; you can leave that detail until you need it. Framework
+implementation notes are indexed in [`.agents/docs/`](../.agents/docs/README.md).
 
 [Try a small demo](demos/browser-demos.md): reach a goal or pack a day-trip checklist in your browser.

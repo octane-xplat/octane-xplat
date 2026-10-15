@@ -335,7 +335,7 @@ In the browser, Tab can focus a `Pressable`, and Enter or Space activates it.
 `disabled` prevents activation and removes it from Tab navigation. Give an
 action an `accessibilityLabel` when its visible content does not name it,
 so a screen reader can describe it. Native accessibility behavior has
-[separate checks](../notes/platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
+[separate checks](../../.agents/docs/notes/platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
 
 ```tsx
 import { Pressable, Text } from '@octane-xplat/ui'
@@ -1121,7 +1121,7 @@ AppKit supports inline `data`, raw JSON in `src`, absolute JSON file paths,
 `res://` aliases, HTTP URLs, `.lottie`/`.zip` archives, and external image
 assets. `ref.native` is the AppKit `LottieAnimationView`. The WKWebView frontend
 uses the web implementation instead. See [known limits](../verify/known-limits.md#primitives)
-and the [AppKit integration record](../notes/lottie-appkit-investigation.md) for the
+and the [AppKit integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) for the
 source boundary and runtime evidence.
 
 ### Camera preview
@@ -1169,7 +1169,7 @@ export function Preview() {
 ```
 
 If a component needs different markup on web and native, keep its public props
-shared and split only its leaves. The [primitive notes](../notes/primitive-notes.md)
+shared and split only its leaves. The [primitive notes](../../.agents/docs/notes/primitive-notes.md)
 cover the less common components, accessibility details, and renderer limits.
 
 ### Camera sessions and movie recording
@@ -1457,7 +1457,7 @@ inside the surface, the background leaves keyboard and accessibility queries,
 and dismissal returns focus to the opener, including when a nested surface
 closes. The maintained browser check covers Chromium, Firefox, and WebKit;
 Chromium also checks the accessibility tree. It does not qualify iOS Safari or
-screen-reader behavior; see [input readiness evidence](../notes/input-readiness-notes.md).
+screen-reader behavior; see [input readiness evidence](../../.agents/docs/notes/input-readiness-notes.md).
 
 Native content mounts in a separate Octane root: component context does not
 cross that boundary. Pass values as props or subscribe to shared state in
@@ -1673,9 +1673,9 @@ by `hasZoom`); double-click zoom and touch swipe navigation are not implemented
 on macOS. Shared lightbox video playback remains unavailable and shows an
 explicit message with the media description; `hasAutoPlay` remains web-only.
 
-Try the maintained [shared presentation example](../examples/probes/shared-presentations.tsrx).
+Try the maintained [shared presentation example](../../examples/probes/shared-presentations.tsrx).
 Supply your own image source before using its lightbox buttons. The
-[isolated AppKit fixture](../apps/macos/test/verify-overlays.mjs) runs with
+[isolated AppKit fixture](../../apps/macos/test/verify-overlays.mjs) runs with
 `pnpm --filter @xplat/macos test:overlays` and checks native
 views, geometry, updates, focus, imperative results, timers, and teardown
 without screenshots. These are native-state and handler/API checks, not proof
@@ -1910,5 +1910,5 @@ import { Image } from '@octane-xplat/ui'
 This image host does not load SVG file paths or remote URLs. The native SVG
 path has runtime evidence on macOS 27.0.1; decoding on macOS 13.5 remains
 unverified. An unsupported decoder produces an empty image. See the
-[AppKit SVG notes](../notes/icon-svg-notes.md) for evidence and limits, and the
+[AppKit SVG notes](../../.agents/docs/notes/icon-svg-notes.md) for evidence and limits, and the
 [icons leaf](../../packages/icons/README.md) for set-agnostic Iconify rendering.

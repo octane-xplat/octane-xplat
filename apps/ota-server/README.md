@@ -2,7 +2,7 @@
 
 Cloudflare Worker + R2 backend for Octane Xplat over-the-air JS bundle updates.
 The client contract, payload format, and debugging runbook live in
-[`docs/notes/ota-process.md`](../../docs/notes/ota-process.md).
+[`.agents/docs/notes/ota-process.md`](../../.agents/docs/notes/ota-process.md).
 
 ## API
 

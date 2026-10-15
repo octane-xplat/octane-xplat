@@ -8,9 +8,9 @@ pnpm --filter @xplat/docs dev
 ```
 
 Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
-`docs/verify/`. Keep contributor records intended for publication in `docs/notes/`; internal parity audits and runtime investigations live in `.agents/docs/parity/`;
-the sidebar links to their index rather than listing every record. Page URLs
-stay independent of guide folders, so moving a guide keeps its existing URL.
+`docs/verify/`. Internal implementation notes, design decisions, and workflow
+recipes live under `.agents/` and are not part of the docs-site corpus. Page
+URLs stay independent of guide folders, so moving a guide keeps its existing URL.
 
 ## Agent prompt card
 
@@ -56,7 +56,7 @@ For example, in `docs/README.md`:
 
 ```md
 Share ==one TypeScript codebase== across targets.
-Then ==[Create your first app](start/toolchain.md#create-and-run)==.
+Then ==[Create your first app](../../docs/start/toolchain.md#create-and-run)==.
 ```
 
 Highlights work in paragraphs, lists, quotes, callouts, and table cells.

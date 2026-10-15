@@ -160,4 +160,4 @@ Framework contributors use `pnpm typecheck:web`, `pnpm typecheck:mobile`, and
 and Android.
 
 For the resolver implementation and the historical experiments that led to
-it, see the [module-resolution notes](../notes/module-resolution-notes.md).
+it, see the [module-resolution notes](../../.agents/docs/notes/module-resolution-notes.md).

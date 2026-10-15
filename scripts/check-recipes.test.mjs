@@ -27,8 +27,8 @@ A working app.
 function fixture(t, content = recipe) {
 	const root = mkdtempSync(join(tmpdir(), 'recipe-check-'))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
-	mkdirSync(join(root, 'recipes'))
-	writeFileSync(join(root, 'recipes/task.md'), content)
+	mkdirSync(join(root, '.agents/docs/recipes'), { recursive: true })
+	writeFileSync(join(root, '.agents/docs/recipes/task.md'), content)
 	writeFileSync(join(root, 'guide.md'), '# Guide\n\n## Instructions\nSteps.\n')
 	return root
 }
@@ -73,7 +73,7 @@ test('rejects duplicate recipe and criterion IDs', (t) => {
 		recipe.replace('- AC1: The result is observable.', '- AC1: First.\n- AC1: Second.'),
 	)
 
-	writeFileSync(join(root, 'recipes/duplicate.md'), recipe)
+	writeFileSync(join(root, '.agents/docs/recipes/duplicate.md'), recipe)
 	const errors = checkRecipes(root).join('\n')
 	assert.match(errors, /duplicate recipe ID/)
 	assert.match(errors, /duplicate AC1/)

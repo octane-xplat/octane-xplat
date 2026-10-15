@@ -197,7 +197,7 @@ separate from screen code so a test can call them directly. Use device
 checks for focus, gestures, element size, and permission dialogs.
 
 If you are working on the framework itself, [single-case probing](probing.md)
-explains how to run one small investigation. The [testing notes](../notes/testing-notes.md)
+explains how to run one small investigation. The [testing notes](../../.agents/docs/notes/testing-notes.md)
 cover the framework's test tools and automation.
 
 ## Stable targets and optional agent control

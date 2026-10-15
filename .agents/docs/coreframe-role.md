@@ -145,7 +145,7 @@ lists above as direction; these are the edges that still need a decision.
   [commands reference](../../../coreframe/docs/reference/commands.md),
   [template config](../../../coreframe/template/coreframe.config.ts).
 - Xplat surface: [repository orientation](repository.md),
-  [status](../../docs/notes/status.md),
+  [status](notes/status.md),
   [UI barrel](../../packages/ui/src/index.shared.ts),
   [platform barrel](../../packages/platform/src/index.ts).
 - Concrete boundary analysis: [foxtrot-migration-gaps.md](foxtrot-migration-gaps.md),

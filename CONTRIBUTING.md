@@ -2,7 +2,7 @@
 
 Working on the framework itself? Start with [AGENTS.md](AGENTS.md), which maps
 the repository and links the working agreements for each kind of task, and the
-[design notes](docs/notes/architecture-notes.md).
+[design notes](.agents/design/architecture-notes.md).
 
 ## Framework workspace commands
 

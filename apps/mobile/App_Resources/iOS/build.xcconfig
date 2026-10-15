@@ -9,7 +9,7 @@
 // dropping Foundation/UIKit/WebKit entirely. Claiming the module feature
 // lets those modules build; the -D define closes the rsize_t dead-end in
 // _DarwinFoundation2 (Annex K decls drop from metadata — nothing needs
-// them). Evidence: docs/notes/evidence/ios-editor-backing/results.md.
+// them). Evidence: .agents/design/evidence/ios-editor-backing/results.md.
 OTHER_CFLAGS = $(inherited) -Xclang -fmodule-feature -Xclang found_incompatible_headers__check_search_paths -D__STDC_WANT_LIB_EXT1__=0
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 IPHONEOS_DEPLOYMENT_TARGET = 17.0;

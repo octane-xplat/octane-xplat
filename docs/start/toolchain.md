@@ -192,7 +192,7 @@ Start phone development through `pnpm dev:ios` or `pnpm dev:android` so the
 live-update connection attaches. Opening an installed app by hand can load
 its bundled code without that connection. Changing native configuration
 or packages can require a rebuild. If an edit does not appear, see
-[live-update troubleshooting](../notes/toolchain-notes.md#dev-loop-troubleshooting).
+[live-update troubleshooting](../../.agents/docs/notes/toolchain-notes.md#dev-loop-troubleshooting).
 Desktop development has separate experimental setup, described below.
 
 ## Agent context and versions
@@ -270,7 +270,7 @@ The framework's browser checks run locally (`pnpm test:e2e` in the
 repository) across managed Chromium, Firefox and WebKit engines; they do not
 qualify actual iOS Safari or screen-reader interaction. See the
 [Web support boundary](spec.md#choose-your-targets) and the
-[optional service qualification](../notes/optional-service-qualification.md)
+[optional service qualification](../../.agents/docs/notes/optional-service-qualification.md)
 for feature-specific release checks.
 
 ### Prepare phone releases
@@ -307,7 +307,7 @@ You can write screens and test shared calculations without a connected phone.
 Phone builds still need the platform's development tools; iOS release builds
 need a Mac. Add those tools when you're ready to work on that platform.
 
-The [toolchain notes](../notes/toolchain-notes.md) cover framework build internals,
+The [toolchain notes](../../.agents/docs/notes/toolchain-notes.md) cover framework build internals,
 version pins, and package publishing. The sections below are for experimental
 desktop setup and are separate from creating your first browser or phone app.
 
@@ -461,22 +461,10 @@ and capabilities through `@octane-xplat/platform/host`; see the
 
 ## Experimental Windows target
 
-The repository includes an experimental WinUI 3 app in `apps/windows`,
-separate from the starter. The native host can launch on Windows, but UI
-support remains incomplete. See [Windows setup](../platform/windows-setup.md) and
-[Windows limits](../notes/windows-notes.md) before using it for an app; a successful
-bundle build does not establish that its controls work.
-
-It requires Windows 10 1809+, .NET 10 SDK, Developer Mode, Node.js, and pnpm.
-The scaffold pins `@nativescript/windows` to `0.1.0-alpha.144`, NativeScript
-CLI to `9.1.2-dev.2026-09-24-36031892256`, and core/Vite to PR #11468 preview
-builds. The standard core 9.1.3/Vite 8.0.17 patches do not apply to those
-previews. Keep this setup separate from the starter's mobile version matrix.
-
-Follow the [Windows harness instructions](../../apps/windows/README.md) for
-commands and prerequisites. Ask your agent to report bundle checks separately
-from Windows runtime checks; a compiled shared screen does not prove that its
-native controls or device services work there.
+Windows is not available in the app starter, and a supported downstream setup
+is not provided yet. The framework repository has a private experimental WinUI
+3 harness; its test-host instructions and preview dependency pins are for
+framework contributors, not downstream apps. See [Windows support status](../platform/windows-setup.md).
 
 ## Experimental Linux target (WebKitGTK webview)
 

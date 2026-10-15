@@ -2,9 +2,8 @@
 // src/App.tsrx, and scripts/build-llms.mjs (Node type-strips this file).
 // Keep it erasable-TS only: no enums, namespaces, or parameter properties.
 
-// docs/ is organized by audience: guides live in topic dirs that double as
-// sidebar sections; notes/ is the design record — implementation detail and
-// evidence that guides deliberately keep off the reader's first path.
+// docs/ contains reader-facing app guides. Internal implementation and design
+// records live under .agents/ and are linked as repository sources when useful.
 export const GROUPS = [
 	{
 		dir: 'start',
@@ -62,8 +61,6 @@ export const GROUPS = [
 
 // The index doc lives at '/', not /README.
 export const INDEX_SLUG = 'README'
-// The notes index lives at '/notes' — its file is docs/notes/README.md.
-export const NOTES_INDEX_SLUG = 'notes'
 
 // Reading-order rank for guides — group order, then position in its list.
 // Unlisted slugs (a new doc awaiting curation) sort to the end of their
@@ -110,8 +107,7 @@ export function purposeOf(md: string): string {
 }
 
 // Slug for a doc file at corpus-relative path dir/name.md. The root index is
-// 'README'; a directory's own README/index becomes the dir name
-// (docs/notes/README.md → 'notes').
+// 'README'; a directory's own README/index becomes the directory name.
 export function slugFor(dir: string, base: string): string {
 	if (base === 'README' || base === 'index') {
 		return dir ? dir.split('/').pop()! : INDEX_SLUG
@@ -180,14 +176,6 @@ export function repoPathFor(href: string, dir: string): string {
 }
 
 // Site path for a doc — mirrors MdDoc's link mapping and App's route lookup.
-export function docPath(slug: string, group: 'guides' | 'notes' = 'guides'): string {
-	if (slug === INDEX_SLUG) {
-		return '/'
-	}
-
-	if (slug === NOTES_INDEX_SLUG) {
-		return '/notes'
-	}
-
-	return group === 'notes' ? `/notes/${slug}` : `/${slug}`
+export function docPath(slug: string): string {
+	return slug === INDEX_SLUG ? '/' : `/${slug}`
 }

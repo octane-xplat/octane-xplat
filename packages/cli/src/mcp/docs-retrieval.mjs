@@ -7,11 +7,14 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { basename, join, relative, sep } from 'node:path'
 
-// Repo-relative doc corpus → corpus label. guides are canonical; the rest are
-// labeled alternates.
+// Repo-relative doc corpus → corpus label. Current internal records live in
+// .agents/; the final two roots keep historical release snapshots readable.
 const CORPORA = [
-	{ root: 'docs/notes', corpus: 'design-note' },
+	{ root: '.agents/design', corpus: 'design-note' },
+	{ root: '.agents/docs/notes', corpus: 'implementation-note' },
+	{ root: '.agents/docs/recipes', corpus: 'recipe' },
 	{ root: 'docs', corpus: 'guide' },
+	{ root: 'docs/notes', corpus: 'design-note' },
 	{ root: 'recipes', corpus: 'recipe' },
 ]
 

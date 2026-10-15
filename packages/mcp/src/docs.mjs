@@ -45,7 +45,10 @@ export function registerDocsTools(server, context, respond) {
 					.optional()
 					.describe('Explicit comparison version, visibly outside the installed binding.'),
 				platform: z.enum(PLATFORMS).optional(),
-				corpus: z.enum(['guide', 'recipe', 'design-note']).optional().default('guide'),
+				corpus: z
+					.enum(['guide', 'recipe', 'design-note', 'implementation-note'])
+					.optional()
+					.default('guide'),
 				limit: z.number().int().min(1).max(50).optional(),
 			},
 		},

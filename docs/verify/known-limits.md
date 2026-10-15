@@ -10,7 +10,7 @@ agent, ask it to account for those limits when adding the feature.
 Most tables cover **web, iOS, and Android**. macOS and Windows are
 experimental and have incomplete UI support. The Windows host can launch,
 but that does not mean every control works; see
-[Windows setup](../platform/windows-setup.md) and [Windows limits](../notes/windows-notes.md).
+[Windows status](../platform/windows-setup.md) and [Windows limits](../../.agents/design/windows-notes.md).
 The [target guide](../start/spec.md#choose-your-targets) explains desktop setup.
 
 OTA bundle updates are optional and available only in iOS/Android release
@@ -39,8 +39,8 @@ AppKit content modes, but pixel parity has not been visually reviewed. The
 harness motion-package route remains unsupported because its gesture and
 reduced-motion hosts are mobile-only. Bamboo-generated CSS is unavailable on
 AppKit; Home uses only its existing AppKit styles. See the
-[Lottie integration record](../notes/lottie-appkit-investigation.md) and
-[non-visual macOS checks](../apps/macos/README.md#non-visual-smoke-checks) for
+[Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) and
+[non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks) for
 the runtime evidence and its boundaries.
 
 Absolute and grid panel placement has a maintained nonvisual AppKit regression.
@@ -148,7 +148,7 @@ It has no recycling pool, feed/chat callbacks, indexed scroll handle, sticky
 rows, grid, or masonry. Native variable-height momentum, long-session memory,
 and display frame pacing remain Q30 gates; historical evidence is not a fresh
 runtime pass. See the [measured support boundary](../app/virtual-list.md#measured-support-boundary)
-and [readiness evidence](../notes/primitive-notes.md#virtuallist-readiness-recheck-q30-2026-09-30).
+and [readiness evidence](../../.agents/docs/notes/primitive-notes.md#virtuallist-readiness-recheck-q30-2026-09-30).
 
 ```tsx
 import { VirtualList, Text } from '@octane-xplat/ui'
@@ -544,7 +544,7 @@ export function Panel(props: { open: boolean }) {
 ## Optional-service verification
 
 Support flags describe API availability, not production qualification. See
-[optional-service qualification](../notes/optional-service-qualification.md) for the fresh
+[optional-service qualification](../../.agents/docs/notes/optional-service-qualification.md) for the fresh
 Web/iOS/Android results, historical camera/pod corrections, and feature-specific
 credential, signing, physical-output and runtime gaps. Optional service gaps
 apply to apps relying on those capabilities; they are not blanket core-release
@@ -566,7 +566,7 @@ markup (e.g. `data-type="toggle-item"` divs) cannot be split, indented, or
 outdented as nodes ([nested-tree device
 evidence](../../.agents/docs/parity/nested-tree-editor.md)). Recursive or
 custom-schema editing belongs to the hosted-engine path
-([decision #104](../notes/decisions.md)). AppKit uses StarterKit and
+([decision #104](../../.agents/design/decisions.md)). AppKit uses StarterKit and
 asynchronous snapshots. Real OS keyboard input, selection, and hit-testing
 remain unverified; see [AppKit editing](../app/rich-text.md#macos-appkit-editing).
 
@@ -600,7 +600,7 @@ For a real Tiptap/ProseMirror editor inside a mobile app (recursive schemas,
 custom node views, live collaboration), the architecture is the hosted engine:
 mount the shared `WebView` leaf and run the app's bundled editor document —
 device-verified on iOS and Android simulators/emulators with a Foxtrot-shaped
-recursive schema ([decision #104](../notes/decisions.md),
+recursive schema ([decision #104](../../.agents/design/decisions.md),
 [evidence](../../.agents/docs/parity/hosted-engine-editor.md)). That run was
 handler-level — `evaluateJavaScript` calls and in-page transactions — not OS
 keyboard input, IME, selection handles, or VoiceOver.

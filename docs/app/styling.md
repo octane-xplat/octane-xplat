@@ -446,8 +446,8 @@ For utility classes across web and NativeScript, use the restricted
 the shared CSS subset.
 
 For theme propagation, supported CSS differences, and the cases where a
-platform leaf is necessary, see the [styling notes](../notes/styling-notes.md) and the
-[CSS support notes](../notes/css-support-notes.md).
+platform leaf is necessary, see the [styling notes](../../.agents/docs/notes/styling-notes.md) and the
+[CSS support notes](../../.agents/docs/notes/css-support-notes.md).
 
 ## App-wide macOS appearance
 

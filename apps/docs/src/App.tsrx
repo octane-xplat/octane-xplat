@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'octane';
 import { View, HStack, Text, Pressable, ScrollableArea, useRoute, pushRoute, useColorScheme, BottomSheet } from '@octane-xplat/ui';
 import { DOCS, routeForDoc, type DocPage } from './docs';
-import { docPath, GROUPS, INDEX_SLUG, NOTES_INDEX_SLUG } from './doc-meta';
+import { docPath, GROUPS, INDEX_SLUG } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';
 import { searchDocs, type SearchHit } from './search';
 import { resetDocScroll } from './scroll';
@@ -144,11 +144,10 @@ export function App() @{
 		}, 200);
 	};
 
-	const route = useRoute('notes') ?? useRoute('root');
-	const slug = route ? route.name || (route.stack === 'notes' ? NOTES_INDEX_SLUG : INDEX_SLUG) : INDEX_SLUG;
+	const route = useRoute('root');
+	const slug = route?.name || INDEX_SLUG;
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
-	const nextDoc = DOCS.filter((d) => d.group === doc.group)[DOCS.filter((d) => d.group === doc.group).findIndex((d) => d.slug === doc.slug) + 1];
-	const notesIndex = DOCS.find((d) => d.slug === NOTES_INDEX_SLUG);
+	const nextDoc = DOCS[DOCS.findIndex((d) => d.slug === doc.slug) + 1];
 
 	const open = (s: string, anchor?: string) => {
 		if (menuOpen) {
@@ -158,7 +157,7 @@ export function App() @{
 		const d = DOCS.find((x) => x.slug === s);
 		// The index doc lives at '/', not /README.
 		pushRoute(routeForDoc(d));
-		history.replaceState(history.state, '', docPath(s, d?.group) + (anchor ? `#${anchor}` : ''));
+		history.replaceState(history.state, '', docPath(s) + (anchor ? `#${anchor}` : ''));
 		resetDocScroll();
 	};
 
@@ -263,7 +262,7 @@ export function App() @{
 			kind: 'page' as const,
 			slug: d.slug,
 			label: d.title,
-			context: d.group === 'notes' ? 'Note' : 'Guide',
+			context: 'Guide',
 			score: 0,
 		}));
 
@@ -359,10 +358,9 @@ export function App() @{
 				{GROUPS.map((g) => (
 					<View key={g.dir} className="side-sec">
 						<Text className="sec-head">{g.label}</Text>
-						{DOCS.filter((d) => d.group === 'guides' && d.section === g.dir).map(renderDoc)}
+						{DOCS.filter((d) => d.section === g.dir).map(renderDoc)}
 					</View>
 				))}
-				{notesIndex && <View className="side-sec">{renderDoc(notesIndex)}</View>}
 			</View>
 		</View>
 	);

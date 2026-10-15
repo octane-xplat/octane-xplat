@@ -115,7 +115,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 // the same function-call shape Cell uses for renderItem.
 // NOTE: an @if/@else-if chain here compiled to an else callback that
 // discards branch results — @else-if lowers wrong in the universal
-// codegen (see docs/notes/demos.md findings).
+// codegen (see .agents/design/demos.md findings).
 const renderGoalCounter = () => <GoalCounter />;
 const renderPackingList = () => <PackingList />;
 const renderCounter = () => <Counter />;

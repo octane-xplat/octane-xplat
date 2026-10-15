@@ -47,7 +47,7 @@ export function Weather() @{
 			</Pressable>
 		</HStack>
 		{/* Ternary in children position — the @if/@else version mounted
-		    neither arm on native (docs/notes/demos.md findings). */}
+		    neither arm on native (.agents/design/demos.md findings). */}
 		{days === null
 			? <Text className="cell">{'Loading…'}</Text>
 			: <View className="gap-2">

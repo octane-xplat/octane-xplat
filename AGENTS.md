@@ -3,7 +3,9 @@
 Octane-xplat is a shared Octane framework targeting web, iOS/Android, and desktop
 platforms. `packages/ui` and `packages/cli` ship on npm; the apps and demos are
 our proving harness. [Repository orientation](.agents/docs/repository.md) maps
-the packages and design records.
+the packages and documentation. Internal implementation notes live in
+[`.agents/docs/`](.agents/docs/README.md); design records live in
+[`.agents/design/`](.agents/design/README.md).
 
 ## Read what applies
 

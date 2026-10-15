@@ -1,0 +1,36 @@
+# Prior art references
+
+These files document **other people's systems** — what they are, how they work, and
+what we can take from them. Nothing in here is our plan. Our plan lives in
+[`../docs/`](../../../docs/).
+
+The distinction matters: when a design decision is in doubt, check whether it traces
+to a file in `docs/` (our commitment) or here (context that informed it).
+
+## Substrate (what we build on — fixed, external)
+
+| File                                               | System                                                  | Why we care                                                                                       |
+| -------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [octane.md](octane.md)                             | `octane` runtime + compiler                             | The framework. Defines the universal runtime, the renderer ABI, and which APIs are DOM-only.      |
+| [nativescript-octane.md](nativescript-octane.md)   | `@nativescript-community/octane` + `vite-octane`        | The renderer port: host driver, element registry, HMR. Also covers the `ns-octane` reference app. |
+| [nativescript-core.md](nativescript-core.md)       | `@nativescript/core`                                    | The actual native platform: layouts, CSS engine, events, animation, navigation, globals.          |
+| [nativescript-windows.md](nativescript-windows.md) | `NativeScript/windows` + `@nativescript/windows[-napi]` | The Windows runtime — WinUI 3 host + Node-API addon modes, plus the in-flight core platform PR.   |
+
+## Design precedents (what we learn from — patterns to steal)
+
+| File                                       | System             | What it teaches                                                                                                                                                                                                                           |
+| ------------------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [one.md](one.md)                           | One (onestack.dev) | Platform file suffixes at _route_ granularity, `_layout` composition, render-mode suffixes, loaders, typed routes. Also: how hard "Vite on native" is.                                                                                    |
+| [one-v2-v1-octane-prior-art.md](one-v2-v1-octane-prior-art.md) | One v2.6.2 vs v1.27.1 | Exact-tag comparison: typed native-source imports, SwiftUI/Compose hosts, native control synchronization, and evidence limits for Octane research. |
+| [tamagui.md](tamagui.md)                   | Tamagui            | `styled()` + variants + token themes as a component API over primitives.                                                                                                                                                                  |
+| [react-native-web.md](react-native-web.md) | react-native-web   | Proof that converging on RN's constrained API surface and implementing it over DOM works. Event/accessibility normalization.                                                                                                              |
+| [flutter.md](flutter.md)                   | Flutter            | Animation API shape (`AnimationController`/`Tween`/`Curve`), widget-composition idioms worth borrowing, Navigator 2.0 declarative routing.                                                                                                |
+| [lynx.md](lynx.md)                         | Lynx (lynxjs.org)  | Same destination by a different road: lowercase element vocabulary → native views, dual-thread React. Thread tax validates JS-on-UI-thread; Snapshot IR confirms Octane's universalPlan ABI.                                              |
+| [expo-ui.md](expo-ui.md)                   | Expo `@expo/ui`    | React props over real SwiftUI/Compose. Same tiered shape as our shared + `ui/{ios,android}` split, opposite parity bet. `Host` boundary props, `modifiers` arrays, OS-glyph icons, and the island-leaf path via `@nativescript/swift-ui`. |
+| [tanstack-start.md](tanstack-start.md)     | TanStack Start     | "Route file = config surface" done thoroughly: `beforeLoad` guards + context, typed loaders→screens, `head`, param schemas, per-route render modes. Server layer not borrowed.                                                            |
+| [charts.md](charts.md)                     | Chart libraries    | SVG-leaning survey for a future `@octane-xplat/charts` leaf. Vega/ECharts/LayerCake/gifted-charts prove headless-core → interchangeable renderers + markup-string output + element-layer labels/tooltips.                                 |
+
+Related but folded into the files above: React Native itself (the API-surface
+lingua franca — see react-native-web.md), Expo Router (One is derived from it —
+see one.md), React Navigation (native nav model One sits on — see one.md and
+navigation.md).

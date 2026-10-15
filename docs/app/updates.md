@@ -197,7 +197,7 @@ Changing a server channel back to an older pointer stops new installs of the
 bad release, but cannot repair a process that is already running bad code.
 Native boot recovery works independently of the downloaded JavaScript. See
 [server rollback](../../apps/ota-server/README.md#roll-back-a-channel) and the
-[process design](../notes/ota-process.md#rollback) for operator details.
+[process design](../../.agents/docs/notes/ota-process.md#rollback) for operator details.
 
 ## Integrity and other targets
 
@@ -220,7 +220,7 @@ const updates = createUpdates({
 })
 ```
 
-Browser apps use [Web deployment](../../recipes/web-deployment.md); there is
+Browser apps use [Web deployment](../../.agents/docs/recipes/web-deployment.md); there is
 no service-worker updater in this package. Desktop hosts have different startup
 and package formats from NativeScript's `app/` payload and boot hooks, so this
 installer cannot safely swap their code. Desktop update delivery remains

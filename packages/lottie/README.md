@@ -38,7 +38,7 @@ On AppKit, use inline `data`, raw JSON in `src`, an absolute JSON file path,
 or a `file://` or HTTPS URL. Relative paths, `~/`/`res://` bundle aliases,
 HTTP URLs, `.lottie`/`.zip` archives, and external image assets are not
 supported. See [the platform limits](../../docs/app/primitives.md#lottie-animations)
-and [the investigation record](../../docs/notes/lottie-appkit-investigation.md)
+and [the investigation record](../../.agents/docs/notes/lottie-appkit-investigation.md)
 for the complete boundary and runtime evidence.
 
 ```tsx

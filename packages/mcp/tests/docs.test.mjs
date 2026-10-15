@@ -19,7 +19,7 @@ test('MCP docs bind each selected pnpm consumer to its installed release and ref
 	for (const version of ['1.0.0', '2.0.0']) {
 		writeJson(remote, 'packages/ui/package.json', { name: '@octane-xplat/ui', version })
 		writeFile(remote, 'docs/control.md', `# Control\n\nUse control version ${version} on web.\n`)
-		writeFile(remote, 'docs/notes/control.md', '# Internal control design\n\ncontrol speculation\n')
+		writeFile(remote, '.agents/design/control.md', '# Internal control design\n\ncontrol speculation\n')
 		git(['add', '.'])
 		git([
 			'-c',

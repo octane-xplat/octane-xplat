@@ -62,7 +62,7 @@ best-effort conversion over Aztec HTML, not a live ProseMirror document. The
 preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen. It also flattened paragraphs and accumulated `<br>`
 elements on reopen; it did not qualify Tiptap JSON, OS input, or structural
-tree commands. See the [per-row capability record](../../docs/notes/editor-capabilities.md).
+tree commands. See the [per-row capability record](../../.agents/docs/notes/editor-capabilities.md).
 
 `value`/`onChange` exchange document HTML; `editable` controls whether the
 user can edit. `getJSON`/`setJSON` exchange

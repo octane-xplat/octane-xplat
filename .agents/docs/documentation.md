@@ -149,7 +149,7 @@ integrations).
 
 ## Workflow coverage
 
-[Recipes](../../recipes/README.md) define the non-trivial developer workflows that
+[Recipes](recipes/README.md) define the non-trivial developer workflows that
 need documentation and the criteria for complete coverage. Before changing
 public behavior, setup, or a supported workflow, inspect recipes by outcome and
 related API name. Add or update the affected recipe, supporting docs, and

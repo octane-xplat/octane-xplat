@@ -77,9 +77,8 @@ export function inlineSpans(text: string): Span[] {
 
 const CALLOUTS = new Set(['note', 'tip', 'important', 'warning', 'caution'])
 
-// The first quote block of each owned-problem doc ends with a status paragraph
-// (`**Owns:** #n …`) for contributors. It's process tracking, not reader
-// content — the sidebar's notes group owns that layer — so we drop it here.
+// The first quote block of some guides ends with an internal status paragraph
+// (`**Owns:** #n …`). It's process tracking, not reader content, so drop it.
 const METAPARA = /^\*\*(Owns|Status):\*\*/
 
 // A line that starts a block — must mirror the branch tests exactly: a

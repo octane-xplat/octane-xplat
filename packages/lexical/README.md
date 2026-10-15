@@ -138,7 +138,7 @@ preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen, but flattened paragraphs and accumulated `<br>` elements
 on reopen. That run exercised the shared Aztec HTML leaf, not Lexical's JSON
 conversion or structural commands. See the
-[per-row capability record](../../docs/notes/editor-capabilities.md).
+[per-row capability record](../../.agents/docs/notes/editor-capabilities.md).
 
 Focus callbacks report focus entering or leaving the editable surface.
 `onJSONReady(true)` fires once the web editor handle exists, so `getJSON()` is

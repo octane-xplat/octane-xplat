@@ -7,7 +7,7 @@ import type {
 } from './props'
 
 /** Shared `contentFit`/`contentPosition` + multi-source math for `Image` —
- *  pure functions used by every leaf (docs/notes/expo-image-study.md L7/L8).
+ *  pure functions used by every leaf (.agents/design/expo-image-study.md L7/L8).
  *  Semantics mirror CSS `object-fit`/`object-position`, which is also
  *  expo-image's contract: the leaves compute the drawn-content rect
  *  themselves instead of delegating to platform scaleType/contentMode,

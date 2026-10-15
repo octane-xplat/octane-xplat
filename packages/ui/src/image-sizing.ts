@@ -5,7 +5,7 @@
  *  `imageView.setUri(value, decodeWidth, decodeHeight, …)` — and the
  *  properties default to 0 → `Fetcher.calculateInSampleSize` maps
  *  reqWidth ≤ 0 to the source dims → inSampleSize 1 → a full-resolution
- *  decode (~48 MB ARGB_8888 per 12 MP photo; docs/notes/expo-image-study.md
+ *  decode (~48 MB ARGB_8888 per 12 MP photo; .agents/design/expo-image-study.md
  *  L1). So the leaf holds `src` until the view's first real layout, writes
  *  the decode dims in device pixels, then assigns src. A later resize
  *  re-issues at the new size — the same reload expo-image runs from

@@ -2,12 +2,12 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, resolve, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Intentionally supports the small Markdown contract in recipes/README.md.
+// Intentionally supports the small Markdown contract in .agents/docs/recipes/README.md.
 // Coverage quality and Silo evidence are reviewed separately.
 export function checkRecipes(root) {
 	const errors = []
 	const ids = new Set()
-	const directory = resolve(root, 'recipes')
+	const directory = resolve(root, '.agents/docs/recipes')
 	const files = readdirSync(directory).filter(
 		(file) => file.endsWith('.md') && file !== 'README.md',
 	)

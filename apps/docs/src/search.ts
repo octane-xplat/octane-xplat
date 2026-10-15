@@ -257,7 +257,7 @@ export function searchDocs(query: string): SearchHit[] {
 				kind: 'page',
 				slug: doc.slug,
 				label: doc.title,
-				context: doc.group === 'notes' ? 'Note' : 'Guide',
+				context: 'Guide',
 				score: ts,
 			})
 		}

@@ -281,13 +281,13 @@ coverage. Twenty disposal/reopen cycles returned to the same DOM/listener counts
 late collected heap samples ranged 8.52–8.54 MB. These are test workloads, not a
 maximum supported row count or a device-independent throughput promise.
 
-The [Android scheduling profile](../notes/primitive-notes.md#virtuallist-android-scheduling-corrections-q30-2026-10-01)
-and [cell-pool comparison](../notes/primitive-notes.md#virtuallist-positioned-cell-pool-q30-2026-10-01)
+The [Android scheduling profile](../../.agents/docs/notes/primitive-notes.md#virtuallist-android-scheduling-corrections-q30-2026-10-01)
+and [cell-pool comparison](../../.agents/docs/notes/primitive-notes.md#virtuallist-positioned-cell-pool-q30-2026-10-01)
 record nonvisual before/after measurements and their limits.
 Q30 remains open. Native fast variable-height momentum and Android process
 memory need fresh runtime characterization. Historical simulator/device results
-are recorded separately from this pass in [primitive notes](../notes/primitive-notes.md#virtuallist-input-and-memory-profile-q30-2026-09-28).
-Read the [current evidence](../notes/primitive-notes.md#virtuallist-readiness-recheck-q30-2026-09-30)
+are recorded separately from this pass in [primitive notes](../../.agents/docs/notes/primitive-notes.md#virtuallist-input-and-memory-profile-q30-2026-09-28).
+Read the [current evidence](../../.agents/docs/notes/primitive-notes.md#virtuallist-readiness-recheck-q30-2026-09-30)
 before choosing this list for a performance-sensitive feed or chat.
 
 There is no shared viewability callback, load threshold, sticky-row/grid/masonry

@@ -545,7 +545,7 @@ with the leaf's key as its argument. The visual `TreeNode` prop type is now
 ## Chat
 
 The Chat family provides a docked composer and composable message rows. Start
-with [`ChatLayout`](../../recipes/chat-conversation.md) for a complete conversation
+with [`ChatLayout`](../../.agents/docs/recipes/chat-conversation.md) for a complete conversation
 or combine `ChatMessageList`, `ChatMessage`, and `ChatMessageBubble` inside an
 existing scroll surface.
 

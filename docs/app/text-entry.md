@@ -263,7 +263,7 @@ state mappings, and keyboard-inset units. They do not exercise the OS IME,
 touch hit-testing, VoiceOver, or TalkBack. Check those on a simulator/device
 with the target lock held, without resetting another session. Current
 runtime evidence and exact remaining cases belong in
-[input readiness notes](../notes/input-readiness-notes.md).
+[input readiness notes](../../.agents/docs/notes/input-readiness-notes.md).
 
 ## Read software keyboard space
 
