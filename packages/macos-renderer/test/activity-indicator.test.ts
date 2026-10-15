@@ -22,6 +22,7 @@ function controlFixture() {
 	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
 	const api = runInNewContext(
 		constants + '\n' + ['makeActivityIndicator', 'syncActivityIndicator', 'validateNodeProps',
+			'parentReference', 'resolveParentNode', 'canContainView',
 			'droppedPropClears', 'applyProps', 'applyCommand'].map(fn).join('\n') +
 			'\n({makeActivityIndicator,validateNodeProps,applyProps,applyCommand})',
 		{
@@ -119,7 +120,7 @@ test('ActivityIndicator production ownership moves its native host between paren
 	})
 
 	const api = runInNewContext(
-		['validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
+		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
 			'\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),

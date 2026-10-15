@@ -175,7 +175,7 @@ test('HtmlView production ownership moves its native host between parents and re
 	})
 
 	const api = runInNewContext(
-		['validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
+		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
 			'\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),

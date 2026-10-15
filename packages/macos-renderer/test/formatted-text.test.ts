@@ -103,7 +103,7 @@ test('formattedstring is viewless and accepts spans only under all five text-bea
 test('logical text hosts reparent, move, remove and dispose through production ownership paths', () => {
 	const noop = () => {}
 	const runtime = runInNewContext(
-		['textContent', 'syncText', 'validateTextNesting', 'detach', 'insert', 'remove', 'destroy'].map(fn).join('\n') + '\n({insert,remove,destroy})',
+		['parentReference', 'resolveParentNode', 'canContainView', 'textContent', 'syncText', 'validateTextNesting', 'detach', 'insert', 'remove', 'destroy'].map(fn).join('\n') + '\n({insert,remove,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(),
 			composeAttributedText: (children: any[], _view: any, _props: any, _font: any, _color: any, defaults: any) => children.flatMap((child) => textRuns(child, defaults)).map((run) => run.text).join(''),

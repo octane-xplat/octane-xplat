@@ -235,10 +235,10 @@ export function Example() {
    content portals from the declaring tree on iOS/Android; the optional
    platform sheet/context-menu leaves do so on Android. Their current iOS
    implementations use independent roots. AppKitSheet also uses an independent
-   root; its macOS portal probe fails because the current renderer declares no
-   portal capability. Imperative service roots and router-created modal routes
-   remain independent; pass data through params or shared state there. (See
-   primitives.md.)
+   root. The macOS renderer now supports `NSView` portal targets, but AppKitSheet
+   has not migrated to or been qualified on that path. Imperative service roots
+   and router-created modal routes remain independent; pass data through params
+   or shared state there. (See primitives.md.)
 2. **Android hardware back** must feed the router — intercept
    `activityBackPressed`, map to history/frame pop, allow per-screen override
    (confirm-dialog flows).

@@ -33,6 +33,9 @@ function controlFixture() {
 				'notifyTimeChange',
 				'syncTimePicker',
 				'validateNodeProps',
+				'parentReference',
+				'resolveParentNode',
+				'canContainView',
 				'droppedPropClears',
 				'applyProps',
 				'applyCommand',
@@ -112,7 +115,7 @@ test('TimePicker production ownership moves its native host between parents and 
 	})
 
 	const api = runInNewContext(
-		['validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
+		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
 			'\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),

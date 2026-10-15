@@ -176,6 +176,7 @@ test('SearchBar delegate lookup does not dispatch after its ownership is release
 test('SearchBar rejects view, text and projected children in batch preflight', () => {
 	const { validateBatch } = runInNewContext(
 		slice('const VIEW_PARENT_TYPES', '/** Deterministic prop failures') +
+		slice('function parentReference(', 'function isPortalTargetView(') +
 		slice('function validateTextNesting(', 'function insert(') + slice('function validateBatch(', 'function applyCommand(') + '\n({ validateBatch })', {},
 	)
 

@@ -105,6 +105,47 @@ that view and call `unmount()` before disposing the host. Root creation does
 not create a window or start the application run loop. The package also
 re-exports Octane's universal native runtime for compiler and hook imports.
 
+## Preserve context through portals
+
+`createPortal` can place content into an AppKit `NSView` while keeping it in
+the declaring Octane tree. The host application still owns the target view;
+the renderer inserts and removes only the portal's child views. Use a
+caller-owned view or a view from the same Octane root; targets owned by another
+Octane root are rejected.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+import { createContext, createPortal, useContext, useEffect, useRef, useState } from 'octane'
+
+const AccountName = createContext('Guest')
+const AccountNameProvider: any = AccountName
+
+function AccountLabel() {
+	return <label text={'Account: ' + useContext(AccountName)} />
+}
+
+export function AccountPage() {
+	const targetRef = useRef<any>(null)
+	const [target, setTarget] = useState<any>(null)
+
+	useEffect(() => {
+		setTarget(targetRef.current)
+	}, [])
+
+	return (
+		<AccountNameProvider value="Avery">
+			<rootlayout ref={targetRef} style={{ width: 280, height: 120 }} />
+			{target ? createPortal(<AccountLabel />, target) : null}
+		</AccountNameProvider>
+	)
+}
+```
+
+The label renders `Account: Avery` inside the `rootlayout` and reads the same
+provider value as its declaring tree. Run the maintained portal fixture with
+`pnpm --filter @octane-xplat/macos-renderer test:portals` to check context,
+provider updates, and native child cleanup.
+
 Use [the packaging guide](../../docs/start/toolchain.md#experimental-appkit-target)
 for `xplat.targets.macos` metadata, signing, and CLI commands. The
 [independent fixture](test/fixtures/main.ts) demonstrates a complete host
@@ -361,6 +402,7 @@ From this repository:
 ```sh
 pnpm --filter @octane-xplat/macos-renderer test
 pnpm --filter @octane-xplat/macos-renderer test:overflow
+pnpm --filter @octane-xplat/macos-renderer test:portals
 pnpm --filter @octane-xplat/macos-renderer test:packed
 pnpm --filter @xplat/macos test:fonts
 pnpm --filter @xplat/macos test:layout-channels

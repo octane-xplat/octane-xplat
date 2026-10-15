@@ -24,6 +24,7 @@ function fixture() {
 
 	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
 	const api = runInNewContext(constants + '\n' + [
+		'parentReference', 'resolveParentNode', 'canContainView',
 		'makeSegmentedBar', 'notifySegmentedBarChange', 'syncSegmentedBar', 'validateNodeProps',
 		'droppedPropClears', 'applyProps', 'applyCommand',
 	].map(fn).join('\n') + '\n({makeSegmentedBar,validateNodeProps,applyProps,applyCommand})', {
@@ -149,7 +150,7 @@ test('SegmentedBar production ownership moves its native host between parents an
 	})
 
 	const api = runInNewContext(
-		['validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
+		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
 			'\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),

@@ -27,6 +27,10 @@ const slices = [
 	fn('observeContentGeometry'),
 	fn('makeNode'),
 	fn('destroy'),
+	fn('parentReference'),
+	fn('resolveParentNode'),
+	fn('canContainView'),
+	source.slice(at('function isPortalTargetView('), at('\nconst actionHandlers')),
 	fn('validateTextNesting'),
 	fn('validateBatch'),
 	source.slice(at('function droppedPropClears('), at('\nfunction applyProps(')),
@@ -75,6 +79,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		textNodesByView: new WeakMap(),
 		scrollHandlers: new WeakMap(),
 		layoutHandlers: new WeakMap(),
+		nodeContainersByView: new WeakMap(),
 		NSViewFrameDidChangeNotification: 'frame-changed',
 		queueLayoutReconcile: (_container: any, parent: any) => geometryReconciles.push(parent),
 		NSColor: { colorWithRedGreenBlueAlpha: () => ({}) },
@@ -138,6 +143,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		factoryCalls,
 		geometryObservers,
 		geometryReconciles,
+		nodeContainersByView: sandbox.nodeContainersByView,
 		fakeView,
 	}
 }
@@ -202,6 +208,39 @@ test('a throwing prop removes an installed scroll observer', () => {
 
 	assert.throws(() => fx.makeNode(fx.container, 6, 'scrollview', {}), /prop failed/)
 	assert.deepEqual(fx.removedObservers, [{ token: 'scroll-observer' }])
+})
+
+test('portal targets reject a native node owned by another Octane root', () => {
+	const fx = fixture()
+	const target: any = {
+		...fx.fakeView('foreign-root-target'),
+		leadingAnchor: { constraintEqualToAnchor() {} },
+		trailingAnchor: { constraintEqualToAnchor() {} },
+		topAnchor: { constraintEqualToAnchor() {} },
+		bottomAnchor: { constraintEqualToAnchor() {} },
+	}
+	fx.nodeContainersByView.set(target, { nodes: new Map(), children: [] })
+
+	assert.throws(
+		() =>
+			fx.macOSDriver.portals.prepareTarget({
+				container: fx.container,
+				renderer: 'macos',
+				target,
+				transported: false,
+				createPortalTargetHandle: (id: number) => ({ id }),
+			}),
+		/portal target belongs to another Octane root/,
+	)
+})
+
+test('destroy releases the native view ownership registration', () => {
+	const fx = fixture()
+	const node = fx.makeNode(fx.container, 7, 'label', {})
+	assert.equal(fx.nodeContainersByView.get(node.view), fx.container)
+
+	fx.destroy(node)
+	assert.equal(fx.nodeContainersByView.has(node.view), false)
 })
 
 test('batch validation rejects commands before any apply work', () => {

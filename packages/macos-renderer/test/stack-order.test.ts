@@ -21,6 +21,11 @@ const gravityIndex = source.slice(
 	source.indexOf('\nfunction ', source.indexOf('function gravityInsertIndex(') + 1),
 )
 
+const portalHelpers = source.slice(
+	source.indexOf('function parentReference('),
+	source.indexOf('function isPortalTargetView('),
+)
+
 function fixture() {
 	const arranged = []
 	const stack = {
@@ -48,7 +53,7 @@ function fixture() {
 	const parent = { id: 1, type: 'flexboxlayout', children: [], view: stack }
 	const container = { nodes: new Map([[1, parent]]), children: [] }
 	const noop = () => {}
-	const insert = runInNewContext(gravityIndex + '\n' + detachment + '\n(' + insertion + ')', {
+	const insert = runInNewContext(portalHelpers + gravityIndex + '\n' + detachment + '\n(' + insertion + ')', {
 		VIEW_PARENT_TYPES: new Set([
 			'stack',
 			'flexboxlayout',

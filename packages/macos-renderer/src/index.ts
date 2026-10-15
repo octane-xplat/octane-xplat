@@ -24,6 +24,8 @@ import { createUniversalRoot } from 'octane/universal/native'
 import type {
 	UniversalHostCommand,
 	UniversalHostDriver,
+	UniversalHostParent,
+	UniversalPortalTargetHandle,
 	UniversalRoot,
 } from 'octane/universal/native'
 
@@ -133,6 +135,9 @@ interface RootContainer {
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: UniversalRoot | null
+	portalTargetIds: WeakMap<object, number>
+	portalTargets: Map<UniversalPortalTargetHandle, PortalTargetEntry>
+	nextPortalTargetId: number
 	/** Native root projection for top-level viewless containers. */
 	projectionRoot?: ElementNode
 	/** Parents needing a sibling-wide layout pass; non-null only while a
@@ -140,6 +145,58 @@ interface RootContainer {
 	layoutDirty: Set<ElementNode> | null
 	tabDirty?: Set<ElementNode>
 	tabReleases?: Set<ElementNode>
+}
+
+interface PortalTargetEntry {
+	root: ElementNode
+	registrations: number
+}
+
+const nodeContainersByView = new WeakMap<object, RootContainer>()
+const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle>()
+
+function parentReference(parent: ElementNode | null | undefined): UniversalHostParent {
+	if (!parent) {
+		return null
+	}
+
+	const handle =
+		typeof portalHandlesByNode === 'undefined' ? undefined : portalHandlesByNode.get(parent)
+	return handle ?? parent.id ?? null
+}
+
+function resolveParentNode(
+	container: RootContainer,
+	parent: UniversalHostParent,
+): ElementNode | null {
+	if (parent === null) {
+		return null
+	}
+
+	if (typeof parent === 'number') {
+		return container.nodes.get(parent) ?? null
+	}
+
+	return container.portalTargets.get(parent)?.root ?? null
+}
+
+function canContainView(type: string): boolean {
+	return VIEW_PARENT_TYPES.has(type) || type === 'portalroot'
+}
+
+function isPortalTargetView(target: unknown): target is NSView {
+	if (target === null || typeof target !== 'object') {
+		return false
+	}
+
+	const view = target as NSView
+	return (
+		typeof view.addSubview === 'function' &&
+		typeof view.leadingAnchor?.constraintEqualToAnchor === 'function' &&
+		typeof view.trailingAnchor?.constraintEqualToAnchor === 'function' &&
+		typeof view.topAnchor?.constraintEqualToAnchor === 'function' &&
+		typeof view.bottomAnchor?.constraintEqualToAnchor === 'function'
+	)
 }
 
 const actionHandlers = new Map<number, (() => void) | null>()
@@ -3658,6 +3715,15 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		}
 
 		applyProps(node, props)
+		if (node.view) {
+			const owner = nodeContainersByView.get(node.view)
+			if (owner && owner !== container) {
+				throw new Error('AppKit node view is already owned by another Octane root.')
+			}
+
+			nodeContainersByView.set(node.view, container)
+		}
+
 		return node
 	} catch (error) {
 		// Release whatever the failed creation registered — action slots,
@@ -5743,6 +5809,7 @@ function syncProxyProjection(parent: ElementNode) {
 		'wraplayout',
 		'rootlayout',
 		'#root',
+		'portalroot',
 	].includes(parent.type)
 
 	for (const child of children) {
@@ -5848,7 +5915,7 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 			type: string
 			props: PropBag
 			children: number[]
-			parent: number | null
+			parent: UniversalHostParent
 			slot?: number | null
 		}
 	>()
@@ -5858,14 +5925,17 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 			type: node.type,
 			props: node.props,
 			children: node.children.map((child) => child.id),
-			parent: node.parent?.id ?? null,
+			parent: parentReference(node.parent),
 			slot: node.contentChild?.id ?? null,
 		})
 	}
 
 	const unlink = (id: number) => {
 		const node = nodes.get(id)
-		const parent = node?.parent == null ? null : nodes.get(node.parent)
+		const parent =
+			node?.parent == null || typeof node.parent !== 'number'
+				? null
+				: nodes.get(node.parent)
 		if (parent) {
 			parent.children = parent.children.filter((child) => child !== id)
 			if (parent.slot === id) {
@@ -5895,9 +5965,9 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 		} else if (command.op === 'insert' || command.op === 'move') {
 			unlink(command.id)
 			const node = nodes.get(command.id)!,
-				parent = command.parent == null ? null : nodes.get(command.parent as number)
+				parent = typeof command.parent === 'number' ? nodes.get(command.parent) : null
 
-			node.parent = command.parent as number | null
+			node.parent = command.parent
 			if (parent) {
 				const index = parent.children.indexOf(command.before!)
 				parent.children.splice(index < 0 ? parent.children.length : index, 0, command.id)
@@ -5906,7 +5976,7 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 				}
 			}
 		} else if (command.op === 'remove') {
-			if (nodes.get(command.id)?.parent === command.parent) {
+			if (Object.is(nodes.get(command.id)?.parent, command.parent)) {
 				unlink(command.id)
 			}
 		} else if (command.op === 'destroy') {
@@ -6048,6 +6118,34 @@ function reconcileLayoutParent(parent: ElementNode) {
 		syncProxyProjection(parent)
 	}
 
+	if (parent.type === 'portalroot') {
+		const views = (parent.projectedChildren ?? parent.children)
+			.filter((child) => child.view)
+			.map(layoutView)
+		const host = parent.view
+		const native = host?.subviews
+		if (!host?.addSubviewPositionedRelativeTo || !native) {
+			return
+		}
+
+		const count = typeof native.count === 'function' ? native.count() : native.count
+		const actual = Array.from({ length: Number(count ?? 0) }, (_, index) =>
+			native.objectAtIndex(index),
+		).filter((view) => views.includes(view))
+
+		if (views.some((view, index) => view !== actual[index])) {
+			let previous: NSView | null = null
+			for (const view of views) {
+				// NSWindowAbove = 1 (AppKit NSGraphics.h); preserve the portal's
+				// logical sibling order without disturbing target-owned siblings.
+				host.addSubviewPositionedRelativeTo(view, 1, previous)
+				previous = view
+			}
+		}
+
+		return
+	}
+
 	if (parent.type === 'rootlayout') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutRootChildren(parent)
@@ -6160,16 +6258,19 @@ function validateTextNesting(parentType: string | undefined, childType: string) 
 
 function insert(
 	container: RootContainer,
-	parentId: number | null,
+	parentId: UniversalHostParent,
 	node: ElementNode,
 	beforeId: number | null,
 ) {
-	validateTextNesting(parentId === null ? undefined : container.nodes.get(parentId)?.type, node.type)
+	const parent = resolveParentNode(container, parentId)
+	validateTextNesting(parent?.type, node.type)
 	// Validate before detaching — a rejected insert must not leave the node
 	// orphaned from its current parent.
-	const parent = (parentId === null ? null : container.nodes.get(parentId)) ?? null
 	if (parentId !== null && !parent) {
-		throw new Error('Unknown AppKit parent ' + parentId)
+		throw new Error(
+			'Unknown AppKit ' +
+			(typeof parentId === 'number' ? 'parent ' + parentId : 'portal parent ' + parentId.id),
+		)
 	}
 
 	if (
@@ -6190,7 +6291,7 @@ function insert(
 	if (
 		parent &&
 		(node.view || node.type === 'proxyviewcontainer') &&
-		!VIEW_PARENT_TYPES.has(parent.type)
+		!canContainView(parent.type)
 	) {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
@@ -6234,6 +6335,7 @@ function insert(
 		if (parent) {
 			if (
 				[
+					'portalroot',
 					'gridlayout',
 					'absolutelayout',
 					'contentview',
@@ -6250,7 +6352,16 @@ function insert(
 				node.marginConstraints = null
 			}
 
-			if (parent.type === 'contentview') {
+			if (parent.type === 'portalroot') {
+				parentView.addSubview(layoutView(node))
+				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
+				layoutView(node).leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
+				layoutView(node).trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active = true
+				layoutView(node).topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
+				layoutView(node).bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
+				applySizeConstraints(node)
+				queueLayoutReconcile(container, parent)
+			} else if (parent.type === 'contentview') {
 				const previous = parent.contentChild
 				if (previous && previous !== node) {
 					releasePlacementPins(previous)
@@ -6312,8 +6423,8 @@ function insert(
 	}
 }
 
-function remove(container: RootContainer, parentId: number | null, node: ElementNode) {
-	const expectedParent = (parentId === null ? null : container.nodes.get(parentId)) ?? null
+function remove(container: RootContainer, parentId: UniversalHostParent, node: ElementNode) {
+	const expectedParent = resolveParentNode(container, parentId)
 	if (node.parent !== expectedParent) {
 		return
 	}
@@ -6554,6 +6665,14 @@ function destroy(node: ElementNode) {
 		accessibilityLabels.delete(node.actionId)
 		accessibilityRoles.delete(node.actionId)
 	}
+
+	if (
+		node.view &&
+		typeof nodeContainersByView !== 'undefined' &&
+		nodeContainersByView.get(node.view) === node.container
+	) {
+		nodeContainersByView.delete(node.view)
+	}
 }
 
 /** Pre-flight a whole batch without mutating, so a deterministic failure —
@@ -6565,12 +6684,25 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 	// later commands validate against the intended tree.
 	const pending = new Map<number, { type: string; props: PropBag }>()
 	const destroyed = new Set<number>()
-	const parents = new Map<number, number | null>()
-	const parentOf = (id: number) =>
-		parents.has(id) ? parents.get(id) : container.nodes.get(id)?.parent?.id
+	const parents = new Map<number, UniversalHostParent>()
+	const parentOf = (id: number): UniversalHostParent | undefined => {
+		if (parents.has(id)) {
+			return parents.get(id)
+		}
+
+		const node = container.nodes.get(id)
+		return node ? parentReference(node.parent) : undefined
+	}
 
 	const known = (id: number): { type: string; props: PropBag } | undefined =>
 		pending.get(id) ?? (destroyed.has(id) ? undefined : container.nodes.get(id))
+	const parentNode = (parent: UniversalHostParent) => {
+		if (parent === null) {
+			return null
+		}
+
+		return typeof parent === 'number' ? (known(parent) ?? null) : resolveParentNode(container, parent)
+	}
 
 	for (const command of commands) {
 		switch (command.op) {
@@ -6590,8 +6722,8 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				assertSupportedType(command.type)
 				validateNodeProps(command.type, command.props)
 				const existing = container.nodes.get(command.id)
-				const parentId = parentOf(command.id)
-				const parent = parentId == null ? null : known(parentId)
+				const parentId = parentOf(command.id) ?? null
+				const parent = parentNode(parentId)
 				validateTextNesting(parent?.type, command.type)
 				if (
 					[
@@ -6611,7 +6743,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				if (
 					existing?.parent &&
 					(typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
-					!VIEW_PARENT_TYPES.has(existing.parent.type)
+					!canContainView(existing.parent.type)
 				) {
 					throw new Error('AppKit <' + existing.parent.type + '> cannot contain child views')
 				}
@@ -6635,14 +6767,15 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					throw new Error('Unknown AppKit node ' + command.id)
 				}
 
-				const parentId = command.parent as number | null
-				validateTextNesting(parentId === null ? undefined : known(parentId)?.type, entry.type)
+				const parentId = command.parent
+				const parent = parentNode(parentId)
+				validateTextNesting(parent?.type, entry.type)
 				if (parentId !== null) {
-					const parent = known(parentId)
-					validateTextNesting(parent?.type, entry.type)
-
 					if (!parent) {
-						throw new Error('Unknown AppKit parent ' + parentId)
+						throw new Error(
+							'Unknown AppKit ' +
+							(typeof parentId === 'number' ? 'parent ' + parentId : 'portal parent ' + parentId.id),
+						)
 					}
 
 					if (
@@ -6662,14 +6795,18 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 
 					if (
 						(typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
-						!VIEW_PARENT_TYPES.has(parent.type)
+						!canContainView(parent.type)
 					) {
 						throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 					}
 				}
 
 				const seen = new Set([command.id])
-				for (let ancestor = parentId; ancestor != null; ancestor = parentOf(ancestor) ?? null) {
+				for (
+					let ancestor: UniversalHostParent = parentId;
+					typeof ancestor === 'number';
+					ancestor = parentOf(ancestor) ?? null
+				) {
 					if (seen.has(ancestor)) {throw new Error('AppKit logical ownership cycle')}
 					seen.add(ancestor)
 				}
@@ -6682,7 +6819,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				destroyed.add(command.id)
 				continue
 			case 'remove':
-				if (parentOf(command.id) === command.parent) {
+				if (Object.is(parentOf(command.id), command.parent)) {
 					parents.set(command.id, null)
 				}
 
@@ -6761,13 +6898,13 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				throw new Error('Unknown AppKit node ' + command.id)
 			}
 
-			insert(container, command.parent as number | null, node, command.before)
+			insert(container, command.parent, node, command.before)
 			return
 		}
 		case 'remove': {
 			const node = container.nodes.get(command.id)
 			if (node) {
-				remove(container, command.parent as number | null, node)
+				remove(container, command.parent, node)
 			}
 
 			return
@@ -6816,7 +6953,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			if (
 				parent &&
 				(typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
-				!VIEW_PARENT_TYPES.has(parent.type)
+				!canContainView(parent.type)
 			) {
 				// insert would reject the replacement after the original was
 				// already removed and destroyed — fail while it is intact.
@@ -6827,10 +6964,11 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			const siblings = parent ? parent.children : container.children
 			const index = siblings.indexOf(node)
 			const beforeId = index < 0 ? null : (siblings[index + 1]?.id ?? null)
-			remove(container, parent?.id ?? null, node)
+			const parentId = parentReference(parent)
+			remove(container, parentId, node)
 			destroy(node)
 			container.nodes.set(command.id, replacement)
-			insert(container, parent?.id ?? null, replacement, beforeId)
+			insert(container, parentId, replacement, beforeId)
 			return
 		}
 		default:
@@ -6841,6 +6979,82 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	id: 'macos',
 	capabilities: { text: 'host' },
+	portals: {
+		prepareTarget({ container, target, createPortalTargetHandle }) {
+			if (!isPortalTargetView(target)) {
+				throw new TypeError('AppKit portal targets must be NSView instances.')
+			}
+			const owner = nodeContainersByView.get(target)
+			if (owner && owner !== container) {
+				throw new Error('AppKit portal target belongs to another Octane root.')
+			}
+
+			let id = container.portalTargetIds.get(target)
+			if (id === undefined) {
+				id = container.nextPortalTargetId++
+				container.portalTargetIds.set(target, id)
+			}
+
+			const handle = createPortalTargetHandle(id)
+			let registration = container.portalTargets.get(handle)
+			if (registration && registration.root.view !== target) {
+				throw new Error('AppKit portal target handle resolved to a different NSView.')
+			}
+
+			if (!registration) {
+				const root: ElementNode = {
+					id: -id,
+					type: 'portalroot',
+					view: target as AppKitView,
+					props: {},
+					parent: null,
+					children: [],
+					container,
+					appliedFontFamily: container.fontFamily,
+					scrollObserverInstalled: false,
+					text: '',
+				}
+				portalHandlesByNode.set(root, handle)
+				registration = { root, registrations: 0 }
+				container.portalTargets.set(handle, registration)
+			}
+
+			registration.registrations++
+			let released = false
+			return {
+				handle,
+				release() {
+					if (released) {
+						return
+					}
+
+					released = true
+					registration!.registrations--
+					if (registration!.registrations !== 0) {
+						return
+					}
+
+					let cleanupError: unknown
+					for (const child of registration!.root.children.slice()) {
+						try {
+							detach(container, child)
+						} catch (error) {
+							cleanupError ??= error
+						}
+					}
+					portalHandlesByNode.delete(registration!.root)
+
+					if (container.portalTargets.get(handle) === registration) {
+						container.portalTargets.delete(handle)
+					}
+
+					if (cleanupError !== undefined) {
+						throw cleanupError
+					}
+				},
+			}
+		},
+	},
 	prepareBatch(container, batch) {
 		// Reject deterministic failures before any command mutates — a
 		// partially applied batch cannot be rolled back once commit() marks
@@ -8026,6 +8240,9 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 		nodes: new Map(),
 		children: [],
 		root: null,
+		portalTargetIds: new WeakMap(),
+		portalTargets: new Map(),
+		nextPortalTargetId: 1,
 		layoutDirty: null,
 	}
 

@@ -233,11 +233,11 @@ export function Actions() {
   no detents or drag handles on macOS — the window sizes to the
   content's fitting size and `onDismissed` fires when the sheet ends
   (close button, Esc, or `open`→false). The content subtree mounts as
-  its own octane root inside the sheet window via `createMacOSRoot`. The
-  current macOS renderer does not declare Octane's portal capability; a
-  runtime probe failed before the portal child mounted. Provider context from
-  the declaring tree therefore does not cross into `AppKitSheet`. Read values
-  in the declaring component and pass them through the content closure:
+  its own Octane root inside the sheet window via `createMacOSRoot`. The macOS
+  renderer now supports portals into `NSView`, but `AppKitSheet` has not moved
+  to that path. Its content still cannot read provider context from the
+  declaring tree. Until the sheet is migrated, read values in the declaring
+  component and pass them through the content closure:
 
   ```tsx
   /** @jsxImportSource @octane-xplat/macos-renderer */
