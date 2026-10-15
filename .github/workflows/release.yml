@@ -163,6 +163,7 @@ jobs:
           git add -A -- \
             'packages/*/package.json' \
             packages/create/template/package.json \
+            packages/create/library-template/package.json \
             packages/create/template/pnpm-workspace.yaml \
             CHANGELOG.md
           git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"

@@ -1,0 +1,40 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "es2022",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"@nativescript/types"
+		],
+		"noEmit": true,
+		"skipLibCheck": true
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"dist",
+		"types",
+		"node_modules"
+	]
+}

@@ -1,0 +1,16 @@
+# Library package notes
+
+- Use pnpm for package management.
+- Keep the public API in `src/index.ts` and `src/index.web.ts`; both barrels
+  must export the same names and types.
+- Put shared prop contracts in `src/props.ts` and document public exports.
+- The unsuffixed `.tsx` file is the NativeScript implementation. Add a
+  `.web.tsx` sibling when browser behavior or markup needs to differ. Native
+  files start with `/** @jsxImportSource @nativescript-community/octane */`.
+- Keep DOM globals out of native files. Use the shared `@octane-xplat/ui`
+  elements when behavior can be shared.
+- Declare every imported package. Runtime plugins belong in `dependencies`;
+  Octane and renderer packages belong in `peerDependencies` when consumers
+  supply the runtime.
+- Before publishing, run `pnpm typecheck`, `pnpm lint`, `pnpm test`,
+  `pnpm build`, and `pnpm test:packed`.

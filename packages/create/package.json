@@ -1,10 +1,11 @@
 {
 	"name": "create-octane-xplat",
 	"version": "0.14.0",
-	"description": "Scaffold a minimal @octane-xplat/ui app — one Octane codebase for web + iOS + Android",
+	"description": "Scaffold Octane Xplat apps and cross-platform libraries",
 	"keywords": [
 		"create",
 		"cross-platform",
+		"component-library",
 		"init",
 		"octane",
 		"project-generator",
@@ -25,7 +26,8 @@
 	"files": [
 		"index.mjs",
 		"scaffold.mjs",
-		"template"
+		"template",
+		"library-template"
 	],
 	"type": "module",
 	"exports": {

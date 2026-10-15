@@ -1,0 +1,105 @@
+{
+	"name": "octane-xplat-library",
+	"version": "0.1.0",
+	"description": "A cross-platform component library for Octane Xplat",
+	"keywords": [
+		"cross-platform",
+		"octane",
+		"octane-xplat",
+		"ui",
+		"web",
+		"ios",
+		"android"
+	],
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/your-org/your-library",
+		"directory": "."
+	},
+	"files": [
+		"dist",
+		"types",
+		"LICENSE"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"macos": null,
+			"linux": null,
+			"windows": null,
+			"web": {
+				"types": "./types/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"types": "./types/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"macos": null,
+				"linux": null,
+				"windows": null,
+				"web": {
+					"types": "./types/index.web.d.ts",
+					"default": "./dist/web/index.js"
+				},
+				"native": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/native/index.js"
+				},
+				"types": "./types/index.d.ts",
+				"default": "./dist/native/index.js"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && pnpm typegen && node scripts/check-native-dist.mjs",
+		"typegen": "tsc -p tsconfig.types.json",
+		"typecheck": "xplat typecheck",
+		"lint": "xplat-lint",
+		"lint:fix": "xplat-lint --fix",
+		"test": "vitest run",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"prepack": "pnpm build",
+		"pack:check": "pnpm test:packed"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.3",
+		"@nativescript/types": "9.1.4",
+		"@octane-xplat/cli": "^0.14.0",
+		"@octane-xplat/lint": "^0.14.0",
+		"@octane-xplat/ui": "^0.14.0",
+		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/oxc": "0.20.0",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"octane": "0.11.0",
+		"oxlint": "^1.74.0",
+		"typescript": "5.9.3",
+		"vite": "8.3.0",
+		"vitest": "4.1.11"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"@octane-xplat/ui": "^0.14.0",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"packageManager": "pnpm@11.24.0"
+}

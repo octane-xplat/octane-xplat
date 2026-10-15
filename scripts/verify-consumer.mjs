@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 // Packed-artifact consumer verification — proves a scaffolded starter app
 // installs, lints, typechecks, and builds against the PACKED packages, not
-// the workspace symlinks. This is the release-evidence path: whatever the
-// starter exercises here is what `pnpm create octane-xplat` users get.
+// the workspace symlinks. It also checks the packed creator's app and library
+// scaffolds. This is the release-evidence path for `pnpm create octane-xplat`.
 //
 // Phases (each is a gate — the first failure stops the run):
 //   build    pnpm -r build for every workspace package that defines one
 //            (skip with --no-build; CI builds earlier in the same job)
 //   pack     pnpm pack every publishable package into <work>/pack
-//   scaffold run the PACKED create-octane-xplat bin with --no-install, then
-//            rewrite every @octane-xplat/* specifier (dependencies,
+//   scaffold run the PACKED create-octane-xplat bin for app and library,
+//            then rewrite the app's @octane-xplat/* specifiers (dependencies,
 //            devDependencies, pnpm-workspace.yaml configDependencies) to
 //            file: tarballs
 //   install  pnpm install in the consumer — isolated, outside the workspace
@@ -84,10 +84,11 @@ const packDir = join(work, 'pack')
 // collide with the platforms/ios/<name>/app JS payload dir inside the
 // produced .app (xcodebuild "Multiple commands produce .../app.app/app").
 const appDir = join(work, 'consumer-app')
+const libraryDir = join(work, 'consumer-library')
 const extractDir = join(work, 'create')
 // A reused VERIFY_CONSUMER_DIR may hold a previous attempt's app/scaffold —
 // reset those (the pack dir is rewritten in place anyway).
-for (const dir of [appDir, extractDir]) {
+for (const dir of [appDir, libraryDir, extractDir]) {
 	rmSync(dir, { recursive: true, force: true })
 }
 
@@ -205,7 +206,7 @@ try {
 	// ---- scaffold via the packed create bin --------------------------------
 	// Web-only subset: `xplat add ios android` below restores the rest, which
 	// exercises the post-scaffold enablement path on the packed artifacts.
-	await gate('packed create-octane-xplat scaffolds a starter app', 60 * 1000, () => {
+	await gate('packed create-octane-xplat scaffolds app and library starters', 60 * 1000, () => {
 		const createTarball = tarballs.get('create-octane-xplat')
 		assert.ok(createTarball, 'create-octane-xplat tarball missing')
 		const r = run('tar', ['-xzf', createTarball, '-C', extractDir], work)
@@ -220,6 +221,41 @@ try {
 		assert.ok(
 			!existsSync(join(appDir, 'nativescript.config.ts')),
 			'subset scaffold leaked native files',
+		)
+
+		const libraryName = '@example/consumer-library'
+		const libraryResult = run(
+			'node',
+			[
+				binPath,
+				libraryDir,
+				'--no-install',
+				'--template',
+				'library',
+				'--name',
+				libraryName,
+			],
+			work,
+		)
+		assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
+		const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
+		assert.equal(libraryManifest.name, libraryName)
+		assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
+		assert.ok(libraryManifest.exports['.'].native, 'library starter missed native conditional export')
+		assert.ok(libraryManifest.scripts['test:packed'], 'library starter missed packed-consumer script')
+		assert.ok(existsSync(join(libraryDir, 'src/Badge.tsx')), 'library starter missed native component')
+		assert.ok(
+			existsSync(join(libraryDir, 'src/Badge.web.tsx')),
+			'library starter missed web component',
+		)
+		assert.ok(
+			existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
+			'library starter missed packed-consumer check',
+		)
+		assert.ok(!existsSync(join(libraryDir, 'index.html')), 'library starter leaked app entry files')
+		assert.ok(
+			!existsSync(join(libraryDir, 'nativescript.config.ts')),
+			'library starter leaked app NativeScript configuration',
 		)
 	})
 

@@ -1,9 +1,7 @@
 // Scaffold manifest + compose/apply shared by create-octane-xplat and the
-// CLI's `xplat add`. template/package.json is the canonical store for dep
-// versions and script bodies — targets name which keys they own; unclaimed
-// files, deps, and scripts are part of the base scaffold. Keeping versions in
-// template/package.json means scripts/bump-versions.mjs keeps working
-// unchanged at release time.
+// CLI's `xplat add`. template/package.json is the canonical store for app dep
+// versions and script bodies; library-template/package.json owns the library
+// starter. The release bump script updates both manifests.
 import {
 	cpSync,
 	existsSync,
@@ -14,10 +12,11 @@ import {
 	writeFileSync,
 } from 'node:fs'
 
-import { dirname, join } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), 'template')
+export const LIBRARY_TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), 'library-template')
 
 /** Scaffoldable targets. `files` entries are template-relative paths —
  *  directories copy recursively. `deps`/`devDeps`/`scripts` name keys whose
@@ -429,6 +428,39 @@ export function composeTargets(ids, dir) {
 	writeFileSync(join(dir, 'pnpm-workspace.yaml'), composeWorkspaceYaml(ids))
 	writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
 	return [...resolved]
+}
+
+/** Write the cross-platform library starter into `dir`. */
+export function composeLibrary(dir, packageName = basename(resolve(dir))) {
+	if (
+		packageName.length > 214 ||
+		!/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(packageName)
+	) {
+		throw new Error(
+			`invalid npm package name "${packageName}" — use lowercase letters, numbers, dots, underscores, or hyphens`,
+		)
+	}
+
+	mkdirSync(dir, { recursive: true })
+	for (const rel of walk(LIBRARY_TEMPLATE_DIR)) {
+		if (rel === 'package.json') {
+			continue
+		}
+
+		const dest = join(dir, rel === 'gitignore' ? '.gitignore' : rel)
+		mkdirSync(dirname(dest), { recursive: true })
+		const source = join(LIBRARY_TEMPLATE_DIR, rel)
+		if (/\.(?:md|ts|tsx|mjs|json)$/.test(rel)) {
+			const content = readFileSync(source, 'utf8').replaceAll('octane-xplat-library', packageName)
+			writeFileSync(dest, content)
+		} else {
+			cpSync(source, dest, { recursive: true })
+		}
+	}
+
+	const manifest = JSON.parse(readFileSync(join(LIBRARY_TEMPLATE_DIR, 'package.json'), 'utf8'))
+	manifest.name = packageName
+	writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, '\t') + '\n')
 }
 
 const readJson = (file) => {

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Lockstep version bump for the release workflow: sets every publishable
-// package to the same version and repins the create template's @octane-xplat/*
-// deps plus its @octane-xplat/patches config dependency. tsrx-typegen keeps
-// its own cadence and is untouched.
+// package to the same version and repins the create templates' @octane-xplat/*
+// deps plus the app template's @octane-xplat/patches config dependency.
+// tsrx-typegen keeps its own cadence and is untouched.
 // Edits are text-level so each file's formatting survives untouched.
 //
 // Usage: node scripts/bump-versions.mjs <version>
@@ -39,6 +39,15 @@ const template = readFileSync(templateFile, 'utf8').replace(
 
 writeFileSync(templateFile, template)
 console.log('create template @octane-xplat/* pins -> ^' + version)
+
+const libraryTemplateFile = 'packages/create/library-template/package.json'
+const libraryTemplate = readFileSync(libraryTemplateFile, 'utf8').replace(
+	/"(@octane-xplat\/[^\"]+)":\s*"[^\"]*"/g,
+	`"$1": "^${version}"`,
+)
+
+writeFileSync(libraryTemplateFile, libraryTemplate)
+console.log('create library template @octane-xplat/* pins -> ^' + version)
 
 const templateWorkspaceFile = 'packages/create/template/pnpm-workspace.yaml'
 const templateWorkspace = readFileSync(templateWorkspaceFile, 'utf8')

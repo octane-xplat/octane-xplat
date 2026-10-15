@@ -1,0 +1,6 @@
+# NativeScript's bundler resolves dependencies from the flat package tree.
+nodeLinker: hoisted
+allowBuilds:
+	esbuild: true
+	'@parcel/watcher': true
+	'@nativescript/core': false

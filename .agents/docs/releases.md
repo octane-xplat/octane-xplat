@@ -7,7 +7,7 @@ Releases are automated: `.github/workflows/release.yml` fires on every green
 `CI` run on `main` (plus `workflow_dispatch` for manual version overrides).
 `git-cliff` (`cliff.toml`) infers the next version from conventional commits
 and generates the changelog; the workflow bumps every publishable package to
-the same version, updates the create template's `@octane-xplat/*` pins,
+the same version, updates the create templates' `@octane-xplat/*` pins,
 commits, tags `vX.Y.Z`, `pnpm -r publish`es, and creates the GitHub Release.
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a

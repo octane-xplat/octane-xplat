@@ -25,6 +25,7 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC5: The published type surface preserves intended positive and negative prop checks, and package docs state the supported compiler path and its limits.
 - AC6: The package's prepack gate and `xplat doctor` fail when packed type targets are missing, runtime and declaration value exports differ, declaration references escape or miss the tarball, or a bare declaration dependency is undeclared.
 - AC7: Workspace setup and development refresh declarations for local consumers when generated output is absent from Git; packing regenerates and includes that output while handwritten declarations and overrides remain source.
+- AC8: `pnpm create octane-xplat <directory> --template library` creates an independent package with web/native conditional exports, generated declarations, and a packed-consumer check; [the library starter](../../../packages/create/README.md#start-a-library-package) documents its target scope and next commands.
 
 ## Documentation
 
@@ -35,3 +36,4 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC5: [Compiler support boundary](../notes/toolchain-notes.md#shared-packages-publish-model) and [known limits](../../../docs/verify/known-limits.md#same-edge-on-every-target).
 - AC6: [Pack check and doctor integration](../../../packages/tsrx-typegen/README.md#publish-checks); every declaration-shipping package wires `--pack-check` into `prepack` (`pnpm check:pack` runs them all).
 - AC7: [Develop against generated declarations](../notes/toolchain-notes.md#develop-against-generated-declarations) and [package preparation](../../../packages/tsrx-typegen/README.md#publish-checks).
+- AC8: [Create a third-party library](../../../packages/create/README.md#start-a-library-package) and the generated [library README](../../../packages/create/library-template/README.md).
