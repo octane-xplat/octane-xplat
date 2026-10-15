@@ -30,7 +30,7 @@ import type {
 import { composeAttributedText, validateTextStyle } from './formatted-text'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
-import { NSAttributedString, NSAutoresizingMaskOptions, NSBackingStoreType, NSBezelStyle, NSBorderType, NSButton, NSButtonType, NSClickGestureRecognizer, NSColor, NSColorSpace, NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerStyle, NSEvent, NSFontAttributeName, NSForegroundColorAttributeName, NSImageView, NSLayoutAttribute, NSLineBreakMode, NSMenu, NSMenuItem, NSMutableParagraphStyle, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSPanGestureRecognizer, NSParagraphStyleAttributeName, NSPopover, NSPopoverBehavior, NSPopoverDidCloseNotification, NSRectEdge, NSScrollView, NSSecureTextField, NSSecureTextFieldCell, NSSlider, NSStackView, NSStackViewDistribution, NSStackViewGravity, NSTextAlignment, NSTextField, NSTextFieldCell, NSTextFieldDelegate, NSTextView, NSTextViewDelegate, NSTrackingArea, NSTrackingAreaOptions, NSUserInterfaceLayoutOrientation, NSView, NSViewBoundsDidChangeNotification, NSViewController, NSViewFrameDidChangeNotification, NSWindow, NSWindowDelegate, NSWindowStyleMask, NativeClass, WKWebView, interop } from '@octane-xplat/platform/macos'
+import { NSAttributedString, NSAutoresizingMaskOptions, NSBackingStoreType, NSBezelStyle, NSBorderType, NSButton, NSButtonType, NSClickGestureRecognizer, NSColor, NSColorSpace, NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerStyle, NSEvent, NSFontAttributeName, NSForegroundColorAttributeName, NSImageView, NSLayoutAttribute, NSLineBreakMode, NSMenu, NSMenuItem, NSMutableParagraphStyle, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSPanGestureRecognizer, NSParagraphStyleAttributeName, NSPopover, NSPopoverBehavior, NSPopoverDidCloseNotification, NSRectEdge, NSScrollView, NSSecureTextField, NSSecureTextFieldCell, NSSlider, NSStackView, NSStackViewDistribution, NSStackViewGravity, NSTextAlignment, NSTextField, NSTextFieldCell, NSTextFieldDelegate, NSTextView, NSTextViewDelegate, NSTrackingArea, NSTrackingAreaOptions, NSUserInterfaceLayoutOrientation, NSView, NSViewBoundsDidChangeNotification, NSViewController, NSViewFrameDidChangeNotification, NSWindow, NSWindowDelegate, NSWindowOrderingMode, NSWindowStyleMask, NativeClass, WKWebView, interop } from '@octane-xplat/platform/macos'
 import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
 
 export { registerFontFamily } from './fonts'
@@ -562,6 +562,7 @@ class GridLayoutView extends NSView {
 		)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityValueDescription() {
 		return String(gridLayoutNodesByView.get(this)?.props.accessibilityValueDescription ?? '')
 	}
@@ -645,6 +646,7 @@ class DockLayoutView extends NSView {
 		NativeClass(this)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	get intrinsicContentSize() {
 		return dockNaturalSize(dockLayoutNodesByView.get(this))
 	}
@@ -727,6 +729,7 @@ class WrapLayoutView extends NSView {
 		NativeClass(this)
 	}
 
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	get intrinsicContentSize() {
 		return wrapNaturalSize(wrapLayoutNodesByView.get(this))
 	}
@@ -5807,16 +5810,14 @@ function syncProxyProjection(parent: ElementNode) {
 	if (manual && host?.addSubviewPositionedRelativeTo) {
 		const views = children.map(layoutView)
 		const native = host.subviews
-		const count = typeof native.count === 'function' ? native.count() : native.count
-		const actual = Array.from({ length: Number(count) }, (_, index) =>
-			native.objectAtIndex(index),
-		).filter((view) => views.includes(view))
+		const count = native.count
+		const actual = Array.from({ length: Number(count) }, (_, index) => native.objectAtIndex(index))
+			.filter((view) => views.includes(view))
 
 		if (views.some((view, index) => view !== actual[index])) {
 			let previous: NSView | null = null
 			for (const view of views) {
-				// NSWindowAbove = 1 (AppKit NSGraphics.h); use the SDK value without a generated enum global.
-				host.addSubviewPositionedRelativeTo(view, 1, previous)
+				host.addSubviewPositionedRelativeTo(view, NSWindowOrderingMode.Above, previous)
 				previous = view
 			}
 		}

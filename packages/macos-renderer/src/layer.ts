@@ -1,7 +1,7 @@
 /** Top-left viewport-relative rectangle, in window content points. */
 
 import { NSView } from '@octane-xplat/platform/macos'
-import type { NSClass, NSEvent, NSEventClass, NSNotificationCenterClass, NSSize } from '@octane-xplat/platform/macos'
+import type { NSClass, NSEvent, NSSize } from '@octane-xplat/platform/macos'
 export interface WindowLayerBounds {
 	left: number
 	top: number

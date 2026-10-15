@@ -2,6 +2,7 @@ import { harnessFontOptions } from './fonts'
 import { createAppKitWindow, fitWindowToContent } from './appkit'
 import App from './App'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import type { NSApplicationDelegate, NSWindowDelegate } from '@octane-xplat/platform/macos'
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 const { app, window: mainWindow, contentView, applicationClosed, windowClosed } = appKit

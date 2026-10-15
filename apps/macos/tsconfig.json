@@ -40,7 +40,6 @@
 		"artifacts"
 	],
 	"files": [
-		"../../packages/macos-renderer/src/host-globals.d.ts",
-		"../../packages/macos-renderer/types/index.d.ts"
+		"../../packages/macos-renderer/src/host-globals.d.ts"
 	]
 }
