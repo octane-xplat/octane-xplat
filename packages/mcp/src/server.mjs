@@ -3,6 +3,7 @@
 // same context — one coherent entry point.
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { readFileSync } from 'node:fs'
 import { z } from 'zod'
 import { contractError, toContractError } from './contracts/errors.mjs'
 import { EVIDENCE_KINDS } from './contracts/evidence.mjs'
@@ -17,8 +18,12 @@ import {
 	buildProjectStatus,
 	resolveSelection,
 	SERVER_NAME,
-	SERVER_VERSION,
 } from './status.mjs'
+
+// Lockstep releases bump the manifest; the handshake must follow it.
+const SERVER_VERSION = JSON.parse(
+	readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+).version
 
 const INSTRUCTIONS =
 	'MCP server for Octane Xplat apps. Call xplat_project_status first — it reports detected apps, framework versions, guidance, prerequisites, and capabilities. ' +

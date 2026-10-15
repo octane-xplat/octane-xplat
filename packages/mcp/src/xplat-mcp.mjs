@@ -4,6 +4,7 @@
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { createCodeService } from '@octane-xplat/cli/mcp/code-service'
+import { readFileSync } from 'node:fs'
 import { PERMISSION_SCOPES } from './contracts/policy.mjs'
 import { createXplatMcpServer } from './server.mjs'
 import { createWorkspaceContext } from './status.mjs'
@@ -43,8 +44,13 @@ if (unknown.length) {
 
 const workspaceRoot = arg('workspace') ?? process.env.XPLAT_MCP_WORKSPACE ?? process.cwd()
 
+// The status report's `server` field identifies this entry point — the
+// manifest version follows lockstep bumps automatically.
+const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+
 const context = createWorkspaceContext({
 	workspaceRoot,
+	serverIdentity: { name: '@octane-xplat/mcp', version: manifest.version },
 	appSelector: arg('app') ?? process.env.XPLAT_MCP_APP,
 	permissionScopes: permissionScopes.filter((s) => PERMISSION_SCOPES.includes(s)),
 	evidenceRoot: arg('evidence-dir') ?? process.env.XPLAT_MCP_EVIDENCE_DIR,

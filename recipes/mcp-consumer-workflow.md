@@ -39,3 +39,10 @@ cleanup restricted to owned resources.
 - AC6: [Remaining acceptance](../packages/mcp/README.md#remaining-acceptance)
 
 The packed-stdio lane ([prepare](../packages/mcp/tests/prepare-packed-consumer.mjs), [runner](../packages/mcp/tests/packed-stdio-consumer.mjs)) exercises the same criteria against packed tarballs over stdin/stdout.
+
+The `xplat` CLI projects the same services through agent commands; the packed
+agent lane ([runner](../packages/cli/test/packed-agent-consumer.mjs)) verifies
+the AC1 discovery/retrieval subset — help, catalog/schema, selection,
+exact-version docs, current source, honest unavailable results — through the
+installed `xplat` bin. Session/runtime ACs stay MCP-covered until the CLI's
+planned session commands land.

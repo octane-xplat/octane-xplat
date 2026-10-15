@@ -118,6 +118,12 @@ excluded and unreadable.
 Every result is `{ ok: true, data } | { ok: false, error }` where `error` is a
 `ContractError` from the shared vocabulary.
 
+The service layer lives in `packages/cli/src/mcp/` — the `xplat` CLI projects
+the same contracts through its agent commands (`xplat catalog --json` is the
+entry point). `packages/mcp/src/` holds the stdio transport adapter: tool
+registration wraps the shared services, and the published `.d.ts` contract
+surface stays here.
+
 ## Contract surface (`@octane-xplat/mcp/contracts/*`)
 
 Later work packages integrate against these modules; the `.d.ts` files are the
@@ -166,8 +172,9 @@ documented surface and the `.mjs` files carry the runtime values and stores.
 
 ## Runtime (work item D)
 
-`src/runtime/` implements build/launch/attach/logs/cleanup for consumer apps
-on all six platforms. Adapters (`src/runtime/adapters/*`) own platform
+The shared `runtime/` service (in `packages/cli/src/mcp/runtime/`, re-exported
+here) implements build/launch/attach/logs/cleanup for consumer apps
+on all six platforms. Adapters (`runtime/adapters/*`) own platform
 mechanics and always spawn the app's own toolchain — `pnpm exec vite`,
 `pnpm exec ns run …`, the app's installed `@octane-xplat/cli` dev entry, or
 its `dev` script — so a session behaves like the app's installed framework

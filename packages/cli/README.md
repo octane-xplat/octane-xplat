@@ -45,6 +45,41 @@ Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
 
+## Agents
+
+The same `xplat` binary is the agent-facing interface. Discovery and
+retrieval commands emit one versioned JSON envelope to stdout with `--json`
+(`{ contractVersion, ok, requestId, context, data | error }`), send
+diagnostics to stderr, and use stable exit groups — `2` invalid or ambiguous
+input, `3` unavailable prerequisite, `4` permission denied. None of them
+start an app, target, or prompt.
+
+```sh
+xplat catalog --json      # every command: effects, permissions, input/output schemas
+xplat status --json       # app selection, installed framework versions, prerequisites
+xplat app select <id>     # bind an app for this client/workspace — never a global default
+xplat capabilities --json # per-platform rows: build, launch, inspection, actions, capture
+xplat permissions --json  # grant states — discovery never creates a grant
+xplat targets --json      # launchable targets with exact ids and missing-toolchain reasons
+xplat docs search <query> # the bound app's installed-version docs — never a latest fallback
+xplat docs read --ref <ref>
+xplat guidance            # guidance tailored to the installed versions
+xplat code search <query> # current source: app corpus and framework corpus stay labeled
+xplat code read --ref <ref>
+```
+
+`xplat <command> --schema` describes a command's inputs, outputs, and error
+codes without running it; `xplat docs --help` works outside a project.
+Selection precedence is `--app` for one invocation, then the `app select`
+client/workspace preference (`--client` or `XPLAT_AGENT_CLIENT`), then unique
+cwd discovery. Several detected apps report candidates and refuse silently
+picking one.
+
+The MCP transport (`xplat-mcp` from `@octane-xplat/mcp`) exposes the same
+service contract to MCP clients. The runtime surface — sessions, jobs, logs,
+inspection, actions, evidence — projects to commands in the `catalog`'s
+`planned` list.
+
 Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
 — agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)
 

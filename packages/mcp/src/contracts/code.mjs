@@ -1,4 +1,3 @@
-// Type-only contract module — see code.d.ts. The code provider itself is
-// composed in xplat-mcp.mjs (work item C's service lives in
-// @octane-xplat/cli/mcp/code-service).
-export {}
+// Runtime contract moved to @octane-xplat/cli (shared agent service layer).
+// This shim preserves the @octane-xplat/mcp ./contracts export surface.
+export * from '@octane-xplat/cli/mcp/contracts/code'

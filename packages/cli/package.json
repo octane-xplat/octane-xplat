@@ -51,7 +51,9 @@
 		},
 		"./mcp/docs-service": {
 			"default": "./src/mcp/docs-service.mjs"
-		}
+		},
+		"./mcp/*": "./src/mcp/*.mjs",
+		"./mcp/*.mjs": "./src/mcp/*.mjs"
 	},
 	"publishConfig": {
 		"access": "public"

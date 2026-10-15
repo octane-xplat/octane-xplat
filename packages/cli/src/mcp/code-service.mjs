@@ -128,7 +128,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
 	const selectionRequired = () => ({
 		status: 'selection-required',
 		detail:
-			'Code retrieval needs a bound app: the app corpus is the bound app, the framework corpus is its installed packages. Call xplat_select_app first.',
+			'Code retrieval needs a bound app: the app corpus is the bound app, the framework corpus is its installed packages. Select the app first — xplat_select_app (MCP) or `xplat app select` (CLI).',
 	})
 
 	return {

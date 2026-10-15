@@ -1,3 +1,3 @@
-/** Qualified scope of Chromium inspection; never a universal component tree. */
-export const CHROMIUM_INSPECTION_COVERAGE =
-	'Named DOM hosts in the main document; excludes shadow roots, frames, component ownership and signals.'
+// Runtime contract moved to @octane-xplat/cli (shared agent service layer).
+// This shim preserves the @octane-xplat/mcp ./contracts export surface.
+export * from '@octane-xplat/cli/mcp/contracts/inspection'

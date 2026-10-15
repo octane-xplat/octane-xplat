@@ -1,3 +1,3 @@
-// Type-only contract module — see status.d.ts. The report builder lives in
-// src/status.mjs because it depends on workspace discovery.
-export {}
+// Runtime contract moved to @octane-xplat/cli (shared agent service layer).
+// This shim preserves the @octane-xplat/mcp ./contracts export surface.
+export * from '@octane-xplat/cli/mcp/contracts/status'

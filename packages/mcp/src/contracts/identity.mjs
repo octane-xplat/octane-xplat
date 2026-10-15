@@ -1,3 +1,3 @@
-// Project identity contract — see identity.d.ts.
-
-export const PLATFORMS = ['web', 'ios', 'android', 'macos', 'linux', 'windows']
+// Runtime contract moved to @octane-xplat/cli (shared agent service layer).
+// This shim preserves the @octane-xplat/mcp ./contracts export surface.
+export * from '@octane-xplat/cli/mcp/contracts/identity'

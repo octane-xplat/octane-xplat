@@ -1,10 +1,3 @@
-export * from './errors.mjs'
-export * from './identity.mjs'
-export * from './capabilities.mjs'
-export * from './policy.mjs'
-export * from './sessions.mjs'
-export * from './evidence.mjs'
-export * from './boundaries.mjs'
-export * from './code.mjs'
-export * from './actions.mjs'
-export * from './inspection.mjs'
+// Runtime contract moved to @octane-xplat/cli (shared agent service layer).
+// This shim preserves the @octane-xplat/mcp ./contracts export surface.
+export * from '@octane-xplat/cli/mcp/contracts/index'

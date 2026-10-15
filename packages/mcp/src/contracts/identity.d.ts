@@ -114,7 +114,7 @@ export interface WorkspaceInfo {
  * silently picks among multiple apps — the developer (via the agent) must choose.
  */
 export type AppSelection =
-	| { state: 'bound'; app: AppRef; reason: 'explicit' | 'sole-app' | 'configured' }
+	| { state: 'bound'; app: AppRef; reason: 'explicit' | 'sole-app' | 'configured' | 'preference' }
 	| { state: 'ambiguous'; candidates: AppRef[] }
 	| { state: 'none'; reason: 'no-apps' | 'workspace-not-found' }
 
