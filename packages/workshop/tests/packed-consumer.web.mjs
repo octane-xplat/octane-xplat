@@ -60,7 +60,9 @@ try {
 	const targetReport = JSON.parse(doctor.slice(doctor.indexOf('{')))
 	assert.equal(Object.keys(targetReport.targets).length, 6)
 	assert.equal(targetReport.targets.web.status, 'available')
-	assert.equal(targetReport.targets.ios.status, process.platform === 'darwin' ? 'missing-prerequisites' : 'remote-host-required')
+	assert.equal(targetReport.targets.ios.status,
+		process.platform === 'darwin' ? 'missing-prerequisites' : 'remote-host-required')
+
 	assert.equal(targetReport.targets.android.status, 'missing-prerequisites')
 	// Use the maintained acceptance catalog, without the init example.
 	rmSync(join(consumer, 'src/workshop'), { recursive: true })

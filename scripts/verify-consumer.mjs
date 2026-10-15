@@ -573,11 +573,15 @@ try {
 				assert.ok(appPath, 'no .app under platforms/ios/build')
 
 				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
-				const sim = Object.values(JSON.parse(list.stdout).devices)
+				const sims = Object.values(JSON.parse(list.stdout).devices)
 					.flat()
-					.find((d) => d.isAvailable && /iPhone/.test(d.name))
+					.filter((d) => d.isAvailable && /iPhone/.test(d.name))
 
-				assert.ok(sim, 'no available iPhone simulator')
+				const sim = process.env.VERIFY_IOS_DEVICE
+					? sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE)
+					: sims.find((d) => d.state === 'Booted') ?? sims[0]
+
+				assert.ok(sim, 'no available iPhone simulator matching VERIFY_IOS_DEVICE')
 
 				run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
 				const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
