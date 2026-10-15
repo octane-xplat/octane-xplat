@@ -647,6 +647,7 @@ export type {
 	ScrollKeyboardAccess,
 	ScrollOverscroll,
 	ScrollStickyContainment,
+	ScrollableAreaHandle,
 	ScrollableAreaProps,
 	ScrollableAreaState,
 	UseScrollableAreaOptions,
@@ -854,6 +855,7 @@ export { useClipboard } from './use-clipboard'
 export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
 export { copyText } from './clipboard-write.web'
 export { refList, mergedRef } from './ref-list'
+export type { FlatRef } from './ref-list'
 
 // Shared keyed query cache over octane/signals query$
 export {

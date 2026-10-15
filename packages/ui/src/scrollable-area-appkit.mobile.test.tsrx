@@ -36,21 +36,43 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 		const next = { current: null as any }
 		const fx = fixture(ScrollableArea, { ref: object })
 		try {
-			expect(object.current).toBe(fx.host)
+			expect(object.current.native).toBe(fx.host)
 			expect(fx.host.props.orientation).toBe('vertical')
 			fx.render({ ref: callback, axis: 'inline' })
 			expect(object.current).toBeNull()
-			expect(callback).toHaveBeenCalledExactlyOnceWith(fx.host)
+			expect(callback).toHaveBeenCalledTimes(1)
+			expect(callback.mock.calls[0][0].native).toBe(fx.host)
 			expect(fx.host.props.orientation).toBe('horizontal')
 			fx.render({ ref: callback, axis: 'both' })
 			expect(callback).toHaveBeenCalledTimes(1)
 			expect(fx.host.props.orientation).toBe('both')
 			fx.render({ ref: next })
 			expect(callback.mock.calls.at(-1)).toEqual([null])
-			expect(next.current).toBe(fx.host)
+			expect(next.current.native).toBe(fx.host)
 		} finally { fx.root.unmount() }
 
 		expect(next.current).toBeNull()
+	})
+
+	it('scrolls each axis through the portable handle', () => {
+		const handle = { current: null as any }
+		const calls: { x: number; y: number }[] = []
+		const fx = fixture(ScrollableArea, { ref: handle }, {
+			contentView: {
+				bounds: { origin: { x: 0, y: 300 }, size: { width: 100, height: 100 } },
+				scrollToPoint: (point: { x: number; y: number }) => { calls.push(point) },
+			},
+			documentView: { frame: { size: { width: 300, height: 400 } }, isFlipped: () => false },
+			reflectScrolledClipView: vi.fn(),
+		})
+
+		try {
+			handle.current.scrollToOffset({ block: 50 })
+			expect(calls).toEqual([{ x: 0, y: 250 }])
+			// Inline-only: the block offset keeps its clip origin (300 ⇒ top 0).
+			handle.current.scrollToOffset({ inline: 40 })
+			expect(calls).toEqual([{ x: 0, y: 250 }, { x: 40, y: 300 }])
+		} finally { fx.root.unmount() }
 	})
 
 	it('honors callback cleanup refs when replaced and unmounted', () => {

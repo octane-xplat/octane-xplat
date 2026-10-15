@@ -10,7 +10,7 @@ let changeAxis: (axis: ScrollAxis) => void
 let changeSize: (size: number[]) => void
 let resizeViewport: (size: number[]) => void
 let resizeContent: (size: number[]) => void
-const capture = (view: any) => { viewport = view }
+const capture = (handle: any) => { viewport = handle?.native ?? null }
 export default function Fixture() {
 	const [axis, setAxis] = useState<ScrollAxis>('both')
 	const [size, setSize] = useState([640, 480])

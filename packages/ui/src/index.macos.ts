@@ -381,6 +381,7 @@ export { useClipboard } from './use-clipboard'
 export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
 export { copyText } from './clipboard-write'
 export { refList, mergedRef } from './ref-list'
+export type { FlatRef } from './ref-list'
 
 // Shared keyed query cache over octane/signals query$ — the same portable
 // contract as mobile; AppKit persistence uses the host defaults bridge.

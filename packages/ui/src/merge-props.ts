@@ -1,6 +1,9 @@
+import { mergedRef } from './ref-list'
+
 /** React Aria's mergeProps: combine prop bags into one. Event handlers
  *  (on* functions) chain in argument order; className concatenates;
- *  style objects merge shallowly; everything else is last-wins.
+ *  style objects merge shallowly; `ref` values compose so every
+ *  consumer's ref still receives the host; everything else is last-wins.
  *  undefined values are skipped so callers can spread optional bags. */
 
 const EVENT_PROP = /^on[A-Z]/
@@ -25,6 +28,8 @@ export function mergeProps(...propsList: (Record<string, any> | null | undefined
 				result.className = result.className ? `${result.className} ${value}` : value
 			} else if (key === 'style' && isPlainObject(value)) {
 				result.style = { ...(isPlainObject(result.style) ? result.style : {}), ...value }
+			} else if (key === 'ref' && value != null && result.ref != null) {
+				result.ref = mergedRef(result.ref, value)
 			} else if (EVENT_PROP.test(key) && typeof value === 'function' && typeof result[key] === 'function') {
 				const prev = result[key]
 				result[key] = (...args: any[]) => {

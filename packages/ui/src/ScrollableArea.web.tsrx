@@ -1,6 +1,6 @@
-import { useMemo, useEffect, useRef } from 'octane';
+import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane';
 import { refList } from './ref-list'
-import type { ScrollableAreaProps } from './props';
+import type { ScrollableAreaHandle, ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh.web';
 import { applyEscapeProps } from './escape-props';
 import { layoutChildProps } from './layout-child.web';
@@ -46,6 +46,38 @@ function contentPadding(props: ScrollableAreaProps) {
 	return style;
 }
 
+/** Portable handle over the viewport element. Inline offsets follow the
+ *  writing direction — RTL scrollLeft runs negative in current engines, so
+ *  an inline-start offset maps to `-x` there (same convention the hook's
+ *  measurement uses). */
+function scrollableAreaHandle(viewport: { current: HTMLElement | null }): ScrollableAreaHandle {
+	return {
+		scrollToOffset: (offset, options) => {
+			const el = viewport.current;
+			if (!el || typeof el.scrollTo !== 'function') return;
+			const target: { left?: number; top?: number; behavior: 'auto' | 'smooth' } = {
+				behavior: options?.animated === true ? 'smooth' : 'auto',
+			};
+
+			if (offset.block != null && Number.isFinite(offset.block)) {
+				const maxY = Math.max(0, el.scrollHeight - el.clientHeight);
+				target.top = Math.max(0, Math.min(offset.block, maxY));
+			}
+
+			if (offset.inline != null && Number.isFinite(offset.inline)) {
+				const maxX = Math.max(0, el.scrollWidth - el.clientWidth);
+				const clamped = Math.max(0, Math.min(offset.inline, maxX));
+				target.left = getComputedStyle(el).direction === 'rtl' ? -clamped : clamped;
+			}
+
+			el.scrollTo(target);
+		},
+		get native() {
+			return viewport.current;
+		},
+	};
+}
+
 /** Pull-enabled variant — same structure the old ScrollView used: a
  *  relative wrapper hosts the scroller plus the self-drawn indicator
  *  strip; refresh.web.ts owns the gesture. Only the block axis pulls. */
@@ -89,11 +121,14 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 	const { ref: viewportRef, ...viewport } = area.getViewportProps();
 	const { ref: contentRef, ...content } = area.getContentProps();
 
+	const handle = useMemo(() => scrollableAreaHandle(scroller), []);
+	useImperativeHandle(props.ref, () => handle, [props.ref]);
+
 	const forwardedRef = useMemo(() => [(el: any) => {
 				scroller.current = el;
 
 				applyEscapeProps(el, props);
-			}, viewportRef, props.ref], [props.ref, props.ios, props.android, props.web, viewportRef]);
+			}, viewportRef], [props.ios, props.android, props.web, viewportRef]);
 
 	<div {...layoutChildProps(props, { ...(props.style as any) })} className={['vx-refresh-wrap', props.className]}>
 		<div
@@ -155,7 +190,14 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 	const { ref: contentRef, ...content } = area.getContentProps();
 	const outer = layoutChildProps(props, { ...(props.style as any) });
 
-	const forwardedRef = useMemo(() => refList((el: any) => applyEscapeProps(el, props), viewportRef, props.ref), [props.ref, props.ios, props.android, props.web, viewportRef]);
+	const viewportEl = useRef<HTMLElement | null>(null);
+	const handle = useMemo(() => scrollableAreaHandle(viewportEl), []);
+	useImperativeHandle(props.ref, () => handle, [props.ref]);
+
+	const forwardedRef = useMemo(() => refList((el: any) => {
+				viewportEl.current = el;
+				applyEscapeProps(el, props);
+			}, viewportRef), [props.ios, props.android, props.web, viewportRef]);
 
 	<div
 		{...viewport}

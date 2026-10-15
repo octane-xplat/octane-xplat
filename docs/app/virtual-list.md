@@ -172,7 +172,8 @@ or jump under scripted navigation. The offset counts down from the top of the
 list content, including the header, in px on web and dips/points on native;
 values clamp to the scrollable range. Rows between the current and target
 windows mount on the next update, so a deep seek is approximate while the
-rows it passes remain unmeasured.
+rows it passes remain unmeasured. `handle.native` is the platform scroll
+view — the escape hatch for anything the handle does not cover.
 
 ```tsx
 import { VirtualList, Text, Pressable, type VirtualListHandle } from '@octane-xplat/ui'

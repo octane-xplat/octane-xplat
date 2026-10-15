@@ -381,6 +381,12 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `setTitle`/`setSize`/`onCloseRequested`) on every target instead of `void` or
   a raw `Window`; `OpenWindowOptions` also gained `kind`, `title`, `size`, and
   `parent` hints. — post-0.14.0·desk.
+- **`ScrollableArea`'s `ref` is a typed handle** — it now receives a
+  `ScrollableAreaHandle` (`scrollToOffset({ inline, block }, { animated })`
+  plus `native`) instead of the raw scroll element/view. Move existing host
+  calls to `ref.current?.native` (e.g. `handle.native.scrollTop` on web).
+  `VirtualListHandle` also gained `native` for the platform scroll view.
+  — post-0.14.0·desk.
 - **`FocusScope`, `useGridList`, and `useFocusWithin` report platform
   support explicitly** — `getFocusScopeCapabilities()`,
   `useGridList().isSupported`, and `useFocusWithin().isSubtreeTrackingSupported`

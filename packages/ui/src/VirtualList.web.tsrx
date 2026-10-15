@@ -364,6 +364,9 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		scrollToIndex,
 		scrollToItem: (key: Key, options?: VirtualListScrollOptions) =>
 			scrollToIndex(entriesRef.current.findIndex((entry) => entry.key === key), options),
+		get native() {
+			return scrollRef.current
+		},
 	}), [props.ref])
 
 	const range = currentRange()

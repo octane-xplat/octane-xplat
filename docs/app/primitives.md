@@ -1179,16 +1179,19 @@ until they land; see [known limits](../verify/known-limits.md#primitives).
 Give scrolling content a bounded viewport. `ScrollableArea` scrolls vertically
 by default; choose `axis="inline"` for horizontal content or `axis="both"`
 for content wider and taller than the viewport. Its object or callback `ref`
-receives the AppKit viewport, clears when replaced or removed, and does not
-provide a portable scrolling handle. Numeric dimensions use AppKit points,
-independent of the display's pixel density.
+receives a `ScrollableAreaHandle` — `scrollToOffset({ inline, block })`
+scrolls each logical axis to an absolute offset (AppKit points), and
+`native` is the underlying `NSScrollView` for anything the handle does not
+cover. The handle clears when the area is replaced or removed. Numeric
+dimensions use AppKit points, independent of the display's pixel density.
 
 ```tsx
 import { useRef } from 'octane'
 import { ScrollableArea, View, Text } from '@octane-xplat/ui'
+import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export function WideDetails() {
-	const viewport = useRef<any>(null)
+	const viewport = useRef<ScrollableAreaHandle | null>(null)
 	return (
 		<ScrollableArea ref={viewport} axis="both" width={320} height={240} label="Trip details">
 			<View style={{ width: 640, height: 480 }}>
@@ -1197,6 +1200,8 @@ export function WideDetails() {
 		</ScrollableArea>
 	)
 }
+
+// Later: viewport.current?.scrollToOffset({ block: 0 }, { animated: true })
 ```
 
 For a custom macOS viewport, `useScrollableArea` supplies refs and handlers

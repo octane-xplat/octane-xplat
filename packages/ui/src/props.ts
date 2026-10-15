@@ -1133,6 +1133,21 @@ export interface UseScrollableAreaResult {
 	state: ScrollableAreaState
 }
 
+/** Imperative operations exposed by `ScrollableArea` via `ref`. Calls before
+ *  the viewport mounts are no-ops; the handle is cleared on unmount. */
+export interface ScrollableAreaHandle {
+	/** Scrolls each listed axis to an absolute content offset — a distance
+	 *  from the axis's start edge in viewport units (px on web, dips on
+	 *  iOS/Android, points on macOS), clamped to the scrollable range.
+	 *  Omitted axes keep their position. `animated` (default false) uses the
+	 *  platform's scroll animation where the leaf provides one. */
+	scrollToOffset(offset: { inline?: number; block?: number }, options?: { animated?: boolean }): void
+	/** The platform scroll viewport (`HTMLElement` / NS `ScrollView` / AppKit
+	 *  `NSScrollView`) — escape hatch for anything the shared contract does
+	 *  not cover. */
+	native: any
+}
+
 /** A native scroll viewport with axis-aware accessibility (Astryx
  *  `ScrollableArea`). The root is the scroll container; children render
  *  inside a content box. Pull-to-refresh props (`refreshing`, `onRefresh`,
@@ -1169,8 +1184,9 @@ export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProp
 	/** Web only: escape inherited container padding on the viewport's block
 	 *  edges via negative margins. Inert on native. @default false */
 	isFullBleed?: boolean
-	/** Receives the scroll viewport element/view. */
-	ref?: Octane.Ref<HostElement>
+	/** Ref to a portable `ScrollableAreaHandle` — logical-axis scrolling plus
+	 *  `native` for the raw platform viewport. It is cleared on unmount. */
+	ref?: Octane.Ref<ScrollableAreaHandle>
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
@@ -1202,6 +1218,10 @@ export interface VirtualListHandle {
 	/** Same seek as `scrollToIndex`, addressed by the item's `keyExtractor`
 	 *  key. Unknown keys are a no-op. */
 	scrollToItem(key: Key, options?: VirtualListScrollOptions): void
+	/** The platform scroll view (`HTMLElement` / NS `ScrollView` / AppKit
+	 *  `NSScrollView`) — escape hatch for anything the shared contract does
+	 *  not cover. */
+	native: any
 }
 
 /** Shared virtualized vertical list. Item keys must be unique and stable

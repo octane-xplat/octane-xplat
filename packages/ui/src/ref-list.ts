@@ -1,6 +1,8 @@
 import type { Octane } from 'octane/jsx-runtime'
 
-type FlatRef<T> = ((instance: T | null) => void) | { current: T | null }
+/** A resolved ref target: a callback or a `{ current }` object — the element
+ *  type `refList`/`mergedRef` produce after flattening nested ref arrays. */
+export type FlatRef<T> = ((instance: T | null) => void) | { current: T | null }
 
 export function refList<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<any>[] {
 	const list: FlatRef<any>[] = []

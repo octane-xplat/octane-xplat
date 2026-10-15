@@ -36,6 +36,30 @@ describe('mergeProps', () => {
 	it('tolerates null/undefined bags', () => {
 		expect(mergeProps(undefined, { id: 'x' }, null)).toEqual({ id: 'x' })
 	})
+
+	it('composes ref values so every consumer receives the host', () => {
+		const first = vi.fn()
+		const second = { current: null as { node: boolean } | null }
+		const third = vi.fn()
+		const merged = mergeProps({ ref: first }, { id: 'x', ref: second }, { ref: third })
+
+		const host = { node: true }
+		const attach = merged.ref as (instance: any) => void
+		attach(host)
+		expect(first).toHaveBeenCalledWith(host)
+		expect(second.current).toBe(host)
+		expect(third).toHaveBeenCalledWith(host)
+
+		attach(null)
+		expect(first).toHaveBeenLastCalledWith(null)
+		expect(second.current).toBeNull()
+		expect(third).toHaveBeenLastCalledWith(null)
+	})
+
+	it('keeps a lone ref untouched', () => {
+		const ref = vi.fn()
+		expect(mergeProps({ ref }, { id: 'x' }).ref).toBe(ref)
+	})
 })
 
 describe('refList + mergedRef', () => {

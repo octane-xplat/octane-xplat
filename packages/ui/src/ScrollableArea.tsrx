@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useMemo, useEffect, useRef } from 'octane';
+import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane';
 import { mergedRef } from './ref-list'
-import type { ScrollableAreaProps } from './props';
+import type { ScrollableAreaHandle, ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -21,6 +21,32 @@ function contentPadding(props: ScrollableAreaProps) {
 	style.paddingLeft = spacingStep(props.paddingInlineStart) ?? spacingStep(props.paddingInline) ?? p ?? 0;
 	style.paddingRight = spacingStep(props.paddingInlineEnd) ?? spacingStep(props.paddingInline) ?? p ?? 0;
 	return style;
+}
+
+/** Portable handle over the native scroll view. `blockScroller` is the
+ *  viewport's own ScrollView; `inlineScroller` is the nested horizontal
+ *  scroller an `axis: 'both'` area mounts — absent otherwise, in which case
+ *  the inline offset targets the viewport itself. */
+function scrollableAreaHandle(
+	blockScroller: { current: any },
+	inlineScroller?: { current: any },
+): ScrollableAreaHandle {
+	return {
+		scrollToOffset: (offset, options) => {
+			const animated = options?.animated === true;
+			if (offset.block != null && Number.isFinite(offset.block)) {
+				blockScroller.current?.scrollToVerticalOffset?.(Math.max(0, offset.block), animated);
+			}
+
+			if (offset.inline != null && Number.isFinite(offset.inline)) {
+				const target = inlineScroller?.current ?? blockScroller.current;
+				target?.scrollToHorizontalOffset?.(Math.max(0, offset.inline), animated);
+			}
+		},
+		get native() {
+			return blockScroller.current;
+		},
+	};
 }
 
 const a11y = (props: ScrollableAreaProps) => ({
@@ -69,10 +95,13 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		ctl.current?.sync();
 	}, [props.refreshing]);
 
+	const handle = useMemo(() => scrollableAreaHandle(scroller), []);
+	useImperativeHandle(props.ref, () => handle, [props.ref]);
+
 	const forwardedRef = useMemo(() => mergedRef((v: any) => {
 				scroller.current = v;
 				applyEscapeProps(v, props);
-			}, props.ref), [props.ref, props.ios, props.android, props.web]);
+			}), [props.ios, props.android, props.web]);
 
 	<gridlayout
 		ref={(v: any) => {
@@ -116,46 +145,63 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
  *  semantics and inert here; `role` has no native equivalent. */
 export function ScrollableArea(props: ScrollableAreaProps) @{
 	const axis = props.axis ?? 'block';
-	const horizontal = axis === 'inline';
-	const both = axis === 'both';
-
-	const forwardedRef = useMemo(() => mergedRef((v: any) => {
-				applyEscapeProps(v, props);
-			}, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	@if (axis === 'block' && (props.onRefresh != null || props.refreshing != null)) {
 		<ScrollableAreaRefreshable {...props} />
 	} @else {
-		<scrollview
-			ref={forwardedRef}
-			id={props.id}
-			testID={props.testID ?? ''}
-			{...layoutChildProps(props)}
-			className={cx('vx-scrollable', props.className)}
-			style={{
-				width: props.width as any,
-				height: props.height as any,
-				maxWidth: props.maxWidth as any,
-				minHeight: props.minHeight as any,
-				...(props.style as any),
-			}}
-			orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
-			{...a11y(props)}
-		>
-			{both ? (
-				<scrollview orientation="horizontal">
-					<flexboxlayout flexDirection="row" style={contentPadding(props)}>
-						{props.children}
-					</flexboxlayout>
-				</scrollview>
-			) : (
-				<flexboxlayout
-					flexDirection={horizontal ? 'row' : 'column'}
-					style={contentPadding(props)}
-				>
+		<ScrollableAreaCore {...props} />
+	}
+}
+
+function ScrollableAreaCore(props: ScrollableAreaProps) @{
+	const axis = props.axis ?? 'block';
+	const horizontal = axis === 'inline';
+	const both = axis === 'both';
+
+	const scroller = useRef<any>(null);
+	const inlineScroller = useRef<any>(null);
+	const handle = useMemo(() => scrollableAreaHandle(scroller, inlineScroller), []);
+	useImperativeHandle(props.ref, () => handle, [props.ref]);
+
+	const forwardedRef = useMemo(() => mergedRef((v: any) => {
+				scroller.current = v;
+				applyEscapeProps(v, props);
+			}), [props.ios, props.android, props.web]);
+
+	<scrollview
+		ref={forwardedRef}
+		id={props.id}
+		testID={props.testID ?? ''}
+		{...layoutChildProps(props)}
+		className={cx('vx-scrollable', props.className)}
+		style={{
+			width: props.width as any,
+			height: props.height as any,
+			maxWidth: props.maxWidth as any,
+			minHeight: props.minHeight as any,
+			...(props.style as any),
+		}}
+		orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
+		{...a11y(props)}
+	>
+		{both ? (
+			<scrollview
+				ref={(v: any) => {
+					inlineScroller.current = v;
+				}}
+				orientation="horizontal"
+			>
+				<flexboxlayout flexDirection="row" style={contentPadding(props)}>
 					{props.children}
 				</flexboxlayout>
-			)}
-		</scrollview>
-	}
+			</scrollview>
+		) : (
+			<flexboxlayout
+				flexDirection={horizontal ? 'row' : 'column'}
+				style={contentPadding(props)}
+			>
+				{props.children}
+			</flexboxlayout>
+		)}
+	</scrollview>
 }
