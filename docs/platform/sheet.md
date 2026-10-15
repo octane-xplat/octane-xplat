@@ -90,30 +90,45 @@ it can call your callbacks, such as `setOpen(false)` to close the panel.
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'
-import { useState } from 'octane'
+import { createContext, useContext, useState } from 'octane'
+
+const AccountName = createContext('Guest')
+const AccountNameProvider: any = AccountName
+
+function AccountLabel() {
+	return <Text>{useContext(AccountName)}</Text>
+}
 
 export function Actions() {
 	const [open, setOpen] = useState(false)
 	return (
-		<MaterialBottomSheet
-			open={open}
-			onDismissed={() => setOpen(false)}
-			skipPartiallyExpanded={false}
-			content={() => (
-				<View className="sheet-content">
-					<Text>More</Text>
-					<Pressable onPress={() => setOpen(false)}>
-						<Text>Close</Text>
-					</Pressable>
-				</View>
-			)}
-		/>
+		<AccountNameProvider value="Avery">
+			<MaterialBottomSheet
+				open={open}
+				onDismissed={() => setOpen(false)}
+				skipPartiallyExpanded={false}
+				content={() => (
+					<View className="sheet-content">
+						<AccountLabel />
+						<Pressable onPress={() => setOpen(false)}>
+							<Text>Close</Text>
+						</Pressable>
+					</View>
+				)}
+			/>
+		</AccountNameProvider>
 	)
 }
 ```
 
-On native, the content is drawn in a separate Octane root: its own UI
-container inside the sheet. These details explain the implementation:
+On Android, the content render function is evaluated in the declaring Octane
+tree and its result portals into a NativeScript host inside the sheet. That
+preserves component context across the window boundary. The iOS implementation
+still mounts the content in an independent Octane root, so provider context
+does not cross that root. Its runtime probe currently stops at
+`SwiftUIManager.registerNativeScriptViews` because
+`NativeScriptViewFactory.shared` is null; that bridge path remains
+unqualified. These details explain the implementation:
 
 - iOS resolves the registered view through `NativeScriptViewFactory` and
   places it inside `.sheet` content.

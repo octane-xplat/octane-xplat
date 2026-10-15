@@ -21,7 +21,7 @@ export interface MaterialBottomSheetProps {
 	containerColor?: string
 	contentColor?: string
 	scrimColor?: string
-	/** Render fn producing the sheet content — hosted inside the sheet's
-	 *  dialog window through AndroidView. */
+	/** Render fn producing sheet content — portaled from the declaring Octane
+	 *  tree through AndroidView into the sheet dialog. */
 	content?: () => any
 }

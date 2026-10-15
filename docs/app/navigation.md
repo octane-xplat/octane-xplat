@@ -391,8 +391,12 @@ Suffix the file with `+modal`, or pass `presentation: 'modal'` on the push.
 Native shows it as its own modal root over the current page; web overlays it
 while keeping the URL underneath. Back — or the `close` prop the screen
 receives — dismisses it. `+fade` pushes with a fade transition. A modal
-screen mounts its own root, so component context does not reach it — pass
-values through params or a shared store.
+route mounts its own native root, so app-shell component context does not
+reach it. Route params and `Route.context` are provided as screen props; use
+them or a shared store for values the route needs. Component-owned modal
+content (children or `component` + `params`) uses a portal and retains its
+declaring context; see
+[temporary surfaces](primitives.md#own-temporary-surfaces).
 
 ```ts
 import { pushRoute } from '@octane-xplat/ui/routing'

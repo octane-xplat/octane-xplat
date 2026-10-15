@@ -34,6 +34,12 @@ popRoute('root')
   pushes — call `popRoute(props._stack)` / `goBack({ into: props._stack })`
   to pop the stack that pushed you. Web route params are URL-backed.
 
+Each pushed native `Page` currently has its own Octane root. Route params and
+`Route.context` are passed as screen props, but providers from the app shell do
+not reach the pushed screen. Preserving those providers requires a
+router-owned portal outlet that can render the registered screen from an
+owning tree.
+
 ```tsx
 import { Text, Pressable } from '@octane-xplat/ui'
 import { useRoute } from '@octane-xplat/ui/routing'

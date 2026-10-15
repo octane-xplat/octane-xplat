@@ -18,8 +18,8 @@ export interface MaterialContextMenuProps {
 	/** Activation gesture. @default 'longPress' */
 	activation?: MaterialContextMenuActivation
 	items?: readonly MaterialContextMenuItem[]
-	/** Render fn producing the trigger subtree — hosted inside the menu's
-	 *  anchor via AndroidView. */
+	/** Render fn producing the trigger subtree — portaled from the declaring
+	 *  Octane tree into the menu's AndroidView anchor. */
 	trigger: () => any
 	onItemSelected?: (id: string) => void
 	accessibilityLabel?: string

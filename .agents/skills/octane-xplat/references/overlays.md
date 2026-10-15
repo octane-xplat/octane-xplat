@@ -23,9 +23,34 @@ export function BagDetails() {
 `MaterialDialog` + `openModal` are exported from
 `@octane-xplat/ui/android`. There is no shared `Modal` or `openModal` export.
 `openModal` returns a `ModalHandle` — the close-result promise plus
-`close(result)` scoped to that instance. Both native APIs mount content in a
-separate root, so context and theme classes do not cross from the presenter
-(see styling/root-boundaries.md).
+`close(result)` scoped to that instance. Declarative children and
+`component` + `params` content of `UIModal` and `MaterialDialog` portal from
+their declaring Octane tree into the system modal host, preserving context
+and live context updates. Imperative `openModal(Component, params)` still uses
+a separate root because the service has no declaring component tree. The
+modal host receives its own theme classes (see styling/root-boundaries.md).
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+import { createContext, useContext } from 'octane'
+import { UIModal } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+const AccountContext = createContext('Guest')
+const AccountContextProvider: any = AccountContext
+function AccountName(props: { label: string }) {
+	return <Text>{props.label}: {useContext(AccountContext)}</Text>
+}
+
+export function AccountDetails() {
+	return (
+		<AccountContextProvider value="Avery">
+			<UIModal open component={AccountName} params={{ label: 'Account' }} />
+		</AccountContextProvider>
+	)
+}
+```
+
 For a shared in-window surface, compose `BottomSheet`, `Overlay`, or `Popover`.
 
 ```tsx

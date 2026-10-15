@@ -2,30 +2,38 @@
 import { useEffect, useRef, useState } from 'octane';
 import type { MaterialDialogProps } from "../props";
 import { Frame, GridLayout } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from '../native-portal';
 import { applyThemeClasses } from '../theme/theme-host';
 import { modalPresenter } from '../modal-presenter';
 
-// The modal's content renders inside a separate Octane root on a GridLayout
-// host — modals never share context with their presenter (decision #9).
-function Panel(props: { children?: any }) @{
-	<>{props.children}</>
-}
+type ShownModal = { host: GridLayout; unbindTheme: () => void; finished: boolean };
 
 /** MaterialDialog — declarative `open` drives the platform modal
  *  presentation (`showModal`; fullscreen=false is a centered dialog sized
- *  to its content, not a bottom sheet). Renders nothing inline; the
- *  content lives on the modal's own root above the whole tree. The shared
- *  `ui` surface has no Modal — `Overlay`/`Sheet` are the self-drawn
- *  in-window versions. */
+ *  to its content, not a bottom sheet). Renders nothing inline; children
+ *  portal from the declaring tree into the modal host and retain its
+ *  context, whether supplied as children or through `component` + `params`. */
 export function MaterialDialog(props: MaterialDialogProps) @{
-	const shown = useRef<{ host: GridLayout; root: any; unbindTheme?: () => void } | null>(null);
+	const shown = useRef<ShownModal | null>(null);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const open = props.open ?? internal;
+	const onClose = useRef(props.onClose);
+	onClose.current = props.onClose;
+	const controlled = useRef(props.open !== undefined);
+	controlled.current = props.open !== undefined;
 	const closed = (result?: unknown) => {
-		if (props.open === undefined) setInternal(false);
-		props.onClose?.(result);
+		if (!controlled.current) setInternal(false);
+		onClose.current?.(result);
+	};
+	const finish = (instance: ShownModal, result?: unknown) => {
+		if (instance.finished) return;
+		instance.finished = true;
+		instance.unbindTheme();
+		instance.host.removeChildren?.();
+		if (shown.current === instance) shown.current = null;
+		setPortalHost((current) => current === instance.host ? null : current);
+		closed(result);
 	};
 
 	useEffect(() => {
@@ -40,13 +48,13 @@ export function MaterialDialog(props: MaterialDialogProps) @{
 
 			const host = new GridLayout();
 			const unbindTheme = applyThemeClasses(host, 'vx-modal-host');
-			const root = createNativeScriptRoot(host);
-			shown.current = { host, root, unbindTheme };
-			if (props.component) {
-				root.render(props.component as unknown as UniversalComponent, props.params ?? {});
-			} else {
-				root.render(Panel as unknown as UniversalComponent, { children: props.children });
-			}
+			const instance: ShownModal = {
+				host,
+				unbindTheme,
+				finished: false,
+			};
+			shown.current = instance;
+			setPortalHost(host);
 
 			const fullscreen = props.presentation
 				? props.presentation === 'fullscreen'
@@ -54,16 +62,34 @@ export function MaterialDialog(props: MaterialDialogProps) @{
 
 			presenter.showModal(host, {
 				context: {},
-				closeCallback: (result?: unknown) => { shown.current?.unbindTheme?.(); shown.current = null; closed(result); },
+				closeCallback: (result?: unknown) => finish(instance, result),
 				fullscreen,
 				animated: true,
 			});
 		} else if (!open && shown.current) {
-			const { host } = shown.current;
-			shown.current = null;
-			host.closeModal();
+			const instance = shown.current;
+			try {
+				instance.host.closeModal();
+			} catch {
+				finish(instance);
+			}
 		}
 	}, [open]);
+	useEffect(() => () => {
+		const instance = shown.current;
+		if (!instance) return;
+		shown.current = null;
+		instance.finished = true;
+		instance.unbindTheme();
+		try {
+			instance.host.closeModal();
+		} catch {}
+		instance.host.removeChildren?.();
+	}, []);
 
-	<></>
+	const Component = props.component as any;
+	const content = Component
+		? <Component {...(props.params ?? {})} />
+		: <>{props.children}</>;
+	<>{portalHost ? createPortal(content, portalHost) : null}</>
 }

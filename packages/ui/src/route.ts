@@ -3,8 +3,7 @@
  *  explicit registerStack('root') or, by default, the Frame returned by
  *  Application.getRootView(); named stacks come from TabSpec.stack panes
  *  or registerStack) and pushes a Page hosting the registered screen —
- *  each pushed Page is its own Octane root (decision #9: pages never
- *  share context with their presenter). Params land as props; named-stack
+ *  each pushed Page is its own Octane root. Params land as props; named-stack
  *  pushes get `_stack` injected so the screen can popRoute its own stack.
  *
  *  Registration contract (the footgun this module exists to defuse):

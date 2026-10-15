@@ -205,13 +205,17 @@ export function PackingList(props: { items: { id: string; label: string }[] }) {
 | `Lottie` `duration`/`progress` units                   | ms and 0..1 everywhere                                                                  | plugin reports `duration` in seconds — leaf ×1000; progress already 0..1                                                                                                                                                                                                                                                                          | plugin reports ms; progress 0..1                                                                  | `different`                 | post-0.6.0      |
 | `Lottie` vendored plugin                               | —                                                                                       | fixes unreleased upstream ship in the leaf — dead sync-src, missing `compositionLoaded`/`loadFailed` on iOS, URL src, `.lottie` zip, async autoPlay, completion dedupe, `declare` fields (modern-bundler compat); staged as PR branches on `octane-xplat/ui-lottie` (fixes on `xplat-fixes`; `xplat-vendored` adds only vendoring-compat markers) | same as iOS                                                                                       | `different`                 | post-0.6.0      |
 
-Overlay roots (`Dialog`, `BottomSheet`, `UIModal`, `MaterialDialog`) mount a
-separate Octane root on native — `useContext` does not cross into them.
-Theme classes are forwarded; pass values as props or use module-level
-signals. Reading context inside the new root does not recover a provider
-from the presenting screen. Declarative overlays render through a DOM portal
-on web, which retains the declaring root's context — write code that works
-under the stricter native rule.
+On iOS and Android, component-owned `Dialog`, `BottomSheet`, `Overlay`,
+`Popover`, `Lightbox`, and declarative `UIModal`/`MaterialDialog` content
+portal from their declaring tree and preserve `useContext`. The native host
+still receives its own theme classes. Independent roots remain for imperative
+modal/sheet services, routed Pages, and list cells; those need explicit
+props/params or shared state. The optional
+platform sheet/context-menu leaves portal content on Android, preserving
+context; their iOS versions remain independent roots. The iOS runtime probe
+could not reach assertions because `NativeScriptViewFactory.shared` was null
+at the SwiftUI bridge registration step. The iOS and Android declarative modal
+portal probes cover inheritance, updates, and close cleanup.
 
 ```tsx
 import { Dialog, Text } from '@octane-xplat/ui'

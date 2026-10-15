@@ -914,8 +914,11 @@ environmentManager.setIsServer(() => false)
   `setEventListener` to NativeScript application/connectivity events if you
   want refetch-on-focus or refetch-on-reconnect.
 
-Also prefer a module-level `QueryClient` over `QueryClientProvider` —
-context does not cross native modal/overlay/list-cell roots.
+Prefer a module-level `QueryClient` over `QueryClientProvider` when query
+consumers may mount in independent native roots such as routed Pages, list
+cells, imperative modal/sheet services, or the iOS platform sheet/context-menu
+leaves. UI-owned native portals and the Android platform sheet/context-menu
+leaves preserve provider context, so provider-based setup works there.
 `useSuspenseQuery` under `universalTry` is unverified on native.
 
 ```tsx

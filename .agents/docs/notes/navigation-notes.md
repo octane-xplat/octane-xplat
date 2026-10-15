@@ -230,9 +230,13 @@ export function Example() {
 
 ## Hard seams (decide consciously)
 
-1. **Modal = root.** A platform modal or shared `Sheet` cannot share context with
-   its presenter on native. Pass data via params + shared store module, never
-   context. (See primitives.md.)
+1. **Component-owned surfaces preserve context where portal support is
+   qualified.** Shared UI overlay children and declarative platform-modal
+   content portals from the declaring tree on iOS/Android; the optional
+   platform sheet/context-menu leaves do so on Android. Their current iOS
+   implementations use independent roots. Imperative service roots and
+   router-created modal routes remain independent; pass data through params
+   or shared state there. (See primitives.md.)
 2. **Android hardware back** must feed the router — intercept
    `activityBackPressed`, map to history/frame pop, allow per-screen override
    (confirm-dialog flows).

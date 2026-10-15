@@ -3,9 +3,8 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { ComposeDataDriver, JetpackCompose, registerJetpackCompose } from '@nativescript/jetpack-compose'
 import { Application, GridLayout } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
 import { useEffect, useRef, useState } from 'octane'
-import type { UniversalComponent } from 'octane/universal'
 import type { MaterialBottomSheetProps } from './android/types'
 
 declare const com: any
@@ -28,17 +27,18 @@ function ContentRoot(props: { render: () => any }) @{
 	<>{props.render()}</>;
 }
 
-/** Renders a Material 3 ModalBottomSheet whose content is a detached
- *  octane subtree hosted via XplatViewRegistry + AndroidView inside the
- *  sheet's dialog window. */
+function createPortal(children: unknown, target: unknown) {
+	return createUniversalPortal(children as UniversalRenderable, target)
+}
+
+/** Renders a Material 3 ModalBottomSheet whose content portals from the
+ *  declaring tree through XplatViewRegistry + AndroidView into the dialog. */
 export function MaterialBottomSheet(props: MaterialBottomSheetProps) @{
 	const contentId = useRef<string>('')
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
 	if (!contentId.current) {
 		contentId.current = `xplatsheet${++seq}`
 	}
-
-	const mounted = useRef<{ host: any; root: any } | null>(null)
-	const [ready, setReady] = useState(false)
 
 	useEffect(() => {
 		const host = new GridLayout()
@@ -49,54 +49,44 @@ export function MaterialBottomSheet(props: MaterialBottomSheetProps) @{
 
 		nativeHost._setupAsRootView(context)
 		nativeHost.callLoaded()
-		const root = createNativeScriptRoot(host)
-		if (props.content) {
-			root.render(ContentRoot as unknown as UniversalComponent, { render: props.content })
-		}
-
 		com.octanexplat.sheet.XplatViewRegistry.register(contentId.current, host.android)
-		mounted.current = { host, root }
 		// Gate contentId on registration — AndroidView's factory resolves the
 		// host once contentId arrives in updateData.
-		setReady(true)
+		setPortalHost(host)
 
 		return () => {
 			com.octanexplat.sheet.XplatViewRegistry.unregister(contentId.current)
-			root.unmount?.()
-			mounted.current = null
-			setReady(false)
+			nativeHost.callUnloaded?.()
+			nativeHost.removeChildren?.()
 		}
 	}, [])
 
-	useEffect(() => {
-		if (props.content) {
-			mounted.current?.root?.render(ContentRoot as unknown as UniversalComponent, {
-				render: props.content,
-			})
-		}
-	}, [props.content])
-
-	<xplatandroidsheet
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		composeId="xplat-material-sheet"
-		data={{
-			open: (props.open ?? false) ? 1 : 0,
-			contentId: ready && props.content ? contentId.current : '',
-			skipPartiallyExpanded: (props.skipPartiallyExpanded ?? false) ? 1 : 0,
-			showDragHandle: (props.showDragHandle ?? true) ? 1 : 0,
-			sheetGesturesEnabled: (props.sheetGesturesEnabled ?? true) ? 1 : 0,
-			shouldDismissOnBackPress: (props.shouldDismissOnBackPress ?? true) ? 1 : 0,
-			shouldDismissOnClickOutside: (props.shouldDismissOnClickOutside ?? true) ? 1 : 0,
-			containerColor: props.containerColor,
-			contentColor: props.contentColor,
-			scrimColor: props.scrimColor,
-		}}
-		onComposeEvent={(event: any) => {
-			if (event.data?.dismissed) {
-				props.onDismissed?.()
-			}
-		}}
-	/>;
+	<>
+		<xplatandroidsheet
+			id={props.id}
+			className={props.className}
+			style={props.style}
+			composeId="xplat-material-sheet"
+			data={{
+				open: (props.open ?? false) ? 1 : 0,
+				contentId: portalHost && props.content ? contentId.current : '',
+				skipPartiallyExpanded: (props.skipPartiallyExpanded ?? false) ? 1 : 0,
+				showDragHandle: (props.showDragHandle ?? true) ? 1 : 0,
+				sheetGesturesEnabled: (props.sheetGesturesEnabled ?? true) ? 1 : 0,
+				shouldDismissOnBackPress: (props.shouldDismissOnBackPress ?? true) ? 1 : 0,
+				shouldDismissOnClickOutside: (props.shouldDismissOnClickOutside ?? true) ? 1 : 0,
+				containerColor: props.containerColor,
+				contentColor: props.contentColor,
+				scrimColor: props.scrimColor,
+			}}
+			onComposeEvent={(event: any) => {
+				if (event.data?.dismissed) {
+					props.onDismissed?.()
+				}
+			}}
+		/>
+		{props.content && portalHost
+			? createPortal(<ContentRoot render={props.content} />, portalHost)
+			: null}
+	</>;
 }

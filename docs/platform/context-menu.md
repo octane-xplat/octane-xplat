@@ -51,27 +51,41 @@ in the example returns a card with a text label.
 // Actions.android.tsrx
 import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text, View } from '@octane-xplat/ui'
-import { useState } from 'octane'
+import { createContext, useContext } from 'octane'
+
+const AccountName = createContext('Guest')
+const AccountNameProvider: any = AccountName
+
+function AccountLabel() {
+	return <Text>{useContext(AccountName)}</Text>
+}
 
 export function Actions() {
-	const [selected, setSelected] = useState('')
 	return (
-		<MaterialContextMenu
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-			trigger={() => (
-				<View className="menu-card">
-					<Text>Post card — hold for actions</Text>
-				</View>
-			)}
-		/>
+		<AccountNameProvider value="Avery">
+			<MaterialContextMenu
+				items={[{ id: 'rename', title: 'Rename' }]}
+				onItemSelected={(id) => console.log(id)}
+				trigger={() => (
+					<View className="menu-card">
+						<AccountLabel />
+					</View>
+				)}
+			/>
+		</AccountNameProvider>
 	)
 }
 ```
 
-On native, that content is drawn in a separate Octane root: its own UI
-container inside the platform control. The following details explain how
-that connection works; you can skip them when using the component:
+On Android, the trigger render function is evaluated in the declaring Octane
+tree and portals into a NativeScript host inside the platform control, so its
+component context is preserved. The iOS implementation still mounts the
+trigger and optional preview in independent Octane roots; provider context
+does not cross those roots. The iOS probe currently stops at
+`SwiftUIManager.registerNativeScriptViews` because
+`NativeScriptViewFactory.shared` is null, so that bridge path remains
+unqualified. The following details explain the connection; you can skip them
+when using the component:
 
 - iOS resolves the registered view through `NativeScriptViewFactory`
   (the same lookup the swift-ui plugin's `NativeScriptView` performs) and

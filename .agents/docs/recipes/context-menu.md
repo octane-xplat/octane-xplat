@@ -13,14 +13,14 @@ behind the established file suffixes.
 ## Requirements
 
 - Present a context menu through a SwiftUI `.contextMenu` on iOS, a Compose Material 3 `DropdownMenu` on Android, and an in-page right-click menu on web.
-- Host the menu's trigger as an octane subtree rendered via a `trigger` render fn (detached root embedded in the native view hierarchy).
+- Host the menu's trigger as an octane subtree rendered via a `trigger` render fn; Android portals it from the declaring tree and retains context, while the current iOS implementation uses an independent root.
 - Carry menu content as serialized item data (`id`, `title`, `destructive`, `disabled`, `divider`) and report picks through `onItemSelected(id)`.
 - Keep SwiftUI and Compose bridge dependencies in an optional leaf package rather than `@octane-xplat/ui`.
 
 ## Acceptance criteria
 
 - AC1: An app can install the leaf and import `SwiftUIContextMenu`, `MaterialContextMenu`, `ContextMenu`, and `AppKitContextMenu` from matching target-suffixed modules without runtime platform branching.
-- AC2: Documentation states that the trigger is a render fn mounted into a detached root, explains the activation model per platform, and does not expose a shared context-menu component or `types` subpath.
+- AC2: Documentation states that Android portals the trigger from the declaring tree, iOS uses an independent root for the trigger and preview, explains the activation model per platform, and does not expose a shared context-menu component or `types` subpath.
 - AC3: The leaf and consuming app build for web, iOS, and Android, including the Android Compose compiler and Material 3 setup for the generated `context-menu` AAR.
 - AC4: Maintained platform-specific examples demonstrate a hosted trigger, a data-driven item list, and item selection through `onItemSelected`.
 

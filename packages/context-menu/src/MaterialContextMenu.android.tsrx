@@ -3,9 +3,8 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { ComposeDataDriver, JetpackCompose, registerJetpackCompose } from '@nativescript/jetpack-compose'
 import { Application, GridLayout } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
 import { useEffect, useRef, useState } from 'octane'
-import type { UniversalComponent } from 'octane/universal'
 import type { MaterialContextMenuProps } from './android/types'
 
 declare const com: any
@@ -29,17 +28,20 @@ function TriggerRoot(props: { render: () => any }) @{
 	<>{props.render()}</>;
 }
 
+function createPortal(children: unknown, target: unknown) {
+	return createUniversalPortal(children as UniversalRenderable, target)
+}
+
 /** Renders a Material 3 DropdownMenu anchored to a NativeScript-hosted
- *  trigger subtree. The trigger mounts into a detached octane root whose
- *  android.view.View the provider embeds through AndroidView. */
+ *  trigger subtree portaled from the declaring Octane tree. */
 export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 	const triggerId = useRef<string>('')
 	if (!triggerId.current) {
 		triggerId.current = `ctxmenu${++seq}`
 	}
 
-	const mounted = useRef<{ host: any; root: any } | null>(null)
-	const [ready, setReady] = useState(false)
+	const mounted = useRef<{ host: any } | null>(null)
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
 	const [expanded, setExpanded] = useState(false)
 
 	useEffect(() => {
@@ -54,21 +56,19 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 
 		nativeHost._setupAsRootView(context)
 		nativeHost.callLoaded()
-		const root = createNativeScriptRoot(host)
-		root.render(TriggerRoot as unknown as UniversalComponent, { render: props.trigger })
 		com.octanexplat.contextmenu.XplatViewRegistry.register(triggerId.current, host.android)
-		mounted.current = { host, root }
+		mounted.current = { host }
 
 		// Gate triggerId on registration — the provider only composes the
 		// AndroidView host once triggerId is non-empty, so the factory must
 		// find the view in the registry on first read.
-		setReady(true)
+		setPortalHost(host)
 
 		return () => {
 			com.octanexplat.contextmenu.XplatViewRegistry.unregister(triggerId.current)
-			root.unmount?.()
 			mounted.current = null
-			setReady(false)
+			nativeHost.callUnloaded?.()
+			nativeHost.removeChildren?.()
 		}
 	}, [])
 
@@ -78,50 +78,49 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 	// activation prop or the mounted host changes.
 	useEffect(() => {
 		const host = mounted.current?.host
-		if (!ready || !host) return
+		if (!portalHost || !host) return
 		const open = () => setExpanded(true)
 		const event = (props.activation ?? 'longPress') === 'singlePress' ? 'tap' : 'longPress'
 		host.on(event, open)
 		return () => host.off(event, open)
-	}, [ready, props.activation])
-
-	useEffect(() => {
-		mounted.current?.root?.render(TriggerRoot as unknown as UniversalComponent, {
-			render: props.trigger,
-		})
-	}, [props.trigger])
+	}, [portalHost, props.activation])
 
 	const items = props.items ?? []
 
-	<xplatandroidcontextmenu
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		accessibilityLabel={props.accessibilityLabel}
-		composeId="xplat-material-contextmenu"
-		data={{
-			triggerId: ready ? triggerId.current : '',
-			expanded: expanded ? 1 : 0,
-			items: items.map((item) => ({
-				id: item.id,
-				title: item.title,
-				// The bridge's dataSerialize throws on booleans; send numbers.
-				destructive: item.destructive ? 1 : 0,
-				disabled: item.disabled ? 1 : 0,
-				divider: item.divider ? 1 : 0,
-			})),
-		}}
-		onComposeEvent={(event: any) => {
-			if (event.data?.dismissed) {
-				setExpanded(false)
-				return
-			}
+	<>
+		<xplatandroidcontextmenu
+			id={props.id}
+			className={props.className}
+			style={props.style}
+			accessibilityLabel={props.accessibilityLabel}
+			composeId="xplat-material-contextmenu"
+			data={{
+				triggerId: portalHost ? triggerId.current : '',
+				expanded: expanded ? 1 : 0,
+				items: items.map((item) => ({
+					id: item.id,
+					title: item.title,
+					// The bridge's dataSerialize throws on booleans; send numbers.
+					destructive: item.destructive ? 1 : 0,
+					disabled: item.disabled ? 1 : 0,
+					divider: item.divider ? 1 : 0,
+				})),
+			}}
+			onComposeEvent={(event: any) => {
+				if (event.data?.dismissed) {
+					setExpanded(false)
+					return
+				}
 
-			const item = event.data?.item
-			if (typeof item === 'string' && item) {
-				setExpanded(false)
-				props.onItemSelected?.(item)
-			}
-		}}
-	/>;
+				const item = event.data?.item
+				if (typeof item === 'string' && item) {
+					setExpanded(false)
+					props.onItemSelected?.(item)
+				}
+			}}
+		/>
+		{portalHost && props.trigger
+			? createPortal(<TriggerRoot render={props.trigger} />, portalHost)
+			: null}
+	</>;
 }

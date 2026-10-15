@@ -1503,25 +1503,38 @@ closes. The maintained browser check covers Chromium, Firefox, and WebKit;
 Chromium also checks the accessibility tree. It does not qualify iOS Safari or
 screen-reader behavior; see [input readiness evidence](../../.agents/docs/notes/input-readiness-notes.md).
 
-Native content mounts in a separate Octane root: component context does not
-cross that boundary. Pass values as props or subscribe to shared state in
-each consuming component. The framework keeps the separate host's theme
-current; content updates do not create additional permanent subscriptions.
-Web portals retain the declaring root's context.
+On iOS and Android, component-owned shared surfaces and declarative
+`UIModal`/`MaterialDialog` content (children or `component` + `params`) portal
+into native hosts, so they retain the declaring Octane tree's context and live
+context updates. The host still
+needs its own theme classes because native view-tree classes do not cross the
+host boundary. Imperative `openModal`/`openBottomSheet` component roots,
+route-created modal roots and pushed Pages, and list cells remain independent
+roots; pass values through props/params or a shared store there.
+For the optional `@octane-xplat/sheet` and `@octane-xplat/context-menu` leaves,
+Android content portals preserve context; their iOS implementations still
+mount independent roots. Web portals also retain their declaring tree's
+context.
 
 ```tsx
+import { createContext, useContext } from 'octane'
 import { Screen, BottomSheet, Text } from '@octane-xplat/ui'
 
-function Details(props: { title: string }) {
-	return <Text>{props.title}</Text>
+const AccountName = createContext('Guest')
+const AccountNameProvider: any = AccountName
+
+function AccountLabel() {
+	return <Text>{useContext(AccountName)}</Text>
 }
 
 export function Example() {
 	return (
 		<Screen>
-			<BottomSheet label="Details" isOpen>
-				<Details title="Packing list" />
-			</BottomSheet>
+			<AccountNameProvider value="Avery">
+				<BottomSheet label="Account" isOpen>
+					<AccountLabel />
+				</BottomSheet>
+			</AccountNameProvider>
 		</Screen>
 	)
 }
@@ -1549,8 +1562,9 @@ receives focus on web (the anchor is the default).
 `Popover.dismissOnEscape={false}` blocks Escape while that popover is on top.
 For `useLayer`, Escape follows `lightDismiss` by default. Set
 `dismissOnEscape: true` to allow Escape without an outside-tap backdrop.
-Nesting depth is carried into separate native roots by the framework; this
-does not make your own component context available there.
+Nesting depth is tracked across native layer hosts. See
+[portal-backed surfaces](#own-temporary-surfaces) for which native surfaces
+retain their declaring component context.
 
 iOS/Android retain RootLayout's platform back behavior; there is no shared
 hardware Escape listener on those targets. A platform back close may remove
@@ -1832,11 +1846,12 @@ export function Example() {
 }
 ```
 
-On native, layer content is a separate root: it does not see the declaring
-component's context. Calling `render` with updated content refreshes an open
-layer, including on macOS. Pass data through props or subscribe to shared
-state inside the layer tree. `Tooltip` and `HoverCard` route positioning through `useLayer`.
-`Popover` remains the positioning surface underneath the web and mobile hook.
+On iOS and Android, `useLayer` and `Popover` portal layer content from the
+declaring component tree, preserving its context. Calling `render` with
+updated content refreshes an open layer, including on macOS. AppKit uses its
+own layer host; pass data through props or shared state when content mounts in
+an independent host. `Tooltip` and `HoverCard` route positioning through
+`useLayer`.
 macOS layers require the host's `showLayer` bridge; a missing bridge leaves the
 surface absent. Outside dismissal also requires the AppKit local mouse monitor;
 presentation rejects that request when the monitor is unavailable. The in-window view has no OS popover arrow or animation. Focus

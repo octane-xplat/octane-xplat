@@ -669,10 +669,12 @@ the same state contract as the field controls: `open`/`isOpen` are controlled,
 dismisses it, and `onOpenChange`/`onDismiss` report the request — `isOpen`
 wins when both are set. `BottomSheetSwitcher` uses `activeSheet`/
 `defaultActiveSheet`/`onActiveSheetChange` for which child `sheetId` is
-visible. Modal content can render on a
-separate native root, so pass its data as props instead of depending on
-presenter context. `openWindow` opens a host window where supported; modal
-routing shares the navigation layer — see [navigation](navigation.md).
+visible. Declared shared surfaces and declarative modal content preserve
+context through native portals; imperative modal/sheet services, router-created
+Pages, and list cells remain independent roots and receive values through
+props/params. `openWindow` opens a host
+window where supported; modal routing shares the navigation layer — see
+[navigation](navigation.md).
 
 ```tsx
 import { Screen, Dialog, Text, Pressable, showToast } from '@octane-xplat/ui'

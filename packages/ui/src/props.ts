@@ -3002,10 +3002,10 @@ export interface ModalProps {
 	 *  dialog), fullscreen uses fullscreen=true. Web: dialog is a centered
 	 *  card, sheet is bottom-anchored, fullscreen is the default dialog size. */
 	presentation?: 'sheet' | 'fullscreen' | 'dialog'
-	/** Component reference rendered inside the modal's separate root. When
+	/** Component rendered inside the modal portal with params as props. When
 	 *  both component and children are set, component takes precedence. */
-	component?: HostedComponent
-	/** Props passed to component. Context and theme do not cross modal roots. */
+	component?: (props: any) => any
+	/** Props passed to component. */
 	params?: Record<string, unknown>
 	children?: Renderable
 }

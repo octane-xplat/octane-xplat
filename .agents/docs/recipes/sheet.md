@@ -13,14 +13,14 @@ behind the established file suffixes.
 ## Requirements
 
 - Present a modal bottom sheet through a SwiftUI `.sheet` on iOS, a Compose Material 3 `ModalBottomSheet` on Android, and a native modal `<dialog>` on web.
-- Host the sheet's content as an octane subtree rendered via a `content` render fn (detached root embedded across the modal's window boundary).
+- Host the sheet's content through a `content` render fn; Android portals the subtree from its declaring Octane tree and retains context across the modal window boundary, while the current iOS implementation uses an independent root.
 - Keep `open` controlled with `onDismissed` reporting platform-side dismissal; keep detent/drag-handle styling in each platform's own terms.
 - Keep SwiftUI and Compose bridge dependencies in an optional leaf package rather than `@octane-xplat/ui`.
 
 ## Acceptance criteria
 
 - AC1: An app can install the leaf and import `SwiftUIBottomSheet`, `MaterialBottomSheet`, `BottomSheet`, and `AppKitSheet` from matching target-suffixed modules without runtime platform branching.
-- AC2: Documentation states that `content` is a render fn mounted into a detached root hosted across the modal window boundary, explains controlled `open` + `onDismissed`, and does not expose a shared sheet component or `types` subpath.
+- AC2: Documentation states that Android portals `content` from the declaring tree and retains context, iOS uses an independent root, explains controlled `open` + `onDismissed`, and does not expose a shared sheet component or `types` subpath.
 - AC3: The leaf and consuming app build for web, iOS, and Android, including the Android Compose compiler and Material 3 setup for the generated `sheet` AAR and metadata regeneration for new `com.` packages.
 - AC4: Maintained platform-specific examples demonstrate a hosted content subtree and close-from-inside + outside-dismiss behavior.
 
