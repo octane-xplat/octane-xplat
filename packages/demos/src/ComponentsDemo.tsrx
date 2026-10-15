@@ -142,10 +142,15 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Fields</Text>
 			<FormLayout direction="horizontal-labels" defaultOptionality="optional">
-				<InputGroup label="Website" description="Enter a host name" size="md">
+				<InputGroup label="Website" description="Enter a host name" size="sm">
 					<InputGroupText>https://</InputGroupText>
-					<TextInput placeholder="example.com" />
+					<TextInput placeholder="example.com" size="md" />
 				</InputGroup>
+				<FormLayout defaultOptionality="required">
+					<Field label="Work email">
+						<TextInput placeholder="you@example.com" />
+					</Field>
+				</FormLayout>
 			</FormLayout>
 			<FieldGroup label="Sign up">
 				<Tokenizer label="Tags" searchSource={demoSelectionSource} value={tags} onChange={setTags} placeholder="Add tag…" hasCreate={true} />
