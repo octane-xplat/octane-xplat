@@ -498,9 +498,18 @@ export { useChatComposerTokens } from './useChatComposerTokens'
 export { useSpeechRecognition } from './useSpeechRecognition'
 export { useChatDictation } from './useChatDictation'
 export { useChatLayoutContext, useChatComposerContext } from './chat-context'
+export {
+	serializeChatComposerToken,
+	deserializeChatComposerToken,
+	serializeChatComposerDraft,
+	deserializeChatComposerDraft,
+	createChatComposerDraft,
+} from './chat-draft'
 export type {
 	ChatComposerContextValue,
 	ChatComposerDensity,
+	ChatComposerDraft,
+	ChatComposerDraftData,
 	ChatComposerDrawerProps,
 	ChatComposerFile,
 	ChatComposerInputControl,
@@ -513,7 +522,10 @@ export type {
 	ChatComposerStatus,
 	ChatComposerToken,
 	ChatComposerTokenBadge,
+	ChatComposerTokenBadgeData,
 	ChatComposerTokenCustom,
+	ChatComposerTokenCustomData,
+	ChatComposerTokenData,
 	ChatComposerTokenElementProps,
 	ChatComposerTokenVariant,
 	ChatComposerTrigger,
@@ -524,6 +536,7 @@ export type {
 	ChatLayoutProps,
 	ChatLayoutScrollButtonProps,
 	ChatListContextValue,
+	ChatMessageData,
 	ChatMessageBubbleProps,
 	ChatMessageBubbleVariant,
 	ChatMessageContextValue,

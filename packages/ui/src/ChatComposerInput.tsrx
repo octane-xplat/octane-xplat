@@ -2,6 +2,7 @@
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import { Utils } from '@nativescript/core';
 import type {
+	ChatComposerDraft,
 	ChatComposerInputHandle,
 	ChatComposerInputProps,
 	ChatComposerToken,
@@ -13,7 +14,7 @@ import { applyEscapeProps } from './escape-props';
 import { isWritingText, writeText } from './text-write';
 import { ChatTriggerMenuOverlay, useTriggerMenu, type ChatTriggerHost } from './useTriggerMenu.tsrx';
 import { useChatComposerTokens } from './useChatComposerTokens.tsrx';
-import { ChatTokenChip, isCustomToken } from './chat-tokens.tsrx';
+import { ChatTokenChip } from './chat-tokens.tsrx';
 import { useChatComposerContext } from './chat-context';
 
 interface TokenRecord {
@@ -60,6 +61,10 @@ function serializeWithTokens(text: string, tokens: TokenRecord[]): string {
 	return out;
 }
 
+function draftFromRecords(text: string, records: TokenRecord[]): ChatComposerDraft {
+	return { text, tokens: records.map((r) => r.token) };
+}
+
 /** Native composer input — a TextView plus a chip row for inserted tokens.
  *  Tokens serialize into `value` at their recorded insertion offsets
  *  (mid-text positions are approximated — the web leaf carries true inline
@@ -69,9 +74,17 @@ function serializeWithTokens(text: string, tokens: TokenRecord[]): string {
 export function ChatComposerInput(props: ChatComposerInputProps) @{
 	const composerCtx = useChatComposerContext();
 	const hasControlledValueProp = props.value !== undefined;
+	const hasControlledDraftProp = props.draft !== undefined;
+	const hasDefaultDraftProp = props.defaultDraft !== undefined;
+
+	const draft = hasControlledDraftProp
+		? props.draft
+		: hasDefaultDraftProp
+			? props.defaultDraft
+			: composerCtx?.draft;
 
 	const value = hasControlledValueProp ? props.value : composerCtx?.value;
-	const onSubmit = props.onSubmit ?? composerCtx?.onSubmit;
+	const onSend = props.onSend ?? props.onSubmit ?? composerCtx?.onSend ?? composerCtx?.onSubmit;
 	const isDisabled = props.isDisabled ?? composerCtx?.isDisabled ?? false;
 	const placeholder = props.placeholder ?? composerCtx?.placeholder ?? 'Type a message…';
 	const label = props.label ?? 'Message input';
@@ -79,6 +92,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 	const debounceMs = props.debounceMs ?? 150;
 
 	const composerOnChange = composerCtx?.onChange;
+	const composerOnDraftChange = composerCtx?.onDraftChange ?? props.onDraftChange;
 	const onChange = useCallback(
 		(next: string) => {
 			if (hasControlledValueProp) {
@@ -94,11 +108,25 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		[composerOnChange, hasControlledValueProp, props.onChange],
 	);
 
+	const emitDraftChange = useCallback(
+		(nextText: string, nextTokens: TokenRecord[]) => {
+			const nextDraft = draftFromRecords(nextText, nextTokens);
+			composerOnDraftChange?.(nextDraft);
+			if (props.onDraftChange !== composerOnDraftChange) {
+				props.onDraftChange?.(nextDraft);
+			}
+		},
+		[composerOnDraftChange, props.onDraftChange],
+	);
+
 	const viewRef = useRef<any>(null);
 	const selfRef = useRef<ChatComposerInputHandle | null>(null);
 	const hostRef = useRef<ChatTriggerHost | null>(null);
-	const textRef = useRef('');
-	const [tokens, setTokens] = useState<TokenRecord[]>([]);
+	const textRef = useRef(draft?.text ?? value ?? '');
+	const initialDraftRef = useRef(draft);
+	const [tokens, setTokens] = useState<TokenRecord[]>(
+		(draft?.tokens ?? []).map((token, index) => ({ id: `draft-${index}`, token, index: textRef.current.length })),
+	);
 	const tokensRef = useRef<TokenRecord[]>([]);
 	tokensRef.current = tokens;
 
@@ -108,8 +136,10 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 	);
 
 	const emitChange = useCallback(() => {
-		onChange?.(serializeNow());
-	}, [onChange, serializeNow]);
+		const serialized = serializeNow();
+		onChange?.(serialized);
+		emitDraftChange(textRef.current, tokensRef.current);
+	}, [onChange, serializeNow, emitDraftChange]);
 
 	const focusField = useCallback(() => {
 		const view = viewRef.current;
@@ -183,6 +213,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		insertText: (text) => insertTextAt(text),
 		focus: focusField,
 		getValue: () => serializeNow(),
+		getDraft: () => draftFromRecords(textRef.current, tokensRef.current),
 	};
 
 	selfRef.current = handle;
@@ -205,6 +236,25 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		textRef.current = value;
 		writeText(viewRef.current, value);
 	}, [value]);
+
+	// Controlled external draft → field text and tokens.
+	useEffect(() => {
+		if (draft === undefined) return;
+		if (draft === initialDraftRef.current) {
+			initialDraftRef.current = undefined;
+			return;
+		}
+		if (draft.text !== textRef.current) {
+			textRef.current = draft.text;
+			writeText(viewRef.current, draft.text);
+		}
+		const nextTokens = (draft.tokens ?? []).map((token, index) => ({
+			id: `draft-${index}-${token.value}`,
+			token,
+			index: textRef.current.length,
+		}));
+		setTokens(nextTokens);
+	}, [draft]);
 
 	const triggerMenu = useTriggerMenu({
 		triggers: props.triggers,
@@ -284,12 +334,13 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 				// clear wins the race.
 				const text = serializeNow().trim();
 				if (!text) return;
-				onSubmit?.(text);
+				onSend?.(text);
 				setTimeout(() => {
 					textRef.current = '';
 					setTokens([]);
 					writeText(viewRef.current, '');
 					onChange?.('');
+					emitDraftChange('', []);
 				}, 0);
 			}}
 		/>

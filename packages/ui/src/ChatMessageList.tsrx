@@ -1,19 +1,34 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useMemo, useRef, useState } from 'octane';
-import type { ChatMessageListProps } from './props';
+import type { ChatMessageData, ChatMessageListProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { ChatListProvider, useChatLayoutContext } from './chat-context';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
+import { ChatMessage as ChatMessageView } from './ChatMessage.tsrx';
+import { ChatMessageBubble } from './ChatMessageBubble.tsrx';
 
 const renderable = (v: any) => v != null && v !== false && v !== true;
 
 const DENSITY_GAP: Record<string, number> = { compact: 8, balanced: 16, spacious: 24 };
 
+function DefaultMessageRender(props: { message: ChatMessageData }) @{
+	<ChatMessageView
+		sender={props.message.sender}
+		avatar={props.message.avatar}
+		name={props.message.name}
+	>
+		<ChatMessageBubble>{props.message.content}</ChatMessageBubble>
+	</ChatMessageView>
+}
+
 /** Presentational message container — density context, gap, empty state,
  *  bottom-push spacer (`align`), and older-message loading. `scrollToTopAction`
  *  fires when the layout's ScrollView reaches the top (there is no
  *  IntersectionObserver on native; the sentinel is a scroll-position test).
- *  `isStreaming` reports aria-busy where the platform honors it. */
+ *  `isStreaming` reports aria-busy where the platform honors it.
+ *
+ *  Provide either `children` for full JSX control or `messages` + `renderMessage`
+ *  for a data-driven list. */
 export function ChatMessageList(props: ChatMessageListProps) @{
 	const layoutContext = useChatLayoutContext();
 	const innerRef = useRef<any>(null);
@@ -52,6 +67,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 		props.children != null &&
 		props.children !== false &&
 		!(Array.isArray(props.children) && props.children.length === 0);
+	const hasMessages = Array.isArray(props.messages) && props.messages.length > 0;
 
 	const contextValue = useMemo(() => ({ density }), [density]);
 	const gap = props.gap ?? DENSITY_GAP[density];
@@ -77,7 +93,11 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 					</flexboxlayout>
 				) : null}
 				{props.align !== 'top' ? <flexboxlayout className="vx-chatlist-spacer" flexGrow={1} /> : null}
-				{hasChildren ? (
+				{hasMessages ? (
+					props.messages!.map((m) =>
+						props.renderMessage ? props.renderMessage(m) : <DefaultMessageRender message={m} />,
+					)
+				) : hasChildren ? (
 					props.children
 				) : renderable(props.emptyState) ? (
 					<flexboxlayout className="vx-chatlist-empty" alignItems="center" justifyContent="center" flexGrow={1}>

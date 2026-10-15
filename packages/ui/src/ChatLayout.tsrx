@@ -26,8 +26,9 @@ export function ChatLayout(props: ChatLayoutProps) @{
 
 	// Expose the scroller through the caller's scrollRef (in/out handle).
 	const scrollContainerRef = props.scrollRef ?? scrollViewRef;
+	const followLatest = props.followLatest ?? true;
 
-	const scroll = useChatStreamScroll({ scrollRef: scrollContainerRef });
+	const scroll = useChatStreamScroll({ scrollRef: scrollContainerRef, followLatest });
 	const newMsgs = useChatNewMessages({
 		isLocked: scroll.isLocked,
 		onResize: scroll.scrollIfLocked,

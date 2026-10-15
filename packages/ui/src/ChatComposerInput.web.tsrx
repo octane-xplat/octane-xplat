@@ -7,6 +7,7 @@ import { useImperativeHandle,
 } from 'octane';
 
 import type {
+	ChatComposerDraft,
 	ChatComposerFile,
 	ChatComposerInputHandle,
 	ChatComposerInputProps,
@@ -83,9 +84,17 @@ const isIme = (e: any) => e.isComposing || e.keyCode === 229 || e.nativeEvent?.i
 export function ChatComposerInput(props: ChatComposerInputProps) @{
 	const composerCtx = useChatComposerContext();
 	const hasControlledValueProp = props.value !== undefined;
+	const hasControlledDraftProp = props.draft !== undefined;
+	const hasDefaultDraftProp = props.defaultDraft !== undefined;
+
+	const draft = hasControlledDraftProp
+		? props.draft
+		: hasDefaultDraftProp
+			? props.defaultDraft
+			: composerCtx?.draft;
 
 	const value = hasControlledValueProp ? props.value : composerCtx?.value;
-	const onSubmit = props.onSubmit ?? composerCtx?.onSubmit;
+	const onSend = props.onSend ?? props.onSubmit ?? composerCtx?.onSend ?? composerCtx?.onSubmit;
 	const isDisabled = props.isDisabled ?? composerCtx?.isDisabled ?? false;
 	const placeholder = props.placeholder ?? composerCtx?.placeholder ?? 'Type a message…';
 	const label = props.label ?? 'Message input';
@@ -94,6 +103,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 	const hasHistory = props.hasHistory ?? true;
 
 	const composerOnChange = composerCtx?.onChange;
+	const composerOnDraftChange = composerCtx?.onDraftChange ?? props.onDraftChange;
 	const onChange = useCallback(
 		(next: string) => {
 			if (hasControlledValueProp) {
@@ -107,6 +117,17 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 			}
 		},
 		[composerOnChange, hasControlledValueProp, props.onChange],
+	);
+
+	const emitDraftChange = useCallback(
+		(nextText: string, nextTokens: ChatComposerToken[]) => {
+			const nextDraft: ChatComposerDraft = { text: nextText, tokens: nextTokens };
+			composerOnDraftChange?.(nextDraft);
+			if (props.onDraftChange !== composerOnDraftChange) {
+				props.onDraftChange?.(nextDraft);
+			}
+		},
+		[composerOnDraftChange, props.onDraftChange],
 	);
 
 	const editableRef = useRef<HTMLDivElement | null>(null);
@@ -123,6 +144,10 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 	const insertTextRef = useRef<(text: string) => void>(() => {});
 
 	const emitChangeVersionRef = useRef(0);
+	const tokenPortalsRef = useRef<{ token: ChatComposerToken }[]>([]);
+	const emitDraftChangeRef = useRef(emitDraftChange);
+	emitDraftChangeRef.current = emitDraftChange;
+
 	const emitChange = useCallback(() => {
 		if (!editableRef.current) return;
 		const text = serialize(editableRef.current);
@@ -135,10 +160,12 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		setIsEmpty(trimmedEmpty);
 		emitChangeVersionRef.current += 1;
 		onChange?.(nextValue);
+		emitDraftChangeRef.current(text, tokenPortalsRef.current.map((p) => p.token));
 		cleanupPortalsRef.current?.();
 	}, [onChange]);
 
 	const tokens = useChatComposerTokens({ editableRef, onEmitChange: emitChange });
+	tokenPortalsRef.current = tokens.tokenPortals;
 	const cleanupPortalsRef = useRef<(() => void) | null>(tokens.cleanupPortals);
 	cleanupPortalsRef.current = tokens.cleanupPortals;
 
@@ -192,6 +219,10 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		insertText: (text) => insertTextRef.current(text),
 		focus: focusEditable,
 		getValue: () => serialize(editableRef.current ?? document.createElement('div')),
+		getDraft: () => ({
+			text: serialize(editableRef.current ?? document.createElement('div')),
+			tokens: tokenPortalsRef.current.map((p) => p.token),
+		}),
 	};
 
 	selfRef.current = handle;
@@ -238,6 +269,20 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 			pendingEchoValueRef.current = undefined;
 		}
 	}, [value]);
+
+	// External draft changes rewrite the editable text and clear inline token
+	// portals. Token restoration into the contenteditable is left to the caller
+	// (e.g. imperative insertToken) so the DOM stays consistent with the token
+	// table.
+	useEffect(() => {
+		if (draft === undefined || !editableRef.current) return;
+		const editable = editableRef.current;
+		if (serialize(editable) !== draft.text) {
+			editable.textContent = draft.text;
+			setIsEmpty(draft.text.length === 0);
+			cleanupPortalsRef.current?.();
+		}
+	}, [draft?.text]);
 
 	const triggerMenu = useTriggerMenu({
 		triggers: props.triggers,
@@ -321,10 +366,11 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 					currentDraftRef.current = '';
 				}
 
-				onSubmit?.(text);
+				onSend?.(text);
 				editableRef.current.textContent = '';
 				setIsEmpty(true);
 				onChange?.('');
+				emitDraftChange('', []);
 				return;
 			}
 
@@ -375,7 +421,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 				}
 			}
 		},
-		[hasHistory, onSubmit, onChange, emitChange, triggerMenu, props.onKeyDown],
+		[hasHistory, onSend, onChange, emitChange, triggerMenu, props.onKeyDown],
 	);
 
 	const handlePaste = useCallback(

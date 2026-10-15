@@ -42,16 +42,18 @@ function prefersReducedMotion(): boolean {
 export function useChatStreamScroll({
 	scrollRef,
 	enabled = true,
+	followLatest = true,
 	lockThreshold = 10,
 	buttonThreshold = 100,
 	damping = 0.7,
 	stiffness = 0.05,
 	mass = 1.25,
 }: UseChatStreamScrollOptions): UseChatStreamScrollReturn {
+	const startLocked = enabled && followLatest !== false;
 	const [isScrolledUp, setIsScrolledUp] = useState(false);
-	const [isLocked, setIsLocked] = useState(true);
+	const [isLocked, setIsLocked] = useState(startLocked);
 
-	const lockedRef = useRef(true);
+	const lockedRef = useRef(startLocked);
 	const initialFillPendingRef = useRef(true);
 	const velocityRef = useRef(0);
 	const animatingRef = useRef(false);

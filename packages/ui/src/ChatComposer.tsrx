@@ -1,15 +1,18 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useMemo, useRef, useState } from 'octane';
-import type { ChatComposerInputControl, ChatComposerProps } from './props';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'octane';
+import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { ChatComposerProvider } from './chat-context';
 import { ChatComposerInput } from './ChatComposerInput.tsrx';
 import { ChatSendButton } from './ChatSendButton.tsrx';
 import { Icon } from './Icon';
 
+const EMPTY_DRAFT: ChatComposerDraft = { text: '', tokens: [] };
+
 /** Composer layout shell — slots for drawer, header actions/context, input,
  *  footer actions, send actions/button, and a status strip. Owns the
- *  (un)controlled value when `input` uses the default ChatComposerInput.
+ *  (un)controlled draft when `input` uses the default ChatComposerInput.
+ *  Legacy `value`/`onChange` string props still work and are kept in sync.
  *  Native note: no shadow/elevation or hover states — `elevation="none"`
  *  draws the border treatment; both map to the same surface on touch. */
 export function ChatComposer(props: ChatComposerProps) @{
@@ -20,44 +23,62 @@ export function ChatComposer(props: ChatComposerProps) @{
 	const elevation = props.elevation ?? 'low';
 	const statusPosition = props.statusPosition ?? 'bottom';
 
-	const [internalValue, setInternalValue] = useState('');
-	const isControlled = props.value !== undefined;
-	const currentValue = (isControlled ? props.value : internalValue) ?? '';
+	const [internalDraft, setInternalDraft] = useState<ChatComposerDraft>(
+		props.defaultDraft ?? { text: props.value ?? '', tokens: [] },
+	);
+	const isControlledDraft = props.draft !== undefined;
+	const currentDraft = isControlledDraft ? props.draft! : internalDraft;
 
-	const updateValue = useCallback(
-		(next: string) => {
-			if (!isControlled) setInternalValue(next);
-			props.onChange?.(next);
+	// Legacy value prop: keep it in the draft when no draft prop is supplied.
+	useEffect(() => {
+		if (props.value !== undefined && props.draft === undefined) {
+			setInternalDraft((prev) => (prev.text === props.value ? prev : { ...prev, text: props.value! }));
+		}
+	}, [props.value, props.draft]);
+
+	const updateDraft = useCallback(
+		(next: ChatComposerDraft) => {
+			if (!isControlledDraft) setInternalDraft(next);
+			props.onDraftChange?.(next);
+			props.onChange?.(next.text);
 		},
-		[isControlled, props.onChange],
+		[isControlledDraft, props.onDraftChange, props.onChange],
 	);
 
-	const handleSubmit = useCallback(
+	const handleSend = useCallback(
 		(value: string) => {
 			const trimmed = value.trim();
 			if (!trimmed || isDisabled) return;
-			props.onSubmit(trimmed);
-			updateValue('');
+			const sendAction = props.onSend ?? props.onSubmit;
+			sendAction?.(trimmed);
+			if (!isControlledDraft) setInternalDraft(EMPTY_DRAFT);
+			props.onDraftChange?.(EMPTY_DRAFT);
+			props.onChange?.('');
 		},
-		[isDisabled, props.onSubmit, updateValue],
+		[isDisabled, props.onSend, props.onSubmit, isControlledDraft, props.onDraftChange, props.onChange],
 	);
 
-	const canSend = currentValue.trim().length > 0 && !isDisabled;
+	const canSend = currentDraft.text.trim().length > 0 && !isDisabled;
 	const inputControlRef = useRef<ChatComposerInputControl | null>(null);
+	const cancelAction = props.onCancel ?? props.onStop;
 
 	const composerContext = useMemo(
 		() => ({
-			value: currentValue,
-			onChange: updateValue,
-			onSubmit: handleSubmit,
+			value: currentDraft.text,
+			draft: currentDraft,
+			onChange: (value: string) => updateDraft({ ...currentDraft, text: value }),
+			onDraftChange: updateDraft,
+			onSend: handleSend,
+			onSubmit: handleSend,
+			onCancel: cancelAction,
+			onStop: props.onStop,
 			placeholder,
 			isDisabled,
 			isStopShown,
 			canSend,
-			onStop: props.onStop,
 			inputControlRef,
 		}),
-		[currentValue, updateValue, handleSubmit, placeholder, isDisabled, isStopShown, canSend, props.onStop],
+		[currentDraft, updateDraft, handleSend, cancelAction, props.onStop, placeholder, isDisabled, isStopShown, canSend],
 	);
 
 	const status = props.status;

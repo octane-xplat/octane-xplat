@@ -4653,6 +4653,25 @@ export interface ProgressGroupProps {
  *  direction. 'system' messages center and skip the avatar/name affordances. */
 export type ChatMessageSender = 'user' | 'assistant' | 'system'
 
+/** Data-side description of a chat message. Presentation components accept
+ *  the same fields as props; this type lets agents store/transmit messages
+ *  without coupling to rendering. */
+export interface ChatMessageData {
+	id?: string
+	sender: ChatMessageSender
+	content: Renderable
+	/** Display timestamp — a Date, epoch ms, or ISO string. */
+	timestamp?: Date | number | string
+	/** Delivery state shown by ChatMessageMetadata. */
+	status?: ChatMessageStatus
+	/** Footer/metadata row content below the message body. */
+	footer?: Renderable
+	/** Avatar content; omit to use the sender's default. */
+	avatar?: Renderable
+	/** Sender name; omit to use the sender's default. */
+	name?: Renderable
+}
+
 /** Visual density shared across the chat family. */
 export type ChatDensity = 'compact' | 'balanced' | 'spacious'
 
@@ -4744,7 +4763,10 @@ export interface ChatSystemMessageProps {
  *  `align:'bottom'` pads short lists so messages sit above the composer;
  *  `scrollToTopAction` loads older messages (spinner row while pending);
  *  `isStreaming` marks the region busy for assistive tech. Auto-scroll and
- *  the scroll-to-bottom button are owned by ChatLayout or useChatStreamScroll. */
+ *  the scroll-to-bottom button are owned by ChatLayout or useChatStreamScroll.
+ *
+ *  Supply either `children` for full JSX control or `messages` + `renderMessage`
+ *  for a data-driven list. */
 export interface ChatMessageListProps {
 	className?: ClassName
 	style?: StyleProp
@@ -4760,6 +4782,10 @@ export interface ChatMessageListProps {
 	gap?: number
 	align?: 'top' | 'bottom'
 	isStreaming?: boolean
+	/** Data-driven messages — provide either this or `children`. */
+	messages?: ChatMessageData[]
+	/** Render a data-driven message; defaults to ChatMessage + ChatMessageBubble. */
+	renderMessage?: (message: ChatMessageData) => Renderable
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -4895,6 +4921,38 @@ export interface ChatComposerTokenCustom {
  *  them at their recorded insertion offset. */
 export type ChatComposerToken = ChatComposerTokenBadge | ChatComposerTokenCustom
 
+/** Serializable representation of a token that can cross storage boundaries.
+ *  `render` is omitted because functions cannot be serialized; restore it via
+ *  `deserializeChatComposerToken` with a renderer lookup. */
+export interface ChatComposerTokenBadgeData {
+	kind: 'badge'
+	value: string
+	label?: string
+	variant?: ChatComposerTokenVariant
+	icon?: IconName
+}
+
+export interface ChatComposerTokenCustomData {
+	kind: 'custom'
+	value: string
+}
+
+export type ChatComposerTokenData = ChatComposerTokenBadgeData | ChatComposerTokenCustomData
+
+/** Serializable composer draft — text plus the token table needed to render
+ *  and re-edit it. */
+export interface ChatComposerDraft {
+	text: string
+	tokens: ChatComposerToken[]
+}
+
+/** A draft that has been reduced to plain JSON. `tokens` carry only the data
+ *  half of each token; render functions are recovered on load. */
+export interface ChatComposerDraftData {
+	text: string
+	tokens: ChatComposerTokenData[]
+}
+
 /** Item shape for trigger-menu sources — the portable SearchableItem. */
 export interface ChatComposerTriggerItem<TAuxData = unknown> {
 	id: string
@@ -4939,6 +4997,8 @@ export interface ChatComposerInputHandle {
 	focus(): void
 	/** Current serialized value (token values inline). */
 	getValue(): string
+	/** Current structured draft. */
+	getDraft(): ChatComposerDraft
 }
 
 /** Registration record for the composer shell → input slot seam: a custom
@@ -4950,12 +5010,20 @@ export interface ChatComposerInputControl {
 
 export interface ChatComposerContextValue {
 	value: string
+	draft: ChatComposerDraft
 	onChange: (value: string) => void
+	onDraftChange: (draft: ChatComposerDraft) => void
+	/** Send the current draft. */
+	onSend: (value: string) => void
+	/** @deprecated Use onSend. */
 	onSubmit: (value: string) => void
 	placeholder: string
 	isDisabled: boolean
 	isStopShown: boolean
 	canSend: boolean
+	/** Cancel/stop action. */
+	onCancel?: () => void
+	/** @deprecated Use onCancel. */
 	onStop?: () => void
 	inputControlRef?: { current: ChatComposerInputControl | null }
 }
@@ -4971,8 +5039,13 @@ export interface ChatComposerInputProps {
 	id?: string
 	/** Exposes the imperative handle through a standard Octane ref. */
 	ref?: Octane.Ref<ChatComposerInputHandle>
+	/** Serialized string value (legacy) — use draft props instead. */
 	value?: string
 	onChange?: (value: string) => void
+	/** Structured draft value. */
+	draft?: ChatComposerDraft
+	defaultDraft?: ChatComposerDraft
+	onDraftChange?: (draft: ChatComposerDraft) => void
 	placeholder?: string
 	/** Height cap in lines before the field scrolls internally. */
 	maxRows?: number
@@ -4990,6 +5063,9 @@ export interface ChatComposerInputProps {
 	pasteAsToken?: { onPaste: (event: ChatComposerPasteEvent, text: string) => boolean } | false
 	/** File drop/paste (web only — see ChatComposerFile). */
 	onFiles?: (files: ChatComposerFile[]) => void
+	/** Send action — called with the serialized draft text. */
+	onSend?: (value: string) => void
+	/** @deprecated Use onSend. */
 	onSubmit?: (value: string) => void
 	/** Runs before built-in Enter/recall handling; preventDefault() to own
 	 *  the keystroke. IME composition always suppresses submit. */
@@ -5036,7 +5112,9 @@ export interface ChatSendButtonProps {
 	isStopShown?: boolean
 	isDisabled?: boolean
 	onSend?: () => void
+	/** @deprecated Use onCancel. */
 	onStop?: () => void
+	onCancel?: () => void
 	/** Custom send-state icon content (default: registered arrow-up glyph). */
 	sendIcon?: Renderable
 	stopIcon?: Renderable
@@ -5049,16 +5127,31 @@ export interface ChatSendButtonProps {
 }
 
 /** Composer layout shell — slots for drawer, header actions/context, input,
- *  footer actions, send actions/button, and an error/warning status strip. */
+ *  footer actions, send actions/button, and an error/warning status strip.
+ *
+ *  State: provide either the legacy `value`/`onChange` string props or the
+ *  structured `draft`/`onDraftChange` props. Actions: use `onSend` to submit
+ *  and `onCancel` to stop; `onSubmit`/`onStop` remain as migration aliases. */
 export interface ChatComposerProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
-	onSubmit: (value: string) => void
+	/** Send action — called with the serialized draft text. */
+	onSend?: (value: string) => void
+	/** @deprecated Use onSend. */
+	onSubmit?: (value: string) => void
+	/** Cancel/stop action. */
+	onCancel?: () => void
+	/** @deprecated Use onCancel. */
 	onStop?: () => void
 	isStopShown?: boolean
+	/** Serialized string value (legacy) — use draft props instead. */
 	value?: string
 	onChange?: (value: string) => void
+	/** Structured draft value. */
+	draft?: ChatComposerDraft
+	defaultDraft?: ChatComposerDraft
+	onDraftChange?: (draft: ChatComposerDraft) => void
 	placeholder?: string
 	isDisabled?: boolean
 	density?: ChatComposerDensity
@@ -5116,6 +5209,8 @@ export interface ChatLayoutProps {
 	/** External scroll container — { current: HTMLElement | NSView }. */
 	scrollRef?: { current?: HostElement | null }
 	density?: ChatDensity
+	/** Keep the viewport following new content (default true). */
+	followLatest?: boolean
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -5145,6 +5240,8 @@ export interface ChatScrollToBottomOptions {
 export interface UseChatStreamScrollOptions {
 	scrollRef: { current?: HostElement | null }
 	enabled?: boolean
+	/** Keep the viewport following new content (default true). */
+	followLatest?: boolean
 	/** Distance from bottom within which scroll-end re-locks (default 10). */
 	lockThreshold?: number
 	/** Distance from bottom beyond which the button shows (default 100). */

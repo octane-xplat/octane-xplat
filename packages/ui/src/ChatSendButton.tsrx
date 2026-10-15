@@ -12,15 +12,17 @@ export function ChatSendButton(props: ChatSendButtonProps) @{
 	const ctx = useChatComposerContext();
 	const isStopShown = props.isStopShown ?? ctx?.isStopShown ?? false;
 	const isDisabled = props.isDisabled ?? !(ctx?.canSend ?? false);
-	const onStop = props.onStop ?? ctx?.onStop;
+	const onCancel = props.onCancel ?? props.onStop ?? ctx?.onCancel ?? ctx?.onStop;
 	const size = props.size ?? 'md';
 
 	const activate = () => {
 		if (isStopShown) {
-			onStop?.();
+			onCancel?.();
+		} else if (props.onSend) {
+			props.onSend();
 		} else {
-			if (props.onSend) props.onSend();
-			else ctx?.onSubmit(ctx.value);
+			const sendAction = ctx?.onSend ?? ctx?.onSubmit;
+			sendAction?.(ctx?.value ?? '');
 		}
 
 		props.onPress?.();

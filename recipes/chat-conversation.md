@@ -27,7 +27,12 @@ storage, network requests, and upload handling.
 
 Give each trigger a synchronous or asynchronous search source. Selection can
 insert a token object whose `value` is the stable serialized text saved by the
-app. Reuse that token value when displaying a submitted message:
+app. Reuse that token value when displaying a submitted message.
+
+Use the structured draft API to preserve both text and tokens across saves or
+network round-trips. `serializeChatComposerDraft` turns a draft into JSON;
+`deserializeChatComposerDraft` restores it, optionally recovering custom-token
+renderers from a lookup:
 
 ```tsrx
 import { useState } from 'octane'
@@ -61,22 +66,71 @@ export function ChatExample() @{
 }
 ```
 
-`ChatLayout` owns the stream-scroll and new-message hooks. It follows content
-growth while the reader stays at the bottom, then offers a return button when
-the reader scrolls away. Put `scrollToTopAction` on `ChatMessageList` to load
-older messages; the list shows pending state and waits for the returned promise
-before accepting another top-load request.
+Save and restore the whole draft, not just the serialized string, so tokens stay
+editable:
 
 ```tsx
-import { ChatLayout, ChatMessageList, ChatComposer, Text } from '@octane-xplat/ui'
+import {
+	ChatComposer,
+	ChatComposerInput,
+	serializeChatComposerDraft,
+	deserializeChatComposerDraft,
+	type ChatComposerDraft,
+} from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function DraftExample() {
+	const [draft, setDraft] = useState<ChatComposerDraft>({ text: '', tokens: [] })
+	const save = () => localStorage.setItem('draft', JSON.stringify(serializeChatComposerDraft(draft)))
+	const load = () => {
+		const raw = localStorage.getItem('draft')
+		if (raw) setDraft(deserializeChatComposerDraft(JSON.parse(raw)))
+	}
+
+	return (
+		<ChatComposer draft={draft} onDraftChange={setDraft} onSend={() => save()}>
+			<ChatComposerInput />
+		</ChatComposer>
+	)
+}
+```
+
+`ChatLayout` owns the stream-scroll and new-message hooks. Use `followLatest`
+to keep the viewport locked to new content (default true), or set it to false
+so the reader stays where they are until they explicitly scroll back down. Put
+`scrollToTopAction` on `ChatMessageList` to load older messages; the list shows
+pending state and waits for the returned promise before accepting another
+top-load request.
+
+Separate send/cancel actions from draft state: `ChatComposer` accepts `onSend`
+for submitting and `onCancel` for stopping. The older `onSubmit`/`onStop` names
+remain as migration aliases.
+
+You can also drive the message list with data instead of JSX. Pass `messages`
+as `ChatMessageData[]` and a custom `renderMessage` if you need a different layout:
+
+```tsx
+import {
+	ChatLayout,
+	ChatMessageList,
+	ChatComposer,
+	Text,
+	type ChatMessageData,
+} from '@octane-xplat/ui'
+
+const messages: ChatMessageData[] = [
+	{ sender: 'system', content: <Text>Conversation started</Text> },
+	{ sender: 'assistant', content: <Text>Welcome to your trip chat.</Text> },
+]
 
 // loadOlder belongs to your app and updates its message collection.
 export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) {
 	return (
-		<ChatLayout composer={<ChatComposer onSubmit={(text) => console.log(text)} />}>
-			<ChatMessageList scrollToTopAction={loadOlder}>
-				<Text>Welcome to your trip chat.</Text>
-			</ChatMessageList>
+		<ChatLayout
+			followLatest
+			composer={<ChatComposer onSend={(text) => console.log(text)} onCancel={() => {}} />}
+		>
+			<ChatMessageList messages={messages} scrollToTopAction={loadOlder} />
 		</ChatLayout>
 	)
 }
@@ -89,9 +143,11 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
   non-empty value then clears the composer.
 - AC2: Trigger search supports sync or async sources and selection inserts
   text or a token; token values serialize consistently for submit and display.
+  Drafts serialize to JSON and round-trip through `serializeChatComposerDraft`
+  / `deserializeChatComposerDraft`.
 - AC3: Scroll follows content growth while locked at the bottom, exposes a
   return-to-bottom action when unlocked, and reports new messages until
-  dismissed.
+  dismissed; `followLatest` controls the initial follow state.
 - AC4: A top-load callback shows pending state and cannot overlap itself.
 - AC5: File and dictation callbacks behave according to platform capability,
   and the recipe describes browser `File`, paste, contenteditable, event, and
@@ -103,8 +159,8 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 ## Documentation
 
 - AC1: [Chat API inventory and portable event/file contract](../docs/app/components.md#chat), plus the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx).
-- AC2: [ChatComposerInput, token, and trigger API](../docs/app/components.md#chat), this recipe's [trigger and token example](#compose-triggers-and-tokens), and the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
+- AC2: [ChatComposerInput, token, and trigger API](../docs/app/components.md#chat), this recipe's [trigger and token example](#compose-triggers-and-tokens), its [draft serialization example](#compose-triggers-and-tokens), and the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
 - AC3: [Chat API inventory](../docs/app/components.md#chat) and this recipe's [ChatLayout scroll behavior](#compose-triggers-and-tokens).
-- AC4: [ChatMessageList contract](../docs/app/components.md#chat) and its `scrollToTopAction` prop documentation.
+- AC4: [ChatMessageList contract](../docs/app/components.md#chat), its `scrollToTopAction` prop documentation, and this recipe's [data-driven example](#compose-triggers-and-tokens).
 - AC5: [Portable Chat deviations](../docs/app/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
 - AC6: [Root exports](../packages/ui/src/index.shared.ts) share the family; [macOS](../packages/ui/src/index.macos.ts) explicitly re-exports it. Linux uses the web entry. The [Windows app TypeScript map](../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../docs/notes/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.

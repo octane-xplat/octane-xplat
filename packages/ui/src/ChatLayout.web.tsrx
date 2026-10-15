@@ -22,8 +22,9 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	const rootRef = useRef<HTMLDivElement | null>(null);
 	const scrollContainerRef = props.scrollRef ?? rootRef;
 	const isSelfScrolling = !props.scrollRef;
+	const followLatest = props.followLatest ?? true;
 
-	const scroll = useChatStreamScroll({ scrollRef: scrollContainerRef });
+	const scroll = useChatStreamScroll({ scrollRef: scrollContainerRef, followLatest });
 	const newMsgs = useChatNewMessages({
 		isLocked: scroll.isLocked,
 		onResize: scroll.scrollIfLocked,

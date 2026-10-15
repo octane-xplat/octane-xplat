@@ -1,17 +1,32 @@
 import { useEffect, useRef, useState, useMemo } from 'octane';
-import type { ChatMessageListProps } from './props';
+import type { ChatMessageData, ChatMessageListProps } from './props';
 import { ChatListProvider, useChatLayoutContext } from './chat-context';
 import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
+import { ChatMessage as ChatMessageView } from './ChatMessage.web.tsrx';
+import { ChatMessageBubble } from './ChatMessageBubble.web.tsrx';
 
 const renderable = (v: any) => v != null && v !== false && v !== true;
 
 const DENSITY_GAP: Record<string, number> = { compact: 8, balanced: 16, spacious: 24 };
 
+function DefaultMessageRender(props: { message: ChatMessageData }) @{
+	<ChatMessageView
+		sender={props.message.sender}
+		avatar={props.message.avatar}
+		name={props.message.name}
+	>
+		<ChatMessageBubble>{props.message.content}</ChatMessageBubble>
+	</ChatMessageView>
+}
+
 /** Presentational message container — density context, gap, empty state,
  *  a bottom-push spacer (`align`), an infinite-scroll sentinel
  *  (`scrollToTopAction`), and role="log" live-region semantics.
  *  Auto-scroll + the scroll-to-bottom button belong to ChatLayout /
- *  useChatStreamScroll. */
+ *  useChatStreamScroll.
+ *
+ *  Provide either `children` for full JSX control or `messages` + `renderMessage`
+ *  for a data-driven list. */
 export function ChatMessageList(props: ChatMessageListProps) @{
 	const layoutContext = useChatLayoutContext();
 	const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -49,6 +64,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 		props.children != null &&
 		props.children !== false &&
 		!(Array.isArray(props.children) && props.children.length === 0);
+	const hasMessages = Array.isArray(props.messages) && props.messages.length > 0;
 
 	const contextValue = useMemo(() => ({ density }), [density]);
 	const gap = props.gap ?? DENSITY_GAP[density];
@@ -73,7 +89,11 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 					<div className="vx-chatlist-loading"><ActivityIndicator /></div>
 				) : null}
 				{props.align !== 'top' ? <div className="vx-chatlist-spacer" aria-hidden="true" /> : null}
-				{hasChildren ? (
+				{hasMessages ? (
+					props.messages!.map((m) =>
+						props.renderMessage ? props.renderMessage(m) : <DefaultMessageRender message={m} />,
+					)
+				) : hasChildren ? (
 					props.children
 				) : renderable(props.emptyState) ? (
 					<div className="vx-chatlist-empty">{props.emptyState}</div>

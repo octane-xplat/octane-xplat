@@ -14,12 +14,14 @@ import type {
 export function useChatStreamScroll({
 	scrollRef,
 	enabled = true,
+	followLatest = true,
 	lockThreshold = 10,
 	buttonThreshold = 100,
 }: UseChatStreamScrollOptions): UseChatStreamScrollReturn {
+	const startLocked = enabled && followLatest !== false;
 	const [isScrolledUp, setIsScrolledUp] = useState(false);
-	const [isLocked, setIsLocked] = useState(true);
-	const lockedRef = useRef(true);
+	const [isLocked, setIsLocked] = useState(startLocked);
+	const lockedRef = useRef(startLocked);
 	const lastOffsetRef = useRef(0);
 	const initialFillPendingRef = useRef(true);
 
