@@ -124,11 +124,9 @@ export function Actions() {
 On Android, the content render function is evaluated in the declaring Octane
 tree and its result portals into a NativeScript host inside the sheet. That
 preserves component context across the window boundary. The iOS implementation
-still mounts the content in an independent Octane root, so provider context
-does not cross that root. Its runtime probe currently stops at
-`SwiftUIManager.registerNativeScriptViews` because
-`NativeScriptViewFactory.shared` is null; that bridge path remains
-unqualified. These details explain the implementation:
+also portals content from the declaring tree into its SwiftUI host. Both
+platforms preserve provider values and live updates across the sheet boundary.
+These details explain the implementation:
 
 - iOS resolves the registered view through `NativeScriptViewFactory` and
   places it inside `.sheet` content.
@@ -232,12 +230,10 @@ export function Actions() {
   window), falling back to a floating window without a parent. There are
   no detents or drag handles on macOS — the window sizes to the
   content's fitting size and `onDismissed` fires when the sheet ends
-  (close button, Esc, or `open`→false). The content subtree mounts as
-  its own Octane root inside the sheet window via `createMacOSRoot`. The macOS
-  renderer now supports portals into `NSView`, but `AppKitSheet` has not moved
-  to that path. Its content still cannot read provider context from the
-  declaring tree. Until the sheet is migrated, read values in the declaring
-  component and pass them through the content closure:
+  (close button, Esc, or `open`→false). The content subtree portals into the
+  sheet's `NSView` host, preserving provider values and live updates. The
+  sheet presents after portal commit so its fitting size includes the current
+  content:
 
   ```tsx
   /** @jsxImportSource @octane-xplat/macos-renderer */
@@ -249,16 +245,15 @@ export function Actions() {
   const AccountName = createContext('Guest')
   const AccountNameProvider: any = AccountName
 
-  function AccountSheetForName() {
-      const accountName = useContext(AccountName)
-      return <AppKitSheet open content={() => <Text>{accountName}</Text>} />
+function AccountLabel() {
+	return <Text>{useContext(AccountName)}</Text>
   }
 
   export function AccountPage() {
       return (
-        <AccountNameProvider value="Avery">
-          <AccountSheetForName />
-        </AccountNameProvider>
+		<AccountNameProvider value="Avery">
+			<AppKitSheet open content={() => <AccountLabel />} />
+		</AccountNameProvider>
       )
   }
   ```

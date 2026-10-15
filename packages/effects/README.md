@@ -33,12 +33,10 @@ rate — pass `false` for static effects. `maxSampleOffset` bounds how far a
 distortion shader may displace. On both targets the subtree renders
 normally into a detached host, so the shader sees real framework pixels.
 
-Two boundaries to know: the iOS leaf needs a deployment target of **iOS
-17** — below it the subtree renders without the effect (the starter app's
-`build.xcconfig` already pins 17.0). And children mount through a separate
-octane root, so `createContext`/`useContext` values from ancestors do not
-cross into the effected subtree — signals are global and still work, or
-pass the values in through props.
+The iOS leaf needs a deployment target of **iOS 17** — below it the subtree
+renders without the effect (the starter app's `build.xcconfig` already pins
+17.0). The iOS content portals from its declaring tree, so `createContext`/
+`useContext` values and live updates reach the effected subtree.
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */

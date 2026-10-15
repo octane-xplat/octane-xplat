@@ -1,8 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { memo } from 'octane';
+import { memo, useState } from 'octane';
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from '../native-portal';
 import { registerStack } from '../stacks';
 import { cx } from '@octane-xplat/lib';
 import { getIcon } from '../icons';
@@ -11,19 +10,15 @@ import { applyEscapeProps } from '../escape-props';
 
 
 // TabViewItem content is a plain native view — the driver can't parent
-// reconciled children into <tabviewitem>, so each pane is a GridLayout
-// hosting its own universal root (same shape as List cells). GridLayout,
-// not ContentView: the host must be multi-child — a pane render producing
-// more than one root view would keep only the last under `.content`
-// assignment. Grid children all fill the cell, so single-child panes are
-// unaffected.
+// reconciled children into <tabviewitem>, so each pane is a GridLayout portal
+// target. GridLayout, not ContentView: it accepts every root child from a
+// pane render rather than keeping only the last under `.content`.
 type TabPaneProps = { render: () => any };
 function TabPane(props: TabPaneProps) @{
 	<>{props.render()}</>
 }
 
-const paneRoots = new WeakMap<GridLayout, any>();
-const tabsByView = new WeakMap<GridLayout, () => any>();
+const panesByItem = new WeakMap<TabViewItem, GridLayout>();
 const itemsCache = new WeakMap<readonly PlatformTabSpec[], TabViewItem[]>();
 const iconWarned = new Set<string>();
 
@@ -72,10 +67,12 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 		const item = new TabViewItem();
 		item.title = t.title;
 		if (t.icon != null) applyIcon(item, t.icon);
+		const pane = new GridLayout();
+		panesByItem.set(item, pane);
 		if (t.stack) {
 			// Parallel-stack pane: the item's view IS a Frame whose default
-			// page hosts the pane's own Octane root. Pushes land inside the
-			// tab; the tab bar stays visible.
+			// page hosts the pane portal. Pushes land inside the tab; the tab
+			// bar stays visible.
 			// Navigate on `loaded`, not eagerly: a navigate issued before the
 			// frame enters the window hierarchy leaves _executingContext
 			// stuck (iOS's delegate never sees didShow) and every later push
@@ -87,12 +84,8 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 						const page = new Page();
 						page.actionBarHidden = true;
 						// Page is a ContentView — single-child. Root on a
-						// GridLayout child for the same multi-child guarantee.
-						const pane = new GridLayout();
+						// GridLayout child so every portaled pane child is retained.
 						page.content = pane;
-						createNativeScriptRoot(pane).render(
-							TabPane as unknown as UniversalComponent, { render: t.render });
-
 						return page;
 					},
 				});
@@ -103,29 +96,12 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 			return item;
 		}
 
-		const cv = new GridLayout();
-		tabsByView.set(cv, t.render);
-		item.view = cv;
+		item.view = pane;
 		return item;
 	});
 
 	itemsCache.set(tabs, items);
 	return items;
-}
-
-// Panes mount lazily: a pane view that isn't loaded yet would render into
-// nothing — mount on the tabview's loaded event, all at once.
-function mountPanes(e: any) {
-	const tv = e.object as TabView;
-	for (const item of tv.items as TabViewItem[]) {
-		const cv = item.view as GridLayout;
-		if (!(cv instanceof GridLayout) || paneRoots.has(cv)) continue;
-		const render = tabsByView.get(cv);
-		if (!render) continue;
-		const root = createNativeScriptRoot(cv);
-		paneRoots.set(cv, root);
-		root.render(TabPane as unknown as UniversalComponent, { render });
-	}
 }
 
 function TabBarInner(props: {
@@ -138,16 +114,26 @@ function TabBarInner(props: {
 	ios?: Record<string, any>;
 	modifiers?: UITabBarProps['modifiers'];
 }) @{
+	const [loaded, setLoaded] = useState(false);
+	const items = itemsFor(props.tabs);
+	<>
 	<tabview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
-		items={itemsFor(props.tabs)}
+		items={items}
 		selectedIndex={props.selectedIndex}
 		onSelectedIndexChanged={(e: any) => props.onSelectedIndexChanged?.(e.value)}
-		onLoaded={mountPanes}
+		onLoaded={() => setLoaded(true)}
 	/>
+	{loaded ? items.map((item, index) => {
+		const target = panesByItem.get(item);
+		return target
+			? createPortal(<TabPane render={props.tabs[index].render} />, target)
+			: null;
+	}) : null}
+	</>
 }
 
 // Memoized on the tabs array — TabView.item writes rebuild the native

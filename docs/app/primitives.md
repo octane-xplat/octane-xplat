@@ -1506,15 +1506,20 @@ screen-reader behavior; see [input readiness evidence](../../.agents/docs/notes/
 On iOS and Android, component-owned shared surfaces and declarative
 `UIModal`/`MaterialDialog` content (children or `component` + `params`) portal
 into native hosts, so they retain the declaring Octane tree's context and live
-context updates. The host still
-needs its own theme classes because native view-tree classes do not cross the
-host boundary. Imperative `openModal`/`openBottomSheet` component roots,
-route-created modal roots and pushed Pages, and list cells remain independent
-roots; pass values through props/params or a shared store there.
+context updates. The host still needs its own theme classes because native
+view-tree classes do not cross the host boundary. Android `BottomNavigationView`
+panes and Pager cells, and iOS `UITabBar` panes, also portal from their
+declaring tree; the Android tab/Pager and iOS tab probes verify context
+inheritance and live updates. Pager's iOS portal path is implemented but not
+runtime-qualified: its isolated probe stops before assertions because the
+upstream pager package's `style-properties` module cannot be resolved.
+The imperative `openModal`/`openBottomSheet` component roots, route-created modal roots and
+pushed Pages, AppKit `tabviewitem` content, and AppKit list cells remain
+independent roots; pass values through props/params or a shared store there.
 For the optional `@octane-xplat/sheet` and `@octane-xplat/context-menu` leaves,
-Android content portals preserve context; their iOS implementations still
-mount independent roots. Web portals also retain their declaring tree's
-context.
+Android and iOS content portals preserve context; the sheet's macOS content
+does too. The iOS `@octane-xplat/effects` shader subtree also preserves its
+declaring context. Web portals retain their declaring tree's context.
 
 ```tsx
 import { createContext, useContext } from 'octane'

@@ -15,7 +15,7 @@ var __xplatAppKit: {
 	showLayer?: (options: any) => any
 	attachContextMenu?: (view: import('@octane-xplat/platform/macos').NSView, options: any, onSelect: any) => void
 	attachDatePicker?: (view: import('@octane-xplat/platform/macos').NSView, options: any, onChange: any) => void
-	presentSheet?: (view: import('@octane-xplat/platform/macos').NSView, options: any) => void
+	presentSheet?: (view: import('@octane-xplat/platform/macos').NSView, options: any) => any
 	presentSurface?: (options: any) => any
 	setSurfaceAppearance?: (view: import('@octane-xplat/platform/macos').NSView, dark: boolean) => void
 	[key: string]: any

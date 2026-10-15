@@ -916,9 +916,10 @@ environmentManager.setIsServer(() => false)
 
 Prefer a module-level `QueryClient` over `QueryClientProvider` when query
 consumers may mount in independent native roots such as routed Pages, list
-cells, imperative modal/sheet services, or the iOS platform sheet/context-menu
-leaves. UI-owned native portals and the Android platform sheet/context-menu
-leaves preserve provider context, so provider-based setup works there.
+cells, or imperative modal/sheet services. UI-owned native portals, the iOS
+and Android platform sheet/context-menu leaves, AppKitSheet, and the iOS
+ShaderEffect carry their declaring Octane context, so provider-based setup
+works across those boundaries.
 `useSuspenseQuery` under `universalTry` is unverified on native.
 
 ```tsx

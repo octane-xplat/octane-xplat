@@ -207,15 +207,19 @@ export function PackingList(props: { items: { id: string; label: string }[] }) {
 
 On iOS and Android, component-owned `Dialog`, `BottomSheet`, `Overlay`,
 `Popover`, `Lightbox`, and declarative `UIModal`/`MaterialDialog` content
-portal from their declaring tree and preserve `useContext`. The native host
-still receives its own theme classes. Independent roots remain for imperative
-modal/sheet services, routed Pages, and list cells; those need explicit
-props/params or shared state. The optional
-platform sheet/context-menu leaves portal content on Android, preserving
-context; their iOS versions remain independent roots. The iOS runtime probe
-could not reach assertions because `NativeScriptViewFactory.shared` was null
-at the SwiftUI bridge registration step. The iOS and Android declarative modal
-portal probes cover inheritance, updates, and close cleanup.
+portal from their declaring tree and preserve `useContext`. The optional
+platform sheet/context-menu leaves do the same on Android and iOS; AppKitSheet
+does so on macOS, and iOS ShaderEffect portals its child subtree. Native hosts
+still need their own theme classes. Android `BottomNavigationView` panes and
+recycled Pager cells and iOS `UITabBar` panes also portal; the Android tab/Pager
+and iOS tab probes verify context inheritance and live updates. Pager's iOS
+portal path is implemented but remains runtime-unqualified: its isolated probe
+stops before assertions because the upstream pager package's `style-properties`
+module cannot be resolved.
+Independent roots remain for imperative modal/sheet services, routed Pages,
+AppKit `tabviewitem` content, and AppKit list cells; pass values through
+props/params or shared state there. Runtime probes cover context inheritance,
+live updates, and supported close/reopen cleanup for the migrated boundaries.
 
 ```tsx
 import { Dialog, Text } from '@octane-xplat/ui'

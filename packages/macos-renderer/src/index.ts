@@ -8064,11 +8064,6 @@ function finishSheetDismissal(sheetWindow: any) {
 		openSheets.delete(entry)
 		const wasClosed = entry.closed
 		entry.closed = true
-		try {
-			entry.root.unmount()
-		} catch (error) {
-			console.error('[macos-leaf] sheet root unmount failed', error)
-		}
 
 		if (!wasClosed) {
 			try {
@@ -8080,14 +8075,13 @@ function finishSheetDismissal(sheetWindow: any) {
 	}
 }
 
-/** Presents an octane subtree as a window sheet (beginSheet on the leaf's
- *  window) — a plain floating window when no parent window is attached.
- *  Returns { close, update }. */
+/** Creates a native window sheet target (beginSheet on the leaf's window),
+ *  with a floating window when no parent is attached. The caller portals its
+ *  own Octane subtree into `target` before calling `present()`. */
 function presentSheet(view: NSView, options: PropBag) {
 	if (
 		typeof (globalThis as any).NSWindow?.alloc !== 'function' ||
-		typeof (globalThis as any).NSViewController?.alloc !== 'function' ||
-		typeof options?.component !== 'function'
+		typeof (globalThis as any).NSViewController?.alloc !== 'function'
 	) {
 		return null
 	}
@@ -8098,12 +8092,12 @@ function presentSheet(view: NSView, options: PropBag) {
 		size: { width: 480, height: 1 },
 	})
 
-	const root = createMacOSRoot(contentView, { fontFamily: fontFamilyForView(view) })
 	const entry = {
-		root,
+		target: contentView,
 		parentWindow,
 		sheetWindow: null as any,
 		closed: false,
+		presented: false,
 		onDismissed: options?.onDismissed,
 	}
 
@@ -8123,77 +8117,65 @@ function presentSheet(view: NSView, options: PropBag) {
 		} catch (error) {
 			console.error('[macos-leaf] sheet close failed', error)
 		}
-
-		try {
-			root.unmount()
-		} catch (error) {
-			console.error('[macos-leaf] sheet root unmount failed', error)
-		}
 	}
 
-	try {
-		root.render(options.component, options.props ?? {})
-	} catch (error) {
-		console.error('[macos-leaf] sheet render failed', error)
-		try {
-			root.unmount()
-		} catch {}
-
-		return null
-	}
-
-	const controller = NSViewController.alloc().init()
-	controller.view = contentView
-	const fit = popupFittingSize(contentView)
-	const width = Math.max(fit?.width ?? 0, options?.minWidth ?? 360)
-	const height = Math.max(fit?.height ?? 0, options?.minHeight ?? 160)
-
-	const SM = (typeof NSWindowStyleMask === 'object' && NSWindowStyleMask ? NSWindowStyleMask : {}) as {
-		[key: string]: number
-	}
-
-	const BT = (typeof NSBackingStoreType === 'object' && NSBackingStoreType ? NSBackingStoreType : {}) as {
-		[key: string]: number
-	}
-
-	const sheet = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-		{ origin: { x: 0, y: 0 }, size: { width, height } },
-		(SM.Titled ?? 1) | (SM.Closable ?? 2),
-		BT.Buffered ?? 2,
-		false,
-	)
-
-	sheet.contentViewController = controller
-	sheet.releasedWhenClosed = false
-	if (sheetDelegateTarget) {
-		sheet.delegate = sheetDelegateTarget
-	}
-
-	entry.sheetWindow = sheet
-	openSheets.add(entry)
-
-	try {
-		if (parentWindow && typeof parentWindow.beginSheetCompletionHandler === 'function') {
-			parentWindow.beginSheetCompletionHandler(sheet, () => finishSheetDismissal(sheet))
-		} else {
-			sheet.center?.()
-			sheet.makeKeyAndOrderFront(null)
-		}
-	} catch (error) {
-		console.error('[macos-leaf] sheet presentation failed', error)
-		close()
-		return null
-	}
 
 	return {
-		close,
-		update(nextProps: PropBag) {
+		target: contentView,
+		present() {
+			if (entry.closed) {
+				return false
+			}
+			if (entry.presented) {
+				return true
+			}
+
+			const controller = NSViewController.alloc().init()
+			controller.view = contentView
+			const fit = popupFittingSize(contentView)
+			const width = Math.max(fit?.width ?? 0, options?.minWidth ?? 360)
+			const height = Math.max(fit?.height ?? 0, options?.minHeight ?? 160)
+
+			const SM = (typeof NSWindowStyleMask === 'object' && NSWindowStyleMask
+				? NSWindowStyleMask
+				: {}) as { [key: string]: number }
+
+			const BT = (typeof NSBackingStoreType === 'object' && NSBackingStoreType
+				? NSBackingStoreType
+				: {}) as { [key: string]: number }
+
+			const sheet = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+				{ origin: { x: 0, y: 0 }, size: { width, height } },
+				(SM.Titled ?? 1) | (SM.Closable ?? 2),
+				BT.Buffered ?? 2,
+				false,
+			)
+
+			sheet.contentViewController = controller
+			sheet.releasedWhenClosed = false
+			if (sheetDelegateTarget) {
+				sheet.delegate = sheetDelegateTarget
+			}
+
+			entry.sheetWindow = sheet
+			openSheets.add(entry)
+
 			try {
-				root.render(options.component, nextProps ?? {})
+				if (parentWindow && typeof parentWindow.beginSheetCompletionHandler === 'function') {
+					parentWindow.beginSheetCompletionHandler(sheet, () => finishSheetDismissal(sheet))
+				} else {
+					sheet.center?.()
+					sheet.makeKeyAndOrderFront(null)
+				}
+				entry.presented = true
+				return true
 			} catch (error) {
-				console.error('[macos-leaf] sheet update failed', error)
+				console.error('[macos-leaf] sheet presentation failed', error)
+				close()
+				return false
 			}
 		},
+		close,
 	}
 }
 

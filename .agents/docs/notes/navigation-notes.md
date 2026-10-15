@@ -232,13 +232,16 @@ export function Example() {
 
 1. **Component-owned surfaces preserve context where portal support is
    qualified.** Shared UI overlay children and declarative platform-modal
-   content portals from the declaring tree on iOS/Android; the optional
-   platform sheet/context-menu leaves do so on Android. Their current iOS
-   implementations use independent roots. AppKitSheet also uses an independent
-   root. The macOS renderer now supports `NSView` portal targets, but AppKitSheet
-   has not migrated to or been qualified on that path. Imperative service roots
-   and router-created modal routes remain independent; pass data through params
-   or shared state there. (See primitives.md.)
+   content portal from the declaring tree on iOS/Android. The optional sheet
+   and context-menu leaves do so on Android/iOS, and AppKitSheet does so on
+   macOS. ShaderEffect portals its iOS content into the SwiftUI host. Android
+   `BottomNavigationView` panes and recycled Pager cells also portal and pass
+   context/update probes, as do iOS `UITabBar` panes. The iOS Pager path is
+   implemented but remains runtime-unqualified because its isolated probe
+   cannot resolve the upstream `style-properties` module before assertions.
+   Imperative service roots, router-created modal routes, and AppKit
+   `tabviewitem`/`listview` content remain independent; pass data through
+   params or shared state there. (See primitives.md.)
 2. **Android hardware back** must feed the router — intercept
    `activityBackPressed`, map to history/frame pop, allow per-screen override
    (confirm-dialog flows).

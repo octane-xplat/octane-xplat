@@ -4,6 +4,8 @@ import { observeLoadedListPeer, type ListVisibilityObserver } from './list-viewa
 import { NSIndexPath, NSObject, UIScrollView, UITableView } from '@octane-xplat/platform/ios'
 
 
+type ContentOffsetObserverInstance = NSObject & { callback: (() => void) | null }
+
 export function observeListViewability(
 	list: any,
 	getState: () => {
@@ -21,7 +23,7 @@ export function observeListViewability(
 		list,
 		() => list?.ios as UITableView | undefined,
 		(table) => {
-			const observer = ContentOffsetObserver.alloc().init() as ContentOffsetObserver
+			const observer = contentOffsetObserverClass().alloc().init() as ContentOffsetObserverInstance
 			let scheduled = false
 			let disposed = false
 			let timer: ReturnType<typeof setTimeout> | null = null
@@ -103,11 +105,32 @@ export function observeListViewability(
 	)
 }
 
-@NativeClass
-class ContentOffsetObserver extends NSObject {
-	callback: (() => void) | null = null
+let ContentOffsetObserver: any
 
-	observeValueForKeyPathOfObjectChangeContext(_path: string, _object: UIScrollView) {
-		this.callback?.()
+function contentOffsetObserverClass(): any {
+	if (!ContentOffsetObserver) {
+		ContentOffsetObserver = (NSObject as any).extend(
+			{
+				'observeValueForKeyPath:ofObject:change:context:'() {
+					;(this as any).callback?.()
+				},
+			},
+			{
+				name: 'XplatListViewabilityContentOffsetObserver',
+				exposedMethods: {
+					'observeValueForKeyPath:ofObject:change:context:': {
+						returns: interop.types.void,
+						params: [
+							interop.types.id,
+							interop.types.id,
+							interop.types.id,
+							interop.types.id,
+						],
+					},
+				},
+			},
+		)
 	}
+
+	return ContentOffsetObserver
 }

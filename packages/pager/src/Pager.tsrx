@@ -1,14 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { memo, useCallback, useEffect, useRef } from 'octane';
 import {
-	NATIVESCRIPT_RENDERER_ID,
-	createNativeScriptRoot,
-	defineUniversalComponent,
 	registerElement,
 } from '@nativescript-community/octane';
 
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import type { UniversalRoot } from '@nativescript-community/octane';
+import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native';
 import { Pager as NSPager } from '@nativescript-community/ui-pager';
 import { GridLayout } from '@nativescript/core';
 import type { PagerProps } from './props';
@@ -27,12 +24,14 @@ declare module '@nativescript-community/octane/intrinsics' {
 // the /ns/m dev bridge to resolve it under the app root.
 registerElement('pager', NSPager);
 
-/** One recycled page: the host view the plugin's adapter asks for plus the
- *  Octane root mounted into it. Mirrors the driver's ListView cell seam —
- *  ui-pager fires the same `itemLoading`/`itemDisposing` pair. */
+function createPortal(children: unknown, target: unknown) {
+	return createUniversalPortal(children as UniversalRenderable, target);
+}
+
+/** One recycled page: the adapter-owned host plus the current render data.
+	 *  Its content is a portal from Pager's declaring tree. */
 interface PagerCell {
 	host: any;
-	root: UniversalRoot;
 	pager: any;
 	renderItem: any;
 	item: any;
@@ -42,17 +41,10 @@ interface PagerCell {
 const cellsByHost = new WeakMap<object, PagerCell>();
 const cellsByPager = new WeakMap<object, Set<PagerCell>>();
 
-/** Every page root renders this one component, so rebinds are diffs of the
- *  cell's tree rather than remounts. The renderItem output wraps in a
- *  gridlayout — page content must stay single-root. */
-const PagerCell = defineUniversalComponent(NATIVESCRIPT_RENDERER_ID, (props: any) =>
-	props.renderItem(props.item, props.index),
-);
-
 function cellFor(host: any): PagerCell {
 	let cell = cellsByHost.get(host);
 	if (!cell) {
-		cell = { host, root: createNativeScriptRoot(host), pager: null, renderItem: null, item: undefined, index: -1 };
+		cell = { host, pager: null, renderItem: null, item: undefined, index: -1 };
 		cellsByHost.set(host, cell);
 	}
 
@@ -79,7 +71,6 @@ function releasePagerCells(pager: any) {
 	if (!cells) return;
 	for (const cell of cells) {
 		cellsByHost.delete(cell.host);
-		cell.root.unmount();
 	}
 
 	cellsByPager.delete(pager);
@@ -87,6 +78,7 @@ function releasePagerCells(pager: any) {
 
 function PagerInner(props: PagerProps) @{
 	const host = useRef<any>(null);
+	const [portalCells, setPortalCells] = useState<PagerCell[]>([]);
 	// Track selectedIndex writes across synchronous and delayed echoes.
 	// The plugin raises
 	// 'selectedIndexChange' for script writes exactly as for swipes, and
@@ -118,10 +110,9 @@ function PagerInner(props: PagerProps) @{
 		cell.renderItem = props.renderItem;
 		cell.item = item;
 		cell.index = args.index;
-		cell.root.render(PagerCell, {
-			renderItem: (it: any, i: number) => <gridlayout>{props.renderItem(it, i)}</gridlayout>,
-			item,
-			index: args.index,
+		setPortalCells((current) => {
+			const existing = current.some((entry) => entry === cell);
+			return existing ? [...current] : [...current, cell];
 		});
 	};
 
@@ -130,7 +121,7 @@ function PagerInner(props: PagerProps) @{
 		if (cell) {
 			cellsByHost.delete(args.view);
 			if (cell.pager) cellsByPager.get(cell.pager)?.delete(cell);
-			cell.root.unmount();
+			setPortalCells((current) => current.filter((entry) => entry !== cell));
 		}
 	};
 
@@ -164,6 +155,7 @@ function PagerInner(props: PagerProps) @{
 		pageSeeded.current = true;
 	});
 
+	<>
 	<pager
 		ref={bindHost}
 		id={props.id}
@@ -186,6 +178,13 @@ function PagerInner(props: PagerProps) @{
 		accessible={props.accessible}
 		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
 	/>
+	{portalCells.map((cell) =>
+		createPortal(
+			<gridlayout>{cell.renderItem?.(cell.item, cell.index)}</gridlayout>,
+			cell.host,
+		),
+	)}
+	</>
 }
 
 // The pager subtree is memoized on `items` and configuration: the universal
@@ -226,8 +225,8 @@ const MemoPager = memo(PagerInner, (a, b) =>
 /** Pager — paged horizontal swiping via @nativescript-community/ui-pager
  *  (ViewPager2 / paging UICollectionView), chrome-reset: one full-size cell
  *  per item, no indicator. Pages recycle through `itemTemplates` +
- *  `itemLoading`, each slot hosting its own Octane root — the same cell
- *  machinery the driver builds for `listview`, hand-wired here. */
+ *  `itemLoading`; active cell hosts are portals from the Pager's declaring
+ *  tree, so provider context follows each cell. */
 export function Pager(props: PagerProps) @{
 	@if (props.items.length > 0) {
 		<MemoPager

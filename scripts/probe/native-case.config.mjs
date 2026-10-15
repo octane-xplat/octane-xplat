@@ -32,7 +32,17 @@ export default async function nativeCaseConfig(project, target) {
 		// The npm `process.env.NODE_ENV` convention — package dev/prod switches
 		// (lexical among them) read it bare; the NS runtime has no `process`,
 		// so unrewritten reads throw at module eval.
-		define: xplatNodeEnvDefine('production'),
+		define: {
+			...xplatNodeEnvDefine('production'),
+			// The isolated case is a standalone Vite library, not the NativeScript
+			// host bundle, so it needs the same target globals for native plugins.
+			__ANDROID__: JSON.stringify(target === 'android'),
+			__IOS__: JSON.stringify(target === 'ios'),
+			__VISIONOS__: 'false',
+			__APPLE__: JSON.stringify(target === 'ios'),
+			'global.isAndroid': JSON.stringify(target === 'android'),
+			'global.isIOS': JSON.stringify(target === 'ios'),
+		},
 		plugins: [
 			scratchResolver(project),
 			css,

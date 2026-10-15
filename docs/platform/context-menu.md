@@ -79,13 +79,10 @@ export function Actions() {
 
 On Android, the trigger render function is evaluated in the declaring Octane
 tree and portals into a NativeScript host inside the platform control, so its
-component context is preserved. The iOS implementation still mounts the
-trigger and optional preview in independent Octane roots; provider context
-does not cross those roots. The iOS probe currently stops at
-`SwiftUIManager.registerNativeScriptViews` because
-`NativeScriptViewFactory.shared` is null, so that bridge path remains
-unqualified. The following details explain the connection; you can skip them
-when using the component:
+component context is preserved. On iOS, both the trigger and optional preview
+portal from the declaring tree into SwiftUI hosts, so they receive the same
+provider values and live updates. The following details explain the connection;
+you can skip them when using the component:
 
 - iOS resolves the registered view through `NativeScriptViewFactory`
   (the same lookup the swift-ui plugin's `NativeScriptView` performs) and

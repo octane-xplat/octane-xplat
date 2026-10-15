@@ -1,8 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { memo } from 'octane';
+import { memo, useState } from 'octane';
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from '../native-portal';
 import { registerStack } from '../stacks';
 import { cx } from '@octane-xplat/lib';
 import { getIcon } from '../icons';
@@ -38,8 +37,7 @@ function TabPane(props: TabPaneProps) @{
 	}
 }
 
-const paneRoots = new WeakMap<GridLayout, any>();
-const tabsByView = new WeakMap<GridLayout, () => any>();
+const panesByItem = new WeakMap<TabViewItem, GridLayout>();
 const itemsCache = new WeakMap<readonly PlatformTabSpec[], TabViewItem[]>();
 const iconWarned = new Set<string>();
 
@@ -83,6 +81,8 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 		const item = new TabViewItem();
 		item.title = t.title;
 		if (t.icon) applyIcon(item, t.icon);
+		const pane = new GridLayout();
+		panesByItem.set(item, pane);
 		if (t.stack) {
 			const frame = new Frame();
 			frame.once('loaded', () => {
@@ -90,10 +90,7 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 					create: () => {
 						const page = new Page();
 						page.actionBarHidden = true;
-						const pane = new GridLayout();
 						page.content = pane;
-						createNativeScriptRoot(pane).render(
-							TabPane as unknown as UniversalComponent, { render: t.render, stack: t.stack });
 
 						return page;
 					},
@@ -105,27 +102,12 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 			return item;
 		}
 
-		const cv = new GridLayout();
-		tabsByView.set(cv, t.render);
-		item.view = cv;
+		item.view = pane;
 		return item;
 	});
 
 	itemsCache.set(tabs, items);
 	return items;
-}
-
-function mountPanes(e: any) {
-	const tv = e.object as TabView;
-	for (const item of tv.items as TabViewItem[]) {
-		const cv = item.view as GridLayout;
-		if (!(cv instanceof GridLayout) || paneRoots.has(cv)) continue;
-		const render = tabsByView.get(cv);
-		if (!render) continue;
-		const root = createNativeScriptRoot(cv);
-		paneRoots.set(cv, root);
-		root.render(TabPane as unknown as UniversalComponent, { render });
-	}
 }
 
 function NavInner(props: {
@@ -137,16 +119,26 @@ function NavInner(props: {
 	onSelectedIndexChanged?: (index: number) => void;
 	modifiers?: BottomNavigationViewProps['modifiers'];
 }) @{
+	const [loaded, setLoaded] = useState(false);
+	const items = itemsFor(props.tabs);
+	<>
 	<tabview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
-		items={itemsFor(props.tabs)}
+		items={items}
 		selectedIndex={props.selectedIndex}
 		onSelectedIndexChanged={(e: any) => props.onSelectedIndexChanged?.(e.value)}
-		onLoaded={mountPanes}
+		onLoaded={() => setLoaded(true)}
 	/>
+	{loaded ? items.map((item, index) => {
+		const target = panesByItem.get(item);
+		return target
+			? createPortal(<TabPane render={props.tabs[index].render} stack={props.tabs[index].stack} />, target)
+			: null;
+	}) : null}
+	</>
 }
 
 // Memoized on the tabs array — TabView.item writes rebuild the native

@@ -3,12 +3,13 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
 import { GridLayout } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { getSwiftUIHostLifecycle, registerSwiftUIHost, unregisterSwiftUIHost } from '@octane-xplat/lib'
+import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
 import { useEffect, useRef, useState } from 'octane'
-import type { UniversalComponent, UniversalRoot } from 'octane/universal'
 import type { SwiftUIContextMenuProps } from './ios/types'
 
 declare const XplatContextMenuProvider: any
+declare const NativeScriptViewFactory: any
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
@@ -21,44 +22,29 @@ registerSwiftUI('xplat-swiftui-contextmenu', (owner: any) =>
 	new UIDataDriver(new XplatContextMenuProvider(), owner),
 )
 
-// Host views keyed by dash-free registry id — the provider's representable
-// appends "-<uuid>" and the factory looks the host up by the first segment.
-const hosts = new Map<string, GridLayout>()
-const roots = new Map<string, UniversalRoot>()
-
-function mountSubtree(id: string, render: () => any): void {
-	let host = hosts.get(id)
-	if (!host) {
-		host = new GridLayout()
-		hosts.set(id, host)
-		// Register the id the first time the host exists — the factory's
-		// lifecycle resolves it back out of this map.
-		SwiftUIManager.registerNativeScriptViews(
-			{ [id]: true },
-			{
-				create: (fullId: string) => hosts.get(fullId.split('-')[0]) as any,
-				destroy: (fullId: string) => {
-					// Drop the octane root too — a stale root would keep
-					// rendering into the destroyed host.
-					unmountSubtree(fullId.split('-')[0])
-				},
-			} as any,
-		)
-	}
-
-	let root = roots.get(id)
-	if (!root) {
-		root = createNativeScriptRoot(host)
-		roots.set(id, root)
-	}
-
-	root.render(TriggerRoot as unknown as UniversalComponent, { render })
+function createPortal(children: unknown, target: unknown) {
+	return createUniversalPortal(children as UniversalRenderable, target)
 }
 
-function unmountSubtree(id: string): void {
-	roots.get(id)?.unmount?.()
-	roots.delete(id)
-	hosts.delete(id)
+function ensureNativeScriptViewFactory(): void {
+	if (!NativeScriptViewFactory.shared) {
+		NativeScriptViewFactory.initShared()
+	}
+}
+
+function registerHosts(
+	triggerId: string,
+	trigger: GridLayout,
+	previewId: string,
+	preview: GridLayout,
+): void {
+	ensureNativeScriptViewFactory()
+	registerSwiftUIHost(triggerId, { create: () => trigger })
+	registerSwiftUIHost(previewId, { create: () => preview })
+	SwiftUIManager.registerNativeScriptViews(
+		{ [triggerId]: true, [previewId]: true },
+		getSwiftUIHostLifecycle(),
+	)
 }
 
 function TriggerRoot(props: { render: () => any }) @{
@@ -67,67 +53,65 @@ function TriggerRoot(props: { render: () => any }) @{
 
 let seq = 0
 
-/** Renders a SwiftUI .contextMenu whose activation element is a detached
- *  octane subtree embedded through the plugin's NativeScriptView-by-id
- *  factory. Menu items arrive as serialized data. */
+/** Renders a SwiftUI .contextMenu whose trigger and optional preview portal
+ *  from the declaring Octane tree into NativeScript hosts. Menu items arrive
+ *  as serialized data. */
 export function SwiftUIContextMenu(props: SwiftUIContextMenuProps) @{
 	const triggerId = useRef<string>('')
 	if (!triggerId.current) {
 		triggerId.current = `ctxmenu${++seq}`
 	}
 
-	const [ready, setReady] = useState(false)
+	const previewId = `${triggerId.current}preview`
+	const [portalHosts, setPortalHosts] = useState<{
+		trigger: GridLayout
+		preview: GridLayout
+	} | null>(null)
 
 	useEffect(() => {
-		mountSubtree(triggerId.current, props.trigger)
-		// Gate triggerId on registration — the representable resolves the id
-		// through NativeScriptViewFactory on first composition.
-		setReady(true)
+		const trigger = new GridLayout()
+		const preview = new GridLayout()
+		registerHosts(triggerId.current, trigger, previewId, preview)
+		setPortalHosts({ trigger, preview })
 
 		return () => {
-			unmountSubtree(triggerId.current)
-			unmountSubtree(`${triggerId.current}preview`)
-			setReady(false)
+			unregisterSwiftUIHost(triggerId.current)
+			unregisterSwiftUIHost(previewId)
 		}
 	}, [])
 
-	useEffect(() => {
-		mountSubtree(triggerId.current, props.trigger)
-	}, [props.trigger])
-
-	useEffect(() => {
-		if (!props.preview) return
-		mountSubtree(`${triggerId.current}preview`, props.preview)
-		// The preview subtree is released when the preview prop is removed
-		// or the component unmounts — unmountSubtree is idempotent, so the
-		// mount-effect cleanup above may also hit it.
-		return () => unmountSubtree(`${triggerId.current}preview`)
-	}, [props.preview])
-
 	const items = props.items ?? []
 
-	<xplatioscontextmenu
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		accessibilityLabel={props.accessibilityLabel}
-		swiftId="xplat-swiftui-contextmenu"
-		data={{
-			triggerId: ready ? triggerId.current : '',
-			previewId: ready && props.preview ? `${triggerId.current}preview` : '',
-			items: items.map((item) => ({
-				id: item.id,
-				title: item.title,
-				destructive: item.destructive ? 1 : 0,
-				disabled: item.disabled ? 1 : 0,
-				divider: item.divider ? 1 : 0,
-			})),
-		}}
-		onSwiftUIEvent={(event: any) => {
-			const item = event.data?.item
-			if (typeof item === 'string' && item) {
-				props.onItemSelected?.(item)
-			}
-		}}
-	/>;
+	<>
+		<xplatioscontextmenu
+			id={props.id}
+			className={props.className}
+			style={props.style}
+			accessibilityLabel={props.accessibilityLabel}
+			swiftId="xplat-swiftui-contextmenu"
+			data={{
+				triggerId: portalHosts ? triggerId.current : '',
+				previewId: portalHosts && props.preview ? previewId : '',
+				items: items.map((item) => ({
+					id: item.id,
+					title: item.title,
+					destructive: item.destructive ? 1 : 0,
+					disabled: item.disabled ? 1 : 0,
+					divider: item.divider ? 1 : 0,
+				})),
+			}}
+			onSwiftUIEvent={(event: any) => {
+				const item = event.data?.item
+				if (typeof item === 'string' && item) {
+					props.onItemSelected?.(item)
+				}
+			}}
+		/>
+		{portalHosts && props.trigger
+			? createPortal(<TriggerRoot render={props.trigger} />, portalHosts.trigger)
+			: null}
+		{portalHosts && props.preview
+			? createPortal(<TriggerRoot render={props.preview} />, portalHosts.preview)
+			: null}
+	</>;
 }

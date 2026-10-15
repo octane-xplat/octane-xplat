@@ -50,6 +50,7 @@
 		"typegen": "tsc -p tsconfig.types.json"
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",
 		"@nativescript/swift-ui": "4.0.2"
 	},
