@@ -18,7 +18,7 @@ export { VisuallyHidden } from './VisuallyHidden'
  *  `getFocusScopeCapabilities()` before relying on the behavior flags. */
 export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
 export { Absolute } from './Absolute'
-export type { PanEvent, SwipeEvent, SetTranslate } from './props'
+export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
 export type {
 	ClassName,
 	StyleProp,
@@ -659,7 +659,7 @@ export type {
 
 // Animation, theme, styling, and host services
 export { useAnimation } from './anim'
-export type { AnimatedValue } from './anim'
+export type { AnimatedValue, AnimationResult } from './props'
 export {
 	useThemeScheme,
 	getThemeScheme,
@@ -838,7 +838,7 @@ export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 export { mergeProps } from './merge-props'
 export { useKeyboardInset } from './use-keyboard-inset.tsrx'
 export { useKeyboard } from './use-keyboard'
-export type { UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
+export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
 export { useObjectRef } from './use-object-ref'
 export { useClipboard } from './use-clipboard'
 export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'

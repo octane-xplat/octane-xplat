@@ -56,6 +56,12 @@ export type LayoutComponent = (props: { children?: Renderable }) => any
 
 // ---------- gestures ----------
 
+/** Pan phase; cancellation never implies a completed drag. */
+export type PanState = 'began' | 'moved' | 'ended' | 'cancelled'
+
+/** Cumulative translation from gesture start (x/dx and y/dy are aliases),
+ * in CSS pixels on web or logical DIPs/points on native. Velocity uses
+ * those same units per second; target is the attached host. */
 export interface PanEvent {
 	x: number
 	y: number
@@ -63,12 +69,15 @@ export interface PanEvent {
 	dy: number
 	vx: number
 	vy: number
-	state: string
+	state: PanState
 	target: HostElement
 }
 
+/** NativeScript swipe direction flags: right=1, left=2, up=4, down=8.
+ * Swipe callbacks attach to native gesture-capable primitives; web does not
+ * synthesize swipe events. Use onPan for portable dragging. */
 export interface SwipeEvent {
-	direction: number
+	direction: 1 | 2 | 4 | 8
 }
 
 /** Public shape of `setTranslate` — the imperative translate write on a
@@ -3286,6 +3295,12 @@ export interface WindowHandle {
 
 // ---------- animation ----------
 
+/** Every started run settles once, including replacement and host failure. */
+export type AnimationResult =
+	| { status: 'finished' }
+	| { status: 'cancelled' }
+	| { status: 'failed'; error: unknown }
+
 /**
  * Value returned by `useAnimation(initial, prop)`. On web, `prop` supports
  * translateX/translateY/translateZ, scale/scaleX/scaleY, rotate/rotateX/
@@ -3301,9 +3316,11 @@ export interface WindowHandle {
  */
 export interface AnimatedValue {
 	readonly value: number
+	/** Attach to a shared view ref; pass null to detach and cancel. */
 	ref(el: HostElement): void
-	to(target: number, opts?: { duration?: number }): void
-	spring(target: number, opts?: { damping?: number; stiffness?: number }): void
+	/** Duration is milliseconds. Invalid inputs throw before replacing playback. */
+	to(target: number, opts?: { duration?: number }): Promise<AnimationResult>
+	spring(target: number, opts?: { damping?: number; stiffness?: number }): Promise<AnimationResult>
 	stop(): void
 }
 

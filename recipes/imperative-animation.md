@@ -2,7 +2,7 @@
 
 ID: imperative-animation
 Targets: web, ios, android, macos
-Related APIs: useAnimation, AnimatedValue, ref, to, spring, stop
+Related APIs: useAnimation, AnimatedValue, AnimationResult, ref, to, spring, stop
 
 ## Starting point
 
@@ -17,6 +17,7 @@ playback safely when replacing it or removing the screen.
 
 - AC1: Attach a stable animation controller to a view ref and use documented properties and units for timed and spring playback.
 - AC2: Replace playback from the current sample, freeze it with stop, and cancel owned work on ref detachment or component disposal.
+- AC4: Await finished/cancelled/failed run outcomes, including replacement, detachment, reduced motion, and host write failure.
 - AC3: Understand reduced-motion behavior on AppKit and distinguish timer/property evidence from OS input or frame-pacing verification.
 
 ## Documentation
@@ -24,3 +25,5 @@ playback safely when replacing it or removing the screen.
 - AC1: [Imperative animation](../docs/app/animation-gestures.md#existing-imperative-animation) and [maintained example](../packages/ui/examples/AnimationDemo.tsrx).
 - AC2: [Controller lifecycle](../docs/app/animation-gestures.md#existing-imperative-animation) and [AppKit fixture](../apps/macos/test/animation-fixture.macos.tsx).
 - AC3: [AppKit behavior](../docs/app/animation-gestures.md#existing-imperative-animation) and [verification limits](../docs/notes/animation-notes.md#appkit-imperative-animation).
+
+- AC4: [Observable outcomes and migration](../docs/app/animation-gestures.md#observe-imperative-animation-results) and [visible example](../packages/ui/examples/AnimationDemo.tsrx).

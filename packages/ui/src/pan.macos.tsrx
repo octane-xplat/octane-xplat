@@ -7,7 +7,7 @@ export function usePan(callback?: (event: PanEvent) => void): ((event: any) => v
 	const latest = useRef(callback)
 	latest.current = callback
 	const handler = useCallback((event: any) => {
-		const states = ['cancelled', 'began', 'moved', 'ended']
+		const states = ['cancelled', 'began', 'moved', 'ended'] as const
 		latest.current?.({
 			x: event.deltaX, y: event.deltaY, dx: event.deltaX, dy: event.deltaY,
 			vx: event.velocityX ?? 0, vy: event.velocityY ?? 0,

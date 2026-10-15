@@ -19,7 +19,7 @@ export { VisuallyHidden } from './VisuallyHidden'
  *  `getFocusScopeCapabilities()` before relying on the behavior flags. */
 export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
 export { Absolute } from './Absolute'
-export type { PanEvent, SwipeEvent, SetTranslate } from './props'
+export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
 export type {
 	ClassName,
 	StyleProp,
@@ -660,7 +660,7 @@ export type {
 
 // Animation, theme, styling, and host services
 export { useAnimation } from './anim'
-export type { AnimatedValue } from './anim'
+export type { AnimatedValue, AnimationResult } from './props'
 export {
 	useThemeScheme,
 	getThemeScheme,
@@ -838,8 +838,8 @@ export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './merge-props'
 export { useKeyboardInset } from './use-keyboard-inset.web.tsrx'
-export { useKeyboard } from './use-keyboard'
-export type { UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
+export { useKeyboard } from './use-keyboard.web'
+export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard.web'
 export { useObjectRef } from './use-object-ref'
 export { useClipboard } from './use-clipboard'
 export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'

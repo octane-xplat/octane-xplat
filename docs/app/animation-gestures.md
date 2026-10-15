@@ -6,6 +6,8 @@ An **animation** changes a value over time, such as fading a card from
 invisible to visible. A **gesture** is an interaction such as dragging that
 card. Start with [a working screen](primitives.md) before adding movement.
 
+For hardware-key handlers and text-copy feedback, see [keys and clipboard](keyboard-clipboard.md).
+
 ## Animate a component
 
 From your app folder, install the optional motion package:
@@ -935,3 +937,65 @@ capabilities on its documented targets. `setTranslate` also remains available.
 The [maintained example](../../packages/ui/examples/AnimationDemo.tsrx) demonstrates
 replacement and stop. [Animation notes](../notes/animation-notes.md#appkit-imperative-animation)
 record AppKit verification and scheduling limits.
+
+## Observe imperative animation results
+
+Await `to` or `spring` before starting work that depends on completion. Each run
+resolves with `finished`, `cancelled`, or `failed`; failures include an `error`.
+Replacement, `stop()`, ref detachment, and disposal cancel the active run.
+Reduced-motion settling and zero duration finish immediately. Invalid target,
+duration, or spring parameters still throw synchronously before replacing a run.
+Attach `ref` to the view you want to move. Translation uses CSS pixels on web,
+DIPs on mobile, and points on AppKit; rotation uses degrees and scale/opacity
+are unitless. This imperative API's duration uses **milliseconds**.
+
+```tsx
+import { Pressable, Text, View, useAnimation } from '@octane-xplat/ui'
+
+export function MovingCard() {
+  const x = useAnimation(0, 'translateX')
+  return <View>
+    <Pressable onPress={async () => {
+      const result = await x.to(80, { duration: 300 })
+      if (result.status === 'finished') console.log('Arrived')
+      if (result.status === 'failed') console.error(result.error)
+    }}><Text>Move</Text></Pressable>
+    <View ref={x.ref}><Text>Card</Text></View>
+  </View>
+}
+```
+
+### Gesture event migration
+
+`PanEvent.state` is now the exact union `began | moved | ended | cancelled`.
+`x`/`dx` and `y`/`dy` are identical cumulative displacement from the start,
+using CSS pixels on web and logical DIPs/points on native. `vx` and `vy` use
+those units per second. `target` is the attached host, an explicit platform
+escape hatch. `SwipeEvent.direction` retains NativeScript's direction flags
+(1 right, 2 left, 4 up, 8 down); web does not synthesize swipe callbacks.
+Use `onPan` for portable dragging. Replace arbitrary state/direction strings
+or numbers in typed test fixtures with these supported values.
+
+```tsx
+import { Text, View } from '@octane-xplat/ui'
+
+export function DragArea() {
+  return <View onPan={(event) => {
+    if (event.state === 'ended') console.log(event.dx, event.dy, event.vx, event.vy)
+    if (event.state === 'cancelled') console.log('Drag cancelled')
+  }}><Text>Drag here</Text></View>
+}
+```
+
+Existing fire-and-forget animation calls still work; change code that expects
+`void` to accept `Promise<AnimationResult>`, or explicitly discard the promise.
+See [AnimationDemo](../../packages/ui/examples/AnimationDemo.tsrx) for visible
+completion feedback.
+
+```ts
+import type { AnimatedValue } from '@octane-xplat/ui'
+
+export function moveWithoutWaiting(value: AnimatedValue): void {
+  void value.to(80, { duration: 300 })
+}
+```

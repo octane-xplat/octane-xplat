@@ -1,23 +1,34 @@
-/** React Aria's useKeyboard: wrap onKeyDown/onKeyUp into a keyboardProps
- *  bag to spread onto a focusable element. Events pass through as the
- *  platform's native event object (KeyboardEvent on web). */
+/** Normalized hardware-key event. key is the logical key, code the physical
+ * key; empty code means the host did not supply one. No host object escapes. */
+export interface KeyboardEvent {
+	readonly key: string
+	readonly code: string
+	readonly altKey: boolean
+	readonly ctrlKey: boolean
+	readonly metaKey: boolean
+	readonly shiftKey: boolean
+	readonly repeat: boolean
+	readonly isComposing: boolean
+	readonly defaultPrevented: boolean
+	preventDefault(): void
+	stopPropagation(): void
+}
+
 export interface UseKeyboardOptions {
-	onKeyDown?: (event: unknown) => void
-	onKeyUp?: (event: unknown) => void
+	onKeyDown?: (event: KeyboardEvent) => void
+	onKeyUp?: (event: KeyboardEvent) => void
 }
 
 export interface UseKeyboardResult {
+	/** DOM focusable elements on web/Linux; no shared native key bridge yet. */
+	readonly isSupported: boolean
 	keyboardProps: {
-		onKeyDown?: (event: unknown) => void
-		onKeyUp?: (event: unknown) => void
+		onKeyDown?: (event: KeyboardEvent) => void
+		onKeyUp?: (event: KeyboardEvent) => void
 	}
 }
 
-export function useKeyboard(options: UseKeyboardOptions = {}): UseKeyboardResult {
-	return {
-		keyboardProps: {
-			onKeyDown: options.onKeyDown,
-			onKeyUp: options.onKeyUp,
-		},
-	}
+/** Native hosts have no portable hardware-key attachment. */
+export function useKeyboard(_options: UseKeyboardOptions = {}): UseKeyboardResult {
+	return { isSupported: false, keyboardProps: {} }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'octane';
-import type { PanEvent } from './props';
+import type { PanEvent, PanState } from './props';
 
 const VELOCITY_MAX_AGE_MS = 100;
 
@@ -18,7 +18,7 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
 		let sx = 0, sy = 0, active = false;
 		let last = 0, lx = 0, t0 = 0;
 		let vx = 0, vy = 0, velocityAt = 0;
-		const emit = (e: PointerEvent, state: string) => {
+		const emit = (e: PointerEvent, state: PanState) => {
 			const now = performance.now();
 			const dt = Math.max(now - t0, 1) / 1000;
 			const dx = e.clientX - lx;

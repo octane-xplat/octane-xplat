@@ -24,13 +24,13 @@ export function ResizeHandle(props: ResizeHandleProps) @{
 		if (e.state === 'began') {
 			started.current = true;
 			resizable._onResizeStart();
-		} else if (e.state === 'changed' || e.state === 'moved') {
+		} else if (e.state === 'moved') {
 			if (started.current) resizable._onResizeMove(delta);
 		} else {
 			// ended / cancelled
 			if (started.current) {
 				started.current = false;
-				if (e.state === 'cancelled' || e.state === 'canceled') {
+				if (e.state === 'cancelled') {
 					resizable._onResizeCancel?.();
 				} else {
 					resizable._onResizeEnd();

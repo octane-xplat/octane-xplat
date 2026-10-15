@@ -1,4 +1,4 @@
-import type { AnimatedValue } from './props'
+import type { AnimatedValue, AnimationResult } from './props'
 
 /** Host scheduling and writes stay outside the shared UI animation contract. */
 export interface AnimationHost {
@@ -18,6 +18,7 @@ export function createAnimatedValue(
 	let frame = 0
 	let generation = 0
 	let disposed = false
+	let settle: ((result: AnimationResult) => void) | undefined
 	const apply = (value: number) => {
 		current = value
 		if (view) {
@@ -29,35 +30,60 @@ export function createAnimatedValue(
 		generation++
 		host.cancel(frame)
 		frame = 0
+		settle?.({ status: 'cancelled' })
+		settle = undefined
 	}
 
-	const run = (target: number, step: (elapsed: number) => number | null) => {
+	const run = (target: number, step: (elapsed: number) => number | null): Promise<AnimationResult> => {
 		stop()
 		if (disposed) {
-			return
+			return Promise.resolve({ status: 'cancelled' })
 		}
 
-		if (host.reducedMotion?.()) {
-			apply(target)
-			return
-		}
-
-		const token = generation
-		const start = host.now()
-		const tick = () => {
-			if (disposed || token !== generation) {
-				return
+		return new Promise((resolve) => {
+			settle = resolve
+			const finish = (result: AnimationResult) => {
+				settle = undefined
+				resolve(result)
 			}
 
-			frame = 0
-			const value = host.reducedMotion?.() ? null : step(Math.max(0, host.now() - start))
-			apply(value === null ? target : value)
-			if (value !== null && !disposed && token === generation) {
-				frame = host.request(tick)
-			}
-		}
+			const token = generation
+			let start: number
+			const tick = () => {
+				if (disposed || token !== generation) {
+					return
+				}
 
-		frame = host.request(tick)
+				frame = 0
+				try {
+					const value = host.reducedMotion?.() ? null : step(Math.max(0, host.now() - start))
+					apply(value === null ? target : value)
+					if (disposed || token !== generation) {
+						return
+					}
+
+					if (value === null) {
+						finish({ status: 'finished' })
+					} else {
+						frame = host.request(tick)
+					}
+				} catch (error) {
+					finish({ status: 'failed', error })
+				}
+			}
+
+			try {
+				if (host.reducedMotion?.() || step(0) === null) {
+					apply(target)
+					finish({ status: 'finished' })
+				} else {
+					start = host.now()
+					frame = host.request(tick)
+				}
+			} catch (error) {
+				finish({ status: 'failed', error })
+			}
+		})
 	}
 
 	return {
@@ -83,17 +109,9 @@ export function createAnimatedValue(
 			}
 
 			const from = current
-			if (duration === 0) {
-				stop()
-				if (!disposed) {
-					apply(target)
-				}
 
-				return
-			}
-
-			run(target, (elapsed) =>
-				elapsed >= duration ? null : from + ((target - from) * elapsed) / duration,
+			return run(target, (elapsed) =>
+				duration === 0 || elapsed >= duration ? null : from + ((target - from) * elapsed) / duration,
 			)
 		},
 		spring(target, opts) {
@@ -114,7 +132,7 @@ export function createAnimatedValue(
 			const from = current - target
 			const decay = damping / 2
 			const discriminant = stiffness - decay * decay
-			run(target, (elapsed) => {
+			return run(target, (elapsed) => {
 				const t = elapsed / 1000
 				let x: number, velocity: number
 				if (Math.abs(discriminant) < 1e-8) {

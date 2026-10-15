@@ -156,3 +156,53 @@ test('AppKit maps native properties, units and reduced motion', () => {
 	delete globalThis.CATransaction
 	delete globalThis.NSWorkspace
 })
+
+test('run outcomes distinguish completion, replacement, stop, detach and disposal', async () => {
+	const f = fixture()
+	const first = f.value.to(100)
+	const second = f.value.spring(0)
+	assert.deepEqual(await first, { status: 'cancelled' })
+	assert.deepEqual(await second, { status: 'finished' })
+	const stopped = f.value.to(80)
+	f.value.stop()
+	assert.deepEqual(await stopped, { status: 'cancelled' })
+	const detached = f.value.to(80)
+	f.value.ref(null)
+	assert.deepEqual(await detached, { status: 'cancelled' })
+	f.value.ref({})
+	const disposed = f.value.to(80)
+	f.value.dispose()
+	assert.deepEqual(await disposed, { status: 'cancelled' })
+	assert.deepEqual(await f.value.to(80, { duration: 0 }), { status: 'cancelled' })
+})
+
+test('completion promises cover timed, immediate, spring and reduced-motion runs', async () => {
+	const f = fixture()
+	const timed = f.value.to(80)
+	f.tick(300)
+	assert.deepEqual(await timed, { status: 'finished' })
+	assert.deepEqual(await f.value.to(40, { duration: 0 }), { status: 'finished' })
+	const spring = f.value.spring(0)
+	f.tick(10000)
+	assert.deepEqual(await spring, { status: 'finished' })
+	f.reduce()
+	assert.deepEqual(await f.value.to(80), { status: 'finished' })
+})
+
+test('host write and scheduling failures settle the run without unhandled rejection', async () => {
+	let tick
+	const error = new Error('host unavailable')
+	const value = createAnimatedValue(0, {
+		now: () => 0, cancel() {}, request(callback) { tick = callback; return 1 },
+		write() { throw error },
+	})
+	assert.throws(() => value.ref({}), /host unavailable/)
+	const run = value.to(10)
+	tick()
+	assert.deepEqual(await run, { status: 'failed', error })
+	assert.deepEqual(await value.to(10, { duration: 0 }), { status: 'failed', error })
+	const unscheduled = createAnimatedValue(0, {
+		now: () => 0, cancel() {}, request() { throw error }, write() {},
+	})
+	assert.deepEqual(await unscheduled.to(10), { status: 'failed', error })
+})
