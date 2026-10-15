@@ -2,8 +2,7 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useEffect, useRef, useState } from 'octane';
 import { GridLayout, isIOS, Screen } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from './native-portal';
 import type { PopoverProps } from './props';
 import type { PopoverInternalProps } from './internal-props';
 import { applyNativeProps } from './platformProps';
@@ -131,12 +130,11 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any; layerDept
 	</absolutelayout>
 }
 
-/** Positions popover content in a layer on the current page's RootLayout —
- *  the universal driver has no createPortal, so this is imperative like
- *  Overlay: a transparent host opened on the RootLayout enclosing the
- *  anchor, with PopoverLayer positioning itself over the anchor's rect. */
+/** Positions popover content in a portal hosted on the RootLayout enclosing
+ *  the anchor. PopoverLayer positions itself over the anchor's rect. */
 export function Popover(props: PopoverProps) @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
 	const open = props.open ?? internal;
 	const requestDismiss = () => {
 		if (props.open === undefined) setInternal(false);
@@ -144,7 +142,7 @@ export function Popover(props: PopoverProps) @{
 	};
 
 	const dismissal = useLayerDismissal({ get active() { return !!open }, isPresent: () => !!shown.current, getFocusTarget: () => props.finalFocusRef?.current, dismiss: requestDismiss, get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' } });
-	const shown = useRef<{ host: any; root: any; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
+	const shown = useRef<{ host: GridLayout; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
 
 	const dismiss = useRef(requestDismiss);
 	dismiss.current = requestDismiss;
@@ -161,7 +159,6 @@ export function Popover(props: PopoverProps) @{
 		if (!anchor || !rl) return;
 
 		if (cur) {
-			cur.root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
 			return;
 		}
 
@@ -169,19 +166,34 @@ export function Popover(props: PopoverProps) @{
 		const unbindTheme = applyThemeClasses(host, 'vx-popover-host');
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
-		const root = createNativeScriptRoot(host);
-		const lifetime = createOverlayLifetime(rl, host, root, 'Popover', (dismissed) => {
-			if (shown.current?.host === host) shown.current = null;
+		const lifetime = createOverlayLifetime(rl, host, null, 'Popover', (dismissed) => {
+			if (shown.current?.host === host) {
+				shown.current = null;
+				setPortalHost(null);
+			}
 			if (dismissed) dismiss.current?.();
 		});
 
 		lifetime.own(unbindTheme);
-		shown.current = { host, root, lifetime };
-		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, open, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
+		shown.current = { host, lifetime };
+		setPortalHost(host);
 		lifetime.open();
 	}, [props.anchor?.current, (props as PopoverInternalProps).layerPosition, open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
-	<></>
+	<>
+		{open && portalHost && props.anchor?.current
+			? createPortal(
+				<PopoverLayer
+					{...props}
+					open={open}
+					anchorView={props.anchor.current}
+					layerDepth={dismissal.depth}
+					onDismiss={() => { if (dismissal.shouldClose()) dismiss.current?.(); }}
+				/>,
+				portalHost,
+			)
+			: null}
+	</>
 }

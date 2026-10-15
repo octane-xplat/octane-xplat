@@ -2,8 +2,7 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import { GridLayout } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from './native-portal';
 import type {
 	ContextLayerReturn,
 	ContextRenderProps,
@@ -44,7 +43,7 @@ interface FixedSurfaceProps {
 	children?: any
 }
 
-/** Layer surface inside the overlay root — the Popover layout without
+/** Layer surface inside the portal host — the Popover layout without
  *  anchor measurement. */
 function FixedLayerSurface(props: FixedSurfaceProps) @{
 	const panelRef = useRef<any>(null);
@@ -77,13 +76,12 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
 	</absolutelayout>
 }
 
-/** Mounts the fixed-position layer on the enclosing RootLayout — the
- *  zero-size sentinel locates the root; the layer renders in its own root
- *  above the page, the same machinery as `Overlay`/`Popover`. */
+/** Mounts the fixed-position layer on the enclosing RootLayout. */
 function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 	const dismissal = useLayerDismissal({ get active() { return !!props.open }, isPresent: () => !!shown.current, dismiss: () => props.onDismiss?.(), get behavior() { return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block' } });
 	const sentinel = useRef<any>(null);
-	const shown = useRef<{ host: any; root: any; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
+	const shown = useRef<{ host: GridLayout; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
 	const dismiss = useRef(props.onDismiss);
 	dismiss.current = props.onDismiss;
 
@@ -97,38 +95,48 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 		const rl = rootLayoutFor(sentinel.current);
 		if (!rl) return;
 
-		const surface = { ...props, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } };
-		if (current) {
-			current.root.render(FixedLayerSurface as unknown as UniversalComponent, surface);
-			return;
-		}
+		if (current) return;
 
 		const host = new GridLayout();
 		const unbindTheme = applyThemeClasses(host, 'vx-layer-host');
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
-		const root = createNativeScriptRoot(host);
-		const lifetime = createOverlayLifetime(rl, host, root, 'Layer', (dismissed) => {
-			if (shown.current?.host === host) shown.current = null;
+		const lifetime = createOverlayLifetime(rl, host, null, 'Layer', (dismissed) => {
+			if (shown.current?.host === host) {
+				shown.current = null;
+				setPortalHost(null);
+			}
 			if (dismissed) dismiss.current?.();
 		});
 
 		lifetime.own(unbindTheme);
-		shown.current = { host, root, lifetime };
-		root.render(FixedLayerSurface as unknown as UniversalComponent, surface);
+		shown.current = { host, lifetime };
+		setPortalHost(host);
 		lifetime.open();
 	}, [props.open, props.children, props.x, props.y, props.lightDismiss, props.className, props.style, props.ios, props.android]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
-	<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+	<>
+		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		{props.open && portalHost
+			? createPortal(
+				<FixedLayerSurface
+					{...props}
+					layerDepth={dismissal.depth}
+					onDismiss={() => { if (dismissal.shouldClose()) dismiss.current?.(); }}
+				/>,
+				portalHost,
+			)
+			: null}
+	</>
 }
 
 /**
  * Anchored-layer primitive (Astryx `useLayer`), iOS/Android leaf. Context
  * mode delegates to `Popover` — JS measure/flip placement on the page's
  * RootLayout, not CSS anchor positioning. Logical sides and horizontal alignment use the anchor's effective OS direction. Fixed mode positions at page-coordinate x/y. The
- * layer is a separate Octane root: pass data as props, not context.
+ * fixed mode uses a portal in the declaring root and preserves its context.
  */
 export function useLayer<O extends LayerOptions>(
 	options: O,

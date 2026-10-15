@@ -14,7 +14,7 @@ type OverlayOwner = {
 export function createOverlayLifetime(
 	owner: OverlayOwner,
 	host: OverlayHost,
-	root: { unmount(): void },
+	root: { unmount(): void } | null,
 	label: string,
 	onFinish: (dismissed: boolean) => void,
 ) {
@@ -43,7 +43,7 @@ export function createOverlayLifetime(
 		}
 
 		cleanups.clear()
-		root.unmount()
+		root?.unmount()
 		onFinish(dismissed)
 	}
 

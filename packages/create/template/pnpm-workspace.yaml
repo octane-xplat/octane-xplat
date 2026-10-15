@@ -77,6 +77,10 @@ patchedDependencies:
   # authored Grid row/col/span metadata independently of NativeScript defaults and computed
   # auto-placement, notifying Grid when placement props change.
   "@nativescript-community/octane@0.2.4": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.4.patch
+  # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
+  # support: skip undefined property writes, advertise implemented visibility support, carry
+  # Octane callback ref types, and preserve authored Grid row/col/span metadata.
+  "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
   # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for

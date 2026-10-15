@@ -4,7 +4,7 @@
 	"private": true,
 	"main": "src/index.mobile.tsrx",
 	"dependencies": {
-		"@nativescript-community/octane": "0.2.4",
+		"@nativescript-community/octane": "0.2.5",
 		"@nativescript/core": "9.1.3",
 		"@octane-xplat/ui": "workspace:*",
 		"octane": "0.11.0"

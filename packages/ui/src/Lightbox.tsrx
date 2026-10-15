@@ -1,8 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef, useState } from 'octane';
 import { GridLayout } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from './native-portal';
 import type { LightboxProps, LightboxMedia } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyThemeClasses } from './theme/theme-host';
@@ -178,7 +177,7 @@ function LightboxPanel(props: {
 }
 
 /** Full-screen media viewer (Astryx `Lightbox`), native leaf — a dedicated
- *  overlay root on the declaring component's RootLayout, shaded + tap-to-
+ *  portal host on the declaring component's RootLayout, shaded + tap-to-
  *  close through the RootLayout scrim, swipe gestures for prev/next,
  *  double-tap zoom on images. `type:'video'` falls back to alt text — the
  *  video widget lives in the `@octane-xplat/video` leaf package. */
@@ -186,11 +185,12 @@ export function Lightbox(props: LightboxProps) @{
 	const sentinel = useRef<any>(null);
 	const shown = useRef<{
 		host: GridLayout;
-		root: any;
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
 
 	const [internal, setInternal] = useState(props.defaultIndex ?? 0);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
+	const [, setPanelVersion] = useState(0);
 	const indexRef = useRef(internal);
 	const mediaRef = useRef(props.media);
 	const dismiss = useRef(props.onOpenChange);
@@ -203,21 +203,6 @@ export function Lightbox(props: LightboxProps) @{
 	indexRef.current = index;
 	mediaRef.current = props.media;
 
-	const renderPanel = (root: any) => {
-		const panel = (panelProps: any) => (
-			<LightboxPanel
-				media={mediaRef.current}
-				index={indexRef.current}
-				setIndex={setIndex}
-				onClose={() => dismiss.current(false)}
-				hasZoom={props.hasZoom ?? true}
-				className={props.className}
-			/>
-		);
-
-		root.render(panel as unknown as UniversalComponent, {});
-	};
-
 	const setIndex = (i: number) => {
 		const clamped = clampIndex(i, count);
 		if (props.index == null) {
@@ -229,9 +214,7 @@ export function Lightbox(props: LightboxProps) @{
 		}
 
 		indexRef.current = clamped;
-		if (shown.current) {
-			renderPanel(shown.current.root);
-		}
+		setPanelVersion((version) => version + 1);
 	};
 
 	useEffect(() => {
@@ -241,10 +224,7 @@ export function Lightbox(props: LightboxProps) @{
 			return;
 		}
 
-		if (cur) {
-			renderPanel(cur.root);
-			return;
-		}
+		if (cur) return;
 
 		const rl = rootLayoutFor(sentinel.current);
 		if (!rl) return;
@@ -253,15 +233,17 @@ export function Lightbox(props: LightboxProps) @{
 		const unbindTheme = applyThemeClasses(host, 'vx-lightbox-host');
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
-		const root = createNativeScriptRoot(host);
-		const lifetime = createOverlayLifetime(rl, host, root, 'Lightbox', (dismissed) => {
-			if (shown.current?.host === host) shown.current = null;
+		const lifetime = createOverlayLifetime(rl, host, null, 'Lightbox', (dismissed) => {
+			if (shown.current?.host === host) {
+				shown.current = null;
+				setPortalHost(null);
+			}
 			if (dismissed) dismiss.current?.(false);
 		});
 
 		lifetime.own(unbindTheme);
-		shown.current = { host, root, lifetime };
-		renderPanel(root);
+		shown.current = { host, lifetime };
+		setPortalHost(host);
 		lifetime.open({
 			shadeCover: { opacity: 0.85, tapToClose: true },
 			animation: {
@@ -269,9 +251,24 @@ export function Lightbox(props: LightboxProps) @{
 				exitTo: { opacity: 0, duration: 140 },
 			},
 		});
-	}, [props.isOpen, props.media, props.index, props.className]);
+	}, [props.isOpen, count]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
-	<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+	<>
+		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		{props.isOpen && count > 0 && portalHost
+			? createPortal(
+				<LightboxPanel
+					media={mediaRef.current}
+					index={indexRef.current}
+					setIndex={setIndex}
+					onClose={() => dismiss.current(false)}
+					hasZoom={props.hasZoom ?? true}
+					className={props.className}
+				/>,
+				portalHost,
+			)
+			: null}
+	</>
 }

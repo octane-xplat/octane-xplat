@@ -5,7 +5,15 @@ import { describe, expect, it, vi } from 'vitest'
 const state = vi.hoisted(() => ({
 	hosts: [] as any[],
 	roots: [] as any[],
+	portals: [] as any[],
 	owner: null as any,
+}))
+
+vi.mock('./native-portal', () => ({
+	createPortal: (children: any, target: any) => {
+		state.portals.push({ children, target })
+		return children
+	},
 }))
 
 vi.mock('@nativescript/core', () => ({
@@ -74,6 +82,7 @@ function Probe(props: { fixed?: boolean }) {
 function freshOwner() {
 	state.hosts.length = 0
 	state.roots.length = 0
+	state.portals.length = 0
 	state.owner = {
 		open: vi.fn(async () => {}),
 		close: vi.fn(async () => {}),
@@ -99,9 +108,8 @@ describe('useLayer (mobile)', () => {
 
 		const host = state.hosts.at(-1)
 		expect(host.className).toContain('vx-layer-host')
-		const surfaceProps = state.roots.at(-1).render.mock.calls.at(-1)[1]
-		expect(surfaceProps.x).toBe(10)
-		expect(surfaceProps.y).toBe(20)
+		expect(state.portals.at(-1).target).toBe(host)
+		expect(state.roots).toHaveLength(0)
 
 		layer.hide()
 		await vi.waitFor(() => expect(state.owner.close).toHaveBeenCalled())

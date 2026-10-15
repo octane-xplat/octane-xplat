@@ -9,11 +9,19 @@ import {
 const state = vi.hoisted(() => ({
 	hosts: [] as any[],
 	roots: [] as any[],
+	portals: [] as any[],
 	subscriptions: new Set<() => void>(),
 	owner: null as any,
 	open: null as any,
 	cleanup: [] as any[],
 	enter: vi.fn(),
+}))
+
+vi.mock('./native-portal', () => ({
+	createPortal: (children: any, target: any) => {
+		state.portals.push({ children, target })
+		return children
+	},
 }))
 
 vi.mock('@nativescript/core', () => ({
@@ -132,6 +140,7 @@ function mount(Component: any, props: any = {}, mapProps: (p: any) => any = (p) 
 beforeEach(() => {
 	state.hosts.length = 0
 	state.roots.length = 0
+	state.portals.length = 0
 	state.cleanup.length = 0
 	state.subscriptions.clear()
 	state.enter.mockClear()
@@ -184,14 +193,16 @@ describe.each([
 	['BottomSheet', BottomSheet, sheetProps],
 	['Popover', Popover, (p: any) => p],
 ] as const)('%s native lifetime', (_, Component, mapProps) => {
-	it('releases its host, root and subscriptions when its owner unmounts', async () => {
+	it('releases its host and portal without mounting another root', async () => {
 		const dismiss = vi.fn()
 		const { root } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] }, mapProps)
 		await settle()
+		expect(state.portals.some((portal) => portal.target === state.hosts[0])).toBe(true)
 		root.unmount()
 		await settle()
 		expect(state.owner.children.size).toBe(0)
-		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
+		expect(state.roots).toHaveLength(0)
+		expect(state.portals.at(-1)?.target).toBe(state.hosts[0])
 		expect(state.subscriptions.size).toBe(0)
 		expect(dismiss).not.toHaveBeenCalled()
 		for (const off of state.cleanup) {
@@ -206,7 +217,7 @@ describe.each([
 		render({ open: false })
 		await settle()
 		expect(state.owner.children.size).toBe(0)
-		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
+		expect(state.roots).toHaveLength(0)
 		expect(state.subscriptions.size).toBe(0)
 		expect(dismiss).not.toHaveBeenCalled()
 	})
@@ -224,7 +235,7 @@ describe.each([
 		finish()
 		await settle()
 		expect(state.owner.children.size).toBe(0)
-		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
+		expect(state.roots).toHaveLength(0)
 		expect(state.enter).not.toHaveBeenCalled()
 	})
 
@@ -241,7 +252,7 @@ describe.each([
 		await settle()
 		expect(state.owner.children.size).toBe(0)
 		expect(state.subscriptions.size).toBe(0)
-		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
+		expect(state.roots).toHaveLength(0)
 		for (const off of state.cleanup) {
 			expect(off).toHaveBeenCalledTimes(1)
 		}
@@ -260,7 +271,7 @@ describe.each([
 		expect(state.owner.removeChild).not.toHaveBeenCalled()
 		host.notify('closed')
 		state.owner.removeChild(host)
-		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
+		expect(state.roots).toHaveLength(0)
 	})
 
 	it('detaches a host when its close animation rejects', async () => {
@@ -296,8 +307,7 @@ describe.each([
 		fail(new Error('old open'))
 		await settle()
 		expect(state.owner.children.size).toBe(1)
-		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
-		expect(state.roots[1].unmount).not.toHaveBeenCalled()
+		expect(state.roots).toHaveLength(0)
 		error.mockRestore()
 	})
 

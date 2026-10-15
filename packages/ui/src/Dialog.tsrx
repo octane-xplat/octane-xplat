@@ -2,8 +2,7 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useContext, useEffect, useId, useRef, useState } from 'octane';
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from './native-portal';
 import type { DialogHeaderProps, DialogProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyThemeClasses } from './theme/theme-host';
@@ -16,7 +15,7 @@ import { spacingStep } from './spacing';
 import { Icon } from './Icon';
 import { Pressable } from './Pressable';
 
-/** The modal body rendered inside the dedicated overlay root — a centered
+/** The modal body rendered in a portal host — a centered
  *  (or `position`-anchored) panel on the page's RootLayout. `purpose`
  *  gates the shade tap; hardware back dismissal arrives via the host's
  *  `closed` event and reports through `onOpenChange(false)`. */
@@ -105,9 +104,9 @@ function DialogInline(props: DialogProps) @{
 
 /** Modal dialog (Astryx `Dialog`), native leaf — a GridLayout host on the
  *  RootLayout enclosing the declaring component (same ownership model as
- *  BottomSheet) with a dedicated Octane root. Hardware back / shade taps
- *  go through the RootLayout's own dismissal path; `purpose` maps to
- *  shade `tapToClose` (Android back is not blockable through RootLayout —
+ *  BottomSheet), with content portaled from the declaring root. Hardware
+ *  back and shade taps go through the RootLayout's own dismissal path.
+ *  `purpose` maps to shade `tapToClose` (Android back is not blockable through RootLayout —
  *  documented deviation). Focus restoration has no direct equivalent;
  *  `finalFocusRef` calls the target's focus method when the declaration closes. */
 export function Dialog(props: DialogProps) @{
@@ -121,9 +120,9 @@ export function Dialog(props: DialogProps) @{
 	const dismissal = useLayerDismissal({ get active() { return !!open && !props.isInline }, isPresent: () => !!shown.current, dismiss: () => requestChange(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' }, getFocusTarget: () => props.finalFocusRef?.current });
 
 	const sentinel = useRef<any>(null);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
 	const shown = useRef<{
 		host: GridLayout;
-		root: any;
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
 
@@ -141,7 +140,6 @@ export function Dialog(props: DialogProps) @{
 		if (!rl) return;
 
 		if (cur) {
-			cur.root.render(DialogPanel as unknown as UniversalComponent, { ...props, onOpenChange: requestChange, layerDepth: dismissal.depth });
 			return;
 		}
 
@@ -149,9 +147,11 @@ export function Dialog(props: DialogProps) @{
 		const unbindTheme = applyThemeClasses(host, 'vx-dialog-overlay');
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
-		const root = createNativeScriptRoot(host);
-		const lifetime = createOverlayLifetime(rl, host, root, 'Dialog', (dismissed) => {
-			if (shown.current?.host === host) shown.current = null;
+		const lifetime = createOverlayLifetime(rl, host, null, 'Dialog', (dismissed) => {
+			if (shown.current?.host === host) {
+				shown.current = null;
+				setPortalHost(null);
+			}
 			if (dismissed) dismiss.current?.(false);
 		});
 
@@ -160,8 +160,8 @@ export function Dialog(props: DialogProps) @{
 		// outside taps — same affordances the sheet host owns.
 		lifetime.own(bindBottomInsetToKeyboard(host));
 		lifetime.own(attachTapToBlur(host));
-		shown.current = { host, root, lifetime };
-		root.render(DialogPanel as unknown as UniversalComponent, { ...props, onOpenChange: requestChange, layerDepth: dismissal.depth });
+		shown.current = { host, lifetime };
+		setPortalHost(host);
 
 		const purpose = props.purpose ?? 'info';
 		lifetime.open({
@@ -189,7 +189,13 @@ export function Dialog(props: DialogProps) @{
 
 	// Zero-size sentinel — the dialog resolves its owning RootLayout from
 	// the declaring component's ancestry.
-	<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+	<>
+		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		{open && portalHost ? createPortal(
+			<DialogPanel {...props} onOpenChange={requestChange} layerDepth={dismissal.depth} />,
+			portalHost,
+		) : null}
+	</>
 }
 
 /** Dialog title row (Astryx `DialogHeader`), native leaf. */

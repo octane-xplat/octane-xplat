@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 const hosts: any[] = []
 
 vi.mock('@nativescript/core', () => ({
+	isIOS: false,
+	isAndroid: false,
 	Application: {
 		primaryWindow: undefined,
 		on: () => {},
@@ -25,6 +27,8 @@ vi.mock('@nativescript-community/octane', async (importOriginal) => ({
 	...(await importOriginal<Record<string, unknown>>()),
 	createNativeScriptRoot: () => ({ render() {}, unmount() {} }),
 }))
+
+vi.mock('./native-portal', () => ({ createPortal: (children: any) => children }))
 
 vi.mock('./root-layout', () => ({
 	rootLayoutFor: () => ({

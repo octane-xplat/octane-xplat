@@ -1,8 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal } from './native-portal';
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props';
 import {
 	BottomSheetSwitcherContext,
@@ -50,7 +49,7 @@ function sheetHeightDips(height: BottomSheetProps['height'], vh: number): number
 	return parseFloat(trimmed) || null;
 }
 
-/** The sheet's content — rendered inside the dedicated overlay root. */
+/** The sheet's content — rendered in its portal host. */
 function BottomSheetBody(props: { children?: any }) @{
 	<>{props.children}</>
 }
@@ -103,12 +102,13 @@ export function attachBottomSheetHost(
 }
 
 /** Declarative in-window bottom sheet (Astryx `BottomSheet`), native leaf —
- *  RootLayout host + dedicated Octane root on the declaring component's
+ *  RootLayout host + portal from the declaring component's
  *  RootLayout. With `sheetId` inside `BottomSheetSwitcher` it registers
  *  under the switcher's shared host instead. */
 export function BottomSheet(props: BottomSheetProps) @{
 	const switcher = useContext(BottomSheetSwitcherContext);
 	const sentinel = useRef<any>(null);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const open = props.isOpen ?? internal;
 	const requestChange = (isOpen: boolean) => {
@@ -118,7 +118,6 @@ export function BottomSheet(props: BottomSheetProps) @{
 
 	const shown = useRef<{
 		host: GridLayout;
-		root: any;
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
 
@@ -150,16 +149,15 @@ export function BottomSheet(props: BottomSheetProps) @{
 		const rl = rootLayoutFor(sentinel.current);
 		if (!rl) return;
 
-		if (cur) {
-			cur.root.render(BottomSheetBody as unknown as UniversalComponent, { children: props.children });
-			return;
-		}
+		if (cur) return;
 
 		const host = new GridLayout();
 		const unbindTheme = applyThemeClasses(host, cx('vx-sheet-host', 'vx-bottom-sheet-host', props.className));
-		const root = createNativeScriptRoot(host);
-		const lifetime = createOverlayLifetime(rl, host, root, 'BottomSheet', (dismissed) => {
-			if (shown.current?.host === host) shown.current = null;
+		const lifetime = createOverlayLifetime(rl, host, null, 'BottomSheet', (dismissed) => {
+			if (shown.current?.host === host) {
+				shown.current = null;
+				setPortalHost(null);
+			}
 			if (dismissed) dismiss.current?.(false);
 		});
 
@@ -180,8 +178,8 @@ export function BottomSheet(props: BottomSheetProps) @{
 			},
 		);
 
-		shown.current = { host, root, lifetime };
-		root.render(BottomSheetBody as unknown as UniversalComponent, { children: props.children });
+		shown.current = { host, lifetime };
+		setPortalHost(host);
 		lifetime.open(
 			{
 				...(hasScrim
@@ -208,12 +206,15 @@ export function BottomSheet(props: BottomSheetProps) @{
 
 	// Zero-size sentinel — the sheet resolves its owning RootLayout from the
 	// declaring component's ancestry.
-	<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+	<>
+		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		{props.sheetId == null && open && portalHost
+			? createPortal(<BottomSheetBody>{props.children}</BottomSheetBody>, portalHost)
+			: null}
+	</>
 }
 
-/** The active panel rendered inside the switcher's overlay root — reads
- *  the registration store (module-scope store crosses the root boundary;
- *  context does not). */
+/** The active panel rendered in the switcher's portal host. */
 function SwitcherPanel(props: {
 	store: ReturnType<typeof createStore<Map<string, BottomSheetRegistration>>>;
 	host: GridLayout;
@@ -258,9 +259,9 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	const sentinel = useRef<any>(null);
 	const shown = useRef<{
 		host: GridLayout;
-		root: any;
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
+	const [portalHost, setPortalHost] = useState<GridLayout | null>(null);
 
 	const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null);
 	const activeId = props.activeSheet !== undefined ? props.activeSheet : internal;
@@ -304,19 +305,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 			return;
 		}
 
-		if (cur) {
-			// Re-render the overlay root with the new active id — the store
-			// subscription keeps the panel content live.
-			cur.root.render(SwitcherPanel as unknown as UniversalComponent, {
-				store: specs,
-				host: cur.host,
-				activeSheet: activeId,
-				hasScrim: props.hasScrim ?? true,
-				requestDismiss: () => onChange.current?.(null),
-			});
-
-			return;
-		}
+		if (cur) return;
 
 		const rl = rootLayoutFor(sentinel.current);
 		if (!rl) return;
@@ -325,23 +314,19 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 		const unbindTheme = applyThemeClasses(host, cx('vx-sheet-host', 'vx-bottom-sheet-host', props.className));
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'bottom';
-		const root = createNativeScriptRoot(host);
-		const lifetime = createOverlayLifetime(rl, host, root, 'BottomSheetSwitcher', (dismissed) => {
-			if (shown.current?.host === host) shown.current = null;
+		const lifetime = createOverlayLifetime(rl, host, null, 'BottomSheetSwitcher', (dismissed) => {
+			if (shown.current?.host === host) {
+				shown.current = null;
+				setPortalHost(null);
+			}
 			if (dismissed) onChange.current?.(null);
 		});
 
 		lifetime.own(unbindTheme);
 		lifetime.own(bindBottomInsetToKeyboard(host));
 		lifetime.own(attachTapToBlur(host));
-		shown.current = { host, root, lifetime };
-		root.render(SwitcherPanel as unknown as UniversalComponent, {
-			store: specs,
-			host,
-			activeSheet: activeId,
-			hasScrim: props.hasScrim ?? true,
-			requestDismiss: () => onChange.current?.(null),
-		});
+		shown.current = { host, lifetime };
+		setPortalHost(host);
 
 		lifetime.open({
 			...((props.hasScrim ?? true)
@@ -358,5 +343,17 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 			{props.children}
 		</BottomSheetSwitcherProvider>
 		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		{activeId != null && portalHost
+			? createPortal(
+				<SwitcherPanel
+					store={specs}
+					host={portalHost}
+					activeSheet={activeId}
+					hasScrim={props.hasScrim ?? true}
+					requestDismiss={() => onChange.current?.(null)}
+				/>,
+				portalHost,
+			)
+			: null}
 	</>
 }

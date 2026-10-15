@@ -39,6 +39,14 @@
 			"dropWhen": "@nativescript-community/octane ships removal-reset prop semantics, the undefined-skip, visibility capability, Octane-compatible intrinsic ref types, and Grid authored placement metadata with change notifications upstream."
 		},
 		{
+			"specifier": "@nativescript-community/octane@0.2.5",
+			"file": "@nativescript-community__octane@0.2.5.patch",
+			"upstreamPR": "https://github.com/nativescript-community/octane/pull/14",
+			"scope": "runtime",
+			"why": "Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal support: skip undefined property writes, advertise implemented visibility support, carry Octane callback ref types, and preserve authored Grid row/col/span metadata.",
+			"dropWhen": "@nativescript-community/octane ships the undefined-skip, visibility capability, Octane-compatible intrinsic ref types, and Grid authored placement metadata with change notifications upstream."
+		},
+		{
 			"specifier": "@nativescript-community/vite-octane@0.2.1",
 			"file": "@nativescript-community__vite-octane@0.2.1.patch",
 			"upstreamPR": "https://github.com/nativescript-community/octane/pull/15",
