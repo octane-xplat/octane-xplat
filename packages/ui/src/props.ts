@@ -5218,27 +5218,34 @@ export interface SearchableItem<TAuxData = unknown> {
 	auxiliaryData?: TAuxData
 }
 
+/** One in-flight `SearchSource` call. `signal` aborts when the request is
+ *  superseded or abandoned — every call gets a fresh signal, so consumers
+ *  sharing one source cannot cancel each other's work. */
+export interface SearchRequest {
+	readonly signal: AbortSignal
+}
+
 /** Supplies items to Typeahead/Tokenizer. `search` runs on (debounced) query
- *  changes, `bootstrap` on focus when `hasEntriesOnFocus` is set, and
- *  `cancel` aborts superseded in-flight work — optional; without it stale
- *  results are discarded when they resolve.
+ *  changes and `bootstrap` on focus when `hasEntriesOnFocus` is set. Both
+ *  receive a request whose `signal` aborts superseded in-flight work —
+ *  optional for sources that do no async work; stale results are discarded
+ *  when they resolve.
  *
  * @example
  * ```ts
  * import { createStaticSource } from '@octane-xplat/ui'
  *
- * // static list — or hand-write search/bootstrap/cancel
+ * // static list — or hand-write search/bootstrap honoring request.signal
  * const source = createStaticSource([
  * 	{ id: '1', label: 'Ada' },
  * 	{ id: '2', label: 'Grace' },
  * ])
  * ```
- * @see createStaticSource, SearchableItem.
+ * @see createStaticSource, SearchableItem, SearchRequest.
  */
 export interface SearchSource<T extends SearchableItem = SearchableItem> {
-	search(query: string): Promise<T[]> | T[]
-	bootstrap(): Promise<T[]> | T[]
-	cancel?(): void
+	search(query: string, request?: SearchRequest): Promise<T[]> | T[]
+	bootstrap(request?: SearchRequest): Promise<T[]> | T[]
 }
 
 /** Options for `createStaticSource` — `keywords(item)` supplies extra matched terms alongside `label`.
@@ -6697,13 +6704,15 @@ export interface ChatComposerTriggerItem<TAuxData = unknown> {
 	auxiliaryData?: TAuxData
 }
 
-/** Sync or async item source for a trigger menu — the portable SearchSource. */
+/** Sync or async item source for a trigger menu — the portable SearchSource.
+ *  `search`/`bootstrap` receive a `SearchRequest` whose `signal` aborts
+ *  superseded calls; sharing one source across triggers or composers never
+ *  cancels a sibling's in-flight request. */
 export interface ChatComposerSearchSource<
 	T extends ChatComposerTriggerItem = ChatComposerTriggerItem,
 > {
-	search(query: string): Promise<T[]> | T[]
-	bootstrap?(): Promise<T[]> | T[]
-	cancel?(): void
+	search(query: string, request?: SearchRequest): Promise<T[]> | T[]
+	bootstrap?(request?: SearchRequest): Promise<T[]> | T[]
 }
 
 /** One trigger (`@`, `/`, …) activating an autocomplete menu in the input. */

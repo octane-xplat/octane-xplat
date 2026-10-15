@@ -46,6 +46,17 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const searchGenRef = useRef(0);
 	const resultsGenRef = useRef(0);
 	const loadingRef = useRef(false);
+	const requestRef = useRef<AbortController | null>(null);
+	const abortRequest = () => {
+		requestRef.current?.abort();
+		requestRef.current = null;
+	};
+	const nextRequest = () => {
+		abortRequest();
+		const controller = new AbortController();
+		requestRef.current = controller;
+		return { signal: controller.signal };
+	};
 
 	const setLoading = (next: boolean) => {
 		if (loadingRef.current === next) return;
@@ -63,13 +74,13 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		if (!open) return;
 		setOpen(false);
 		setHighlightedIndex(-1);
-		searchSource.cancel?.();
+		abortRequest();
 		props.onOpenChange?.(false);
 	};
 
 	const prevSearchSourceRef = useRef(searchSource);
 	if (prevSearchSourceRef.current !== searchSource) {
-		prevSearchSourceRef.current.cancel?.();
+		abortRequest();
 		prevSearchSourceRef.current = searchSource;
 		searchGenRef.current++;
 	}
@@ -87,7 +98,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		const gen = ++searchGenRef.current;
 		let bootstrapResult: T[] | Promise<T[]>;
 		try {
-			bootstrapResult = searchSource.bootstrap();
+			bootstrapResult = searchSource.bootstrap(nextRequest());
 		} catch {
 			if (searchGenRef.current === gen) {
 				setResults([]);
@@ -114,12 +125,12 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	};
 
 	const performSearch = async (searchQuery: string) => {
-		searchSource.cancel?.();
+		abortRequest();
 		const gen = ++searchGenRef.current;
 		setLoading(true);
 		setHasSearched(true);
 		try {
-			const searchResults = await searchSource.search(searchQuery);
+			const searchResults = await searchSource.search(searchQuery, nextRequest());
 			if (searchGenRef.current !== gen) return;
 			resultsGenRef.current = gen;
 			const fetched = searchResults.slice(0, maxMenuItems);
@@ -144,7 +155,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 
 		if ((newQuery.length === 0 && !hasEntriesOnFocus) || isBelowMinQueryLength(newQuery, minQueryLength)) {
 			searchGenRef.current++;
-			searchSource.cancel?.();
+			abortRequest();
 			const derived = (props as BaseTypeaheadInternalProps<T>).__queryEntries?.(newQuery, []) ?? [];
 			setResults(derived);
 			setHighlightedIndex(derived.length > 0 ? 0 : -1);
@@ -173,7 +184,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 			searchTimeoutRef.current = null;
 		}
 
-		searchSource.cancel?.();
+		abortRequest();
 		props.onChange(item);
 		setQuery('');
 		setResults([]);
@@ -184,7 +195,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 
 	useEffect(() => () => {
 		if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-		prevSearchSourceRef.current.cancel?.();
+		abortRequest();
 	}, []);
 
 	useImperativeHandle(props.ref, () => ({

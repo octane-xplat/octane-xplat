@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
-import type { SearchableItem, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
+import type { SearchableItem, SearchRequest, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import type { TypeaheadQueryEntries } from './internal-props';
 import { cx } from "@octane-xplat/lib";
 import { FormField } from './FormField.macos.tsrx';
@@ -70,11 +70,10 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 
 	const filteredSource: SearchSource<T> = useMemo(
 		() => ({
-			search: async (query: string) =>
-				(await props.searchSource.search(query)).filter((item) => !selectedIds.has(item.id)),
-			bootstrap: async () =>
-				(await props.searchSource.bootstrap()).filter((item) => !selectedIds.has(item.id)),
-			cancel: () => props.searchSource.cancel?.(),
+			search: async (query: string, request?: SearchRequest) =>
+				(await props.searchSource.search(query, request)).filter((item) => !selectedIds.has(item.id)),
+			bootstrap: async (request?: SearchRequest) =>
+				(await props.searchSource.bootstrap(request)).filter((item) => !selectedIds.has(item.id)),
 		}),
 		[props.searchSource, selectedIds],
 	);

@@ -99,6 +99,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 
 	const triggerStartRef = useRef(-1);
 	const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const requestRef = useRef<AbortController | null>(null);
 	const anchorSpanRef = useRef<HTMLSpanElement | null>(null);
 	const anchorRef = useRef<{ current: unknown }>({ current: null });
 
@@ -119,7 +120,8 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			searchTimeoutRef.current = null;
 		}
 
-		state.activeTrigger?.searchSource.cancel?.();
+		requestRef.current?.abort();
+		requestRef.current = null;
 		removeAnchorSpan();
 		triggerStartRef.current = -1;
 		setState({
@@ -181,9 +183,10 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			}
 
 			const doSearch = () => {
-				trigger.searchSource.cancel?.();
+				requestRef.current?.abort();
+				requestRef.current = new AbortController();
 				setState((prev) => ({ ...prev, isLoading: true }));
-				Promise.resolve(trigger.searchSource.search(query)).then(
+				Promise.resolve(trigger.searchSource.search(query, { signal: requestRef.current!.signal })).then(
 					(items) => {
 						setState((prev) => ({
 							...prev,

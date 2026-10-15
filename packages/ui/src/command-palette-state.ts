@@ -103,14 +103,13 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 
 	const patch = (next: Partial<CommandPaletteState<T>>) =>
 		store.update((state) => ({ ...state, ...next }))
+	// Each search/bootstrap call gets its own request — aborting a superseded
+	// one can never cancel another consumer's work on a shared source.
+	let request: AbortController | null = null
 	const invalidate = () => {
 		generation++
-		// Cancellation is advisory; even a throwing cancel cannot bypass invalidation.
-		try {
-			source?.cancel?.()
-		} catch {
-			/* The next search/close still proceeds. */
-		}
+		request?.abort()
+		request = null
 	}
 
 	const search = (query: string) => {
@@ -142,10 +141,11 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		}
 
 		try {
+			request = new AbortController()
 			const result = source
 				? query.trim() === ''
-					? source.bootstrap()
-					: source.search(query)
+					? source.bootstrap({ signal: request.signal })
+					: source.search(query, { signal: request.signal })
 				: (staticCommands(currentProps, query) as T[])
 
 			if (Array.isArray(result)) {

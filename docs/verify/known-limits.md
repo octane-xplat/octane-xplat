@@ -432,6 +432,13 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `useSpeechRecognition`, `useChatDictation`) moved to
   `@octane-xplat/ui/chat`. `xplat routes` codegen emits the new paths; rerun
   `xplat routes --dir src/app` after upgrading. — post-0.14.0·desk.
+- **`SearchSource`/`ChatComposerSearchSource` cancellation is request-scoped**
+  — `search(query)` and `bootstrap()` now take an optional second argument
+  `request` whose `signal` aborts when the call is superseded or abandoned.
+  The source-level `cancel()` method is gone: each call gets a fresh signal,
+  so sharing one source across components or triggers can never cancel a
+  sibling's in-flight request. Move `cancel()` bodies into the request
+  signal (e.g. pass `request?.signal` to `fetch`). — post-0.14.0·desk.
 - **`ScrollableArea`'s `ref` is a typed handle** — it now receives a
   `ScrollableAreaHandle` (`scrollToOffset({ inline, block }, { animated })`
   plus `native`) instead of the raw scroll element/view. Move existing host

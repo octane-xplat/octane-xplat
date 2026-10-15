@@ -174,15 +174,15 @@ describe('CommandPalette search and selection', () => {
 		}
 	})
 
-	it('cancels old sources and reruns the current query after replacement', async () => {
+	it('aborts the replaced source request and reruns the current query', async () => {
 		const slow = deferred()
-		let cancelled = 0
+		let signal: AbortSignal | undefined
 		const { props, controller } = setup({
 			searchSource: {
 				bootstrap: () => [],
-				search: () => slow.promise,
-				cancel: () => {
-					cancelled++
+				search: (_query: string, request?: { signal: AbortSignal }) => {
+					signal = request?.signal
+					return slow.promise
 				},
 			},
 		})
@@ -196,7 +196,7 @@ describe('CommandPalette search and selection', () => {
 		controller.configure()
 		slow.resolve([{ id: 'old', label: 'Old' }])
 		await tick()
-		expect(cancelled).toBeGreaterThan(0)
+		expect(signal?.aborted).toBe(true)
 		expect(controller.store.getSnapshot().results[0].id).toBe('query')
 	})
 

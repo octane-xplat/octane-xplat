@@ -201,31 +201,26 @@ const source = createStaticSource(
 
 For remote data, implement `search(query)` and `bootstrap()`. `search` receives
 the debounced query; `bootstrap` supplies the optional focus list when
-`hasEntriesOnFocus` is true. Return current results from each call. `cancel()`
-is called when work is superseded; the component also ignores stale responses.
-`minQueryLength` counts grapheme clusters, and `maxMenuItems` bounds the open
-list.
+`hasEntriesOnFocus` is true. Return current results from each call. Both
+methods receive a request whose `signal` aborts when the call is superseded —
+each call gets a fresh signal, so sharing one source across components never
+cancels a sibling's in-flight request. The component also ignores stale
+responses. `minQueryLength` counts grapheme clusters, and `maxMenuItems`
+bounds the open list.
 
 ```tsx
 import { Typeahead } from '@octane-xplat/ui'
 import type { SearchableItem, SearchSource } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
-let pending: AbortController | undefined
 const remote: SearchSource = {
 	bootstrap: () => [],
-	async search(query) {
-		pending?.abort()
-		const request = new AbortController()
-		pending = request
+	async search(query, request) {
 		const response = await fetch(`/api/people?q=${encodeURIComponent(query)}`, {
-			signal: request.signal,
+			signal: request?.signal,
 		})
 		if (!response.ok) throw new Error('Search failed')
 		return (await response.json()) as SearchableItem[]
-	},
-	cancel() {
-		pending?.abort()
 	},
 }
 export function People() {

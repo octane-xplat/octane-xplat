@@ -85,9 +85,10 @@ component does not install a global Cmd/Ctrl+K opener or decide whether an ID is
 an action or destination; the app owns both bindings and dispatch.
 
 Each query immediately clears stale results and highlight and presents
-`loadingText` (default “Loading…”). Both methods can return arrays or promises.
-Optional `cancel()` is called on supersession, source replacement, close, and
-unmount; generation checks also reject stale results when no cancel method exists.
+`loadingText` (default “Loading…”). Both methods can return arrays or promises
+and receive a request whose `signal` aborts on supersession, source
+replacement, close, and unmount; generation checks also reject stale results
+when the signal is ignored.
 A rejected/thrown search shows `errorText` with Retry. Retry reuses the current
 query. `emptyBootstrapText` and `emptySearchText` distinguish an empty starting
 set from no matches. Query changes are immediate; caching/debounce belongs to

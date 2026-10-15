@@ -25,10 +25,11 @@ function makeSource(overrides: Partial<SearchSource> = {}) {
 	return {
 		search: vi.fn(async (query: string) => items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))),
 		bootstrap: vi.fn(async () => items),
-		cancel: vi.fn(),
 		...overrides,
 	}
 }
+
+const signalOf = (call: unknown[]) => (call[1] as { signal?: AbortSignal } | undefined)?.signal
 
 function mount(props: Partial<BaseTypeaheadProps> = {}, node?: any) {
 	vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
@@ -65,7 +66,7 @@ describe('BaseTypeahead search coordination', () => {
 		const ui = mount({ onOpenChange })
 		ui.type('ap')
 		await ui.settle()
-		expect(ui.props.searchSource.search).toHaveBeenCalledWith('ap')
+		expect(ui.props.searchSource.search).toHaveBeenCalledWith('ap', expect.objectContaining({ signal: expect.any(AbortSignal) }))
 		expect(ui.options()).toHaveLength(2)
 		expect(document.querySelector('.vx-typeahead-empty')).toBeNull()
 		expect(ui.input().getAttribute('aria-expanded')).toBe('true')
@@ -168,22 +169,55 @@ describe('BaseTypeahead search coordination', () => {
 		expect(ui.host.querySelector('.vx-typeahead-loading')).toBeNull()
 	})
 
-	it('cancels the source on select, dismiss, and unmount', async () => {
+	it('aborts the in-flight request on select, dismiss, and unmount', async () => {
 		const ui = mount()
+
 		ui.type('ap')
 		await ui.settle()
+		const onSelect = signalOf((ui.props.searchSource.search as any).mock.calls.at(-1))
 		ui.click(ui.options()[0])
-		expect(ui.props.searchSource.cancel).toHaveBeenCalled()
+		expect(onSelect?.aborted).toBe(true)
 
 		ui.type('ap')
 		await ui.settle()
-		const calls = (ui.props.searchSource.cancel as any).mock.calls.length
+		const onDismiss = signalOf((ui.props.searchSource.search as any).mock.calls.at(-1))
 		ui.key('Escape')
-		expect((ui.props.searchSource.cancel as any).mock.calls.length).toBeGreaterThan(calls)
+		expect(onDismiss?.aborted).toBe(true)
 
-		const again = (ui.props.searchSource.cancel as any).mock.calls.length
+		ui.type('ap')
+		await ui.settle()
+		const onUnmount = signalOf((ui.props.searchSource.search as any).mock.calls.at(-1))
 		ui.unmount()
-		expect((ui.props.searchSource.cancel as any).mock.calls.length).toBeGreaterThan(again)
+		expect(onUnmount?.aborted).toBe(true)
+	})
+
+	it('scopes cancellation per request — a sibling consumer sharing the source is untouched', async () => {
+		const pending = deferred<SearchableItem[]>()
+		const signals: AbortSignal[] = []
+		const shared: SearchSource = {
+			bootstrap: () => [],
+			search: (_query, request) => {
+				if (request) signals.push(request.signal)
+				return pending.promise
+			},
+		}
+		const a = mount({ searchSource: shared })
+		const b = mount({ searchSource: shared })
+
+		a.type('ap')
+		await a.settle()
+		b.type('ap')
+		await b.settle()
+		const [first, second] = signals
+
+		// A's next query supersedes only its own request.
+		a.type('app')
+		await a.settle()
+		expect(first.aborted).toBe(true)
+		expect(second.aborted).toBe(false)
+
+		b.unmount()
+		expect(second.aborted).toBe(true)
 	})
 
 	it('ignores a resolution that lands after unmount', async () => {
@@ -224,6 +258,6 @@ describe('BaseTypeahead search coordination', () => {
 		ref.current.setQuery('ban')
 		await ui.settle()
 		expect(ui.input().value).toBe('ban')
-		expect(ui.props.searchSource.search).toHaveBeenCalledWith('ban')
+		expect(ui.props.searchSource.search).toHaveBeenCalledWith('ban', expect.objectContaining({ signal: expect.any(AbortSignal) }))
 	})
 })
