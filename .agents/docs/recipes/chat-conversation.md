@@ -153,9 +153,9 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 - AC5: File and dictation callbacks behave according to platform capability,
   and the recipe describes browser `File`, paste, contenteditable, event, and
   observer boundaries accurately.
-- AC6: The Chat family is exported with matching public names and prop types
-  for web, iOS, Android, macOS, Linux's web-backed entry, and the Windows
-  app's shared TypeScript entry.
+- AC6: The Chat family is exported from `@octane-xplat/ui/chat` with matching
+  public names and prop types for web, iOS, Android, macOS, Linux's
+  web-backed entry, and the Windows app's shared TypeScript entry.
 
 ## Documentation
 
@@ -164,4 +164,4 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 - AC3: [Chat API inventory](../../../docs/app/components.md#chat) and this recipe's [ChatLayout scroll behavior](#compose-triggers-and-tokens).
 - AC4: [ChatMessageList contract](../../../docs/app/components.md#chat), its `scrollToTopAction` prop documentation, and this recipe's [data-driven example](#compose-triggers-and-tokens).
 - AC5: [Portable Chat deviations](../../../docs/app/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
-- AC6: [Root exports](../../../packages/ui/src/index.shared.ts) share the family; [macOS](../../../packages/ui/src/index.macos.ts) explicitly re-exports it. Linux uses the web entry. The [Windows app TypeScript map](../../../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../../design/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.
+- AC6: The [chat barrel](../../../packages/ui/src/chat/index.ts) shares the family across targets; [macOS](../../../packages/ui/package.json) resolves the same entry through its `./chat` condition. Linux uses the web entry. The [Windows app TypeScript map](../../../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../../design/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.
