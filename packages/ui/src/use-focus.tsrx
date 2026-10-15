@@ -4,8 +4,8 @@ import { useFocusVisible } from './use-focus-visible';
 /**
  * Focus-event composition — React Aria's useFocus/useFocusRing family.
  * Returned props spread onto any component or element that forwards
- * onFocus/onBlur (web receives the DOM FocusEvent; native input leaves
- * fire their focus callbacks with no event).
+ * onFocus/onBlur. Web callbacks receive a DOM-shaped `FocusEventPayload`;
+ * NativeScript and macOS controls may invoke them without an event.
  *
  * useFocusWithin differs by leaf: the web variant inspects relatedTarget
  * for real subtree semantics (use-focus-within.web.tsrx); the shared leaf
@@ -16,9 +16,20 @@ import { useFocusVisible } from './use-focus-visible';
 
 export interface UseFocusOptions {
 	isDisabled?: boolean
-	onFocus?: (event?: unknown) => void
-	onBlur?: (event?: unknown) => void
+	onFocus?: (event?: FocusEventPayload) => void
+	onBlur?: (event?: FocusEventPayload) => void
 	onFocusChange?: (isFocused: boolean) => void
+}
+
+/** Portable shape of a web focus event. Native and macOS text controls may
+ *  invoke focus callbacks without an event payload. */
+export interface FocusEventPayload {
+	readonly type: string
+	readonly target: unknown
+	readonly currentTarget: unknown
+	readonly relatedTarget: unknown
+	preventDefault(): void
+	stopPropagation(): void
 }
 
 /**
@@ -33,11 +44,11 @@ export function useFocus(options: UseFocusOptions = {}) {
 		focusProps: latest.current.isDisabled
 			? {}
 			: {
-					onFocus: (event?: unknown) => {
+					onFocus: (event?: FocusEventPayload) => {
 						latest.current.onFocus?.(event);
 						latest.current.onFocusChange?.(true);
 					},
-					onBlur: (event?: unknown) => {
+					onBlur: (event?: FocusEventPayload) => {
 						latest.current.onBlur?.(event);
 						latest.current.onFocusChange?.(false);
 					},
@@ -52,6 +63,8 @@ export interface UseFocusRingResult {
 	isFocused: boolean
 	/** Focused AND the last input was keyboard-modality (web); always false on native. */
 	isFocusVisible: boolean
+	/** Whether this target tracks keyboard/pointer modality for focus rings. */
+	isFocusVisibleSupported: boolean
 	focusProps: { onFocus: () => void; onBlur: () => void }
 }
 
@@ -62,10 +75,11 @@ export interface UseFocusRingResult {
  */
 export function useFocusRing(): UseFocusRingResult {
 	const [isFocused, setFocused] = useState(false);
-	const { isFocusVisible } = useFocusVisible();
+	const { isFocusVisible, isSupported: isFocusVisibleSupported } = useFocusVisible();
 	return {
 		isFocused,
 		isFocusVisible: isFocused && isFocusVisible,
+		isFocusVisibleSupported,
 		focusProps: {
 			onFocus: () => setFocused(true),
 			onBlur: () => setFocused(false),

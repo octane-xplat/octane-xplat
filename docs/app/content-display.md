@@ -217,18 +217,14 @@ export function WebExample() {
 }
 ```
 
-On iOS/Android and macOS, `useOutlineFromView` walks the bound view tree
-once after mount (and again when the container view instance changes) and
-collects views with the `header` accessibility role — `Heading` sets it.
-Import it from the platform path — `@octane-xplat/ui/nativescript` on iOS/Android,
-`@octane-xplat/ui/macos` on macOS. That snapshot does not observe later tree
-changes, so pass explicit `items` or derive them from Markdown when headings
-change:
+On iOS/Android, `useOutlineFromView` snapshots the bound NativeScript view
+tree and collects `Heading` items. Import it from
+`@octane-xplat/ui/nativescript`. The snapshot does not observe later tree
+changes, so derive items from the same document when headings can change:
 
 ```tsx
 import { View, Heading, Outline } from '@octane-xplat/ui'
-// iOS/Android: import { useOutlineFromView } from '@octane-xplat/ui/nativescript'
-import { useOutlineFromView } from '@octane-xplat/ui/macos'
+import { useOutlineFromView } from '@octane-xplat/ui/nativescript'
 import { useRef } from 'octane'
 
 export function Example() {
@@ -251,9 +247,37 @@ export function Example() {
 }
 ```
 
-The experimental macOS renderer can display and activate outline items, but
-has no scroll-position or scroll-to-heading bridge; `hasScrollOnClick` and
-scroll spy therefore have no effect there.
+The macOS hook remains available for import consistency, but its capability
+currently reports `isSupported: false` and the hook returns an empty list.
+The AppKit bridge exposes a `Heading` as text without the role and level that
+view discovery needs. Keep the outline data portable by deriving it from the
+same document or by passing explicit items:
+
+```ts
+import { getOutlineFromViewCapabilities } from '@octane-xplat/ui/macos'
+
+export function supportsViewDiscovery() {
+	const { isSupported, mode } = getOutlineFromViewCapabilities()
+	return isSupported && mode === 'snapshot'
+}
+// macOS returns false.
+```
+
+Use the same document as the rendered content to keep the portable outline in
+sync:
+
+```tsx
+import { Outline, useOutlineFromDoc } from '@octane-xplat/ui'
+
+export function MacOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0] }) {
+	const items = useOutlineFromDoc(props.doc)
+	return <Outline items={items} hasScrollOnClick={false} />
+}
+```
+
+The experimental macOS renderer can display and activate portable outline
+items, but has no scroll-position or scroll-to-heading bridge;
+`hasScrollOnClick` and scroll spy therefore have no effect there.
 
 ## Code highlighting and copy
 

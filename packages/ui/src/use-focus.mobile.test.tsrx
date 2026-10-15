@@ -17,12 +17,12 @@ import { FocusScope, getFocusScopeCapabilities } from './FocusScope.tsrx'
 let captured: any
 
 const Probe = (props: any) => @{
-	const { focusProps } = useFocus({ onFocusChange: props.onChange })
+	const { focusProps } = useFocus({ onFocus: props.onFocus, onBlur: props.onBlur, onFocusChange: props.onChange })
 	const ring = useFocusRing()
-	const { isFocusVisible } = useFocusVisible()
+	const focusVisible = useFocusVisible()
 	const within = useFocusWithin({ onFocusWithinChange: props.onWithin })
 	const { landmarkProps } = useLandmark({ role: 'main', label: 'Content' })
-	captured = { focusProps, ring, isFocusVisible, focusWithinProps: within.focusWithinProps, within, landmarkProps }
+	captured = { focusProps, ring, focusVisible, focusWithinProps: within.focusWithinProps, within, landmarkProps }
 
 	<label text="probe" />
 }
@@ -33,15 +33,20 @@ describe('focus hooks (universal renderer)', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const onChange = vi.fn()
 		const onWithin = vi.fn()
-		root.render(Probe as any, { onChange, onWithin })
+		const onFocus = vi.fn()
+		const onBlur = vi.fn()
+		root.render(Probe as any, { onFocus, onBlur, onChange, onWithin })
 
-		expect(captured.isFocusVisible).toBe(false)
+		expect(captured.focusVisible).toEqual({ isFocusVisible: false, inputModality: 'unknown', isSupported: false })
 		expect(captured.ring.isFocused).toBe(false)
 		expect(captured.ring.isFocusVisible).toBe(false)
+		expect(captured.ring.isFocusVisibleSupported).toBe(false)
 
 		captured.focusProps.onFocus()
+		expect(onFocus).toHaveBeenCalledWith(undefined)
 		expect(onChange).toHaveBeenLastCalledWith(true)
 		captured.focusProps.onBlur()
+		expect(onBlur).toHaveBeenCalledWith(undefined)
 		expect(onChange).toHaveBeenLastCalledWith(false)
 		expect(captured.within.isSubtreeTrackingSupported).toBe(false)
 		captured.focusWithinProps.onFocus()
@@ -59,6 +64,7 @@ describe('focus hooks (universal renderer)', () => {
 			contain: false,
 			autoFocus: false,
 			restoreFocus: false,
+			nestedScopes: false,
 		})
 
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

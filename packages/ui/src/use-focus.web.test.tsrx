@@ -2,7 +2,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, createRoot } from 'octane';
 import { useFocus, useFocusRing } from './use-focus';
-import { isFocusVisible } from './use-focus-visible';
+import type { FocusEventPayload } from './use-focus';
+import { isFocusVisible, useFocusVisible } from './use-focus-visible';
 import { useFocusWithin } from './use-focus-within';
 import { useLandmark } from './use-landmark';
 import { FocusScope, getFocusScopeCapabilities } from './FocusScope';
@@ -16,8 +17,14 @@ const keydown = (key: string, init: KeyboardEventInit = {}) =>
 
 describe('useFocus (DOM renderer)', () => {
 	it('fires onFocus/onBlur/onFocusChange and honors isDisabled', () => {
-		const onFocus = vi.fn();
-		const onBlur = vi.fn();
+		let focusSnapshot: Pick<FocusEventPayload, 'type' | 'target' | 'currentTarget'> | undefined;
+		let blurSnapshot: Pick<FocusEventPayload, 'type' | 'target' | 'currentTarget'> | undefined;
+		const onFocus = vi.fn((event?: FocusEventPayload) => {
+			if (event) focusSnapshot = { type: event.type, target: event.target, currentTarget: event.currentTarget };
+		});
+		const onBlur = vi.fn((event?: FocusEventPayload) => {
+			if (event) blurSnapshot = { type: event.type, target: event.target, currentTarget: event.currentTarget };
+		});
 		const onFocusChange = vi.fn();
 		let focusProps: any;
 
@@ -35,9 +42,11 @@ describe('useFocus (DOM renderer)', () => {
 
 		act(() => button.focus());
 		expect(onFocus).toHaveBeenCalledTimes(1);
+		expect(focusSnapshot).toMatchObject({ type: 'focusin', target: button, currentTarget: button });
 		expect(onFocusChange).toHaveBeenLastCalledWith(true);
 		act(() => button.blur());
 		expect(onBlur).toHaveBeenCalledTimes(1);
+		expect(blurSnapshot).toMatchObject({ type: 'focusout', target: button, currentTarget: button });
 		expect(onFocusChange).toHaveBeenLastCalledWith(false);
 
 		act(() => root.render(<Reader isDisabled />));
@@ -51,8 +60,14 @@ describe('useFocus (DOM renderer)', () => {
 
 describe('useFocusRing + useFocusVisible (DOM renderer)', () => {
 	it('reports focus visibility only for keyboard modality', () => {
+		let visibility!: ReturnType<typeof useFocusVisible>;
+		let ringSupportsVisibility = false;
+
 		function Reader() @{
-			const { isFocused, isFocusVisible: visible, focusProps } = useFocusRing();
+			const ring = useFocusRing();
+			visibility = useFocusVisible();
+			const { isFocused, isFocusVisible: visible, focusProps } = ring;
+			ringSupportsVisibility = ring.isFocusVisibleSupported;
 
 			<button {...focusProps} class="ring">{`f:${isFocused},v:${visible}`}</button>
 		}
@@ -65,14 +80,23 @@ describe('useFocusRing + useFocusVisible (DOM renderer)', () => {
 		const text = () => button.textContent;
 
 		expect(text()).toBe('f:false,v:false');
+		expect(visibility!.isSupported).toBe(true);
+		expect(ringSupportsVisibility).toBe(true);
+		act(() => window.dispatchEvent(new Event('blur')));
+		expect(visibility!.inputModality).toBe('unknown');
 		act(() => keydown('Tab'));
 		expect(isFocusVisible()).toBe(true);
+		expect(visibility!.inputModality).toBe('keyboard');
+		expect(visibility!.isFocusVisible).toBe(true);
 		act(() => button.focus());
+		expect(isFocusVisible()).toBe(true);
+		expect(visibility!.inputModality).toBe('keyboard');
 		expect(text()).toBe('f:true,v:true');
 
 		act(() => window.dispatchEvent(new PointerEvent('pointerdown')));
 		expect(text()).toBe('f:true,v:false');
 		expect(isFocusVisible()).toBe(false);
+		expect(visibility!.inputModality).toBe('pointer');
 
 		act(() => button.blur());
 		expect(text()).toBe('f:false,v:false');
@@ -173,11 +197,12 @@ describe('useLandmark (DOM renderer)', () => {
 });
 
 describe('FocusScope (DOM renderer)', () => {
-	it('reports all behavior flags as supported capabilities', () => {
+	it('reports supported flags and unsupported nested scopes', () => {
 		expect(getFocusScopeCapabilities()).toEqual({
 			contain: true,
 			autoFocus: true,
 			restoreFocus: true,
+			nestedScopes: false,
 		});
 	});
 

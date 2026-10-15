@@ -373,11 +373,29 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   native leaf subtracts the root layout surface's screen position, matching
   the web viewport space; `bounds === null` is the readiness signal. —
   post-0.14.0·desk.
-- **`useOutlineFromDOM` moved to `@octane-xplat/ui/web`** — the shared root
-  no longer exports it; live DOM heading discovery is web-only. On
-  iOS/Android and macOS use `useOutlineFromView` for the same job (a
-  view-tree snapshot — no mutation observation). The portable derivations
-  `useOutlineFromMarkdown`/`useOutlineFromDoc` are unchanged. — post-0.14.0·desk.
+- **Outline discovery is target-specific** — `useOutlineFromDOM` under
+  `@octane-xplat/ui/web` observes live DOM headings; NativeScript's
+  `useOutlineFromView` under `@octane-xplat/ui/nativescript` takes a snapshot.
+  The macOS `useOutlineFromView` path currently returns no items because the
+  AppKit bridge does not expose Heading role/level metadata. Check
+  `getOutlineFromViewCapabilities().isSupported`; use `useOutlineFromMarkdown`,
+  `useOutlineFromDoc`, or explicit `items` when it is false. The portable
+  derivations are unchanged. — post-0.14.0·desk.
+
+  ```tsx
+  import { Outline, useOutlineFromDoc } from '@octane-xplat/ui'
+  import { getOutlineFromViewCapabilities } from '@octane-xplat/ui/macos'
+
+  export function canDiscoverOutlineFromView() {
+    const { isSupported, mode } = getOutlineFromViewCapabilities()
+    return isSupported && mode === 'snapshot'
+  }
+
+  export function ArticleOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0] }) {
+    const items = useOutlineFromDoc(props.doc)
+    return <Outline items={items} />
+  }
+  ```
 - **Target-only names moved off the `@octane-xplat/ui` root** — the root now
   exports the same names on every target. `useOutlineFromView` moved to
   `@octane-xplat/ui/nativescript` (iOS/Android) and `@octane-xplat/ui/macos`;
@@ -403,13 +421,29 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   calls to `ref.current?.native` (e.g. `handle.native.scrollTop` on web).
   `VirtualListHandle` also gained `native` for the platform scroll view.
   — post-0.14.0·desk.
-- **`FocusScope`, `useGridList`, and `useFocusWithin` report platform
-  support explicitly** — `getFocusScopeCapabilities()`,
-  `useGridList().isSupported`, and `useFocusWithin().isSubtreeTrackingSupported`
-  are `false` on native/macOS where containment, arrow-key grid navigation,
-  and subtree focus tracking don't exist. The props still compile so shared
-  code runs unchanged; check the capability before relying on the
-  behavior. — post-0.14.0·desk.
+- **Focus APIs report their supported subset** — `getFocusScopeCapabilities()`
+  reports web containment/autofocus/restoration and `nestedScopes: false`;
+  native and macOS report all four false. `useGridList().isSupported` and
+  `useFocusWithin().isSubtreeTrackingSupported` are false on native/macOS.
+  `useFocusVisible()` reports typed `inputModality` (`keyboard`, `pointer`, or
+  `unknown`) plus `isSupported`; native/macOS return false and `unknown`.
+  Focus callbacks use `FocusEventPayload` on web and may omit the event on
+  native/macOS. Check capabilities before depending on those behaviors. — post-0.14.0·desk.
+
+  ```tsx
+  import { FocusScope, Text, getFocusScopeCapabilities, useFocusVisible, useGridList } from '@octane-xplat/ui'
+
+  export function FocusSupport() {
+    const scope = getFocusScopeCapabilities()
+    const modality = useFocusVisible()
+    const canTrackGridKeys = useGridList().isSupported
+    return (
+      <FocusScope contain={scope.contain} autoFocus={scope.autoFocus} restoreFocus={scope.restoreFocus}>
+        <Text>{`Grid keys: ${canTrackGridKeys}; modality: ${modality.inputModality}; nested scopes: ${scope.nestedScopes}`}</Text>
+      </FocusScope>
+    )
+  }
+  ```
 - **`console.debug` doesn't exist on device** — use `console.log`. The
   lint ruleset flags it. — 0.5.0.
 - **Deep imports don't extension-resolve** — barrel imports only. — 0.5.0.

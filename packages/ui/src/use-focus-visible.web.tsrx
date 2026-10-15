@@ -1,23 +1,25 @@
 import { useSyncExternalStore } from 'octane';
+import type { UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
 /**
  * Global focus-modality tracking — React Aria's useFocusVisible. Reports
- * whether focus should be visibly indicated: true after non-modifier
- * keyboard input, false after pointer activation or window blur. Module
- * state is shared like store.ts — every reader subscribes via
+ * keyboard, pointer, or unknown modality plus whether a ring should show.
+ * Module state is shared like store.ts — every reader subscribes via
  * useSyncExternalStore.
  */
 
-let visible = false;
+type FocusVisibleState = Pick<UseFocusVisibleResult, 'isFocusVisible' | 'inputModality'>
+
+let state: FocusVisibleState = { isFocusVisible: false, inputModality: 'unknown' };
 let attached = false;
 const listeners = new Set<() => void>();
 
-const set = (next: boolean) => {
-	if (next === visible) {
+const set = (next: FocusVisibleState) => {
+	if (next.isFocusVisible === state.isFocusVisible && next.inputModality === state.inputModality) {
 		return;
 	}
 
-	visible = next;
+	state = next;
 	for (const listener of [...listeners]) {
 		listener();
 	}
@@ -25,12 +27,12 @@ const set = (next: boolean) => {
 
 const onKeyDown = (event: KeyboardEvent) => {
 	if (!event.metaKey && !event.altKey && !event.ctrlKey) {
-		set(true);
+		set({ isFocusVisible: true, inputModality: 'keyboard' });
 	}
 };
 
-const onPointer = () => set(false);
-const onWindowBlur = () => set(false);
+const onPointer = () => set({ isFocusVisible: false, inputModality: 'pointer' });
+const onWindowBlur = () => set({ isFocusVisible: false, inputModality: 'unknown' });
 
 const attach = () => {
 	if (attached || typeof window === 'undefined') {
@@ -52,13 +54,15 @@ const subscribe = (notify: () => void) => {
 	};
 };
 
-export function useFocusVisible(): { isFocusVisible: boolean } {
+export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible.tsrx'
+
+export function useFocusVisible(): UseFocusVisibleResult {
 	attach();
-	return { isFocusVisible: useSyncExternalStore(subscribe, () => visible) };
+	return { ...useSyncExternalStore(subscribe, () => state), isSupported: true };
 }
 
 /** Non-hook read for render paths that already subscribe elsewhere. */
 export function isFocusVisible(): boolean {
 	attach();
-	return visible;
+	return state.isFocusVisible;
 }

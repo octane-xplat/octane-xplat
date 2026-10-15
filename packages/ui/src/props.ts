@@ -9800,12 +9800,23 @@ export interface OutlineItem {
 	level: number
 }
 
+/** Native-view outline discovery support returned by
+ *  `getOutlineFromViewCapabilities()`. Supported targets return a snapshot;
+ *  unsupported targets should use portable document data or explicit items. */
+export interface OutlineFromViewCapabilities {
+	/** Whether this target can read `Heading` semantics from its native tree. */
+	isSupported: boolean
+	/** `snapshot` reads the tree once; `unsupported` cannot identify headings. */
+	mode: 'snapshot' | 'unsupported'
+}
+
 /** Outline — table-of-contents nav with a sliding active indicator. Item
  *  derivation is split by mechanism: `useOutlineFromMarkdown` and
  *  `useOutlineFromDoc` are portable; `useOutlineFromDOM` (live DOM
  *  observation) is web-only under `@octane-xplat/ui/web`; `useOutlineFromView`
- *  (view-tree snapshot) ships under `@octane-xplat/ui/nativescript` and
- *  `@octane-xplat/ui/macos`.
+ *  ships under NativeScript and macOS subpaths. Check
+ *  `getOutlineFromViewCapabilities()` before using native-view discovery;
+ *  macOS currently reports it unsupported.
  *
  * @example
  * ```tsx
@@ -9814,7 +9825,8 @@ export interface OutlineItem {
  * const items = useOutlineFromMarkdown(doc)
  * <Outline items={items} activeId={active} onActiveIdChange={setActive} />
  * ```
- * @see OutlineItem — the item sources each live on their own subpath (see above).
+ * @see OutlineItem, OutlineFromViewCapabilities — item derivation is
+ *  platform-specific while the resulting data stays portable.
  */
 export interface OutlineProps {
 	className?: ClassName
@@ -10043,10 +10055,10 @@ export interface VisuallyHiddenProps extends AccessibilityProps {
 	as?: ElementType
 }
 
-/** Per-target support for `FocusScope`'s behavior flags, read through
- *  `getFocusScopeCapabilities()`. Web honors all three; native and macOS
- *  leaves render an accessible container only, so every flag is false —
- *  check the capability before relying on containment. */
+/** Per-target support for `FocusScope` behavior, read through
+ *  `getFocusScopeCapabilities()`. Web honors containment, autofocus, and
+ *  restoration but does not stack nested scopes. Native and macOS leaves
+ *  render an accessible container only. */
 export interface FocusScopeCapabilities {
 	/** Tab/Shift+Tab containment inside the subtree. */
 	contain: boolean
@@ -10054,15 +10066,17 @@ export interface FocusScopeCapabilities {
 	autoFocus: boolean
 	/** On unmount, refocus the element that held focus at mount. */
 	restoreFocus: boolean
+	/** Whether nested scopes stack so only the innermost scope contains focus. */
+	nestedScopes: boolean
 }
 
 /** `FocusScope` — keyboard focus containment, React Aria's FocusScope. The
  *  web leaf traps Tab inside the subtree (`contain`), can focus the first
  *  tab stop on mount (`autoFocus`), and returns focus to the previously
- *  focused element on unmount (`restoreFocus`). Focus containment is a web
- *  keyboard convention; the native leaf renders a plain accessible
- *  container and the three behavior flags are inert —
- *  `getFocusScopeCapabilities()` reports which flags the target honors.
+ *  focused element on unmount (`restoreFocus`). The web leaf does not stack
+ *  nested scopes; native leaves render a plain accessible container and the
+ *  three behavior flags are inert. `getFocusScopeCapabilities()` reports
+ *  which behaviors the target honors.
  *
  * @example
  * ```tsx
@@ -10070,7 +10084,7 @@ export interface FocusScopeCapabilities {
  *
  * <FocusScope contain restoreFocus autoFocus>{dialogBody}</FocusScope>
  * ```
- * @see FocusScopeCapabilities — check it before relying on the flags off-web.
+ * @see FocusScopeCapabilities — check it before relying on target behavior.
  */
 export interface FocusScopeProps extends AccessibilityProps {
 	children?: Renderable

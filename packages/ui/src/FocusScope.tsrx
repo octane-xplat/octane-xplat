@@ -9,7 +9,7 @@ import { applyEscapeProps } from './escape-props';
  *  keyboard focus containment is a web convention, so the flags are inert
  *  and the leaf renders a plain accessible container. */
 export function getFocusScopeCapabilities(): FocusScopeCapabilities {
-	return { contain: false, autoFocus: false, restoreFocus: false };
+	return { contain: false, autoFocus: false, restoreFocus: false, nestedScopes: false };
 }
 
 // Report inert flags once per flag — the leaf can't honor them, so a caller

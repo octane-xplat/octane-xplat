@@ -358,8 +358,9 @@ export type {
 // Focus hooks — shared/native leaves; focus modality and landmark cycling
 // are web-only, so these keep API shape with constant results.
 export { useFocus, useFocusRing } from './use-focus'
-export type { UseFocusOptions, UseFocusRingResult } from './use-focus'
+export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './use-focus'
 export { useFocusVisible, isFocusVisible } from './use-focus-visible'
+export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible'
 export { useFocusWithin } from './use-focus-within'
 export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within'
 export { useLandmark } from './use-landmark'
@@ -417,6 +418,7 @@ export { Outline } from './Outline.macos.tsrx'
 /** @deprecated Import `useOutlineFromMarkdown` and `useOutlineFromDoc` from
  *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
+export type { OutlineFromViewCapabilities } from './props'
 /** @deprecated Import `parseOutlineFromMarkdown` and `outlineFromDoc` from
  *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
 export { parseOutlineFromMarkdown, outlineFromDoc } from './outline-utils'

@@ -1,4 +1,5 @@
 import { useRef } from 'octane';
+import type { FocusEventPayload } from './use-focus'
 
 /**
  * Web leaf of useFocusWithin — real subtree semantics via relatedTarget:
@@ -6,15 +7,15 @@ import { useRef } from 'octane';
  * outside the element the handlers are attached to.
  */
 export interface UseFocusWithinOptions {
-	onFocusWithin?: (event?: unknown) => void;
-	onBlurWithin?: (event?: unknown) => void;
+	onFocusWithin?: (event?: FocusEventPayload) => void;
+	onBlurWithin?: (event?: FocusEventPayload) => void;
 	onFocusWithinChange?: (isFocusWithin: boolean) => void;
 }
 
 export interface UseFocusWithinResult {
 	focusWithinProps: {
-		onFocus: (event?: unknown) => void;
-		onBlur: (event?: unknown) => void;
+		onFocus: (event?: FocusEventPayload) => void;
+		onBlur: (event?: FocusEventPayload) => void;
 	};
 	/** Whether "within" tracks focus moving between subtree descendants —
 	 *  true on web via `relatedTarget` containment. */
@@ -25,7 +26,7 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWit
 	const latest = useRef(options);
 	latest.current = options;
 	const within = useRef(false);
-	const update = (next: boolean, event?: unknown) => {
+	const update = (next: boolean, event?: FocusEventPayload) => {
 		if (next === within.current) {
 			return;
 		}
@@ -42,8 +43,8 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWit
 
 	return {
 		focusWithinProps: {
-			onFocus: (event?: unknown) => update(true, event),
-			onBlur: (event?: unknown) => {
+			onFocus: (event?: FocusEventPayload) => update(true, event),
+			onBlur: (event?: FocusEventPayload) => {
 				const focusEvent = event as FocusEvent | undefined;
 				const target = focusEvent?.currentTarget as Element | null;
 				const related = focusEvent?.relatedTarget as Node | null;

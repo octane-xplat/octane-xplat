@@ -349,6 +349,50 @@ export function Example() {
 }
 ```
 
+### Focus behavior
+
+`useFocus` composes focus callbacks, and `useFocusWithin` reports when focus
+enters or leaves a group. On web, their callbacks receive a typed
+`FocusEventPayload`; on NativeScript and macOS, controls may call them without
+an event. Only web tracks focus moving between descendants, so check
+`isSubtreeTrackingSupported` before relying on group behavior elsewhere.
+
+```tsx
+import { useFocus, useFocusWithin } from '@octane-xplat/ui'
+
+export function FocusExample() {
+	const focus = useFocus({ onFocus: (event) => console.log(event?.type) })
+	const within = useFocusWithin({ onFocusWithin: (event) => console.log(event?.type) })
+
+	return (
+		<div {...within.focusWithinProps}>
+			<button {...focus.focusProps}>Continue</button>
+		</div>
+	)
+}
+```
+
+On web, `useFocusVisible` identifies keyboard, pointer, or unknown input
+modality. NativeScript and macOS return `isSupported: false` and
+`inputModality: 'unknown'`; `useFocusRing` exposes the same limit through
+`isFocusVisibleSupported`. `FocusScope` reports containment, autofocus,
+restoration, and nested-scope support. Web supports the first three but does
+not stack nested scopes; NativeScript and macOS support none of these behaviors.
+
+```tsx
+import { FocusScope, Text, getFocusScopeCapabilities, useFocusVisible } from '@octane-xplat/ui'
+
+export function ScopedContent() {
+	const scope = getFocusScopeCapabilities()
+	const modality = useFocusVisible()
+	return (
+		<FocusScope contain={scope.contain} autoFocus={scope.autoFocus} restoreFocus={scope.restoreFocus}>
+			<Text>{modality.isSupported ? `Input: ${modality.inputModality}` : 'Focus modality unavailable'}</Text>
+		</FocusScope>
+	)
+}
+```
+
 ### Reusable rows
 
 `Item` is a reusable, self-drawn row for settings, preferences, and

@@ -11,11 +11,11 @@ import { applyWebProps } from './platformProps.web';
  *  scopes are not stacked — `contain` owns the whole document while it is
  *  mounted, matching modal-focus's single-owner model. */
 
-/** Which `FocusScope` behavior flags this target honors — all three on web.
- *  Check before relying on `contain`/`autoFocus`/`restoreFocus`; the native
- *  leaves report every flag false. */
+/** Which `FocusScope` behaviors this target honors. Web supports the three
+ *  flags but does not stack nested scopes; native leaves report all four
+ *  capabilities false. */
 export function getFocusScopeCapabilities(): FocusScopeCapabilities {
-	return { contain: true, autoFocus: true, restoreFocus: true };
+	return { contain: true, autoFocus: true, restoreFocus: true, nestedScopes: false };
 }
 
 const TAB_STOP_SELECTOR =

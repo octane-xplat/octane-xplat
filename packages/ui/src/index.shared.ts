@@ -859,8 +859,9 @@ export type {
 // useFocusWithin/useLandmark counterparts. Modality tracking and landmark
 // cycling are web leaves; native leaves keep the same API shape.
 export { useFocus, useFocusRing } from './use-focus'
-export type { UseFocusOptions, UseFocusRingResult } from './use-focus'
+export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './use-focus'
 export { useFocusVisible, isFocusVisible } from './use-focus-visible'
+export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible'
 export { useFocusWithin } from './use-focus-within'
 export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within'
 export { useLandmark } from './use-landmark'
@@ -1095,6 +1096,7 @@ export type {
 	CitationSource,
 	OutlineProps,
 	OutlineItem,
+	OutlineFromViewCapabilities,
 	TextType,
 	TextSize,
 	TextColor,

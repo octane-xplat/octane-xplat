@@ -4,4 +4,4 @@
 // leaves.
 export { CameraView } from '../hosted-unsupported.macos.tsrx'
 export { bottomSheetHost } from '../bottom-sheet-service.macos'
-export { useOutlineFromView } from '../outline-view.macos.tsrx'
+export { useOutlineFromView, getOutlineFromViewCapabilities } from '../outline-view.macos.tsrx'

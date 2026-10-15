@@ -4,7 +4,7 @@ import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUn
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 
-import { useOutlineFromView } from './outline-view.tsrx'
+import { getOutlineFromViewCapabilities, useOutlineFromView } from './outline-view.tsrx'
 
 // useOutlineFromView native lane — the hook walks a bound view subtree once
 // and collects views with accessibilityRole 'header'. No mutation
@@ -28,6 +28,10 @@ async function settle() {
 }
 
 describe('useOutlineFromView (universal renderer)', () => {
+	it('reports native view-tree snapshots as supported', () => {
+		expect(getOutlineFromViewCapabilities()).toEqual({ isSupported: true, mode: 'snapshot' })
+	})
+
 	it('collects header-role views into outline items', async () => {
 		const tree = {
 			children: [
