@@ -53,6 +53,7 @@ const interruptionVideoDeviceInUseByAnotherClient = 3
 const interruptionVideoDeviceNotAvailableWithMultipleForegroundApps = 4
 const interruptionVideoDeviceNotAvailableDueToSystemPressure = 5
 const avErrorMaximumDurationReached = -11810
+const videoStabilizationModeAuto = -1
 
 // AVCaptureFocusMode/AVCaptureExposureMode numeric values — tap-to-focus
 // uses the single-shot modes, matching the AVCam convention.
@@ -216,6 +217,27 @@ const orientationFromTransform = (transform: CGAffineTransform): CameraOrientati
 	}
 
 	return 'unspecified'
+}
+
+/** Prefer Apple's automatic stabilization on a capture connection when the
+ *  hardware offers it; unsupported connections keep the runtime default.
+ *  `isVideoStabilizationModeSupported:` is missing from the generated {N}
+ *  typings, so it is invoked dynamically with `supportsVideoStabilization`
+ *  as the older-runtime fallback. */
+const preferAutoStabilization = (connection: AVCaptureConnection | undefined | null) => {
+	if (!connection) {
+		return
+	}
+
+	const check = (connection as any).isVideoStabilizationModeSupported
+	const supported =
+		typeof check === 'function'
+			? Boolean(check.call(connection, videoStabilizationModeAuto))
+			: Boolean(connection.supportsVideoStabilization)
+
+	if (supported) {
+		connection.preferredVideoStabilizationMode = videoStabilizationModeAuto
+	}
 }
 
 const mapInterruptionReason = (raw: number | undefined): CameraInterruptionReason => {
@@ -785,6 +807,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				if (connection.supportsVideoMirroring) {
 					connection.videoMirrored = device?.position === captureDevicePositionFront
 				}
+
+				preferAutoStabilization(connection)
 			}
 
 			nativeView.layer.addSublayer(layer)
@@ -840,6 +864,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			}
 
 			target.commitConfiguration()
+			// Swapping the video input recreates the preview connection — the
+			// stabilization preference must be restated.
+			preferAutoStabilization(previewLayer?.connection)
 		},
 		focusAtPoint: (point) => {
 			const captureDevice = device
@@ -1018,6 +1045,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				if (connection.supportsVideoMirroring) {
 					connection.videoMirrored = false
 				}
+
+				preferAutoStabilization(connection)
 			}
 
 			let filePath: string
