@@ -22,22 +22,14 @@ without a detached signature or automatic native dependency fingerprint.
 Browser and desktop clients report unsupported. See the
 [phone update guide](../app/updates.md).
 
-Native macOS AppKit cannot play Lottie animations. Its explicit leaf displays
-an unsupported label, reports `onError` on mount, and supplies no playback
-handle or loaded/ended events. The harness motion-package route is also
-unsupported: mobile gesture and reduced-motion hosts are not AppKit hosts.
-The separate AppKit UI ref-animation fixture does not establish motion-package
-support. Bamboo-generated CSS is unavailable on AppKit; Home uses only its
-existing AppKit styles. See the [non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks)
-for runnable verification and runtime boundaries.
-
 The AppKit Lottie leaf uses Airbnb Lottie 4.6.1 and supports inline JSON in
 `data`, raw JSON in `src`, absolute local JSON files, `file://` URLs, and HTTPS
 JSON. Relative paths, `~/`/`res://` bundle aliases, HTTP URLs, `.lottie`/`.zip`
 archives, and external image assets are not supported there. Fit modes map to
 AppKit content modes, but pixel parity has not been visually reviewed. The
 harness motion-package route remains unsupported because its gesture and
-reduced-motion hosts are mobile-only. Bamboo-generated CSS is unavailable on
+reduced-motion hosts are mobile-only; the separate AppKit UI ref-animation
+fixture does not establish motion-package support. Bamboo-generated CSS is unavailable on
 AppKit; Home uses only its existing AppKit styles. See the
 [Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) and
 [non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks) for
@@ -214,10 +206,12 @@ export function PackingList(props: { items: { id: string; label: string }[] }) {
 | `Lottie` vendored plugin                               | —                                                                                       | fixes unreleased upstream ship in the leaf — dead sync-src, missing `compositionLoaded`/`loadFailed` on iOS, URL src, `.lottie` zip, async autoPlay, completion dedupe, `declare` fields (modern-bundler compat); staged as PR branches on `octane-xplat/ui-lottie` (fixes on `xplat-fixes`; `xplat-vendored` adds only vendoring-compat markers) | same as iOS                                                                                       | `different`                 | post-0.6.0      |
 
 Overlay roots (`Dialog`, `BottomSheet`, `UIModal`, `MaterialDialog`) mount a
-separate Octane root on every platform — `useContext` does not cross into
-them. Theme classes are forwarded; pass values as props or use module-level
+separate Octane root on native — `useContext` does not cross into them.
+Theme classes are forwarded; pass values as props or use module-level
 signals. Reading context inside the new root does not recover a provider
-from the presenting screen.
+from the presenting screen. Declarative overlays render through a DOM portal
+on web, which retains the declaring root's context — write code that works
+under the stricter native rule.
 
 ```tsx
 import { Dialog, Text } from '@octane-xplat/ui'
