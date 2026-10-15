@@ -8,9 +8,12 @@
  * primitive:
  *
  * - `cachedQuery$(key, select, load, options)` declares a query whose results
- *   live in a module-level cache keyed by `[...key, selection]`. Two screens
- *   (or two query declarations) that resolve the same cache key share the
- *   cached value and dedupe an in-flight request.
+ *   live in the default app-wide cache keyed by `[...key, selection]`. Two
+ *   screens (or two query declarations) that resolve the same cache key share
+ *   the cached value and dedupe an in-flight request.
+ * - `createQueryClient()` creates an independent cache for an app or data
+ *   consumer that must not share entries or invalidation with the default
+ *   client or another client.
  * - `invalidateQueries(key)` marks matching entries stale and refetches the
  *   owning queries in every live scope — same-identity retries, so each
  *   screen keeps its previous data while it refreshes.
@@ -107,6 +110,18 @@ export interface CachedQueryOptions<T = unknown> {
 	readonly key?: string
 }
 
+/** Independent in-memory cache scope for cached query declarations. */
+export interface QueryClient {
+	cachedQuery$<A, T>(
+		key: QueryKey,
+		select: () => A | typeof skip,
+		load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
+		options?: CachedQueryOptions<T>,
+	): CachedQuery<T>
+	invalidateQueries(key?: QueryKey, options?: InvalidateQueriesOptions): void
+	clearQueryCache(key?: QueryKey, options?: ClearQueryCacheOptions): void
+}
+
 interface CacheEntry<T = unknown> {
 	readonly elements: readonly string[]
 	value: T | undefined
@@ -136,6 +151,12 @@ interface CacheFamily {
 			state: CachedQueryState<unknown>
 		}
 	>
+}
+
+interface QueryCacheStore {
+	readonly id: number
+	readonly families: Map<string, CacheFamily>
+	readonly entries: Map<string, CacheEntry>
 }
 
 /**
@@ -213,31 +234,31 @@ function elementsEqual(a: readonly string[], b: readonly string[]): boolean {
 	return a.length === b.length && isPrefix(a, b)
 }
 
-const families = new Map<string, CacheFamily>()
-const entries = new Map<string, CacheEntry>()
+let nextQueryCacheId = 0
 
-function familyFor(key: QueryKey): CacheFamily {
+function familyFor(cache: QueryCacheStore, key: QueryKey): CacheFamily {
 	const elements = elementsOf(key)
 	if (elements.length === 0) {
 		throw new TypeError('cachedQuery$ requires a non-empty key')
 	}
 
 	const id = keyString(elements)
-	let family = families.get(id)
+	let family = cache.families.get(id)
 	if (family === undefined) {
 		family = { elements, queries: new Map() }
-		families.set(id, family)
+		cache.families.set(id, family)
 	}
 
 	return family
 }
 
 function entryFor<T>(
+	cache: QueryCacheStore,
 	elements: readonly string[],
 	persist: QueryPersistence | undefined,
 ): CacheEntry<T> {
 	const id = keyString(elements)
-	let entry = entries.get(id) as CacheEntry<T> | undefined
+	let entry = cache.entries.get(id) as CacheEntry<T> | undefined
 	if (entry === undefined) {
 		entry = {
 			elements,
@@ -251,7 +272,7 @@ function entryFor<T>(
 			persist,
 		}
 
-		entries.set(id, entry)
+		cache.entries.set(id, entry)
 	} else if (persist !== undefined) {
 		entry.persist = persist
 	}
@@ -302,10 +323,11 @@ function withLoadMode<T>(mode: LoadMode, run: () => T): T {
  * and must not stop the fan-out.
  */
 function republish(
+	cache: QueryCacheStore,
 	mode: 'normal' | 'serve',
 	matches: (elements: readonly string[]) => boolean,
 ): void {
-	for (const family of families.values()) {
+	for (const family of cache.families.values()) {
 		for (const [registration, query] of [...family.queries]) {
 			const selected = query.state.lastElements
 			if (selected === undefined || !matches(selected)) {
@@ -430,6 +452,7 @@ function removePersisted(entry: CacheEntry): void {
 }
 
 function startFetch<A, T>(
+	cache: QueryCacheStore,
 	entry: CacheEntry<T>,
 	selection: A,
 	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
@@ -459,7 +482,7 @@ function startFetch<A, T>(
 			entry.invalidated = false
 			entry.fetchedAt = Date.now()
 			persistWrite(entry)
-			republish('serve', (elements) => elementsEqual(elements, entry.elements))
+			republish(cache, 'serve', (elements) => elementsEqual(elements, entry.elements))
 		},
 		() => {
 			if (entry.inflight !== request) {
@@ -475,13 +498,14 @@ function startFetch<A, T>(
 }
 
 function loadThroughCache<A, T>(
+	cache: QueryCacheStore,
 	elements: readonly string[],
 	options: CachedQueryOptions<T> | undefined,
 	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
 	selection: A,
 	context: QueryContext<T>,
 ): T | PromiseLike<T> {
-	const entry = entryFor<T>(elements, options?.persist)
+	const entry = entryFor<T>(cache, elements, options?.persist)
 	const staleTime = options?.staleTime ?? 0
 	const mode = loadMode
 
@@ -503,12 +527,12 @@ function loadThroughCache<A, T>(
 		}
 
 		if (mode === 'forced' || context.previous !== undefined) {
-			return startFetch(entry, selection, load, context.previous ?? entry.value)
+			return startFetch(cache, entry, selection, load, context.previous ?? entry.value)
 		}
 
 		// Normal mode on a fresh mount: serve the stale value now and let the
 		// background fetch republish the update when it lands.
-		void startFetch(entry, selection, load, entry.value).catch(() => {})
+		void startFetch(cache, entry, selection, load, entry.value).catch(() => {})
 		return entry.value!
 	}
 
@@ -523,15 +547,15 @@ function loadThroughCache<A, T>(
 					return entry.value!
 				}
 
-				void startFetch(entry, selection, load, entry.value).catch(() => {})
+				void startFetch(cache, entry, selection, load, entry.value).catch(() => {})
 				return entry.value!
 			}
 
-			return startFetch(entry, selection, load, context.previous)
+			return startFetch(cache, entry, selection, load, context.previous)
 		})()
 	}
 
-	return startFetch(entry, selection, load, context.previous)
+	return startFetch(cache, entry, selection, load, context.previous)
 }
 
 /**
@@ -583,7 +607,8 @@ function asThenable<T>(value: T | PromiseLike<T>): PromiseLike<T> | undefined {
  * twice. To keep same-family declarations distinct inside one scope, pass a
  * distinguishing `options.key`.
  */
-export function cachedQuery$<A, T>(
+function cachedQueryIn<A, T>(
+	cache: QueryCacheStore,
 	key: QueryKey,
 	select: () => A | typeof skip,
 	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
@@ -595,7 +620,7 @@ export function cachedQuery$<A, T>(
 		)
 	}
 
-	const family = familyFor(key)
+	const family = familyFor(cache, key)
 	const state: CachedQueryState<T> = { lastElements: undefined, lastRequest: undefined }
 	const handle = new CachedQuerySignal<T>()
 	const inner$ = query$(
@@ -603,13 +628,13 @@ export function cachedQuery$<A, T>(
 		(selection: A, context: QueryContext<T>) => {
 			const elements = [...family.elements, canonicalize(selection)]
 			state.lastElements = elements
-			const result = loadThroughCache(elements, options, load, selection, context)
+			const result = loadThroughCache(cache, elements, options, load, selection, context)
 			state.lastRequest = asThenable(result)
 
 			return result
 		},
 		{
-			key: `xplat:query-cache:${keyString(family.elements)}${options?.key ? `:${options.key}` : ''}`,
+			key: `xplat:query-cache:${cache.id}:${keyString(family.elements)}${options?.key ? `:${options.key}` : ''}`,
 		},
 	)
 
@@ -626,6 +651,37 @@ export function cachedQuery$<A, T>(
 	}
 
 	return handle
+}
+
+/**
+ * Create an isolated cache for one app instance or data consumer. Queries
+ * declared through this client share with each other, but not with the
+ * module-default `cachedQuery$` API or another client.
+ */
+export function createQueryClient(): QueryClient {
+	const cache: QueryCacheStore = {
+		id: ++nextQueryCacheId,
+		families: new Map(),
+		entries: new Map(),
+	}
+
+	return {
+		cachedQuery$: (key, select, load, options) => cachedQueryIn(cache, key, select, load, options),
+		invalidateQueries: (key, options) => invalidateQueriesIn(cache, key, options),
+		clearQueryCache: (key, options) => clearQueryCacheIn(cache, key, options),
+	}
+}
+
+const defaultQueryClient = createQueryClient()
+
+/** Declare a query in the default app-wide cache. */
+export function cachedQuery$<A, T>(
+	key: QueryKey,
+	select: () => A | typeof skip,
+	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
+	options?: CachedQueryOptions<T>,
+): CachedQuery<T> {
+	return defaultQueryClient.cachedQuery$(key, select, load, options)
 }
 
 /**
@@ -742,14 +798,22 @@ export interface InvalidateQueriesOptions {
  * owners are unmounted stay stale; their next reader revalidates.
  */
 export function invalidateQueries(key?: QueryKey, options?: InvalidateQueriesOptions): void {
+	defaultQueryClient.invalidateQueries(key, options)
+}
+
+function invalidateQueriesIn(
+	cache: QueryCacheStore,
+	key?: QueryKey,
+	options?: InvalidateQueriesOptions,
+): void {
 	const matches = matchingElements(key, options?.exact === true)
-	for (const entry of entries.values()) {
+	for (const entry of cache.entries.values()) {
 		if (matches(entry.elements)) {
 			entry.invalidated = true
 		}
 	}
 
-	republish('normal', matches)
+	republish(cache, 'normal', matches)
 }
 
 export interface ClearQueryCacheOptions {
@@ -763,15 +827,23 @@ export interface ClearQueryCacheOptions {
  * sign-out, before the auth scope changes).
  */
 export function clearQueryCache(key?: QueryKey, options?: ClearQueryCacheOptions): void {
+	defaultQueryClient.clearQueryCache(key, options)
+}
+
+function clearQueryCacheIn(
+	cache: QueryCacheStore,
+	key?: QueryKey,
+	options?: ClearQueryCacheOptions,
+): void {
 	const matches = matchingElements(key, options?.exact === true)
-	for (const entry of [...entries.values()]) {
+	for (const entry of [...cache.entries.values()]) {
 		if (!matches(entry.elements)) {
 			continue
 		}
 
 		entry.controller?.abort()
 		removePersisted(entry)
-		entries.delete(keyString(entry.elements))
+		cache.entries.delete(keyString(entry.elements))
 	}
 }
 

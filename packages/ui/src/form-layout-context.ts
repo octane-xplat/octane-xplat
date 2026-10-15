@@ -6,9 +6,8 @@ export interface FormLayoutContextValue {
 	defaultOptionality?: FormOptionality
 }
 
-/** Layered arrangement context: `Field`/`FormField` switches to a
- *  horizontal-labels render under `direction === 'horizontal-labels'`, and
- *  `useFieldControlProps` resolves `aria-required` from
- *  `defaultOptionality`. Nested FormLayouts shadow the outer value. */
+/** The nearest layout owns arrangement direction. Nested layouts inherit
+ *  omitted `defaultOptionality`, while explicit child values replace that
+ *  default. `Field`/`FormField` reads both values here. */
 export const FormLayoutContext = createContext<FormLayoutContextValue>({ direction: 'vertical' })
 export const FormLayoutProvider: any = FormLayoutContext

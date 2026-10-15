@@ -1669,6 +1669,9 @@ export interface IconProps {
 	 *  registered through `registerIcon`/`registerIcons`. An unregistered
 	 *  name renders nothing. */
 	name: IconName
+	/** Override the registry for this icon. Use IconRegistryProvider to scope
+	 *  several icons and components to one registry. */
+	registry?: IconRegistry
 	size?: number
 	color?: string
 	/** Accessible name — set it when the icon carries meaning on its own.
@@ -1694,6 +1697,18 @@ export interface IconGlyph {
 	text?: string
 	font?: { family: string; glyph: string }
 	src?: string
+}
+
+/** Mutable icon lookup scope. Each registry starts with the framework glyphs. */
+export interface IconRegistry {
+	registerIcon(name: string, glyph: IconGlyph): void
+	registerIcons(record: Record<string, IconGlyph>): void
+	getIcon(name: string): IconGlyph | undefined
+}
+
+export interface IconRegistryProviderProps {
+	value: IconRegistry
+	children?: Renderable
 }
 
 export interface HeadingProps {

@@ -1,9 +1,11 @@
 import type { IconProps } from './props';
 import { getIcon } from './icons';
+import { useIconRegistry } from './icon-registry-context';
 import { applyWebProps } from './platformProps.web';
 
 export function Icon(props: IconProps) @{
-	const glyph = getIcon(props.name);
+	const inheritedRegistry = useIconRegistry();
+	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry);
 	if (!glyph) return null;
 	const size = props.size ?? 24;
 	const labeled = props.accessibilityLabel != null;

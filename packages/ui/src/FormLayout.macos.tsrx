@@ -1,18 +1,20 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useMemo } from 'octane'
+import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
 import type { FormLayoutProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
-import { FormLayoutProvider } from './form-layout-context'
+import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
 
 /** FormLayout — vertical column / horizontal row / horizontal-labels
  *  column (each Field renders its own label row). The AppKit grid doesn't
  *  auto-assign columns, so 'horizontal' uses a wrapped row flow rather
  *  than equal-width columns. */
 export function FormLayout(props: FormLayoutProps) @{
+	const parent = useContext(FormLayoutContext)
 	const direction = props.direction ?? 'vertical'
-	const value = { direction, defaultOptionality: props.defaultOptionality }
+	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
+	const value = { direction, defaultOptionality }
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 

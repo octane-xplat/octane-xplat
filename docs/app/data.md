@@ -503,11 +503,12 @@ export function ResumeRefresh() {
 ## The shared query cache
 
 `cachedQuery$` from `@octane-xplat/ui` is `query$` plus a shared, app-wide
-result cache. You write the same selector and loader, and add a required
+default result cache. You write the same selector and loader, and add a required
 **family key** — a stable name for the kind of data, such as `'user'` — that
 gives the query a cross-screen identity. Two screens that resolve the same
 key and selection share the request and its record, so the second screen
-shows the cached value immediately instead of fetching again.
+shows the cached value immediately instead of fetching again. The exported
+functions use one default client per loaded UI module.
 
 ```ts
 // src/queries.ts
@@ -519,6 +520,30 @@ export const user$ = cachedQuery$(
 	() => openUserId$.get(),
 	(id, { signal }) => api.user.get({ id, signal }),
 )
+```
+
+Create a `QueryClient` when a second app area must keep same-key records and
+invalidations separate. Queries declared through one client still share data
+across screens that use that client. The client is an ordinary object, so you
+do not need a UI provider; call its methods where you declare and invalidate
+those queries.
+
+```ts
+// src/account-queries.ts
+import { createQueryClient } from '@octane-xplat/ui'
+import { api } from './api'
+import { openUserId$ } from './session'
+
+export const accountQueries = createQueryClient()
+export const accountUser$ = accountQueries.cachedQuery$(
+	['user'],
+	() => openUserId$.get(),
+	(id, { signal }) => api.user.get({ id, signal }),
+)
+
+export function refreshAccountUser() {
+	accountQueries.invalidateQueries(['user'])
+}
 ```
 
 The full cache key is the family key plus the selector's current selection,
@@ -699,20 +724,30 @@ records to plain data and small payloads.
 
 Two boundaries worth knowing before you adopt it:
 
-- **One boundary per session.** The in-memory cache is not partitioned by
-  `scope`; the app contract is `clearQueryCache()` on sign-out _before_ the
-  boundary changes, then let the new boundary repopulate.
-- **Same family, same scope, shared cell.** Two `cachedQuery$` calls that
-  resolve the same family in one scope share a query cell — the first
+- **The default client is shared.** Its in-memory entries are not partitioned
+  by `QueryPersistence.scope`; clear the default cache before an account
+  boundary changes, or use a separate `QueryClient` for each independent
+  consumer. A client isolates memory only. If clients share a storage adapter,
+  give each persistent account boundary a distinct `scope`.
+- **Same family in one client shares a cell.** Two `cachedQuery$` calls that
+  resolve the same family through one client share a query cell — the first
   selector and loader bound there wins. Pass `options.key` to keep them
   distinct, and keep different data in different families.
 
 ```ts
-import { cachedQuery$ } from '@octane-xplat/ui'
+import { createQueryClient } from '@octane-xplat/ui'
 import { api } from './api'
+import { openUserId$, pinnedUserId$ } from './session'
 
-// A distinct cell in the same scope, same family.
-export const userPinned$ = cachedQuery$(
+export const userQueries = createQueryClient()
+export const user$ = userQueries.cachedQuery$(
+	['user'],
+	() => openUserId$.get(),
+	(id, { signal }) => api.user.get({ id, signal }),
+)
+
+// A distinct cell in the same client and family.
+export const userPinned$ = userQueries.cachedQuery$(
 	['user'],
 	() => pinnedUserId$.get(),
 	(id, { signal }) => api.user.get({ id, signal }),

@@ -291,9 +291,10 @@ export type { SafeAreaInsets } from './safeAreaInsets.macos.tsrx'
 export { useMeasure } from './useMeasure.macos.tsrx'
 export { Meter, Heading } from './macos-extras.macos.tsrx'
 export { Icon } from './Icon.macos.tsrx'
-export { registerIcon, registerIcons } from './icons'
-export type { IconGlyph } from './icons'
-export type { BuiltinIconName, IconName, IconNameRegistry } from './props'
+export { IconRegistryProvider } from './IconRegistryProvider.macos.tsrx'
+export { createIconRegistry, registerIcon, registerIcons } from './icons'
+export type { IconGlyph, IconRegistry } from './icons'
+export type { BuiltinIconName, IconName, IconNameRegistry, IconRegistryProviderProps } from './props'
 export const isNative = true as const
 export { registerStack, getStack, stackEntries } from './stacks.macos'
 export {
@@ -387,12 +388,14 @@ export {
 	cachedQuery$,
 	invalidateQueries,
 	clearQueryCache,
+	createQueryClient,
 	createMemoryQueryStorage,
 } from './query-cache'
 
 export { platformQueryStorage } from './query-storage.macos'
 export type {
 	CachedQuery,
+	QueryClient,
 	QueryKey,
 	QueryKeyPart,
 	QueryStorageAdapter,

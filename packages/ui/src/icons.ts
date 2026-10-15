@@ -1,5 +1,5 @@
-import type { BuiltinIconName, IconGlyph } from './props'
-export type { IconGlyph } from './props'
+import type { BuiltinIconName, IconGlyph, IconRegistry } from './props'
+export type { IconGlyph, IconRegistry } from './props'
 
 /**
  * Framework-provided glyphs for built-in affordances (SearchInput's leading
@@ -77,25 +77,38 @@ const BUILTIN_ICONS: Record<BuiltinIconName, IconGlyph> = {
 	},
 }
 
-/**
- * Process-wide icon registry — one map shared by every `Icon` in the host.
- * Registration is not reactive: a name registered later resolves for icons
- * rendered afterward, but already-mounted icons do not re-render. Register
- * app glyphs during startup before first use. Later registrations overwrite
- * earlier ones, including the built-ins.
- */
-const icons = new Map<string, IconGlyph>(Object.entries(BUILTIN_ICONS))
-
-export function registerIcon(name: string, glyph: IconGlyph): void {
-	icons.set(name, glyph)
-}
-
-export function registerIcons(record: Record<string, IconGlyph>): void {
-	for (const [name, glyph] of Object.entries(record)) {
-		icons.set(name, glyph)
+/** Create an independent icon registry that includes the built-in glyphs. */
+export function createIconRegistry(): IconRegistry {
+	const icons = new Map<string, IconGlyph>(Object.entries(BUILTIN_ICONS))
+	return {
+		registerIcon(name, glyph) {
+			icons.set(name, glyph)
+		},
+		registerIcons(record) {
+			for (const [name, glyph] of Object.entries(record)) {
+				icons.set(name, glyph)
+			}
+		},
+		getIcon(name) {
+			return icons.get(name)
+		},
 	}
 }
 
-export function getIcon(name: string): IconGlyph | undefined {
-	return icons.get(name)
+/**
+ * The default app-wide registry used by the legacy registration functions
+ * and by icons rendered outside an IconRegistryProvider.
+ */
+export const defaultIconRegistry = createIconRegistry()
+
+export function registerIcon(name: string, glyph: IconGlyph): void {
+	defaultIconRegistry.registerIcon(name, glyph)
+}
+
+export function registerIcons(record: Record<string, IconGlyph>): void {
+	defaultIconRegistry.registerIcons(record)
+}
+
+export function getIcon(name: string, registry: IconRegistry = defaultIconRegistry): IconGlyph | undefined {
+	return registry.getIcon(name)
 }

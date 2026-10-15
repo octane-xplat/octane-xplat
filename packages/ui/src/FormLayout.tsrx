@@ -1,10 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useMemo, useEffect, useRef } from 'octane';
+import { useMemo, useEffect, useRef, useContext } from 'octane';
 import { refList } from './ref-list'
 import type { FormLayoutProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { FormLayoutProvider } from './form-layout-context';
+import { FormLayoutContext, FormLayoutProvider } from './form-layout-context';
 
 /** FormLayout — 'vertical' is a column with 16dip gaps. 'horizontal' is a
  *  single `*`-column-per-child grid row (NativeScript's grid has no
@@ -13,8 +13,10 @@ import { FormLayoutProvider } from './form-layout-context';
  *  context and renders its own label-beside-control row (per-field label
  *  width; the web grid's shared label column has no native analog). */
 export function FormLayout(props: FormLayoutProps) @{
+	const parent = useContext(FormLayoutContext);
 	const direction = props.direction ?? 'vertical';
-	const value = { direction, defaultOptionality: props.defaultOptionality };
+	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality;
+	const value = { direction, defaultOptionality };
 	const host = useRef<any>(null);
 
 	useEffect(() => {

@@ -92,7 +92,7 @@ export function useFieldControlProps<
 		isLoading: field?.isLoading ?? props.isLoading,
 		isRequired,
 		isOptional,
-		size: field?.size ?? group?.size ?? props.size,
+		size: props.size ?? group?.size ?? field?.size,
 		inInputGroup: group != null,
 		status,
 		id: props.id ?? field?.controlId,

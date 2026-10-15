@@ -20,7 +20,7 @@ the behavior differences between DOM and NativeScript.
 - AC1: `Stack` flows in a row or column with consistent main/cross alignment and spacing steps; `HStack` and `VStack` provide the fixed-direction forms.
 - AC2: `StackItem` fills or aligns within its parent flow; same-area overlap uses `Absolute` rather than `Stack`.
 - AC3: `Center`, `Section`, and `AspectRatio` provide their documented layout on web and native, with platform limits stated for inline centering and native measurement.
-- AC4: `FormLayout` arranges labeled fields and `InputGroup` associates one group label with prefix/suffix content and its input; neither is an HTML form submission API.
+- AC4: `FormLayout` arranges labeled fields, nested layouts inherit omitted `defaultOptionality` while explicit child values take precedence, and `InputGroup` associates one group label with prefix/suffix content and its input; neither is an HTML form submission API.
 
 - AC5: Grid preserves explicit zero-based placement and spans on composite roots, flows automatic cells, and reflows reactive insertion/removal/reorder. State the NativeScript patch requirement and evidence limits.
 

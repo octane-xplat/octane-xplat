@@ -2,7 +2,7 @@
 
 ID: fetch-remote-data
 Targets: web, ios, android
-Related APIs: query$, signal$, derived$, skip, octane/signals, octane/signals/client, @try, @pending, @catch, useStore, refetch, retry, reset, snapshot, latest, optimistic$, action$, cachedQuery$, invalidateQueries, clearQueryCache, platformQueryStorage, QueryStorageAdapter
+Related APIs: query$, signal$, derived$, skip, octane/signals, octane/signals/client, @try, @pending, @catch, useStore, refetch, retry, reset, snapshot, latest, optimistic$, action$, cachedQuery$, createQueryClient, QueryClient, invalidateQueries, clearQueryCache, platformQueryStorage, QueryStorageAdapter
 
 ## Starting point
 
@@ -28,7 +28,7 @@ Rouzer route tree are outside this recipe's scope.
 - AC5: The reader knows the native footguns: `$`-suffix naming, the per-module `octane/signals` runtime import, `useStore` for non-signal state, and that module-level queries avoid the cross-root context limit.
 - AC6: The reader can choose between a module-level and a screen-owned `query$` for route-param-driven data, and knows the stacked-navigation hazard of copying route params into shared selector signals during render.
 - AC7: The reader can pass cancellation to the transport, rely on unmount retiring component-owned requests and subscriptions, and prevent an obsolete response from replacing a later selection.
-- AC8: The reader can share a query's result across screens with `cachedQuery$`, invalidate it by exact or prefix key after a mutation, and opt into persisted records via a `QueryStorageAdapter` with version, max-age, and auth boundary scoping.
+- AC8: The reader can share a query's result across screens through one `QueryClient`, isolate same-key entries and invalidation in another client, use the app-wide default helpers when sharing is intended, and persist records with version, max-age, and an explicit storage scope.
 
 ## Documentation
 

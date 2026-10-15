@@ -377,16 +377,17 @@ in the demo too: it must neither activate nor become a keyboard Tab stop.
 
 ### Grouped fields
 
-Use `FormLayout` to arrange `Field` or `InputGroup` children. Its
-`defaultOptionality` marks the exception to the form's usual required or
-optional state. `InputGroup` provides one label and description for a joined
-control; put prefix/suffix text or icons in `InputGroupText`, then place the
-input beside it. This is layout and accessibility grouping only: `FormLayout`
-does not render a browser `<form>` or provide submit behavior. `InputGroup`
-uses a web `role="group"`; NativeScript has no corresponding group role.
-The group's `size` and disabled state are inherited by supported member
-controls so the addon, input border, and input state stay aligned.
-See the [grouped field example](../../packages/demos/src/ComponentsDemo.tsrx).
+Use `FormLayout` to arrange `Field` or `InputGroup` children. A nested
+`FormLayout` inherits `defaultOptionality` unless it sets its own value;
+explicit field state still wins over that default. `InputGroup` provides one
+label and description for a joined control; put prefix/suffix text or icons in
+`InputGroupText`, then place the input beside it. The group's `size` is a
+default that a control's explicit `size` can override; omit child sizes for
+a uniform group. The group's disabled state remains enforced. This is layout
+and accessibility grouping only: `FormLayout` does not render a browser
+`<form>` or provide submit behavior. `InputGroup` uses a web `role="group"`;
+NativeScript has no corresponding group role. The [grouped field example](../../packages/demos/src/ComponentsDemo.tsrx)
+shows this composition.
 
 ```tsx
 import { FormLayout, Field, InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
@@ -401,8 +402,16 @@ export function Example() {
 			</Field>
 			<InputGroup label="Website" description="Your profile link" size="sm" isDisabled>
 				<InputGroupText>https://</InputGroupText>
-				<TextInput value="example.com" />
+				<TextInput value="example.com" size="md" isDisabled={false} />
 			</InputGroup>
+			<FormLayout defaultOptionality="optional">
+				<Field label="Nickname">
+					<TextInput />
+				</Field>
+				<Field label="Work email" isRequired>
+					<TextInput />
+				</Field>
+			</FormLayout>
 		</FormLayout>
 	)
 }

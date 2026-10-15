@@ -134,8 +134,14 @@ used to collect the route files, and **codegen** means generating code from
 that list. You don't edit the generated route files by hand.
 
 `deriveRouteManifest` turns a set of screen modules into a route table, and
-`registerRoutes` registers it once at startup. The generated web entry uses a
-Vite glob to collect the modules:
+`registerRoutes` registers it once at startup. The route exports use one
+app-wide registry per loaded UI module; components share that module's route
+state, including NativeScript pushed-page roots. Native frames keep their own
+stacks; web uses one browser history and the route's `stack` selects its
+conceptual outlet.
+This API does not create independent routers for multiple apps in one renderer
+tree. Use `addRoutes` only when you intend to layer routes onto that app-wide
+registry. The generated web entry uses a Vite glob to collect the modules:
 
 ```ts
 import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'

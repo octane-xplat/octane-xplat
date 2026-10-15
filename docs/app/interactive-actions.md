@@ -10,9 +10,10 @@ actions. Replace those callbacks with your app’s actions. Icon names also
 need to be registered in your app.
 
 Use `Button` for labeled actions and `IconButton` when the whole control is an
-icon. `ButtonGroup` shares size and disabled state across adjacent actions. On web,
-Tab enters the group once and arrow/Home/End keys move among enabled members;
-native and AppKit retain their renderer's ordinary per-control focus order.
+icon. `ButtonGroup.size` is a default, so a member's explicit `size` wins;
+`ButtonGroup.isDisabled` disables every member. On web, Tab enters the group
+once and arrow/Home/End keys move among enabled members; native and AppKit
+retain their renderer's ordinary per-control focus order.
 `ToggleButton` can be controlled with `isPressed`/`onPressedChange`, or grouped
 under `ToggleButtonGroup` with a single `value: string | null` and `onChange`,
 or `type="multiple"` with a `string[]` value and `onChange`. Single selection
@@ -30,6 +31,7 @@ export function Example() {
 			<Button
 				label="Save"
 				variant="primary"
+				size="lg"
 				clickAction={async () => {
 					console.log('Saved')
 				}}

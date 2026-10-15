@@ -3,6 +3,7 @@ import { createScope, runWithSignalOwner, skip, type Scope } from 'octane/signal
 import {
 	cachedQuery$,
 	clearQueryCache,
+	createQueryClient,
 	createMemoryQueryStorage,
 	invalidateQueries,
 	type QueryPersistence,
@@ -93,6 +94,38 @@ describe('cachedQuery$', () => {
 		screen(() => b.latest())
 		await settle()
 		expect(calls.map((call) => call.selection)).toEqual(['a', 'b'])
+	})
+
+	it('isolates entries and invalidation between query clients, even in one owner', async () => {
+		const firstClient = createQueryClient()
+		const secondClient = createQueryClient()
+		let firstCalls = 0
+		let secondCalls = 0
+
+		const queries = screen(() => ({
+			first: firstClient.cachedQuery$(['instance-scope'], () => 'same', () => 'first-' + ++firstCalls),
+			second: secondClient.cachedQuery$(['instance-scope'], () => 'same', () => 'second-' + ++secondCalls),
+		}))
+
+		screen(() => {
+			queries.first.latest()
+			queries.second.latest()
+		})
+		await settle()
+		screen(() => {
+			expect(queries.first.latest()).toBe('first-1')
+			expect(queries.second.latest()).toBe('second-1')
+		})
+
+		firstClient.invalidateQueries(['instance-scope'])
+		await settle()
+
+		screen(() => {
+			expect(queries.first.latest()).toBe('first-2')
+			expect(queries.second.latest()).toBe('second-1')
+		})
+		expect(firstCalls).toBe(2)
+		expect(secondCalls).toBe(1)
 	})
 
 	it('refetches live owners on invalidateQueries while prior data stays visible', async () => {

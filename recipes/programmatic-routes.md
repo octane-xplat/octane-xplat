@@ -45,6 +45,9 @@ database, a content directory, or a host framework's own route model.
   can commit a guard, redirect, or loader result; back navigation invalidates
   pending work. Native/macOS named stacks remain independent, while web uses
   one history.
+- AC6: The reader knows route registration and reactive state are app-wide per
+  loaded UI module; the API does not create independent routers for multiple
+  apps in one renderer tree.
 
 ## Documentation
 
@@ -62,6 +65,7 @@ database, a content directory, or a host framework's own route model.
 - AC5: [Loader and presentation behavior](../docs/app/navigation.md#present-a-route-modally)
   and [guard behavior](../docs/app/navigation.md#guard-and-document-a-route).
   Regression example: `packages/ui/src/route-navigation.web.test.ts`.
+- AC6: [App-wide route scope](../docs/app/navigation.md#what-the-route-generator-writes).
 
 ## Verification
 

@@ -690,10 +690,11 @@ export { ActivityIndicator as Spinner } from './ActivityIndicator'
 export { Meter } from './Meter'
 export { Slider } from './Slider'
 export { Icon } from './Icon'
+export { IconRegistryProvider } from './IconRegistryProvider'
 export { Heading } from './Heading'
-export { registerIcon, registerIcons } from './icons'
-export type { IconGlyph } from './icons'
-export type { BuiltinIconName, IconName, IconNameRegistry } from './props'
+export { createIconRegistry, registerIcon, registerIcons } from './icons'
+export type { IconGlyph, IconRegistry } from './icons'
+export type { BuiltinIconName, IconName, IconNameRegistry, IconRegistryProviderProps } from './props'
 export type {
 	ActivityIndicatorProps,
 	HeadingProps,
@@ -844,12 +845,14 @@ export {
 	cachedQuery$,
 	invalidateQueries,
 	clearQueryCache,
+	createQueryClient,
 	createMemoryQueryStorage,
 } from './query-cache'
 
 export { platformQueryStorage } from './query-storage.web'
 export type {
 	CachedQuery,
+	QueryClient,
 	QueryKey,
 	QueryKeyPart,
 	QueryStorageAdapter,

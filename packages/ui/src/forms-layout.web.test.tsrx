@@ -11,6 +11,8 @@ import { AspectRatio } from './AspectRatio.web.tsrx';
 import { VisuallyHidden } from './VisuallyHidden.web.tsrx';
 import { FormLayout } from './FormLayout.web.tsrx';
 import { FormField } from './FormField.web.tsrx';
+import { ButtonGroup } from './ButtonGroup.web.tsrx';
+import { Button } from './Button.web.tsrx';
 import { InputGroup, InputGroupText } from './InputGroup.web.tsrx';
 import { TextInput } from './TextInput.web.tsrx';
 import { Checkbox } from './Checkbox.web.tsrx';
@@ -176,6 +178,42 @@ describe('FormLayout (web)', () => {
 		expect(inputs[1].getAttribute('aria-required')).toBeNull();
 		root.unmount();
 	});
+
+	it('nested FormLayout defaults inherit unless the child supplies an override', () => {
+		const { el, root } = mount(
+			<FormLayout defaultOptionality="required">
+				<TextInput label="Required by parent" />
+				<FormLayout defaultOptionality="optional">
+					<TextInput label="Optional by child" />
+					<TextInput label="Required by child" isRequired />
+				</FormLayout>
+			</FormLayout>
+		);
+
+		const inputs = el.querySelectorAll('input');
+		expect(inputs[0].getAttribute('aria-required')).toBe('true');
+		expect(inputs[1].getAttribute('aria-required')).toBeNull();
+		expect(inputs[2].getAttribute('aria-required')).toBe('true');
+		root.unmount();
+	});
+});
+
+describe('ButtonGroup defaults (web)', () => {
+	it('uses its size as a default while keeping group disabled state enforced', () => {
+		const { el, root } = mount(
+			<ButtonGroup label="Actions" size="sm" isDisabled>
+				<Button label="Default size" isDisabled={false} />
+				<Button label="Explicit size" size="lg" isDisabled={false} />
+			</ButtonGroup>
+		);
+
+		const buttons = el.querySelectorAll('[role="button"]');
+		expect(buttons[0].className).toContain('vx-button--size-sm');
+		expect(buttons[1].className).toContain('vx-button--size-lg');
+		expect(buttons[0].getAttribute('aria-disabled')).toBe('true');
+		expect(buttons[1].getAttribute('aria-disabled')).toBe('true');
+		root.unmount();
+	});
 });
 
 describe('InputGroup (web)', () => {
@@ -195,6 +233,21 @@ describe('InputGroup (web)', () => {
 		expect(group.getAttribute('aria-describedby')).toContain('description');
 		expect(el.querySelector('.vx-inputgroup-text')?.textContent).toBe('https://');
 		expect(el.querySelector('.vx-input--ingroup')).not.toBeNull();
+		root.unmount();
+	});
+
+	it('uses group size as a default while an explicit member size wins', () => {
+		const { el, root } = mount(
+			<InputGroup label="Amounts" size="sm">
+				<InputGroupText>$</InputGroupText>
+				<TextInput />
+				<TextInput size="lg" />
+			</InputGroup>
+		);
+
+		const inputs = el.querySelectorAll('input');
+		expect(inputs[0].className).toContain('vx-input--size-sm');
+		expect(inputs[1].className).toContain('vx-input--size-lg');
 		root.unmount();
 	});
 });
