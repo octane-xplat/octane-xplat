@@ -4,6 +4,7 @@ import type { GridProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { bindNativeGridPlacement } from './native-grid-placement';
+import { gridTrackListToSpec } from './grid-tracks';
 
 let warnedAboutGap = false;
 
@@ -28,8 +29,8 @@ export function Grid(props: GridProps) @{
 			grid.current = view;
 			applyEscapeProps(view, props);
 		}}
-		rows={props.rows}
-		columns={props.columns}
+		rows={gridTrackListToSpec(props.rows, 'rows')}
+		columns={gridTrackListToSpec(props.columns, 'columns')}
 		className={cx('vx-grid', props.className)}
 		style={props.style as any}
 		accessible={props.accessible}

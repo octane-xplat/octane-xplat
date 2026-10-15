@@ -690,7 +690,12 @@ export { Drawer } from './Drawer'
 export { useSafeAreaInsets } from './safeAreaInsets'
 export type { SafeAreaInsets } from './safeAreaInsets'
 export { useMeasure } from './useMeasure'
-export type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
+export type {
+	MeasureBounds,
+	MeasureResult,
+	UseKeyboardInsetOptions,
+	UseMeasureOptions,
+} from './props'
 /** Loading indicator, exported under Astryx's component name. */
 export { ActivityIndicator as Spinner } from './ActivityIndicator'
 export { Meter } from './Meter'
@@ -957,6 +962,8 @@ export type {
 	SpinnerProps,
 	DrawerProps,
 	GridProps,
+	GridTrack,
+	GridTrackList,
 	ImageProps,
 	ImageContentFit,
 	ImageContentPosition,
@@ -974,6 +981,7 @@ export type {
 	Role,
 	RowProps,
 	ScreenProps,
+	SafeAreaEdge,
 	SafeAreaProps,
 	SharedDateFormat,
 	SpacerProps,

@@ -59,7 +59,7 @@ export function WebViewDemo() @{
 			</Pressable>
 		</HStack>
 		<Text className="text-sm text-muted">{'status: ' + status + ' · content: ' + contentSize}</Text>
-		<SafeArea className="flex-1" ignoreSafeArea={ignoreSafeArea}>
+		<SafeArea className="flex-1" edges={ignoreSafeArea ? [] : undefined}>
 			<WebView
 				ref={handle}
 				className={'webview-demo-frame' + (matchContents ? '' : ' flex-1')}

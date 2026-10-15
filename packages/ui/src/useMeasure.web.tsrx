@@ -6,7 +6,8 @@ function readBounds(element: HTMLElement): MeasureBounds {
 	return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
 }
 
-/** Binds to a web element and observes its viewport-relative bounds by default. */
+/** Binds to a web element and observes app-surface (viewport-relative) px
+ *  bounds by default — the shared `MeasureBounds` coordinate space. */
 export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 	const [element, setElement] = useState<HTMLElement | null>(null);
 	const [bounds, setBounds] = useState<MeasureBounds | null>(null);

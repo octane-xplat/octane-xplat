@@ -5,9 +5,10 @@ import type { AbsoluteProps, GridProps, SpacerProps, StackItemProps, StackProps 
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { resolveStackLayout, stackItemStyle } from './stack-layout'
+import { gridTrackListToSpec } from './grid-tracks'
 
 export function Grid(props: GridProps) @{
-	<gridlayout id={props.id} rows={props.rows} columns={props.columns} className={props.className} style={props.style}>
+	<gridlayout id={props.id} rows={gridTrackListToSpec(props.rows, 'rows')} columns={gridTrackListToSpec(props.columns, 'columns')} className={props.className} style={props.style}>
 		{props.children}
 	</gridlayout>
 }

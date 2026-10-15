@@ -98,15 +98,15 @@ export function Example() {
 | `HStack`           | Horizontal `Stack`                                                                         | `hAlign`, `vAlign`, `gap`                                                 |
 | `VStack`           | Vertical `Stack`                                                                           | `hAlign`, `vAlign`, `gap`                                                 |
 | `StackItem`        | Child sizing/alignment override in `Stack`                                                 | `size`, `crossAlignSelf`, `isScrollable`                                  |
-| `Grid`             | Grid container                                                                             |                                                                           |
+| `Grid`             | Grid container                                                                             | `rows`, `columns`                                                         |
 | `Absolute`         | Absolutely-positioned layer                                                                |                                                                           |
 | `Center`           | Centers children on one or both axes                                                       | `axis`, `isInline`                                                        |
 | `Section`          | Banded content with padding and dividers                                                   | `variant`, `dividers`, `padding`                                          |
 | `AspectRatio`      | Constrains child box to a width/height ratio                                               | `ratio`, `shape`, `fit`                                                   |
 | `VisuallyHidden`   | Keeps content available to assistive technology                                            | `as` (web tag)                                                            |
 | `Spacer`           | Flexible gap filler                                                                        |                                                                           |
-| `SafeArea`         | Insets-aware container                                                                     |                                                                           |
-| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere |                                                                           |
+| `SafeArea`         | Insets-aware container                                                                     | `edges`                                                                   |
+| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere | `enabled`, `keyboardVerticalOffset`                                       |
 
 ## Text
 

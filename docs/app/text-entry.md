@@ -183,7 +183,13 @@ export function Example() {
 ```
 
 `KeyboardAvoiding` adds keyboard space on iOS and requests Android window
-resize. Bottom-anchored native shared sheets also account for the keyboard;
+resize. `keyboardVerticalOffset` holds contents extra dips above the
+keyboard's top edge — the height of a composer bar that sits inside the
+wrapper, for example — and `enabled={false}` keeps the layout wrapper with
+no avoidance subscription or resize lease. When the wrapper sits inside a
+`SafeArea`, the bottom inset that wrapper already applied is subtracted
+from the keyboard inset so the two never double-count. Bottom-anchored
+native shared sheets also account for the keyboard;
 the Android inset fallback converts physical pixels into layout dips. Check
 the last field with the software keyboard open, including a sheet opened
 while the keyboard is already visible. Observer/property tests alone do not
@@ -196,7 +202,7 @@ import { useState } from 'octane'
 export function Example() {
 	const [note, setNote] = useState('')
 	return (
-		<KeyboardAvoiding>
+		<KeyboardAvoiding keyboardVerticalOffset={8}>
 			<TextInput label="Note" value={note} onChange={setNote} />
 		</KeyboardAvoiding>
 	)
@@ -292,7 +298,9 @@ export function MessageForm() {
 }
 ```
 
-`KeyboardAvoiding` uses the same native subscription. On iOS it adds space
+`KeyboardAvoiding` uses the same native subscription — pass
+`enabled={false}` there or `useKeyboardInset({ enabled: false })` here to
+leave it inactive. On iOS it adds space
 below its contents; Android lets the window resize. iOS readers and bound
 bottom overlays share the latest frame while at least one stays mounted.
 After all detach, the observer and cached frame are released. Floating

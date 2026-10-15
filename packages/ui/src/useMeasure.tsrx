@@ -2,14 +2,32 @@
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props';
 
+/** Screen position of the app surface's top-left — the topmost attached
+ *  ancestor's location. `(0,0)` for full-screen windows; non-zero under
+ *  Android multi-window or a moved iPadOS window. A detached or oddly
+ *  rooted ancestor still reports its own position, so the subtraction
+ *  degrades to the old screen-relative value rather than failing. */
+function surfaceOrigin(view: any): { x: number; y: number } {
+	let root = view;
+	while (root?.parent) root = root.parent;
+	const point = root?.getLocationOnScreen?.();
+	return point ? { x: point.x, y: point.y } : { x: 0, y: 0 };
+}
+
 function readBounds(view: any): MeasureBounds | null {
 	const point = view?.getLocationOnScreen?.();
 	const size = view?.getActualSize?.();
 	if (!point || !size) return null;
-	return { x: point.x, y: point.y, width: size.width, height: size.height };
+	const origin = surfaceOrigin(view);
+	return {
+		x: point.x - origin.x,
+		y: point.y - origin.y,
+		width: size.width,
+		height: size.height,
+	};
 }
 
-/** Binds to a NativeScript view and observes screen-relative DIP bounds by default. */
+/** Binds to a NativeScript view and observes app-surface DIP bounds by default. */
 export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 	const [bounds, setBounds] = useState<MeasureBounds | null>(null);
 	const detach = useRef<(() => void) | null>(null);

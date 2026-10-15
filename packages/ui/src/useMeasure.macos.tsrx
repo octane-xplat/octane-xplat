@@ -3,7 +3,9 @@ import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
 import { readBounds } from './measure-bounds.macos'
 
-/** Observe window-relative layout and ancestor scrolling; release all observers on rebind/unmount. */
+/** Observe app-surface (window-content-relative) layout and ancestor
+ *  scrolling — the shared `MeasureBounds` coordinate space; release all
+ *  observers on rebind/unmount. */
 export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 	const [bounds, setBounds] = useState<MeasureBounds | null>(null)
 	const detach = useRef<(() => void) | null>(null)

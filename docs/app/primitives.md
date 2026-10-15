@@ -79,8 +79,10 @@ check that the text says “Count: 2.” Reloading starts at zero again.
 
 ### Grid placement
 
-`Grid` puts children in cells. `row` and `col` start at zero; omit them to
-fill the next free cell. `colSpan` and `rowSpan` cover several cells.
+`Grid` puts children in cells. `row` and `col` are zero-based track
+indices — the first declared track is index 0 on every platform — and
+omitting them lets a child fill the next free cell in row order.
+`colSpan` and `rowSpan` cover several cells.
 A reusable component must forward these props to its outermost view, as
 `Card` does here. Use child margins for spacing.
 
@@ -96,6 +98,29 @@ export function GridExample() {
   <Grid columns="*,*,*">
    <Card row={0} col={0} colSpan={2} />
    <Text>Next free cell</Text>
+  </Grid>
+ )
+}
+```
+
+The `rows` and `columns` track lists share one bounded grammar on every
+platform. Each track is `auto` (sized to its content), a number or numeric
+string (a fixed length in dips — `'48px'` and `'2fr'` spellings normalize
+to the same value), or a star weight (`*` or `2*` for a share of leftover
+space). Strings separate tracks with commas or whitespace; the array form
+types each token. Entries outside the grammar — `minmax`, `repeat`,
+percentages, line names — log a `[Grid]` warning and lay out as `auto`,
+instead of working on one host and breaking on another.
+
+```tsx
+import { Grid, Text } from '@octane-xplat/ui'
+
+export function TrackExample() {
+ return (
+  <Grid rows="auto,*" columns={['auto', 96, '2*']}>
+   <Text>Header</Text>
+   <Text>Sidebar</Text>
+   <Text>Content</Text>
   </Grid>
  )
 }
@@ -245,6 +270,34 @@ export function AirplaneRow() {
 	return <UISwitch checked label="Airplane mode" isDisabled />
 }
 ```
+
+### Safe-area edges
+
+`SafeArea` keeps content clear of the system bars, notch, and home
+indicator by padding the edges you select. `edges` takes any of `'top'`,
+`'right'`, `'bottom'`, and `'left'` and defaults to all four;
+`edges={[]}` makes it a neutral wrapper so content can extend underneath.
+Each edge is consumed once — a nested `SafeArea` pads only what its
+ancestors left, and `KeyboardAvoiding` inside one subtracts the consumed
+bottom inset from the keyboard inset, so stacking never double-counts.
+
+```tsx
+import { SafeArea, Text } from '@octane-xplat/ui'
+
+export function EdgeExample() {
+	return (
+		<SafeArea edges={['top']}>
+			<SafeArea edges={['top', 'bottom']}>
+				<Text>Top is padded once; bottom still applies</Text>
+			</SafeArea>
+		</SafeArea>
+	)
+}
+```
+
+The older `ignoreSafeArea` prop still works as `edges={[]}` and is
+deprecated; `edges` wins when both are set. macOS windows have no
+safe-area insets, so `SafeArea` stays a neutral wrapper there.
 
 ### Text and keyboard actions
 
@@ -819,8 +872,11 @@ export function Example() {
 Use `useMeasure()` when a screen needs live element bounds:
 `const { ref, bounds } = useMeasure()`, then pass `ref` to a primitive's
 `ref` prop. Bounds are observed by default and are `null` before the element
-has a usable layout. Web coordinates are viewport-relative; native coordinates
-are screen-relative device-independent pixels. Set `{ observe: false }` for a
+has a usable layout — that `null` is the readiness signal, so render
+fallbacks while it holds. `x` and `y` are dips from the top-left of the
+app surface — the web viewport, the macOS window's content area, or the
+app's root surface on iOS/Android — the same coordinate space on every
+target. Set `{ observe: false }` for a
 single read after binding.
 
 ```tsx
@@ -867,7 +923,7 @@ document and `onLayoutContent` reports measured content dimensions. Browser
 measurement works only when the iframe document is same-origin; cross-origin
 content cannot expose its internal size. On native, `onLayoutContent` reports
 the web view's content size, and `matchContents` applies the measured height.
-Wrap it in `SafeArea` and set `ignoreSafeArea` when the content should extend
+Wrap it in `SafeArea` and pass `edges={[]}` when the content should extend
 under system safe areas. On web it is a sandboxed `<iframe>`
 (default `allow-scripts allow-same-origin allow-forms allow-modals`, tunable
 via the `sandbox` prop); on native it is the OS web view. The document itself
@@ -936,7 +992,7 @@ minimum measured height. Use the maintained
 it does not prevent a page script from scrolling. `sandbox` is browser-only.
 The ref's `native` is the WKWebView itself. `reload()` reloads the current
 remote or file page; for `html`, it submits the supplied HTML again. AppKit
-`SafeArea` is a neutral wrapper, so `ignoreSafeArea` adds no desktop inset. Removing the component stops loading,
+`SafeArea` is a neutral wrapper, so `edges` adds no desktop inset. Removing the component stops loading,
 clears the delegate and ref, and ignores pending measurements.
 
 This embedded component does not install a service bridge. To run an entire

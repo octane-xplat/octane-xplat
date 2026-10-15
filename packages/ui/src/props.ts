@@ -89,11 +89,21 @@ export type SetTranslate = (el: HostElement, x?: number, y?: number) => void
 // ---------- primitives ----------
 
 /** Metadata read by parent layouts. Native forwards NativeScript attached
- *  attributes; web folds the CSS equivalents into the child's style. */
+ *  attributes; web folds the CSS equivalents into the child's style.
+ *  `row`/`col` are zero-based track indices into the parent `Grid`'s
+ *  `rows`/`columns` lists — the first declared track is index 0 on every
+ *  platform, never CSS's one-based line numbering. `rowSpan`/`colSpan`
+ *  count tracks (default 1). A child with no index flows into the next
+ *  free cell in row order. */
 export interface LayoutChildProps {
+	/** Zero-based row index in the parent `Grid`; non-integer and negative
+	 *  values are contract violations. */
 	row?: number
+	/** Zero-based column index in the parent `Grid`. */
 	col?: number
+	/** Row tracks to span, >= 1. */
 	rowSpan?: number
+	/** Column tracks to span, >= 1. */
 	colSpan?: number
 	dock?: 'left' | 'top' | 'right' | 'bottom'
 	left?: number
@@ -160,12 +170,27 @@ export interface GlassConfig {
 	animateChangeDuration?: number
 }
 
+/** One `Grid` track: `'auto'` sizes to content, a number (or numeric
+ *  string) is a fixed length in dips — px on web — and `'*'`/`'N*'` is a
+ *  weighted share of the space left after fixed and auto tracks. */
+export type GridTrack = number | 'auto' | '*' | `${number}` | `${number}*`
+
+/** The bounded track grammar `Grid` accepts on every platform. A string
+ *  is a list of `GridTrack` tokens separated by commas or whitespace
+ *  (`'auto,120,2*'`); an array carries the same tokens typed
+ *  (`['auto', 120, '2*']`). `'Npx'` and `'Nfr'` spellings normalize to
+ *  the equivalent dip length and star weight. Tokens outside the grammar
+ *  — `minmax`, `repeat`, `%`, line names, `min-content`, and the rest of
+ *  the CSS-only syntax — are contract violations: the host reports a
+ *  `[Grid]` diagnostic and treats the token as `'auto'`. */
+export type GridTrackList = string | readonly GridTrack[]
+
 export interface GridProps extends AccessibilityProps {
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
-	rows?: string
-	columns?: string
+	rows?: GridTrackList
+	columns?: GridTrackList
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -1470,11 +1495,22 @@ export interface ScreenProps {
 
 // ---------- device seams ----------
 
+/** A screen edge that can carry a system safe-area inset —
+ *  react-native-safe-area-context vocabulary. */
+export type SafeAreaEdge = 'top' | 'right' | 'bottom' | 'left'
+
 export interface SafeAreaProps {
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
-	/** Do not inset the child away from the system's safe area. */
+	/** Safe-area edges this container consumes as padding — defaults to all
+	 *  four. Each edge's inset is consumed once: a nested `SafeArea` pads
+	 *  only for what its ancestors left, and `KeyboardAvoiding` subtracts
+	 *  a consumed bottom inset from the keyboard inset. `edges={[]}` makes
+	 *  the wrapper neutral; `edges` wins over `ignoreSafeArea` when both
+	 *  are set. */
+	edges?: readonly SafeAreaEdge[]
+	/** @deprecated Use `edges` — `ignoreSafeArea` is `edges={[]}`. */
 	ignoreSafeArea?: boolean
 	/** NativeScript props applied to the host after shared props. */
 	ios?: PlatformProps
@@ -1483,14 +1519,36 @@ export interface SafeAreaProps {
 	id?: string
 }
 
+/** Keyboard-avoidance wrapper (shared root API, decisions #46/#69): a
+ *  scrollable column that keeps its contents above the software keyboard.
+ *  iOS pads below the contents by the measured keyboard inset; Android
+ *  leases `adjustResize` for the activity window while mounted. A bottom
+ *  inset an enclosing `SafeArea` already consumed is subtracted — the two
+ *  never double-count. Targets without a software keyboard (web, macOS)
+ *  keep the neutral column wrapper and accept `enabled`/
+ *  `keyboardVerticalOffset` as inert props. */
 export interface KeyboardAvoidingProps {
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
+	/** Set false to keep the layout wrapper without avoidance — no inset
+	 *  subscription or Android window-resize lease runs. @default true */
+	enabled?: boolean
+	/** Extra dips to hold contents above the keyboard's top edge, added to
+	 *  the measured inset (React Native `keyboardVerticalOffset`).
+	 *  @default 0 */
+	keyboardVerticalOffset?: number
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
+}
+
+/** Options for `useKeyboardInset`. */
+export interface UseKeyboardInsetOptions {
+	/** Set false to read 0 without subscribing — no iOS frame observer or
+	 *  Android window-resize lease runs while disabled. @default true */
+	enabled?: boolean
 }
 
 export interface DrawerProps {
@@ -2195,6 +2253,12 @@ export interface ToastProps {
 
 // ---------- measurement ----------
 
+/** Rect in the app-surface coordinate space: `(0,0)` is the top-left of
+ *  the viewport on web, the window content area on AppKit macOS, and the
+ *  app's top-level layout surface on iOS/Android — all in dips (px on
+ *  web), y growing downward. Split-screen, freeform, and Stage Manager
+ *  windows report the same space, so a value means the same thing on
+ *  every target. */
 export interface MeasureBounds {
 	x: number
 	y: number
@@ -2203,13 +2267,20 @@ export interface MeasureBounds {
 }
 
 export interface UseMeasureOptions {
-	/** Re-measure on layout, resize, scroll, and content-size changes. Defaults to true. */
+	/** Re-measure on layout, resize, ancestor scroll, and content-size
+	 *  changes; `false` takes a single read once the host lays out.
+	 *  @default true */
 	observe?: boolean
 }
 
 export interface MeasureResult {
-	/** Pass to a View's `ref` prop. */
+	/** Attach to a `View`'s (or any leaf's) `ref` prop; receives the
+	 *  platform host (`HostElement` — `HTMLElement` on web, the native
+	 *  view elsewhere) or `null` on detach. */
 	ref: (element: HostElement) => void
+	/** Latest bounds, or `null` until the attached host reports a usable
+	 *  layout. `bounds === null` is the readiness signal — render
+	 *  fallbacks while it holds. */
 	bounds: MeasureBounds | null
 }
 

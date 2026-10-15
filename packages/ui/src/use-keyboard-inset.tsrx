@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useState } from 'octane'
 import { subscribeKeyboardInset } from './keyboard-inset'
+import type { UseKeyboardInsetOptions } from './props'
 
 /**
  * Software keyboard bottom inset in device-independent pixels (iOS points).
@@ -14,11 +15,22 @@ import { subscribeKeyboardInset } from './keyboard-inset'
  * an already-visible frame is retained only while a reader or overlay is bound.
  * Native subscriptions are released on unmount. Activity replacement requires
  * remounting the consumer. Floating keyboards are not an occlusion measurement.
+ * `{ enabled: false }` reads 0 without subscribing — no iOS frame observer or
+ * Android resize lease runs while disabled.
  * @example
  * const keyboardInset = useKeyboardInset()
  */
-export function useKeyboardInset(): number {
+export function useKeyboardInset(options: UseKeyboardInsetOptions = {}): number {
+	const enabled = options.enabled ?? true
 	const [inset, setInset] = useState(0)
-	useEffect(() => subscribeKeyboardInset(setInset), [])
+	useEffect(() => {
+		if (!enabled) {
+			setInset(0)
+			return
+		}
+
+		return subscribeKeyboardInset(setInset)
+	}, [enabled])
+
 	return inset
 }

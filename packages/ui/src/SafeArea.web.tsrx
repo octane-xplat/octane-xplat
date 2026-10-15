@@ -1,5 +1,12 @@
+import { useContext } from 'octane';
 import type { SafeAreaProps } from './props';
 import { useSafeAreaInsets } from './safeAreaInsets.web.tsrx';
+import {
+	ConsumedInsetsContext,
+	ConsumedInsetsProvider,
+	consumeInsets,
+	resolveSafeAreaEdges,
+} from './inset-consumption';
 
 function applyWebProps(node: any, bag?: Record<string, any>) {
 	if (!node || !bag) return;
@@ -10,15 +17,17 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 }
 
 export function SafeArea(props: SafeAreaProps) @{
-	const measuredInsets = useSafeAreaInsets();
-	const insets = props.ignoreSafeArea ? { top: 0, right: 0, bottom: 0, left: 0 } : measuredInsets;
+	const measured = useSafeAreaInsets();
+	const ancestor = useContext(ConsumedInsetsContext);
+	const edges = resolveSafeAreaEdges(props.edges, props.ignoreSafeArea);
+	const { applied, provided } = consumeInsets(measured, ancestor, edges);
 
 	<div
 		id={props.id}
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-safe-area', props.className]}
-		style={{ ...(props.style as any), paddingTop: insets.top, paddingRight: insets.right, paddingBottom: insets.bottom, paddingLeft: insets.left }}
+		style={{ ...(props.style as any), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left }}
 	>
-		{props.children}
+		<ConsumedInsetsProvider value={provided}>{props.children}</ConsumedInsetsProvider>
 	</div>
 }

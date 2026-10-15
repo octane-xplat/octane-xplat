@@ -1,4 +1,6 @@
 import type { GridChildPlacement } from './grid-placement'
+import type { GridTrackList } from './props'
+import { parseGridTrackList } from './grid-tracks'
 
 export interface GridCell {
 	row: number
@@ -25,15 +27,15 @@ function gridSpan(value: unknown): number {
 	return Number.isInteger(span) && span > 0 ? span : 1
 }
 
-function trackCount(spec?: string): number {
-	return spec?.split(',').filter((track) => track.trim().length > 0).length ?? 0
+function trackCount(spec: GridTrackList | undefined, axis: 'rows' | 'columns'): number {
+	return parseGridTrackList(spec, axis).length
 }
 
 /** Match CSS Grid's row-flow placement for NativeScript GridLayout children. */
 export function autoPlaceGridChildren(
 	items: readonly GridChildPlacement[],
-	rowTracks?: string,
-	columnTracks?: string,
+	rowTracks?: GridTrackList,
+	columnTracks?: GridTrackList,
 ): GridAutoPlacement {
 	const placements = items.map((item) => ({
 		row: gridIndex(item.row),
@@ -44,7 +46,7 @@ export function autoPlaceGridChildren(
 
 	const columnCount = Math.max(
 		1,
-		trackCount(columnTracks),
+		trackCount(columnTracks, 'columns'),
 		...placements
 			.filter((placement) => placement.col != null)
 			.map((placement) => placement.col! + placement.colSpan),
@@ -141,23 +143,9 @@ export function autoPlaceGridChildren(
 	return {
 		cells: placements.map(({ row, col }) => ({ row: row!, col: col! })),
 		rowCount: Math.max(
-			trackCount(rowTracks),
+			trackCount(rowTracks, 'rows'),
 			...placements.map((item) => item.row! + item.rowSpan),
 		),
 		columnCount: Math.max(columnCount, ...placements.map((item) => item.col! + item.colSpan)),
 	}
-}
-
-export function ensureGridTracks(spec: string | undefined, requiredCount: number): string {
-	const tracks =
-		spec
-			?.split(',')
-			.map((track) => track.trim())
-			.filter(Boolean) ?? []
-
-	while (tracks.length < requiredCount) {
-		tracks.push('auto')
-	}
-
-	return tracks.join(',')
 }

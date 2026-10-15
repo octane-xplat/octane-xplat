@@ -1,8 +1,10 @@
-import { autoPlaceGridChildren, ensureGridTracks } from './grid-auto-placement'
+import { autoPlaceGridChildren } from './grid-auto-placement'
 import { gridChildPlacement } from './grid-placement'
+import { gridTrackListToSpec } from './grid-tracks'
+import type { GridTrackList } from './props'
 
 /** Reconcile Grid after both parent renders and independently committed child updates. */
-export function bindNativeGridPlacement(host: any, rows?: string, columns?: string): () => void {
+export function bindNativeGridPlacement(host: any, rows?: GridTrackList, columns?: GridTrackList): () => void {
 	const watched = new Set<any>()
 	let disposed = false
 	let queued = false
@@ -33,8 +35,8 @@ export function bindNativeGridPlacement(host: any, rows?: string, columns?: stri
 
 		const items = views.map(gridChildPlacement)
 		const placement = autoPlaceGridChildren(items, rows, columns)
-		host.rows = ensureGridTracks(rows, placement.rowCount)
-		host.columns = ensureGridTracks(columns, placement.columnCount)
+		host.rows = gridTrackListToSpec(rows, 'rows', placement.rowCount) ?? ''
+		host.columns = gridTrackListToSpec(columns, 'columns', placement.columnCount) ?? ''
 		views.forEach((view, index) => {
 			view.row = placement.cells[index].row
 			view.col = placement.cells[index].col
