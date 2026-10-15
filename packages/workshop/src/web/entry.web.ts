@@ -3,7 +3,7 @@
  * receives refreshed catalogs when the virtual catalog module re-executes.
  */
 import { createElement, createRoot } from 'octane'
-import { createStore } from '@octane-xplat/ui'
+import { createStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
 import type { StoryDefinition, WorkshopTarget } from '../contract'
 import type { SessionSnapshot } from '../session'

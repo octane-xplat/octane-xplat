@@ -8,7 +8,7 @@ import type {
 	ManifestRouteNames,
 	ManifestRouteParams,
 	ManifestRoutePresentations,
-} from '@octane-xplat/ui'
+} from '@octane-xplat/ui/routing'
 
 import type {
 	RouteName as FileRouteName,

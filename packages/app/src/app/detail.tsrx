@@ -1,5 +1,6 @@
-import { Screen, Text, Pressable, redirect, routeFor, useCanGoBack } from '@octane-xplat/ui';
-import type { BeforeLoadArgs, RouteHead } from '@octane-xplat/ui';
+import { Screen, Text, Pressable } from '@octane-xplat/ui';
+import { redirect, routeFor, useCanGoBack } from '@octane-xplat/ui/routing';
+import type { BeforeLoadArgs, RouteHead } from '@octane-xplat/ui/routing';
 import { goBack } from '../platform/nav';
 
 /** Route guards run before the URL/Page commit; the returned context is

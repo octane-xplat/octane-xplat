@@ -1,4 +1,4 @@
-import { createStore, useStore } from '@octane-xplat/ui';
+import { createStore, useStore } from '@octane-xplat/ui/data';
 
 /** Module-scope store — the one thing that CAN cross Octane roots.
  *  Pushed pages, modals, and sheets each get a fresh root, so context

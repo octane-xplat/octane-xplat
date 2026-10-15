@@ -30,7 +30,8 @@
 		"src/vendor/ui-svg/src/index.ts",
 		"src/*.ts",
 		"src/*.tsrx",
-		"src/*/index.ts"
+		"src/*/index.ts",
+		"src/*/index.*.ts"
 	],
 	"exclude": [
 		"**/*.test.*"

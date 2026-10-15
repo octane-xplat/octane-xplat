@@ -1,0 +1,52 @@
+// @octane-xplat/ui/data — stores, collection models, async lists, and the
+// shared query cache. Visual lists and ordinary inputs stay at the package
+// root; application data lifecycle lives here.
+export { createStore } from '../store'
+export type { Store, ReadableStore, StoreSnapshot } from '../store'
+export { useStore } from '../use-store'
+
+// Immutable collection data stores — React Aria useListData/useTreeData/
+// useAsyncList counterparts
+export { useListData } from '../use-list-data'
+export { useTreeData } from '../use-tree-data'
+export { useAsyncList } from '../use-async-list'
+export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from '../list-data'
+export type {
+	TreeData,
+	TreeDataOptions,
+	TreeNode,
+	TreeNode as CollectionTreeNode,
+	TreeSnapshot,
+} from '../tree-data'
+
+export type {
+	AsyncListData,
+	AsyncListLoadContext,
+	AsyncListLoadResult,
+	AsyncListOptions,
+	AsyncListSnapshot,
+	LoadingState,
+	SortDescriptor,
+} from '../async-list'
+
+// Shared keyed query cache over octane/signals query$
+export {
+	cachedQuery$,
+	invalidateQueries,
+	clearQueryCache,
+	createQueryClient,
+	createMemoryQueryStorage,
+} from '../query-cache'
+
+export { platformQueryStorage } from '../query-storage'
+export type {
+	CachedQuery,
+	QueryClient,
+	QueryKey,
+	QueryKeyPart,
+	QueryStorageAdapter,
+	QueryPersistence,
+	CachedQueryOptions,
+	InvalidateQueriesOptions,
+	ClearQueryCacheOptions,
+} from '../query-cache'

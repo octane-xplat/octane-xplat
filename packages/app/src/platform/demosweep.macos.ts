@@ -1,4 +1,4 @@
-import { routeFor, screenFor } from '@octane-xplat/ui'
+import { routeFor, screenFor } from '@octane-xplat/ui/routing'
 
 type MacOSDebug = {
 	snapshot(): { labels: string[]; buttons: string[]; pressables: (string | undefined)[] }

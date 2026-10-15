@@ -20,6 +20,57 @@
 						"./types/generated/index.d.ts"
 					]
 				},
+				"./routing": {
+					"source": "src/routing/index.ts",
+					"runtime": [
+						"./src/routing/index.macos.ts",
+						"./src/routing/index.web.ts",
+						"./dist/web/routing/index.js",
+						"./dist/native/routing/index.js"
+					],
+					"types": [
+						"./types/generated/routing/index.d.ts",
+						"./types/generated/routing/index.web.d.ts",
+						"./types/generated/routing/index.macos.d.ts"
+					]
+				},
+				"./data": {
+					"source": "src/data/index.ts",
+					"runtime": [
+						"./src/data/index.macos.ts",
+						"./src/data/index.web.ts",
+						"./dist/web/data/index.js",
+						"./dist/native/data/index.js"
+					],
+					"types": [
+						"./types/generated/data/index.d.ts",
+						"./types/generated/data/index.web.d.ts",
+						"./types/generated/data/index.macos.d.ts"
+					]
+				},
+				"./markdown": {
+					"source": "src/markdown/index.ts",
+					"runtime": [
+						"./dist/web/markdown/index.js",
+						"./dist/native/markdown/index.js",
+						"./src/markdown/index.macos.ts",
+						"./src/markdown/index.web.ts"
+					],
+					"types": "./types/generated/markdown/index.d.ts"
+				},
+				"./chat": {
+					"source": "src/chat/index.ts",
+					"runtime": [
+						"./src/chat/index.ts",
+						"./src/chat/index.web.ts",
+						"./dist/web/chat/index.js",
+						"./dist/native/chat/index.js"
+					],
+					"types": [
+						"./types/generated/chat/index.d.ts",
+						"./types/generated/chat/index.web.d.ts"
+					]
+				},
 				"./ios": {
 					"source": "src/ios/index.ts",
 					"runtime": "./dist/native/ios/index.js",
@@ -49,16 +100,6 @@
 					"source": "src/linux/index.ts",
 					"runtime": "./src/linux/index.ts",
 					"types": "./types/generated/linux/index.d.ts"
-				},
-				"./markdown": {
-					"source": "src/markdown/index.ts",
-					"runtime": [
-						"./dist/web/markdown/index.js",
-						"./dist/native/markdown/index.js",
-						"./src/markdown/index.macos.ts",
-						"./src/markdown/index.web.ts"
-					],
-					"types": "./types/generated/markdown/index.d.ts"
 				}
 			}
 		}

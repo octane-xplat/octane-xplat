@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { createContext, useContext, useState } from 'octane'
-import { Pressable, Text, createStore, openWindow, useStore, type Store } from '@octane-xplat/ui'
+import { Pressable, Text, openWindow } from '@octane-xplat/ui'
+import { createStore, useStore, type Store } from '@octane-xplat/ui/data'
 import { defineStory } from '@octane-xplat/workshop'
 
 type Fixture = {

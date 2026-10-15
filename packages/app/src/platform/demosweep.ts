@@ -1,5 +1,5 @@
 import { Application, Frame, ListView } from '@nativescript/core'
-import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/ui'
+import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 

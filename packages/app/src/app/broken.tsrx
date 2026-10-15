@@ -1,5 +1,5 @@
 import { Pressable, Screen, Text } from '@octane-xplat/ui';
-import type { RouteErrorBoundaryProps } from '@octane-xplat/ui';
+import type { RouteErrorBoundaryProps } from '@octane-xplat/ui/routing';
 
 /** broken route — the error-boundary exercise. Push with
  *  {fail: 'loader'} to reject the loader (the screen gets `error`; a

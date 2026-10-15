@@ -203,7 +203,8 @@ an existing store needs `useStore(store)` in each reading component —
 `store.update` write. Prefer signals for new shared state.
 
 ```tsx
-import { createStore, useStore, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const count = createStore(0)
 export function Count() {

@@ -7,7 +7,7 @@ shared `Tabs` is a self-drawn row and one swapped pane. Platform-authentic
 `UITabBar`/`BottomNavigationView` components live in the native subpaths.
 
 ```ts
-import { pushRoute, popRoute, registerScreens } from '@octane-xplat/ui'
+import { pushRoute, popRoute, registerScreens } from '@octane-xplat/ui/routing'
 import { navigate, goBack } from '@xplat/app'
 
 navigate('demo/:id', { id: 'counter' }, { into: 'demos' })
@@ -35,7 +35,8 @@ popRoute('root')
   to pop the stack that pushed you. Web route params are URL-backed.
 
 ```tsx
-import { useRoute, Text, Pressable } from '@octane-xplat/ui'
+import { Text, Pressable } from '@octane-xplat/ui'
+import { useRoute } from '@octane-xplat/ui/routing'
 
 export function PushedScreen({ _stack = 'root' }: { _stack?: string }) {
 	const route = useRoute(_stack)
@@ -65,7 +66,8 @@ export function PushedScreen({ _stack = 'root' }: { _stack?: string }) {
    `RouteHost`.
 
 ```tsx
-import { registerScreens, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { registerScreens } from '@octane-xplat/ui/routing'
 
 function Help() {
 	return <Text>Pack essentials first.</Text>
@@ -103,7 +105,7 @@ prefers `.ios` or `.android` before `.mobile` via `Device.os`).
 `registerRoutes(manifest)` in `routes.ts` registers both.
 
 ```ts
-import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
+import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui/routing'
 
 // routes.web.ts — the glob belongs in a Vite app module.
 const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
@@ -173,7 +175,8 @@ export default function Help() {
 
 ```tsx
 // EditScreen.mobile.tsx — the hook is called unconditionally in a component.
-import { useBackInterceptor, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { useBackInterceptor } from '@octane-xplat/ui/routing'
 
 export function EditScreen({ hasUnsavedChanges }: { hasUnsavedChanges: boolean }) {
 	useBackInterceptor(() => hasUnsavedChanges)
@@ -186,7 +189,7 @@ export function EditScreen({ hasUnsavedChanges }: { hasUnsavedChanges: boolean }
 `route.web.ts` — module-scope route store over real history:
 
 ```ts
-import { pushRoute, popRoute, currentRoute } from '@octane-xplat/ui'
+import { pushRoute, popRoute, currentRoute } from '@octane-xplat/ui/routing'
 
 pushRoute({ stack: 'root', name: 'help', params: {} })
 console.log(currentRoute())
@@ -219,7 +222,8 @@ popRoute()
 hook calls break the compiler's slotting).
 
 ```tsx
-import { useRoute, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { useRoute } from '@octane-xplat/ui/routing'
 
 export function Destination({ stack }: { stack?: string }) {
 	const route = useRoute(stack ?? '')

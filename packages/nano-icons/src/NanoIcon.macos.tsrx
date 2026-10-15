@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useStore } from '@octane-xplat/ui';
+import { useStore } from '@octane-xplat/ui/data';
 import {
 	createCharCache,
 	createLayerColorResolver,

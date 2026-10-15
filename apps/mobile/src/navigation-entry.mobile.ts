@@ -13,7 +13,7 @@ import {
 	redirect,
 	registerStack,
 	routeFor,
-} from '@octane-xplat/ui'
+} from '@octane-xplat/ui/routing'
 
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
 import type { ManifestRouteParams, TypedRoute } from '@octane-xplat/ui'

@@ -60,7 +60,7 @@ targetPage.once('navigatedTo', () => console.log('Target page is current'))
   exist — root reads via `getStack('root')`.
 
 ```ts
-import { getStack } from '@octane-xplat/ui'
+import { getStack } from '@octane-xplat/ui/routing'
 
 const rootFrame = getStack('root')
 console.log(rootFrame?.currentPage)

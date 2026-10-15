@@ -502,7 +502,7 @@ export function ResumeRefresh() {
 
 ## The shared query cache
 
-`cachedQuery$` from `@octane-xplat/ui` is `query$` plus a shared, app-wide
+`cachedQuery$` from `@octane-xplat/ui/data` is `query$` plus a shared, app-wide
 default result cache. You write the same selector and loader, and add a required
 **family key** — a stable name for the kind of data, such as `'user'` — that
 gives the query a cross-screen identity. Two screens that resolve the same
@@ -512,7 +512,7 @@ functions use one default client per loaded UI module.
 
 ```ts
 // src/queries.ts
-import { cachedQuery$ } from '@octane-xplat/ui'
+import { cachedQuery$ } from '@octane-xplat/ui/data'
 import { api } from './api'
 
 export const user$ = cachedQuery$(
@@ -530,7 +530,7 @@ those queries.
 
 ```ts
 // src/account-queries.ts
-import { createQueryClient } from '@octane-xplat/ui'
+import { createQueryClient } from '@octane-xplat/ui/data'
 import { api } from './api'
 import { openUserId$ } from './session'
 
@@ -554,7 +554,7 @@ JSON-serializable values (strings, numbers, booleans, null, arrays, plain
 objects); object field order does not matter.
 
 ```ts
-import { cachedQuery$ } from '@octane-xplat/ui'
+import { cachedQuery$ } from '@octane-xplat/ui/data'
 import { api } from './api'
 
 // ['user', { id: '42', mode: 'full' }] and the same parts in another order
@@ -608,7 +608,7 @@ their previous data while the new request runs, so a pull-to-refresh or a
 save never blanks the screen.
 
 ```ts
-import { invalidateQueries } from '@octane-xplat/ui'
+import { invalidateQueries } from '@octane-xplat/ui/data'
 
 // Refetch every 'user' selection on every live screen.
 invalidateQueries(['user'])
@@ -622,7 +622,7 @@ their current data; the next reader repopulates. Reach for it on sign-out
 or a schema bump, not for ordinary refreshes.
 
 ```ts
-import { clearQueryCache } from '@octane-xplat/ui'
+import { clearQueryCache } from '@octane-xplat/ui/data'
 
 export function signOut() {
 	clearQueryCache() // everything
@@ -637,7 +637,7 @@ await the write, then invalidate the keys it affects. That is the whole
 contract — the query layer owns reads, your code owns writes.
 
 ```ts
-import { invalidateQueries } from '@octane-xplat/ui'
+import { invalidateQueries } from '@octane-xplat/ui/data'
 
 export async function renameUser(id: string, name: string) {
 	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, {
@@ -656,7 +656,7 @@ success so the cache also refreshes.
 
 ```ts
 import { action$, optimistic$ } from 'octane/signals'
-import { invalidateQueries } from '@octane-xplat/ui'
+import { invalidateQueries } from '@octane-xplat/ui/data'
 import { user$ } from './queries'
 
 const userView$ = optimistic$(user$)
@@ -681,7 +681,7 @@ the cache before the boundary changes.
 
 ```ts
 // src/queries.ts
-import { cachedQuery$, platformQueryStorage } from '@octane-xplat/ui'
+import { cachedQuery$, platformQueryStorage } from '@octane-xplat/ui/data'
 import { api } from './api'
 
 export const user$ = cachedQuery$(
@@ -708,7 +708,7 @@ snapshots. Any object with `get`/`set`/`remove` works as a
 store and a native app can use a file-backed or secure store:
 
 ```ts
-import type { QueryStorageAdapter } from '@octane-xplat/ui'
+import type { QueryStorageAdapter } from '@octane-xplat/ui/data'
 import { get, set, del } from 'idb-keyval' // example; install it yourself
 
 const idb: QueryStorageAdapter = {
@@ -736,7 +736,7 @@ Two boundaries worth knowing before you adopt it:
   distinct, and keep different data in different families.
 
 ```ts
-import { createQueryClient } from '@octane-xplat/ui'
+import { createQueryClient } from '@octane-xplat/ui/data'
 import { api } from './api'
 import { openUserId$, pinnedUserId$ } from './session'
 
@@ -818,7 +818,8 @@ previous value with `store.update((prev) => next)` — snapshots are readonly.
 Prefer `signal$` when possible.
 
 ```tsx
-import { createStore, useStore, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const store = createStore({ name: 'Alex' })
 export function StoredName() {

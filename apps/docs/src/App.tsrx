@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, ScrollableArea, useRoute, pushRoute, useColorScheme, BottomSheet } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, ScrollableArea, useColorScheme, BottomSheet } from '@octane-xplat/ui';
+import { useRoute, pushRoute } from '@octane-xplat/ui/routing';
 import { DOCS, routeForDoc, type DocPage } from './docs';
 import { docPath, GROUPS, INDEX_SLUG } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';

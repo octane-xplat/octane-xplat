@@ -8,7 +8,7 @@ import {
 	ChatMessageList,
 	ChatMessageMetadata,
 	ChatTokenizedText,
-} from '@octane-xplat/ui';
+} from '@octane-xplat/ui/chat';
 
 interface DemoMessage {
 	id: string;

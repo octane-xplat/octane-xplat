@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane';
-import { Image, useStore } from '@octane-xplat/ui';
+import { Image } from '@octane-xplat/ui';
+import { useStore } from '@octane-xplat/ui/data';
 import type { IconProps } from './props';
 import { registry, resolveIcon } from './registry';
 import { iconToSvg } from './svg';

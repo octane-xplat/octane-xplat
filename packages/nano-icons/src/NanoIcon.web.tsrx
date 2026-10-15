@@ -5,8 +5,7 @@ import {
 	resolveGlyphEntry,
 	type NanoGlyphMap,
 } from './glyphmap'
-
-import { useStore } from '@octane-xplat/ui'
+import { useStore } from '@octane-xplat/ui/data'
 import { nanoIconSetRegistry, resolveNanoIcon, type NanoIconSet } from './set'
 import type { NanoIconProps, NanoIconSetProps } from './props'
 

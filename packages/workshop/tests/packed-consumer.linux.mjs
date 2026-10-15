@@ -189,7 +189,8 @@ console.log('UI_RESOLVED ' + (resolved?.id ?? 'unresolved'))
 	// workshop — and the ui linux source compiles cleanly.
 	write('index.html', '<div id="app"></div><script type="module" src="/src/main.ts"></script>')
 	write('src/main.ts', `import { createElement, createRoot } from 'octane'
-import { createStore, getColorScheme } from '@octane-xplat/ui'
+import { getColorScheme } from '@octane-xplat/ui'
+import { createStore } from '@octane-xplat/ui/data'
 import { WorkshopCounter } from './counter.tsrx'
 void getColorScheme
 document.getElementById('app').textContent = 'production-only'

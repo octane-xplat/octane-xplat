@@ -383,7 +383,8 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   derivations are unchanged. — post-0.14.0·desk.
 
   ```tsx
-  import { Outline, useOutlineFromDoc } from '@octane-xplat/ui'
+  import { Outline } from '@octane-xplat/ui'
+  import { useOutlineFromDoc } from '@octane-xplat/ui/markdown'
   import { getOutlineFromViewCapabilities } from '@octane-xplat/ui/macos'
 
   export function canDiscoverOutlineFromView() {
@@ -415,6 +416,22 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `setTitle`/`setSize`/`onCloseRequested`) on every target instead of `void` or
   a raw `Window`; `OpenWindowOptions` also gained `kind`, `title`, `size`, and
   `parent` hints. — post-0.14.0·desk.
+- **Routing, data, Markdown, and chat moved to purpose entrypoints** — the
+  root keeps general UI only. Router APIs (`pushRoute`, `useRoute`,
+  `defineRoutes`, `useBackInterceptor`, route types like `RouteSpec` and
+  `RouteManifest`) moved to `@octane-xplat/ui/routing`; stores and data
+  hooks (`createStore`, `useStore`, `useListData`, `useTreeData`,
+  `useAsyncList`, `cachedQuery$`, `invalidateQueries`, `clearQueryCache`,
+  `createMemoryQueryStorage`, `platformQueryStorage`, and their types like
+  `Store`, `Selection`, `QueryKey`) moved to `@octane-xplat/ui/data`;
+  Markdown (`Markdown`, `MarkdownScreen`, `parseMdDoc`, the incremental
+  streaming helpers, `useOutlineFromMarkdown`/`useOutlineFromDoc`, the
+  outline-derivation utilities, `tokenize` and the syntax token types) moved
+  to `@octane-xplat/ui/markdown`; the whole Chat family (`ChatLayout`,
+  `ChatComposer`, `ChatMessage*`, `ChatToolCalls`, the `useChat*` hooks,
+  `useSpeechRecognition`, `useChatDictation`) moved to
+  `@octane-xplat/ui/chat`. `xplat routes` codegen emits the new paths; rerun
+  `xplat routes --dir src/app` after upgrading. — post-0.14.0·desk.
 - **`ScrollableArea`'s `ref` is a typed handle** — it now receives a
   `ScrollableAreaHandle` (`scrollToOffset({ inline, block }, { animated })`
   plus `native`) instead of the raw scroll element/view. Move existing host

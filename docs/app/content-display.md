@@ -37,8 +37,8 @@ import {
 	ProgressBar,
 	StatusDot,
 	Timestamp,
-	useOutlineFromMarkdown,
 } from '@octane-xplat/ui'
+import { useOutlineFromMarkdown } from '@octane-xplat/ui/markdown'
 
 const source = '# Release notes\n\n## Highlights\n\n## Fixes'
 
@@ -72,10 +72,20 @@ Markdown vocabulary. It is not a plug-in Markdown parser.
 
 ## Markdown documents
 
-`Markdown` renders either a `data` prop — the `MdDoc` AST that `xplat routes`
-bakes from `marked` at codegen (no parser in the bundle) — or a `text` prop of
-raw Markdown parsed at runtime. Set exactly one: the sources are mutually
-exclusive, and `isStreaming`/`fadeIn` apply to `text` only.
+`Markdown` and its document helpers live at `@octane-xplat/ui/markdown` —
+the package root keeps general UI only. `Markdown` renders either a `data`
+prop — the `MdDoc` AST that `xplat routes` bakes from `marked` at codegen
+(no parser in the bundle) — or a `text` prop of raw Markdown parsed at
+runtime. Set exactly one: the sources are mutually exclusive, and
+`isStreaming`/`fadeIn` apply to `text` only.
+
+```tsx
+import { Markdown } from '@octane-xplat/ui/markdown'
+
+export function ReleaseNotes() {
+	return <Markdown text={'# Release notes\n\n- Faster lists'} />
+}
+```
 
 The runtime parser is a deliberately small, dependency-free subset covering
 what the `MdDoc` AST can express: ATX and Setext headings, paragraphs, fenced
@@ -187,7 +197,7 @@ const highlighted = tokenize('const ready = true', 'typescript')
 ## Outline from Markdown or a rendered tree
 
 The portable derivations work on every target: `useOutlineFromMarkdown` and
-`useOutlineFromDoc` from the root barrel. Tree discovery is platform-specific
+`useOutlineFromDoc` from `@octane-xplat/ui/markdown`. Tree discovery is platform-specific
 and split into two hooks, one per mechanism. On web, `useOutlineFromDOM` —
 imported from `@octane-xplat/ui/web`, not the root — reads h1–h6 elements
 inside a container and keeps the item list current with `MutationObserver`:
@@ -267,7 +277,8 @@ Use the same document as the rendered content to keep the portable outline in
 sync:
 
 ```tsx
-import { Outline, useOutlineFromDoc } from '@octane-xplat/ui'
+import { Outline } from '@octane-xplat/ui'
+import { useOutlineFromDoc } from '@octane-xplat/ui/markdown'
 
 export function MacOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0] }) {
 	const items = useOutlineFromDoc(props.doc)
@@ -309,11 +320,11 @@ The upstream low-level helpers `applyHighlightRangesChunked`,
 `applyHighlightRangesBatch`, `applyHighlightRangesFlat`, `cleanupRanges`, and
 `ensureHighlightStyles` act directly on DOM ranges and CSS Custom Highlights.
 They are not exported from the portable root because NativeScript has no
-equivalent range API; `CodeBlock` chooses the span path on native. The portable
-root does export the tokenizer functions and token types.
+equivalent range API; `CodeBlock` chooses the span path on native. The `@octane-xplat/ui/markdown` entrypoint exports the tokenizer
+functions and token types.
 
 ```ts
-import { tokenize } from '@octane-xplat/ui'
+import { tokenize } from '@octane-xplat/ui/markdown'
 
 const tokens = tokenize('const ready = true', 'typescript')
 console.log(tokens)

@@ -1,4 +1,5 @@
-import { Pressable, Text, useStore, type Store } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useStore, type Store } from '@octane-xplat/ui/data'
 
 export type CounterState = { count: number }
 

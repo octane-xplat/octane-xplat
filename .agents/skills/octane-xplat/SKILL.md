@@ -33,7 +33,8 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
 
 ```tsx
 import { useSyncExternalStore } from 'octane'
-import { createStore, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore } from '@octane-xplat/ui/data'
 
 const packedCount = createStore(0)
 export function PackingStatus() {

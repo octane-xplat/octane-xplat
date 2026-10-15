@@ -1,4 +1,5 @@
-import { Column, createStore, useStore } from '@octane-xplat/ui'
+import { Column } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 import { Icon, addCollection } from '@octane-xplat/icons'
 import type { ProbeContext } from '../../scripts/probe/context'
 import { iconFixture, otherIconFixture } from './icons-data'

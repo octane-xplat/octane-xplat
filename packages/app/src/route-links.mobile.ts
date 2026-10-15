@@ -1,6 +1,6 @@
 import { Application } from '@nativescript/core'
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
-import { getStack, pushDeepLink } from '@octane-xplat/ui'
+import { getStack, pushDeepLink } from '@octane-xplat/ui/routing'
 
 let wired = false
 export function wireRouteLinks(): void {

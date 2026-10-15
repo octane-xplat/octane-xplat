@@ -211,7 +211,8 @@ export default defineWorkshopConfig({
 })
 `
 
-const STORY_TEMPLATE = `import { Pressable, Text, useStore, type Store } from '@octane-xplat/ui'
+const STORY_TEMPLATE = `import { Pressable, Text } from '@octane-xplat/ui'
+import { useStore, type Store } from '@octane-xplat/ui/data'
 import { defineStory } from '@octane-xplat/workshop'
 
 type Props = { step: number }

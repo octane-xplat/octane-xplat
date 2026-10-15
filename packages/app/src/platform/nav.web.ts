@@ -1,7 +1,7 @@
 import type { NavigateArgs, RouteName } from '../routes'
 
-import { popRoute, pushRoute } from '@octane-xplat/ui'
-import type { TypedRoute } from '@octane-xplat/ui'
+import { popRoute, pushRoute } from '@octane-xplat/ui/routing'
+import type { TypedRoute } from '@octane-xplat/ui/routing'
 
 // Web seam for the nav contract — real paths over history. `into` selects
 // the outlet: a named stack renders inside its tab pane (nested-route

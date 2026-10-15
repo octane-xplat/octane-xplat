@@ -1,5 +1,5 @@
-import { hrefFor, pushRoute } from '@octane-xplat/ui';
-import type { TypedRoute } from '@octane-xplat/ui';
+import { hrefFor, pushRoute } from '@octane-xplat/ui/routing';
+import type { TypedRoute } from '@octane-xplat/ui/routing';
 import type { RouteLinkProps } from './routes';
 
 /** Link — web side: a real anchor (keyboard-navigable, href-shareable)

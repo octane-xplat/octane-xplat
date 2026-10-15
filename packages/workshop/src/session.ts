@@ -7,7 +7,7 @@
  * results are rejected by generation identity, and owned cleanup must
  * finish (within the disposal budget) before the next generation mounts.
  */
-import { createStore, type Store } from '@octane-xplat/ui'
+import { createStore, type Store } from '@octane-xplat/ui/data'
 import type {
 	CancellationSignal,
 	FixtureContext,

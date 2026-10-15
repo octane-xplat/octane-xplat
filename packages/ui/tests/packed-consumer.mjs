@@ -294,8 +294,11 @@ dialogControl.show('Edit', { purpose: 'anything' })
 void [CameraView, dialog, alert, switcher, lightbox, viewport, toastHandle, promise, host, invalidSheet]
 `
 	} else {
-		source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
-import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View } from '@octane-xplat/ui'
+import { defineRoutes } from '@octane-xplat/ui/routing'
+import { createStore, useStore } from '@octane-xplat/ui/data'
+import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, ViewProps } from '@octane-xplat/ui'
+import type { RouteSpec } from '@octane-xplat/ui/routing'
 import { PlatformIcon, UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps, type UITableViewProps, type UISwitchProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type MaterialSwitchProps, type RecyclerViewProps, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
 import { layoutsForRoute, useOutlineFromView } from '@octane-xplat/ui/nativescript'
@@ -355,8 +358,29 @@ void keyboard
 `
 	}
 
-	// Exercise changed families through the canonical package root in every
-	// export map, resolver mode and peer configuration above.
+	// Exercise the purpose entrypoints under every export map, resolver mode
+	// and peer configuration — each moved domain resolves through its own
+	// subpath and must no longer resolve at the package root.
+	source += `
+import { pushRoute as subpathPushRoute, useRoute, hrefFor, type Route, type RouteManifest } from '@octane-xplat/ui/routing'
+import { useListData, useAsyncList, cachedQuery$, type Selection, type CachedQueryOptions } from '@octane-xplat/ui/data'
+import { Markdown, parseMdDoc, tokenize, type MdDoc, type MarkdownProps, type TokenLine } from '@octane-xplat/ui/markdown'
+import { ChatMessage, ChatComposer, useChatComposerContext, type ChatMessageProps } from '@octane-xplat/ui/chat'
+// @ts-expect-error routing APIs live under @octane-xplat/ui/routing
+import { popRoute } from '@octane-xplat/ui'
+// @ts-expect-error stores live under @octane-xplat/ui/data
+import { useStore as rootUseStore } from '@octane-xplat/ui'
+// @ts-expect-error Markdown lives under @octane-xplat/ui/markdown
+import { MarkdownScreen } from '@octane-xplat/ui'
+// @ts-expect-error chat components live under @octane-xplat/ui/chat
+import { ChatLayout } from '@octane-xplat/ui'
+const mdProps: MarkdownProps = { text: '# hi' }
+const mdDoc: MdDoc = parseMdDoc('# hi')
+const tokens: TokenLine[] = tokenize('let x = 1', 'ts')
+const msgProps: ChatMessageProps = { sender: 'assistant', children: 'hello' }
+void [subpathPushRoute, useRoute, hrefFor, useListData, useAsyncList, cachedQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, popRoute, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdDoc, tokens, msgProps]
+`
+
 	source += `
 import { Item, Selector, BaseTypeahead, Typeahead, Tokenizer, ComplexSelector, PowerSearch, Table } from '@octane-xplat/ui'
 import type { ComplexSelectorRenderProps, ItemProps, SearchableItem, SearchSource, TableCellRenderProps, TypeaheadInputHandle, PowerSearchConfig } from '@octane-xplat/ui'

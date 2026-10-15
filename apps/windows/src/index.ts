@@ -6,12 +6,15 @@ import { bottomSheetHost as sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick'
 import {
 	getColorScheme,
+	setThemePreference,
+} from '@octane-xplat/ui'
+
+import {
 	registerStack,
 	getStack,
 	routeFor,
 	popRoute,
-	setThemePreference,
-} from '@octane-xplat/ui'
+} from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 

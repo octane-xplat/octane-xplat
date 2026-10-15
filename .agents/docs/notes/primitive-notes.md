@@ -1078,7 +1078,8 @@ scroll handles, fast-scroll performance budgets, and advanced layouts remain
 outside this stage.
 
 ```tsx
-import { createStore, useStore, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 // Kept outside the row, so unmounting a row does not delete its draft.
 const drafts = createStore<Record<string, string>>({ coat: 'Bring the warm one' })

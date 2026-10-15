@@ -1,5 +1,6 @@
 import { useState } from 'octane';
-import { View, HStack, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow, HoverCard, Tooltip } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, openWindow, HoverCard, Tooltip } from '@octane-xplat/ui';
+import { useModalRoute } from '@octane-xplat/ui/routing';
 import { probeSignal$ } from './probe-state';
 import { navigate } from './platform/nav';
 import 'octane/signals';

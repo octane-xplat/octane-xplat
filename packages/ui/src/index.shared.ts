@@ -5,17 +5,18 @@
 //   import { Stack, TextInput } from '@octane-xplat/ui'
 //
 // Canonical subpaths:
+//   @octane-xplat/ui/routing       — route definitions, navigation operations,
+//                                    back handling, and router state.
+//   @octane-xplat/ui/data          — stores, collection data, and query cache.
 //   @octane-xplat/ui/markdown      — Markdown components, parsing, streaming,
 //                                    outlines, and syntax tokenization.
+//   @octane-xplat/ui/chat          — Chat components, composer, and useChat* hooks.
 //   @octane-xplat/ui/ios           — iOS-authentic widgets (UISwitch, UITableView…).
 //   @octane-xplat/ui/android       — Android-authentic widgets (MaterialSwitch…).
 //   @octane-xplat/ui/nativescript  — shared iOS/Android plumbing.
 //   @octane-xplat/ui/web           — DOM-only contracts (web/linux builds).
 //   @octane-xplat/ui/macos         — AppKit-specific contracts.
 //   @octane-xplat/ui/linux         — GTK-specific contracts.
-//
-// The Markdown-family re-exports on this barrel are kept for compatibility
-// and marked @deprecated — prefer the `/markdown` subpath for new code.
 
 // Foundations and common controls
 export { View } from './View'
@@ -57,15 +58,6 @@ export type {
 export { setTranslate } from './translate'
 export { Spacer } from './Spacer'
 export { Text } from './Text'
-/** @deprecated Import `Markdown` and `MarkdownScreen` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { Markdown, MarkdownScreen } from './Markdown'
-/** @deprecated Import these types from `@octane-xplat/ui/markdown`.
- *  These aliases will be removed. */
-export type { MdDoc, MdNode, MdInline, MarkdownProps, MarkdownDataProps, MarkdownTextProps, MarkdownScreenProps } from './props'
-/** @deprecated Import `parseMdDoc`, `parseMdNodes`, and `mdInlineText` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
 export { RichText, RichTextSpan } from './RichText'
 export { Pressable } from './Pressable'
 export { Button } from './Button'
@@ -490,98 +482,6 @@ export type {
 	UserProps,
 } from './props'
 
-// Chat
-export { ChatLayout } from './ChatLayout'
-export { ChatLayoutScrollButton } from './ChatLayoutScrollButton'
-export { ChatMessageList } from './ChatMessageList'
-export { ChatMessage } from './ChatMessage'
-export { ChatMessageBubble } from './ChatMessageBubble'
-export { ChatMessageMetadata } from './ChatMessageMetadata'
-export { ChatSystemMessage } from './ChatSystemMessage'
-export { ChatToolCalls } from './ChatToolCalls'
-export { ChatTokenizedText } from './ChatTokenizedText'
-export { ChatComposer } from './ChatComposer'
-export { ChatComposerInput, ChatComposerTokenElement } from './ChatComposerInput'
-export { ChatComposerDrawer } from './ChatComposerDrawer'
-export { ChatSendButton } from './ChatSendButton'
-export { ChatDictationButton } from './ChatDictationButton'
-export { useChatStreamScroll } from './useChatStreamScroll'
-export { useChatNewMessages } from './useChatNewMessages'
-export { useChatPasteAsToken } from './useChatPasteAsToken'
-export { useChatComposerTokens } from './useChatComposerTokens'
-export { useSpeechRecognition } from './useSpeechRecognition'
-export { useChatDictation } from './useChatDictation'
-export { useChatLayoutContext, useChatComposerContext } from './chat-context'
-export {
-	serializeChatComposerToken,
-	deserializeChatComposerToken,
-	serializeChatComposerDraft,
-	deserializeChatComposerDraft,
-	createChatComposerDraft,
-} from './chat-draft'
-export type {
-	ChatComposerContextValue,
-	ChatComposerDensity,
-	ChatComposerDraft,
-	ChatComposerDraftData,
-	ChatComposerDrawerProps,
-	ChatComposerFile,
-	ChatComposerInputControl,
-	ChatComposerInputHandle,
-	ChatComposerInputProps,
-	ChatComposerKeyEvent,
-	ChatComposerPasteEvent,
-	ChatComposerProps,
-	ChatComposerSearchSource,
-	ChatComposerStatus,
-	ChatComposerToken,
-	ChatComposerTokenBadge,
-	ChatComposerTokenBadgeData,
-	ChatComposerTokenCustom,
-	ChatComposerTokenCustomData,
-	ChatComposerTokenData,
-	ChatComposerTokenElementProps,
-	ChatComposerTokenVariant,
-	ChatComposerTrigger,
-	ChatComposerTriggerItem,
-	ChatDensity,
-	ChatDictationButtonProps,
-	ChatLayoutContextValue,
-	ChatLayoutProps,
-	ChatLayoutScrollButtonProps,
-	ChatListContextValue,
-	ChatMessageData,
-	ChatMessageBubbleProps,
-	ChatMessageBubbleVariant,
-	ChatMessageContextValue,
-	ChatMessageListProps,
-	ChatMessageMetadataProps,
-	ChatMessageProps,
-	ChatMessageSender,
-	ChatMessageStatus,
-	ChatScrollToBottomOptions,
-	ChatSendButtonProps,
-	ChatSystemMessageProps,
-	ChatSystemMessageVariant,
-	ChatTokenizedTextProps,
-	ChatToolCallItem,
-	ChatToolCallStatus,
-	ChatToolCallsProps,
-	TokenPortal,
-	UseChatComposerTokensOptions,
-	UseChatComposerTokensReturn,
-	UseChatDictationOptions,
-	UseChatDictationReturn,
-	UseChatNewMessagesOptions,
-	UseChatNewMessagesReturn,
-	UseChatPasteAsTokenOptions,
-	UseChatPasteAsTokenReturn,
-	UseChatStreamScrollOptions,
-	UseChatStreamScrollReturn,
-	UseSpeechRecognitionOptions,
-	UseSpeechRecognitionReturn,
-} from './props'
-
 // Links, input, scrolling, media, and overlays
 export { Link } from './Link'
 export { NavLink } from './NavLink'
@@ -746,50 +646,10 @@ export type {
 	StyledVariantSelection,
 } from './props'
 
-// Platform state and routing
+// Platform state
 export { isNative } from './platform'
-export { registerStack, getStack, stackEntries } from './stacks'
-export {
-	pushRoute,
-	popRoute,
-	routeStacks,
-	pushDeepLink,
-	routeFor,
-	currentRoute,
-	currentModalRoute,
-	canGoBack,
-	useCanGoBack,
-	useRoute,
-	useModalRoute,
-	redirect,
-	addBackInterceptor,
-	registerScreens,
-	registerRoutes,
-	addRoutes,
-	screenFor,
-	hrefFor,
-	layoutsForRoute,
-	errorBoundaryFor,
-} from './route'
-
-export { RouteBoundary } from './RouteBoundary'
-export { useBackInterceptor } from './use-back'
-
-export {
-	deriveRouteManifest,
-	defineRoutes,
-	mergeRouteManifests,
-	manifestToJson,
-	formatRouteDiagnostic,
-	RouteManifestError,
-} from './route-table'
 
 export type {
-	AppRoutes,
-	AppRouteName,
-	AppRouteParams,
-	BeforeLoad,
-	BeforeLoadArgs,
 	LinkProps,
 	NavLinkComponentType,
 	NavLinkProps,
@@ -826,35 +686,6 @@ export type {
 	WindowHandle,
 } from './props'
 
-// Stores, bottom sheets, and shared prop types
-export { createStore } from './store'
-export type { Store, ReadableStore, StoreSnapshot } from './store'
-export { useStore } from './use-store'
-
-// Immutable collection data stores — React Aria useListData/useTreeData/
-// useAsyncList counterparts
-export { useListData } from './use-list-data'
-export { useTreeData } from './use-tree-data'
-export { useAsyncList } from './use-async-list'
-export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from './list-data'
-export type {
-	TreeData,
-	TreeDataOptions,
-	TreeNode,
-	TreeNode as CollectionTreeNode,
-	TreeSnapshot,
-} from './tree-data'
-
-export type {
-	AsyncListData,
-	AsyncListLoadContext,
-	AsyncListLoadResult,
-	AsyncListOptions,
-	AsyncListSnapshot,
-	LoadingState,
-	SortDescriptor,
-} from './async-list'
-
 // Focus hooks — React Aria useFocus/useFocusRing/useFocusVisible/
 // useFocusWithin/useLandmark counterparts. Modality tracking and landmark
 // cycling are web leaves; native leaves keep the same API shape.
@@ -879,27 +710,6 @@ export { copyText } from './clipboard-write'
 export { refList, mergedRef } from './ref-list'
 export type { FlatRef } from './ref-list'
 
-// Shared keyed query cache over octane/signals query$
-export {
-	cachedQuery$,
-	invalidateQueries,
-	clearQueryCache,
-	createQueryClient,
-	createMemoryQueryStorage,
-} from './query-cache'
-
-export { platformQueryStorage } from './query-storage'
-export type {
-	CachedQuery,
-	QueryClient,
-	QueryKey,
-	QueryKeyPart,
-	QueryStorageAdapter,
-	QueryPersistence,
-	CachedQueryOptions,
-	InvalidateQueriesOptions,
-	ClearQueryCacheOptions,
-} from './query-cache'
 
 export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
 export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service'
@@ -1039,44 +849,12 @@ export { Timestamp } from './Timestamp'
 export { Timer } from './Timer'
 export { Citation } from './Citation'
 export { Outline } from './Outline'
-/** @deprecated Import `useOutlineFromMarkdown` and `useOutlineFromDoc` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
-/** @deprecated Import `parseOutlineFromMarkdown` and `outlineFromDoc` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { parseOutlineFromMarkdown, outlineFromDoc } from './outline-utils'
-export {
-	markdownHeadings,
-	inlineMarkdownText,
-	slugify,
-	uniqueSlug,
-} from './outline-utils'
-
-/** @deprecated Import the syntax tokenizer from `@octane-xplat/ui/markdown`.
- *  These aliases will be removed. */
-export {
-	tokenize,
-	tokenizeAsync,
-	tokenizeStreaming,
-	flatTokensToLines,
-	TOKEN_TYPES,
-} from './code-tokenizer'
-
-export { syntaxTokenVar, syntaxTokenVarRef } from './code-tokenizer'
-
-/** @deprecated Import `SyntaxTokenType` from `@octane-xplat/ui/markdown`.
- *  This alias will be removed. */
-export type { SyntaxTokenType } from './code-tokenizer'
 export type {
 	BlockquoteProps,
 	CodeProps,
 	CodeColor,
 	CodeSize,
 	CodeBlockProps,
-	CodeTokenizer,
-	SyntaxThemeOverride,
-	SyntaxToken,
-	TokenLine,
 	MetadataListProps,
 	MetadataListItemProps,
 	MetadataListColumns,

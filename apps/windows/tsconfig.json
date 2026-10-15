@@ -98,6 +98,18 @@
 			"@octane-xplat/ui": [
 				"../../packages/ui/src/index.ts"
 			],
+			"@octane-xplat/ui/routing": [
+				"../../packages/ui/src/routing/index.ts"
+			],
+			"@octane-xplat/ui/data": [
+				"../../packages/ui/src/data/index.ts"
+			],
+			"@octane-xplat/ui/markdown": [
+				"../../packages/ui/src/markdown/index.ts"
+			],
+			"@octane-xplat/ui/chat": [
+				"../../packages/ui/src/chat/index.ts"
+			],
 			"@octane-xplat/ui/*": [
 				"../../packages/ui/src/*"
 			]

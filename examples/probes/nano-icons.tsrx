@@ -1,4 +1,5 @@
-import { VStack, createStore, useStore } from '@octane-xplat/ui'
+import { VStack } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 import { NanoIcon } from '@octane-xplat/nano-icons'
 import type { ProbeContext } from '../../scripts/probe/context'
 import { XplatProbeIcons, glyphMap } from './nano-icons-font/XplatProbe'

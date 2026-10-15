@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { Pressable, Screen, Tabs, Text, View, defineRoutes, registerRoutes } from '@octane-xplat/ui';
+import { Pressable, Screen, Tabs, Text, View } from '@octane-xplat/ui';
+import { defineRoutes, registerRoutes } from '@octane-xplat/ui/routing';
 import type { TabSpec } from '@octane-xplat/ui';
 
 export function NavigationScreen(props: { id?: string; data?: any; error?: any; guarded?: boolean; close?: () => void }) @{

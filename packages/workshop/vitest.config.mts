@@ -8,9 +8,10 @@ const STORE_PATH = new URL('../ui/src/store.ts', import.meta.url).pathname
 
 export default defineConfig({
 	resolve: {
-		alias: {
-			'@octane-xplat/ui': STORE_PATH,
-		},
+		alias: [
+			{ find: /^@octane-xplat\/ui\/data$/, replacement: STORE_PATH },
+			{ find: /^@octane-xplat\/ui$/, replacement: STORE_PATH },
+		],
 	},
 	test: {
 		include: ['tests/**/*.test.{ts,mts,mjs}'],

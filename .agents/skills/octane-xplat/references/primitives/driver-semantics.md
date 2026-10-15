@@ -84,7 +84,8 @@ Roots share NOTHING (no context, no store) — cross-root state goes through
 module-scope stores, and each root applies its own theme class.
 
 ```tsx
-import { createStore, useStore, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const packedCount = createStore(0)
 export function Count() {
@@ -112,7 +113,8 @@ that reads shared state subscribes** — `useStore(store)` /
 Pinned by `packages/ui/src/store.mobile.test.ts` + `store.web.test.tsrx`.
 
 ```tsx
-import { createStore, useStore, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const trip = createStore({ packed: 0 })
 export function PackedCount() {

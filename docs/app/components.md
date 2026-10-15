@@ -1,11 +1,18 @@
 # Component index
 
-> Components exported by `@octane-xplat/ui`, grouped by job.
+> Components exported by `@octane-xplat/ui` and its purpose entrypoints,
+> grouped by job.
 
 This is a lookup page; you don't need to learn the whole list. A component
 is a reusable screen piece, and **props** are the options you give it.
 Start with [building a small screen](primitives.md#a-practical-example) if
 you haven't used components yet.
+
+Feature APIs have their own import path so the root stays ordinary UI:
+`@octane-xplat/ui/routing` (routes, navigation, back handling),
+`@octane-xplat/ui/data` (stores, collection data, queries),
+`@octane-xplat/ui/markdown` (Markdown rendering, parsing, syntax), and
+`@octane-xplat/ui/chat` (the Chat family below).
 
 Guides with examples live elsewhere: [primitives](primitives.md) for
 layout/composition, [navigation](navigation.md) for routes and stacks,
@@ -558,7 +565,7 @@ or combine `ChatMessageList`, `ChatMessage`, and `ChatMessageBubble` inside an
 existing scroll surface.
 
 ```tsx
-import { ChatLayout, ChatComposer, ChatMessage, ChatMessageBubble } from '@octane-xplat/ui'
+import { ChatLayout, ChatComposer, ChatMessage, ChatMessageBubble } from '@octane-xplat/ui/chat'
 import { useState } from 'octane'
 
 export function Example() {
@@ -608,12 +615,13 @@ Windows resolves the shared `index.ts` through its app TypeScript mapping;
 its Chat runtime has not been exercised separately.
 
 ```tsx
-import { ChatComposerInput, Pressable, Text } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { ChatComposerInput } from '@octane-xplat/ui/chat'
 import { useState, useRef } from 'octane'
 
 export function Example() {
 	const [message, setMessage] = useState('')
-	const composer = useRef<import('@octane-xplat/ui').ChatComposerInputHandle | null>(null)
+	const composer = useRef<import('@octane-xplat/ui/chat').ChatComposerInputHandle | null>(null)
 	return (
 		<>
 			<ChatComposerInput

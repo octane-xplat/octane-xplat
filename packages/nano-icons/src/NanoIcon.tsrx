@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { AccessibilityRole, isAndroid, isIOS } from '@nativescript/core';
-import { useStore } from '@octane-xplat/ui';
+import { useStore } from '@octane-xplat/ui/data';
 import {
 	createCharCache,
 	createLayerColorResolver,

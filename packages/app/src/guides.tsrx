@@ -1,5 +1,5 @@
 import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui';
-import { addRoutes, defineRoutes } from '@octane-xplat/ui';
+import { addRoutes, defineRoutes } from '@octane-xplat/ui/routing';
 import { goBack } from './platform/nav';
 
 /** Programmatic-route probe — a manifest built from a data array at module

@@ -222,12 +222,6 @@ export { HoverCard } from './HoverCard.tsrx'
 export { useHoverCard } from './use-hover-card.tsrx'
 export { useLayer } from './use-layer.tsrx'
 export { Tooltip } from './Tooltip.tsrx'
-/** @deprecated Import `Markdown` and `MarkdownScreen` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { Markdown, MarkdownScreen } from './Markdown.tsrx'
-/** @deprecated Import `parseMdDoc`, `parseMdNodes`, and `mdInlineText` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
 export { TextInput, TextArea } from './text-controls.macos.tsrx'
@@ -290,70 +284,6 @@ export { createIconRegistry, registerIcon, registerIcons } from './icons'
 export type { IconGlyph, IconRegistry } from './icons'
 export type { BuiltinIconName, IconName, IconNameRegistry, IconRegistryProviderProps } from './props'
 export const isNative = true as const
-export { registerStack, getStack, stackEntries } from './stacks.macos'
-export {
-	pushRoute,
-	popRoute,
-	routeStacks,
-	pushDeepLink,
-	routeFor,
-	currentRoute,
-	currentModalRoute,
-	canGoBack,
-	useCanGoBack,
-	useRoute,
-	useModalRoute,
-	redirect,
-	addBackInterceptor,
-	registerScreens,
-	registerRoutes,
-	addRoutes,
-	screenFor,
-	hrefFor,
-	layoutsFor as layoutsForRoute,
-	errorBoundaryFor,
-} from './route.macos'
-
-export { RouteBoundary } from './RouteBoundary.macos.tsrx'
-export { useBackInterceptor } from './use-back.tsrx'
-
-export {
-	deriveRouteManifest,
-	defineRoutes,
-	mergeRouteManifests,
-	manifestToJson,
-	formatRouteDiagnostic,
-	RouteManifestError,
-} from './route-table'
-
-export type { RouteDiagnostic, RouteDiagnosticCode } from './props'
-
-export { createStore } from './store'
-export type { Store, ReadableStore, StoreSnapshot } from './store'
-export { useStore } from './useStore.macos.tsrx'
-
-// Immutable collection data stores — shared implementations, no macOS leaf
-export { useListData } from './use-list-data'
-export { useTreeData } from './use-tree-data'
-export { useAsyncList } from './use-async-list'
-export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from './list-data'
-export type {
-	TreeData,
-	TreeDataOptions,
-	TreeNode,
-	TreeNode as CollectionTreeNode,
-	TreeSnapshot,
-} from './tree-data'
-
-export type {
-	AsyncListData,
-	AsyncListLoadContext,
-	AsyncListLoadResult,
-	AsyncListOptions,
-	AsyncListSnapshot,
-	LoadingState,
-	SortDescriptor,
-} from './async-list'
 
 // Focus hooks — shared/native leaves; focus modality and landmark cycling
 // are web-only, so these keep API shape with constant results.
@@ -378,29 +308,6 @@ export { copyText } from './clipboard-write'
 export { refList, mergedRef } from './ref-list'
 export type { FlatRef } from './ref-list'
 
-// Shared keyed query cache over octane/signals query$ — the same portable
-// contract as mobile; AppKit persistence uses the host defaults bridge.
-export {
-	cachedQuery$,
-	invalidateQueries,
-	clearQueryCache,
-	createQueryClient,
-	createMemoryQueryStorage,
-} from './query-cache'
-
-export { platformQueryStorage } from './query-storage.macos'
-export type {
-	CachedQuery,
-	QueryClient,
-	QueryKey,
-	QueryKeyPart,
-	QueryStorageAdapter,
-	QueryPersistence,
-	CachedQueryOptions,
-	InvalidateQueriesOptions,
-	ClearQueryCacheOptions,
-} from './query-cache'
-
 export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service.macos'
 
 export { Blockquote } from './Blockquote.macos.tsrx'
@@ -415,64 +322,11 @@ export { Timestamp } from './Timestamp.macos.tsrx'
 export { Timer } from './Timer.macos.tsrx'
 export { Citation } from './Citation.macos.tsrx'
 export { Outline } from './Outline.macos.tsrx'
-/** @deprecated Import `useOutlineFromMarkdown` and `useOutlineFromDoc` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
-export type { OutlineFromViewCapabilities } from './props'
-/** @deprecated Import `parseOutlineFromMarkdown` and `outlineFromDoc` from
- *  `@octane-xplat/ui/markdown`. These aliases will be removed. */
-export { parseOutlineFromMarkdown, outlineFromDoc } from './outline-utils'
-export {
-	markdownHeadings,
-	inlineMarkdownText,
-	slugify,
-	uniqueSlug,
-} from './outline-utils'
-
-/** @deprecated Import the syntax tokenizer from `@octane-xplat/ui/markdown`.
- *  These aliases will be removed. */
-export {
-	tokenize,
-	tokenizeAsync,
-	tokenizeStreaming,
-	flatTokensToLines,
-	TOKEN_TYPES,
-} from './code-tokenizer'
-
-export { syntaxTokenVar, syntaxTokenVarRef } from './code-tokenizer'
 
 // Type parity with the shared barrel — every type `@octane-xplat/ui` exposes
 // on the shared targets resolves here too, and no platform-internal props.ts
 // names leak into the conditioned root surface.
 export type * from './index.shared'
-
-// Chat shares the same portable contracts on AppKit; browser editing
-// behavior remains in its web leaves.
-export {
-	ChatComposer,
-	ChatComposerDrawer,
-	ChatComposerInput,
-	ChatComposerTokenElement,
-	ChatDictationButton,
-	ChatLayout,
-	ChatLayoutScrollButton,
-	ChatMessage,
-	ChatMessageBubble,
-	ChatMessageList,
-	ChatMessageMetadata,
-	ChatSendButton,
-	ChatSystemMessage,
-	ChatTokenizedText,
-	ChatToolCalls,
-	useChatComposerContext,
-	useChatComposerTokens,
-	useChatDictation,
-	useChatLayoutContext,
-	useChatNewMessages,
-	useChatPasteAsToken,
-	useChatStreamScroll,
-	useSpeechRecognition,
-} from './index.shared'
 
 export {
 	DropdownMenuItem,

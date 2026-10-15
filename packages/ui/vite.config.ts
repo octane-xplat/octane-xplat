@@ -59,7 +59,10 @@ export default defineConfig(({ mode }) => {
 					? {
 							ui: 'src/index.mobile.ts',
 							shared: 'src/index.ts',
+							'routing/index': 'src/routing/index.ts',
+							'data/index': 'src/data/index.ts',
 							'markdown/index': 'src/markdown/index.ts',
+							'chat/index': 'src/chat/index.ts',
 							'ios/index': 'src/ios/index.ts',
 							'android/index': 'src/android/index.ts',
 							'nativescript/index': 'src/nativescript/index.ts',
@@ -71,7 +74,10 @@ export default defineConfig(({ mode }) => {
 						}
 					: {
 							ui: 'src/index.web.ts',
+							'routing/index': 'src/routing/index.web.ts',
+							'data/index': 'src/data/index.web.ts',
 							'markdown/index': 'src/markdown/index.web.ts',
+							'chat/index': 'src/chat/index.web.ts',
 							'web/index': 'src/web/index.ts',
 						}) as Record<string, string>,
 				formats: ['es'],

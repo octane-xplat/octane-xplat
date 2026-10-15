@@ -18,7 +18,7 @@ import {
 import '@octane-xplat/lottie'
 import { ELEMENTS } from '@nativescript-community/octane'
 import { navigate } from '@xplat/app'
-import { getStack, routeFor } from '@octane-xplat/ui'
+import { getStack, routeFor } from '@octane-xplat/ui/routing'
 
 const DOCS_DIR = knownFolders.documents().path
 const RESULTS = path.join(DOCS_DIR, 'lottie-probe-results.json')

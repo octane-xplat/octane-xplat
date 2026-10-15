@@ -1,5 +1,6 @@
-import { Screen, Text, redirect } from '@octane-xplat/ui';
-import type { BeforeLoadArgs } from '@octane-xplat/ui';
+import { Screen, Text } from '@octane-xplat/ui';
+import { redirect } from '@octane-xplat/ui/routing';
+import type { BeforeLoadArgs } from '@octane-xplat/ui/routing';
 
 /** Guard-redirect probe: beforeLoad throws RouteRedirect to detail — this
  *  screen never commits; Detail's own beforeLoad still runs on the target,

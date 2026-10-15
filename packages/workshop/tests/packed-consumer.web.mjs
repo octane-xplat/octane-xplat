@@ -182,7 +182,7 @@ export const Dynamic = defineStory({ id: 'dynamic/new', title: 'Dynamic / New', 
 	// An ordinary production entry never imports the workshop or its fixtures.
 	write('index.html', '<div id="app"></div><script type="module" src="/src/main.ts"></script>')
 	write('src/main.ts', `import { createElement, createRoot } from 'octane'
-import { createStore } from '@octane-xplat/ui'
+import { createStore } from '@octane-xplat/ui/data'
 import { WorkshopCounter } from './counter.tsrx'
 document.getElementById('app').textContent = 'production-only'
 const stage = document.createElement('section')

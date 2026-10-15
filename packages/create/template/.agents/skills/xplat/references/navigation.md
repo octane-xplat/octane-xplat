@@ -5,7 +5,8 @@ web turns it into a URL, while native presents the screen in the app's navigatio
 Put components in `.tsrx` files.
 
 ```tsrx
-import { defineRoutes, registerRoutes, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { defineRoutes, registerRoutes } from '@octane-xplat/ui/routing'
 
 function Home() { return <Text>Home</Text> }
 function Settings() { return <Text>Settings</Text> }
@@ -20,7 +21,8 @@ After registering `settings`, use `NavLink` for a screen link or `pushRoute`
 in an event handler. `Link` accepts a URL, including an external website.
 
 ```tsrx
-import { HStack, Link, NavLink, Pressable, Text, pushRoute } from '@octane-xplat/ui'
+import { HStack, Link, NavLink, Pressable, Text } from '@octane-xplat/ui'
+import { pushRoute } from '@octane-xplat/ui/routing'
 
 export function SettingsLinks() {
   const settings = { stack: 'root', name: 'settings', params: {} }
@@ -36,7 +38,8 @@ Use `useRoute` to read the current screen and `useCanGoBack` to decide whether
 to offer a back button. Pass the same stack name to `popRoute`.
 
 ```tsrx
-import { Pressable, Text, useRoute, useCanGoBack, popRoute } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useRoute, useCanGoBack, popRoute } from '@octane-xplat/ui/routing'
 
 export function NavigationStatus() {
   const route = useRoute('root')
@@ -56,7 +59,7 @@ on web with a warning; do not rely on it to carry application state. With a
 registered `/projects/:id` screen, navigate using the project ID:
 
 ```ts
-import { pushRoute } from '@octane-xplat/ui'
+import { pushRoute } from '@octane-xplat/ui/routing'
 
 pushRoute({ stack: 'root', name: 'projects/:id', params: { id: '42' } })
 ```
@@ -66,7 +69,8 @@ initial content; pushing a route into that stack opens it inside the tab pane.
 The screen below assumes `settings` is already registered.
 
 ```tsrx
-import { Tabs, Text, Pressable, pushRoute } from '@octane-xplat/ui'
+import { Tabs, Text, Pressable } from '@octane-xplat/ui'
+import { pushRoute } from '@octane-xplat/ui/routing'
 
 export function AppTabs() {
   return <Tabs tabs={[

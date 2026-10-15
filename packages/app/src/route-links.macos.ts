@@ -1,5 +1,5 @@
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
-import { pushDeepLink } from '@octane-xplat/ui'
+import { pushDeepLink } from '@octane-xplat/ui/routing'
 
 let wired = false
 

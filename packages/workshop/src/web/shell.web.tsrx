@@ -4,7 +4,7 @@
  * the Linux WebKitGTK webview share it).
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
-import { useStore } from '@octane-xplat/ui'
+import { useStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
 import { WORKSHOP_TARGETS, type StoryDefinition } from '../contract'
 import { UNSET, applyControlInput, isUnsettable } from '../controls'

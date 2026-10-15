@@ -1,5 +1,5 @@
 import { createContext, createElement, createRoot, useContext, useState } from 'octane'
-import { createStore, useStore, type Store } from '@octane-xplat/ui'
+import { createStore, useStore, type Store } from '@octane-xplat/ui/data'
 import { defineStory } from '@octane-xplat/workshop'
 
 type Fixture = {

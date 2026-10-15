@@ -53,7 +53,8 @@ A story is a named example of your component. Save this in
 form edits only the declared portable prop values.
 
 ```tsx
-import { Pressable, Text, useStore, type Store } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useStore, type Store } from '@octane-xplat/ui/data'
 import { defineStory } from '@octane-xplat/workshop'
 
 type Props = { step: number; label?: string }

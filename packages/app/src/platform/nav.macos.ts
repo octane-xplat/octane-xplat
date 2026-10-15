@@ -1,5 +1,5 @@
-import { popRoute, pushRoute } from '@octane-xplat/ui'
-import type { TypedRoute } from '@octane-xplat/ui'
+import { popRoute, pushRoute } from '@octane-xplat/ui/routing'
+import type { TypedRoute } from '@octane-xplat/ui/routing'
 import type { NavigateArgs, RouteName } from '../routes'
 
 export function navigate(...args: NavigateArgs): void {

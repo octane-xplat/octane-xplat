@@ -102,7 +102,8 @@ The pool keeps at most eight unused hosts in total, and releases all hosts on
 emptying or disposal. Other targets retain their existing windowing engines.
 
 ```tsx
-import { createStore, useStore, VirtualList, Text, Pressable } from '@octane-xplat/ui'
+import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const selected = createStore<Record<string, boolean>>({})
 const items = [{ id: 'coat', title: 'Coat' }]

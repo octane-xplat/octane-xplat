@@ -1,5 +1,5 @@
 import { Application, RootLayout, Utils, getRootLayout } from '@nativescript/core'
-import { getStack } from '@octane-xplat/ui'
+import { getStack } from '@octane-xplat/ui/routing'
 import { STYLE_FACETS } from './style-facets'
 
 // Measured-dump seam (native leaf) — same JSON shape as measure.web.ts.

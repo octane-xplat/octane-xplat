@@ -7,7 +7,7 @@
  * provider wrappers. The story file compiles under the consumer's normal
  * renderer rules; this module carries no renderer or host globals itself.
  */
-import type { Store } from '@octane-xplat/ui'
+import type { Store } from '@octane-xplat/ui/data'
 
 /** The six product targets. Only `web` is qualified by the current release. */
 export type WorkshopTarget = 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux'

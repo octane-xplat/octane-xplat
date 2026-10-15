@@ -1,4 +1,5 @@
-import { Text, createStore, useStore, type Store } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { createStore, useStore, type Store } from '@octane-xplat/ui/data'
 import { defineStory } from '@octane-xplat/workshop'
 
 const themeStore = createStore({ theme: 'sunset' })

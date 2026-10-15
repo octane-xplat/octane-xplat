@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { VStack, createStore, useStore } from '@octane-xplat/ui'
+import { VStack } from '@octane-xplat/ui'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 import { createNanoIconSet, NanoIcon } from '@octane-xplat/nano-icons'
 import type { ProbeContext } from '../../scripts/probe/context'
 import { glyphMap } from './nano-icons-font/XplatProbe'

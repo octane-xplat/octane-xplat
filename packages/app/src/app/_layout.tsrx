@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'octane';
-import { Screen, Tabs, Text, currentRoute, layoutsForRoute, screenFor, useThemeScheme } from '@octane-xplat/ui';
+import { Screen, Tabs, Text, useThemeScheme } from '@octane-xplat/ui';
+import { currentRoute, layoutsForRoute, screenFor } from '@octane-xplat/ui/routing';
 import { Home } from '../Home.tsrx';
 import { Test } from '../Test.tsrx';
 import { Gallery } from '@xplat/demos';

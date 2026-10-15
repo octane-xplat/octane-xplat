@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'octane';
-import { View, Text, pushRoute } from '@octane-xplat/ui';
+import { View, Text } from '@octane-xplat/ui';
+import { pushRoute } from '@octane-xplat/ui/routing';
 import { createHighlighterCoreSync } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import langTs from 'shiki/langs/typescript.mjs';

@@ -50,6 +50,86 @@
 			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		},
+		"./routing": {
+			"macos": {
+				"types": "./types/generated/routing/index.macos.d.ts",
+				"default": "./src/routing/index.macos.ts"
+			},
+			"linux": {
+				"types": "./types/generated/routing/index.web.d.ts",
+				"default": "./src/routing/index.web.ts"
+			},
+			"web": {
+				"types": "./types/generated/routing/index.web.d.ts",
+				"default": "./src/routing/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/routing/index.d.ts",
+				"default": "./src/routing/index.ts"
+			},
+			"types": "./types/generated/routing/index.d.ts",
+			"default": "./src/routing/index.ts"
+		},
+		"./data": {
+			"macos": {
+				"types": "./types/generated/data/index.macos.d.ts",
+				"default": "./src/data/index.macos.ts"
+			},
+			"linux": {
+				"types": "./types/generated/data/index.web.d.ts",
+				"default": "./src/data/index.web.ts"
+			},
+			"web": {
+				"types": "./types/generated/data/index.web.d.ts",
+				"default": "./src/data/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/data/index.d.ts",
+				"default": "./src/data/index.ts"
+			},
+			"types": "./types/generated/data/index.d.ts",
+			"default": "./src/data/index.ts"
+		},
+		"./markdown": {
+			"macos": {
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./src/markdown/index.ts"
+			},
+			"linux": {
+				"types": "./types/generated/markdown/index.web.d.ts",
+				"default": "./src/markdown/index.web.ts"
+			},
+			"web": {
+				"types": "./types/generated/markdown/index.web.d.ts",
+				"default": "./src/markdown/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./src/markdown/index.ts"
+			},
+			"types": "./types/generated/markdown/index.d.ts",
+			"default": "./src/markdown/index.ts"
+		},
+		"./chat": {
+			"macos": {
+				"types": "./types/generated/chat/index.d.ts",
+				"default": "./src/chat/index.ts"
+			},
+			"linux": {
+				"types": "./types/generated/chat/index.web.d.ts",
+				"default": "./src/chat/index.web.ts"
+			},
+			"web": {
+				"types": "./types/generated/chat/index.web.d.ts",
+				"default": "./src/chat/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/chat/index.d.ts",
+				"default": "./src/chat/index.ts"
+			},
+			"types": "./types/generated/chat/index.d.ts",
+			"default": "./src/chat/index.ts"
+		},
 		"./ios": {
 			"types": "./types/generated/ios/index.d.ts",
 			"native": "./src/ios/index.ts"
@@ -114,6 +194,86 @@
 				},
 				"types": "./types/generated/index.d.ts",
 				"default": "./dist/native/shared.js"
+			},
+			"./routing": {
+				"macos": {
+					"types": "./types/generated/routing/index.macos.d.ts",
+					"default": "./src/routing/index.macos.ts"
+				},
+				"linux": {
+					"types": "./types/generated/routing/index.web.d.ts",
+					"default": "./src/routing/index.web.ts"
+				},
+				"web": {
+					"types": "./types/generated/routing/index.web.d.ts",
+					"default": "./dist/web/routing/index.js"
+				},
+				"native": {
+					"types": "./types/generated/routing/index.d.ts",
+					"default": "./dist/native/routing/index.js"
+				},
+				"types": "./types/generated/routing/index.d.ts",
+				"default": "./dist/native/routing/index.js"
+			},
+			"./data": {
+				"macos": {
+					"types": "./types/generated/data/index.macos.d.ts",
+					"default": "./src/data/index.macos.ts"
+				},
+				"linux": {
+					"types": "./types/generated/data/index.web.d.ts",
+					"default": "./src/data/index.web.ts"
+				},
+				"web": {
+					"types": "./types/generated/data/index.web.d.ts",
+					"default": "./dist/web/data/index.js"
+				},
+				"native": {
+					"types": "./types/generated/data/index.d.ts",
+					"default": "./dist/native/data/index.js"
+				},
+				"types": "./types/generated/data/index.d.ts",
+				"default": "./dist/native/data/index.js"
+			},
+			"./markdown": {
+				"macos": {
+					"types": "./types/generated/markdown/index.d.ts",
+					"default": "./src/markdown/index.ts"
+				},
+				"linux": {
+					"types": "./types/generated/markdown/index.web.d.ts",
+					"default": "./src/markdown/index.web.ts"
+				},
+				"web": {
+					"types": "./types/generated/markdown/index.web.d.ts",
+					"default": "./dist/web/markdown/index.js"
+				},
+				"native": {
+					"types": "./types/generated/markdown/index.d.ts",
+					"default": "./dist/native/markdown/index.js"
+				},
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./dist/native/markdown/index.js"
+			},
+			"./chat": {
+				"macos": {
+					"types": "./types/generated/chat/index.d.ts",
+					"default": "./src/chat/index.ts"
+				},
+				"linux": {
+					"types": "./types/generated/chat/index.web.d.ts",
+					"default": "./src/chat/index.web.ts"
+				},
+				"web": {
+					"types": "./types/generated/chat/index.web.d.ts",
+					"default": "./dist/web/chat/index.js"
+				},
+				"native": {
+					"types": "./types/generated/chat/index.d.ts",
+					"default": "./dist/native/chat/index.js"
+				},
+				"types": "./types/generated/chat/index.d.ts",
+				"default": "./dist/native/chat/index.js"
 			},
 			"./ios": {
 				"types": "./types/generated/ios/index.d.ts",

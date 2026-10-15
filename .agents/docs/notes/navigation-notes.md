@@ -52,7 +52,7 @@ OS via `Device.os`), alongside `routes.gen.types.ts`.
 turns the module map into `{screens, routes, layouts, loaders}`:
 
 ```ts
-import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
+import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui/routing'
 
 // Generated web entry, with Vite's eager screen modules.
 const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
@@ -114,7 +114,8 @@ is the canonical path builder (`NavLink`’s href). `xplat build` and
 `pushRoute` and `NavLink`; they do not add a shared `useParams` hook.
 
 ```tsx
-import { defineRoutes, registerRoutes, hrefFor, pushRoute, Text } from '@octane-xplat/ui'
+import { Text } from '@octane-xplat/ui'
+import { defineRoutes, registerRoutes, hrefFor, pushRoute } from '@octane-xplat/ui/routing'
 
 function Demo(props: { id: string }) {
 	return <Text>{props.id}</Text>
@@ -163,7 +164,8 @@ Android named-stack entries in the swap-pane shell. Route screens also receive
 stacks.
 
 ```tsx
-import { useCanGoBack, popRoute, Pressable, Text } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useCanGoBack, popRoute } from '@octane-xplat/ui/routing'
 
 export function Example() {
 	const back = useCanGoBack('root')
@@ -181,7 +183,7 @@ warning in web URLs and decoded when matched. This preserves old callers while
 making the generated API's scalar contract explicit.
 
 ```ts
-import { pushRoute } from '@octane-xplat/ui'
+import { pushRoute } from '@octane-xplat/ui/routing'
 
 // Registered detail route; scalar params keep shareable URLs simple.
 pushRoute({ stack: 'root', name: 'detail', params: { id: 'coat' } })
@@ -209,7 +211,8 @@ shells. Today use `NavLink`, `pushRoute`, `popRoute`, and `useRoute`;
 the current caller-facing contract.
 
 ```tsx
-import { NavLink, Pressable, Text, popRoute, useRoute } from '@octane-xplat/ui'
+import { NavLink, Pressable, Text } from '@octane-xplat/ui'
+import { popRoute, useRoute } from '@octane-xplat/ui/routing'
 
 export function Example() {
 	const route = useRoute('root')

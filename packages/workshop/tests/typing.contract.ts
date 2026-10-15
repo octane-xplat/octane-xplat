@@ -3,7 +3,7 @@
  * Every @ts-expect-error line must produce a type error if the contract
  * regresses.
  */
-import type { Store } from '@octane-xplat/ui'
+import type { Store } from '@octane-xplat/ui/data'
 import { defineStory } from '../src/contract'
 
 type Props = { step: number; label?: string }

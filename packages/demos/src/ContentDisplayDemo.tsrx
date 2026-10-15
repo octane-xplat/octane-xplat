@@ -14,8 +14,9 @@ import {
 	Timer,
 	Timestamp,
 	View,
-	useOutlineFromMarkdown,
 } from '@octane-xplat/ui'
+
+import { useOutlineFromMarkdown } from '@octane-xplat/ui/markdown'
 
 const ARTICLE = `# Release notes\n\n## Highlights\n\n## Fixes`
 

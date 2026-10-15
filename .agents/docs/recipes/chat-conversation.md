@@ -36,7 +36,8 @@ renderers from a lookup:
 
 ```tsrx
 import { useState } from 'octane'
-import { ChatComposer, ChatComposerInput, ChatTokenizedText, View } from '@octane-xplat/ui'
+import { View } from '@octane-xplat/ui'
+import { ChatComposer, ChatComposerInput, ChatTokenizedText } from '@octane-xplat/ui/chat'
 
 const people = [{ id: 'u1', label: 'Ada Lovelace' }]
 const mention = {
@@ -76,7 +77,7 @@ import {
 	serializeChatComposerDraft,
 	deserializeChatComposerDraft,
 	type ChatComposerDraft,
-} from '@octane-xplat/ui'
+} from '@octane-xplat/ui/chat'
 import { useState } from 'octane'
 
 export function DraftExample() {
@@ -110,13 +111,13 @@ You can also drive the message list with data instead of JSX. Pass `messages`
 as `ChatMessageData[]` and a custom `renderMessage` if you need a different layout:
 
 ```tsx
+import { Text } from '@octane-xplat/ui'
 import {
 	ChatLayout,
 	ChatMessageList,
 	ChatComposer,
-	Text,
 	type ChatMessageData,
-} from '@octane-xplat/ui'
+} from '@octane-xplat/ui/chat'
 
 const messages: ChatMessageData[] = [
 	{ sender: 'system', content: <Text>Conversation started</Text> },

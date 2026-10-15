@@ -2,7 +2,14 @@
 export { parseMdDoc, parseMdNodes, mdInlineText } from '../markdown-parse'
 export { createMarkdownStreamParser } from '../markdown-stream'
 export type { MarkdownStreamParser } from '../markdown-stream'
-export { outlineFromDoc, parseOutlineFromMarkdown } from '../outline-utils'
+export {
+	outlineFromDoc,
+	parseOutlineFromMarkdown,
+	markdownHeadings,
+	inlineMarkdownText,
+	slugify,
+	uniqueSlug,
+} from '../outline-utils'
 export { useOutlineFromDoc, useOutlineFromMarkdown } from '../outline-hooks.tsrx'
 export {
 	tokenize,
@@ -10,6 +17,8 @@ export {
 	tokenizeStreaming,
 	flatTokensToLines,
 	TOKEN_TYPES,
+	syntaxTokenVar,
+	syntaxTokenVarRef,
 } from '../code-tokenizer'
 export type { SyntaxTokenType } from '../code-tokenizer'
 export type {
