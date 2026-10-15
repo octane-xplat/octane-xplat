@@ -11,6 +11,7 @@ test('embedded and local image sources decode without network access; empty sour
 				initWithContentsOfFile: (path) => ({ path }),
 				initWithContentsOfURL: (url) => ({ url }),
 			}),
+			imageNamed: (name) => ({ named: name }),
 		},
 		NSData: {
 			alloc: () => ({
@@ -18,6 +19,7 @@ test('embedded and local image sources decode without network access; empty sour
 			}),
 		},
 		NSURL: { URLWithString: (value) => value },
+		NSBundle: { mainBundle: { resourcePath: '/app/Contents/Resources' } },
 	})
 
 	try {
@@ -27,6 +29,8 @@ test('embedded and local image sources decode without network access; empty sour
 
 		assert.deepEqual(loadImage('/tmp/photo.png'), { path: '/tmp/photo.png' })
 		assert.deepEqual(loadImage('file:///tmp/photo.png'), { url: 'file:///tmp/photo.png' })
+		assert.deepEqual(loadImage('res://icon'), { named: 'icon' })
+		assert.deepEqual(loadImage('~/photo.png'), { path: '/app/Contents/Resources/photo.png' })
 		assert.equal(loadImage(''), null)
 	} finally {
 		restore()
@@ -95,6 +99,84 @@ test('uncached sources decode off the caller path; cached, stale and disposed lo
 		// An empty source clears synchronously.
 		updateImage(view, '')
 		assert.equal(view.image, null)
+	} finally {
+		restore()
+	}
+})
+
+test('remote sources fetch through NSURLSession; placeholder paints while pending and stands on failure', async () => {
+	const tasks: any[] = []
+	const restore = mockGlobals({
+		NSImage: {
+			alloc: () => ({
+				initWithData: (data) => ({ data }),
+				initWithContentsOfFile: (path) => ({ path }),
+				initWithContentsOfURL: (url) => ({ url }),
+			}),
+			imageNamed: (name) => ({ named: name }),
+		},
+		NSData: {
+			alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
+		},
+		NSURL: { URLWithString: (value) => value },
+		NSURLSession: {
+			sharedSession: {
+				dataTaskWithURLCompletionHandler: (url, handler) => {
+					const task = { url, handler, resumed: false, resume() { this.resumed = true } }
+					tasks.push(task)
+					return task
+				},
+			},
+		},
+	})
+
+	const placeholder = 'data:image/png;base64,YQ=='
+	const placeholderImage = { data: { value: 'YQ==', options: 0 } }
+	try {
+		// While the fetch is pending, the placeholder paints into the same view.
+		const view = { image: null }
+		updateImage(view, 'https://x/photo.png', placeholder)
+		assert.deepEqual(view.image, placeholderImage)
+		assert.equal(tasks.length, 1)
+		assert.equal(tasks[0].resumed, true)
+
+		// A resolved fetch replaces the placeholder.
+		tasks[0].handler({ remote: 'photo-bytes' }, null, null)
+		assert.deepEqual(view.image, { data: { remote: 'photo-bytes' } })
+
+		// A second view for the same URL hits the cache synchronously and
+		// never paints its placeholder.
+		const cached = { image: null }
+		updateImage(cached, 'https://x/photo.png', placeholder)
+		assert.deepEqual(cached.image, { data: { remote: 'photo-bytes' } })
+		assert.equal(tasks.length, 1)
+
+		// A failed fetch leaves the placeholder standing.
+		const failing = { image: null }
+		updateImage(failing, 'https://x/missing.png', placeholder)
+		assert.deepEqual(failing.image, placeholderImage)
+		tasks[1].handler(null, null, new Error('404'))
+		assert.deepEqual(failing.image, placeholderImage)
+
+		// No placeholder: failure clears the view.
+		const bare = { image: null }
+		updateImage(bare, 'https://x/gone.png')
+		tasks[2].handler(null, null, new Error('500'))
+		assert.equal(bare.image, null)
+
+		// A superseding source invalidates a fetch still in flight.
+		const swapped = { image: null }
+		updateImage(swapped, 'https://x/old.png', placeholder)
+		updateImage(swapped, 'data:image/png;base64,Yg==', placeholder)
+		assert.equal(tasks.length, 4)
+		tasks[3].handler({ remote: 'old-bytes' }, null, null)
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		assert.deepEqual(swapped.image, { data: { value: 'Yg==', options: 0 } })
+
+		// An empty source with a placeholder shows the placeholder.
+		const empty = { image: null }
+		updateImage(empty, '', placeholder)
+		assert.deepEqual(empty.image, placeholderImage)
 	} finally {
 		restore()
 	}

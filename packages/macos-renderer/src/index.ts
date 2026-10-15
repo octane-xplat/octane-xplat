@@ -3448,7 +3448,7 @@ function makeImageView(props: PropBag) {
 	})
 
 	image.translatesAutoresizingMaskIntoConstraints = false
-	updateImage(image, props.src)
+	updateImage(image, props.src, props.placeholder)
 
 	return image
 }
@@ -6004,7 +6004,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'image':
 				if (name === 'src') {
-					updateImage(node.view as NSImageView, value)
+					updateImage(node.view as NSImageView, value, node.props.placeholder)
+				} else if (name === 'placeholder') {
+					updateImage(node.view as NSImageView, node.props.src, value)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id' || name === 'alt') {
