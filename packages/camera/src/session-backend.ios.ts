@@ -254,6 +254,28 @@ const hasUsageDeclaration = (kind: CameraPermissionKind): boolean =>
 
 const minFreeDiskBytes = 64 * 1024 * 1024
 
+/** Values returned through `id`-typed APIs (NSDictionary.objectForKey) arrive
+ *  already unboxed by the {N} iOS runtime — NSNumber becomes a JS number (or
+ *  boolean), not an NSNumber instance. Accept either shape so numeric reads
+ *  stay correct under both conventions. */
+const numericValue = (value: unknown): number | undefined => {
+	try {
+		if (typeof value === 'number') {
+			return value
+		}
+
+		if (typeof value === 'boolean') {
+			return value ? 1 : 0
+		}
+
+		const boxed = value as NSNumber | undefined
+		const raw = boxed?.longLongValue ?? boxed?.doubleValue
+		return typeof raw === 'number' ? raw : undefined
+	} catch {
+		return undefined
+	}
+}
+
 const freeDiskBytes = (): number => {
 	try {
 		const attributes = NSFileManager.defaultManager.attributesOfFileSystemForPathError(
@@ -261,8 +283,7 @@ const freeDiskBytes = (): number => {
 			undefined,
 		)
 
-		const free = attributes?.objectForKey(NSFileSystemFreeSize) as unknown as NSNumber | undefined
-		return free ? Number(free.longLongValue ?? free.doubleValue ?? 0) : Number.MAX_SAFE_INTEGER
+		return numericValue(attributes?.objectForKey(NSFileSystemFreeSize)) ?? Number.MAX_SAFE_INTEGER
 	} catch {
 		return Number.MAX_SAFE_INTEGER
 	}
@@ -344,11 +365,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		}
 
 		add(AVCaptureSessionWasInterruptedNotification, target, (note) => {
-			const raw = note.userInfo?.objectForKey(AVCaptureSessionInterruptionReasonKey) as
-				| NSNumber
-				| undefined
+			const raw = note.userInfo?.objectForKey(AVCaptureSessionInterruptionReasonKey)
 
-			notify('began', mapInterruptionReason(raw ? Number(raw.integerValue) : undefined))
+			notify('began', mapInterruptionReason(numericValue(raw)))
 		})
 
 		add(AVCaptureSessionInterruptionEndedNotification, target, () => {
@@ -551,7 +570,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		const filePath = url?.path ? String(url.path) : ''
 		const succeeded =
 			!error ||
-			error.userInfo?.objectForKey(AVErrorRecordingSuccessfullyFinishedKey)?.boolValue === true
+			numericValue(error.userInfo?.objectForKey(AVErrorRecordingSuccessfullyFinishedKey)) === 1
 
 		if (!succeeded) {
 			// Clean up only the file this attempt created — never a
