@@ -35,9 +35,14 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
      `useStore(store)` (`createStore`/`useStore` are exported from
      `@octane-xplat/ui/data`, not the root barrel) — `store.getSnapshot()`
      is a one-time read.
-   - **Signal readers carry their own runtime import.** Keep signal names
-     suffixed `$` and add `import 'octane/signals'` to every file that
-     reads one, even if it only receives the signal from elsewhere.
+   - **Signal reads are enabled per module, not per file graph.** A module
+     that calls `.get()` during render needs a runtime import from a
+     signals entry (`octane/signals`, `/client`, or `/server`) — a named
+     import like `signal$`/`useSignal$` satisfies it; the bare
+     `import 'octane/signals'` is only needed when the module otherwise
+     imports no signals API. A `$` suffix, a type-only import, or a handle
+     imported from another file do not enable it. Keep signal-backed names
+     suffixed `$`.
 7. **The unsuffixed module is the native default.** Add a `.web.ts` sibling
    when browser code imports a native-only module; use `.mobile.ts` for a
    shared iOS/Android override and `.ios.ts`/`.android.ts` for OS-only code.

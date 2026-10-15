@@ -176,10 +176,14 @@ import { signal$ } from 'octane/signals'
 export const packedCount$ = signal$(0)
 ```
 
-For native reads to update the UI, keep signal names ending in `$` and
-include a runtime import from `octane/signals` in every file that reads
-them. If that file only receives a signal from elsewhere, add
-`import 'octane/signals'`. Use `.get()` to read and `.set()` to write.
+For native reads to update the UI, every file that calls `.get()` during
+render needs a runtime import from a signals entry — `octane/signals`,
+`octane/signals/client`, or `octane/signals/server`. A named import such
+as `signal$` or `useSignal$` satisfies this; a file that only receives a
+signal from elsewhere adds the bare `import 'octane/signals'`. A `$` name,
+a type-only import, or a handle imported from another file does not
+enable native reads. Keep signal names ending in `$`. Use `.get()` to
+read and `.set()` to write.
 Reads while drawing a component subscribe to updates; reads in event
 handlers or at file startup do not.
 
