@@ -1,0 +1,18 @@
+import { _bind } from './_rt.js'
+const FW = '/System/Library/Frameworks/OSLog.framework/OSLog'
+export const OSLogEntry = /* @__PURE__ */ _bind(FW, 'OSLogEntry')
+export const OSLogEntryActivity = /* @__PURE__ */ _bind(FW, 'OSLogEntryActivity')
+export const OSLogEntryBoundary = /* @__PURE__ */ _bind(FW, 'OSLogEntryBoundary')
+export const OSLogEntryFromProcess = /* @__PURE__ */ _bind(FW, 'OSLogEntryFromProcess')
+export const OSLogEntryLog = /* @__PURE__ */ _bind(FW, 'OSLogEntryLog')
+export const OSLogEntryLogLevel = /* @__PURE__ */ _bind(FW, 'OSLogEntryLogLevel')
+export const OSLogEntrySignpost = /* @__PURE__ */ _bind(FW, 'OSLogEntrySignpost')
+export const OSLogEntrySignpostType = /* @__PURE__ */ _bind(FW, 'OSLogEntrySignpostType')
+export const OSLogEntryStoreCategory = /* @__PURE__ */ _bind(FW, 'OSLogEntryStoreCategory')
+export const OSLogEntryWithPayload = /* @__PURE__ */ _bind(FW, 'OSLogEntryWithPayload')
+export const OSLogEnumerator = /* @__PURE__ */ _bind(FW, 'OSLogEnumerator')
+export const OSLogEnumeratorOptions = /* @__PURE__ */ _bind(FW, 'OSLogEnumeratorOptions')
+export const OSLogMessageComponent = /* @__PURE__ */ _bind(FW, 'OSLogMessageComponent')
+export const OSLogMessageComponentArgumentCategory = /* @__PURE__ */ _bind(FW, 'OSLogMessageComponentArgumentCategory')
+export const OSLogPosition = /* @__PURE__ */ _bind(FW, 'OSLogPosition')
+export const OSLogStore = /* @__PURE__ */ _bind(FW, 'OSLogStore')

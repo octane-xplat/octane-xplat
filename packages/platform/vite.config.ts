@@ -93,6 +93,10 @@ export default defineConfig(({ mode }) => {
 				),
 				output: {
 					preserveModules: true,
+					// The macos-impl barrel re-exports ~78k names with `export *` —
+					// expanding those to named specifier lists is quadratic in
+					// downstream bundlers. Keep the star-exports intact.
+					preserveEntrySignatures: false,
 					entryFileNames: '[name].js',
 					paths: native ? (id) => (id === 'octane' ? 'octane/universal/native' : id) : undefined,
 				},

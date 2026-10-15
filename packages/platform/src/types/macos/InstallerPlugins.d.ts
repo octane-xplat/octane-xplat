@@ -1,0 +1,109 @@
+import type { NSView } from './AppKit'
+
+import type { NSArray, NSBundle, NSDictionary, NSMutableDictionary } from './Foundation'
+
+import type { interop } from './objc-runtime'
+
+import { NSObject } from './Runtime'
+
+
+
+export declare const InstallerState_Choice_CustomLocation: string;
+
+export declare const InstallerState_Choice_Identifier: string;
+
+export declare const InstallerState_Choice_Installed: string;
+
+export declare const InstallerSectionDirection: {
+  Forward: 0,
+  Backward: 1,
+  Undefined: 2,
+};
+
+export declare class InstallerPane_Private {
+  constructor(init?: InstallerPane_Private);
+}
+
+export declare class InstallerState_Private {
+  constructor(init?: InstallerState_Private);
+}
+
+export declare class InstallerSection_Private {
+  constructor(init?: InstallerSection_Private);
+}
+
+export declare class InstallerSection extends NSObject {
+  readonly bundle: NSBundle;
+
+  readonly title: string;
+
+  readonly firstPane: InstallerPane;
+
+  readonly shouldLoad: boolean;
+
+  willLoadMainNib(): void;
+
+  didLoadMainNib(): void;
+
+  sharedDictionary(): NSMutableDictionary;
+
+  readonly installerState: InstallerState;
+
+  readonly activePane: InstallerPane;
+
+  gotoPane(pane: InstallerPane): boolean;
+}
+
+export declare class InstallerPane extends NSObject {
+  contentView: NSView;
+
+  initialKeyView: NSView;
+
+  firstKeyView: NSView;
+
+  lastKeyView: NSView;
+
+  nextPane: InstallerPane;
+
+  initWithSection(parent: interop.Object): this;
+
+  readonly title: string;
+
+  readonly section: InstallerSection;
+
+  willEnterPane(dir: interop.Enum<typeof InstallerSectionDirection>): void;
+
+  didEnterPane(dir: interop.Enum<typeof InstallerSectionDirection>): void;
+
+  shouldExitPane(dir: interop.Enum<typeof InstallerSectionDirection>): boolean;
+
+  willExitPane(dir: interop.Enum<typeof InstallerSectionDirection>): void;
+
+  didExitPane(dir: interop.Enum<typeof InstallerSectionDirection>): void;
+
+  nextEnabled: boolean;
+
+  previousEnabled: boolean;
+
+  readonly gotoNextPane: boolean;
+
+  readonly gotoPreviousPane: boolean;
+}
+
+export declare class InstallerState extends NSObject {
+  readonly licenseAgreed: boolean;
+
+  readonly licenseAgreedLanguage: string;
+
+  readonly targetVolumePath: string;
+
+  readonly targetPath: string;
+
+  readonly choiceDictionaries: NSArray;
+
+  choiceDictionaryForIdentifier(choiceIdentifier: string): NSDictionary;
+
+  readonly installStarted: boolean;
+
+  readonly installSucceeded: boolean;
+}

@@ -1,0 +1,15 @@
+import { _bind } from './_rt.js'
+const FW = '/System/Library/Frameworks/CompositorServices.framework/CompositorServices'
+export const cp_drawable = /* @__PURE__ */ _bind(FW, 'cp_drawable')
+export const cp_drawable_array = /* @__PURE__ */ _bind(FW, 'cp_drawable_array')
+export const cp_drawable_render_context = /* @__PURE__ */ _bind(FW, 'cp_drawable_render_context')
+export const cp_frame = /* @__PURE__ */ _bind(FW, 'cp_frame')
+export const cp_frame_binocular_frustum_matrix = /* @__PURE__ */ _bind(FW, 'cp_frame_binocular_frustum_matrix')
+export const cp_frame_monocular_frustum_matrix = /* @__PURE__ */ _bind(FW, 'cp_frame_monocular_frustum_matrix')
+export const cp_frame_timing = /* @__PURE__ */ _bind(FW, 'cp_frame_timing')
+export const cp_hover_effect = /* @__PURE__ */ _bind(FW, 'cp_hover_effect')
+export const cp_layer_renderer_configuration_get_supports_mtl4 = /* @__PURE__ */ _bind(FW, 'cp_layer_renderer_configuration_get_supports_mtl4')
+export const cp_texture_topology = /* @__PURE__ */ _bind(FW, 'cp_texture_topology')
+export const cp_tracking_area = /* @__PURE__ */ _bind(FW, 'cp_tracking_area')
+export const cp_view = /* @__PURE__ */ _bind(FW, 'cp_view')
+export const cp_view_texture_map = /* @__PURE__ */ _bind(FW, 'cp_view_texture_map')

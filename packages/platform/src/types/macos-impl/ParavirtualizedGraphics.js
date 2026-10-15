@@ -1,0 +1,15 @@
+import { _bind } from './_rt.js'
+const FW = '/System/Library/Frameworks/ParavirtualizedGraphics.framework/ParavirtualizedGraphics'
+export const PGCopyOptionROMURL = /* @__PURE__ */ _bind(FW, 'PGCopyOptionROMURL')
+export const PGDevice = /* @__PURE__ */ _bind(FW, 'PGDevice')
+export const PGDeviceDescriptor = /* @__PURE__ */ _bind(FW, 'PGDeviceDescriptor')
+export const PGDisplay = /* @__PURE__ */ _bind(FW, 'PGDisplay')
+export const PGDisplayCoord_t = /* @__PURE__ */ _bind(FW, 'PGDisplayCoord_t')
+export const PGDisplayDescriptor = /* @__PURE__ */ _bind(FW, 'PGDisplayDescriptor')
+export const PGDisplayMode = /* @__PURE__ */ _bind(FW, 'PGDisplayMode')
+export const PGNewDeviceWithDescriptor = /* @__PURE__ */ _bind(FW, 'PGNewDeviceWithDescriptor')
+export const PGPhysicalMemoryRange_s = /* @__PURE__ */ _bind(FW, 'PGPhysicalMemoryRange_s')
+export const PGResumeErrorCode = /* @__PURE__ */ _bind(FW, 'PGResumeErrorCode')
+export const PGResumeErrorDomain = /* @__PURE__ */ _bind(FW, 'PGResumeErrorDomain')
+export const PGTask_s = /* @__PURE__ */ _bind(FW, 'PGTask_s')
+export const PGTraceRange_s = /* @__PURE__ */ _bind(FW, 'PGTraceRange_s')
