@@ -326,7 +326,7 @@ function tokenizeLine(
 					tokens.push({
 						type: pattern.type,
 						start: pos - lineStart,
-						end: pos - lineStart + match[0].length,
+						end: Math.min(lineEnd, pos + match[0].length) - lineStart,
 					})
 				}
 

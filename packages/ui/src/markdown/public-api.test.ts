@@ -61,3 +61,8 @@ it('splits absolute custom tokens across newlines without out-of-line offsets', 
 		[{ type: 'comment', start: 0, end: 4 }],
 	])
 })
+
+it('clips built-in multiline matches to their current line', () => {
+	const lines = tokenize('/* a\nb */', 'typescript')
+	expect(lines[0]).toEqual([{ type: 'comment', start: 0, end: 4 }])
+})
