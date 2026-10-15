@@ -75,10 +75,39 @@ client/workspace preference (`--client` or `XPLAT_AGENT_CLIENT`), then unique
 cwd discovery. Several detected apps report candidates and refuse silently
 picking one.
 
+The runtime surface runs through a per-workspace agent host the stateful
+commands spawn on demand — it owns the dev servers, browsers, job registry,
+log buffers, and evidence store that one-shot invocations cannot. Commands
+that only read state connect when a host is live and otherwise report
+absence honestly (`not_found`, or an empty list with `host.state: "absent"`);
+a read never leaves a daemon behind. The host exits on its own once no live
+session or job remains, with the same ownership-safe teardown the MCP
+server runs. Extra permission scopes pass per invocation through
+`XPLAT_PERMISSIONS` (e.g. `visual-capture`).
+
+```sh
+xplat runtime build --platform web --json   # a job — poll job status, read logs
+xplat session start --platform web --json   # owned dev session + browser; readiness is a job
+xplat session attach --platform web --json  # bind a dev session you already run — preserved on end
+xplat session list --json                   # host-owned and attached sessions
+xplat session status <sess_…> --json
+xplat session end <sess_…> --json           # ownership-safe cleanup; attached apps keep running
+xplat job status <job_…> --json
+xplat job cancel <job_…> --json             # cooperative — never kills another user's process
+xplat logs --session <sess_…> --json        # cursor-paginated; --job works too
+xplat inspect <sess_…> --testid <name> --json   # bounded named hosts, redacted private values
+xplat interact <sess_…> --document <id> --testid <name> --mechanism dom-event --json
+xplat capture <sess_…> --json               # needs XPLAT_PERMISSIONS=visual-capture
+xplat actions list --json                   # the dev app's declared action registry
+xplat actions invoke --action <id> --json   # returns a job; --revision guards staleness
+xplat actions status <job_…> --json
+xplat evidence list --json                  # job/inspection/capture artifacts; retain/delete by id
+```
+
 The MCP transport (`xplat-mcp` from `@octane-xplat/mcp`) exposes the same
-service contract to MCP clients. The runtime surface — sessions, jobs, logs,
-inspection, actions, evidence — projects to commands in the `catalog`'s
-`planned` list.
+service contract to MCP clients — one implementation, two transports. Each
+owns its own session state: a session started through `xplat-mcp` lives in
+that server, not in the CLI's runtime host.
 
 Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
 — agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)

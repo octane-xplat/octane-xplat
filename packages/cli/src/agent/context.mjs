@@ -24,9 +24,9 @@ export function agentContext(options = {}) {
 	const preference = options.app ? null : readPreference(workspaceRoot, client)
 	const appSelector = options.app ?? preference?.appId ?? null
 
-	// A per-invocation evidence root: agent commands in this journey never
-	// write artifacts, but the store creates its directories eagerly — give
-	// it a scratch dir that is removed on exit.
+	// A per-invocation evidence root: artifact-writing commands route through
+	// the runtime host (host-client.mjs), never this context — but the store
+	// creates its directories eagerly, so give it a scratch dir removed on exit.
 	const evidenceRoot = mkdtempSync(join(tmpdir(), 'xplat-agent-evidence-'))
 	process.on('exit', () => rmSync(evidenceRoot, { recursive: true, force: true }))
 

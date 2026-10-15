@@ -4,12 +4,82 @@
 import { contractError, toContractError } from '../mcp/contracts/errors.mjs'
 import { bindApp, buildProjectStatus, resolveSelection } from '../mcp/status.mjs'
 import { catalogPayload } from './catalog.mjs'
+import { callHost, NO_HOST } from './host-client.mjs'
 import { writePreference } from './selection.mjs'
 
 const ok = (data) => ({ ok: true, data })
 const fail = (error) => ({ ok: false, error })
 
 const SELECT_APP_HINT = '`xplat app select` (CLI) or xplat_select_app (MCP)'
+
+// The app id the invoking invocation resolved — the host rebinds it per
+// request, so service selection semantics match the MCP transport.
+const boundAppId = (context) => {
+	const selection = resolveSelection(context)
+	return selection.state === 'bound' ? selection.app.id : null
+}
+
+// Commands that reference a specific session/job/evidence id get not_found
+// when no host exists — nothing anywhere owns that state.
+const NO_STATE_HOST = () =>
+	contractError('not_found', 'No agent runtime host is running — no sessions, jobs, or evidence exist for this workspace.', {
+		recovery: {
+			action: 'Start work with `xplat session start` or `xplat runtime build`; state lives only while a host owns it.',
+		},
+	})
+
+/**
+ * Route one service call through the agent runtime host. `spawn` marks
+ * state-creating commands; `absent` lets list commands answer honestly when
+ * nothing is running. Host results carry the service return verbatim — a
+ * service-level `error` field maps to a failed envelope, matching the MCP
+ * tool adapters.
+ */
+const hostCall = async (env, method, params, { spawn = false, absent } = {}) => {
+	const reply = await callHost(env.workspaceRoot, method, params, {
+		appId: boundAppId(env.context),
+		grants: env.grants,
+		spawn,
+	})
+
+	if (reply === NO_HOST) {
+		return absent ? absent() : fail(NO_STATE_HOST())
+	}
+
+	if (!reply.ok) {
+		return fail(reply.error)
+	}
+
+	const result = reply.result
+	if (result?.error) {
+		return fail(result.error)
+	}
+
+	return ok(absent ? { ...result, host: { state: 'live', pid: reply.host.pid } } : result)
+}
+
+const requireFlag = (value, flag, hint) =>
+	value === undefined || value === null
+		? fail(
+				contractError('invalid_selection', `Pass ${flag}${hint ? ` — ${hint}` : ''}.`, {
+					recovery: { action: 'Run the command with --help or --schema for its contract.' },
+				}),
+			)
+		: null
+
+const controlArg = (args) => {
+	if (args.id !== undefined && args.testID !== undefined) {
+		return {
+			error: contractError('invalid_selection', 'Pass --id or --testid, not both.'),
+		}
+	}
+
+	if (args.id === undefined && args.testID === undefined) {
+		return null
+	}
+
+	return { kind: args.id !== undefined ? 'id' : 'testID', name: args.id ?? args.testID }
+}
 
 // Same wrapper the MCP docs tools use: workspace grant → bound app → service.
 const docsCall = async (context, method, args) => {
@@ -218,5 +288,204 @@ export const handlers = {
 			offset: args.offset,
 			limit: args.limit,
 		})
+	},
+
+	async 'runtime build'(env, args) {
+		const missing = requireFlag(args.platform, '--platform', 'one of web, ios, android, macos, linux, windows')
+		if (missing) {
+			return missing
+		}
+
+		return hostCall(env, 'runtime.build', {
+			platform: args.platform,
+			requestKey: args.requestKey,
+		}, { spawn: true })
+	},
+
+	async 'session start'(env, args) {
+		const missing = requireFlag(args.platform, '--platform', 'one of web, ios, android, macos, linux, windows')
+		if (missing) {
+			return missing
+		}
+
+		return hostCall(env, 'runtime.launch', {
+			platform: args.platform,
+			targetId: args.targetId,
+			requestKey: args.requestKey,
+			browserMode: args.browserMode,
+		}, { spawn: true })
+	},
+
+	async 'session attach'(env, args) {
+		const missing = requireFlag(args.platform, '--platform', 'one of web, ios, android, macos, linux, windows')
+		if (missing) {
+			return missing
+		}
+
+		return hostCall(env, 'runtime.attach', {
+			platform: args.platform,
+			targetId: args.targetId,
+		}, { spawn: true })
+	},
+
+	async 'session list'(env) {
+		return hostCall(env, 'sessions.list', {}, {
+			absent: () => ok({ sessions: [], host: { state: 'absent' } }),
+		})
+	},
+
+	async 'session status'(env, args) {
+		return hostCall(env, 'sessions.get', { sessionId: args.sessionId })
+	},
+
+	async 'session end'(env, args) {
+		return hostCall(env, 'session.end', { sessionId: args.sessionId })
+	},
+
+	async 'job status'(env, args) {
+		return hostCall(env, 'jobs.status', { jobId: args.jobId })
+	},
+
+	async 'job cancel'(env, args) {
+		return hostCall(env, 'jobs.cancel', { jobId: args.jobId })
+	},
+
+	async logs(env, args) {
+		if (!args.sessionId && !args.jobId) {
+			return fail(
+				contractError('invalid_selection', 'Pass --session or --job.', {
+					recovery: { action: 'Use `xplat session list` or a job id from a runtime/actions command.' },
+				}),
+			)
+		}
+
+		return hostCall(env, 'runtime.readLogs', {
+			sessionId: args.sessionId,
+			jobId: args.jobId,
+			cursor: args.cursor,
+			limit: args.limit,
+			stream: args.stream,
+		})
+	},
+
+	async inspect(env, args) {
+		const control = controlArg(args)
+		if (control?.error) {
+			return fail(control.error)
+		}
+
+		return hostCall(env, 'inspection.inspect', {
+			sessionId: args.sessionId,
+			control: control ?? undefined,
+			offset: args.offset,
+			limit: args.limit,
+		})
+	},
+
+	async interact(env, args) {
+		for (const missing of [
+			requireFlag(args.documentId, '--document', 'the documentId from `xplat inspect`'),
+			requireFlag(args.mechanism, '--mechanism', 'dom-event or os-input'),
+		]) {
+			if (missing) {
+				return missing
+			}
+		}
+
+		const control = controlArg(args)
+		if (control?.error) {
+			return fail(control.error)
+		}
+
+		if (!control) {
+			return fail(
+				contractError('invalid_selection', 'Pass --id or --testid to pick one control.', {
+					recovery: { action: 'Run `xplat inspect` first to find a stable control name.' },
+				}),
+			)
+		}
+
+		return hostCall(env, 'inspection.interact', {
+			sessionId: args.sessionId,
+			documentId: args.documentId,
+			control,
+			mechanism: args.mechanism,
+			key: args.key,
+		})
+	},
+
+	async capture(env, args) {
+		return hostCall(env, 'inspection.screenshot', { sessionId: args.sessionId })
+	},
+
+	async 'evidence list'(env, args) {
+		return hostCall(env, 'evidence.list', { kind: args.kind }, {
+			absent: () => ok({ evidence: [], host: { state: 'absent' } }),
+		})
+	},
+
+	async 'evidence retain'(env, args) {
+		return hostCall(env, 'evidence.retain', { id: args.id, expiresAt: args.expiresAt })
+	},
+
+	async 'evidence delete'(env, args) {
+		return hostCall(env, 'evidence.delete', { id: args.id })
+	},
+
+	async 'actions list'({ context }) {
+		// The dev-action registry derives from on-disk bridge session files —
+		// every list refreshes, so this journey needs no running host.
+		const selection = resolveSelection(context)
+		if (selection.state !== 'bound') {
+			return fail(
+				contractError(
+					selection.state === 'ambiguous' ? 'ambiguous_selection' : 'invalid_selection',
+					'No app is bound.',
+					{ recovery: { action: `Bind an app first — ${SELECT_APP_HINT}.` } },
+				),
+			)
+		}
+
+		try {
+			return ok(await context.devActions.list(selection.app))
+		} catch (error) {
+			return fail(toContractError(error))
+		}
+	},
+
+	async 'actions invoke'(env, args) {
+		const missing = requireFlag(args.actionId, '--action', 'an action id from `xplat actions list`')
+		if (missing) {
+			return missing
+		}
+
+		let input
+		if (args.input !== undefined) {
+			try {
+				input = JSON.parse(args.input)
+			} catch {
+				return fail(
+					contractError('invalid_selection', '--input must be a JSON object.', {
+						recovery: { action: 'Match the declared input contract from `xplat actions list`.' },
+					}),
+				)
+			}
+
+			if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+				return fail(contractError('invalid_selection', '--input must be a JSON object.'))
+			}
+		}
+
+		return hostCall(env, 'devActions.invoke', {
+			appInstanceId: args.appInstanceId,
+			actionId: args.actionId,
+			input: input ?? {},
+			registryRevision: args.registryRevision,
+			requestKey: args.requestKey,
+		}, { spawn: true })
+	},
+
+	async 'actions status'(env, args) {
+		return hostCall(env, 'devActions.describeJob', { jobId: args.jobId })
 	},
 }

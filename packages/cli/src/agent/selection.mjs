@@ -13,8 +13,10 @@ const CLIENT_SAFE = /^[a-zA-Z0-9_-]{1,64}$/
 
 export const defaultClient = (env = process.env) => env.XPLAT_AGENT_CLIENT || 'default'
 
+export const agentDir = (workspaceRoot) => join(workspaceRoot, AGENT_DIR)
+
 export const preferencePath = (workspaceRoot, client) =>
-	join(workspaceRoot, AGENT_DIR, `${client}.json`)
+	join(agentDir(workspaceRoot), `${client}.json`)
 
 export function readPreference(workspaceRoot, client) {
 	if (!CLIENT_SAFE.test(client)) {
@@ -31,7 +33,7 @@ export function readPreference(workspaceRoot, client) {
 
 export function writePreference(workspaceRoot, client, app) {
 	const path = preferencePath(workspaceRoot, client)
-	mkdirSync(join(workspaceRoot, AGENT_DIR), { recursive: true })
+	mkdirSync(agentDir(workspaceRoot), { recursive: true })
 	writeFileSync(
 		path,
 		`${JSON.stringify(

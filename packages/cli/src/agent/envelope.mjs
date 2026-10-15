@@ -1,7 +1,7 @@
 // Shared CLI contract envelope — the versioned projection every agent-facing
-// command emits in `--json` mode. Item 2 (sessions/jobs/streams) builds on
-// this exact envelope, error vocabulary, and exit mapping, so it lives in one
-// place rather than per command.
+// command emits in `--json` mode, including the session/job/observation
+// commands that route through the runtime host, so it lives in one place
+// rather than per command.
 //
 // Envelope: { contractVersion, ok, requestId, context?, data? | error? }
 // Error:    { code, message, recovery?, retryable?, context? }

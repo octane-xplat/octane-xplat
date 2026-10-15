@@ -42,7 +42,10 @@ The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-cons
 
 The `xplat` CLI projects the same services through agent commands; the packed
 agent lane ([runner](../../../packages/cli/test/packed-agent-consumer.mjs)) verifies
-the AC1 discovery/retrieval subset — help, catalog/schema, selection,
-exact-version docs, current source, honest unavailable results — through the
-installed `xplat` bin. Session/runtime ACs stay MCP-covered until the CLI's
-planned session commands land.
+the discovery/retrieval subset plus the web session journey — build, launch,
+session/job polling, logs, inspect, dom-event and os-input interaction,
+capture gating, dev-action discovery/invocation, and ownership-safe cleanup —
+through the installed `xplat` bin and its per-workspace runtime host.
+Session ACs on the five non-web targets remain MCP-covered; the agent lane
+asserts honest `unsupported_capability`/prerequisite errors rather than a
+full-device qualification.

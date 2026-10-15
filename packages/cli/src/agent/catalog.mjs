@@ -7,7 +7,7 @@ import { CONTRACT_VERSION, ERROR_EXIT, EXIT } from './envelope.mjs'
 import { CLI_NAME, CLI_VERSION } from './identity.mjs'
 
 export const SELECTION_PRECEDENCE = [
-	'explicit session binding (--session, once sessions land)',
+	'explicit session/job ids (positionals or --session/--job/--target on commands that take them)',
 	'explicit app selection (--app)',
 	'client/workspace preference (xplat app select, scoped by --client / XPLAT_AGENT_CLIENT)',
 	'unique cwd discovery (sole app binds; several apps report candidates and refuse)',

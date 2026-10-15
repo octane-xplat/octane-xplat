@@ -200,13 +200,14 @@ export async function dispatchAgent(argv) {
 
 	let ctx = null
 	let client = values.client
+	const grants = permissionScopes()
 	if (command.context !== 'none') {
 		try {
 			const assembled = agentContext({
 				project: values.project,
 				app: values.app,
 				client: values.client,
-				permissionScopes: permissionScopes(),
+				permissionScopes: grants,
 			})
 
 			ctx = assembled.context
@@ -223,7 +224,7 @@ export async function dispatchAgent(argv) {
 	let result
 	try {
 		result = await handlers[command.name](
-			{ context: ctx, workspaceRoot: ctx?.workspaceRoot, client },
+			{ context: ctx, workspaceRoot: ctx?.workspaceRoot, client, grants },
 			values,
 		)
 	} catch (error) {

@@ -90,11 +90,29 @@ test('catalog emits the machine-readable contract without a project', () => {
 		'guidance',
 		'code search',
 		'code read',
+		'runtime build',
+		'session start',
+		'session attach',
+		'session list',
+		'session status',
+		'session end',
+		'job status',
+		'job cancel',
+		'logs',
+		'inspect',
+		'interact',
+		'capture',
+		'evidence list',
+		'evidence retain',
+		'evidence delete',
+		'actions list',
+		'actions invoke',
+		'actions status',
 	]) {
 		assert.ok(names.includes(expected), `missing ${expected}`)
 	}
 
-	assert.ok(data.planned.some((p) => p.name === 'session start'))
+	assert.ok(data.planned.every((p) => p.status === 'planned'))
 	assert.equal(data.exits[2], 'invalid input or ambiguous selection')
 	assert.equal(data.errorExit.ambiguous_selection, 2)
 	assert.match(data.selection.preference, /node_modules\/\.cache\/xplat\/agent/)
@@ -304,4 +322,166 @@ test('stdout stays pure JSON in --json mode; human mode reads plainly', () => {
 	const human = run(['status', '--project', root])
 	assert.equal(human.code, 0)
 	assert.match(human.stdout, /Workspace:/)
+})
+
+// ---- runtime host: sessions, jobs, logs, observation, evidence ------------
+
+const descriptorPath = (root) => join(root, 'node_modules', '.cache', 'xplat', 'agent', 'host.json')
+
+const waitFor = (fn, timeoutMs = 30000) => {
+	const deadline = Date.now() + timeoutMs
+	while (Date.now() < deadline) {
+		const value = fn()
+		if (value) {
+			return value
+		}
+
+		Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 120)
+	}
+
+	throw new Error('condition timed out')
+}
+
+test('state commands answer honestly with no runtime host', () => {
+	const root = makeWorkspace('nohost')
+	makeLinkedApp(root)
+
+	const sessions = json(run(['session', 'list', '--project', root, '--json']))
+	assert.deepEqual(sessions.data.sessions, [])
+	assert.equal(sessions.data.host.state, 'absent')
+
+	const evidence = json(run(['evidence', 'list', '--project', root, '--json']))
+	assert.deepEqual(evidence.data.evidence, [])
+	assert.equal(evidence.data.host.state, 'absent')
+
+	for (const args of [
+		['job', 'status', 'job_nope'],
+		['job', 'cancel', 'job_nope'],
+		['session', 'status', 'sess_nope'],
+		['session', 'end', 'sess_nope'],
+		['logs', '--session', 'sess_nope'],
+		['inspect', 'sess_nope'],
+		['interact', 'sess_nope', '--document', 'd', '--testid', 'x', '--mechanism', 'dom-event'],
+		['capture', 'sess_nope'],
+		['evidence', 'retain', 'ev_nope'],
+		['evidence', 'delete', 'ev_nope'],
+		['actions', 'status', 'job_nope'],
+	]) {
+		const out = run([...args, '--project', root, '--json'])
+		assert.equal(out.code, 2, `${args.join(' ')} -> ${out.stdout}`)
+		assert.equal(json(out).error.code, 'not_found', args.join(' '))
+	}
+
+	// A read must never leave a host behind.
+	assert.equal(existsSync(descriptorPath(root)), false)
+})
+
+test('argument validation happens before any host is spawned', () => {
+	const root = makeWorkspace('args')
+	makeLinkedApp(root)
+
+	for (const args of [
+		['runtime', 'build'],
+		['session', 'start'],
+		['session', 'attach'],
+		['logs'],
+		['interact', 'sess_x', '--mechanism', 'dom-event'],
+		['interact', 'sess_x', '--document', 'd', '--mechanism', 'dom-event'],
+		['actions', 'invoke'],
+	]) {
+		const out = run([...args, '--project', root, '--json'])
+		assert.equal(out.code, 2, args.join(' '))
+		assert.equal(json(out).error.code, 'invalid_selection', args.join(' '))
+	}
+
+	assert.equal(existsSync(descriptorPath(root)), false)
+})
+
+test('runtime build flows through the host: job, logs, evidence, idle exit', () => {
+	const root = makeWorkspace('hostrun')
+	makeLinkedApp(root)
+	const env = { XPLAT_AGENT_HOST_IDLE_MS: '600' }
+
+	const started = json(
+		run(['runtime', 'build', '--platform', 'web', '--project', root, '--json'], { env }),
+	)
+
+	assert.equal(started.data.deduplicated, false)
+	const { jobId } = started.data.job
+	assert.equal(started.data.job.kind, 'build')
+	assert.ok(existsSync(descriptorPath(root)))
+
+	// Poll until the job reaches a terminal state; the fixture has no real
+	// vite install, so success is not asserted — the lifecycle is.
+	const terminal = waitFor(() => {
+		const { data } = json(run(['job', 'status', jobId, '--project', root, '--json'], { env }))
+		return ['succeeded', 'failed', 'cancelled'].includes(data.job.state) ? data.job : null
+	})
+
+	assert.ok(terminal.finishedAt)
+
+	const logs = json(run(['logs', '--job', jobId, '--project', root, '--json'], { env }))
+	assert.ok(logs.data.records.some((r) => r.stream === 'lifecycle'))
+
+	const sessions = json(run(['session', 'list', '--project', root, '--json'], { env }))
+	assert.equal(sessions.data.host.state, 'live')
+	assert.deepEqual(sessions.data.sessions, [])
+
+	const evidence = json(run(['evidence', 'list', '--project', root, '--json'], { env }))
+	assert.equal(evidence.data.evidence.length, 1)
+	assert.equal(evidence.data.evidence[0].kind, 'job')
+
+	// Idle exit: once nothing is live the host shuts down on its own timer.
+	// (Polling would reset that timer — wait once, then check.)
+	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1600)
+	const after = json(run(['session', 'list', '--project', root, '--json'], { env }))
+	assert.equal(after.data.host.state, 'absent')
+})
+
+test('session start binds an owned session and end releases it', () => {
+	const root = makeWorkspace('sessrun')
+	makeLinkedApp(root)
+	const env = { XPLAT_AGENT_HOST_IDLE_MS: '5000' }
+
+	const started = json(
+		run(['session', 'start', '--platform', 'web', '--project', root, '--json'], { env }),
+	)
+
+	const { session, job } = started.data
+	assert.match(session.sessionId, /^sess_/)
+	assert.equal(session.ownership, 'owned')
+	assert.equal(session.platform, 'web')
+	assert.equal(job.sessionId, session.sessionId)
+
+	// The launch job resolves to readiness or an honest failure (fixture has
+	// no vite install); either way the session contract holds.
+	const terminal = waitFor(() => {
+		const { data } = json(run(['job', 'status', job.jobId, '--project', root, '--json'], { env }))
+		return ['succeeded', 'failed', 'cancelled'].includes(data.job.state) ? data.job : null
+	}, 90000)
+
+	const listed = json(run(['session', 'list', '--project', root, '--json'], { env }))
+	const bound = listed.data.sessions.find((s) => s.sessionId === session.sessionId)
+	assert.ok(bound)
+	assert.ok(['ready', 'stopped', 'disconnected'].includes(bound.state))
+
+	const status = json(run(['session', 'status', session.sessionId, '--project', root, '--json'], { env }))
+	assert.equal(status.data.session.sessionId, session.sessionId)
+
+	const ended = json(run(['session', 'end', session.sessionId, '--project', root, '--json'], { env }))
+	assert.equal(ended.data.result.ended, true)
+
+	// A stopped identity is refused — never silently reused.
+	if (terminal.state === 'succeeded') {
+		const inspect = run(['inspect', session.sessionId, '--project', root, '--json'], { env })
+		assert.equal(json(inspect).error.code, 'stale_identity')
+	}
+})
+
+test('actions list reports the no-bridge state without a dev server', () => {
+	const root = makeWorkspace('actions')
+	makeLinkedApp(root)
+	const out = json(run(['actions', 'list', '--project', root, '--json']))
+	assert.equal(out.data.state, 'no-bridge')
+	assert.equal(existsSync(descriptorPath(root)), false)
 })

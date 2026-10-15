@@ -150,6 +150,138 @@ export function renderHuman(command, result, out = []) {
 			lines(out, data.content ?? '')
 			break
 
+		case 'runtime build':
+		case 'actions invoke': {
+			const dedup = data.deduplicated ? ' (deduplicated: the live job was returned)' : ''
+			lines(out, `${data.job.kind} job ${data.job.jobId} — ${data.job.state}${dedup}`)
+			lines(out, `Poll: xplat job status ${data.job.jobId}`)
+			break
+		}
+
+		case 'session start':
+			lines(out, `session ${data.session.sessionId} — ${data.session.platform} on ${data.session.targetId} (${data.session.ownership}, ${data.session.state})`)
+			lines(out, `launch job ${data.job.jobId} — ${data.job.state}; poll: xplat job status ${data.job.jobId}`)
+			break
+
+		case 'session attach':
+			lines(out, `session ${data.session.sessionId} — attached ${data.session.platform} on ${data.session.targetId}${data.detail ? ` (${data.detail})` : ''}`)
+			break
+
+		case 'session list':
+			if (data.host?.state === 'absent') {
+				lines(out, 'No agent runtime host is running — no sessions exist.')
+			}
+
+			for (const session of data.sessions) {
+				lines(out, `${session.sessionId} — ${session.platform} on ${session.targetId} (${session.ownership}, ${session.state})`)
+			}
+
+			if (!data.sessions.length && data.host?.state !== 'absent') {
+				lines(out, 'No sessions bound.')
+			}
+
+			break
+
+		case 'session status':
+			lines(out, JSON.stringify(data.session, null, 2))
+			break
+
+		case 'session end': {
+			const result = data.result
+			lines(out, `${result.sessionId}: ${result.ended ? 'ended' : 'not found'}`)
+			for (const item of result.released ?? []) {
+				lines(out, `  released: ${item}`)
+			}
+
+			for (const item of result.preserved ?? []) {
+				lines(out, `  preserved: ${item}`)
+			}
+
+			break
+		}
+
+		case 'job status':
+		case 'job cancel':
+		case 'actions status':
+			lines(out, JSON.stringify(data.job ?? data, null, 2))
+			break
+
+		case 'logs':
+			for (const record of data.records ?? []) {
+				lines(out, `[${record.stream}] ${record.line}`)
+			}
+
+			if (!data.records?.length) {
+				lines(out, data.note ?? 'No records.')
+			}
+
+			if (data.truncated) {
+				lines(out, `(truncated — ${data.dropped} records dropped before this page)`)
+			}
+
+			if (data.historical) {
+				lines(out, '(historical — the session is stopped or disconnected)')
+			}
+
+			break
+
+		case 'inspect':
+			for (const control of data.controls ?? []) {
+				lines(out, `${control.name ?? control.kind} — ${JSON.stringify(control.frame ?? {})}${control.text !== undefined ? ` "${control.text}"` : ''}`)
+			}
+
+			if (!data.controls?.length) {
+				lines(out, 'No controls in range.')
+			}
+
+			if (data.nextOffset !== undefined && data.nextOffset !== null) {
+				lines(out, `(more — continue with --offset ${data.nextOffset})`)
+			}
+
+			break
+
+		case 'interact':
+			lines(out, `Input sent (${data.evidence?.provenance?.mechanism ?? 'unknown'}) — verify app state separately; delivery is not an assertion.`)
+			break
+
+		case 'capture':
+			lines(out, `Captured: ${data.evidence?.artifactPath ?? 'artifact recorded'} (${data.evidence?.id})`)
+			break
+
+		case 'evidence list':
+			if (data.host?.state === 'absent') {
+				lines(out, 'No agent runtime host is running — no evidence exists.')
+			}
+
+			for (const record of data.evidence) {
+				lines(out, `${record.id} — ${record.kind}: ${record.summary} (${record.retention.scope})`)
+			}
+
+			if (!data.evidence.length && data.host?.state !== 'absent') {
+				lines(out, 'No evidence recorded.')
+			}
+
+			break
+
+		case 'evidence retain':
+			lines(out, `Retained ${data.record.id} (${data.record.retention.scope}${data.record.retention.expiresAt ? `, expires ${data.record.retention.expiresAt}` : ''})`)
+			break
+
+		case 'evidence delete':
+			lines(out, data.deleted ? 'Deleted.' : 'Nothing deleted.')
+			break
+
+		case 'actions list':
+			lines(out, `${data.state}: ${data.detail}`)
+			for (const instance of data.instances ?? []) {
+				lines(out, `${instance.appInstanceId} — ${instance.platform} rev ${instance.revision} (${instance.state})`)
+				for (const action of instance.actions) {
+					lines(out, `  ${action.id} — ${action.title}${action.liveAvailability?.ready === false ? ` (unavailable: ${action.liveAvailability.reason})` : ''}`)
+				}
+			}
+
+			break
+
 		default:
 			lines(out, JSON.stringify(data, null, 2))
 	}
