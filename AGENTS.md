@@ -21,6 +21,7 @@ working agreements and detail moved out of this entry point.
 | Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
 | Write or review docs; change public behavior or setup   | [Documentation audience and coverage](.agents/docs/documentation.md)                                                 |
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
+| Record upstream limitations or local workarounds        | [Upstream limitations](.agents/docs/upstream-limitations.md)                                                         |
 | Plan Coreframe's role on Xplat or an app migration      | [Coreframe role](.agents/docs/coreframe-role.md)                                                                     |
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
 | Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
@@ -47,6 +48,12 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 - **Proven engines first.** Build on proven engines and libraries; treat
   from-scratch implementation as a last resort — but reject dependencies
   whose abstractions fundamentally mismatch Octane Xplat's model.
+- **Keep upstream limitations visible.** Do not silently work around a
+  limitation in Octane, NativeScript, `@nativescript-community/octane`, or
+  another upstream dependency. Verify and record its scope, evidence, and any
+  local workaround in the relevant `.agents/docs/` note, following the
+  [upstream limitations guidance](.agents/docs/upstream-limitations.md), so
+  local behavior is not mistaken for upstream support.
 - **Study the ecosystem.** Learn from successful React Native packages and
   competing frameworks; borrow architecture that fits these principles, and
   respect attribution and licensing.

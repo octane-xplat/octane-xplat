@@ -13,6 +13,8 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Probes and tests](testing.md) — investigation and maintained coverage.
 - [Documentation guidance](documentation.md) — audience and coverage rules.
 - [Exploration and Silo](exploration.md) — research and decision workflow.
+- [Upstream limitations](upstream-limitations.md) — record upstream constraints
+  and local workarounds.
 - [Releases](releases.md) — package and publication workflow.
 
 ## Working records
