@@ -15,6 +15,7 @@ export function Select(inputProps: SelectProps) @{
 
 	<SelectView
 		{...props}
+		multiple={props.selectionMode === 'multiple'}
 		open={state.open}
 		query={state.query}
 		selected={state.selected}

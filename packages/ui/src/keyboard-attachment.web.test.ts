@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { expect, it } from 'vitest'
 import { useKeyboard } from './use-keyboard.web'
 

@@ -50,7 +50,11 @@ for (const target of ['ios', 'android'] as const) {describe(`${target} controlle
 		const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
 		await x.controller.select('mobile/shared')
 		const first = x.mounts[0]
-		const state = first.props.state as { get(): any; set(next: any): void }
+		const state = first.props.state as {
+			getSnapshot(): { nested: { value: number } }
+			set(next: { nested: { value: number } }): void
+		}
+
 		state.set({ nested: { value: 9 } })
 
 		;(first.fixture as any).nested.value = 9
@@ -63,7 +67,7 @@ for (const target of ['ios', 'android'] as const) {describe(`${target} controlle
 		expect(x.session.currentProps!.count).toBe(1)
 		await x.session.reset()
 		expect(x.unmounts()).toBe(1)
-		expect((x.mounts[1].props.state as any).get().nested.value).toBe(0)
+		expect((x.mounts[1].props.state as typeof state).getSnapshot().nested.value).toBe(0)
 		expect((x.mounts[1].fixture as any).nested.value).toBe(0)
 		expect(x.mounts[1].props.label).toBe('default')
 	})

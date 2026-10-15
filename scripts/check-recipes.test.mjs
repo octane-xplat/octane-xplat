@@ -21,7 +21,7 @@ A working app.
 - AC1: The result is observable.
 
 ## Documentation
-- AC1: [Instructions](../guide.md#instructions).
+- AC1: [Instructions](../../../guide.md#instructions).
 `
 
 function fixture(t, content = recipe) {
@@ -39,7 +39,7 @@ test('accepts mapped criteria and explicit gaps', (t) => {
 		checkRecipes(
 			fixture(
 				t,
-				recipe.replace('[Instructions](../guide.md#instructions).', 'Gap: instructions missing.'),
+				recipe.replace('[Instructions](../../../guide.md#instructions).', 'Gap: instructions missing.'),
 			),
 		),
 		[],

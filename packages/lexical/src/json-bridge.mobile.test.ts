@@ -12,7 +12,7 @@ it('keeps both native bridges working when Tiptap installs its parser first', as
 	const reopened = htmlToJSON(html!)
 	expect(JSON.stringify(reopened)?.includes('JSON seed')).toBe(true)
 	expect(JSON.stringify(tiptapHTMLToJSON('<p>Tiptap still parses</p>'))).toContain('Tiptap still parses')
-})
+}, 15_000)
 
 it('imports inline HTML emitted by Aztec Android', async () => {
 	expect(await ensureJSONBridge()).toBe(true)

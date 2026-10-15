@@ -72,7 +72,13 @@ describe('Select finite-list interaction', () => {
 	})
 
 	it('bulk toggles only visible enabled options and retains disabled and hidden values', () => {
-		const ui = mount({ multiple: true, searchable: true, hasSelectAll: true, defaultValue: ['apricot', 'berlin'] })
+		const ui = mount({
+			selectionMode: 'multiple',
+			searchable: true,
+			hasSelectAll: true,
+			defaultValue: ['apricot', 'berlin'],
+		})
+
 		ui.click(ui.trigger())
 		const search = document.querySelector('.vx-select-search') as HTMLInputElement
 		act(() => { search.value = 'app'; search.dispatchEvent(new Event('input', { bubbles: true })) })
