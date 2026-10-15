@@ -1,8 +1,9 @@
+import { loadSource } from '../../../scripts/load-source.mjs'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { svgDataUri } from '../dist/macos/svg-image.macos.js'
+const { svgDataUri } = await loadSource(new URL('../src/svg-image.macos.ts', import.meta.url))
 import { loadImage } from '../../macos-renderer/src/image.ts'
-import { iconToSvg } from '../dist/web/svg.js'
+const { iconToSvg } = await loadSource(new URL('../src/svg.ts', import.meta.url))
 
 test('macOS icon SVG uses UTF-8 base64 and reaches the image data decoder', () => {
 	const old = {

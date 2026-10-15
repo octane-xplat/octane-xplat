@@ -202,3 +202,4 @@
   reload are verified; actual screen-reader and OS IME acceptance is open.
   Web is the current preview target; iOS/Android/macOS/Windows/Linux arrive in later
   packages and surface today as `unqualified-backend` diagnostics.
+| 112 | Publish authored runtime source with separate, self-contained `.d.ts` entry points; retain package JavaScript builds only for Node tooling and generated assets | Decided | The app selects platform files, renderer, runtime version and build settings. Public declarations keep consumer typechecking out of implementation source. See the [publish model](../docs/notes/toolchain-notes.md#shared-packages-publish-model). | toolchain |

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/nano-icons",
 	"version": "0.14.0",
-	"description": "Build-time icon fonts and layered glyph rendering for Octane Xplat \u2014 SVG directories or Iconify collections compile to a TTF + typed glyph map (pipeline adapted from react-native-nano-icons)",
+	"description": "Build-time icon fonts and layered glyph rendering for Octane Xplat — SVG directories or Iconify collections compile to a TTF + typed glyph map (pipeline adapted from react-native-nano-icons)",
 	"keywords": [
 		"cross-platform",
 		"icons",
@@ -16,11 +16,17 @@
 		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/nano-icons"
 	},
+	"bin": {
+		"nano-icons": "./bin/nano-icons.mjs"
+	},
 	"files": [
-		"dist",
+		"src",
+		"dist/build",
 		"types/generated",
 		"bin",
-		"LICENSES.md"
+		"LICENSES.md",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -42,52 +48,25 @@
 		},
 		"./build": {
 			"types": "./types/generated/build/index.d.ts",
-			"default": "./src/build/index.ts"
+			"default": "./dist/build/index.js"
 		},
 		"./build/cli": {
 			"types": "./types/generated/build/cli.d.ts",
-			"default": "./src/build/cli.ts"
+			"default": "./dist/build/cli.js"
 		},
 		"./package.json": "./package.json"
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/generated/index.macos.d.ts",
-					"default": "./dist/macos/index.js"
-				},
-				"web": {
-					"types": "./types/generated/index.web.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/generated/index.d.ts",
-				"default": "./dist/native/index.js"
-			},
-			"./build": {
-				"types": "./types/generated/build/index.d.ts",
-				"default": "./dist/build/index.js"
-			},
-			"./build/cli": {
-				"types": "./types/generated/build/cli.d.ts",
-				"default": "./dist/build/cli.js"
-			},
-			"./package.json": "./package.json"
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && vite build --mode macos && vite build --mode node && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target nano-icons",
 		"typecheck": "node ../../scripts/typecheck.mjs && pnpm exec tsc --noEmit -p tsconfig.build.json",
 		"test": "pnpm build && node --test tests/*.test.mjs",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepack": "pnpm build && pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs",
+		"build": "vite build"
 	},
 	"dependencies": {
 		"@iconify/types": "2.0.0",
@@ -114,8 +93,8 @@
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"octane": ">=0.6.3 <1",
-		"@octane-xplat/macos-renderer": "workspace:*"
+		"@octane-xplat/macos-renderer": "workspace:*",
+		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript-community/octane": {
@@ -130,8 +109,5 @@
 		"@octane-xplat/macos-renderer": {
 			"optional": true
 		}
-	},
-	"bin": {
-		"nano-icons": "./bin/nano-icons.mjs"
 	}
 }

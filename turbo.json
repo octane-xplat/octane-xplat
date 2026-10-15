@@ -20,17 +20,16 @@
 			"dependsOn": ["^typegen"],
 			"outputs": ["src/routes.gen*", "src/styled-system/**"]
 		},
-		// vite lib builds write dist/{web,native,...}; build scripts also run
-		// typegen inline, so types/** is an output here too.
+		// Apps build their bundles; package builds are limited to Node tooling.
 		"build": {
 			"dependsOn": ["^typegen"],
-			"inputs": [
-				"$TURBO_DEFAULT$",
-				"../tsrx-typegen/src/**",
-				"../../scripts/check-native-dist.mjs",
-				"../../scripts/sync-ui-barrels.mjs"
-			],
+			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["dist/**", "types/**"]
+		},
+		"build:assets": {
+			"dependsOn": ["^typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../richtext/build-browser.mjs"],
+			"outputs": ["dist/macos/browser.js", "dist/macos/browser.d.ts"]
 		},
 		"typecheck": {
 			"dependsOn": ["^typegen"],
@@ -59,13 +58,13 @@
 			"cache": false
 		},
 		// Packs the package and installs the tarball in a temp consumer — side
-		// effects outside outputs/, keep uncached. Needs this package's dist first.
+		// effects outside outputs/, keep uncached.
 		"test:packed": {
-			"dependsOn": ["build"],
+			"dependsOn": ["typegen", "build", "build:assets"],
 			"cache": false
 		},
 		"pack:check": {
-			"dependsOn": ["build"],
+			"dependsOn": ["typegen", "build", "build:assets"],
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": []
 		},

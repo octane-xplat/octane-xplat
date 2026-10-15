@@ -267,8 +267,7 @@ const ESCAPABLE = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/
  *  property escapes (`\\p{L}`, `\\p{N}`) need Unicode tables — a regex
  *  literal on an engine without them throws SyntaxError at parse time and
  *  poisons the whole bundle (this is how NativeScript's embedded V8
- *  ships). check-native-dist scans emitted comments too, so keep the
- *  double-backslash spelling here. Build the pattern dynamically instead:
+ *  ships). Build the pattern dynamically instead:
  *  general categories where full Unicode exists, the spec-required minimal
  *  property set otherwise, ASCII as a last resort. */
 export const WORD_CHAR: RegExp = (() => {

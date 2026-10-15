@@ -1,5 +1,4 @@
-import type { UniversalComponent } from 'octane/universal'
-import type { RichTextEditorProps } from '../src/types'
-export declare const RichTextEditor: UniversalComponent<RichTextEditorProps>
+import type { RichTextEditorProps } from './types.js'
+export declare function RichTextEditor(props: RichTextEditorProps): unknown
 export declare const supported: boolean
-export type * from '../src/types'
+export type * from './types.js'

@@ -23,7 +23,7 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	mkdirSync(modules, { recursive: true })
 	run('tar', ['-xzf', tarball, '--strip-components=1', '-C', modules], directory)
 	const manifest = JSON.parse(readFileSync(join(modules, 'package.json'), 'utf8'))
-	assert.equal(manifest.exports['.'].macos.types, './types/generated/macos/index.macos.d.ts')
+	assert.equal(manifest.exports['.'].macos.types, './types/generated/index.macos.d.ts')
 	assert.match(
 		readFileSync(join(modules, 'platforms/macos/include/XplatConnectivity.h'), 'utf8'),
 		/readState/,
@@ -75,7 +75,7 @@ random.fill(16)
 	const resolved = ts.resolveModuleName('@octane-xplat/platform', entry, options, ts.sys)
 	assert.equal(
 		resolved.resolvedModule.resolvedFileName,
-		realpathSync(join(modules, 'types/generated/macos/index.macos.d.ts')),
+		realpathSync(join(modules, 'types/generated/index.macos.d.ts')),
 	)
 
 	const example = join(directory, 'announce-status.ts')
@@ -85,6 +85,14 @@ random.fill(16)
 	)
 
 	const program = ts.createProgram([entry, example], options)
+	assert.deepEqual(
+		program
+			.getSourceFiles()
+			.filter((file) => file.fileName.startsWith(modules + '/') && !file.isDeclarationFile),
+		[],
+		'consumer typechecking does not load platform implementation source',
+	)
+
 	const diagnostics = ts.getPreEmitDiagnostics(program)
 	assert.equal(
 		diagnostics.length,

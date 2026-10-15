@@ -7,7 +7,7 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": ["./dist/web/index.js", "./dist/native/index.js"],
+					"runtime": ["./src/index.macos.ts", "./src/index.web.ts", "./src/index.ts"],
 					"types": "./types/generated/index.d.ts"
 				}
 			}

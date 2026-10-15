@@ -23,10 +23,11 @@
 		"directory": "packages/effects"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
-		"platforms"
+		"platforms",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -46,30 +47,12 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"types": "./types/index.d.ts",
-				"web": "./dist/native/index.js",
-				"native": "./dist/native/index.js",
-				"default": "./dist/native/index.js"
-			},
-			"./ios": {
-				"types": "./types/ios.d.ts",
-				"native": "./dist/native/ios/index.js"
-			},
-			"./android": {
-				"types": "./types/android.d.ts",
-				"native": "./dist/native/android/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build --mode native && node ../../scripts/check-native-dist.mjs",
 		"build:metal": "sh scripts/build-metal.sh",
 		"check-types": "tsc -p tsconfig.types.json",
-		"prepublishOnly": "pnpm build",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepack": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check"
 	},

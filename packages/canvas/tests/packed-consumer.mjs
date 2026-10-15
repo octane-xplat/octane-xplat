@@ -190,7 +190,9 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 }
 
 async function checkMacOSResolution(root, expectedEntry) {
-	writeFileSync(join(root, 'drawing.tsx'), `
+	writeFileSync(
+		join(root, 'drawing.tsx'),
+		`
 import { Canvas, getGPU } from '@octane-xplat/canvas'
 export function Drawing() {
   return <Canvas context="webgpu" onReady={({ canvas, context }) => {
@@ -199,7 +201,8 @@ export function Drawing() {
   }} />
 }
 export { getGPU }
-`)
+`,
+	)
 
 	// Use the actual CLI preset: `macos` must beat the mobile `native` export.
 	const config = await xplatMacOS(
@@ -250,7 +253,7 @@ try {
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 	assert.equal(
 		packedManifest.exports['.'].macos,
-		'./dist/macos/index.js',
+		'./src/index.macos.ts',
 		'pnpm pack retains the published macOS entry',
 	)
 

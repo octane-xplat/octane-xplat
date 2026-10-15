@@ -554,19 +554,14 @@ export function xplatBoundary(platform = 'native') {
 	}
 }
 
-/** Default renderer rules: every component file the native graph can reach —
- *  src plus linked package source — compiles under the nativescript
- *  renderer. `.web.*` leaves legitimately use DOM globals; they're
+/** Every Octane source module in the native graph, including installed
+ *  packages, compiles under the nativescript renderer.
+ *  `.web.*` leaves legitimately use DOM globals; they're
  *  unreachable from the native entry but must not fail validation, so each
  *  rule excludes them. */
 const nativeRules = [
 	{
-		include: 'src/**/*.{ts,tsx,tsrx}',
-		exclude: 'src/**/*.web.*',
-		renderer: 'nativescript',
-	},
-	{
-		include: '**/packages/**/*.{ts,tsx,tsrx}',
+		include: '**/*.{ts,tsx,tsrx}',
 		exclude: '**/*.web.*',
 		renderer: 'nativescript',
 	},

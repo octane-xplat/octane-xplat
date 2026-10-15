@@ -10,11 +10,12 @@
 		"directory": "packages/dnd-kit"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
 		"README.md",
-		"examples"
+		"examples",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -24,46 +25,27 @@
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
-				"default": "./src/index.web.ts",
-				"types": "./types/generated/index.d.ts"
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.web.ts"
 			},
 			"native": {
-				"default": "./src/index.ts",
-				"types": "./types/generated/index.d.ts"
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
 			},
-			"default": "./src/index.ts",
-			"types": "./types/generated/index.d.ts"
+			"types": "./types/generated/index.d.ts",
+			"default": "./src/index.ts"
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./src/index.macos.ts"
-				},
-				"web": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/generated/index.d.ts",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.json",
 		"typecheck": "node ../../scripts/typecheck.mjs && tsrx-tsc --noEmit -p tsconfig.example.json",
 		"test": "vitest run",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test:packed": "pnpm build && node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
 		"@dnd-kit/abstract": "0.5.0",

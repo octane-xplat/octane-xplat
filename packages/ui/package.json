@@ -23,10 +23,11 @@
 		"directory": "packages/ui"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
-		"platforms"
+		"platforms",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -91,21 +92,17 @@
 			"default": "./src/data/index.ts"
 		},
 		"./markdown": {
+			"web": {
+				"types": "./types/generated/markdown/index.d.ts",
+				"default": "./src/markdown/index.web.ts"
+			},
 			"macos": {
 				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.ts"
+				"default": "./src/markdown/index.macos.ts"
 			},
 			"linux": {
-				"types": "./types/generated/markdown/index.web.d.ts",
-				"default": "./src/markdown/index.web.ts"
-			},
-			"web": {
-				"types": "./types/generated/markdown/index.web.d.ts",
-				"default": "./src/markdown/index.web.ts"
-			},
-			"native": {
 				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.ts"
+				"default": "./src/markdown/index.web.ts"
 			},
 			"types": "./types/generated/markdown/index.d.ts",
 			"default": "./src/markdown/index.ts"
@@ -155,173 +152,10 @@
 			"linux": "./src/linux/index.ts"
 		},
 		"./theme/tokens.css": "./src/theme/tokens.css",
-		"./theme/chrome.css": "./src/theme/chrome.css",
-		"./markdown": {
-			"web": {
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.web.ts"
-			},
-			"macos": {
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.web.ts"
-			},
-			"types": "./types/generated/markdown/index.d.ts",
-			"default": "./src/markdown/index.ts"
-		}
-	},
-	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/generated/index.macos.d.ts",
-					"default": "./src/index.macos.ts"
-				},
-				"linux": {
-					"types": "./types/generated/index.linux.d.ts",
-					"default": "./src/index.linux.ts"
-				},
-				"web": {
-					"types": "./types/generated/index.web.d.ts",
-					"default": "./dist/web/ui.js"
-				},
-				"native": {
-					"types": "./types/generated/index.mobile.d.ts",
-					"default": "./dist/native/ui.js"
-				},
-				"types": "./types/generated/index.d.ts",
-				"default": "./dist/native/shared.js"
-			},
-			"./routing": {
-				"macos": {
-					"types": "./types/generated/routing/index.macos.d.ts",
-					"default": "./src/routing/index.macos.ts"
-				},
-				"linux": {
-					"types": "./types/generated/routing/index.web.d.ts",
-					"default": "./src/routing/index.web.ts"
-				},
-				"web": {
-					"types": "./types/generated/routing/index.web.d.ts",
-					"default": "./dist/web/routing/index.js"
-				},
-				"native": {
-					"types": "./types/generated/routing/index.d.ts",
-					"default": "./dist/native/routing/index.js"
-				},
-				"types": "./types/generated/routing/index.d.ts",
-				"default": "./dist/native/routing/index.js"
-			},
-			"./data": {
-				"macos": {
-					"types": "./types/generated/data/index.macos.d.ts",
-					"default": "./src/data/index.macos.ts"
-				},
-				"linux": {
-					"types": "./types/generated/data/index.web.d.ts",
-					"default": "./src/data/index.web.ts"
-				},
-				"web": {
-					"types": "./types/generated/data/index.web.d.ts",
-					"default": "./dist/web/data/index.js"
-				},
-				"native": {
-					"types": "./types/generated/data/index.d.ts",
-					"default": "./dist/native/data/index.js"
-				},
-				"types": "./types/generated/data/index.d.ts",
-				"default": "./dist/native/data/index.js"
-			},
-			"./markdown": {
-				"macos": {
-					"types": "./types/generated/markdown/index.d.ts",
-					"default": "./src/markdown/index.ts"
-				},
-				"linux": {
-					"types": "./types/generated/markdown/index.web.d.ts",
-					"default": "./src/markdown/index.web.ts"
-				},
-				"web": {
-					"types": "./types/generated/markdown/index.web.d.ts",
-					"default": "./dist/web/markdown/index.js"
-				},
-				"native": {
-					"types": "./types/generated/markdown/index.d.ts",
-					"default": "./dist/native/markdown/index.js"
-				},
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./dist/native/markdown/index.js"
-			},
-			"./chat": {
-				"macos": {
-					"types": "./types/generated/chat/index.d.ts",
-					"default": "./src/chat/index.ts"
-				},
-				"linux": {
-					"types": "./types/generated/chat/index.web.d.ts",
-					"default": "./src/chat/index.web.ts"
-				},
-				"web": {
-					"types": "./types/generated/chat/index.web.d.ts",
-					"default": "./dist/web/chat/index.js"
-				},
-				"native": {
-					"types": "./types/generated/chat/index.d.ts",
-					"default": "./dist/native/chat/index.js"
-				},
-				"types": "./types/generated/chat/index.d.ts",
-				"default": "./dist/native/chat/index.js"
-			},
-			"./ios": {
-				"types": "./types/generated/ios/index.d.ts",
-				"native": "./dist/native/ios/index.js"
-			},
-			"./android": {
-				"types": "./types/generated/android/index.d.ts",
-				"native": "./dist/native/android/index.js"
-			},
-			"./nativescript": {
-				"types": "./types/generated/nativescript/index.d.ts",
-				"native": "./dist/native/nativescript/index.js"
-			},
-			"./web": {
-				"types": "./types/generated/web/index.d.ts",
-				"web": "./dist/web/web/index.js"
-			},
-			"./macos": {
-				"types": "./types/generated/macos/index.d.ts",
-				"macos": "./src/macos/index.ts"
-			},
-			"./linux": {
-				"types": "./types/generated/linux/index.d.ts",
-				"linux": "./src/linux/index.ts"
-			},
-			"./theme/tokens.css": "./src/theme/tokens.css",
-			"./theme/chrome.css": "./src/theme/chrome.css",
-			"./markdown": {
-				"web": {
-					"types": "./types/generated/markdown/index.d.ts",
-					"default": "./dist/web/markdown/index.js"
-				},
-				"macos": {
-					"types": "./types/generated/markdown/index.d.ts",
-					"default": "./src/markdown/index.macos.ts"
-				},
-				"linux": {
-					"types": "./types/generated/markdown/index.d.ts",
-					"default": "./src/markdown/index.web.ts"
-				},
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./dist/native/markdown/index.js"
-			}
-		}
+		"./theme/chrome.css": "./src/theme/chrome.css"
 	},
 	"scripts": {
-		"build": "node ../../scripts/sync-ui-barrels.mjs --check && vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepack": "node ../../scripts/sync-ui-barrels.mjs --check && pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"test:native": "node --test tests/keyboard-inset.test.mjs tests/liquid-glass.ios.test.mjs tests/animated-value.test.mjs tests/tap-to-blur.ios.test.mjs tests/bottom-sheet-service.macos.test.mjs tests/color-scheme.macos.test.mjs tests/query-storage.macos.test.mjs && vitest run --config vitest.native.config.mts",
 		"typegen": "tsrx-typegen --target ui",

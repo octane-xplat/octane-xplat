@@ -1,16 +1,15 @@
+import { loadSource } from '../../../scripts/load-source.mjs'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
-import {
-	createCharCache,
-	createLayerColorResolver,
-	normalizeGlyphMap,
-	resolveGlyphEntry,
-} from '../dist/web/glyphmap.js'
+const { createCharCache, createLayerColorResolver, normalizeGlyphMap, resolveGlyphEntry } =
+	await loadSource(new URL('../src/glyphmap.ts', import.meta.url))
 
-import { configuredFontFamily, createNanoIconSetImpl, resolveNanoIcon } from '../dist/web/set.js'
+const { configuredFontFamily, createNanoIconSetImpl, resolveNanoIcon } = await loadSource(
+	new URL('../src/set.ts', import.meta.url),
+)
 
-import { registerNanoIconFont } from '../dist/web/font.web.js'
+const { registerNanoIconFont } = await loadSource(new URL('../src/font.web.ts', import.meta.url))
 
 const glyphMap = {
 	m: { f: 'demo-a1b2c3d4', u: 1024, z: 1020, s: 0xe900, w: true, h: 'deadbeef' },

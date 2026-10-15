@@ -1,26 +1,17 @@
 {
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "esnext",
 		"declaration": true,
 		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"noEmitOnError": true,
+		"rootDir": "src",
 		"outDir": "types/generated",
-		"moduleSuffixes": [
-			"",
-			".web",
-			".ios",
-			".android",
-			".mobile",
-			".native",
-			".macos",
-			".linux",
-			".windows"
-		],
-		"allowImportingTsExtensions": true
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": [],
+		"allowImportingTsExtensions": true,
+		"moduleSuffixes": ["", ".web", ".ios", ".android", ".mobile", ".macos", ".linux", ".windows"]
 	},
-	"include": [
-		"src/types.ts"
-	]
+	"include": ["src/**/*.ts", "src/**/*.tsrx"],
+	"exclude": ["src/**/*.test.*", "src/**/*.spec.*"]
 }

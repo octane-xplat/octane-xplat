@@ -1,3 +1,4 @@
+import { loadSource } from '../../../scripts/load-source.mjs'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
 import { buildMacOSBarrel } from './macos-barrel.mjs'
@@ -99,9 +100,12 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 			)
 		}
 
-		const helper = join(packageLink, 'dist/native/child-array.js')
-		assert.match(readFileSync(helper, 'utf8'), /from ['"]octane\/universal\/native['"]/)
-		const { toChildArray, mapChildren } = await import(pathToFileURL(helper).href)
+		const helper = join(packageLink, 'src/child-array.ts')
+		assert.match(readFileSync(helper, 'utf8'), /from ['"]octane['"]/)
+		const { toChildArray, mapChildren } = await loadSource(pathToFileURL(helper), {
+			resolve: { alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }] },
+		})
+
 		assert.deepEqual(toChildArray([null, 'first', [false, 'second']]), ['first', 'second'])
 		assert.equal(mapChildren(['first', 'second'], (child) => child).length, 2)
 	}
@@ -117,14 +121,9 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 		// build; --macos-only retains runtime/declaration export parity.
 		if (!overlaysOnly) {
 			const runtimeValues = await buildMacOSBarrel(consumerRoot)
-			const consumerManifest = JSON.parse(
-				readFileSync(join(packageLink, 'package.json'), 'utf8'),
-			)
+			const consumerManifest = JSON.parse(readFileSync(join(packageLink, 'package.json'), 'utf8'))
 
-			const declaration = join(
-				packageLink,
-				consumerManifest.exports['.'].macos.types,
-			)
+			const declaration = join(packageLink, consumerManifest.exports['.'].macos.types)
 
 			const program = ts.createProgram([declaration], {
 				moduleResolution: ts.ModuleResolutionKind.Bundler,
@@ -423,8 +422,9 @@ void [selector, base, typeahead, tokenizer, complex, item, table, power, invalid
 	)
 
 	writeFileSync(join(consumerRoot, 'consumer.tsx'), source)
-	const keyboardGuide = readFileSync(join(repoRoot, 'docs/app/text-entry.md'), 'utf8')
-		.split('## Read software keyboard space')[1]
+	const keyboardGuide = readFileSync(join(repoRoot, 'docs/app/text-entry.md'), 'utf8').split(
+		'## Read software keyboard space',
+	)[1]
 
 	assert.ok(keyboardGuide, 'keyboard inset guide exists')
 	const keyboardExamples = [...keyboardGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
@@ -486,7 +486,7 @@ try {
 	// The isolated macOS gate builds first, then packs without running the
 	// all-platform prepack checker. The default gate still runs that checker.
 	if (macosOnly) {
-		run('pnpm', ['build'], packageRoot)
+		run('pnpm', ['typegen'], packageRoot)
 	}
 
 	run(
@@ -506,9 +506,10 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
-	assert.ok(
-		workspaceManifest.publishConfig?.exports,
-		'the package declares publish-time export mappings',
+	assert.deepEqual(
+		packedManifest.exports,
+		workspaceManifest.exports,
+		'packing preserves source and declaration exports',
 	)
 
 	const exportMaps = [

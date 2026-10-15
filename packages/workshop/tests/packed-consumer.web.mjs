@@ -1,10 +1,11 @@
 /** Packed web acceptance, outside the workspace with no source aliases.
- * Requires built UI/workshop artifacts. Uses the proving app's declared
+ * Requires generated UI/workshop declarations. Uses the proving app's declared
  * Playwright tool; never captures images or launches native devices. */
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { createServer as createNetServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -58,8 +59,9 @@ try {
 	const doctor = run('pnpm', ['exec', 'xplat', 'workshop', 'doctor', '--json'])
 	const targetReport = JSON.parse(doctor.slice(doctor.indexOf('{')))
 	assert.equal(Object.keys(targetReport.targets).length, 6)
-	assert.match(doctor, /available/)
-	assert.match(doctor, /unqualified-backend/)
+	assert.equal(targetReport.targets.web.status, 'available')
+	assert.equal(targetReport.targets.ios.status, process.platform === 'darwin' ? 'missing-prerequisites' : 'remote-host-required')
+	assert.equal(targetReport.targets.android.status, 'missing-prerequisites')
 	// Use the maintained acceptance catalog, without the init example.
 	rmSync(join(consumer, 'src/workshop'), { recursive: true })
 	cpSync(join(repo, 'apps/workshop-demo/src'), join(consumer, 'src'), { recursive: true })
@@ -85,8 +87,16 @@ try {
 	console.log('PASS packed contract version 1 and negative typing')
 	console.log('PASS packed init idempotence, six doctor rows, static catalog and isolated package resolution')
 
+	const port = await new Promise((resolve) => {
+		const socket = createNetServer()
+		socket.listen(0, () => {
+			const port = socket.address().port
+			socket.close(() => resolve(port))
+		})
+	})
+
 	const url = await new Promise((accept, reject) => {
-		server = spawn('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'web'],
+		server = spawn('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'web', '--port', String(port)],
 			{ cwd: consumer, detached: true, stdio: ['ignore', 'pipe', 'pipe'] })
 
 		let output = ''
@@ -103,13 +113,27 @@ try {
 		server.on('exit', () => { clearTimeout(timer); reject(new Error(`packed server exited: ${output}`)) })
 	})
 
+	// Compile the installed source graph before the interaction and warm-edit checks.
+	const { chromium } = createRequire(join(repo, 'apps/workshop-demo/package.json'))('playwright')
+	browser = await chromium.launch({ headless: true })
+	const cold = await browser.newPage()
+	const coldStart = performance.now()
+	await cold.goto(`${url}#/story/counter/basic`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+	await cold.waitForFunction(() => ['ready', 'failed'].includes(globalThis.__xplatWorkshopRuntime?.session.state.phase), undefined, { timeout: 60_000 })
+	const coldState = await cold.evaluate(() => {
+		const state = globalThis.__xplatWorkshopRuntime.session.state
+		return { phase: state.phase, failure: state.failure?.message }
+	})
+
+	assert.equal(coldState.phase, 'ready', coldState.failure)
+	await cold.close()
+	console.log(`PASS packed source graph compiles and mounts (${Math.round(performance.now() - coldStart)}ms cold)`)
+
 	// Execute the same maintained DOM/input acceptance on the packed consumer.
 	const journey = run(process.execPath, [join(repo, 'apps/workshop-demo/scripts/e2e-web.mjs'), url], repo)
 	process.stdout.write(journey)
 	console.log('PASS packed browser journey (32 DOM/input checks, no screenshots)')
 
-	const { chromium } = createRequire(join(repo, 'apps/workshop-demo/package.json'))('playwright')
-	browser = await chromium.launch({ headless: true })
 	const page = await browser.newPage()
 	// A story or component edit must never reset the page: the shell writes
 	// only same-document hash navigations, while a reload repeats the URL.
@@ -189,9 +213,7 @@ const stage = document.createElement('section')
 document.body.append(stage)
 createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: createStore({ count: 42 }), fixture: { account: 'Production' } }))` )
 
-	write('vite.config.ts', `import { defineConfig } from 'vite'
-import { octane } from '@octanejs/vite-plugin'
-export default defineConfig({ plugins: octane(), resolve: { conditions: ['web'] } })`)
+	write('vite.config.ts', readFileSync(join(repo, 'packages/create/template/vite.config.ts'), 'utf8'))
 
 	run('pnpm', ['exec', 'vite', 'build'])
 	function files(dir) {

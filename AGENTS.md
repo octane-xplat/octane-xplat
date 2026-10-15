@@ -84,7 +84,8 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   file, no DOM globals or web-only runtime APIs in shared code, and identical
   exports/public types across platform variants. Keep shared props in `props.ts`.
 - Hook-calling code belongs in `.tsx`/`.tsrx` inside the renderer include glob.
-  Keep one copy of `octane` per app. Native dist must not import bare `octane`.
+  Keep one copy of `octane` per app. Native app bundlers must retarget source
+  imports of `octane` to the universal/native runtime.
 - Use CSS/`className` for static styles and style objects for dynamic styles.
   Follow the shared UI normalization contract; platform-authentic widgets use
   matching platform subpaths. Read the implementation reference before UI work.

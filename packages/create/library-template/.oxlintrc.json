@@ -1,0 +1,25 @@
+{
+	"jsPlugins": ["@octane-xplat/lint/oxlint-plugin"],
+	"rules": {
+		"curly": "error",
+		"xplat/spacing": "error",
+		"xplat/no-dom-globals": "error",
+		"xplat/no-web-only-api": "error",
+		"xplat/element-vocabulary": "error",
+		"xplat/no-nativescript-import": "error",
+		"xplat/no-ns-deep-import": "error",
+		"xplat/no-native-dead-style": "error",
+		"xplat/no-line-height-unitless": "error",
+		"xplat/no-style-string": "error",
+		"xplat/no-unknown-class": "warn",
+		"xplat/no-ts-imports-tsrx": "error",
+		"xplat/signal-dollar-suffix": "error",
+		"xplat/require-signals-runtime": "warn",
+		"xplat/no-view-onpress": "error",
+		"xplat/no-console-debug": "error",
+		"xplat/hooks-in-plain-ts": "warn",
+		"xplat/native-pragma-first-line": "error",
+		"xplat/no-jsx-text-breakers": "error",
+		"xplat/no-root-logical-render": "error"
+	}
+}

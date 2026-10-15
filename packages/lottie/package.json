@@ -1,14 +1,13 @@
 {
 	"name": "@octane-xplat/lottie",
 	"version": "0.14.0",
-	"description": "Lottie animation leaf for Octane xplat \u2014 lottie-web on web, NativeScript on mobile, and Airbnb Lottie on AppKit",
+	"description": "Lottie animation leaf for Octane xplat — lottie-web on web, NativeScript on mobile, and Airbnb Lottie on AppKit",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/lottie"
 	},
 	"files": [
-		"dist",
 		"types",
 		"platforms",
 		"src/index.ts",
@@ -36,6 +35,7 @@
 	"exports": {
 		".": {
 			"macos": {
+				"types": "./types/generated/index.d.ts",
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
@@ -51,29 +51,12 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"default": "./src/index.macos.ts"
-				},
-				"web": {
-					"types": "./types/generated/index.web.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/generated/index.d.ts",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsrx-typegen --target octane && node ../../scripts/check-native-dist.mjs",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
-		"test:packed": "node tests/packed-consumer.mjs"
+		"prepack": "pnpm typegen",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"typegen": "tsrx-typegen --target octane"
 	},
 	"dependencies": {
 		"lottie-web": "5.13.0"

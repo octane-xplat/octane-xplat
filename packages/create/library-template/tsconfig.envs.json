@@ -2,20 +2,12 @@
 	"extends": "./tsconfig.json",
 	"environments": {
 		"web": {
-			"include": [
-				"src/**/*.ts",
-				"src/**/*.tsx"
-			]
+			"include": ["src/**/*.{ts,tsx,tsrx}"]
 		},
 		"native": {
-			"include": [
-				"src/**/*.ts",
-				"src/**/*.tsx"
-			],
+			"include": ["src/**/*.{ts,tsx,tsrx}"],
 			"compilerOptions": {
-				"types": [
-					"@nativescript/types"
-				]
+				"types": ["@nativescript/types"]
 			}
 		}
 	}

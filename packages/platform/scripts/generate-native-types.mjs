@@ -277,7 +277,7 @@ function generate(platform, packageName) {
 	// <platform>.ts: the public module surface.
 	const impl = [
 		HEADER,
-		`/// <reference types="${packageName}" />`,
+		`/// <reference types="${packageName}" preserve="true" />`,
 		`import type * as D from './${platform}.decls'`,
 		'',
 		LAZY,

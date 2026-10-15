@@ -10,31 +10,25 @@
 	},
 	"files": [
 		"src",
-		"dist",
 		"types",
-		"README.md"
+		"README.md",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./src/index.ts",
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./dist/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json",
 		"typegen": "tsc -p tsconfig.build.json --emitDeclarationOnly",
 		"typecheck": "tsc -p tsconfig.json",
-		"prepack": "pnpm build",
+		"prepack": "pnpm typegen",
 		"test": "node --test tests/*.test.mjs",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},

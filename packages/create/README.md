@@ -24,12 +24,13 @@ To start a reusable package instead of an app, select the library template:
 pnpm create octane-xplat my-controls --template library
 cd my-controls
 pnpm typecheck
-pnpm build
+pnpm typegen
 pnpm test:packed
 ```
 
-The library starter builds web and NativeScript output for iOS and Android. It
-includes conditional exports, generated declarations, lint and unit-test
+The library starter publishes source for web, iOS, and Android, which the
+consuming app compiles. It includes conditional exports, generated `.d.ts`
+declarations, lint and unit-test
 scripts, and a packed-consumer check. Pass `--name @acme/my-controls` to set a
 scoped npm package name; otherwise the folder name becomes the package name.
 Library creation installs dependencies but does not start an app dev server.

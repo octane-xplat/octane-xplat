@@ -17,10 +17,11 @@
 		"directory": "packages/image-crop"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
-		"README.md"
+		"README.md",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -36,27 +37,13 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./src/index.macos.ts"
-				},
-				"types": "./types/generated/index.d.ts",
-				"web": "./dist/web/index.js",
-				"native": "./dist/native/index.js",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target crop",
 		"typecheck": "node ../../scripts/typecheck.mjs",
 		"test": "vitest run tests/geometry.test.ts",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
-		"prepublishOnly": "pnpm build",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {

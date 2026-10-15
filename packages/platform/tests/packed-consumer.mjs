@@ -1,15 +1,7 @@
-// Exercise the published package with the same esbuild version Vite vendors.
-// No workspace aliases or .tsrx loaders are available in this consumer.
+// Compile installed source with the consumer's Octane pipeline; typecheck d.ts separately.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import {
-	mkdtempSync,
-	readdirSync,
-	rmSync,
-	readFileSync,
-	realpathSync,
-	writeFileSync,
-} from 'node:fs'
+import { mkdtempSync, readdirSync, rmSync, realpathSync, writeFileSync } from 'node:fs'
 
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -17,9 +9,15 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const require = createRequire(import.meta.url)
-const { build } = createRequire(require.resolve('vite/package.json'))('esbuild')
+const { build } = await import(require.resolve('vite'))
+const { octane } = await import(require.resolve('@octanejs/vite-plugin'))
+const { nativeScriptRenderer } = await import(
+	require.resolve('@nativescript-community/octane/config')
+)
+
+const ts = require('typescript')
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const temporary = mkdtempSync(join(tmpdir(), 'xplat-platform-vendor-'))
+const temporary = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-platform-source-')))
 const modules = join(temporary, 'node_modules/@octane-xplat')
 
 try {
@@ -29,6 +27,7 @@ try {
 		join(temporary, 'package.json'),
 		JSON.stringify({
 			private: true,
+			type: 'module',
 			dependencies: { '@octane-xplat/platform': `file:${join(temporary, tarball)}` },
 		}),
 	)
@@ -38,12 +37,80 @@ try {
 		stdio: 'pipe',
 	})
 
-	assert.ok(
-		realpathSync(join(modules, 'platform')).startsWith(realpathSync(temporary) + '/'),
-		'consumer uses its installed tarball',
-	)
+	const installed = realpathSync(join(modules, 'platform'))
+	assert.ok(installed.startsWith(temporary + '/'), 'consumer uses its installed tarball')
 
 	for (const target of ['native', 'web', 'linux', 'macos']) {
+		const native = target === 'native' || target === 'macos'
+		const renderer = target === 'macos' ? 'macos' : 'nativescript'
+		const extensions = (
+			target === 'linux'
+				? ['.linux', '.web', '']
+				: target === 'web'
+					? ['.web', '']
+					: target === 'macos'
+						? ['.macos', '']
+						: ['.mobile', '']
+		).flatMap((suffix) => ['.tsrx', '.tsx', '.ts', '.js'].map((ext) => suffix + ext))
+
+		const compile = async (contents, define = {}) => {
+			const entry = join(temporary, 'runtime.mjs')
+			writeFileSync(entry, contents)
+			const result = await build({
+				root: temporary,
+				configFile: false,
+				logLevel: 'error',
+				define,
+				plugins: [
+					...octane(
+						native
+							? {
+									renderers: {
+										registry: {
+											[renderer]:
+												target === 'macos'
+													? {
+															module: '@octane-xplat/macos-renderer',
+															target: 'universal',
+															server: 'unsupported',
+															text: 'host',
+														}
+													: nativeScriptRenderer,
+										},
+										rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer }],
+									},
+								}
+							: {},
+					),
+				],
+				resolve: { conditions: [target], extensions },
+				build: {
+					write: false,
+					minify: false,
+					lib: { entry, formats: ['es'] },
+					rolldownOptions: {
+						moduleTypes: { '.tsrx': 'tsx' },
+						external: [
+							/^octane(?:\/|$)/,
+							/^@nativescript(?:-community)?\//,
+							/^@octane-xplat\/macos-renderer/,
+							'vitest',
+						],
+						output: { paths: (id) => (native && id === 'octane' ? 'octane/universal/native' : id) },
+					},
+				},
+			})
+
+			const chunks = (Array.isArray(result) ? result : [result])
+				.flatMap((result) => result.output)
+				.filter((chunk) => chunk.type === 'chunk')
+
+			return {
+				code: chunks.map((c) => c.code).join('\n'),
+				files: chunks.flatMap((c) => Object.keys(c.modules)),
+			}
+		}
+
 		const subpaths = ['', '/host', '/host/web', '/host/services', '/dev-actions']
 		if (target === 'native') {
 			subpaths.push('/testing')
@@ -51,92 +118,138 @@ try {
 
 		if (target !== 'macos') {
 			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
-				subpaths.push(`/${service}`, `/${service}.ts`, `/${service}.tsrx`)
-				if (target === 'web') {
-					subpaths.push(`/${service}.web`, `/${service}.web.ts`, `/${service}.web.tsrx`)
-				}
+				subpaths.push(`/${service}`)
 			}
+
+			subpaths.push('/clipboard', '/keep-awake')
+		} else {
+			subpaths.push('/use-keep-awake', '/connectivity', '/storage')
 		}
 
-		const result = await build({
-			stdin: {
-				contents: subpaths
-					.map(
-						(subpath, index) =>
-							`import * as entry${index} from '@octane-xplat/platform${subpath}'; console.log(entry${index});`,
-					)
-					.join('\n'),
-				resolveDir: temporary,
-			},
-			bundle: true,
-			write: false,
-			format: 'esm',
-			platform: 'neutral',
-			conditions: [target, 'import', 'default'],
-			external: ['octane', 'octane/*', '@nativescript/*', '@nativescript-community/*', 'vitest'],
-			metafile: true,
-		})
+		const contents = subpaths
+			.map(
+				(subpath, i) =>
+					`import * as entry${i} from '@octane-xplat/platform${subpath}'; console.log(entry${i});`,
+			)
+			.join('\n')
 
+		const result = await compile(contents)
 		assert.ok(
-			Object.keys(result.metafile.inputs).every(
-				(file) => file === '<stdin>' || file.endsWith('.js'),
-			),
-			'vendor pass consumes only compiled JavaScript',
+			result.files.some((file) => file.startsWith(installed + '/src/')),
+			'consumer compiles installed source',
 		)
 
-		if (target === 'native') {
-			assert.match(result.outputFiles[0].text, /@nativescript-community\/octane/)
+		if (target !== 'macos') {
 			assert.ok(
-				!result.metafile.outputs['stdin.js'].imports.some((entry) => entry.path === 'octane'),
-				'native hook entries never import the DOM runtime',
+				result.files.some((file) => file.endsWith('.tsrx')),
+				'hook sources enter the compiler',
 			)
 		}
 
-		const manifest = JSON.parse(readFileSync(join(modules, 'platform/package.json'), 'utf8'))
-		assert.ok(manifest.exports['.'])
-		const actionBuild = {
-			stdin: {
-				contents: `if (import.meta.env.DEV) {
-					const { registerDevAction } = await import('@octane-xplat/platform/dev-actions');
-					registerDevAction({
-						id: 'fixture.native-consumer-secret',
-						title: 'Read test identity',
-						description: 'Return an artificial test value.',
-						result: { fields: { value: { type: 'string' } } },
-						effects: { summary: 'Read fixture identity.' },
-						run: () => ({ value: 'FIXTURE_TEST_CREDENTIAL' }),
-					});
-				}`,
-				resolveDir: temporary,
-			},
-			bundle: true,
-			write: false,
-			format: 'esm',
-			platform: 'neutral',
-			conditions: [target, 'import', 'default'],
-			minify: true,
-			external: ['@nativescript/*'],
+		if (native) {
+			assert.doesNotMatch(
+				result.code,
+				/from ['"]octane['"]/,
+				'native hooks never import the DOM runtime',
+			)
+		} else {
+			assert.doesNotMatch(result.code, /from ['"]@nativescript/, 'web source avoids NativeScript')
+			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
+				assert.ok(
+					result.files.includes(`${installed}/src/${service}.web.tsrx`),
+					`${service} selects the web hook`,
+				)
+
+				assert.ok(
+					!result.files.includes(`${installed}/src/${service}.tsrx`),
+					`${service} excludes the native hook`,
+				)
+			}
 		}
 
-		const development = await build({
-			...actionBuild,
-			define: { 'import.meta.env.DEV': 'true' },
-		})
+		const selectedService =
+			target === 'macos'
+				? 'storage.macos.ts'
+				: `clipboard${target === 'native' ? '' : `.${target}`}.ts`
 
-		assert.match(development.outputFiles[0].text, /fixture\.native-consumer-secret/)
-		assert.match(development.outputFiles[0].text, /FIXTURE_TEST_CREDENTIAL/)
-		const production = await build({
-			...actionBuild,
-			define: { 'import.meta.env.DEV': 'false' },
-		})
+		assert.ok(
+			result.files.includes(`${installed}/src/${selectedService}`),
+			'selects platform service',
+		)
+
+		// Explicit extension aliases preserve their original native/default meaning.
+		// Check them separately so they cannot mask a canonical subpath regression.
+		const legacy =
+			target === 'macos'
+				? []
+				: ['screen', 'safe-area', 'lifecycle', 'breakpoints'].flatMap((service) => [
+						`/${service}.ts`,
+						`/${service}.tsrx`,
+						...(target === 'web'
+							? [`/${service}.web`, `/${service}.web.ts`, `/${service}.web.tsrx`]
+							: []),
+					])
+
+		const legacyContents = legacy
+			.map(
+				(subpath, i) =>
+					`import * as legacy${i} from '@octane-xplat/platform${subpath}'; console.log(legacy${i});`,
+			)
+			.join('\n')
+
+		if (legacy.length) {
+			await compile(legacyContents)
+		}
+
+		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents)
+		for (const mode of [ts.ModuleResolutionKind.Bundler, ts.ModuleResolutionKind.NodeNext]) {
+			const program = ts.createProgram([join(temporary, 'consumer.ts')], {
+				strict: true,
+				noEmit: true,
+				skipLibCheck: true,
+				module:
+					mode === ts.ModuleResolutionKind.Bundler ? ts.ModuleKind.ESNext : ts.ModuleKind.NodeNext,
+				moduleResolution: mode,
+				target: ts.ScriptTarget.ESNext,
+				customConditions: [target],
+			})
+
+			assert.deepEqual(
+				ts
+					.getPreEmitDiagnostics(program)
+					.map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n')),
+				[],
+			)
+
+			assert.deepEqual(
+				program
+					.getSourceFiles()
+					.filter((file) => file.fileName.startsWith(installed + '/') && !file.isDeclarationFile)
+					.map((file) => file.fileName),
+				[],
+				'plain TypeScript consumes declarations without implementation source',
+			)
+		}
+
+		const action = `if (import.meta.env.DEV) {
+			const { registerDevAction } = await import('@octane-xplat/platform/dev-actions');
+			registerDevAction({ id: 'fixture.native-consumer-secret', title: 'Read test identity',
+				description: 'Return an artificial test value.', result: { fields: { value: { type: 'string' } } },
+				effects: { summary: 'Read fixture identity.' }, run: () => ({ value: 'FIXTURE_TEST_CREDENTIAL' }) });
+		}`
+
+		assert.match(
+			(await compile(action, { 'import.meta.env.DEV': 'true' })).code,
+			/FIXTURE_TEST_CREDENTIAL/,
+		)
 
 		assert.doesNotMatch(
-			production.outputFiles[0].text,
+			(await compile(action, { 'import.meta.env.DEV': 'false' })).code,
 			/fixture\.native-consumer-secret|FIXTURE_TEST_CREDENTIAL|__xplat_dev__|__XPLAT_DEV_BRIDGE__/,
 		)
 
 		console.log(
-			`platform packed vendor: ${target} root, host, hook and dev-action entries bundle; dev-gated production fixture excluded`,
+			`platform packed consumer: ${target} source compiles, declarations stay isolated, production dev-actions excluded`,
 		)
 	}
 } finally {

@@ -746,8 +746,8 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 	if (target && exportsMap && typeof exportsMap === 'object') {
 		const configuredSubpaths = new Set(Object.keys(target.entrypoints))
 		for (const [subpath, mapping] of Object.entries(exportsMap)) {
-			const runtimeTargets = stringsIn(mapping).filter((entry) =>
-				/\.(?:[cm]?[jt]sx?|tsrx)$/.test(entry),
+			const runtimeTargets = stringsIn(mapping).filter(
+				(entry) => !extname(entry) || /\.(?:[cm]?[jt]sx?|tsrx)$/.test(entry),
 			)
 
 			if (runtimeTargets.length && !configuredSubpaths.has(subpath)) {
@@ -794,8 +794,8 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 
 	if (exportsMap && typeof exportsMap === 'object') {
 		for (const [subpath, mapping] of Object.entries(exportsMap)) {
-			const runtimeTargets = stringsIn(mapping).filter((target) =>
-				/\.(?:[cm]?[jt]sx?|tsrx)$/.test(target),
+			const runtimeTargets = stringsIn(mapping).filter(
+				(target) => !extname(target) || /\.(?:[cm]?[jt]sx?|tsrx)$/.test(target),
 			)
 
 			if (!runtimeTargets.length) {
@@ -923,6 +923,23 @@ function runTarget(projectRoot, args) {
 			)
 
 			return false
+		}
+
+		// TypeScript does not emit declaration inputs. Preserve included, local
+		// declarations beside emitted modules so their references remain closed.
+		for (const source of fileNames) {
+			if (!/\.d\.[cm]?ts$/.test(source) || !pathInside(rootDir, source)) {
+				continue
+			}
+
+			const declaration = relative(rootDir, source)
+			if (sourceOutputs.has(declaration)) {
+				continue
+			}
+
+			const output = join(outputDir, declaration)
+			mkdirSync(dirname(output), { recursive: true })
+			writeFileSync(output, readFileSync(source))
 		}
 
 		const generated = normalizeOutput(ts, outputDir, sourceExtensions, runtimeByDeclaration)

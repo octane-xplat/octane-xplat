@@ -1,8 +1,7 @@
-import type { UniversalComponent } from 'octane/universal'
-import type { RichTextEditorProps } from '../src/types'
+import type { RichTextEditorProps } from './types.js'
 /** Internal shared editor host. */
-export declare const NativeEditor: UniversalComponent<
-	RichTextEditorProps & {
+export declare function NativeEditor(
+	props: RichTextEditorProps & {
 		browser: string
 		// Lexical/Tiptap forward their own handle refs — the host just passes
 		// the value through, so it accepts any ref shape.
@@ -10,5 +9,5 @@ export declare const NativeEditor: UniversalComponent<
 		json?: any
 		onJSONReady?: (ok: boolean) => void
 		onJSONChange?: (doc: any) => void
-	}
->
+	},
+): unknown

@@ -16,6 +16,7 @@ const noInstall = argv.includes('--no-install')
 const templateIndex = argv.findIndex((arg) => arg === '--template' || arg.startsWith('--template='))
 const templateValueIndex =
 	templateIndex !== -1 && argv[templateIndex] === '--template' ? templateIndex + 1 : -1
+
 const templateArg =
 	templateIndex === -1
 		? 'app'
@@ -66,6 +67,7 @@ if (targetsIndex !== -1 && (targetsArg === undefined || targetsArg.startsWith('-
 const optionValues = new Set(
 	[targetsValueIndex, templateValueIndex, nameValueIndex].filter((index) => index !== -1),
 )
+
 const positional = argv.filter((arg, i) => !arg.startsWith('-') && !optionValues.has(i))
 const defaultDir = templateArg === 'library' ? 'octane-xplat-library' : 'octane-xplat-app'
 const dir = resolve(positional[0] ?? defaultDir)
@@ -115,6 +117,7 @@ if (templateArg === 'library') {
 		console.error(`✗ ${error.message}`)
 		process.exit(1)
 	}
+
 	console.log(`\n✓ scaffolded ${dir} (library: ${packageName}; web + iOS + Android)`)
 } else {
 	if (targetsArg !== undefined) {
@@ -180,7 +183,7 @@ if (templateArg === 'app' && ids.includes('web')) {
 function printNextSteps(dir, ids, template) {
 	console.log(`  cd ${dir}\n  pnpm install`)
 	if (template === 'library') {
-		console.log('  pnpm typecheck\n  pnpm lint\n  pnpm build\n  pnpm test\n  pnpm test:packed')
+		console.log('  pnpm typecheck\n  pnpm lint\n  pnpm typegen\n  pnpm test\n  pnpm test:packed')
 		return
 	}
 

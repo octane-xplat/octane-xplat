@@ -142,6 +142,53 @@ void value
 	run('pnpm', ['typegen:check'], packageRoot)
 	run('pnpm', ['exec', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
 
+	const includedDeclaration = join(packageRoot, 'src/IncludedDeclaration.d.ts')
+	const declarationReader = join(packageRoot, 'src/DeclarationReader.ts')
+	try {
+		writeFileSync(includedDeclaration, 'export interface Included { value: string }\n')
+		writeFileSync(
+			declarationReader,
+			`import type { Included } from './IncludedDeclaration'
+export function readIncluded(value: Included): Included { return value }
+`,
+		)
+
+		run('pnpm', ['typegen'], packageRoot)
+		assert.equal(
+			readFileSync(join(packageRoot, 'types/generated/IncludedDeclaration.d.ts'), 'utf8'),
+			readFileSync(includedDeclaration, 'utf8'),
+		)
+
+		assert.match(
+			readFileSync(join(packageRoot, 'types/generated/DeclarationReader.d.ts'), 'utf8'),
+			/['"]\.\/IncludedDeclaration\.js['"]/,
+		)
+
+		run('pnpm', ['exec', 'tsrx-typegen', '--pack-check'], packageRoot)
+		writeFileSync(
+			includedDeclaration,
+			'export interface Included { value: string; extra?: number }\n',
+		)
+		const staleInput = spawnSync(
+			process.execPath,
+			[
+				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
+				'--project',
+				'tsconfig.types.json',
+				'--check',
+			],
+			{ cwd: packageRoot, encoding: 'utf8' },
+		)
+
+		assert.notEqual(staleInput.status, 0, 'check mode detects changed declaration inputs')
+		assert.match(staleInput.stderr, /IncludedDeclaration\.d\.ts is stale/)
+	} finally {
+		rmSync(includedDeclaration, { force: true })
+		rmSync(declarationReader, { force: true })
+	}
+
+	run('pnpm', ['typegen'], packageRoot)
+
 	const collisionName = `collision-${process.pid}`
 	const collidingSources = [
 		join(packageRoot, `src/${collisionName}.ts`),
@@ -227,7 +274,7 @@ void value
 		writeFileSync(overrideSource, overrideText)
 		const config = JSON.parse(originalConfig)
 		config.overrides = {
-			...(config.overrides ?? {}),
+			...config.overrides,
 			[overrideDeclaration]: `types/overrides/${overrideDeclaration}`,
 		}
 

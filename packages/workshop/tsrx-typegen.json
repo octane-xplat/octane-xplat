@@ -7,12 +7,12 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": ["./dist/index.js"],
+					"runtime": ["./src/index.ts", "./dist/node/index.js"],
 					"types": ["./types/generated/index.d.ts"]
 				},
 				"./web": {
 					"source": "src/web/index.web.ts",
-					"runtime": ["./dist/web/index.js"],
+					"runtime": ["./src/web/index.web.ts"],
 					"types": ["./types/generated/web/index.web.d.ts"]
 				},
 				"./vite": {
@@ -27,7 +27,7 @@
 				},
 				"./mobile": {
 					"source": "src/mobile/index.mobile.ts",
-					"runtime": ["./dist/mobile/index.js"],
+					"runtime": ["./src/mobile/index.mobile.ts"],
 					"types": ["./types/generated/mobile/index.mobile.d.ts"]
 				},
 				"./vite-mobile": {
@@ -38,7 +38,7 @@
 				"./macos": {
 					"source": "src/macos/index.macos.ts",
 					"runtime": ["./src/macos/index.macos.ts"],
-					"types": ["./src/macos/index.macos.ts"]
+					"types": ["./types/generated/macos/index.macos.d.ts"]
 				}
 			}
 		}

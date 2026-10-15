@@ -72,10 +72,9 @@ jobs:
       - name: Build web app
         run: pnpm build:web
 
-      # Publishable packages: proves dist artifacts + check-native-dist gates
-      # pass before release.yml publishes them.
-      - name: Build packages
-        run: pnpm -r --filter './packages/**' --if-present run build
+      # Runtime packages ship source; prepare declarations and required assets.
+      - name: Prepare packages
+        run: pnpm build:packages
 
       - name: Check packed declarations and plain TypeScript consumers
         run: pnpm check:pack && pnpm test:packed

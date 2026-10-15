@@ -106,7 +106,7 @@ From the monorepo root:
 ```sh
 pnpm --filter @octane-xplat/image-crop test
 pnpm --filter @octane-xplat/image-crop typecheck
-pnpm --filter @octane-xplat/image-crop build
+pnpm --filter @octane-xplat/image-crop typegen
 pnpm probe doctor
 pnpm probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
 pnpm probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop

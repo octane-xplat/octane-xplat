@@ -37,19 +37,18 @@ signed distribution claims.
 
 ## The publish model (`@octane-xplat/ui`)
 
-Ships **compiled** output, not .tsrx source:
+Publishes authored `.ts`, `.tsx`, and `.tsrx` runtime source plus `.d.ts`
+entry points. Workspace and packed exports use the same paths; the app's
+Octane compiler chooses platform leaves and renderer/runtime settings.
 
-- `packages/ui/vite.config.ts` — lib mode + `preserveModules`, run twice
-  (`vite build`, `vite build --mode native`) → `dist/web`, `dist/native`.
-  Suffix chain resolved at build; hooks retarget to
-  `@nativescript-community/octane`; runtime deps external via peers.
-- `exports` point at `src` for workspace dev; `publishConfig` swaps to
-  `dist` (+ `types` condition) only at publish — verified via `pnpm pack`.
-- **Types:** `src/props.ts` (pure .ts) → `tsc -p tsconfig.types.json
---emitDeclarationOnly` → `types/props.d.ts`; the web, native, and
-  platform-subpath declaration files are thin shells around those props.
-  Published root types are split by web/native export condition. tsrx cannot
-  emit declarations for `.tsrx` files itself (upstream tsrx#136).
+- `prepack` generates declarations with `tsrx-typegen` (or declaration-only
+  `tsc`) and checks the packed declaration graph.
+- Public `types` conditions point at `.d.ts`; runtime conditions point at
+  `src`. Local declaration references must resolve to declarations.
+- `pnpm build:packages` prepares declarations and required assets. Only
+  Node font/configuration tooling and embedded editor documents retain JavaScript builds.
+- Verify installed tarballs through the app compiler; workspace source alone
+  does not establish installed-package discovery or native renderer selection.
 
 ## Publish procedure
 

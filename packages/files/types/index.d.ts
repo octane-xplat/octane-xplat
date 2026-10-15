@@ -1,7 +1,6 @@
-import type { UniversalComponent } from 'octane/universal'
-import type { FileInputProps } from '../src/props.js'
+import type { FileInputProps } from './generated/props.js'
 
-export declare const FileInput: UniversalComponent<FileInputProps>
+export declare function FileInput(props: FileInputProps): unknown
 export type {
 	FileInputFile,
 	FileInputHandle,
@@ -9,9 +8,9 @@ export type {
 	FileInputProps,
 	FileInputStatus,
 	FileInputStatusType,
-} from '../src/props.js'
+} from './generated/props.js'
 
-export { files } from '../src/files.js'
+export { files } from './generated/files.js'
 export type {
 	FileExportOptions,
 	FileExportResult,
@@ -19,4 +18,4 @@ export type {
 	FileReadBytesOptions,
 	FileRef,
 	Files,
-} from '../src/types.js'
+} from './generated/types.js'

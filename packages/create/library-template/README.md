@@ -30,11 +30,12 @@ Run these commands from the package directory:
 pnpm typecheck
 pnpm lint
 pnpm test
-pnpm build
+pnpm typegen
 pnpm test:packed
 ```
 
-The build emits separate web and NativeScript bundles plus TypeScript
+The package publishes authored source for the app's bundler to compile.
+`pnpm typegen` generates `.d.ts` files so consumers' type checkers use
 declarations. `pnpm test:packed` packs the package, places that artifact into
 small web and native TypeScript consumers, and checks both export conditions.
 

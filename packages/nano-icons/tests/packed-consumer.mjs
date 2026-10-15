@@ -80,13 +80,17 @@ try {
 		assert.equal(manifest.dependencies[dep].startsWith('workspace:'), false)
 	}
 
-	assert.ok(manifest.exports['.'].web.default.startsWith('./dist/'))
-	assert.ok(manifest.exports['.'].native.default.startsWith('./dist/'))
-	assert.ok(manifest.exports['.'].macos.default.startsWith('./dist/'))
+	assert.ok(manifest.exports['.'].web.default.startsWith('./src/'))
+	assert.ok(manifest.exports['.'].native.default.startsWith('./src/'))
+	assert.ok(manifest.exports['.'].macos.default.startsWith('./src/'))
 	assert.ok(manifest.exports['./build'].default.startsWith('./dist/'))
-	const macosComponent = readFileSync(join(packed, 'dist/macos/NanoIcon.macos.js'), 'utf8')
-	assert.match(macosComponent, /defineUniversalComponent\("macos"/)
-	assert.doesNotMatch(macosComponent, /from ["'](?:octane|@xplat\/macos\/renderer)["']/)
+	const macosComponent = readFileSync(join(packed, 'src/NanoIcon.macos.tsrx'), 'utf8')
+	assert.equal(
+		macosComponent,
+		readFileSync(join(packageRoot, 'src/NanoIcon.macos.tsrx'), 'utf8'),
+		'packed components retain authored source',
+	)
+
 	assert.ok(readFileSync(join(packed, 'bin/nano-icons.mjs'), 'utf8').startsWith('#!'))
 
 	for (const target of ['web', 'native', 'macos']) {

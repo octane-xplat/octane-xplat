@@ -47,12 +47,16 @@ try {
 	const packed = join(extracted, 'package')
 	const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
 	assert.equal(manifest.dependencies['@octane-xplat/ui'].startsWith('workspace:'), false)
-	assert.ok(manifest.exports['.'].web.default.startsWith('./dist/'))
-	assert.ok(manifest.exports['.'].native.default.startsWith('./dist/'))
-	assert.ok(manifest.exports['.'].macos.default.startsWith('./dist/'))
-	const macosComponent = readFileSync(join(packed, 'dist/macos/Icon.macos.js'), 'utf8')
-	assert.match(macosComponent, /defineUniversalComponent\("macos"/)
-	assert.doesNotMatch(macosComponent, /from ["'](?:octane|@xplat\/macos\/renderer)["']/)
+	assert.ok(manifest.exports['.'].web.default.startsWith('./src/'))
+	assert.ok(manifest.exports['.'].native.default.startsWith('./src/'))
+	assert.ok(manifest.exports['.'].macos.default.startsWith('./src/'))
+	const macosComponent = readFileSync(join(packed, 'src/Icon.macos.tsrx'), 'utf8')
+	assert.equal(
+		macosComponent,
+		readFileSync(join(packageRoot, 'src/Icon.macos.tsrx'), 'utf8'),
+		'packed components retain authored source',
+	)
+
 	for (const target of ['web', 'native', 'macos']) {
 		for (const mode of ['bundler', 'nodenext']) {
 			const consumer = join(temporary, `${target}-${mode}`)

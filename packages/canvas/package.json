@@ -23,9 +23,10 @@
 		"directory": "packages/canvas"
 	},
 	"files": [
-		"dist",
 		"types",
-		"src"
+		"src",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -38,21 +39,11 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"types": "./types/index.d.ts",
-				"web": "./dist/web/index.js",
-				"macos": "./dist/macos/index.js",
-				"native": "./dist/native/index.js",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsc -p tsconfig.types.json",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"test:macos-runtime": "node ../../scripts/probe.mjs run tests/unsupported.macos.tsrx --target macos --deps @octane-xplat/canvas",
 		"pack:check": "tsrx-typegen --pack-check"

@@ -174,18 +174,42 @@ the gitignored `research/` directory.
 
 ## Shared packages publish model
 
-Workspace development resolves authored sources and the app compiles them.
-Published `@octane-xplat/ui` instead ships **compiled** output. Do not infer
-the published file layout from workspace `exports` alone. `packages/ui/vite.config.ts` builds the
-package twice in lib mode (`vite build`, `vite build --mode native`) with
-`preserveModules`: `.tsrx` → per-module JS under `dist/web` + `dist/native`,
-suffix chain resolved at build time, hooks retargeted to
-`@nativescript-community/octane`, runtime deps external via peers.
-`exports` still point at `src` for workspace dev; `publishConfig` swaps
-them to `dist` only at publish. Verified via `pnpm pack` extraction.
+Runtime packages publish authored `.ts`, `.tsx`, and `.tsrx` files. Workspace
+and published exports use the same source paths; the app's Octane integration
+selects platform files and compiles them with the app's renderer, runtime,
+and development or production settings. This follows [Octane's source-package
+contract](https://octanejs.dev/docs/publishing-libraries).
+
+Public type conditions still select `.d.ts` entry points. Type checking a
+consumer follows the declaration graph; it does not compile the package's
+implementation. Keep source and declaration targets separate:
+
+```json
+{
+	"exports": {
+		".": {
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"types": "./types/generated/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"files": ["src", "types"]
+}
+```
+
+Packages need no per-platform JavaScript build. `prepack` generates and checks
+declarations; embedded editor browser documents retain `build:assets`.
+`nano-icons` builds its Node font CLI, and `workshop` builds its Node-loaded
+configuration helpers. Include every
+source module, imported asset, and NativeScript platform file in the tarball.
+The native preset matches installed Octane sources as well as app and linked
+workspace files, so consumers need no package-specific renderer rules.
 
 ```sh
-pnpm --filter @octane-xplat/ui build
+pnpm build:packages # declarations, Node tooling, and required assets
 pnpm --filter @octane-xplat/ui pack --pack-destination /tmp/octane-pack-check
 ```
 
@@ -245,8 +269,8 @@ modes with the create template's per-target `moduleSuffixes`,
 third-party NativeScript ambient declarations carry upstream lib conflicts
 that make `skipLibCheck: false` unsupported for consumers.
 Declaration-producing packages
-run their build from `prepack`, so both `pnpm pack` and publication regenerate
-output. To prepare one package's types without building runtime bundles, run
+run `typegen` from `prepack`, so both `pnpm pack` and publication regenerate
+output. To prepare one package's types, run
 `pnpm --filter <package-name> typegen` after workspace setup.
 
 ```sh
@@ -274,7 +298,7 @@ publication gate. It checks every target's generated output, packs a temporary
 tarball with lifecycle scripts disabled, validates both workspace and
 `publishConfig` export paths against the packed files, compares runtime and
 declaration value exports, and checks declaration references and dependencies.
-Put the gate in `prepack` after the runtime build so `pnpm pack` and publish use
+Put the gate in `prepack` after declaration and asset generation so `pnpm pack` and publish use
 the same package contents. `xplat doctor`, when invoked at a configured package
 root, runs that gate and exits nonzero on failure. A plain TypeScript consumer
 fixture remains necessary to check inferred props and module-resolution modes;

@@ -8,10 +8,11 @@
 		"directory": "packages/date-picker"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
-		"platforms"
+		"platforms",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -35,34 +36,13 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"types": "./types/index.d.ts",
-				"web": "./dist/native/index.js",
-				"native": "./dist/native/index.js",
-				"default": "./dist/native/index.js"
-			},
-			"./ios": {
-				"types": "./types/ios/index.d.ts",
-				"native": "./dist/native/ios/index.js"
-			},
-			"./android": {
-				"types": "./types/android/index.d.ts",
-				"native": "./dist/native/android/index.js"
-			},
-			"./macos": {
-				"types": "./types/macos/index.d.ts",
-				"macos": "./src/macos/index.ts"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build --mode native && tsc -p tsconfig.types.json",
-		"prepublishOnly": "pnpm build",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"typegen": "tsc -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",

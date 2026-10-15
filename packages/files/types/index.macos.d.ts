@@ -1,4 +1,4 @@
-import type { FileInputProps } from '../src/props.js'
+import type { FileInputProps } from './generated/props.js'
 
 export declare function FileInput(props: FileInputProps): unknown
 export type {
@@ -8,9 +8,9 @@ export type {
 	FileInputProps,
 	FileInputStatus,
 	FileInputStatusType,
-} from '../src/props.js'
+} from './generated/props.js'
 
-export { files } from '../src/files.macos.js'
+export { files } from './generated/files.macos.js'
 export type {
 	FileExportOptions,
 	FileExportResult,
@@ -18,4 +18,4 @@ export type {
 	FileReadBytesOptions,
 	FileRef,
 	Files,
-} from '../src/types.js'
+} from './generated/types.js'

@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { loadSource } from '../../../scripts/load-source.mjs'
+import { pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import {
 	cpSync,
@@ -227,7 +229,11 @@ recorder.dispose()
 `,
 	)
 
-	run(process.execPath, ['--conditions=macos', join(importRoot, 'consumer.mjs')], importRoot)
+	await loadSource(pathToFileURL(join(importRoot, 'consumer.mjs')), {
+		resolve: { conditions: ['macos'] },
+		ssr: { noExternal: ['@octane-xplat/recorder'], resolve: { conditions: ['macos'] } },
+	})
+
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 

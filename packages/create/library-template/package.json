@@ -3,13 +3,13 @@
 	"version": "0.1.0",
 	"description": "A cross-platform component library for Octane Xplat",
 	"keywords": [
+		"android",
 		"cross-platform",
+		"ios",
 		"octane",
 		"octane-xplat",
 		"ui",
-		"web",
-		"ios",
-		"android"
+		"web"
 	],
 	"license": "MIT",
 	"repository": {
@@ -18,7 +18,7 @@
 		"directory": "."
 	},
 	"files": [
-		"dist",
+		"src",
 		"types",
 		"LICENSE"
 	],
@@ -41,34 +41,16 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": null,
-				"linux": null,
-				"windows": null,
-				"web": {
-					"types": "./types/index.web.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/index.d.ts",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && pnpm typegen && node scripts/check-native-dist.mjs",
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --project tsconfig.types.json",
 		"typecheck": "xplat typecheck",
 		"lint": "xplat-lint",
 		"lint:fix": "xplat-lint --fix",
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"prepack": "pnpm build",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "pnpm test:packed"
 	},
 	"devDependencies": {
@@ -83,6 +65,7 @@
 		"@tsrx/typescript-plugin": "0.4.11",
 		"octane": "0.11.0",
 		"oxlint": "^1.74.0",
+		"tsrx-typegen": "^0.2.2",
 		"typescript": "5.9.3",
 		"vite": "8.3.0",
 		"vitest": "4.1.11"

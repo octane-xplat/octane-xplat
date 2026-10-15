@@ -44,7 +44,7 @@ See the [motion guide](../../docs/app/animation-gestures.md) and the maintained
 covers retained exits. The [compatibility record](UPSTREAM.md) defines the
 supported subset and differences from `@octanejs/motion`.
 
-Build with `pnpm --filter @octane-xplat/motion build`; run DOM/engine tests with
+Generate declarations with `pnpm --filter @octane-xplat/motion typegen`; run DOM/engine tests with
 `pnpm --filter @octane-xplat/motion test` and universal lifecycle tests with
 `pnpm --filter @octane-xplat/motion exec vitest run --config vitest.native.config.mts`.
 Native compilation and object-driver tests are not physical-device evidence.

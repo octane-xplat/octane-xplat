@@ -20,11 +20,14 @@
 		"directory": "packages/richtext"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
 		"platforms",
-		"nativescript.config.ts"
+		"nativescript.config.ts",
+		"dist/macos/browser.js",
+		"dist/macos/browser.d.ts",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -34,11 +37,14 @@
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
+				"types": "./types/index.d.ts",
 				"default": "./src/index.web.ts"
 			},
 			"native": {
+				"types": "./types/index.d.ts",
 				"default": "./src/index.ts"
 			},
+			"types": "./types/index.d.ts",
 			"default": "./src/index.ts"
 		},
 		"./macos-host": {
@@ -51,41 +57,16 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/index.macos.d.ts",
-					"default": "./src/index.macos.ts"
-				},
-				"web": {
-					"types": "./types/index.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/index.d.ts",
-				"default": "./dist/native/index.js"
-			},
-			"./macos-host": {
-				"types": "./types/macos-host.d.ts",
-				"default": "./src/NativeEditor.macos.tsx"
-			},
-			"./browser-transport": {
-				"types": "./types/browser-transport.d.ts",
-				"default": "./src/browser-transport.web.ts"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs && node build-browser.mjs",
-		"prepublishOnly": "pnpm build",
 		"test": "node --test test/*.test.mjs",
 		"test:macos": "node test/verify-wk.mjs",
 		"test:native": "vitest run --config vitest.native.config.mts",
-		"test:packed": "node test/packed-consumer.mjs"
+		"test:packed": "node test/packed-consumer.mjs",
+		"typegen": "tsc -p tsconfig.types.json",
+		"build:assets": "node build-browser.mjs",
+		"prepack": "pnpm build:assets && pnpm typegen"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

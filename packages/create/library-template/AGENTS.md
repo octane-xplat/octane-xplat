@@ -13,4 +13,4 @@
   Octane and renderer packages belong in `peerDependencies` when consumers
   supply the runtime.
 - Before publishing, run `pnpm typecheck`, `pnpm lint`, `pnpm test`,
-  `pnpm build`, and `pnpm test:packed`.
+  `pnpm typegen`, and `pnpm test:packed`.

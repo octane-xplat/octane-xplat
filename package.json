@@ -41,7 +41,7 @@
 		"dev:linux": "pnpm --filter @xplat/linux dev",
 		"dev:windows": "pnpm --filter @xplat/windows windows",
 		"dev:docs": "pnpm --filter @xplat/docs dev",
-		"build:packages": "turbo run build --filter=./packages/*",
+		"build:packages": "turbo run typegen build build:assets --filter=./packages/*",
 		"build:ios": "pnpm --filter @xplat/mobile build:ios",
 		"build:macos": "pnpm --filter @xplat/macos package",
 		"build:linux": "pnpm --filter @xplat/linux build",

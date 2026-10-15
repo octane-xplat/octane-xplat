@@ -5,7 +5,7 @@
 // scaffolds. This is the release-evidence path for `pnpm create octane-xplat`.
 //
 // Phases (each is a gate — the first failure stops the run):
-//   build    pnpm -r build for every workspace package that defines one
+//   build    generate declarations and required package assets
 //            (skip with --no-build; CI builds earlier in the same job)
 //   pack     pnpm pack every publishable package into <work>/pack
 //   scaffold run the PACKED create-octane-xplat bin for app and library,
@@ -14,7 +14,7 @@
 //            file: tarballs
 //   install  pnpm install in the consumer — isolated, outside the workspace
 //   checks   pnpm lint, pnpm typecheck (web + native), pnpm build (web),
-//            pnpm exec xplat doctor
+//            pnpm exec xplat doctor; install and check the library starter
 //   smoke    --smoke web: playwright drives `vite preview` of the built app
 //   native   --native ios,android: `ns build <platform>` inside the consumer
 //   sim      --smoke-ios: install + launch the built .app on an iOS sim,
@@ -178,14 +178,10 @@ const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${
 try {
 	// ---- build ------------------------------------------------------------
 	if (doBuild) {
-		await gate('packages build (dist payloads the tarballs must carry)', 20 * 60 * 1000, () => {
-			const r = run(
-				'pnpm',
-				['-r', '--filter', './packages/*', '--if-present', 'run', 'build'],
-				repoRoot,
-			)
+		await gate('package declarations and assets', 20 * 60 * 1000, () => {
+			const r = run('pnpm', ['build:packages'], repoRoot)
 
-			assert.equal(r.status, 0, 'pnpm -r build failed')
+			assert.equal(r.status, 0, 'package preparation failed')
 		})
 	}
 
@@ -226,32 +222,39 @@ try {
 		const libraryName = '@example/consumer-library'
 		const libraryResult = run(
 			'node',
-			[
-				binPath,
-				libraryDir,
-				'--no-install',
-				'--template',
-				'library',
-				'--name',
-				libraryName,
-			],
+			[binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
 			work,
 		)
+
 		assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
 		const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
 		assert.equal(libraryManifest.name, libraryName)
 		assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
-		assert.ok(libraryManifest.exports['.'].native, 'library starter missed native conditional export')
-		assert.ok(libraryManifest.scripts['test:packed'], 'library starter missed packed-consumer script')
-		assert.ok(existsSync(join(libraryDir, 'src/Badge.tsx')), 'library starter missed native component')
+		assert.ok(
+			libraryManifest.exports['.'].native,
+			'library starter missed native conditional export',
+		)
+
+		assert.ok(
+			libraryManifest.scripts['test:packed'],
+			'library starter missed packed-consumer script',
+		)
+
+		assert.ok(
+			existsSync(join(libraryDir, 'src/Badge.tsx')),
+			'library starter missed native component',
+		)
+
 		assert.ok(
 			existsSync(join(libraryDir, 'src/Badge.web.tsx')),
 			'library starter missed web component',
 		)
+
 		assert.ok(
 			existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
 			'library starter missed packed-consumer check',
 		)
+
 		assert.ok(!existsSync(join(libraryDir, 'index.html')), 'library starter leaked app entry files')
 		assert.ok(
 			!existsSync(join(libraryDir, 'nativescript.config.ts')),
@@ -333,9 +336,14 @@ try {
 				`ui resolves into the workspace: ${resolved}`,
 			)
 
-			// publishConfig swaps exports to dist — the packed artifact must carry it.
-			assert.ok(existsSync(join(installed, 'dist')), 'packed ui has no dist/')
-			assert.ok(existsSync(join(installed, 'dist', 'native')), 'packed ui has no dist/native')
+			const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
+			for (const target of ['web', 'native', 'macos', 'linux']) {
+				const entry = manifest.exports['.'][target]
+				assert.ok(entry.default.startsWith('./src/'), `${target} runtime must use source`)
+				assert.ok(entry.types.endsWith('.d.ts'), `${target} types must use declarations`)
+				assert.ok(existsSync(join(installed, entry.default)), `${target} source missing`)
+				assert.ok(existsSync(join(installed, entry.types)), `${target} declarations missing`)
+			}
 		},
 	)
 
@@ -367,6 +375,35 @@ try {
 	)
 
 	// ---- consumer gates ------------------------------------------------------
+	await gate('installed UI source compiles in the development server', 60 * 1000, () => {
+		const check = join(appDir, 'verify-source-dev.mjs')
+		writeFileSync(
+			check,
+			`import assert from 'node:assert/strict'
+import { createServer } from 'vite'
+import { readFileSync, realpathSync } from 'node:fs'
+import { join } from 'node:path'
+const server = await createServer({ server: { middlewareMode: true, watch: null, hmr: false } })
+try {
+  const root = realpathSync('node_modules/@octane-xplat/ui')
+  const file = join(root, 'src/Text.web.tsrx')
+  const source = readFileSync(file, 'utf8')
+  assert.match(source, /@\\{/)
+  const result = await server.transformRequest('/@fs/' + file)
+  assert.ok(result?.code)
+  assert.doesNotMatch(result.code, /@\\{/)
+} finally { await server.close() }
+`,
+		)
+
+		try {
+			const r = run('node', [check], appDir)
+			assert.equal(r.status, 0, 'development transform of installed TSRX failed')
+		} finally {
+			rmSync(check, { force: true })
+		}
+	})
+
 	for (const [name, argv] of [
 		['pnpm lint', ['lint']],
 		['pnpm typecheck (web + native)', ['typecheck']],
@@ -378,6 +415,34 @@ try {
 			assert.equal(r.status, 0, `${name} exited ${r.status}`)
 		})
 	}
+
+	await gate(
+		'library starter installs and publishes source with isolated declarations',
+		15 * 60 * 1000,
+		() => {
+			const workspaceFile = join(libraryDir, 'pnpm-workspace.yaml')
+			const overrides = [...tarballs]
+				.map(([name, tarball]) => `  "${name}": file:${tarball}`)
+				.join('\n')
+
+			writeFileSync(
+				workspaceFile,
+				`${readFileSync(workspaceFile, 'utf8')}\noverrides:\n${overrides}\n`,
+			)
+
+			for (const argv of [
+				['install'],
+				['typegen'],
+				['typecheck'],
+				['lint'],
+				['test'],
+				['test:packed'],
+			]) {
+				const r = run('pnpm', argv, libraryDir)
+				assert.equal(r.status, 0, `library pnpm ${argv.join(' ')} exited ${r.status}`)
+			}
+		},
+	)
 
 	// ---- optional browser smoke ---------------------------------------------
 	if (smokeTargets.includes('web')) {
@@ -584,7 +649,7 @@ try {
 							udid: process.env.VERIFY_IOS_DEVICE,
 							name: process.env.VERIFY_IOS_DEVICE,
 						})
-					: sims.find((d) => d.state === 'Booted') ?? sims[0]
+					: (sims.find((d) => d.state === 'Booted') ?? sims[0])
 
 				assert.ok(sim, 'no available iPhone simulator')
 

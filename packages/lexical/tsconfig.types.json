@@ -4,7 +4,7 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"target": "esnext",
-		"noEmit": true,
+		"noEmit": false,
 		"moduleSuffixes": [
 			"",
 			".web",
@@ -16,9 +16,11 @@
 			".linux",
 			".windows"
 		],
-		"allowImportingTsExtensions": true
+		"allowImportingTsExtensions": true,
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"outDir": "types"
 	},
-	"include": [
-		"types/**/*.d.ts"
-	]
+	"include": ["src/types.ts", "types/index.d.ts"]
 }

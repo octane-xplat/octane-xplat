@@ -17,8 +17,10 @@
 		"directory": "packages/icons"
 	},
 	"files": [
-		"dist",
-		"types/generated"
+		"src",
+		"types/generated",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -40,32 +42,13 @@
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/generated/index.macos.d.ts",
-					"default": "./dist/macos/index.js"
-				},
-				"web": {
-					"types": "./types/generated/index.web.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/generated/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/generated/index.d.ts",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target icons",
 		"typecheck": "node ../../scripts/typecheck.mjs",
-		"test": "pnpm build && node --test tests/*.test.mjs",
-		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test": "node --test tests/*.test.mjs",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},

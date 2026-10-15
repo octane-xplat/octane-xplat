@@ -20,10 +20,13 @@
 		"directory": "packages/tiptap"
 	},
 	"files": [
-		"dist",
 		"types",
 		"src",
-		"platforms"
+		"platforms",
+		"dist/macos/browser.js",
+		"dist/macos/browser.d.ts",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -33,39 +36,25 @@
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
+				"types": "./types/index.d.ts",
 				"default": "./src/index.web.ts"
 			},
 			"native": {
+				"types": "./types/index.d.ts",
 				"default": "./src/index.ts"
 			},
+			"types": "./types/index.d.ts",
 			"default": "./src/index.ts"
 		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/index.macos.d.ts",
-					"default": "./src/index.macos.ts"
-				},
-				"web": {
-					"types": "./types/index.d.ts",
-					"default": "./dist/web/index.js"
-				},
-				"native": {
-					"types": "./types/index.d.ts",
-					"default": "./dist/native/index.js"
-				},
-				"types": "./types/index.d.ts",
-				"default": "./dist/native/index.js"
-			}
-		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs && node ../richtext/build-browser.mjs",
 		"test:native": "vitest run --config vitest.native.config.mts",
-		"prepublishOnly": "pnpm build"
+		"typegen": "tsc -p tsconfig.types.json",
+		"build:assets": "node ../richtext/build-browser.mjs",
+		"prepack": "pnpm build:assets && pnpm typegen"
 	},
 	"dependencies": {
 		"@octane-xplat/richtext": "workspace:*",

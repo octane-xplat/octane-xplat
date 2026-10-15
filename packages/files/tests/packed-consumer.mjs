@@ -8,6 +8,7 @@ import {
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
+	realpathSync,
 	rmSync,
 	symlinkSync,
 	writeFileSync,
@@ -19,7 +20,7 @@ import { fileURLToPath } from 'node:url'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
-const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-files-consumer-'))
+const temporary = realpathSync(mkdtempSync(join(tmpdir(), 'octane-xplat-files-consumer-')))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
 mkdirSync(packOutput)
@@ -90,6 +91,11 @@ void inputProps
 const picked = files.pick()
 void picked
 `,
+}
+
+for (const target of Object.keys(consumers)) {
+	consumers[target] +=
+		`import { FileInput as DirectFileInput } from '@octane-xplat/files/FileInput'\nvoid DirectFileInput\n`
 }
 
 const extraFiles = {}
@@ -181,6 +187,19 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 		[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath],
 		consumerRoot,
 	)
+
+	const listed = spawnSync(
+		process.execPath,
+		[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath, '--listFilesOnly'],
+		{ cwd: consumerRoot, encoding: 'utf8' },
+	)
+
+	assert.equal(listed.status, 0, listed.stderr)
+	const implementation = listed.stdout
+		.split('\n')
+		.filter((file) => file.startsWith(packageLink + '/') && !file.endsWith('.d.ts'))
+
+	assert.deepEqual(implementation, [], `${target}/${mode.name} loaded implementation source`)
 }
 
 try {
@@ -191,46 +210,87 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const require = createRequire(import.meta.url)
-	const { build } = createRequire(require.resolve('vite/package.json'))('esbuild')
+	const { build } = require('vite')
+	const { octane } = require('@octanejs/vite-plugin')
+	const { nativeScriptRenderer } = require('@nativescript-community/octane/config')
 	const modules = join(temporary, 'node_modules/@octane-xplat')
 	mkdirSync(modules, { recursive: true })
 	symlinkSync(packedRoot, join(modules, 'files'), 'dir')
 	for (const target of ['native', 'web', 'linux']) {
+		const native = target === 'native'
+		const suffixes =
+			target === 'linux' ? ['.linux', '.web', ''] : native ? ['.mobile', ''] : ['.web', '']
+
+		const entry = join(temporary, 'runtime.mjs')
+		writeFileSync(
+			entry,
+			`import * as files from '@octane-xplat/files';
+import { FileInput } from '@octane-xplat/files/FileInput'; console.log(files, FileInput)`,
+		)
+
 		const result = await build({
-			stdin: {
-				contents: "import * as files from '@octane-xplat/files'; console.log(files)",
-				resolveDir: temporary,
+			root: temporary,
+			configFile: false,
+			logLevel: 'error',
+			plugins: octane(
+				native
+					? {
+							renderers: {
+								registry: { nativescript: nativeScriptRenderer },
+								rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
+							},
+						}
+					: {},
+			),
+			resolve: {
+				conditions: [target],
+				extensions: suffixes.flatMap((suffix) =>
+					['.tsrx', '.tsx', '.ts', '.js'].map((ext) => suffix + ext),
+				),
 			},
-			bundle: true,
-			write: false,
-			format: 'esm',
-			platform: 'neutral',
-			conditions: [target],
-			metafile: true,
-			external: [
-				'octane',
-				'octane/*',
-				'@nativescript/*',
-				'@nativescript-community/*',
-				'@octane-xplat/ui',
-				'@octane-xplat/platform',
-				'@octane-xplat/platform/*',
-			],
+			build: {
+				write: false,
+				minify: false,
+				lib: { entry, formats: ['es'] },
+				rolldownOptions: {
+					moduleTypes: { '.tsrx': 'tsx' },
+					external: [
+						/^octane(?:\/|$)/,
+						/^@nativescript(?:-community)?\//,
+						/^@octane-xplat\/(?:ui|platform)(?:\/|$)/,
+					],
+					output: { paths: (id) => (native && id === 'octane' ? 'octane/universal/native' : id) },
+				},
+			},
 		})
 
+		const chunks = (Array.isArray(result) ? result : [result])
+			.flatMap((result) => result.output)
+			.filter((chunk) => chunk.type === 'chunk')
+
 		assert.ok(
-			Object.keys(result.metafile.inputs).every(
-				(file) => file === '<stdin>' || file.endsWith('.js'),
+			chunks.some((chunk) => Object.keys(chunk.modules).some((file) => file.endsWith('.tsrx'))),
+			'consumer compiles authored component source',
+		)
+
+		const selectedSource = `FileInput${native ? '' : `.${target}`}.tsrx`
+		assert.ok(
+			chunks.some((chunk) =>
+				Object.keys(chunk.modules).includes(join(packedRoot, 'src', selectedSource)),
 			),
-			'vendor pass only reads compiled JavaScript',
+			'direct component subpath selects its platform source',
 		)
 
 		if (target === 'web') {
 			assert.ok(
-				!result.metafile.outputs['stdin.js'].imports.some((entry) =>
-					entry.path.startsWith('@nativescript'),
-				),
+				!chunks.some((chunk) => chunk.imports.some((path) => path.startsWith('@nativescript'))),
 				'web entry avoids NativeScript',
+			)
+		} else if (native) {
+			assert.doesNotMatch(
+				chunks.map((chunk) => chunk.code).join('\n'),
+				/from ['"]octane['"]/,
+				'native avoids the DOM runtime',
 			)
 		}
 	}
@@ -272,13 +332,16 @@ try {
 					module: 'esnext',
 					moduleResolution: 'bundler',
 				},
+				{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}
 		}
 	}
 
-	console.log('files packed consumer: exports typecheck in Bundler mode')
+	console.log(
+		'files packed consumer: app compiler resolves source; declarations pass Bundler and NodeNext',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

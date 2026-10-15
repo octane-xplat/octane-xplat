@@ -50,7 +50,7 @@ const stringsIn = (value) => {
 }
 
 const codeTarget = (target) =>
-	/\.(?:[cm]?[jt]sx?|tsrx)$/.test(target) && !/\.d\.[cm]?ts$/.test(target)
+	(!extname(target) || /\.(?:[cm]?[jt]sx?|tsrx)$/.test(target)) && !/\.d\.[cm]?ts$/.test(target)
 
 function exportBranches(exportsMap, fallbackTypes = []) {
 	const branches = []
@@ -58,7 +58,11 @@ function exportBranches(exportsMap, fallbackTypes = []) {
 		const visit = (value, inheritedTypes) => {
 			if (typeof value === 'string') {
 				if (codeTarget(value)) {
-					branches.push({ subpath, runtime: value, types: inheritedTypes })
+					branches.push({
+						subpath,
+						runtime: value,
+						types: inheritedTypes.length ? inheritedTypes : fallbackTypes,
+					})
 				}
 
 				return
@@ -68,15 +72,20 @@ function exportBranches(exportsMap, fallbackTypes = []) {
 				return
 			}
 
-			const types = Object.hasOwn(value, 'types') ? stringsIn(value.types) : inheritedTypes
+			// An earlier condition cannot use a later sibling's type fallback.
+			let types = inheritedTypes
 			for (const [condition, child] of Object.entries(value)) {
-				if (condition !== 'types') {
+				if (condition === 'types') {
+					if (!types.length) {
+						types = stringsIn(child)
+					}
+				} else {
 					visit(child, types)
 				}
 			}
 		}
 
-		visit(mapping, fallbackTypes)
+		visit(mapping, [])
 	}
 
 	return branches
@@ -104,11 +113,12 @@ function packageFiles(root) {
 }
 
 function expandTarget(target, files, packageRoot) {
-	if (!target.includes('*')) {
+	const extensionless = !extname(target)
+	if (!target.includes('*') && !extensionless) {
 		return [{ path: target, capture: undefined }]
 	}
 
-	if ((target.match(/\*/g) ?? []).length !== 1) {
+	if ((target.match(/\*/g) ?? []).length > 1) {
 		throw new Error(`packed export target uses more than one wildcard: ${target}`)
 	}
 
@@ -118,19 +128,31 @@ function expandTarget(target, files, packageRoot) {
 
 	const pattern = target.slice(2)
 	const marker = pattern.indexOf('*')
-	const prefix = pattern.slice(0, marker)
-	const suffix = pattern.slice(marker + 1)
+	const prefix = marker === -1 ? pattern : pattern.slice(0, marker)
+	const suffix = marker === -1 ? '' : pattern.slice(marker + 1)
 	const matches = files.flatMap((file) => {
 		const path = relative(packageRoot, file).replaceAll('\\', '/')
+		// Extensionless source exports let the app choose platform siblings.
+		// Their wildcard captures are module stems, not source extensions.
+		if (extensionless && (!codeTarget(path) || !extname(path))) {
+			return []
+		}
+
+		const matchedPath = extensionless ? path.slice(0, -extname(path).length) : path
 		if (
-			!path.startsWith(prefix) ||
-			!path.endsWith(suffix) ||
-			path.length < prefix.length + suffix.length
+			!matchedPath.startsWith(prefix) ||
+			!matchedPath.endsWith(suffix) ||
+			matchedPath.length < prefix.length + suffix.length ||
+			(marker === -1 && matchedPath !== pattern)
 		) {
 			return []
 		}
 
-		const capture = path.slice(prefix.length, path.length - suffix.length)
+		const capture =
+			marker === -1
+				? undefined
+				: matchedPath.slice(prefix.length, matchedPath.length - suffix.length)
+
 		return [{ path: `./${path}`, capture }]
 	})
 
@@ -163,13 +185,11 @@ function packedPath(packageRoot, target) {
 function sourceFile(ts, file) {
 	const extension = extname(file).toLowerCase()
 	const scriptKind =
-		extension === '.tsx'
+		extension === '.tsx' || extension === '.tsrx'
 			? ts.ScriptKind.TSX
 			: extension === '.jsx'
 				? ts.ScriptKind.JSX
-				: extension === '.tsrx'
-					? ts.ScriptKind.Deferred
-					: ts.ScriptKind.TS
+				: ts.ScriptKind.TS
 
 	return ts.createSourceFile(
 		file,
@@ -449,6 +469,10 @@ function verifyDeclarationClosure(ts, packageRoot, files, manifest, failures) {
 					)
 				} else if (!pathInside(packageRoot, resolve(resolved.resolvedFileName))) {
 					failures.push(`${relative(packageRoot, file)} resolves ${specifier} outside the package`)
+				} else if (!/\.d\.[cm]?ts$/.test(resolved.resolvedFileName)) {
+					failures.push(
+						`${relative(packageRoot, file)} resolves ${specifier} to implementation source; publish its declaration`,
+					)
 				}
 
 				continue

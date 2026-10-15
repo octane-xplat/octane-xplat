@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
 	mkdtempSync,
@@ -96,6 +97,23 @@ void node; void list; void order; void missingOwner; void scroll
 				[join(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json'],
 				consumer,
 			)
+
+			const listed = spawnSync(
+				process.execPath,
+				[join(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json', '--listFilesOnly'],
+				{ cwd: consumer, encoding: 'utf8' },
+			)
+
+			assert.equal(listed.status, 0, listed.stderr)
+			const implementation = listed.stdout
+				.split('\n')
+				.filter(
+					(file) =>
+						file.startsWith(join(modules, '@octane-xplat/dnd-kit') + '/') &&
+						!file.endsWith('.d.ts'),
+				)
+
+			assert.deepEqual(implementation, [], `${target}/${mode} loaded implementation source`)
 		}
 	}
 

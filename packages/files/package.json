@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/files",
 	"version": "0.14.0",
-	"description": "Native + web file pick and read/write for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Native + web file pick and read/write for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -22,79 +22,43 @@
 		"directory": "packages/files"
 	},
 	"files": [
-		"dist",
 		"src",
-		"types"
+		"types",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.macos.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
-			"types": "./types/index.d.ts",
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		},
-		"./*": "./src/*"
+		"./*": {
+			"types": "./types/generated/*.d.ts",
+			"default": "./src/*"
+		},
+		"./*.ts": {
+			"types": "./types/generated/*.d.ts",
+			"default": "./src/*.ts"
+		},
+		"./*.tsrx": {
+			"types": "./types/generated/*.d.ts",
+			"default": "./src/*.tsrx"
+		}
 	},
 	"publishConfig": {
-		"exports": {
-			".": {
-				"macos": {
-					"types": "./types/index.macos.d.ts",
-					"default": "./src/index.macos.ts"
-				},
-				"linux": "./dist/linux/index.js",
-				"types": "./types/index.d.ts",
-				"web": "./dist/web/index.js",
-				"native": "./dist/native/index.js",
-				"default": "./dist/native/index.js"
-			},
-			"./*": {
-				"linux": "./dist/linux/*.js",
-				"types": "./src/*.ts",
-				"web": "./dist/web/*.js",
-				"native": "./dist/native/*.js",
-				"default": "./dist/native/*.js"
-			},
-			"./*.ts": {
-				"types": "./src/*.ts",
-				"default": "./dist/native/*.js"
-			},
-			"./*.web.ts": {
-				"types": "./src/*.web.ts",
-				"default": "./dist/web/*.js"
-			},
-			"./*.macos.ts": "./src/*.macos.ts",
-			"./*.linux.ts": {
-				"types": "./src/*.linux.ts",
-				"default": "./dist/linux/*.js"
-			},
-			"./*.tsrx": {
-				"types": "./src/*.tsrx",
-				"default": "./dist/native/*.js"
-			},
-			"./*.web.tsrx": {
-				"types": "./src/*.web.tsrx",
-				"default": "./dist/web/*.js"
-			},
-			"./*.macos.tsrx": "./src/*.macos.tsrx",
-			"./*.linux.tsrx": {
-				"types": "./src/*.linux.tsrx",
-				"default": "./dist/linux/*.js"
-			},
-			"./*.web": "./dist/web/*.js",
-			"./*.macos": "./src/*.macos.ts",
-			"./*.linux": "./dist/linux/*.js"
-		},
 		"access": "public"
 	},
 	"scripts": {
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"build": "vite build && vite build --mode native && vite build --mode linux && node ../../scripts/check-native-dist.mjs",
-		"prepack": "pnpm build"
+		"typegen": "tsrx-typegen --project tsconfig.types.json",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
 		"@nativescript-community/ui-document-picker": "1.1.29",
@@ -107,8 +71,11 @@
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
 		"jsdom": "30.1.1",
 		"octane": "0.11.0",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
 		"vite": "8.3.0",
 		"vitest": "5.0.1"
 	},

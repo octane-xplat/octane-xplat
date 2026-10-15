@@ -1,7 +1,11 @@
+import { loadSource } from '../../../scripts/load-source.mjs'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { addCollection, resolveIcon, registry } from '../dist/web/registry.js'
-import { iconToSvg } from '../dist/web/svg.js'
+const { addCollection, resolveIcon, registry } = await loadSource(
+	new URL('../src/registry.ts', import.meta.url),
+)
+
+const { iconToSvg } = await loadSource(new URL('../src/svg.ts', import.meta.url))
 
 const body = '<path d="M0 0h32v16H0z" fill="currentColor"/>'
 

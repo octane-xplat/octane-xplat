@@ -1,8 +1,7 @@
-import type { UniversalComponent } from 'octane/universal'
-import type { LexicalEditorProps, LexicalJSON } from '../src/types'
+import type { LexicalEditorProps, LexicalJSON } from './types.js'
 
-export declare const LexicalEditor: UniversalComponent<LexicalEditorProps>
+export declare function LexicalEditor(props: LexicalEditorProps): unknown
 export declare const supported: boolean
 export declare function ensureJSONBridge(): Promise<boolean>
 export declare function jsonBridgeReady(): boolean
-export type * from '../src/types'
+export type * from './types.js'

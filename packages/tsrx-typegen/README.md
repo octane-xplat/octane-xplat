@@ -27,7 +27,7 @@ declaration output directory, and public subpaths:
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": "./dist/index.js",
+					"runtime": "./src/index.ts",
 					"types": "./types/generated/index.d.ts"
 				}
 			}
@@ -47,6 +47,8 @@ target directly.
 
 Generation writes only TypeScript declaration files under the config's
 `outDir` and records which files it owns in `.tsrx-typegen-manifest.json`.
+Declaration inputs included by the project under `rootDir` are copied beside
+emitted declarations, with the same import rewriting and freshness checks.
 Check mode emits to a temporary directory and compares the result with those
 owned files. It reports missing or stale output, unresolved `.tsrx`
 references, and code export paths without declaration targets. It refuses to
@@ -95,8 +97,34 @@ package normally:
 import { Button } from 'my-component-library'
 ```
 
+The `.js` specifiers inside declarations resolve to sibling `.d.ts` files
+through TypeScript's extension substitution. They do not require a JavaScript
+package build. Keep runtime exports pointed at authored source and type exports
+pointed at declarations:
+
+```json
+{
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"types": "./types/generated/*.d.ts",
+			"default": "./src/*"
+		}
+	},
+	"files": ["src", "types"]
+}
+```
+
+Keep wildcard runtime targets extensionless so the app bundler can select
+`.web.ts`, `.ios.ts`, or `.web.tsrx` siblings. The declaration wildcard uses
+the same module stem, and the pack check verifies each source variant has its
+matching declaration.
+
 Use separate target records and project configs when public signatures differ.
-Each config must select the same source variants as its runtime build.
+Each config must select the source variants exposed by its runtime exports.
 `runtime` records the published runtime path or condition map, while `types`
 records the declaration path. The CLI does not edit `package.json`; export
 maps remain package-owned. The default source-extension mapping is `.tsrx`,
@@ -116,8 +144,8 @@ Use `--pack-check` before publishing. It checks every configured target unless
 `--target` narrows the selection, packs a temporary tarball with lifecycle
 scripts disabled, and verifies that package and `publishConfig` export paths
 exist in the tarball. It also compares runtime and declaration value exports
-and checks that relative declaration references resolve inside the package and
-bare package imports are declared dependencies or peers. The command needs
+and checks that relative declaration references resolve to declarations inside
+the package and bare package imports are declared dependencies or peers. The command needs
 `pnpm` and the system `tar` utility. It checks package structure; keep a plain
 TypeScript consumer test for the module-resolution modes and public prop
 contracts your package supports.
@@ -141,7 +169,7 @@ for source-published packages, the `.ts` source itself.
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": "./dist/index.js",
+					"runtime": "./src/index.ts",
 					"types": "./types/index.d.ts"
 				}
 			}
@@ -156,8 +184,7 @@ Run the same gate from `prepack` so `pnpm pack` and publication share it:
 {
 	"scripts": {
 		"typegen": "tsrx-typegen --target octane",
-		"build": "vite build && pnpm typegen",
-		"prepack": "pnpm build && tsrx-typegen --pack-check"
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check"
 	}
 }
 ```

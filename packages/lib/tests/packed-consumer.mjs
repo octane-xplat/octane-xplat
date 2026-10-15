@@ -1,3 +1,4 @@
+import { loadSource } from '../../../scripts/load-source.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
@@ -18,7 +19,7 @@ try {
 	run('tar', ['-xzf', join(temporary, tarball), '-C', join(temporary, 'unpacked')])
 	const root = join(temporary, 'unpacked/package')
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-	assert.equal(manifest.exports['.'].default, './dist/index.js')
+	assert.equal(manifest.exports['.'].default, './src/index.ts')
 	assert.match(readFileSync(join(root, manifest.exports['.'].types), 'utf8'), /cx/)
 	run('pnpm', [
 		'exec',
@@ -31,9 +32,9 @@ try {
 		join(root, manifest.exports['.'].types),
 	])
 
-	const { cx } = await import(pathToFileURL(join(root, manifest.exports['.'].default)))
+	const { cx } = await loadSource(pathToFileURL(join(root, manifest.exports['.'].default)))
 	assert.equal(cx('host', [false, ['active']]), 'host active')
-	console.log('lib packed consumer: published JavaScript and declarations pass')
+	console.log('lib packed consumer: published source and declarations pass')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

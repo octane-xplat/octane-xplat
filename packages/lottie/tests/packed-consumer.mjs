@@ -97,6 +97,19 @@ void invalidFit
 		[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath],
 		consumerRoot,
 	)
+
+	const listed = spawnSync(
+		process.execPath,
+		[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath, '--listFilesOnly'],
+		{ cwd: consumerRoot, encoding: 'utf8' },
+	)
+
+	assert.equal(listed.status, 0, listed.stderr)
+	const implementation = listed.stdout
+		.split('\n')
+		.filter((file) => file.startsWith(packageLink + '/') && !file.endsWith('.d.ts'))
+
+	assert.deepEqual(implementation, [], `${target}/${mode.name} loaded implementation source`)
 }
 
 try {
@@ -107,9 +120,10 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
-	assert.ok(
-		workspaceManifest.publishConfig?.exports,
-		'the package declares publish-time export mappings',
+	assert.deepEqual(
+		packedManifest.exports,
+		workspaceManifest.exports,
+		'packing preserves source and declaration exports',
 	)
 
 	const exportMaps = [workspaceManifest.exports, packedManifest.exports]
@@ -131,7 +145,7 @@ try {
 			writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 		}
 
-		for (const target of ['web', 'native']) {
+		for (const target of ['web', 'native', 'macos']) {
 			for (const mode of [
 				{ name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
 				{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
@@ -141,7 +155,9 @@ try {
 		}
 	}
 
-	console.log('lottie packed consumer: web/native exports typecheck in Bundler and NodeNext modes')
+	console.log(
+		'lottie packed consumer: web/native/macos use only declarations in Bundler and NodeNext modes',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

@@ -18,7 +18,9 @@
 	},
 	"files": [
 		"src",
-		"types"
+		"types",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
 	],
 	"type": "module",
 	"exports": {
@@ -39,19 +41,19 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "tsc -p tsconfig.types.json",
-		"prepack": "pnpm build",
-		"test:packed": "node tests/packed-consumer.mjs"
+		"prepack": "pnpm typegen",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"typegen": "tsc -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@bamboocss/preset-base": "1.56.2",
 		"@bamboocss/types": "1.56.2",
 		"@bamboocss/vite": "1.56.2"
 	},
-	"peerDependencies": {
-		"vite": ">=5"
-	},
 	"devDependencies": {
 		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"vite": ">=5"
 	}
 }

@@ -10,6 +10,7 @@ import {
 	symlinkSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -53,8 +54,8 @@ try {
 	run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
 	const packed = join(extracted, 'package')
 	const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
-	assert.ok(manifest.exports['.'].web.default.startsWith('./dist/'))
-	assert.ok(manifest.exports['.'].native.default.startsWith('./dist/'))
+	assert.ok(manifest.exports['.'].web.default.startsWith('./src/'))
+	assert.ok(manifest.exports['.'].native.default.startsWith('./src/'))
 	assert.ok(manifest.exports['.'].web.types)
 	assert.ok(manifest.exports['.'].native.types)
 
@@ -90,30 +91,60 @@ const invalid = <Badge label={1} />
 void element; void missing; void invalid
 `,
 			)
+
 			writeFileSync(
 				join(consumer, 'tsconfig.json'),
-				JSON.stringify({
-					compilerOptions: {
-						strict: true,
-						noEmit: true,
-						skipLibCheck: true,
-						target: 'esnext',
-						types: [],
-						module: mode === 'bundler' ? 'esnext' : 'nodenext',
-						moduleResolution: mode,
-						jsx: 'react-jsx',
-						jsxImportSource: target === 'native' ? '@nativescript-community/octane' : 'octane',
-						customConditions: [target],
-						moduleSuffixes: target === 'web' ? ['.web', ''] : ['.mobile', ''],
+				JSON.stringify(
+					{
+						compilerOptions: {
+							strict: true,
+							noEmit: true,
+							skipLibCheck: true,
+							target: 'esnext',
+							types: [],
+							module: mode === 'bundler' ? 'esnext' : 'nodenext',
+							moduleResolution: mode,
+							jsx: 'react-jsx',
+							jsxImportSource: target === 'native' ? '@nativescript-community/octane' : 'octane',
+							customConditions: [target],
+							moduleSuffixes: target === 'web' ? ['.web', ''] : ['.mobile', ''],
+						},
+						files: ['consumer.tsx'],
 					},
-					files: ['consumer.tsx'],
-				}, null, '\t'),
+					null,
+					'\t',
+				),
 			)
 
 			run(
 				process.execPath,
 				[join(packageRoot, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json'],
 				consumer,
+			)
+
+			const listed = spawnSync(
+				process.execPath,
+				[
+					join(packageRoot, 'node_modules/typescript/bin/tsc'),
+					'-p',
+					'tsconfig.json',
+					'--listFilesOnly',
+				],
+				{ cwd: consumer, encoding: 'utf8' },
+			)
+
+			assert.equal(listed.status, 0, listed.stderr)
+			const implementation = listed.stdout
+				.split('\n')
+				.filter(
+					(file) =>
+						file.includes(`/node_modules/${sourceManifest.name}/src/`) && !file.endsWith('.d.ts'),
+				)
+
+			assert.deepEqual(
+				implementation,
+				[],
+				'consumer types use declarations without package implementation',
 			)
 		}
 	}

@@ -17,24 +17,11 @@
 			".linux",
 			".windows"
 		],
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
-		"types": [
-			"@nativescript/types"
-		],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["@nativescript/types"],
 		"noEmit": true,
 		"skipLibCheck": true
 	},
-	"include": [
-		"src/**/*.ts",
-		"src/**/*.tsx"
-	],
-	"exclude": [
-		"dist",
-		"types",
-		"node_modules"
-	]
+	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.tsrx"],
+	"exclude": ["dist", "types", "node_modules"]
 }

@@ -63,10 +63,16 @@ type Fixture = { account: string }
 
 function Counter(p: Props & { state: Store<State>; fixture: Fixture }) {
 	const { count } = useStore(p.state)
-	return <Pressable accessibilityLabel="Increment"
-		onPress={() => p.state.set(s => ({ count: s.count + p.step }))}>
-		<Text>{p.label ?? p.fixture.account}: {count}</Text>
-	</Pressable>
+	return (
+		<Pressable
+			accessibilityLabel="Increment"
+			onPress={() => p.state.set((s) => ({ count: s.count + p.step }))}
+		>
+			<Text>
+				{p.label ?? p.fixture.account}: {count}
+			</Text>
+		</Pressable>
+	)
 }
 
 export const Basic = defineStory<Props, State, Fixture>({
@@ -280,20 +286,21 @@ does not exclude a story explicitly imported by production code.
 pnpm run build
 ```
 
-For repository maintainers, the packed regression builds an external consumer,
+For repository maintainers, the packed regression compiles source in an external consumer,
 runs the same browser acceptance catalog, measures warm HMR, and checks a normal
-production bundle for story/fixture/workshop markers. Build the dependencies first.
+production bundle for story/fixture/workshop markers. Generate dependency declarations first.
 
 ```sh
-pnpm --filter @octane-xplat/lib build
-pnpm --filter @octane-xplat/workshop build
+pnpm --filter @octane-xplat/lib typegen
+pnpm --filter @octane-xplat/ui typegen
+pnpm --filter @octane-xplat/workshop typegen
 pnpm --filter @octane-xplat/workshop test
 pnpm --filter @octane-xplat/workshop test:packed
 pnpm --filter @octane-xplat/workshop test:packed:linux
 ```
 
-The packed checks also require an existing built UI package, as does normal
-packed-consumer verification. They use headless Chromium and capture no images.
+The packed checks compile the published source with the consumer's toolchain.
+They use headless Chromium and capture no images.
 The Linux packed check verifies packed export resolution, catalog applicability,
 the production linux server wiring and production-build exclusion in a plain
 DOM — the GJS window, GTK input/focus and WebKitGTK reload remain actual-host

@@ -1,7 +1,7 @@
 // Single index — each specifier resolves its own leaf through the suffix
 // chain (.web under web conditions, unsuffixed native defaults / .mobile/.ios/.android under native).
-// Hook-bearing services live in .tsrx files with .ts shims so tsc's
-// moduleSuffixes can reach them (docs/platform/module-resolution.md).
+// Hook-bearing services live in .tsrx files. Consumers typecheck the generated
+// declarations while the app compiler resolves each runtime platform leaf.
 export type {
 	AppState,
 	AppInfo,

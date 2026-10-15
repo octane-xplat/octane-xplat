@@ -35,6 +35,19 @@ const baseFiles = {
 try {
 	verifyPackedPackage(ts, writePackage(baseFiles))
 
+	verifyPackedPackage(
+		ts,
+		writePackage({
+			...baseFiles,
+			'package.json': JSON.stringify({
+				name: '@fixture/conditional-types',
+				types: './types/legacy.d.ts',
+				exports: { '.': { types: './types/index.d.ts', default: './dist/index.js' } },
+			}),
+			'types/legacy.d.ts': 'export declare const legacy: boolean\n',
+		}),
+	)
+
 	const workspaceOnlyTypes = writePackage({
 		'package.json': JSON.stringify({
 			name: '@fixture/workspace-only-types',
@@ -62,6 +75,106 @@ try {
 	})
 
 	verifyPackedPackage(ts, starBarrel)
+
+	const extensionlessSource = {
+		'package.json': JSON.stringify({
+			name: '@fixture/extensionless-source',
+			exports: {
+				'.': { types: './types/service.d.ts', default: './src/service' },
+				'./*': { types: './types/*.d.ts', default: './src/*' },
+			},
+		}),
+		'src/service.ts': 'export const value = 1\n',
+		'src/service.web.ts': 'export const value = 2\n',
+		'src/hook.tsrx': 'export function hook() { return 1 }\n',
+		'src/hook.web.tsrx': 'export function hook() { return 2 }\n',
+		'src/asset.json': '{}\n',
+		'types/service.d.ts': 'export declare const value: number\n',
+		'types/service.web.d.ts': 'export declare const value: number\n',
+		'types/hook.d.ts': 'export declare function hook(): number\n',
+		'types/hook.web.d.ts': 'export declare function hook(): number\n',
+	}
+
+	verifyPackedPackage(ts, writePackage(extensionlessSource))
+	const { 'types/hook.web.d.ts': omitted, ...missingVariant } = extensionlessSource
+	assert.ok(omitted)
+	assert.throws(
+		() => verifyPackedPackage(ts, writePackage(missingVariant)),
+		/missing from the tarball: \.\/types\/hook\.web\.d\.ts/,
+	)
+
+	assert.throws(
+		() =>
+			verifyPackedPackage(
+				ts,
+				writePackage({
+					...extensionlessSource,
+					'package.json': JSON.stringify({
+						name: '@fixture/untyped-extensionless-source',
+						exports: { '.': './src/service' },
+					}),
+				}),
+			),
+		/has no types condition/,
+	)
+
+	const templateExports = {
+		'package.json': JSON.stringify({
+			name: '@fixture/template-exports',
+			exports: { '.': { types: './types/index.d.ts', default: './src/index.tsrx' } },
+		}),
+		'src/index.tsrx':
+			'function Internal() @{ return <input /> }\nexport function Component() @{ return <Internal /> }\n',
+		'types/index.d.ts': 'export declare function Component(): unknown\n',
+	}
+
+	verifyPackedPackage(ts, writePackage(templateExports))
+	assert.throws(
+		() =>
+			verifyPackedPackage(
+				ts,
+				writePackage({ ...templateExports, 'types/index.d.ts': 'export {}\n' }),
+			),
+		/missing declarations: Component/,
+	)
+
+	const unreachableTypes = writePackage({
+		...baseFiles,
+		'package.json': JSON.stringify({
+			name: '@fixture/unreachable-types',
+			exports: { '.': { default: './dist/index.js', types: './types/index.d.ts' } },
+		}),
+	})
+
+	assert.throws(() => verifyPackedPackage(ts, unreachableTypes), /has no types condition/)
+
+	const sourceCondition = writePackage({
+		...baseFiles,
+		'package.json': JSON.stringify({
+			name: '@fixture/source-condition',
+			exports: {
+				'.': {
+					macos: { default: './src/index.ts' },
+					types: './types/index.d.ts',
+					default: './dist/index.js',
+				},
+			},
+		}),
+		'src/index.ts': 'export const value = 1\n',
+	})
+
+	assert.throws(() => verifyPackedPackage(ts, sourceCondition), /has no types condition/)
+
+	const sourceLeak = writePackage({
+		...baseFiles,
+		'types/index.d.ts': "export { value } from '../src/value.js'\n",
+		'src/value.ts': 'export const value = 1\n',
+	})
+
+	assert.throws(
+		() => verifyPackedPackage(ts, sourceLeak),
+		/resolves .* to implementation source; publish its declaration/,
+	)
 
 	const mismatchedRuntime = writePackage({
 		...baseFiles,

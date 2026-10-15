@@ -169,7 +169,7 @@ pnpm probe run examples/probes/icons.tsrx --target web --deps @octane-xplat/icon
 pnpm probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons
 ```
 
-For package checks, run `pnpm --filter @octane-xplat/icons build`, `typecheck`,
+For package checks, run `pnpm --filter @octane-xplat/icons typegen`, `typecheck`,
 `test`, and `pack:check`. Runtime evidence is recorded separately from builds;
 the probe proves host/source updates, not pixel parity or OS accessibility
 traversal. Run it on each target you ship.

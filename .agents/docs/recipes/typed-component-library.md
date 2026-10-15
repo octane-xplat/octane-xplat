@@ -7,7 +7,7 @@ Related APIs: tsrx-typegen, tsrx-tsc, TypeScript declarations, package.json expo
 ## Starting point
 
 A package contains public `.tsrx` components and publishes a package entrypoint.
-The reader knows TypeScript project configs and the package's runtime build.
+The reader knows TypeScript project configs and package export conditions.
 
 ## Requirements
 
@@ -26,6 +26,7 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC6: The package's prepack gate and `xplat doctor` fail when packed type targets are missing, runtime and declaration value exports differ, declaration references escape or miss the tarball, or a bare declaration dependency is undeclared.
 - AC7: Workspace setup and development refresh declarations for local consumers when generated output is absent from Git; packing regenerates and includes that output while handwritten declarations and overrides remain source.
 - AC8: `pnpm create octane-xplat <directory> --template library` creates an independent package with web/native conditional exports, generated declarations, and a packed-consumer check; [the library starter](../../../packages/create/README.md#start-a-library-package) documents its target scope and next commands.
+- AC9: Runtime exports preserve authored `.ts`, `.tsx`, and `.tsrx` modules and platform variants; the consuming app compiles installed packages with its own Octane toolchain. Public type exports resolve to `.d.ts` files whose local references stay within declarations, without loading package implementation source.
 
 ## Documentation
 
@@ -37,3 +38,4 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC6: [Pack check and doctor integration](../../../packages/tsrx-typegen/README.md#publish-checks); every declaration-shipping package wires `--pack-check` into `prepack` (`pnpm check:pack` runs them all).
 - AC7: [Develop against generated declarations](../notes/toolchain-notes.md#develop-against-generated-declarations) and [package preparation](../../../packages/tsrx-typegen/README.md#publish-checks).
 - AC8: [Create a third-party library](../../../packages/create/README.md#start-a-library-package) and the generated [library README](../../../packages/create/library-template/README.md).
+- AC9: [Source runtime and declaration publishing](../notes/toolchain-notes.md#shared-packages-publish-model), the [library starter](../../../packages/create/library-template/package.json), and [declaration closure checks](../../../packages/tsrx-typegen/tests/pack-check.mjs).
