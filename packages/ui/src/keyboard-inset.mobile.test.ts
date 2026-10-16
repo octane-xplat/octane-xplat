@@ -31,15 +31,15 @@ describe('Android overlay keyboard inset', () => {
 			core: {
 				view: {
 					ViewCompat: {
-						OnApplyWindowInsetsListener: class {
-							onApplyWindowInsets: any
-							constructor(value: any) {
-								this.onApplyWindowInsets = value.onApplyWindowInsets
-							}
-						},
 						setOnApplyWindowInsetsListener: (_view: any, value: any) => {
 							listener = value
 						},
+					},
+					OnApplyWindowInsetsListener: class {
+						onApplyWindowInsets: any
+						constructor(value: any) {
+							this.onApplyWindowInsets = value.onApplyWindowInsets
+						}
 					},
 					WindowInsetsCompat: { Type: { ime: () => 'ime', systemBars: () => 'bars' } },
 				},

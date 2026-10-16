@@ -141,6 +141,8 @@ export function subscribeKeyboardInset(notify: (inset: number) => void): () => v
 	}
 }
 
+const androidBindings = new WeakMap<object, { hosts: Map<any, number>; offset: number }>()
+
 /** Lift a bottom-anchored overlay host above the software keyboard.
  *  iOS: a shared UIKeyboardWillChangeFrame observer tracks the inset and
  *  translateY shifts the host — reliable on popup views regardless of how
@@ -182,27 +184,47 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 			return () => {}
 		}
 
-		const ViewCompat = (globalThis as any).androidx?.core?.view?.ViewCompat
-		const WindowInsetsCompat = (globalThis as any).androidx?.core?.view?.WindowInsetsCompat
-		if (!ViewCompat || !WindowInsetsCompat) {
-			return () => {}
-		}
+		const coreView = (globalThis as any).androidx?.core?.view
+		const ViewCompat = coreView?.ViewCompat
+		const WindowInsetsCompat = coreView?.WindowInsetsCompat
+		const OnApplyWindowInsetsListener = coreView?.OnApplyWindowInsetsListener
+		if (!ViewCompat || !WindowInsetsCompat || !OnApplyWindowInsetsListener) return () => {}
 
 		const decorView = nativeWindow.getDecorView()
-		const listener = new ViewCompat.OnApplyWindowInsetsListener({
-			onApplyWindowInsets: (v: any, insets: any) => {
-				const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-				const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-				// Insets are physical pixels; NativeScript transforms are dips.
-				host.translateY = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav))
-				return insets
-			},
-		})
-
-		ViewCompat.setOnApplyWindowInsetsListener(decorView, listener)
+		let entry = androidBindings.get(decorView)
+		if (!entry) {
+			const created = { hosts: new Map<any, number>(), offset: 0 }
+			const listener = new OnApplyWindowInsetsListener({
+				onApplyWindowInsets: (_view: any, insets: any) => {
+					const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+					const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+					created.offset = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav))
+					for (const boundHost of created.hosts.keys()) boundHost.translateY = created.offset
+					return insets
+				},
+			})
+			entry = created
+			androidBindings.set(decorView, entry)
+			ViewCompat.setOnApplyWindowInsetsListener(decorView, listener)
+			ViewCompat.requestApplyInsets?.(decorView)
+		}
+		const binding = entry
+		binding.hosts.set(host, (binding.hosts.get(host) ?? 0) + 1)
+		host.translateY = binding.offset
+		let released = false
 		return () => {
-			host.translateY = 0
-			ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
+			if (released) return
+			released = true
+			const count = binding.hosts.get(host) ?? 0
+			if (count > 1) binding.hosts.set(host, count - 1)
+			else {
+				binding.hosts.delete(host)
+				host.translateY = 0
+			}
+			if (!binding.hosts.size) {
+				androidBindings.delete(decorView)
+				ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
+			}
 		}
 	}
 

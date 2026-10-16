@@ -222,3 +222,58 @@ test('Android keeps resize avoidance when numeric inset support is unavailable',
 	off()
 	assert.deepEqual(host.writes, [0x11, 0x21])
 })
+
+test('Android sheet hosts share the top-level AndroidX inset listener until the last owner closes', () => {
+	let listener
+	const writes = []
+	const decor = {}
+	const nativeWindow = { getAttributes: () => ({ softInputMode: 0x20 }), getDecorView: () => decor }
+	const api = load(
+		{ android: { foregroundActivity: { getWindow: () => nativeWindow } } },
+		{
+			android: {
+				view: {
+					WindowManager: {
+						LayoutParams: { SOFT_INPUT_MASK_ADJUST: 0xf0, SOFT_INPUT_ADJUST_RESIZE: 0x10 },
+					},
+				},
+			},
+			androidx: {
+				core: {
+					view: {
+						OnApplyWindowInsetsListener: class {
+							constructor(implementation) {
+								Object.assign(this, implementation)
+							}
+						},
+						ViewCompat: {
+							setOnApplyWindowInsetsListener: (_view, value) => {
+								listener = value
+								writes.push(value)
+							},
+						},
+						WindowInsetsCompat: { Type: { ime: () => 'ime', systemBars: () => 'bars' } },
+					},
+				},
+			},
+		},
+	)
+	const first = {},
+		second = {}
+	const off1 = api.bindBottomInsetToKeyboard(first)
+	const insets = { getInsets: (type) => ({ bottom: type === 'ime' ? 620 : 20 }) }
+	assert.equal(listener.onApplyWindowInsets(decor, insets), insets)
+	assert.equal(first.translateY, -300)
+	const off2 = api.bindBottomInsetToKeyboard(second)
+	assert.equal(second.translateY, -300)
+	assert.equal(writes.length, 1)
+	off1()
+	off1()
+	assert.equal(first.translateY, 0)
+	assert.equal(writes.length, 1)
+	listener.onApplyWindowInsets(decor, { getInsets: () => ({ bottom: 0 }) })
+	assert.equal(Math.abs(second.translateY), 0)
+	off2()
+	assert.equal(writes.length, 2)
+	assert.equal(writes[1], null)
+})
