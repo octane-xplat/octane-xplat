@@ -26,52 +26,145 @@ function fixture() {
 		items: any[] = []
 		selectedTabViewItem: any
 		delegate: any
-		get numberOfTabViewItems() {return this.items.length}
-		tabViewItemAtIndex(index: number) {assert.ok(index < this.items.length); return this.items[index]}
-		insertTabViewItemAtIndex(item: any, index: number) {this.items.splice(index, 0, item)}
-		removeTabViewItem(item: any) {this.items.splice(this.items.indexOf(item), 1)}
-		indexOfTabViewItem(item: any) {return this.items.indexOf(item)}
-		selectTabViewItemAtIndex(index: number) {this.selectedTabViewItem = this.items[index]; this.delegate?.tabViewDidSelectTabViewItem(this, this.selectedTabViewItem)}
+		get numberOfTabViewItems() {
+			return this.items.length
+		}
+		tabViewItemAtIndex(index: number) {
+			assert.ok(index < this.items.length)
+			return this.items[index]
+		}
+		insertTabViewItemAtIndex(item: any, index: number) {
+			this.items.splice(index, 0, item)
+		}
+		removeTabViewItem(item: any) {
+			this.items.splice(this.items.indexOf(item), 1)
+		}
+		indexOfTabViewItem(item: any) {
+			return this.items.indexOf(item)
+		}
+		selectTabViewItemAtIndex(index: number) {
+			this.selectedTabViewItem = this.items[index]
+			this.delegate?.tabViewDidSelectTabViewItem(this, this.selectedTabViewItem)
+		}
 	}
 
 	const requests: any[] = []
-	const code = stripTypeScriptTypes(readFileSync(new URL('../src/tab-view.ts', import.meta.url), 'utf8')).replace(/^import .*\n/gm, '').replace(/export /g, '')
-	const api = runInNewContext(code + '\n({makeTabView,makeTabItem,syncTabView,syncTabItem,detachTabItem,releaseTabView,releaseTabItem,validateTabProps,flushTabViews,configureTabContentRoots,__tabItemProps})', {
-		defineUniversalComponent: (_: any, render: any) => render, universalPlan: (_: any, plan: any) => plan, universalValue() {}, universalProps() {},
-		NSObject: ObjectHost, NSView: View, NSTabView: Tabs, NSTabViewItem: Item, NSTabViewDelegate: {}, registerGestureClass() {},
-		loadImage: (source: any) => ({source}), NSFontAttributeName: 'font', NSForegroundColorAttributeName: 'color', NSColor: {labelColor: 'default'},
-		resolveFont: (size: any, weight: any, family: any) => ({size, weight, family}),
-		NSAttributedString: {alloc: () => ({initWithStringAttributes(text: any, attributes: any) {return {size: () => ({width: 10, height: attributes.font.size}), drawAtPoint() {}, text, attributes}}})},
-		NSImage: {imageWithSystemSymbolNameAccessibilityDescription: (symbol: any) => ({symbol}), imageNamed: (name: any) => ({name}), alloc: () => ({initWithData: (data: any) => ({data}), initWithSize: (size: any) => ({size, lockFocus() {}, unlockFocus() {}})})},
-		NSURL: {URLWithString: (value: any) => value},
-		NSURLSession: {sharedSession: {dataTaskWithURLCompletionHandler(url: any, callback: any) {
-			const request = {url, callback, cancelled: false, resume() {}, cancel() {this.cancelled = true}}
-			requests.push(request)
-			return request
-		}}}, NSBundle: {mainBundle: {resourcePath: '/resources'}},
-	})
+	const code = stripTypeScriptTypes(
+		readFileSync(new URL('../src/tab-view.ts', import.meta.url), 'utf8'),
+	)
+		.replace(/^import .*\n/gm, '')
+		.replace(/export /g, '')
+	const api = runInNewContext(
+		code +
+			'\n({makeTabView,makeTabItem,syncTabView,syncTabItem,detachTabItem,releaseTabView,releaseTabItem,validateTabProps,flushTabViews,configureTabContentRoots,__tabItemProps})',
+		{
+			defineUniversalComponent: (_: any, render: any) => render,
+			universalPlan: (_: any, plan: any) => plan,
+			universalValue() {},
+			universalProps() {},
+			queueMicrotask,
+			NSObject: ObjectHost,
+			NSView: View,
+			NSTabView: Tabs,
+			NSTabViewItem: Item,
+			NSTabViewDelegate: {},
+			registerGestureClass() {},
+			loadImage: (source: any) => ({ source }),
+			NSFontAttributeName: 'font',
+			NSForegroundColorAttributeName: 'color',
+			NSColor: { labelColor: 'default' },
+			resolveFont: (size: any, weight: any, family: any) => ({ size, weight, family }),
+			NSAttributedString: {
+				alloc: () => ({
+					initWithStringAttributes(text: any, attributes: any) {
+						return {
+							size: () => ({ width: 10, height: attributes.font.size }),
+							drawAtPoint() {},
+							text,
+							attributes,
+						}
+					},
+				}),
+			},
+			NSImage: {
+				imageWithSystemSymbolNameAccessibilityDescription: (symbol: any) => ({ symbol }),
+				imageNamed: (name: any) => ({ name }),
+				alloc: () => ({
+					initWithData: (data: any) => ({ data }),
+					initWithSize: (size: any) => ({ size, lockFocus() {}, unlockFocus() {} }),
+				}),
+			},
+			NSURL: { URLWithString: (value: any) => value },
+			NSURLSession: {
+				sharedSession: {
+					dataTaskWithURLCompletionHandler(url: any, callback: any) {
+						const request = {
+							url,
+							callback,
+							cancelled: false,
+							resume() {},
+							cancel() {
+								this.cancelled = true
+							},
+						}
+						requests.push(request)
+						return request
+					},
+				},
+			},
+			NSBundle: { mainBundle: { resourcePath: '/resources' } },
+		},
+	)
 
-	api.configureTabContentRoots(() => ({renders: 0, unmounts: 0, render() {this.renders++}, unmount() {this.unmounts++}}), (color: any) => color)
+	api.configureTabContentRoots(
+		() => ({
+			renders: 0,
+			unmounts: 0,
+			render() {
+				this.renders++
+			},
+			unmount() {
+				this.unmounts++
+			},
+		}),
+		(color: any) => color,
+	)
 	let id = 0
 	const events: any[] = []
 	const bar = () => {
-		const node: any = {id: ++id, props: {onSelectedIndexChange: (e: any) => events.push(e), onSelectedIndexChanged: (e: any) => events.push(e)}, children: [], container: {layoutDirty: null}}
+		const node: any = {
+			id: ++id,
+			props: {
+				onSelectedIndexChange: (e: any) => events.push(e),
+				onSelectedIndexChanged: (e: any) => events.push(e),
+			},
+			children: [],
+			container: { layoutDirty: null },
+		}
 		node.view = api.makeTabView(node)
 		return node
 	}
 
 	const item = (title = '') => {
-		const node: any = {id: ++id, type: 'tabviewitem', view: null, props: {title}, children: [], container: {}}
+		const node: any = {
+			id: ++id,
+			type: 'tabviewitem',
+			view: null,
+			props: { title },
+			children: [],
+			container: {},
+		}
 		api.makeTabItem(node)
 		api.syncTabItem(node)
 		return node
 	}
 
-	return {api, bar, item, events, requests}
+	return { api, bar, item, events, requests }
 }
 
 test('TabView defaults, clamping, unchanged suppression, native selection and callback payloads', () => {
-	const {api, bar, item, events} = fixture(), node = bar()
+	const { api, bar, item, events } = fixture(),
+		node = bar()
 	api.syncTabView(node)
 	assert.equal(node.tabIndex, -1)
 	assert.equal(events.length, 0)
@@ -251,4 +344,31 @@ test('TabView system symbols and font glyph icons render and react to font-style
  api.syncTabItem(a)
  assert.notEqual(a.tabNativeItem.image, image)
  assert.equal(a.tabNativeItem.image.size.height, 17)
+})
+
+test('source-owned tab content publishes only its final native target and creates no content root', async () => {
+	const { api, bar, item } = fixture(),
+		left = bar(),
+		right = bar(),
+		a = item('Owned')
+	const targets: any[] = []
+	a.props.__portalContent = true
+	a.props.__onContentTarget = (target: any) => targets.push(target)
+	left.props.items = [a]
+	api.syncTabView(left)
+	await new Promise<void>((resolve) => queueMicrotask(resolve))
+	assert.equal(a.contentRoot, null)
+	assert.equal(targets.at(-1), a.childHost)
+	targets.length = 0
+	left.props.items = []
+	api.syncTabView(left)
+	right.props.items = [a]
+	api.syncTabView(right)
+	await new Promise<void>((resolve) => queueMicrotask(resolve))
+	assert.deepEqual(targets, [a.childHost])
+	right.props.items = []
+	api.syncTabView(right)
+	await new Promise<void>((resolve) => queueMicrotask(resolve))
+	assert.equal(targets.at(-1), null)
+	assert.equal(a.contentRoot, null)
 })

@@ -92,6 +92,7 @@ export function makeTabView(node: ElementNode): AppKitView {
 
 export function makeTabItem(node: ElementNode) {
 	handles.add(node)
+	node.tabContentRoot = null
 	const item = IconTabItem.alloc().initWithIdentifier(String(node.id))
 	const content = NSView.new()
 	content.autoresizingMask = 18 // NSViewWidthSizable | NSViewHeightSizable
@@ -99,88 +100,158 @@ export function makeTabItem(node: ElementNode) {
 	// Logical refs always have view:null; the host owns this content root.
 	node.childHost = content as AppKitView
 	item.view = content
-	Object.defineProperty(node, 'contentRoot', { get: () => node.tabContentRoot, set: () => {throw new TypeError('AppKit tabviewitem content root cannot be reassigned; update JSX children instead')} })
+	Object.defineProperty(node, 'contentRoot', {
+		get: () => node.tabContentRoot,
+		set: () => {
+			throw new TypeError(
+				'AppKit tabviewitem content root cannot be reassigned; update JSX children instead',
+			)
+		},
+	})
 }
 
 function iconImage(source: any, style: Record<string, any> = {}): any {
-	if (source == null || source === '') {return null}
+	if (source == null || source === '') {
+		return null
+	}
 	if (typeof source !== 'string') {
 		// Shared ImageSource-like handles expose their platform image.
 		const image = source.macos ?? source.nativeImage ?? source
-		if (typeof image.drawInRectFromRectOperationFraction !== 'function') {throw new TypeError('AppKit tabviewitem iconSource host object must contain an NSImage')}
+		if (typeof image.drawInRectFromRectOperationFraction !== 'function') {
+			throw new TypeError('AppKit tabviewitem iconSource host object must contain an NSImage')
+		}
 		return image
 	}
 
-	if (source.startsWith('sys://')) {return NSImage.imageWithSystemSymbolNameAccessibilityDescription(source.slice(6), null)}
+	if (source.startsWith('sys://')) {
+		return NSImage.imageWithSystemSymbolNameAccessibilityDescription(source.slice(6), null)
+	}
 	if (source.startsWith('font://')) {
 		const text = NSAttributedString.alloc().initWithStringAttributes(source.slice(7), {
-			[NSFontAttributeName]: resolveFont(Number(style.fontSize ?? 17), style.fontWeight ?? 400, style.iconFontFamily ?? style.fontFamily),
-			[NSForegroundColorAttributeName]: style.color == null ? NSColor.labelColor : resolveIconColor(style.color),
+			[NSFontAttributeName]: resolveFont(
+				Number(style.fontSize ?? 17),
+				style.fontWeight ?? 400,
+				style.iconFontFamily ?? style.fontFamily,
+			),
+			[NSForegroundColorAttributeName]:
+				style.color == null ? NSColor.labelColor : resolveIconColor(style.color),
 		})
 
 		const size = text.size()
-		if (size.width <= 0 || size.height <= 0) {return null}
+		if (size.width <= 0 || size.height <= 0) {
+			return null
+		}
 		const image = NSImage.alloc().initWithSize(size)
 		image.lockFocus()
-		try {text.drawAtPoint({x: 0, y: 0})} finally {image.unlockFocus()}
+		try {
+			text.drawAtPoint({ x: 0, y: 0 })
+		} finally {
+			image.unlockFocus()
+		}
 		return image
 	}
 
-	if (source.startsWith('res://')) {return NSImage.imageNamed(source.slice(6))}
-	if (source.startsWith('~/')) {return loadImage(NSBundle.mainBundle.resourcePath + '/' + source.slice(2))}
+	if (source.startsWith('res://')) {
+		return NSImage.imageNamed(source.slice(6))
+	}
+	if (source.startsWith('~/')) {
+		return loadImage(NSBundle.mainBundle.resourcePath + '/' + source.slice(2))
+	}
 	return loadImage(source)
 }
 
+// Ownership transfers can detach and attach the same handle in one batch.
+// Publish only its final target, avoiding a transient content unmount.
+function notifyContentTarget(node: ElementNode) {
+	if (typeof node.props.__onContentTarget !== 'function') return
+	const generation = (node.tabPortalGeneration = (node.tabPortalGeneration ?? 0) + 1)
+	queueMicrotask(() => {
+		if (node.tabPortalGeneration !== generation) return
+		node.props.__onContentTarget?.(!node.tabDisposed && owners.has(node) ? node.childHost : null)
+	})
+}
+
 function mountContent(node: ElementNode) {
-	if (!node.tabContentRoot) {node.tabContentRoot = createContentRoot(node.childHost!, node.container.fontFamily)}
-	node.tabContentRoot.render(contentComponent, {content: node.props.__tabContent})
+	if (node.props.__portalContent) {
+		notifyContentTarget(node)
+		return
+	}
+
+	if (!node.tabContentRoot) {
+		node.tabContentRoot = createContentRoot(node.childHost!, node.container.fontFamily)
+	}
+	node.tabContentRoot.render(contentComponent, { content: node.props.__tabContent })
 }
 
 // Injected by index.ts to avoid a runtime import cycle through the host driver.
 let createContentRoot: (host: AppKitView, fontFamily?: string) => any
 let resolveIconColor: (color: any) => any
-export function configureTabContentRoots(create: typeof createContentRoot, color: (value: any) => any) {
+export function configureTabContentRoots(
+	create: typeof createContentRoot,
+	color: (value: any) => any,
+) {
 	createContentRoot = create
 	resolveIconColor = color
 }
 
 export function syncTabItem(node: ElementNode) {
-	if (node.tabDisposed) {return}
+	if (node.tabDisposed) {
+		return
+	}
 	const item = node.tabNativeItem
 	item.label = node.props.title ?? ''
 	const style = node.props.style ?? {}
-	const fontInputs = typeof node.props.iconSource === 'string' && node.props.iconSource.startsWith('font://')
-		? [style.fontSize, style.fontWeight, style.fontFamily, style.iconFontFamily, style.color] : []
+	const fontInputs =
+		typeof node.props.iconSource === 'string' && node.props.iconSource.startsWith('font://')
+			? [style.fontSize, style.fontWeight, style.fontFamily, style.iconFontFamily, style.color]
+			: []
 
-	if (!Object.is(node.tabIconInput, node.props.iconSource) || fontInputs.some((value, index) => !Object.is(value, node.tabIconFontInputs?.[index]))) {
+	if (
+		!Object.is(node.tabIconInput, node.props.iconSource) ||
+		fontInputs.some((value, index) => !Object.is(value, node.tabIconFontInputs?.[index]))
+	) {
 		node.tabIconTask?.cancel()
 		node.tabIconTask = null
-		const generation = node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1
+		const generation = (node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1)
 		const source = node.props.iconSource
 		if (typeof source === 'string' && /^https?:\/\//i.test(source)) {
 			item.image = null
-			node.tabIconTask = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(NSURL.URLWithString(source), (data: any, _response: any, error: any) => {
-				if (node.tabDisposed || node.tabIconGeneration !== generation) {return}
-				item.image = data && !error ? NSImage.alloc().initWithData(data) : null
-				const owner = owners.get(node)
-				if (owner) {owner.view!.needsDisplay = true}
-			})
+			node.tabIconTask = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(
+				NSURL.URLWithString(source),
+				(data: any, _response: any, error: any) => {
+					if (node.tabDisposed || node.tabIconGeneration !== generation) {
+						return
+					}
+					item.image = data && !error ? NSImage.alloc().initWithData(data) : null
+					const owner = owners.get(node)
+					if (owner) {
+						owner.view!.needsDisplay = true
+					}
+				},
+			)
 
 			node.tabIconTask.resume()
-		} else {item.image = iconImage(source, style)}
+		} else {
+			item.image = iconImage(source, style)
+		}
 
 		node.tabIconFontInputs = fontInputs
 		node.tabIconInput = source
 	}
 
 	const owner = owners.get(node)
-	if (owner) {owner.view!.needsDisplay = true; mountContent(node)}
+	if (owner) {
+		owner.view!.needsDisplay = true
+		mountContent(node)
+	}
 }
 
 function notifySelection(node: ElementNode, value: number) {
 	const oldIndex = node.tabIndex
 	node.tabIndex = value
-	if (oldIndex === value || node.tabDisposed) {return}
+	if (oldIndex === value || node.tabDisposed) {
+		return
+	}
 	const event = { object: node.view, value, oldIndex, newIndex: value }
 	node.props.onSelectedIndexChanged?.({ ...event, eventName: 'selectedIndexChanged' })
 	node.props.onSelectedIndexChange?.({ ...event, eventName: 'selectedIndexChange' })
@@ -190,16 +261,32 @@ function notifySelection(node: ElementNode, value: number) {
  * an items array rather than the renderer's parent/children relation. */
 export function detachTabItem(item: ElementNode, preserveContent = false) {
 	const owner = owners.get(item)
-	if (!owner) {return}
+	if (!owner) {
+		return
+	}
 	owner.tabSyncing = true
-	try {owner.view!.removeTabViewItem(item.tabNativeItem)} finally {owner.tabSyncing = false}
+	try {
+		owner.view!.removeTabViewItem(item.tabNativeItem)
+	} finally {
+		owner.tabSyncing = false
+	}
 	owner.tabItems = owner.tabItems.filter((candidate: ElementNode) => candidate !== item)
 	owners.delete(item)
-	if (!preserveContent) {item.tabContentRoot?.unmount(); item.tabContentRoot = null}
-	const index = owner.tabItems.length ? Math.min(Math.max(0, owner.tabRequested), owner.tabItems.length - 1) : -1
+	if (!preserveContent) {
+		item.tabContentRoot?.unmount()
+		item.tabContentRoot = null
+		notifyContentTarget(item)
+	}
+	const index = owner.tabItems.length
+		? Math.min(Math.max(0, owner.tabRequested), owner.tabItems.length - 1)
+		: -1
 	if (index >= 0) {
 		owner.tabSyncing = true
-		try {owner.view!.selectTabViewItemAtIndex(index)} finally {owner.tabSyncing = false}
+		try {
+			owner.view!.selectTabViewItemAtIndex(index)
+		} finally {
+			owner.tabSyncing = false
+		}
 	}
 
 	notifySelection(owner, index)
@@ -208,25 +295,38 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
 export function flushTabViews(container: any) {
 	const dirty = container.tabDirty
 	container.tabDirty = undefined
-	if (!dirty) {return}
-	const releases = container.tabReleases = new Set<ElementNode>()
-	try {for (const node of dirty) {syncTabView(node)}} finally {
+	if (!dirty) {
+		return
+	}
+	const releases = (container.tabReleases = new Set<ElementNode>())
+	try {
+		for (const node of dirty) {
+			syncTabView(node)
+		}
+	} finally {
 		container.tabReleases = undefined
 		for (const item of releases) {
-			if (!owners.has(item)) {item.tabContentRoot?.unmount(); item.tabContentRoot = null}
+			if (!owners.has(item)) {
+				item.tabContentRoot?.unmount()
+				item.tabContentRoot = null
+				notifyContentTarget(item)
+			}
 		}
 	}
 }
 
 export function syncTabView(node: ElementNode) {
-	if (node.tabDisposed) {return}
+	if (node.tabDisposed) {
+		return
+	}
 	if (node.container.layoutDirty) {
 		;(node.container.tabDirty ??= new Set()).add(node)
 		return
 	}
 
 	validateTabProps('tabview', node.props)
-	const items: ElementNode[] = node.props.items != null ? [...node.props.items] : node.children.slice()
+	const items: ElementNode[] =
+		node.props.items != null ? [...node.props.items] : node.children.slice()
 	const view = node.view!
 	node.tabSyncing = true
 	try {
@@ -234,8 +334,13 @@ export function syncTabView(node: ElementNode) {
 			if (!items.includes(item)) {
 				view.removeTabViewItem(item.tabNativeItem)
 				owners.delete(item)
-				if (node.container.tabReleases) {node.container.tabReleases.add(item)}
-				else {item.tabContentRoot?.unmount(); item.tabContentRoot = null}
+				if (node.container.tabReleases) {
+					node.container.tabReleases.add(item)
+				} else {
+					item.tabContentRoot?.unmount()
+					item.tabContentRoot = null
+					notifyContentTarget(item)
+				}
 			}
 		}
 

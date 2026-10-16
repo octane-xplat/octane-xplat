@@ -13,7 +13,15 @@ import { listFactory, parseListTemplate } from './list-template'
 
 type View = NSView & Record<string, any>
 type Props = Record<string, any>
+let nextPortalCellId = 0
+
 interface Cell {
+	rowView?: NSView
+	portalId?: number
+	portalGeneration?: number
+	portalItem?: any
+	portalActive?: boolean
+	portalNotify?: (event: any) => void
 	host: View
 	root: UniversalRoot | null
 	factoryView: View | null
@@ -51,7 +59,15 @@ function itemAt(state: ListState, index: number) {
 	return typeof source?.getItem === 'function' ? source.getItem(index) : source?.[index]
 }
 
+function releasePortal(cell: Cell) {
+	if (!cell.portalActive) return
+	cell.portalActive = false
+	cell.portalNotify?.({ type: 'release', id: cell.portalId, generation: cell.portalGeneration })
+	cell.portalNotify = undefined
+}
+
 function clearContent(state: ListState, cell: Cell) {
+	releasePortal(cell)
 	cell.root?.unmount()
 	cell.root = null
 	if (cell.factoryView) {
@@ -109,7 +125,29 @@ function bind(state: ListState, cell: Cell, index: number) {
 		for (const axis of ['leading', 'trailing', 'top', 'bottom']) {
 			host[axis + 'Anchor'].constraintEqualToAnchor(cell.host[axis + 'Anchor']).active = true
 		}
+	} else if (mode === 'render' && props.__onCellTarget) {
+		if (cell.root) {
+			cell.root.unmount()
+			cell.root = null
+		}
+		const changed =
+			!cell.portalActive || !Object.is(cell.portalItem, item) || cell.host.__portalIndex !== index
+		cell.portalId ??= nextPortalCellId++
+		if (changed) cell.portalGeneration = (cell.portalGeneration ?? 0) + 1
+		cell.portalActive = true
+		cell.portalItem = item
+		cell.host.__portalIndex = index
+		cell.portalNotify = props.__onCellTarget
+		cell.portalNotify?.({
+			type: 'bind',
+			id: cell.portalId,
+			generation: cell.portalGeneration,
+			target: cell.host,
+			item,
+			index,
+		})
 	} else {
+		releasePortal(cell)
 		cell.root ??= state.createRoot(cell.host)
 		cell.root.render(CellContent, {
 			render: () =>
@@ -178,7 +216,10 @@ const ListDelegate = NSObject.extend(
 
 			return cellFor(state, row).host
 		},
-		['tableView:didAddRowView:forRow:'](table: NSView, _rowView: NSView, row: number) {
+		['tableView:didAddRowView:forRow:'](table: NSView, rowView: NSView, row: number) {
+			const host = (rowView as any).viewAtColumn?.(0)
+			const cell = host && cellsByHost.get(host)
+			if (cell) cell.rowView = rowView
 			const state = states.get(table)
 			if (state && !state.closed && row >= 0 && row === state.count - 1) {
 				state.props.onLoadMoreItems?.({ eventName: 'loadMoreItems', object: state.view })
@@ -189,13 +230,15 @@ const ListDelegate = NSObject.extend(
 				host = rowView.viewAtColumn(0)
 
 			const cell = host && cellsByHost.get(host)
-			if (state && cell && cell.index === row) {
+			if (state && cell && cell.index === row && (!cell.rowView || cell.rowView === rowView)) {
+				cell.rowView = undefined
 				// renderItem roots retain their tree for the next recycled binding.
 				// Callable templates own an independent root; release it immediately.
 				if (cell.mode === 'factory') {
 					clearContent(state, cell)
 				}
 
+				releasePortal(cell)
 				cell.index = -1
 				cell.host.bindingContext = undefined
 			}

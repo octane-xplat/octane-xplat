@@ -21,3 +21,8 @@ export declare function createMacOSRoot(
 
 /** @internal Compiler ABI for tabviewitem JSX spreads in xplatMacOS builds. */
 export declare function __tabItemProps(props: any): any
+
+/** @internal Compiler-owned portal wrapper for raw AppKit tab items. */
+export declare function __PortalTabItem(props: any): any
+/** @internal Compiler-owned portal wrapper for raw AppKit list cells. */
+export declare function __PortalList(props: any): any

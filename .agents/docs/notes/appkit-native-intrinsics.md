@@ -776,8 +776,8 @@ TabView uses NSTabView with the shared `selectedIndex` and both selection
 callbacks. Empty tabs select -1; populated tabs clamp the requested index to
 their bounds, with the first item selected by default. Removing the index
 restores that default. Item children define each tab's content; the macOS
-compiler adapter gives each item its own Octane root, which mounts on insertion,
-diffs content in place and unmounts on removal or teardown. Keep the standard
+compiler adapter gives each item a portal from the declaring tree. Its content
+mounts on assignment, updates in place, and unmounts on unassignment or teardown. Keep the standard
 `xplatMacOS` compiler setup when authoring raw tabs.
 
 ```tsx

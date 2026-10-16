@@ -8770,3 +8770,5 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 }
 
 export * from 'octane/universal/native'
+
+export { __PortalTabItem, __PortalList } from './portal-components.macos'

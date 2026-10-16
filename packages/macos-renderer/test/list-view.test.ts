@@ -299,3 +299,28 @@ test('ItemsSource change subscriptions refresh, transfer and release without ret
 		assert.equal(root.disposed, 1)
 	}
 })
+
+test('portal cells publish bindings without roots and ignore an obsolete row removal', () => {
+	const f = fixture()
+	const events: any[] = []
+	const props = { items: ['A'], renderItem: (item: any) => item, __onCellTarget: (event: any) => events.push(event) }
+	f.update(props)
+	const host = f.row(0)
+	const first = { viewAtColumn: () => host }
+	const second = { viewAtColumn: () => host }
+	f.table.delegate['tableView:didAddRowView:forRow:'](f.table, first, 0)
+	assert.equal(f.roots.length, 0)
+	assert.equal(events.at(-1).item, 'A')
+	const generation = events.at(-1).generation
+	f.update({ ...props, items: ['B'] })
+	f.row(0)
+	f.table.delegate['tableView:didAddRowView:forRow:'](f.table, second, 0)
+	assert.equal(events.at(-1).item, 'B')
+	assert.ok(events.at(-1).generation > generation)
+	const before = events.length
+	f.table.delegate['tableView:didRemoveRowView:forRow:'](f.table, first, 0)
+	assert.equal(events.length, before)
+	f.table.delegate['tableView:didRemoveRowView:forRow:'](f.table, second, 0)
+	assert.equal(events.at(-1).type, 'release')
+	assert.equal(f.roots.length, 0)
+})

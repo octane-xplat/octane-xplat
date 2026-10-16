@@ -68,7 +68,7 @@ function reload() {
 			retainedItemBar = debug.findId('hmr-item-bar')
 			retainedTabs = debug.findId('hmr-tabs')
 			retainedTabItem = debug.findId('hmr-tab-item')
-			retainedTabContent = retainedTabItem.contentRoot.__macosDebug.findId('hmr-tab-content')
+			retainedTabContent = debug.findId('hmr-tab-content')
 			retainedSegment = debug.findId('hmr-segment')
 			retainedProgress = debug.findId('hmr-progress')
 			retainedList = debug.findId('hmr-list')
@@ -106,7 +106,7 @@ function reload() {
 			if (
 				debug.findId('hmr-listview') === retainedListView && retainedListView.documentView === retainedListViewTable && retainedListViewCell.subviews.objectAtIndex(0) === retainedListViewLabel && String(retainedListViewLabel.stringValue) === 'Second revision1' &&
 				debug.findId('hmr-item') === retainedItem && retainedItem.view === null && retainedItem.props.title === 'Second revision' && debug.findId('hmr-item-bar') === retainedItemBar && String(retainedItemBar.labelForSegment(0)) === 'Second revision' && String(retainedItemBar.labelForSegment(1)) === '1' && Number(retainedItemBar.selectedSegment) === 1 &&
-				debug.findId('hmr-tabs') === retainedTabs && debug.findId('hmr-tab-item') === retainedTabItem && retainedTabItem.contentRoot.__macosDebug.findId('hmr-tab-content') === retainedTabContent && String(retainedTabContent.stringValue) === 'Second revision' && String(retainedTabs.tabViewItemAtIndex(0).label) === 'Second revision' && retainedTabs.selectedTabViewItem === retainedTabs.tabViewItemAtIndex(1) &&
+				debug.findId('hmr-tabs') === retainedTabs && debug.findId('hmr-tab-item') === retainedTabItem && debug.findId('hmr-tab-content') === retainedTabContent && String(retainedTabContent.stringValue) === 'Second revision' && String(retainedTabs.tabViewItemAtIndex(0).label) === 'Second revision' && retainedTabs.selectedTabViewItem === retainedTabs.tabViewItemAtIndex(1) &&
 				debug.findId('hmr-segment') === retainedSegment && Number(retainedSegment.selectedSegment) === 1 && String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
 				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
 				debug.findId('hmr-list') === retainedList && Number(retainedList.indexOfSelectedItem) === 1 && String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
