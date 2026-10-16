@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hashToPngBase64, isHashPlaceholder } from './hash-image'
+import { hashToPngBase64, isHashPlaceholder, rgbaToThumbHash, rgbaToThumbHashUri } from './hash-image'
 
 const PNG_MAGIC = 'iVBORw0KGgo'
 
@@ -68,5 +68,56 @@ describe('hashToPngBase64', () => {
 		'plain string',
 	])('returns null for %s', (src) => {
 		expect(hashToPngBase64(src)).toBeNull()
+	})
+})
+
+// Expected values produced by the reference encoder (evanw/thumbhash,
+// js/thumbhash.js) over the same fixtures — the port must be byte-identical.
+describe('rgbaToThumbHash', () => {
+	const gradient16x12 = new Uint8Array(16 * 12 * 4)
+	for (let y = 0; y < 12; y++) {
+		for (let x = 0; x < 16; x++) {
+			const i = (x + y * 16) * 4
+			gradient16x12[i] = (x * 17) & 255
+			gradient16x12[i + 1] = (y * 21) & 255
+			gradient16x12[i + 2] = ((x + y) * 9) & 255
+			gradient16x12[i + 3] = 255
+		}
+	}
+
+	const alpha8x8 = new Uint8Array(8 * 8 * 4)
+	for (let y = 0; y < 8; y++) {
+		for (let x = 0; x < 8; x++) {
+			const i = (x + y * 8) * 4
+			alpha8x8[i] = 200 - x * 10
+			alpha8x8[i + 1] = 60 + y * 20
+			alpha8x8[i + 2] = 90
+			alpha8x8[i + 3] = 64 + x * 24
+		}
+	}
+
+	it.each([
+		['16x12 opaque gradient', 16, 12, gradient16x12, 'HhgODZxwd3dxeHiHiHiHiIuAB+eI'],
+		['8x8 alpha ramp', 8, 8, alpha8x8, 'nzmGFQopa3iQh3h4iGuQt/aGcId4iIeIhw=='],
+		['1x1 solid', 1, 1, new Uint8Array([77, 42, 201, 255]), 'mkM2HxMI9wiIh4hwj3CI+AiIcH/4CIgA'],
+	])('matches the reference byte-for-byte: %s', (_name, w, h, rgba, expected) => {
+		expect(Buffer.from(rgbaToThumbHash(w, h, rgba)).toString('base64')).toBe(expected)
+	})
+
+	it('produces a thumbhash: URI that decodes back to a placeholder PNG', () => {
+		const uri = rgbaToThumbHashUri(16, 12, gradient16x12)
+		expect(uri).toBe('thumbhash:HhgODZxwd3dxeHiHiHiHiIuAB+eI')
+		const png = hashToPngBase64(uri)
+		expect(png).not.toBeNull()
+		// The decode preserves the source aspect ratio approximately —
+		// 16:12 rounds into the 7:5 thumbnail grid — within the 32px cap.
+		expect(pngSize(png!)).toEqual({ width: 32, height: 23, bitDepth: 8, colorType: 6 })
+		// A real image survives the round-trip — not a flat fill.
+		const unique = new Set(pngBytes(png!).subarray(60))
+		expect(unique.size).toBeGreaterThan(8)
+	})
+
+	it('rejects images larger than 100px like the reference does', () => {
+		expect(() => rgbaToThumbHash(101, 50, new Uint8Array(101 * 50 * 4))).toThrow('101x50')
 	})
 })
