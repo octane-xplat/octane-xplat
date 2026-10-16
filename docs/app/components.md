@@ -672,7 +672,7 @@ wins when both are set. `BottomSheetSwitcher` uses `activeSheet`/
 visible. Declared shared surfaces and declarative modal content preserve
 context through native portals on iOS and Android, including platform list cells.
 On macOS, registered sheet stacks, toast stacks, and anchored popups still
-use separate roots; see the [boundary inventory](../notes/portal-boundaries.md). Scoped
+use separate roots; see the [boundary inventory](../../.agents/docs/notes/portal-boundaries.md). Scoped
 imperative hooks and native route outlets preserve context too; see
 [ownership examples](primitives.md#own-temporary-surfaces) and
 [route providers](navigation.md#preserve-providers-across-native-pages).

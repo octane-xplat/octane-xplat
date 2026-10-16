@@ -1518,7 +1518,7 @@ calls, use the scoped hooks below. Native route Pages and modals inherit the
 providers around a mounted `RouteOutlet`; see [navigation](navigation.md#preserve-providers-across-native-pages).
 Ownerless global service calls keep independent roots and require explicit data.
 On macOS, `BottomSheetSwitcher`, toast stacks, and anchored `useLayer` popups
-still use separate roots; see the [current boundary inventory](../notes/portal-boundaries.md).
+still use separate roots; see the [current boundary inventory](../../.agents/docs/notes/portal-boundaries.md).
 
 ```tsx
 import { Screen, Button, Text, useImperativeBottomSheet } from '@octane-xplat/ui'

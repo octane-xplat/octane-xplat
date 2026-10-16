@@ -1,6 +1,6 @@
 # Portal ownership across native boundaries
 
-> Contributor contract. App-building examples: [scoped sheets and modals](../app/primitives.md#own-temporary-surfaces), [native route providers](../app/navigation.md#preserve-providers-across-native-pages).
+> Contributor contract. App-building examples: [scoped sheets and modals](../../../docs/app/primitives.md#own-temporary-surfaces), [native route providers](../../../docs/app/navigation.md#preserve-providers-across-native-pages).
 
 Portals keep content in its declaring Octane tree while another native view
 hosts its pixels. The providers around the mounted outlet determine context;

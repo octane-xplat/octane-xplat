@@ -75,9 +75,9 @@ programmatic named routes, layout wrapping, retained loaded history, and cold
 URL entry. Native `addRoutes` runtime checks remain unverified.
 
 Native provider ownership is explained in
-[preserve providers across native Pages](../docs/app/navigation.md#preserve-providers-across-native-pages).
-The maintained [iOS route fixture](../packages/ui/tests/fixtures/owned-routes.ios.tsrx)
-and [Android route fixture](../packages/ui/tests/fixtures/owned-routes.android.tsrx)
+[preserve providers across native Pages](../../../docs/app/navigation.md#preserve-providers-across-native-pages).
+The maintained [iOS route fixture](../../../packages/ui/tests/fixtures/owned-routes.ios.tsrx)
+and [Android route fixture](../../../packages/ui/tests/fixtures/owned-routes.android.tsrx)
 cover outlet context, hidden Page updates, local state, cancellation and owner
 teardown. The iOS fixture also pushes through a native tab's named Frame.
 These checks use programmatic navigation; OS back/swipe gestures remain untested.

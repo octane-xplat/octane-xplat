@@ -298,7 +298,7 @@ Native modal uses a `showModal` host. Declarative children and
 `component`/`params` content portal from their declaring Octane tree and
 preserve context on iOS/Android. The imperative `openModal(Component, params)`
 service keeps its standalone root. `useImperativeModal` supplies a source-tree
-outlet when context preservation is needed; see the [scoped examples](../app/primitives.md#own-temporary-surfaces). Device probes verify inherited context, updates, and
+outlet when context preservation is needed; see the [scoped examples](../../../docs/app/primitives.md#own-temporary-surfaces). Device probes verify inherited context, updates, and
 close cleanup for declarative child content; a maintained component test
 covers `component` + `params` portal rendering and explicit prop delivery.
 Readback: the presenter exposes the modal view for assertions.
