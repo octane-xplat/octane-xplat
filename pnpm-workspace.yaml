@@ -100,7 +100,8 @@ patchedDependencies:
   # complete universal imperative-ref lifecycle, the Descriptor declaring-owner reader
   # fallback, and the signal-owner/enclosingOwner chain so child reads reuse instance
   # declarations. Verified against the registry 0.11.0 tarball; all hunks re-anchored to the
-  # rewritten compile.js and document-owner call sites.
+  # rewritten compile.js and document-owner call sites. Disposes DOM provider descendants
+  # when children become null or undefined, releasing their refs and effects.
   octane@0.11.0: packages/cli/patches/octane@0.11.0.patch
   # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
   # flex alignment, so those hunks are removed. Retains the unshipped parent-padding

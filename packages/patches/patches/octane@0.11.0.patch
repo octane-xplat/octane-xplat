@@ -1,5 +1,5 @@
 diff --git a/dist/cjs/runtime.cjs b/dist/cjs/runtime.cjs
-index a035f05..9912e51 100644
+index a035f05..e1c9ca1 100644
 --- a/dist/cjs/runtime.cjs
 +++ b/dist/cjs/runtime.cjs
 @@ -365,6 +365,7 @@ var import_stream_protocol = require("./stream-protocol.cjs");
@@ -18,6 +18,15 @@ index a035f05..9912e51 100644
  function useState(initial, slot) {
    const s = readStateHook(initial, slot, arguments.length === 1);
    return [s.value, s.setter];
+@@ -9659,6 +9661,8 @@ function renderClientContextProvider(context, props, renderScope) {
+       ensureHooks(scope).set(CHILDREN_DIALECT_SLOT, dialect);
+     }
+     renderSharedBody(childrenAsBody(children), void 0, scope, void 0);
++  } else {
++    resetScopeChildren(scope);
+   }
+ }
+ let SHARED_BODY_SCOPE = null;
 diff --git a/dist/cjs/signals/client.cjs b/dist/cjs/signals/client.cjs
 index 28e2844..af40518 100644
 --- a/dist/cjs/signals/client.cjs
@@ -453,7 +462,7 @@ index 90848a6..474c2bb 100644
 +		let specifiers = signalHelperImports.get(request);
 +		if (specifiers === undefined) signalHelperImports.set(request, (specifiers = []));
 diff --git a/dist/node/runtime.js b/dist/node/runtime.js
-index 927d060..cef6b5b 100644
+index 927d060..d311ac9 100644
 --- a/dist/node/runtime.js
 +++ b/dist/node/runtime.js
 @@ -185,6 +185,7 @@ import {
@@ -472,6 +481,15 @@ index 927d060..cef6b5b 100644
  function useState(initial, slot) {
    const s = readStateHook(initial, slot, arguments.length === 1);
    return [s.value, s.setter];
+@@ -9532,6 +9534,8 @@ function renderClientContextProvider(context, props, renderScope) {
+       ensureHooks(scope).set(CHILDREN_DIALECT_SLOT, dialect);
+     }
+     renderSharedBody(childrenAsBody(children), void 0, scope, void 0);
++  } else {
++    resetScopeChildren(scope);
+   }
+ }
+ let SHARED_BODY_SCOPE = null;
 diff --git a/dist/node/signals/client.js b/dist/node/signals/client.js
 index 21a39c3..3f85700 100644
 --- a/dist/node/signals/client.js
@@ -1034,7 +1052,7 @@ index 6427a01..8049b78 100644
    createContext,
    createSubSlot,
 diff --git a/dist/runtime.js b/dist/runtime.js
-index 67ace09..ef61a91 100644
+index 67ace09..afeb8ea 100644
 --- a/dist/runtime.js
 +++ b/dist/runtime.js
 @@ -184,6 +184,7 @@ import {
@@ -1053,6 +1071,15 @@ index 67ace09..ef61a91 100644
  function useState(initial, slot) {
    const s = readStateHook(initial, slot, arguments.length === 1);
    return [s.value, s.setter];
+@@ -9531,6 +9533,8 @@ function renderClientContextProvider(context, props, renderScope) {
+       ensureHooks(scope).set(CHILDREN_DIALECT_SLOT, dialect);
+     }
+     renderSharedBody(childrenAsBody(children), void 0, scope, void 0);
++  } else {
++    resetScopeChildren(scope);
+   }
+ }
+ let SHARED_BODY_SCOPE = null;
 diff --git a/dist/signals/client.d.ts b/dist/signals/client.d.ts
 index 6388c2f..f9e9862 100644
 --- a/dist/signals/client.d.ts
