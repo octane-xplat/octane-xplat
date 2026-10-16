@@ -228,6 +228,7 @@ these from the app folder for the platforms you have set up:
 | `pnpm build:ios`     | Builds the iOS app; requires the iOS tools.               |
 | `pnpm build:android` | Builds the Android app; requires the Android tools.       |
 | `pnpm typecheck`     | Checks the app's web and phone TypeScript configurations. |
+| `pnpm format`        | Formats JS/TS/JSX/TSX and `.tsrx` files in place.          |
 
 ### Preview and publish Web
 
