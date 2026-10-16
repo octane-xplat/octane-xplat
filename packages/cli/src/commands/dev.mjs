@@ -162,7 +162,7 @@ export const dev = command({
 		if (process.stdout.isTTY) {
 			const types = typegenWorkspaceRoot(cwd)
 			if (types) {
-				spawnTagged('types', 'pnpm', ['exec', 'turbo', 'watch', 'typegen'], types)
+				spawnTagged('types', 'pnpm', ['exec', 'turbo', 'watch', 'typegen', '--continue', 'always'], types)
 			}
 		}
 

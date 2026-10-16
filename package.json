@@ -31,7 +31,7 @@
 		"parity:macos": "pnpm parity:coverage && pnpm --filter @xplat/web parity && pnpm --filter @xplat/macos parity && node scripts/parity-check.mjs --targets=web,macos",
 		"test": "turbo run test test:native && pnpm test:cli && pnpm test:create && node --test examples/auth/server-verification.test.mjs && pnpm test:scripts",
 		"typegen": "turbo run typegen",
-		"typegen:watch": "turbo watch typegen",
+		"typegen:watch": "turbo watch typegen --continue always",
 		"postinstall": "pnpm typegen && pnpm --filter @xplat/app exec bamboo codegen",
 		"test:cli": "node --test packages/cli/test/*.test.mjs",
 		"test:create": "node --test packages/create/test/*.test.mjs",
