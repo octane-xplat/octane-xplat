@@ -67,7 +67,7 @@ been verified in an arm64 VM),
 ```sh
 pnpm install          # in the repo root
 pnpm --filter @xplat/app gen
-pnpm -C apps/windows xplat dev --targets windows
+pnpm -C apps/windows xplat dev windows
 # or: pnpm -C apps/windows windows
 ```
 

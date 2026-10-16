@@ -61,7 +61,7 @@ the NativeScript/JavaScriptCore entry as CommonJS and leaves
 `@nativescript/macos-node-api` external, following the
 [maintained host example](../../apps/macos/vite.webview-app-host.config.mjs).
 
-Run `xplat dev --targets macos` to serve the page on a loopback address and
+Run `xplat dev macos` to serve the page on a loopback address and
 launch the host. Run `xplat build --targets macos` to build the frontend and
 host and package an Apple Silicon `.app` and `.dmg`. The package stores the
 frontend in `Contents/Resources/web`; the host loads its `index.html` through
@@ -71,7 +71,7 @@ paths. The current host requires macOS 13.5 or later.
 
 ```sh
 pnpm xplat doctor
-pnpm xplat dev --targets macos
+pnpm xplat dev macos
 # After stopping development:
 pnpm xplat build --targets macos
 ```

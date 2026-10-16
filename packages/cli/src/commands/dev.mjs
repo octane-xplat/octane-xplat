@@ -1,4 +1,4 @@
-import { command, option, optional, string } from '@alloc/cmd-ts'
+import { command, option, optional, positional, string } from '@alloc/cmd-ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import * as p from '@clack/prompts'
@@ -49,6 +49,12 @@ export const dev = command({
 	description:
 		'Run web and NativeScript dev servers, plus an opt-in experimental macOS AppKit or WKWebView target',
 	args: {
+		target: positional({
+			type: optional(string),
+			displayName: 'target',
+			description:
+				'Single-target shorthand — a kind (web,macos,linux,windows) or a device target id',
+		}),
 		targets: option({
 			long: 'targets',
 			short: 't',
@@ -68,7 +74,31 @@ export const dev = command({
 		}
 
 		let chosen
-		if (args.targets) {
+		if (args.target && args.targets) {
+			p.log.error('Pass either a positional target or --targets, not both.')
+			process.exit(1)
+		}
+
+		if (args.target) {
+			const matches = all.filter((t) => t.id === args.target || t.kind === args.target)
+			if (matches.length === 0) {
+				p.log.error(
+					`No targets matched "${args.target}". Available: ${all.map((t) => `${t.kind} (${t.id})`).join(', ')}`,
+				)
+
+				process.exit(1)
+			}
+
+			if (matches.length > 1) {
+				p.log.error(
+					`"${args.target}" matched ${matches.length} targets: ${matches.map((t) => t.id).join(', ')} — pass a target id for one, or --targets ${args.target} for all`,
+				)
+
+				process.exit(1)
+			}
+
+			chosen = matches
+		} else if (args.targets) {
 			const kinds = args.targets.split(',').map((s) => s.trim())
 			chosen = all.filter((t) => kinds.includes(t.kind))
 			if (chosen.length === 0) {

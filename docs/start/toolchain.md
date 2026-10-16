@@ -174,7 +174,7 @@ opens, try the same checklist actions you tried in the browser.
 
 To launch multiple platforms together instead, stop the existing development
 commands with Ctrl+C and run `pnpm xplat dev`. It offers a choice of available
-targets. `pnpm xplat dev -t web,ios` selects web and an available iOS target.
+targets. `pnpm xplat dev macos` runs a single target; `pnpm xplat dev -t web,ios` selects web and an available iOS target.
 
 ## See a shared edit in running targets
 
@@ -314,7 +314,7 @@ desktop setup and are separate from creating your first browser or phone app.
 ## Experimental AppKit target
 
 The CLI can also run the in-repository experimental macOS AppKit Node-API app
-with `pnpm xplat dev --targets macos` and package it with
+with `pnpm xplat dev macos` and package it with
 `pnpm xplat build --targets macos`. This target is Apple Silicon only and is
 not part of the scaffolded starter. See the
 [target guide](spec.md#choose-your-targets) for release support boundaries.
@@ -495,6 +495,6 @@ configuration, prerequisites, installation, URI handling, and verification flow.
 The target renders DOM inside system WebKitGTK, with `.linux` → `.web` → shared
 resolution. It uses the desktop host protocol for OS services. The real host
 has been exercised on the Ubuntu 24.04 x86-64 VM on Andromeda; the macOS
-WKWebView stand-in is development evidence only. `xplat dev --targets linux`
+WKWebView stand-in is development evidence only. `xplat dev linux`
 continues to run the app's configured dev script; see the [harness host
 notes](../../apps/linux/host/README.md) for its Vite/GTK loop.

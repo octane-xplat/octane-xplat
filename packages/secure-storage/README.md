@@ -40,7 +40,7 @@ per-target availability: [platform notes](../../.agents/docs/notes/platform-note
 ## macOS AppKit
 
 Install the leaf as an app runtime dependency. Use the CLI-owned
-`pnpm xplat dev --targets macos` or `pnpm xplat build --targets macos` workflow;
+`pnpm xplat dev macos` or `pnpm xplat build --targets macos` workflow;
 it compiles the bundled Foundation/Security sources and loads their metadata
 before your JavaScript. See [native prerequisites](../../docs/platform/macos-native.md#prepare-the-app).
 No new UI dependency, host adapter, or runtime permission request is needed.

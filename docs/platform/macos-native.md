@@ -109,7 +109,7 @@ Install it as a runtime dependency and start development:
 ```sh
 pnpm add ./native-math
 pnpm xplat doctor
-pnpm xplat dev --targets macos
+pnpm xplat dev macos
 ```
 
 In the macOS entry, `import { add } from '@example/native-math'` followed by
@@ -217,7 +217,7 @@ with the NativeScript C/ObjC metadata bridge.
 
 ## Rebuild, package, and diagnose
 
-`pnpm xplat dev --targets macos` compiles native dependencies before launching.
+`pnpm xplat dev macos` compiles native dependencies before launching.
 Native source, header, and package configuration edits rebuild metadata and
 libraries, then restart the host. Uncached metadata generation can take a few
 minutes; unchanged builds reuse the artifact cache. A failed native rebuild reports the stage and
