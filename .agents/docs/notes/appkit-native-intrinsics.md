@@ -24,10 +24,10 @@ All conditioned native declarations derive from that same map.
 | Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`   | —                                                                                                                                      |
 | Collections       | `listview`, `tabview`, `tabviewitem`                                                                                                          | —                                                                                                                                      |
 | Navigation        | —                                                                                                                                             | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
-| Other             | `image`, `scrollview`, `webview`                                                                                                              | `liquidglass`, `placeholder`                                                                                                           |
+| Other             | `image`, `scrollview`, `webview`, `placeholder`                                                                                               | `liquidglass`                                                                                                                          |
 | Shared extensions | —                                                                                                                                             | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 32 core factories and 7 missing core hosts. `span` and
+There are now 33 core factories and 6 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 7 missing core hosts and nine missing raw extension hosts remain required.
+The 6 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -831,3 +831,57 @@ The maintained fixtures cover the host and logical-item boundary. The full
 native release, inherited common-contract audit, OS input, mobile execution
 and visual parity remain separate gates. No recipe workflow changes here;
 the shared JSX source and existing layout recipes retain their release gates.
+
+## Placeholder host
+
+Placeholder keeps its own AppKit host view and raises `creatingView` once,
+when the element first attaches. The handler assigns `event.view` — an
+NSView the consumer supplies — which is pinned to the host's edges and
+occupies the whole slot. `event.object`, refs and `getPublicInstance` are
+the host view: upstream's assigned view becomes the Placeholder's own native
+view, while the AppKit host preserves a distinct element identity so the
+event payload and ref contract stay consistent. Removing `onCreatingView`
+or re-applying it never refires; a re-created node (key change, authored
+parent move) fires again on its new host. An unassigned slot stays an empty
+host. Assignments that are not NSViews, that cycle the hierarchy, that are
+owned by another Octane root, or already used by another element fail with
+TypeError before the tree mutates further. JSX children are rejected —
+content comes from the callback, matching upstream Placeholder's View (not
+layout) contract.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { NSTextField } from '@octane-xplat/platform/macos'
+
+export default function PlaceholderExample() {
+	return (
+		<stacklayout>
+			<placeholder
+				style={{ width: 200, height: 24 }}
+				onCreatingView={(event) => {
+					const field = NSTextField.labelWithString('Native clock')
+					event.view = field
+				}}
+			/>
+		</stacklayout>
+	)
+}
+```
+
+Maintained unit and packed AppKit checks cover the event payload and
+single-fire guarantee, edge-pinned content and intrinsic sizing, empty and
+unassigned slots, keyed ordering, parent changes, replacement, removal,
+reinsertion, object/callback refs, ownership rejection cases and teardown.
+Retained-root HMR keeps the host and assigned content across a revision —
+the retained 'First revision' label inside the assigned field proves
+`creatingView` does not refire on update. Unit checks additionally cover
+the non-NSView, self-cycle and shared-host rejections. The assigned view is
+creation evidence through a JS callback, not OS-input evidence. One known
+upstream divergence is recorded in Silo `feedback_observations`: under
+`@nativescript-community/octane` the `creatingView` dispatch is deferred
+past `createNativeView`'s synchronous return inside a batch, so a
+prop-registered `onCreatingView` assignment cannot reach the returned
+native view there — the AppKit host delivers the documented contract
+synchronously. The inherited common gesture/lifecycle/style audit, mobile
+execution, visual parity and the complete release gates remain open. This
+raw-host unit changes no recipe workflow.

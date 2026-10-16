@@ -53,6 +53,8 @@ let retainedProxyChild: any
 let retainedSearch: any
 let retainedRoot: any
 let retainedRootChild: any
+let retainedPlaceholder: any
+let retainedPlaceholderContent: any
 let reloaded = false
 function reload() {
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
@@ -89,6 +91,8 @@ function reload() {
 			retainedWrapChild = debug.findId('wrap-revision')
 			retainedProxy = debug.findId('hmr-proxy')
 			retainedProxyChild = debug.findId('proxy-revision')
+			retainedPlaceholder = debug.findId('hmr-placeholder')
+			retainedPlaceholderContent = retainedPlaceholder.subviews.objectAtIndex(0)
 			debug.pressId('increment')
 			setTimeout(() => {
 				if (Number(retainedActivity.alphaValue) === 0) {
@@ -169,6 +173,9 @@ function reload() {
 				debug.findId('dock-revision') === retainedDockChild &&
 				retainedDockChild.superview === retainedDock &&
 				String(retainedDockChild.stringValue) === 'Second revision' &&
+				debug.findId('hmr-placeholder') === retainedPlaceholder &&
+				retainedPlaceholderContent.superview === retainedPlaceholder &&
+				String(retainedPlaceholderContent.stringValue) === 'First revision' &&
 				label === retainedLabel &&
 				debug.findId('hmr-content') === retainedContent &&
 				revision === retainedChild &&
@@ -224,7 +231,9 @@ function reload() {
 					retainedContent.superview ||
 					retainedChild.superview ||
 					retainedDock.superview ||
-					retainedDockChild.superview
+					retainedDockChild.superview ||
+					retainedPlaceholder.superview ||
+					retainedPlaceholderContent.superview
 				) {
 					console.error('PACKED_HMR_FAIL: ContentView teardown retained views')
 					return
@@ -234,6 +243,7 @@ function reload() {
 				console.log('PACKED_DOCKLAYOUT_HMR_OK')
 				console.log('PACKED_WRAPLAYOUT_HMR_OK')
 				console.log('PACKED_PROXYVIEWCONTAINER_HMR_OK')
+				console.log('PACKED_PLACEHOLDER_HMR_OK')
 				console.log('PACKED_ROOTLAYOUT_HMR_OK')
 				console.log('PACKED_SEARCHBAR_HMR_OK')
 				console.log('PACKED_FORMATTEDSTRING_HMR_OK')

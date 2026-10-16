@@ -76,6 +76,8 @@ for (const file of [
 	'formatted-lifecycle.ts',
 	'Search.macos.tsx',
 	'search-lifecycle.ts',
+	'Placeholder.macos.tsx',
+	'placeholder-lifecycle.ts',
 	'root-lifecycle.ts',
 	'proxy-lifecycle.ts',
 	'wrap-lifecycle.ts',
@@ -94,8 +96,8 @@ const ledger = await readFile(join(repo, '.agents/docs/notes/appkit-native-intri
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	19,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem and TimePicker examples',
+	20,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem TimePicker and Placeholder examples',
 )
 
 for (const [index, example] of examples.entries()) {
@@ -159,9 +161,15 @@ await writeFile(
 	),
 )
 
+// The starter template pins shared deps through the workspace `catalog:`
+// protocol — forward the repo's catalog so the consumer resolves them.
+const workspaceYaml = await readFile(join(repo, 'pnpm-workspace.yaml'), 'utf8')
+const catalog = /^catalog:\n(?:[ \t].*\n?)*/m.exec(workspaceYaml)?.[0]
+assert.ok(catalog, 'repo pnpm-workspace.yaml must declare a catalog')
+
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n`,
+	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\n${catalog}overrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n`,
 )
 
 await writeFile(
@@ -241,6 +249,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_LISTVIEW_OK/)
 	assert.match(output, /PACKED_TABVIEW_OK/)
 	assert.match(output, /PACKED_TABVIEW_ITEMS_OK/)
+	assert.match(output, /PACKED_PLACEHOLDER_OK/)
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
 
@@ -308,6 +317,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(devOutput, /PACKED_TIMEPICKER_HMR_OK/)
 		assert.match(devOutput, /PACKED_LISTVIEW_HMR_OK/)
 		assert.match(devOutput, /PACKED_TABVIEW_HMR_OK/)
+		assert.match(devOutput, /PACKED_PLACEHOLDER_HMR_OK/)
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)

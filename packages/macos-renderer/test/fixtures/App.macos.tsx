@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useSignal$ } from 'octane/signals/client'
+import { NSTextField } from '@octane-xplat/platform/macos'
 
 export const stackRefs: any[] = []
 export const childRefs: Record<string, { current: any }> = {
@@ -109,6 +110,13 @@ export default function App() {
 			<proxyviewcontainer id="hmr-proxy">
 				<label id="proxy-revision" text="First revision" />
 			</proxyviewcontainer>
+			<placeholder
+				id="hmr-placeholder"
+				style={{ width: 180, height: 24 }}
+				onCreatingView={(event: any) => {
+					event.view = NSTextField.labelWithString('First revision')
+				}}
+			/>
 			<stacklayout
 				id="layout"
 				onTap={

@@ -161,7 +161,8 @@ export interface ElementNode {
 	actionId?: number
 	scrollObserverInstalled: boolean
 	text: string
-	// Per-kind extras: placeholderView, marginHost, marginConstraints,
+	// Per-kind extras: placeholderView, placeholderContent, placeholderCreated,
+	// marginHost, marginConstraints,
 	// crossAxisConstraint, sizeConstraints, placementPins, styleBg, bgSlot,
 	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
 	// styleFont*/classFont*/propFontSize, stylePaddingBox/Edges, classInsets,
@@ -288,6 +289,8 @@ const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
 const wrapLayoutNodesByView = new WeakMap<object, ElementNode>()
 const dockLayoutNodesByView = new WeakMap<object, ElementNode>()
 const contentViewNodesByView = new WeakMap<object, ElementNode>()
+const placeholderNodesByView = new WeakMap<object, ElementNode>()
+const placeholderContentOwners = new WeakMap<object, ElementNode>()
 const accessibilityLabels = new Map<number, string>()
 const accessibilityRoles = new Map<number, string>()
 const stackAccessibilityPropsByView = new WeakMap<object, PropBag>()
@@ -774,6 +777,34 @@ class ContentViewHost extends NSView {
 	}
 }
 
+// A single consumer-supplied native slot (NativeScript Placeholder). The
+// element keeps its own host NSView — `creatingView` assigns `event.view`,
+// which is pinned to the host's edges so it occupies the whole slot.
+class PlaceholderHostView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	get intrinsicContentSize() {
+		const node = placeholderNodesByView.get(this)
+		const view = node?.placeholderContent
+		if (!view) {
+			return { width: 0, height: 0 }
+		}
+
+		const intrinsic = view.intrinsicContentSize
+		const fitting = view.fittingSize
+		const size = (axis: 'width' | 'height') =>
+			Math.max(
+				0,
+				Number((Number(intrinsic?.[axis]) >= 0 ? intrinsic?.[axis] : fitting?.[axis]) ?? 0) || 0,
+			)
+
+		return { width: size('width'), height: size('height') }
+	}
+}
+
 // Mirrors NativeScript 9.1.2 (MIT): ui/layouts/dock-layout/index.ios.ts
 // and ViewHelper's measurement/alignment rules. Ordered strips need NSView,
 // not NSStackView's single layout axis.
@@ -930,6 +961,99 @@ function makeContentView() {
 
 	view.translatesAutoresizingMaskIntoConstraints = false
 	return view
+}
+
+function makePlaceholder(node: ElementNode) {
+	const view = PlaceholderHostView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	placeholderNodesByView.set(view, node)
+	return view
+}
+
+/** NativeScript Placeholder (MIT): createNativeView raises `creatingView`
+ *  once when the element attaches and the handler assigns `event.view`.
+ *  Upstream the assigned view becomes the element's native view; here the
+ *  host keeps its own NSView and pins the assigned view to its edges, so
+ *  `event.object`, refs and `getPublicInstance` stay the element's host. */
+function fireCreatingView(node: ElementNode) {
+	if (node.type !== 'placeholder' || node.placeholderCreated || !node.view) {
+		return
+	}
+
+	node.placeholderCreated = true
+	const handler = node.props.onCreatingView
+	if (typeof handler !== 'function') {
+		return
+	}
+
+	const event: { eventName: string; object: any; view?: any } = {
+		eventName: 'creatingView',
+		object: node.view,
+	}
+
+	node.container.root!.eventScope('discrete', () => handler(event))
+	const view = event.view
+	if (view == null) {
+		return
+	}
+
+	if (!(view instanceof NSView)) {
+		throw new TypeError(
+			'[macos-host] placeholder creatingView must assign an AppKit NSView to event.view',
+		)
+	}
+
+	if (view === node.view || node.view.isDescendantOf(view)) {
+		throw new TypeError(
+			'[macos-host] placeholder creatingView assigned a view that would cycle the hierarchy',
+		)
+	}
+
+	if (placeholderContentOwners.get(view)) {
+		throw new TypeError(
+			'[macos-host] placeholder creatingView assigned a host already owned by another placeholder',
+		)
+	}
+
+	for (const other of node.container.nodes.values()) {
+		if (other !== node && (other.view === view || other.placeholderContent === view)) {
+			throw new TypeError(
+				'[macos-host] placeholder creatingView assigned a host already used by another element',
+			)
+		}
+	}
+
+	const owner = nodeContainersByView.get(view)
+	if (owner && owner !== node.container) {
+		throw new TypeError(
+			'[macos-host] placeholder creatingView assigned a host owned by another Octane root',
+		)
+	}
+
+	if (node.placeholderContent && node.placeholderContent !== view) {
+		node.placeholderContent.removeFromSuperview()
+		placeholderContentOwners.delete(node.placeholderContent)
+	}
+
+	node.placeholderContent = view
+	placeholderContentOwners.set(view, node)
+	nodeContainersByView.set(view, node.container)
+	view.removeFromSuperview()
+	view.translatesAutoresizingMaskIntoConstraints = false
+	node.view.addSubview(view)
+	const host = node.view as AppKitView
+	for (const anchor of ['leading', 'trailing', 'top', 'bottom']) {
+		;(view as AppKitView)[anchor + 'Anchor'].constraintEqualToAnchor(
+			host[anchor + 'Anchor'],
+		).active = true
+	}
+
+	node.view.invalidateIntrinsicContentSize()
+	queueLayoutReconcile(node.container, node.layoutParent ?? node.parent)
 }
 
 function observeContentGeometry(node: ElementNode) {
@@ -3492,6 +3616,7 @@ const SUPPORTED_TYPES = new Set([
 	'segmentedbaritem',
 	'webview',
 	'image',
+	'placeholder',
 	'span',
 	'formattedstring',
 ])
@@ -3644,6 +3769,14 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 
 	if (type === 'activityindicator' && props?.busy != null && typeof props.busy !== 'boolean') {
 		throw new Error('AppKit activityindicator busy must be boolean')
+	}
+
+	if (
+		type === 'placeholder' &&
+		props?.onCreatingView != null &&
+		typeof props.onCreatingView !== 'function'
+	) {
+		throw new Error('AppKit placeholder onCreatingView must be a function')
 	}
 
 	if (type === 'htmlview') {
@@ -3903,6 +4036,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'image':
 				node.view = makeImageView(props)
+				break
+			case 'placeholder':
+				node.view = makePlaceholder(node)
 				break
 			case 'proxyviewcontainer':
 			case 'formattedstring':
@@ -6019,6 +6155,24 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
+			case 'placeholder':
+				// creatingView fires once on attach (insert); the prop only
+				// registers the handler — re-applying it never refires.
+				if (name === 'onCreatingView' || name === 'id') {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored placeholder prop ' + name)
+				}
+
+				break
 		}
 	}
 
@@ -6710,6 +6864,10 @@ function validateTextNesting(parentType: string | undefined, childType: string) 
 		throw new Error('AppKit <progress> cannot contain JSX children')
 	}
 
+	if (parentType === 'placeholder') {
+		throw new Error('AppKit <placeholder> content comes from creatingView, not JSX children')
+	}
+
 	if (parentType === 'segmentedbar' && childType !== 'segmentedbaritem') {
 		throw new Error('AppKit <segmentedbar> accepts only segmentedbaritem children')
 	}
@@ -6822,6 +6980,10 @@ function insert(
 		}
 
 		queueLayoutReconcile(container, parent ?? node)
+		if (node.type === 'placeholder') {
+			fireCreatingView(node)
+		}
+
 		return
 	}
 
@@ -6914,6 +7076,9 @@ function insert(
 		}
 
 		syncScheme(node)
+		if (node.type === 'placeholder') {
+			fireCreatingView(node)
+		}
 	} else {
 		if (parent?.type === 'tabview') {
 			syncTabView(parent)
@@ -7086,6 +7251,22 @@ function destroy(node: ElementNode) {
 
 		if (node.view) {
 			contentViewNodesByView.delete(node.view)
+		}
+	}
+
+	if (node.type === 'placeholder') {
+		if (node.placeholderContent) {
+			placeholderContentOwners.delete(node.placeholderContent)
+			if (nodeContainersByView.get(node.placeholderContent) === node.container) {
+				nodeContainersByView.delete(node.placeholderContent)
+			}
+
+			node.placeholderContent.removeFromSuperview()
+			node.placeholderContent = null
+		}
+
+		if (node.view) {
+			placeholderNodesByView.delete(node.view)
 		}
 	}
 

@@ -17,6 +17,7 @@ import { checkProxyLifecycle } from './proxy-lifecycle'
 import { checkWrapLifecycle } from './wrap-lifecycle'
 import { checkDockLifecycle } from './dock-lifecycle'
 import { checkContentLifecycle } from './content-lifecycle'
+import { checkPlaceholderLifecycle } from './placeholder-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
 import {
 	NSApplication,
@@ -163,6 +164,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 								await checkContentLifecycle(contentRoot, nativeWindow)
 							} finally {
 								contentRoot.unmount()
+							}
+
+							const placeholderRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkPlaceholderLifecycle(placeholderRoot, nativeWindow)
+							} finally {
+								placeholderRoot.unmount()
 							}
 
 							const dockRoot = createMacOSRoot(nativeWindow.contentView)
