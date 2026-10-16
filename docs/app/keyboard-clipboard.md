@@ -15,16 +15,34 @@ web writes generally require a secure context and a user action.
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function CopyGreeting() {
-	const { clipboardProps } = useClipboard({
+	const { clipboardProps, isCopied } = useClipboard({
 		getItems: () => 'Hello from Xplat',
-		onCopy: (success) => console.log(success ? 'Copied' : 'Copy unavailable'),
+		announce: 'Copied',
+		onCopy: (success) => {
+			if (!success) console.log('Copy unavailable')
+		},
 	})
 	return (
 		<Pressable {...clipboardProps}>
-			<Text>Copy greeting</Text>
+			<Text>{isCopied ? 'Copied' : 'Copy greeting'}</Text>
 		</Pressable>
 	)
 }
+```
+
+`isCopied` flips to `true` after a successful copy and reverts on its own —
+use it for a temporary confirmation instead of tracking that state by hand.
+`resetAfterMs` controls how long it lasts (default 2000), and `announce`
+speaks a short confirmation through the platform's polite announcement
+channel so screen readers hear it too. A rapid re-copy restarts the timer,
+and a pending reset is cancelled when the component unmounts.
+
+```tsx
+const { clipboardProps, isCopied } = useClipboard({
+	getItems: () => 'Hello',
+	announce: 'Copied to clipboard',
+	resetAfterMs: 2000,
+})
 ```
 
 For sequencing, await `copy()` or `clipboardProps.onPress()`. Both resolve the
@@ -33,12 +51,20 @@ are independent attempts, without deduplication. Keep notification callbacks
 free of thrown errors. [CopyTextDemo](../../packages/ui/examples/CopyTextDemo.tsrx)
 shows a visible status message.
 
-```ts
-import { useClipboard } from '@octane-xplat/ui'
+Pass text straight to `copy(text)` when the value comes from somewhere other
+than the press — a row, an editor selection, a generated link. The argument
+wins over `getItems`, so one hook serves both paths.
 
-export function CopyController() {
-	const clipboard = useClipboard({ getItems: () => 'Hello' })
-	return clipboard.copy
+```tsx
+import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
+
+export function RowCopy({ text }: { text: string }) {
+	const { copy } = useClipboard({ announce: 'Copied' })
+	return (
+		<Pressable onPress={() => void copy(text)}>
+			<Text>Copy row</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -90,17 +116,20 @@ export function handleKey(event: KeyboardEvent): void {
 
 Keyboard handlers previously received `unknown` host events. Remove DOM casts
 and consume the normalized fields; check `isSupported` before relying on the
-attachment outside web. Clipboard press handlers now return `Promise<boolean>`;
-existing calls may ignore it, or await it for dependent work. The existing
-`getItems`, `clipboardProps`, and `keyboardProps` names are retained; this
-text-only hook is a bounded subset rather than React Aria's full clipboard API.
+attachment outside web. Clipboard press handlers return `Promise<boolean>`;
+existing calls may ignore it, or await it for dependent work. `useClipboard`
+is a render-scoped hook — call it inside a component. It now also exposes
+`isCopied`, `announce`, `resetAfterMs`, and `copy(text)`, matching the Astryx
+clipboard hook; the `getItems`, `onCopy`, `clipboardProps`, and
+`keyboardProps` names are retained. This remains a text-only subset rather
+than React Aria's full clipboard API.
 
-```ts
-import { useClipboard, useKeyboard } from '@octane-xplat/ui'
+```tsx
+import { Text, useClipboard, useKeyboard } from '@octane-xplat/ui'
 
-export function InteractionControllers() {
+export function InteractionBar() {
 	const keyboard = useKeyboard({ onKeyUp: (event) => console.log(event.code) })
 	const clipboard = useClipboard({ getItems: () => 'Hello' })
-	return { keyboard, copy: clipboard.copy }
+	return <Text>{clipboard.isCopied ? 'Copied' : 'Ready'}</Text>
 }
 ```

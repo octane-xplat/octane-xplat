@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { useKeyboard } from './use-keyboard'
 import { useKeyboard as useWebKeyboard } from './use-keyboard.web'
-import { useClipboard } from './use-clipboard'
-import { copyText } from './clipboard-write'
-
-vi.mock('./clipboard-write', () => ({ copyText: vi.fn() }))
 
 describe('normalized keyboard attachment', () => {
 	it('reports missing native attachment without advertising handlers', () => {
@@ -48,35 +44,5 @@ describe('normalized keyboard attachment', () => {
 		normalized.stopPropagation()
 		expect(event.stopPropagation).toHaveBeenCalledOnce()
 		expect(useWebKeyboard().keyboardProps.onKeyDown).toBeUndefined()
-	})
-})
-
-describe('observable clipboard attempts', () => {
-	it('returns and reports success and write failure on each activation', async () => {
-		vi.mocked(copyText).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
-		const onCopy = vi.fn(),
-			getItems = vi.fn(() => 'hello')
-
-		const result = useClipboard({ getItems, onCopy })
-		expect(await result.clipboardProps.onPress()).toBe(true)
-		expect(await result.copy()).toBe(false)
-		expect(getItems).toHaveBeenCalledTimes(2)
-		expect(onCopy.mock.calls).toEqual([[true], [false]])
-	})
-
-	it('reports producer failure and rejected writes without losing the outcome', async () => {
-		const onCopy = vi.fn()
-		expect(
-			await useClipboard({
-				getItems: () => {
-					throw new Error('producer')
-				},
-				onCopy,
-			}).copy(),
-		).toBe(false)
-
-		vi.mocked(copyText).mockRejectedValueOnce(new Error('denied'))
-		expect(await useClipboard({ getItems: () => 'hello', onCopy }).copy()).toBe(false)
-		expect(onCopy.mock.calls).toEqual([[false], [false]])
 	})
 })

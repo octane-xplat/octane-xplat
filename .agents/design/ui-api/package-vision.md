@@ -199,7 +199,7 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 | Concept                                                                           | Target public contract                                                                                                    |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | [bottomSheetHost on the macOS root](../../../packages/ui/src/index.macos.ts#L389) | Remove accidental macOS root lookup; host lifecycle belongs to explicit NativeScript integration.                         |
-| [copyText and useClipboard](../../../packages/ui/src/use-clipboard.ts#L1)         | Keep text-specific operations with observable read/copy results; richer formats need a separate exact contract.           |
+| [copyText and useClipboard](../../../packages/ui/src/use-clipboard.tsrx#L1)         | Keep text-specific operations with observable read/copy results; richer formats need a separate exact contract.           |
 | [useKeyboard](../../../packages/ui/src/use-keyboard.ts#L1)                        | Expose normalized key/code/modifier/composition events and supported attachments; keep software-keyboard insets separate. |
 | [isNative](../../../packages/ui/src/platform.ts#L1)                               | Expose genuine OS identity and behavior capabilities rather than using one native boolean for all choices.                |
 | [Ref helpers and mergeProps](../../../packages/ui/src/ref-list.ts#L1)             | Expose typed ref merging and exact prop-composition order, cancellation, classes, styles, and ref preservation.           |
