@@ -1,6 +1,6 @@
 import { command, option, optional, positional, string } from '@alloc/cmd-ts'
 import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import * as p from '@clack/prompts'
 import { discoverTargets } from '../targets.mjs'
 import { spawnTagged } from '../procs.mjs'
@@ -42,6 +42,20 @@ const spawnFor = (t, cwd) => {
 	}
 
 	return spawnTagged(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
+}
+
+/** Nearest enclosing Turborepo root that declares a `typegen` task. */
+const typegenWorkspaceRoot = (dir) => {
+	for (let current = dir, parent = dirname(current); ; current = parent, parent = dirname(current)) {
+		const turbo = join(current, 'turbo.json')
+		if (existsSync(turbo) && /"typegen"\s*:/.test(readFileSync(turbo, 'utf8'))) {
+			return current
+		}
+
+		if (parent === current) {
+			return null
+		}
+	}
 }
 
 export const dev = command({
@@ -90,14 +104,21 @@ export const dev = command({
 			}
 
 			if (matches.length > 1) {
-				p.log.error(
-					`"${args.target}" matched ${matches.length} targets: ${matches.map((t) => t.id).join(', ')} — pass a target id for one, or --targets ${args.target} for all`,
-				)
+				// A kind can match several device targets; a booted one is
+				// almost always the intended single target.
+				const booted = matches.filter((t) => t.booted)
+				if (booted.length === 1) {
+					chosen = booted
+				} else {
+					p.log.error(
+						`"${args.target}" matched ${matches.length} targets: ${matches.map((t) => t.id).join(', ')} — pass a target id for one, or --targets ${args.target} for all`,
+					)
 
-				process.exit(1)
+					process.exit(1)
+				}
+			} else {
+				chosen = matches
 			}
-
-			chosen = matches
 		} else if (args.targets) {
 			const kinds = args.targets.split(',').map((s) => s.trim())
 			chosen = all.filter((t) => kinds.includes(t.kind))
@@ -133,6 +154,16 @@ export const dev = command({
 		if (routeDir) {
 			const n = await generateRoutes(cwd, routeDir)
 			p.log.info(`routes.gen regenerated — ${n} route${n === 1 ? '' : 's'}`)
+		}
+
+		// In a workspace that declares a typegen task (this framework repo),
+		// keep package declarations hot alongside the targets — interactive
+		// sessions only; automation gets the targets alone.
+		if (process.stdout.isTTY) {
+			const types = typegenWorkspaceRoot(cwd)
+			if (types) {
+				spawnTagged('types', 'pnpm', ['exec', 'turbo', 'watch', 'typegen'], types)
+			}
 		}
 
 		for (const t of chosen) {

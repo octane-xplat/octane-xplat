@@ -12,6 +12,8 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const appDir = dirname(dirname(fileURLToPath(import.meta.url)))
+// The xplat bin entry — dev targets spawn through the CLI, not a local shim.
+const xplatCli = join(dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))), '../cli.mjs')
 const repoDir = resolve(appDir, '../..')
 const outDir = join(repoDir, 'parity-report', 'shots', 'macos')
 
@@ -19,7 +21,7 @@ const outDir = join(repoDir, 'parity-report', 'shots', 'macos')
 // inside at least one 420pt viewport shot at a 300pt step.
 const STEP = 300
 
-const host = spawn(process.execPath, ['./scripts/dev.mjs'], {
+const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 	cwd: appDir,
 	env: {
 		...process.env,

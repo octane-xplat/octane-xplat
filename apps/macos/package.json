@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"xplat": "xplat",
-		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
+		"dev": "xplat dev macos",
 		"build": "vite build",
 		"test:text-controls": "node test/verify-text-controls.mjs",
 		"test:fonts": "node test/verify-fonts.mjs",
@@ -15,7 +15,6 @@
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.mjs",
 		"bench:virtual-list-scroll": "node ./scripts/bench-virtual-list-scroll.mjs",
 		"package": "xplat build --targets macos",
-		"dev:app": "node ./scripts/dev.mjs",
 		"webview:proof": "node ./scripts/webview-proof.mjs --verify",
 		"webview:dev": "node ./scripts/webview-dev.mjs",
 		"test:announce": "node test/verify-announce.mjs",

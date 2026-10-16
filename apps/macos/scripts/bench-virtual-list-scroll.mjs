@@ -1,8 +1,10 @@
 import { spawn } from 'node:child_process'
-import { dirname, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+// The xplat bin entry — dev targets spawn through the CLI, not a local shim.
+const xplatCli = join(dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))), '../cli.mjs')
 const rowCount = Number(process.env.OCTANE_MACOS_VLIST_COUNT ?? 5000)
 const eventCount = Number(process.env.OCTANE_MACOS_VLIST_EVENTS ?? 180)
 
@@ -19,7 +21,7 @@ if (!Number.isSafeInteger(eventCount) || eventCount < 30 || eventCount > 1000) {
 }
 
 const result = await new Promise((resolveSample, rejectSample) => {
-	const child = spawn(process.execPath, ['./scripts/dev.mjs'], {
+	const child = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 		cwd: appRoot,
 		env: {
 			...process.env,

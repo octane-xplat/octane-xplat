@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const host = spawn(process.execPath, ['./scripts/dev.mjs'], {
+// The xplat bin entry — dev targets spawn through the CLI, not a local shim.
+const xplatCli = join(dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))), '../cli.mjs')
+const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 	cwd: fileURLToPath(new URL('..', import.meta.url)),
 	env: {
 		...process.env,

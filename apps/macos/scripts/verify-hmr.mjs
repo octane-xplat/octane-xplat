@@ -4,8 +4,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const appRoot = dirname(dirname(fileURLToPath(import.meta.url)))
+// The xplat bin entry — dev targets spawn through the CLI, not a local shim.
+const xplatCli = join(dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))), '../cli.mjs')
 const appSource = join(appRoot, 'src/App.tsx')
-const host = spawn(process.execPath, [join(appRoot, 'scripts/dev.mjs')], {
+const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 	cwd: appRoot,
 	env: { ...process.env, OCTANE_MACOS_AUTOMATION: '0' },
 	stdio: ['ignore', 'pipe', 'pipe'],

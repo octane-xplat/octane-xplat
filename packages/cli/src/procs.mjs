@@ -1,16 +1,29 @@
 // Prefixed process plumbing — dev runs several tools side by side, so each
-// gets a short tag on its output lines. SIGINT fans out to every child.
+// gets a short tag on its output lines. SIGINT/SIGTERM fan out to every child;
+// the parent lingers so children can finish their own cleanup first.
 import { spawn } from 'node:child_process'
 
 const children = new Set()
+let stopping = false
+let stopCode = 0
 
-process.on('SIGINT', () => {
-	for (const p of children) {
-		p.kill('SIGINT')
+const stop = (signal, code) => {
+	if (stopping) {
+		return
 	}
 
-	process.exit(130)
-})
+	stopping = true
+	stopCode = code
+	for (const p of children) {
+		p.kill(signal)
+	}
+
+	// Children that ignore the signal are abandoned after this grace period.
+	setTimeout(() => process.exit(stopCode), 5000).unref()
+}
+
+process.on('SIGINT', () => stop('SIGINT', 130))
+process.on('SIGTERM', () => stop('SIGTERM', 143))
 
 /** Spawn long-running, output prefixed `[tag]`. */
 export function spawnTagged(tag, cmd, args, cwd) {
@@ -26,7 +39,14 @@ export function spawnTagged(tag, cmd, args, cwd) {
 
 	p.stdout.on('data', prefix)
 	p.stderr.on('data', prefix)
-	p.on('exit', () => children.delete(p))
+	p.on('exit', () => {
+		children.delete(p)
+
+		if (stopping && children.size === 0) {
+			process.exit(stopCode)
+		}
+	})
+
 	return p
 }
 

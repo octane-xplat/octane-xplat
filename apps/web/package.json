@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
+		"dev": "pnpm --filter @xplat/app gen && xplat dev web",
 		"build": "pnpm --filter @xplat/app gen && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
@@ -13,7 +13,6 @@
 		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
 		"sqlite:readiness": "node scripts/sqlite-readiness.mjs",
 		"parity": "vite build && node scripts/parity.mjs",
-		"dev:app": "pnpm --filter @xplat/app gen && vite",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {

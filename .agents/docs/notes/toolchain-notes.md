@@ -244,20 +244,21 @@ lifecycle state and skip an unchanged setup hook on subsequent installs.
 pnpm typegen
 ```
 
-The harness web, mobile, macOS, Linux, and Windows development commands start
-a declaration watcher before launching the app. The watcher refreshes the
-changed package and its workspace dependents after source, handwritten type,
-or compiler configuration edits. For an editor-only session or an app linked
-to this checkout, keep this command running in the framework repository:
+Interactive `xplat dev` sessions in this repository also spawn a declaration
+watcher as a `[types]`-tagged child — `turbo watch typegen` run from the
+nearest workspace root whose `turbo.json` declares the task. It reruns the
+changed package's typegen and its dependents after source, handwritten type,
+or compiler configuration edits. Spawned/CI dev runs (non-TTY stdout) get the
+targets alone. For an editor-only session or an app linked to this checkout,
+keep this command running in the framework repository:
 
 ```sh
 pnpm typegen:watch
 ```
 
-Initial generation failure prevents the development command from launching.
-A later compiler error is reported while the watcher keeps running; generated
-files retain the last successful output until the source is fixed. Restart
-the watcher after adding a workspace package or changing its dependency graph.
+A compiler error is reported while the watcher keeps running; generated files
+retain the last successful output until the source is fixed. Restart the
+watcher after adding a workspace package or changing its dependency graph.
 
 CI generates declarations before consumer typechecks, validates UI's packed
 declaration graph, and checks GIF with plain TypeScript consumers. UI's

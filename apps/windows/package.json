@@ -5,10 +5,9 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"xplat": "xplat",
-		"windows": "node ../../scripts/watch-types.mjs -- pnpm windows:app",
+		"windows": "pnpm --filter @xplat/app gen && xplat dev windows",
 		"build:windows": "pnpm --filter @xplat/app gen && ns build windows",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
-		"windows:app": "pnpm --filter @xplat/app gen && ns run windows"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@nativescript-community/observable": "2.0.11",

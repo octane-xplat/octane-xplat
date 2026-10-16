@@ -125,7 +125,9 @@ From `apps/macos`, run `pnpm xplat dev macos` to launch it, or
 `pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
 `package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`
 and supplies product/package metadata under `xplat.targets.macos.package`.
-The CLI forwards dev to this app's `dev` script; `xplat build` owns the shared
+The app's `dev` script is `xplat dev macos`, which launches the CLI's own dev
+loop (`macos/dev-entry.mjs`) because this app declares
+`xplat.targets.macos.dev`; `xplat build` owns the shared
 `.app`/`.dmg` packaging, signing, and optional notarization flow. The local
 `package` script is only an alias for `xplat build --targets macos`.
 `xplat doctor` checks the AppKit host, Apple Silicon architecture, package
