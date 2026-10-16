@@ -1,6 +1,6 @@
-import { useRef, useState } from 'octane';
-import { Pressable, HStack, SafeArea, Screen, Text, WebView } from '@octane-xplat/ui';
-import type { WebViewHandle } from '@octane-xplat/ui';
+import { useRef, useState } from 'octane'
+import { Pressable, HStack, SafeArea, Screen, Text, WebView } from '@octane-xplat/ui'
+import type { WebViewHandle } from '@octane-xplat/ui'
 
 // Inline document so the demo works without network; tall enough to prove
 // scrollEnabled across targets.
@@ -17,23 +17,29 @@ const INLINE_HTML = `<!DOCTYPE html>
 	<div class="box">Row 3 — scroll me</div>
 	<div class="box">Row 4 — scroll me</div>
 	<div class="box">Row 5 — bottom of content</div>
-</body></html>`;
+</body></html>`
 
 /** WebView seam demo — html/src loading, onLoad/onError reporting,
  *  scrollEnabled, and the imperative handle (reload/back/forward). */
 export function WebViewDemo() @{
-	const [status, setStatus] = useState('idle');
-	const [remote, setRemote] = useState(false);
-	const [scroll, setScroll] = useState(true);
-	const [matchContents, setMatchContents] = useState(false);
-	const [ignoreSafeArea, setIgnoreSafeArea] = useState(false);
-	const [contentSize, setContentSize] = useState('not measured');
-	const handle = useRef<WebViewHandle | null>(null);
+	const [status, setStatus] = useState('idle')
+	const [remote, setRemote] = useState(false)
+	const [scroll, setScroll] = useState(true)
+	const [matchContents, setMatchContents] = useState(false)
+	const [ignoreSafeArea, setIgnoreSafeArea] = useState(false)
+	const [contentSize, setContentSize] = useState('not measured')
+	const handle = useRef<WebViewHandle | null>(null)
 
 	<Screen className="vx-app flex-1 gap-6">
 		<Text className="text-xl font-semibold">WebView</Text>
 		<HStack className="demo-menu">
-			<Pressable className="btn btn-secondary" onPress={() => { setStatus('loading…'); setRemote(!remote); }}>
+			<Pressable
+				className="btn btn-secondary"
+				onPress={() => {
+					setStatus('loading…')
+					setRemote(!remote)
+				}}
+			>
 				<Text>{remote ? 'Inline HTML' : 'Remote URL'}</Text>
 			</Pressable>
 			<Pressable className="btn btn-secondary" onPress={() => setScroll(!scroll)}>
@@ -66,7 +72,9 @@ export function WebViewDemo() @{
 				{...(remote ? { src: 'https://example.com' } : { html: INLINE_HTML })}
 				scrollEnabled={scroll}
 				matchContents={matchContents}
-				onLayoutContent={(size) => setContentSize(`${Math.round(size.width)} × ${Math.round(size.height)}`)}
+				onLayoutContent={(size) =>
+					setContentSize(`${Math.round(size.width)} × ${Math.round(size.height)}`)
+				}
 				onLoad={(e) => setStatus('loaded' + (e.url ? ' ' + e.url : ''))}
 				onError={(e) => setStatus('error ' + (e.error ?? '') + (e.url ? ' ' + e.url : ''))}
 			/>

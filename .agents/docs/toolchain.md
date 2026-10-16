@@ -146,3 +146,10 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   the silent-failure half of the invariants. `check:no-dom` is the older
   standalone regex sweep; `xplat/no-dom-globals` covers it at lint time.
   tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
+- Format: `pnpm format` = `oxlint --fix` then `xplat fmt`
+  (`packages/cli/src/commands/fmt.mjs`, engine `@octane-xplat/fmt` — in-process
+  safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
+  Rust libraries; JS/TS/JSX/TSX and `.tsrx`). The formatter owns blank-line
+  spacing, so `xplat/spacing` is no longer a lint rule — lint and fmt do not
+  compete. `xplat fmt` writes atomically per file after the batch transforms;
+  `--check` exits 1 without writes, `--stdin-filepath` pipes stdin to stdout.
