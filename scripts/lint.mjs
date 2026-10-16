@@ -9,12 +9,12 @@ const recipes = spawnSync(
 
 const shouldFix = process.argv.includes('--fix')
 const oxlint = spawnSync('oxlint', shouldFix ? ['--fix'] : [], { stdio: 'inherit' })
-const tsrxArgs = [fileURLToPath(new URL('./lint-tsrx.mjs', import.meta.url))]
-if (shouldFix) {
-	tsrxArgs.push('--fix')
-}
+const tsrx = spawnSync(
+	process.execPath,
+	[fileURLToPath(new URL('./lint-tsrx.mjs', import.meta.url))],
+	{ stdio: 'inherit' },
+)
 
-const tsrx = spawnSync(process.execPath, tsrxArgs, { stdio: 'inherit' })
 const css = spawnSync('node', [fileURLToPath(new URL('./check-css.mjs', import.meta.url))], {
 	stdio: 'inherit',
 })

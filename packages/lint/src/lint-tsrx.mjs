@@ -1,5 +1,5 @@
 // Companion lint pass for .tsrx files — oxlint can't load the tsrx parser,
-// so the shared xplat rules (xplat-rules.mjs) plus the spacing rules run
+// so the shared xplat rules (xplat-rules.mjs) run
 // here over @tsrx/core's estree-jsx AST. Severities and rule options come
 // from .oxlintrc.json so both passes share one config.
 //
@@ -7,14 +7,12 @@
 //   xplat-disable                  — file-level, first 3 lines, all rules
 //   xplat-disable-next-line        — next line, all rules
 //   ... <code> // xplat-disable-line
-import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import { relative, resolve } from 'node:path'
 import { parseModule } from '@tsrx/core'
-import { applySpacingFixes, findSpacingViolations } from './spacing-rules.mjs'
 import { XPLAT_CHECKS } from './xplat-rules.mjs'
 
 const root = process.cwd()
-const shouldFix = process.argv.includes('--fix')
 const ignoredDirectories = new Set([
 	'.git',
 	'.next',
@@ -105,8 +103,7 @@ function disabledLines(source) {
 let failed = false
 let warnCount = 0
 for (const filename of await collectTsrxFiles(root)) {
-	let source = await readFile(filename, 'utf8')
-	const original = source
+	const source = await readFile(filename, 'utf8')
 	const rel = relative(root, filename)
 	try {
 		const ast = parseModule(source, filename)
@@ -132,32 +129,6 @@ for (const filename of await collectTsrxFiles(root)) {
 
 				console.error(`${rel}:${line}: ${tag} xplat/${name} — ${v.message}`)
 			}
-		}
-
-		let violations = findSpacingViolations(ast, source)
-		if (shouldFix) {
-			for (let pass = 0; violations.length && pass < 10; pass++) {
-				source = applySpacingFixes(source, violations)
-				violations = findSpacingViolations(parseModule(source, filename), source)
-			}
-
-			if (violations.length) {
-				console.error(`${rel}: spacing fixes did not converge`)
-				failed = true
-			} else if (source !== original) {
-				await writeFile(filename, source)
-			}
-		} else if (violations.length && !fileDisabled) {
-			for (const violation of violations) {
-				const line = lineNumberAt(source, violation.node.start)
-				if (disabled.has(line)) {
-					continue
-				}
-
-				console.error(`${rel}:${line}: error xplat/spacing — ${violation.messageId}`)
-			}
-
-			failed = true
 		}
 	} catch (error) {
 		console.error(`${rel}: ${error.message}`)

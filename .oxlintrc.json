@@ -15,7 +15,6 @@
 	"jsPlugins": ["./scripts/oxlint-plugin.mjs"],
 	"rules": {
 		"curly": "error",
-		"xplat/spacing": "error",
 		"xplat/no-dom-globals": [
 			"error",
 			{
