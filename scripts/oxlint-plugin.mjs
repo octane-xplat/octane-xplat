@@ -1,42 +1,10 @@
 // Oxlint JS plugin — xplat rules. Rule logic lives in xplat-rules.mjs so the
 // same checks run on .tsrx through the companion pass (lint-tsrx.mjs);
 // oxlint can't parse .tsrx on its own.
-import { findSpacingViolations } from './spacing-rules.mjs'
 import { XPLAT_CHECKS } from './xplat-rules.mjs'
 
 const filenameOf = (context) =>
 	context.filename ?? context.getFilename?.() ?? context.physicalFilename ?? ''
-
-const spacing = {
-	meta: {
-		type: 'layout',
-		docs: { description: 'require blank lines after multiline statements' },
-		fixable: 'whitespace',
-		messages: {
-			afterMultiline: 'Add a blank line after this multiline statement.',
-			beforeImplicitReturn: 'Add a blank line before this TSRX implicit return.',
-		},
-	},
-	create(context) {
-		return {
-			'Program:exit'(program) {
-				const source = context.sourceCode.text
-				for (const violation of findSpacingViolations(program, source)) {
-					context.report({
-						node: violation.node,
-						messageId: violation.messageId,
-						fix(fixer) {
-							return fixer.insertTextBeforeRange(
-								[violation.position, violation.position],
-								violation.text,
-							)
-						},
-					})
-				}
-			},
-		}
-	},
-}
 
 const wrap = (check) => ({
 	meta: {
@@ -67,7 +35,7 @@ const wrap = (check) => ({
 	},
 })
 
-const rules = { spacing }
+const rules = {}
 for (const [name, check] of Object.entries(XPLAT_CHECKS)) {
 	rules[name] = wrap(check)
 }

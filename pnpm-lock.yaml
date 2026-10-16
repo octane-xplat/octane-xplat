@@ -1044,6 +1044,9 @@ importers:
       create-octane-xplat:
         specifier: workspace:*
         version: link:../create
+      ignore:
+        specifier: 7.0.12
+        version: 7.0.12
       marked:
         specifier: 18.0.14
         version: 18.0.14
@@ -7505,6 +7508,10 @@ packages:
   ignore-walk@8.0.0:
     resolution: {integrity: sha512-FCeMZT4NiRQGh+YkeKMtWrOmBgWjHjMJ26WQWrRQyoyzqevdaGSakUaJW5xQYmjLlUVk2qUnCjYVBax9EKKg8A==}
     engines: {node: ^20.17.0 || >=22.9.0}
+
+  ignore@7.0.12:
+    resolution: {integrity: sha512-/8UvqAPU9DGTI9k4mxtf49U37Isfwr8Uts96+SBHIkFxPJnHS0Ew4f00sM4Scd8V8EjM0jUNtVDdv1kPdt35lg==}
+    engines: {node: '>= 4'}
 
   image-q@4.0.0:
     resolution: {integrity: sha512-PfJGVgIfKQJuq3s0tTDOKtztksibuUEbJQIYT3by6wctQo+Rdlh7ef4evJ5NCdxY4CfMbvFkocEwbl4BF8RlJw==}
@@ -14852,6 +14859,8 @@ snapshots:
   ignore-walk@8.0.0:
     dependencies:
       minimatch: 10.2.6
+
+  ignore@7.0.12: {}
 
   image-q@4.0.0:
     dependencies:

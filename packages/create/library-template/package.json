@@ -51,7 +51,8 @@
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
-		"pack:check": "pnpm test:packed"
+		"pack:check": "pnpm test:packed",
+		"format": "xplat fmt"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

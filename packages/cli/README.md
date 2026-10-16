@@ -26,6 +26,7 @@ pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
 pnpm xplat doctor       # environment + framework patch check
 pnpm xplat typecheck    # web + native tsconfigs
+pnpm xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
 pnpm xplat patches apply  # install the framework's pnpm patch set into this app
 pnpm xplat patches check  # verify the patch set is registered and unmodified
 pnpm xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token

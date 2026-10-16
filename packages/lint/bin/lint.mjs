@@ -11,12 +11,11 @@ const oxlint = oxlintBin
 	? spawnSync(process.execPath, [oxlintBin, ...(shouldFix ? ['--fix'] : [])], { stdio: 'inherit' })
 	: spawnSync('oxlint', shouldFix ? ['--fix'] : [], { stdio: 'inherit' })
 
-const tsrxArgs = [fileURLToPath(new URL('../src/lint-tsrx.mjs', import.meta.url))]
-if (shouldFix) {
-	tsrxArgs.push('--fix')
-}
-
-const tsrx = spawnSync(process.execPath, tsrxArgs, { stdio: 'inherit' })
+const tsrx = spawnSync(
+	process.execPath,
+	[fileURLToPath(new URL('../src/lint-tsrx.mjs', import.meta.url))],
+	{ stdio: 'inherit' },
+)
 
 if (oxlint.error) {
 	console.error(oxlint.error.message)

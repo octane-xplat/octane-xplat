@@ -13,6 +13,7 @@ import { patches } from './commands/patches.mjs'
 import { fonts } from './commands/fonts.mjs'
 import { updates } from './commands/updates.mjs'
 import { workshop } from './commands/workshop.mjs'
+import { runFmt } from './commands/fmt.mjs'
 
 // Agent-facing commands (catalog/status/app/capabilities/permissions/targets/
 // docs/guidance/code) are dispatched before cmd-ts: their machine contract —
@@ -35,6 +36,11 @@ const agentStubs = Object.fromEntries(
 
 if (process.argv[2] && AGENT_HEADS.has(process.argv[2])) {
 	process.exitCode = await dispatchAgent(process.argv.slice(2))
+} else if (process.argv[2] === 'fmt') {
+	// fmt dispatches ahead of cmd-ts like the agent commands: its exit-code
+	// contract (0 clean, 1 check diff, 2 usage/transform/IO error) is a
+	// machine interface editors rely on, and cmd-ts emits 1 for usage errors.
+	process.exitCode = await runFmt(process.argv.slice(3))
 } else {
 	const cli = subcommands({
 		name: 'xplat',
@@ -51,6 +57,13 @@ if (process.argv[2] && AGENT_HEADS.has(process.argv[2])) {
 			fonts,
 			updates,
 			workshop,
+			fmt: command({
+				name: 'fmt',
+				description:
+					'Format JS/TS/JSX/TSX and .tsrx in place — run `xplat fmt --help`',
+				args: {},
+				handler: () => {},
+			}),
 			...agentStubs,
 		},
 	})

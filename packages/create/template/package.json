@@ -15,7 +15,8 @@
 		"build:android": "ns build android",
 		"lint": "xplat-lint",
 		"lint:fix": "xplat-lint --fix",
-		"typecheck": "xplat typecheck"
+		"typecheck": "xplat typecheck",
+		"format": "xplat fmt"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
