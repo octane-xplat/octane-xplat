@@ -497,6 +497,15 @@ export { useScrollableArea } from './use-scrollable-area'
 export { VirtualList } from './VirtualList'
 export type { VirtualListProps, VirtualListHandle, VirtualListScrollOptions } from './props'
 export { Image } from './Image'
+/** RGBA pixels → ThumbHash bytes (Evan Wallace reference port; inputs
+ *  ≤100px). Compute a placeholder client-side at upload time and store it
+ *  with the image metadata — the server never has to decode user uploads. */
+export {
+	rgbaToThumbHash,
+	/** RGBA pixels → `thumbhash:<base64>` — the form `Image.placeholder`
+	 *  accepts directly. */
+	rgbaToThumbHashUri,
+} from './hash-image'
 export { WebView } from './WebView'
 export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Overlay } from './Overlay'
