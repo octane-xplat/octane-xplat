@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
+import { createContext, useContext, useEffect } from 'octane'
 import {
 	createObjectContainer,
 	createObjectDriver,
@@ -7,7 +8,8 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({ ScrollView: class ScrollView {} }))
+vi.mock('@nativescript/core', () => ({ ScrollView: class ScrollView {}, GridLayout: class GridLayout { disposeNativeView() {} } }))
+vi.mock('./native-portal', () => ({ createPortal: (children: any) => children }))
 vi.mock('./escape-props', () => ({ applyEscapeProps() {} }))
 vi.mock('./refresh', () => ({ createPullToRefresh: vi.fn() }))
 vi.mock('./ActivityIndicator.tsrx', () => ({ ActivityIndicator: () => null }))
@@ -40,7 +42,7 @@ function createRoot() {
 		return view
 	}
 
-	return { root: createUniversalRoot(container, driver), listViews, scrollToIndex, scrollToIndexAnimated }
+	return { root: createUniversalRoot(container, driver), container, listViews, scrollToIndex, scrollToIndexAnimated }
 }
 
 describe('platform list handle', () => {
@@ -96,4 +98,49 @@ describe('platform list handle', () => {
 			root.unmount()
 		}
 	})
+})
+
+
+const CellName = createContext('missing')
+const CellNameProvider: any = CellName
+const cellSeen: string[] = []
+let cellUnmounts = 0
+function ContextRow(props: { item: string }) {
+	const name = useContext(CellName)
+	cellSeen.push(props.item + ':' + name)
+	useEffect(() => () => { cellUnmounts++ }, [])
+	return <label text={props.item + ':' + name} />
+}
+
+const contextItems = ['first', 'second']
+const renderContextItem = (item: string) => <ContextRow item={item} />
+function ListContextWrapper(props: { value: string; List: any }) {
+	const List = props.List
+	return <CellNameProvider value={props.value}><List items={contextItems} renderItem={renderContextItem} /></CellNameProvider>
+}
+
+it.each([
+	['UITableView', UITableView],
+	['RecyclerView', RecyclerView],
+] as const)('%s owns cell content in the source tree and releases disposed hosts', async (_name, List) => {
+	cellSeen.length = 0
+	cellUnmounts = 0
+	const { root, listViews, container } = createRoot()
+	try {
+		flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Avery', List }))
+		const view: any = listViews[0]
+		expect(view.props.renderItem).toBeUndefined()
+		const binding: any = { index: 0 }
+		flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
+		await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Avery'))
+		flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Jordan', List }))
+		await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Jordan'))
+		binding.index = 1
+		flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
+		await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('second:Jordan'))
+		binding.view.disposeNativeView()
+		await vi.waitFor(() => expect(cellUnmounts).toBe(1))
+	} finally { root.unmount() }
+
+	expect(cellUnmounts).toBe(1)
 })

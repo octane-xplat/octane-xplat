@@ -7,3 +7,7 @@ export { bottomSheetHost } from '../bottom-sheet-service'
 
 // Native-view outline discovery — the DOM form lives under `@octane-xplat/ui/web`.
 export { useOutlineFromView, getOutlineFromViewCapabilities } from '../outline-view.tsrx'
+
+export { useNativeRouteNavigator } from '../use-native-route-navigator'
+
+export type { NativeRouteNavigatorReturn } from '../props'

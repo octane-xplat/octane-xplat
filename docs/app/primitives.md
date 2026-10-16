@@ -1488,7 +1488,7 @@ export function Example() {
 }
 ```
 
-Pressing Close removes the declaring `BottomSheet` and releases its native root,
+Pressing Close removes the declaring `BottomSheet` and releases its portal content,
 keyboard/gesture bindings, and theme subscription. User dismissal also
 releases those resources and reports through the latest `onOpenChange` callback.
 An open animation finishing after removal cannot revive the surface.
@@ -1512,9 +1512,51 @@ panes and Pager cells, and iOS `UITabBar` panes, also portal from their
 declaring tree; Android and iOS tab/Pager probes verify context inheritance and
 live updates. The iOS Pager probe also verifies that changing pages delivers
 the current provider value to the next page's cell; OS swipes remain untested.
-The imperative `openModal`/`openBottomSheet` component roots, route-created modal roots and
-pushed Pages, AppKit `tabviewitem` content, and platform list cells remain
-independent roots; pass values through props/params or a shared store there.
+`UITableView` and `RecyclerView` cells and compiled AppKit `listview` and
+`tabviewitem` content also preserve their declaring context. For imperative
+calls, use the scoped hooks below. Native route Pages and modals inherit the
+providers around a mounted `RouteOutlet`; see [navigation](navigation.md#preserve-providers-across-native-pages).
+Ownerless global service calls keep independent roots and require explicit data.
+On macOS, `BottomSheetSwitcher`, toast stacks, and anchored `useLayer` popups
+still use separate roots; see the [current boundary inventory](../notes/portal-boundaries.md).
+
+```tsx
+import { Screen, Button, Text, useImperativeBottomSheet } from '@octane-xplat/ui'
+
+function Picker(props: { params: { title: string }; close: (value?: string) => void }) {
+    return <Button clickAction={() => props.close('saved')}>{props.params.title}</Button>
+}
+export function SheetAction() {
+    const sheet = useImperativeBottomSheet()
+    return <Screen>
+        <Button clickAction={() => { void sheet.open(Picker, { title: 'Save' }) }}>Open picker</Button>
+        {sheet.element}
+    </Screen>
+}
+```
+
+Keep `sheet.element` rendered beneath the providers the picker needs. Its
+`open` method returns the existing promise with a `close(result)` method;
+removing the element closes its sheets and settles their promises. On iOS
+and Android, `useImperativeModal` provides the same ownership for OS modals:
+
+```tsx
+// Save in an iOS platform file; Android imports from '@octane-xplat/ui/android'.
+import { useImperativeModal } from '@octane-xplat/ui/ios'
+import { Button } from '@octane-xplat/ui'
+
+function Picker(props: { close: (value?: string) => void }) {
+    return <Button clickAction={() => props.close('saved')}>Save</Button>
+}
+export function ModalAction() {
+    const modal = useImperativeModal()
+    return <>
+        <Button clickAction={() => { void modal.open(Picker) }}>Open modal</Button>
+        {modal.element}
+    </>
+}
+```
+
 For the optional `@octane-xplat/sheet` and `@octane-xplat/context-menu` leaves,
 Android and iOS content portals preserve context; the sheet's macOS content
 does too. The iOS `@octane-xplat/effects` shader subtree also preserves its

@@ -632,7 +632,12 @@ export { IconRegistryProvider } from './IconRegistryProvider'
 export { Heading } from './Heading'
 export { createIconRegistry, registerIcon, registerIcons } from './icons'
 export type { IconGlyph, IconRegistry } from './icons'
-export type { BuiltinIconName, IconName, IconNameRegistry, IconRegistryProviderProps } from './props'
+export type {
+	BuiltinIconName,
+	IconName,
+	IconNameRegistry,
+	IconRegistryProviderProps,
+} from './props'
 export type {
 	ActivityIndicatorProps,
 	HeadingProps,
@@ -982,3 +987,9 @@ export type {
 	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
 	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
 } from './props'
+
+export { useImperativeBottomSheet } from './use-imperative-bottom-sheet'
+
+export { RouteOutlet } from './RouteOutlet'
+
+export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'

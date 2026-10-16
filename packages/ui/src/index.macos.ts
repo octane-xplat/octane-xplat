@@ -283,7 +283,12 @@ export { Icon } from './Icon.macos.tsrx'
 export { IconRegistryProvider } from './IconRegistryProvider.macos.tsrx'
 export { createIconRegistry, registerIcon, registerIcons } from './icons'
 export type { IconGlyph, IconRegistry } from './icons'
-export type { BuiltinIconName, IconName, IconNameRegistry, IconRegistryProviderProps } from './props'
+export type {
+	BuiltinIconName,
+	IconName,
+	IconNameRegistry,
+	IconRegistryProviderProps,
+} from './props'
 export const isNative = true as const
 
 // Focus hooks — shared/native leaves; focus modality and landmark cycling
@@ -425,3 +430,9 @@ export type {
 	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
 	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
 } from './props'
+
+export { useImperativeBottomSheet } from './use-imperative-bottom-sheet.macos.tsrx'
+
+export { RouteOutlet } from './RouteOutlet.macos.tsrx'
+
+export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'

@@ -1,5 +1,11 @@
+import { type ContentOwner } from './owned-content'
 import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'
-import type { BottomSheetHandle, BottomSheetOpenOptions, ModalOpenResult, OpenBottomSheet } from './props'
+import type {
+	BottomSheetHandle,
+	BottomSheetOpenOptions,
+	ModalOpenResult,
+	OpenBottomSheet,
+} from './props'
 
 interface ActiveSheet {
 	controller?: { close(): void; closedPromise: Promise<unknown> }
@@ -13,11 +19,18 @@ export function closeBottomSheet(result?: ModalOpenResult): void {
 }
 
 /** Dedicated root in the key window's bottom-docked AppKit surface. */
-export const openBottomSheet: OpenBottomSheet = (
-	Component,
-	params,
-	options: BottomSheetOpenOptions = {},
-) => {
+export const openBottomSheet: OpenBottomSheet = (Component, params, options) =>
+	openBottomSheetWithOwner(null, Component, params, options)
+
+/** Internal presenter shared by standalone services and declaring-tree outlets. */
+export function openBottomSheetWithOwner(
+	owner: ContentOwner | null,
+	...[Component, params, options = {}]: Parameters<OpenBottomSheet>
+): BottomSheetHandle {
+	if (owner?.disposed)
+		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
+			close() {},
+		}) as BottomSheetHandle
 	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve, reject) => {
 		let finished = false
@@ -46,6 +59,10 @@ export const openBottomSheet: OpenBottomSheet = (
 			}
 
 			entry.controller = present({
+				owner: owner?.host,
+				createContentRoot: owner
+					? (host: unknown) => owner.createRoot(host, () => entry.finish())
+					: undefined,
 				kind: 'sheet',
 				modal: options.hasScrim ?? true,
 				snapPoints: options.snapPoints,

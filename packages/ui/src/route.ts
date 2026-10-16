@@ -1,9 +1,11 @@
+import { afterContentCommit, type ContentOwner } from './owned-content'
+import { routeContentOwner } from './route-content-owner'
 /** Native twin of route.web — same Route contract over Frame/Page stacks.
  *  `pushRoute` resolves a stack ('root' = the app's root Frame — an
  *  explicit registerStack('root') or, by default, the Frame returned by
  *  Application.getRootView(); named stacks come from TabSpec.stack panes
  *  or registerStack) and pushes a Page hosting the registered screen —
- *  each pushed Page is its own Octane root. Params land as props; named-stack
+ *  pushed Pages portal from a mounted RouteOutlet when available. Params land as props; named-stack
  *  pushes get `_stack` injected so the screen can popRoute its own stack.
  *
  *  Registration contract (the footgun this module exists to defuse):
@@ -128,6 +130,79 @@ export function errorBoundaryFor(name: string): RouteMeta['errorBoundary'] {
 const tracked = new WeakSet<Frame>()
 const listeners = new Set<() => void>()
 const pageRoutes = new WeakMap<Page, Route>()
+const requestOwners = new WeakMap<NavigationRequest, ContentOwner>()
+const pageContent = new Map<
+	Page,
+	{ frame: Frame; root: { unmount(): void }; phase: 'staged' | 'navigating' | 'committed' }
+>()
+const pendingOwnerReturns = new Map<Frame, Set<ContentOwner>>()
+const ownerBases = new WeakMap<ContentOwner, Map<Frame, { page: Page; returning: boolean }>>()
+
+function releasePageContent(page: Page) {
+	const entry = pageContent.get(page)
+	if (!entry) return
+	pageContent.delete(page)
+	entry.root.unmount()
+}
+
+function reconcilePageContent(frame: Frame) {
+	const live = new Set([
+		frame.currentPage,
+		...(frame.backStack ?? []).map((entry: any) => entry.resolvedPage ?? entry),
+	])
+	for (const [page, entry] of pageContent) {
+		if (entry.frame !== frame) continue
+		if (page === frame.currentPage) entry.phase = 'committed'
+		if (entry.phase === 'committed' && !live.has(page)) releasePageContent(page)
+	}
+}
+
+function returnToOwnerPage(owner: ContentOwner, frame: Frame) {
+	const base = ownerBases.get(owner)?.get(frame)
+	if (!base) return
+	const pending = pendingOwnerReturns.get(frame) ?? new Set<ContentOwner>()
+	pending.add(owner)
+	pendingOwnerReturns.set(frame, pending)
+	if (base.returning) return
+	const entry = frame.backStack?.find(entry => (entry.resolvedPage ?? entry) === base.page)
+	// Android may not have committed the forward entry yet. Retry from the
+	// Frame's completion event rather than losing the return request.
+	if (!entry) return
+	base.returning = true
+	rearmFrameLoaded(frame)
+	frame.goBack(entry)
+}
+
+function reconcileOwnerReturns(frame: Frame) {
+	const pending = pendingOwnerReturns.get(frame)
+	if (!pending) return
+	for (const owner of [...pending]) {
+		const base = ownerBases.get(owner)?.get(frame)
+		if (!base || frame.currentPage === base.page) pending.delete(owner)
+		else returnToOwnerPage(owner, frame)
+	}
+	if (!pending.size) pendingOwnerReturns.delete(frame)
+}
+
+function createRouteContentRoot(host: GridLayout, owner: ContentOwner | undefined, frame: Frame, page: Page) {
+	if (!owner) return createNativeScriptRoot(host)
+	let bases = ownerBases.get(owner)
+	if (!bases) ownerBases.set(owner, (bases = new Map()))
+	if (!bases.has(frame)) {
+		// Android can attach a Page's views before Frame.currentPage is set.
+		// The mounted outlet supplies its declaring Page even during that gap.
+		const declaringPage = owner.host?.page
+		const basePage = declaringPage && (!declaringPage.frame || declaringPage.frame === frame)
+			? declaringPage : frame.currentPage
+		if (basePage) bases.set(frame, { page: basePage, returning: false })
+	}
+	return owner.createRoot(host, () => {
+		const entry = pageContent.get(page)
+		releasePageContent(page)
+		if (entry && entry.phase !== 'staged') returnToOwnerPage(owner, frame)
+	})
+}
+
 const warned = new Set<string>()
 
 function emit() {
@@ -153,6 +228,8 @@ function trackFrame(frame: Frame, stack: string): void {
 
 	tracked.add(frame)
 	frame.on('navigatedTo', (event) => {
+		reconcilePageContent(frame)
+		queueMicrotask(() => reconcileOwnerReturns(frame))
 		if ((event as typeof event & { isBackNavigation?: boolean })?.isBackNavigation) {
 			navigationRequests.invalidate(stack)
 		}
@@ -384,7 +461,15 @@ export function redirect(r: Route): never {
 }
 
 export function pushRoute(r: TypedRoute): void {
+	pushRouteWithOwner(undefined, r)
+}
+
+/** Internal native owner binding used by useNativeRouteNavigator. */
+export function pushRouteWithOwner(owner: ContentOwner | undefined, r: TypedRoute): void {
+	owner ??= routeContentOwner(r.stack)
+	if (owner?.disposed) return
 	const request = navigationRequests.begin(r.stack)
+	if (owner) requestOwners.set(request, owner)
 	if (metaFor(r.name)?.beforeLoad) {
 		void prepareRoute(r, request)
 		return
@@ -394,6 +479,7 @@ export function pushRoute(r: TypedRoute): void {
 }
 
 function commitRoute(r: Route, request: NavigationRequest): void {
+	if (requestOwners.get(request)?.disposed) return
 	if (!request.isCurrent()) {
 		return
 	}
@@ -431,7 +517,12 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	if (presentation === 'modal') {
 		const presenter = resolveStack(r.stack) ?? resolveStack('root')
 		if (presenter) {
-			pushModal(presenter, { ...r, presentation }, C)
+			pushModal(
+				presenter,
+				{ ...r, presentation },
+				C,
+				requestOwners.get(request),
+			)
 		} else {
 			warnOnce('modal:' + r.name, {
 				code: 'route/no-presenter',
@@ -512,49 +603,69 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		props.error = r.loaderError
 	}
 
+	const page = new Page()
+	page.id = r.name + '-page'
+	page.actionBarHidden = true
+	const head = headFor(r)
+	if (head?.title !== undefined) page.actionBar.title = head.title
+	pageRoutes.set(page, r)
+	const host = new GridLayout()
+	page.content = host
+	const owner = requestOwners.get(request)
+	const root = createRouteContentRoot(host, owner, frame, page)
+	const entry = { frame, root, phase: 'staged' as 'staged' | 'navigating' | 'committed' }
+	pageContent.set(page, entry)
+	;(page as any).on?.('navigatedFrom', (event: any) => {
+		if (event.isBackNavigation) releasePageContent(page)
+		queueMicrotask(() => reconcilePageContent(frame))
+	})
+	;(page as any).on?.('navigatedTo', () => {
+		entry.phase = 'committed'
+		reconcilePageContent(frame)
+	})
 	try {
-		frame.navigate({
-			create: () => {
-				const page = new Page()
-				page.id = r.name + '-page'
-				page.actionBarHidden = true
-				const head = headFor(r)
-				if (head?.title !== undefined) {
-					page.actionBar.title = head.title
-				}
-
-				pageRoutes.set(page, r)
-				// Page is a ContentView — single-child (`.content` assignment
-				// drops all but the last root view). Root on a GridLayout
-				// child so multi-root screens can't silently lose siblings.
-				const host = new GridLayout()
-				page.content = host
-				// .ts → .tsrx component imports type as () => Element; the
-				// layout chain wraps it into a stamped universal component.
-				createNativeScriptRoot(host).render(RouteHost as unknown as UniversalComponent, {
-					screen: C,
-					layouts: layoutsForRoute(r.name),
-					params: props,
-					boundary: errorBoundaryFor(r.name),
-					route: r,
-				})
-
-				return page
-			},
-			transition: presentation === 'fade' ? { name: 'fade' } : undefined,
+		root.render(RouteHost as unknown as UniversalComponent, {
+			screen: C,
+			layouts: layoutsForRoute(r.name),
+			params: props,
+			boundary: errorBoundaryFor(r.name),
+			route: r,
 		})
-	} catch (e) {
-		console.warn('[octane-xplat] pushRoute(' + r.name + ') threw: ' + (e as Error)?.message)
+		afterContentCommit(root, () => {
+			if (!request.isCurrent() || owner?.disposed) {
+				releasePageContent(page)
+				return
+			}
+			try {
+				entry.phase = 'navigating'
+				frame.navigate({
+					create: () => page,
+					transition: presentation === 'fade' ? { name: 'fade' } : undefined,
+				})
+			} catch (error) {
+				releasePageContent(page)
+				console.warn('[octane-xplat] pushRoute(' + r.name + ') threw: ' + (error as Error)?.message)
+			}
+		})
+	} catch (error) {
+		releasePageContent(page)
+		console.warn('[octane-xplat] pushRoute(' + r.name + ') threw: ' + (error as Error)?.message)
 	}
 }
 
-/** A modal route is its own Octane root on a `showModal` host — the same
+/** A modal route uses its outlet portal (or a standalone fallback) on a `showModal` host — the same
  *  shape as openModal in modal-service, but tracked as a Route so
  *  popRoute/currentModalRoute stay honest. The screen receives `close`
  *  alongside its params and calls it (or popRoute) to dismiss. */
-function pushModal(frame: Frame, r: Route, C: any): void {
+function pushModal(frame: Frame, r: Route, C: any, owner?: ContentOwner): void {
 	const host = new GridLayout()
-	const root = createNativeScriptRoot(host) as any
+	const root =
+		owner?.createRoot(host, () => {
+			entry.dismiss()
+			try {
+				host.closeModal()
+			} catch {}
+		}) ?? createNativeScriptRoot(host)
 	const entry = { host, route: r, dismiss: () => {} }
 	entry.dismiss = () => {
 		const i = modalHosts.indexOf(entry)
@@ -607,11 +718,19 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 			route: r,
 		})
 
-		presenter.showModal(host, {
-			context: {},
-			closeCallback: entry.dismiss,
-			fullscreen: true,
-			animated: true,
+		afterContentCommit(root, () => {
+			if (owner?.disposed || !modalHosts.includes(entry)) return
+			try {
+				presenter.showModal(host, {
+					context: {},
+					closeCallback: entry.dismiss,
+					fullscreen: true,
+					animated: true,
+				})
+			} catch (error) {
+				entry.dismiss()
+				console.warn('[octane-xplat] modal presentation failed', error)
+			}
 		})
 
 		emit()

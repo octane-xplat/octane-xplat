@@ -1,3 +1,4 @@
+import { afterContentCommit, type ContentOwner } from '../owned-content'
 import { Frame, GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
@@ -6,10 +7,21 @@ import { applyThemeClasses } from '../theme/theme-host'
 import { modalPresenter } from '../modal-presenter'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
-export const openModal: OpenModal = (Component, params, options = {}) => {
+export const openModal: OpenModal = (Component, params, options) =>
+	openModalWithOwner(null, Component, params, options)
+
+/** Internal presenter shared by standalone services and declaring-tree outlets. */
+export function openModalWithOwner(
+	owner: ContentOwner | null,
+	...[Component, params, options = {}]: Parameters<OpenModal>
+): ModalHandle {
+	if (owner?.disposed)
+		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
+			close() {},
+		}) as ModalHandle
 	let closeModal: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve, reject) => {
-		const presenter = modalPresenter(Frame.topmost())
+		const presenter = modalPresenter(owner?.host?.page?.frame ?? Frame.topmost())
 		if (!presenter) {
 			reject(
 				new Error(
@@ -22,7 +34,7 @@ export const openModal: OpenModal = (Component, params, options = {}) => {
 
 		const host = new GridLayout()
 		const unbindTheme = applyThemeClasses(host, 'vx-modal-host')
-		const root = createNativeScriptRoot(host) as any
+		const root = owner?.createRoot(host, () => closeModal?.()) ?? createNativeScriptRoot(host)
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
 			if (finished) {
@@ -36,7 +48,13 @@ export const openModal: OpenModal = (Component, params, options = {}) => {
 			resolve(result)
 		}
 
-		const close = (result?: ModalOpenResult) => host.closeModal(result)
+		const close = (result?: ModalOpenResult) => {
+			try {
+				host.closeModal(result)
+			} finally {
+				finish(result)
+			}
+		}
 		closeModal = (result?: ModalOpenResult) => {
 			// closeModal on a never-presented host throws — treat the close as
 			// completing the request either way so the handle always settles.
@@ -55,11 +73,19 @@ export const openModal: OpenModal = (Component, params, options = {}) => {
 
 		// showModal takes (viewToShow, options). On Android fullscreen=false is
 		// a centered dialog sized to its content.
-		presenter.showModal(host, {
-			context: {},
-			closeCallback: finish,
-			fullscreen,
-			animated: options.animated ?? true,
+		afterContentCommit(root, () => {
+			if (finished) return
+			try {
+				presenter.showModal(host, {
+					context: {},
+					closeCallback: finish,
+					fullscreen,
+					animated: options.animated ?? true,
+				})
+			} catch (error) {
+				reject(error)
+				finish()
+			}
 		})
 	}) as ModalHandle
 

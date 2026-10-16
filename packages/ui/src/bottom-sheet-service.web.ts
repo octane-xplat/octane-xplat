@@ -1,3 +1,4 @@
+import { afterContentCommit, type ContentOwner } from './owned-content'
 import { createRoot } from 'octane'
 import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from './props'
 import { applyThemeClasses } from './theme/theme-host'
@@ -22,7 +23,18 @@ export function closeBottomSheet(result?: ModalOpenResult): void {
 /** Imperative in-window bottom sheet: portal layer at document root,
  *  bottom-anchored panel, dedicated Octane root, grabber + snap/swipe
  *  gestures. Resolves when the sheet closes. */
-export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}) => {
+export const openBottomSheet: OpenBottomSheet = (Component, params, options) =>
+	openBottomSheetWithOwner(null, Component, params, options)
+
+/** Internal presenter shared by standalone services and declaring-tree outlets. */
+export function openBottomSheetWithOwner(
+	owner: ContentOwner | null,
+	...[Component, params, options = {}]: Parameters<OpenBottomSheet>
+): BottomSheetHandle {
+	if (owner?.disposed)
+		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
+			close() {},
+		}) as BottomSheetHandle
 	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve) => {
 		const layer = document.createElement('div')
@@ -77,14 +89,17 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 			},
 		})
 
-		const root = createRoot(panel)
-		root.render(Component, { params, close: finish })
+		const root = owner?.createRoot(panel, () => closeSheet?.()) ?? createRoot(panel)
 		active.add(entry)
-		if (hasScrim) {
-			panel.setAttribute('role', 'dialog')
-			panel.setAttribute('aria-modal', 'true')
-			releaseFocus = isolateModalFocus(layer, panel, () => finish())
-		}
+		root.render(Component, { params, close: finish })
+		afterContentCommit(root, () => {
+			if (finished) return
+			if (hasScrim) {
+				panel.setAttribute('role', 'dialog')
+				panel.setAttribute('aria-modal', 'true')
+				releaseFocus = isolateModalFocus(layer, panel, () => finish())
+			}
+		})
 	}) as BottomSheetHandle
 
 	handle.close = (result?: ModalOpenResult) => closeSheet?.(result)

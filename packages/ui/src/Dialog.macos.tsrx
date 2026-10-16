@@ -51,7 +51,7 @@ export function Dialog(props: DialogProps) @{
 
 	<>
 		@if (props.isInline && open) { <DialogPanel {...panelProps} layerDepth={dismissal.depth - 1} /> }
-		@if (!props.isInline) { <flexboxlayout ref={owner} style={{ width: 0, height: 0 }} /> }
+		@if (!props.isInline) { <>{owner}</> }
 	</>
 }
 

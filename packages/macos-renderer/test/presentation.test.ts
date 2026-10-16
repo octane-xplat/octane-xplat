@@ -334,3 +334,49 @@ test('Tab wraps through enabled controls and lightbox arrows dispatch only to th
 	assert.equal(dispatch({ type: 10, keyCode: 123 }), null)
 	surface.close()
 })
+
+test('source-owned content waits for portal commit without reading an empty NSArray', () => {
+	let host: any
+	let commit: (() => void) | undefined
+	let disposed = 0
+	const content = {
+		render() {},
+		unmount() {
+			disposed++
+		},
+		whenCommitted(callback: () => void) {
+			commit = callback
+		},
+	}
+	const surface = present({
+		createContentRoot: (target: any) => {
+			host = target
+			return content
+		},
+	})
+	assert.equal(roots.length, 0)
+	assert.equal(host.items.length, 0)
+	// Match NSArray's bounds behavior, rather than returning undefined.
+	Object.defineProperty(host, 'subviews', {
+		get: () => ({
+			count: host.items.length,
+			objectAtIndex(i: number) {
+				if (i >= host.items.length) throw new RangeError('NSArray bounds')
+				return host.items[i]
+			},
+		}),
+	})
+	surface.update({ label: 'Updated' })
+	assert.equal(host.items.length, 0)
+	host.addSubview({
+		acceptsFirstResponder: true,
+		enabled: true,
+		intrinsicContentSize: { width: 80, height: 40 },
+	})
+	commit!()
+	assert.equal(nativeWindow.firstResponder, host.items[0])
+	surface.close()
+	assert.equal(disposed, 1)
+	commit!()
+	assert.equal(disposed, 1)
+})

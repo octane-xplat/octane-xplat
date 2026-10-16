@@ -1,3 +1,4 @@
+import type { ContentOwner } from './owned-content'
 import { createNavigationRequests, type NavigationRequest } from './navigation-request'
 import { useSyncExternalStore } from 'octane'
 
@@ -16,14 +17,7 @@ import { useSyncExternalStore } from 'octane'
  *  Back (popstate or popRoute) dismisses it. */
 
 export type { Route } from './props'
-import type {
-	Route,
-	RouteHead,
-	RouteManifest,
-	RouteMeta,
-	ScreenTable,
-	TypedRoute,
-} from './props'
+import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
 
 import {
 	buildRoutePath,
@@ -603,4 +597,9 @@ export function useModalRoute(): Route | null {
 		},
 		() => modalRoute,
 	)
+}
+
+/** Internal native-owner compatibility; route content already shares this renderer's tree. */
+export function pushRouteWithOwner(_owner: ContentOwner | undefined, route: TypedRoute): void {
+	pushRoute(route)
 }

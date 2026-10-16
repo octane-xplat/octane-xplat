@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { openBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
+import { useImperativeBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
 
 function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
 	<Screen className="demo-modal-card gap-4">
@@ -13,22 +13,23 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
 }
 
 /** Shared fallback — the platform modal moved out of `ui` (UIModal /
- *  MaterialDialog in the ios + android subpaths; this file's `.ios.tsrx`
- *  and `.android.tsrx` siblings render it there). The honest shared
- *  surfaces are the self-drawn in-window `BottomSheet` and `Overlay`. */
+	*  MaterialDialog in the ios + android subpaths; this file's `.ios.tsrx`
+	*  and `.android.tsrx` siblings render it there). The honest shared
+	*  surfaces are the self-drawn in-window `BottomSheet` and `Overlay`. */
 export function ModalDemo() @{
+	const sheet = useImperativeBottomSheet();
 	const [declarativeOpen, setDeclarativeOpen] = useState(false);
 	const [detentOpen, setDetentOpen] = useState(false);
 	const [picked, setPicked] = useState<string | undefined>();
 	const [detentPicked, setDetentPicked] = useState<string | undefined>();
 
 	const pick = async () => {
-		const result = await openBottomSheet(Picker, { choices: ['Red', 'Green', 'Blue'] });
+		const result = await sheet.open(Picker, { choices: ['Red', 'Green', 'Blue'] });
 		setPicked(result as string | undefined);
 	};
 
 	const pickDetent = async () => {
-		const result = await openBottomSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
+		const result = await sheet.open(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
 			snapPoints: [0.25, 0.5, 0.9],
 		});
 
@@ -36,6 +37,7 @@ export function ModalDemo() @{
 	};
 
 	<Screen className="vx-app flex-1 gap-6">
+		{sheet.element}
 		<Text className="text-xl font-semibold">Modal → BottomSheet</Text>
 		<View className="sink-section">
 			<Text className="text-sm text-muted">

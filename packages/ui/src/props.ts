@@ -10595,3 +10595,28 @@ export type IndicatorNameOfFamily<F extends IndicatorFamily> = {
 export type IndicatorRegistry = {
 	[N in IndicatorName]?: IndicatorComponent<IndicatorMap[N]>
 }
+
+/** An owner-scoped modal opener. Keep element rendered beneath the providers to inherit. */
+export interface ImperativeModalReturn {
+	open: OpenModal
+	element: Renderable
+}
+
+/** An owner-scoped sheet opener. Removing element closes every owned handle. */
+export interface ImperativeBottomSheetReturn {
+	open: OpenBottomSheet
+	element: Renderable
+}
+
+/** Placement of native route content within the app's provider tree. */
+export interface RouteOutletProps {
+	stack?: string
+	children?: Renderable
+}
+
+/** Native Frame navigation whose content is owned by element. Removing the owner returns its stack to the declaring Page. */
+export interface NativeRouteNavigatorReturn {
+	push(route: { [Name in AppRouteName]: Omit<TypedRoute<Name>, 'stack'> }[AppRouteName]): void
+	pop(): void
+	element: Renderable
+}

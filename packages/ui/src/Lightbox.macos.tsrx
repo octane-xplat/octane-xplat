@@ -59,5 +59,5 @@ export function Lightbox(props: LightboxProps) @{
 		},
 	})
 
-	<flexboxlayout ref={owner} style={{ width: 0, height: 0 }} />
+	<>{owner}</>
 }

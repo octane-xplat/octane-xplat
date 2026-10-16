@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { openBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
-import { MaterialDialog, openModal } from '@octane-xplat/ui/android';
+import { useImperativeBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
+import { MaterialDialog, useImperativeModal } from '@octane-xplat/ui/android';
 
 function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
 	<Screen className="demo-modal-card gap-4">
@@ -15,10 +15,12 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
 }
 
 /** Android platform modal — `showModal` presentation (fullscreen=false → a
- *  centered dialog, not a bottom sheet). The shared `ui` surface has no
- *  Modal; `BottomSheet`/`Overlay` are the self-drawn in-window versions. Web
- *  resolves the shared `ModalDemo.tsrx`. */
+	*  centered dialog, not a bottom sheet). The shared `ui` surface has no
+	*  Modal; `BottomSheet`/`Overlay` are the self-drawn in-window versions. Web
+	*  resolves the shared `ModalDemo.tsrx`. */
 export function ModalDemo() @{
+	const sheet = useImperativeBottomSheet();
+	const modal = useImperativeModal();
 	const [declarativeOpen, setDeclarativeOpen] = useState(false);
 	const [presentation, setPresentation] = useState<'sheet' | 'fullscreen' | 'dialog'>('sheet');
 	const [picked, setPicked] = useState<string | undefined>();
@@ -26,12 +28,12 @@ export function ModalDemo() @{
 	const [detentPicked, setDetentPicked] = useState<string | undefined>();
 
 	const pick = async () => {
-		const result = await openModal(Picker, { choices: ['Red', 'Green', 'Blue'] }, { presentation });
+		const result = await modal.open(Picker, { choices: ['Red', 'Green', 'Blue'] }, { presentation });
 		setPicked(result as string | undefined);
 	};
 
 	const pickDetent = async () => {
-		const result = await openBottomSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
+		const result = await sheet.open(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
 			snapPoints: [0.25, 0.5, 0.9],
 		});
 
@@ -39,6 +41,8 @@ export function ModalDemo() @{
 	};
 
 	<Screen className="vx-app flex-1 gap-6">
+		{sheet.element}
+		{modal.element}
 		<Text className="text-xl font-semibold">Modal · MaterialDialog</Text>
 		<View className="sink-section">
 			<Text className="section-label">Declarative</Text>

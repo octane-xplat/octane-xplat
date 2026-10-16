@@ -366,9 +366,9 @@ Create an `IconRegistry` when one part of an app needs custom glyphs without
 changing another part's names. Each registry starts with the built-ins.
 `IconRegistryProvider` selects the registry for its descendants, and the
 nearest provider wins; `Icon.registry` can override it for one icon. A
-provider only reaches its current renderer tree. Native pushed pages are
-separate roots, so use the default app registry there or pass the registry to
-an individual `Icon`.
+provider reaches native pushed Pages when a `RouteOutlet` is mounted below
+it. Without an outlet, use the default app registry there or pass the registry
+to an individual `Icon`; see [route providers](navigation.md#preserve-providers-across-native-pages).
 
 ```tsx
 import { createIconRegistry, Icon, IconRegistryProvider } from '@octane-xplat/ui'
@@ -670,9 +670,13 @@ dismisses it, and `onOpenChange`/`onDismiss` report the request — `isOpen`
 wins when both are set. `BottomSheetSwitcher` uses `activeSheet`/
 `defaultActiveSheet`/`onActiveSheetChange` for which child `sheetId` is
 visible. Declared shared surfaces and declarative modal content preserve
-context through native portals; imperative modal/sheet services, router-created
-Pages, and list cells remain independent roots and receive values through
-props/params. `openWindow` opens a host
+context through native portals on iOS and Android, including platform list cells.
+On macOS, registered sheet stacks, toast stacks, and anchored popups still
+use separate roots; see the [boundary inventory](../notes/portal-boundaries.md). Scoped
+imperative hooks and native route outlets preserve context too; see
+[ownership examples](primitives.md#own-temporary-surfaces) and
+[route providers](navigation.md#preserve-providers-across-native-pages).
+Global ownerless service calls still require explicit props/params. `openWindow` opens a host
 window where supported; modal routing shares the navigation layer — see
 [navigation](navigation.md).
 

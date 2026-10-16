@@ -49,3 +49,9 @@ export type {
 	NativeModifier,
 	NativeModifierValue,
 } from '../props'
+
+export { useImperativeModal } from './use-imperative-modal.android.tsrx'
+
+export { useNativeRouteNavigator } from '../use-native-route-navigator'
+
+export type { ImperativeModalReturn, NativeRouteNavigatorReturn } from '../props'

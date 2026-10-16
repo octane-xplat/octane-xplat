@@ -1,3 +1,4 @@
+import type { ContentOwner } from './owned-content'
 import { createNavigationRequests, type NavigationRequest } from './navigation-request'
 import { useSyncExternalStore } from 'octane'
 import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable, TypedRoute } from './props'
@@ -250,3 +251,8 @@ export function useRouteHead(_route: Route | null): RouteHead | undefined {
 }
 
 export { layoutsFor as layoutsForRoute }
+
+/** Internal native-owner compatibility; route content already shares this renderer's tree. */
+export function pushRouteWithOwner(_owner: ContentOwner | undefined, route: TypedRoute): void {
+	pushRoute(route)
+}

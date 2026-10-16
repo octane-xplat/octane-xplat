@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { Screen, Tabs, Text, useThemeScheme } from '@octane-xplat/ui';
+import { Screen, RouteOutlet, Tabs, Text, useThemeScheme } from '@octane-xplat/ui';
 import { currentRoute, layoutsForRoute, screenFor } from '@octane-xplat/ui/routing';
 import { Home } from '../Home.tsrx';
 import { Test } from '../Test.tsrx';
@@ -52,9 +52,9 @@ const TABS: TabSpec[] = [
 console.log('[harness] App module evaluated');
 
 /** Root layout — the route dir's shell (app/_layout.tsrx → layouts[''] in
- *  the manifest; the entry renders whatever file fills that slot). A real
- *  tab surface: Screen wraps content in the platform root (rootlayout on
- *  native, div on web). */
+	*  the manifest; the entry renders whatever file fills that slot). A real
+	*  tab surface: Screen wraps content in the platform root (rootlayout on
+	*  native, div on web). */
 export function RootLayout(props: { children?: any }) @{
 	// Deep link: a URL like /demos/demo/counter boots into the Demos tab
 	// with the pushed screen already on its stack (web leaf; currentRoute is
@@ -84,6 +84,7 @@ export function RootLayout(props: { children?: any }) @{
 	}
 
 	<Screen className={['vx-app', 'vx-app-flush', 'flex-1', scheme === 'dark' ? 'dark ns-dark' : '']}>
+		<RouteOutlet>
 		<Tabs
 			id="app-tabs"
 			className="flex-1"
@@ -92,5 +93,6 @@ export function RootLayout(props: { children?: any }) @{
 			onSelectionChange={(key) => { console.log('[probe] tab -> ' + key); setTab(key); }}
 			resolveScreen={resolveRoute}
 		/>
+		</RouteOutlet>
 	</Screen>
 }

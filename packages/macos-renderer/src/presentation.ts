@@ -20,6 +20,12 @@ export interface SurfaceOptions {
 	modal?: boolean
 	fullscreen?: boolean
 	component?: any
+	/** Internal source-tree outlet. Omit for a standalone presentation root. */
+	createContentRoot?: (host: NSView) => {
+		render(component: any, props?: any): void
+		unmount(): void
+		whenCommitted?(callback: () => void): void
+	}
 	props?: Record<string, any>
 	owner?: any
 	width?: number | string
@@ -55,10 +61,7 @@ export interface PresentationBridge {
 	[key: string]: any
 }
 
-export type SurfaceRootFactory = (
-	host: NSView,
-	options?: { fontFamily?: string },
-) => UniversalRoot
+export type SurfaceRootFactory = (host: NSView, options?: { fontFamily?: string }) => UniversalRoot
 
 interface SurfaceEntry {
 	options: SurfaceOptions
@@ -98,7 +101,9 @@ export function installPresentationBridge(
 		hitTest(point: NSPoint): any {
 			const hit = super.hitTest(point)
 			const entry = layers.get(this)
-			return (hit === (this as unknown as NSView) || hit?.isEqual?.(this)) && !entry?.options.modal ? null : hit
+			return (hit === (this as unknown as NSView) || hit?.isEqual?.(this)) && !entry?.options.modal
+				? null
+				: hit
 		}
 		layout() {
 			super.layout()
@@ -177,7 +182,9 @@ export function installPresentationBridge(
 		const panel = NSView.alloc().initWithFrame(host.bounds)
 		panel.wantsLayer = true
 		layer.addSubview(panel)
-		const root = createRoot(panel, { fontFamily: fontFamilyForView(owner ?? host) })
+		const root =
+			initial.createContentRoot?.(panel) ??
+			createRoot(panel, { fontFamily: fontFamilyForView(owner ?? host) })
 		let resolveClosed: (reason?: unknown) => void = () => {}
 		const responder = nativeWindow.firstResponder
 		const previousFocus = truth(responder, 'isFieldEditor') ? responder.delegate : responder
@@ -209,7 +216,8 @@ export function installPresentationBridge(
 				const w = Number(bounds.width),
 					h = Number(bounds.height)
 
-				const content = panel.subviews?.objectAtIndex?.(0)
+				const content =
+					Number(panel.subviews?.count ?? 0) > 0 ? panel.subviews.objectAtIndex(0) : undefined
 				const fit = content?.documentView?.fittingSize ?? content?.fittingSize ?? panel.fittingSize
 				const full = options.kind === 'lightbox' || options.fullscreen
 				const width = full
@@ -260,9 +268,7 @@ export function installPresentationBridge(
 				}
 
 				const pos =
-					!full && options.position && typeof options.position === 'object'
-						? options.position
-						: {}
+					!full && options.position && typeof options.position === 'object' ? options.position : {}
 
 				if (pos.start != null) {
 					x = length(pos.start, w, 0)
@@ -321,6 +327,14 @@ export function installPresentationBridge(
 
 				entry.options = { ...entry.options, ...options }
 				root.render(entry.options.component, entry.options.props ?? {})
+				if ('whenCommitted' in root)
+					root.whenCommitted?.(() => {
+						if (!entry.closed) {
+							entry.layout()
+							if (entry.options.modal)
+								nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)
+						}
+					})
 				entry.layout()
 				entry.didRender = true
 				if (hadFocus && entry.options.modal) {

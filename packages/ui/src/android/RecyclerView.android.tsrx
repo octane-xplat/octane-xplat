@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useNativeListCells } from '../use-native-list-cells.mobile'
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane';
@@ -27,21 +28,17 @@ function rejectNestedScrollView(event: any) {
 }
 
 /** Stable ref bag across the memo boundary — refresh callbacks are fresh
- *  closures each parent render, so the props live behind refs and the
- *  memo compare just sees the same bag. */
+	*  closures each parent render, so the props live behind refs and the
+	*  memo compare just sees the same bag. */
 interface RefreshBag {
 	cfg: { current: RefreshConfig };
 	indicator: { current: any };
 	ctl: { current: RefreshController | null };
 }
 
-// Cell machinery is driver-owned since @nativescript-community/octane 0.2.1
-// (upstream #7, closes our issue #1): `renderItem` on <listview> makes
-// itemTemplate vend a ContentView per recycled cell, each with its own
-// universal root; itemLoading binds items[index] and skips unchanged rows;
-// a changed renderItem re-binds live cells; discard unmounts the roots.
-// The cell ContentView is single-child — a renderItem returning multiple
-// roots would silently drop siblings — so output wraps in a gridlayout.
+// Native cells own their physical hosts; this component owns their portals.
+// Rebinding preserves the declaring context and updates the current item.
+// The grid wrapper also supports renderItem output with multiple siblings.
 function RecyclerViewInner(props: {
 	className?: any;
 	style?: any;
@@ -61,6 +58,8 @@ function RecyclerViewInner(props: {
 		(item: any, index: number) => <gridlayout>{props.renderItem(item, index)}</gridlayout>,
 		[props.renderItem],
 	);
+
+	const cells = useNativeListCells(renderCell, props.items);
 
 	const visibility = useRef<ListVisibilityObserver | null>(null);
 	const tracker = useRef(createListViewabilityTracker());
@@ -111,6 +110,7 @@ function RecyclerViewInner(props: {
 		};
 	}, []);
 
+	<>
 	<listview
 		ref={(v: any) => {
 			lv.current = v;
@@ -121,15 +121,18 @@ function RecyclerViewInner(props: {
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
+		itemTemplate={cells.itemTemplate}
+		onItemLoading={cells.onItemLoading}
 		items={props.items}
 		onLoadMoreItems={props.onEndReached}
 		onLoaded={(event: any) => {
 			rejectNestedScrollView(event);
 			tryInitialScroll();
 		}}
-		renderItem={renderCell}
 		{...props.android}
 	/>
+		{cells.element}
+	</>
 }
 
 // The listview subtree is memoized on `items` and list configuration: the
@@ -157,18 +160,18 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
 );
 
 /** RecyclerView — the Android public compatibility name for NativeScript
- *  `listview`, backed by `android.widget.ListView`/`AbsListView` in core
- *  9.1.x. `items` is a plain array, ItemsSource, or
- *  ObservableArray — the driver binds `items[index]` into the recycled
- *  cell's root and skips rebinds whose row, item, and renderer are
- *  unchanged. Cell identity = the recycled host view, not the item.
- *  The shared `List` is a fully rendered content list, not an OS-backed
- *  recycled collection. Use `VirtualList` for portable windowing.
- *
- *  `refreshing`/`onRefresh`/`refreshThreshold` enable pull-to-refresh:
- *  the indicator is self-drawn (vx-spinner) and the list is translated
- *  inside a clipped wrapper while the drag accumulates — no
- *  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
+	*  `listview`, backed by `android.widget.ListView`/`AbsListView` in core
+	*  9.1.x. `items` is a plain array, ItemsSource, or
+	*  ObservableArray — the driver binds `items[index]` into the recycled
+	*  cell's root and skips rebinds whose row, item, and renderer are
+	*  unchanged. Cell identity = the recycled host view, not the item.
+	*  The shared `List` is a fully rendered content list, not an OS-backed
+	*  recycled collection. Use `VirtualList` for portable windowing.
+	*
+	*  `refreshing`/`onRefresh`/`refreshThreshold` enable pull-to-refresh:
+	*  the indicator is self-drawn (vx-spinner) and the list is translated
+	*  inside a clipped wrapper while the drag accumulates — no
+	*  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
 export function RecyclerView<T>(props: RecyclerViewProps<T>) @{
 	const runtime = useRef<PlatformListRuntime>({
 		list: { current: null },

@@ -1,8 +1,9 @@
+import { afterContentCommit, type ContentOwner } from './owned-content'
 import { GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from './props'
-import { topRootLayout } from './root-layout'
+import { currentRootLayoutFor, topRootLayout } from './root-layout'
 import { applyThemeClasses } from './theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents'
@@ -35,10 +36,21 @@ export function closeBottomSheet(result?: ModalOpenResult): void {
  *  (topRootLayout — the service has no declaring view). Resolves when the
  *  sheet closes. Astryx `snapPoints` fractions/percent/px all resolve
  *  against the screen height. */
-export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}) => {
+export const openBottomSheet: OpenBottomSheet = (Component, params, options) =>
+	openBottomSheetWithOwner(null, Component, params, options)
+
+/** Internal presenter shared by standalone services and declaring-tree outlets. */
+export function openBottomSheetWithOwner(
+	owner: ContentOwner | null,
+	...[Component, params, options = {}]: Parameters<OpenBottomSheet>
+): BottomSheetHandle {
+	if (owner?.disposed)
+		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
+			close() {},
+		}) as BottomSheetHandle
 	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve) => {
-		const rl = topRootLayout()
+		const rl = owner ? currentRootLayoutFor(owner.host) : topRootLayout()
 		if (!rl) {
 			console.warn('[openBottomSheet] no RootLayout mounted — sheet skipped')
 			resolve(undefined)
@@ -50,7 +62,7 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 		host.horizontalAlignment = 'stretch'
 		host.verticalAlignment = 'bottom'
 		host.accessibilityLabel = options.label ?? ''
-		const root = createNativeScriptRoot(host)
+		const root = owner?.createRoot(host, () => closeSheet?.()) ?? createNativeScriptRoot(host)
 		// Detents own enter/slide-out — the RootLayout animation always
 		// lands translateY at 0, so it's skipped while gestures attach.
 		const detentFractions = options.snapPoints?.length
@@ -118,18 +130,23 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 			finish()
 		})
 
-		root.render(Component as unknown as UniversalComponent, { params, close: finish })
 		active.add(entry)
+		root.render(Component as unknown as UniversalComponent, { params, close: finish })
 
 		const openOptions =
 			(options.hasScrim ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : undefined
 
-		rl.open(host, openOptions)
-			.then(() => detents.enter())
-			.catch((error: unknown) => {
-				console.error('[openBottomSheet] open failed', error)
-				finish()
-			})
+		afterContentCommit(root, () => {
+			if (finished) return
+			rl.open(host, openOptions)
+				.then(() => {
+					if (!finished) detents.enter()
+				})
+				.catch((error: unknown) => {
+					console.error('[openBottomSheet] open failed', error)
+					finish()
+				})
+		})
 	}) as BottomSheetHandle
 
 	handle.close = (result?: ModalOpenResult) => closeSheet?.(result)

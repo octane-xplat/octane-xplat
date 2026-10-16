@@ -2,6 +2,7 @@
 import { memo, useState } from 'octane';
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
 import { createPortal } from '../native-portal';
+import { RouteOutlet } from '../RouteOutlet';
 import { registerStack } from '../stacks';
 import { cx } from '@octane-xplat/lib';
 import { getIcon } from '../icons';
@@ -13,9 +14,10 @@ import { applyEscapeProps } from '../escape-props';
 // reconciled children into <tabviewitem>, so each pane is a GridLayout portal
 // target. GridLayout, not ContentView: it accepts every root child from a
 // pane render rather than keeping only the last under `.content`.
-type TabPaneProps = { render: () => any };
+type TabPaneProps = { render: () => any; stack?: string };
 function TabPane(props: TabPaneProps) @{
-	<>{props.render()}</>
+	@if (props.stack) { <RouteOutlet stack={props.stack}>{props.render()}</RouteOutlet> }
+	@else { <>{props.render()}</> }
 }
 
 const panesByItem = new WeakMap<TabViewItem, GridLayout>();
@@ -116,6 +118,7 @@ function TabBarInner(props: {
 }) @{
 	const [loaded, setLoaded] = useState(false);
 	const items = itemsFor(props.tabs);
+
 	<>
 	<tabview
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -130,7 +133,7 @@ function TabBarInner(props: {
 	{loaded ? items.map((item, index) => {
 		const target = panesByItem.get(item);
 		return target
-			? createPortal(<TabPane render={props.tabs[index].render} />, target)
+			? createPortal(<TabPane render={props.tabs[index].render} stack={props.tabs[index].stack} />, target)
 			: null;
 	}) : null}
 	</>
@@ -147,12 +150,14 @@ const MemoTabBar = memo(TabBarInner, (a, b) => a.tabs === b.tabs && a.selectedIn
 export function UITabBar(props: UITabBarProps) @{
 	const indexForKey = (key?: string) =>
 		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key);
+
 	const keyIndex = indexForKey(props.selectedKey);
 	// selectedKey wins, matching the shared Tabs; an unmatched key selects
 	// nothing rather than silently reverting to the index.
 	const selectedIndex = props.selectedKey != null
 		? (keyIndex >= 0 ? keyIndex : undefined)
 		: (props.selectedIndex ?? (indexForKey(props.defaultSelectedKey) >= 0 ? indexForKey(props.defaultSelectedKey) : undefined));
+
 	<MemoTabBar
 		id={props.id}
 		className={props.className}

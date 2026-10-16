@@ -1,228 +1,151 @@
-# Remaining portal boundaries
+# Portal ownership across native boundaries
 
-> Contributor proposal: preserve the providers around the declaring component
-> while native navigation and widgets keep owning their views. The ownership
-> APIs below are proposed, not published APIs.
+> Contributor contract. App-building examples: [scoped sheets and modals](../app/primitives.md#own-temporary-surfaces), [native route providers](../app/navigation.md#preserve-providers-across-native-pages).
 
-The iOS Pager blocker is resolved. The remaining content boundaries have a
-feasible migration path: route outlets for navigation, component-owned outlets
-for imperative services, and compiler-backed wrappers for raw AppKit tabs and
-list cells. NativeScript platform lists can own their cell portals directly,
-using the existing Pager pattern. Keep application and independently
-bootstrapped window roots.
+Portals keep content in its declaring Octane tree while another native view
+hosts its pixels. The providers around the mounted outlet determine context;
+the location of an imperative handler does not capture context by itself.
 
-| Boundary                                                 | Recommended solution                                                                                       | What remains before cutover                                                                        |
-| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| iOS Pager                                                | Reuse the isolated host's Core entrypoint for upstream style-property imports                              | Context probe passes; OS swipes remain outside that probe                                          |
-| Pushed native Pages                                      | A mounted outlet owns a portal for every live backstack entry                                              | Push/pop, native interactive back, canceled navigation, loaders, and owner teardown                |
-| Route modals                                             | The same route outlet owns content for the modal's native host                                             | Dismissal races, native dismissal, nested modals, and owner teardown                               |
-| Imperative modal and bottom-sheet services               | A hook returns an opener and an element placed under the desired providers                                 | Preserve result promises, close handles, presentation options, and owner cleanup on each platform  |
-| AppKit tab items                                         | A compiler-backed component keeps the raw logical handle and portals its content into the native item view | Preserve lazy mounting and handle transfer/reorder/removal; stop creating the legacy content root  |
-| AppKit list cells                                        | A compiler-backed component owns portals into the recycled cell hosts                                      | Binding/release notifications, reuse generations, item identity, and list teardown                 |
-| iOS UITableView and Android RecyclerView                 | The existing platform components own template hosts and portal slots, following Pager                      | Cell reuse, data replacement, refresh, sizing, scrolling/viewability, and disposal on both targets |
-| Application, workshop, and independent window bootstraps | Keep a top-level root per independently owned application/window tree                                      | No conversion needed                                                                               |
+| Boundary | Ownership |
+| --- | --- |
+| Native pushed Pages and route modals | `RouteOutlet` for each stack, or `useNativeRouteNavigator().element` for local scope |
+| Imperative shared sheets | `useImperativeBottomSheet().element` on web, iOS, Android, and macOS |
+| Imperative OS modals | `useImperativeModal().element` on iOS and Android |
+| iOS UITableView / Android RecyclerView | Platform component owns portals into template-created cell hosts |
+| Compiled AppKit tabviewitem / listview renderItem | Compiler wrappers own portals; raw handles/native delegates retain native ownership |
+| AppKit shared Dialog, standalone BottomSheet, Lightbox | Declaring component owns portal content through the common surface presenter |
+| AppKit BottomSheetSwitcher, toast viewport, anchored useLayer popups | Retain their current roots; registry/anchored content needs separate portal qualification |
+| App/bootstrap/independent window trees | Remain Octane roots |
+| Ownerless global services and native routing without an outlet | Retain standalone-root fallback; pass data explicitly |
 
-## Preserve the outlet's context
+## Source ownership
 
-An outlet is a component that renders content into a native host elsewhere.
-Its position in the Octane tree determines which enclosing providers the
-content receives. A single app-level outlet cannot inherit a provider nested
-inside an individual screen. Place the outlet below the providers that must
-be shared; use another owner scope when a screen-local provider must travel
-with its presented content.
-
-```text
-Application root
-└─ Account provider
-   └─ Stack outlet                     ← routed screens inherit Account
-      └─ Screen-local draft provider
-         └─ Presentation outlet        ← its modals inherit Account + Draft
-```
-
-The existing portal operation is sufficient once that owner has a target.
-This function illustrates the rendering step; it does not create an outlet
-or register its lifecycle.
-
-```ts
-import { createPortal, type UniversalRenderable } from 'octane/universal/native'
-
-function renderOwnedContent(content: UniversalRenderable, target: unknown) {
-	return createPortal(content, target)
-}
-```
-
-Source review of the installed Octane 0.11.0 universal runtime found no public
-root option for inheriting another root's context or capturing arbitrary
-caller context. Its host-attachment capability tracks physical attachment and
-refs; it does not supply a context bridge. The recommendation therefore uses
-ordinary component ownership. Octane's [render-scope explanation](https://github.com/octanejs/octane/blob/main/docs/differences-from-react.md#jsx-values-follow-the-represented-render-scope)
-also makes clear that moving a JSX value does not capture the context around
-its construction.
-
-## Native routes: retain the source tree with the backstack
-
-Replace the new roots in [commitRoute and pushModal](../../packages/ui/src/route.ts)
-with records delivered to a mounted stack outlet. NativeScript continues to
-create Pages, GridLayouts, transitions, and modal hosts. The outlet renders
-the existing RouteHost into each target, preserving layouts, error boundaries,
-loader results, and route parameters. Keep a stable identity per navigation
-entry, including repeated visits to the same route.
-
-```ts
-import type { GridLayout, Page } from '@nativescript/core'
-import type { UniversalRenderable } from 'octane/universal/native'
-
-// Proposed internal record, rendered by the owning outlet.
-interface RoutePortalEntry {
-	entryId: string
-	ownerId: symbol
-	page: Page | null
-	host: GridLayout
-	content: UniversalRenderable
-	phase: 'staged' | 'committed' | 'closing'
-}
-```
-
-Retain each entry while its Page remains in the native stack. An unload or tab
-switch must not dispose it. Remove it after a confirmed pop, completed modal
-close, failed navigation, or destruction of its owner. Commit the portal before
-presenting a host whose size depends on content. Reconcile native navigation
-events as well as calls made through the router; canceled interactive back
-must leave the entry mounted.
-
-Associate the outlet with a particular stack and window. Existing global
-navigation can address that registered stack scope; it cannot infer an
-arbitrary screen-local provider. Calls that require a local scope need an
-explicit owner-bound navigator. Preserve the existing standalone-root path
-until an outlet is registered and its behavior is qualified. This is a source
-design proposal; no router cutover is included in this change.
-
-## Imperative services: reuse the existing element pattern
-
-[useImperativeDialog](../../packages/ui/src/use-imperative-dialog.tsrx) already
-separates the opener from an element that stays in the declaring tree.
+Keep the returned element mounted below every provider the content needs.
+Removing it disposes all owned content and closes its pending service handles.
+Opening through a removed service owner rejects; closing before commit prevents
+presentation. Each handle remains independent when multiple sheets are open.
 
 ```tsx
-import { Button, Text, useImperativeDialog } from '@octane-xplat/ui'
+import { useImperativeBottomSheet, Button } from '@octane-xplat/ui'
 
-export function SaveNotice() {
-	const dialog = useImperativeDialog()
-	return (
-		<>
-			<Button clickAction={() => dialog.show(<Text>Draft saved</Text>)}>Show notice</Button>
-			{dialog.element}
-		</>
-	)
+function Picker(props: { close: (value?: string) => void }) {
+    return <Button clickAction={() => props.close('saved')}>Save</Button>
+}
+export function Actions() {
+    const sheet = useImperativeBottomSheet()
+    return <>
+        <Button clickAction={() => { void sheet.open(Picker) }}>Choose</Button>
+        {sheet.element}
+    </>
 }
 ```
 
-Apply that pattern to platform modals and imperative sheets. These proposed
-hooks retain the existing service function types and add the element that owns
-their content; names remain subject to the framework's API review.
+The internal `ContentOwner.createRoot` creates a logical portal slot, never an
+Octane root. Content commits before native navigation/presentation starts.
+Declarative AppKit surfaces render their portals directly; publishing those
+children through an imperative store can cause a render/update feedback loop.
+Native host theme classes remain necessary because view-tree class inheritance
+does not cross a portal target. A source owner hidden in a Frame's backstack
+presents shared sheets in that Frame's currently visible Screen.
 
 ```ts
-import type { UniversalRenderable } from 'octane/universal/native'
-import type { OpenModal, OpenBottomSheet } from '../../packages/ui/src/props'
-
-interface OwnedModal {
-	open: OpenModal
-	element: UniversalRenderable
-}
-
-interface OwnedBottomSheet {
-	open: OpenBottomSheet
-	element: UniversalRenderable
+// Internal protocol; standalone roots commit synchronously.
+interface ContentRoot {
+    render(component: unknown, props?: unknown): void
+    unmount(): void
+    whenCommitted(callback: () => void): void
 }
 ```
 
-Reuse each platform's presentation, keyboard, detent, theme, and dismissal
-machinery. Replace only its content-root ownership. Resolve each pending
-result exactly once, invalidate late open completions, and close all owned
-surfaces when the element unmounts. Support multiple live handles rather than
-silently reducing the services to one open surface. Services called without
-an explicit owner retain their existing context-independent contract.
+## Routes and backstack lifetime
 
-## AppKit tabs and cells: adapt behind the raw vocabulary
+A native route request snapshots its owner before guards/loaders. A disposed
+owner cannot revive an async route. Pages remain mounted while current or in
+the native backstack, receive context updates while hidden, and release their
+portals when popped. Ordinary unload events do not imply disposal. Removing
+an owner returns its Frame to the Page that declared the owner; later Pages
+above that branch leave with it. Keep app-wide outlets long-lived.
 
-Keep the authored tab/list vocabulary and logical/native refs. Change the
-compiler adapters to introduce component ownership around their content,
-with the raw native node inside the wrapper. The current tab adapter hides
-children in an opaque prop and the driver creates a new content root; the
-list driver calls renderItem inside a cell root. Neither operation retains
-the surrounding provider scope. The wrapper must evaluate app content in its
-own source tree and use the native node solely as a portal target.
-
-For tabs, expose an internal target notification only while the native item
-has an owner. Preserve the current contract: an unassigned logical handle has
-no mounted content, reordering or transferring an assigned handle preserves
-content identity, and removing it unmounts content. Simply enabling ordinary
-children would change that lazy-mount contract and also require new layout
-handling for the item's plain NSView host. Coalesce target notifications at
-the end of a renderer batch so a transfer does not briefly unmount the source.
-
-For lists, send explicit binding and release notifications. Key portal slots
-by native host identity, and attach a generation to each binding so a late
-release cannot remove a newly rebound cell. Define item-state reset separately
-from host identity: a recycled host representing another item must not inherit
-that item's local state. Keep native factory templates on their existing
-native-view path; they are not renderItem component content.
-
-```ts
-// Proposed internal list notifications; these are not public app events.
-type CellTargetEvent =
-	| {
-			type: 'bind'
-			slotId: string
-			generation: number
-			target: unknown
-			index: number
-			itemKey: string | number
-	  }
-	| { type: 'release'; slotId: string; generation: number }
+```tsx
+import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
+export function Shell() {
+    return <Screen><RouteOutlet stack="root"><Text>Home</Text></RouteOutlet></Screen>
+}
 ```
 
-The source changes belong in [tab-view.ts](../../packages/macos-renderer/src/tab-view.ts),
-[list-view.ts](../../packages/macos-renderer/src/list-view.ts), and the
-[compiler adapter](../../packages/cli/src/macos/tab-item.mjs). A wrapper prototype
-passed eight assertions in a real AppKit/JavaScriptCore process: nearest-provider
-inheritance and live updates for both boundaries, the tab's physical target,
-and effect/native-child cleanup. That prototype still permits empty legacy
-roots and does not qualify tab-handle transfer or cell recycling. Add those
-lifecycle notifications and extend the maintained lifecycle fixtures before
-replacing the production root path.
+For a screen-local provider use the explicitly bound NativeScript navigator.
+Swap-pane tab routes already render in their pane tree and keep that behavior.
+Global `pushRoute` resolves the mounted outlet for the target stack; it cannot
+infer a local provider around an arbitrary button.
 
-The earlier inventory also omitted NativeScript's
-[UITableView](../../packages/ui/src/ios/UITableView.ios.tsrx) and
-[RecyclerView](../../packages/ui/src/android/RecyclerView.android.tsrx).
-Both forward renderItem to the upstream adapter, which still creates one root
-per cell. Their existing component wrappers can own template-created GridLayout
-hosts and portal slots directly, following Pager. Stop passing renderItem to
-the raw driver, bind the hosts through itemLoading, and evaluate row content
-in the platform component's source tree. Keep the existing scroll, refresh,
-and viewability integration. An explicit host-disposal path and final list
-teardown must release slots; do not assume Pager's disposal events are also
-available on Core ListView. This extension is source-backed and has not had a
-mobile runtime probe.
-
-## Qualification and order
-
-The maintained iOS Pager case passed 3/3 assertions on an iPad Pro simulator:
-initial context, live update, and current context after a programmatic page
-change. The test-host fix maps style-property imports to Core's existing root
-export, preserving the same property objects. A maintained bundle regression
-also checks that the emitted imports resolve to the supplied Core singleton.
-Replace `DEVICE_ID` with the UDID of an already booted simulator reserved for
-this run through the host resource broker.
-
-```sh
-pnpm probe run examples/probes/native-pager-portals.ios.tsrx --target ios --watch --ios-device DEVICE_ID --deps @octane-xplat/pager
-node --test scripts/probe.test.mjs
+```tsx
+import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
+import { Button } from '@octane-xplat/ui'
+export function LocalActions() {
+    const navigation = useNativeRouteNavigator('root')
+    return <>
+        <Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>Settings</Button>
+        {navigation.element}
+    </>
+}
 ```
 
-Proceed with owned services, then AppKit wrappers, then router outlets. The
-first follows an existing UI pattern; AppKit now has bounded runtime evidence;
-the router carries the most lifecycle risk because hidden backstack entries
-must retain state. For every cutover, qualify nearest-provider inheritance,
-live updates, preserved state where required, and teardown on the real target.
-These checks establish ownership and lifecycle behavior; they do not establish
-visual parity, OS gestures, focus, or hit-testing.
+## Raw AppKit controls
+
+The standard macOS compiler rewrites raw `tabviewitem` and `listview` tags to
+internal source-owned wrappers. Tab refs still expose logical item handles;
+list refs still expose native list views. Props, keys, children, and refs pass
+through. Keep the standard `xplatMacOS` compiler setup when using raw controls.
+Tab content mounts on assignment, retains identity during reorder/transfer,
+and releases on unassignment. List slots follow physical cells with binding
+generations so old release events cannot remove a newer portal. Uncompiled
+manual host construction retains the legacy driver fallback. Native string
+templates, native view factories, and default string rows retain their existing
+driver protocol; the source-owned list wrapper handles `renderItem` content.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+export function NativeTabs() {
+    return <tabview><tabviewitem title="Home"><label text="Home" /></tabviewitem></tabview>
+}
+```
+
+## Evidence and limits
+
+Maintained native runtime fixtures exercise real NativeScript/AppKit hosts;
+object-driver tests cover ownership and callback contracts separately.
+
+| Fixture | Runtime evidence |
+| --- | --- |
+| `packages/ui/tests/fixtures/owned-boundaries.ios.tsrx` | iOS: 13 assertions covering modal/sheet context, live updates, independent results, list scroll/rebind/replacement, teardown |
+| `packages/ui/tests/fixtures/owned-boundaries.android.tsrx` | Android: same 13 assertions with RecyclerView |
+| `packages/ui/tests/fixtures/owned-routes.ios.tsrx` | iOS: 17 assertions covering route context, hidden Page updates/state retention, modal pop, local ownership, canceled loader, owner teardown, hidden-owner sheet, and UITabBar named Frame routes |
+| `packages/ui/tests/fixtures/owned-routes.android.tsrx` | Android: the same 14 route assertions, including deferred Frame backstack commit during owner teardown |
+| `packages/macos-renderer/test/fixtures/owned-boundaries.macos.tsrx` | AppKit: 13 assertions, including tab handle transfer without remount and list row 80 replacement |
+| `packages/ui/tests/fixtures/owned-surfaces.macos.tsrx` | AppKit: scoped sheets, Dialog, standalone BottomSheet and Lightbox caption context, updates and cleanup; see Silo for actual runtime outcome |
+| `packages/ui/tests/fixtures/owned-boundaries.web.tsrx` | Chromium: 10 assertions covering precommit cancellation, nearest context, updates, independent handles and owner teardown |
+
+The attempted AppKit registry/toast cutover did not qualify. Publishing
+registrations back into their source tree caused repeated updates; a later
+combined registry/toast probe still crashed. `BottomSheetSwitcher` and toast
+stacks therefore retain their existing roots. Anchored `useLayer` popups also
+still use a separate root and need a source-owned target bridge. These paths
+remain explicit follow-up work alongside the completed route/service/tab/list
+migrations. Native string templates and manually created
+hosts also retain their legacy driver protocol.
+
+The iOS Pager probe is also qualified after resolving the isolated runner's
+upstream style-property import through Core's existing entry point. None of
+these programmatic checks establishes OS swipes, interactive-back cancellation,
+OS keyboard/focus traversal, accessibility, or visual parity. No screenshots
+were inspected. Existing platform list scrolling/viewability and service
+presentation options remain on their existing native paths.
+
+Two runtime failures found during this cutover are fixed: Android's inset
+listener uses the actual AndroidX interface and shared decor-view ownership;
+Octane's DOM provider now releases descendants when children become null or
+undefined. AppKit surface layout tolerates an empty panel before a portal
+commits. Maintained regressions cover those contracts.
+
+Windows and Linux were not run for this cutover. The reported runtime evidence
+is limited to web, iOS, Android, and macOS.

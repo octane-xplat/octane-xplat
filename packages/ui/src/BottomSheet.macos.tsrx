@@ -12,7 +12,7 @@ import { createStore } from './store'
 import { cx } from '@octane-xplat/lib'
 
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
-import { usePresentation } from './presentation.macos.tsrx'
+import { usePresentation, useDetachedPresentation } from './presentation.macos.tsrx'
 
 function SheetPanel(props: BottomSheetProps & { dark?: boolean; layerDepth?: number }) @{
 	<LayerDepthProvider value={props.layerDepth ?? 0}>
@@ -40,7 +40,7 @@ function PresentedSheet(props: BottomSheetProps) @{
 		onDismiss: () => props.onOpenChange?.(false),
 	})
 
-	<flexboxlayout ref={owner} style={{ width: 0, height: 0 }} />
+	<>{owner}</>
 }
 
 export function BottomSheet(props: BottomSheetProps) @{
@@ -112,7 +112,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 		restoreFocus: false,
 	})
 
-	const owner = usePresentation(false, SheetPanel, {}, {}, {
+	const owner = useDetachedPresentation(false, SheetPanel, {}, {}, {
 		subscribe: specs.subscribe,
 		resolve() {
 			const active = resolved != null ? specs.getSnapshot().get(resolved) : undefined

@@ -388,12 +388,12 @@ A **modal** appears over the current screen, such as a form you can close
 without leaving the list underneath.
 
 Suffix the file with `+modal`, or pass `presentation: 'modal'` on the push.
-Native shows it as its own modal root over the current page; web overlays it
+Native shows it in a modal host over the current page; web overlays it
 while keeping the URL underneath. Back — or the `close` prop the screen
 receives — dismisses it. `+fade` pushes with a fade transition. A modal
-route mounts its own native root, so app-shell component context does not
-reach it. Route params and `Route.context` are provided as screen props; use
-them or a shared store for values the route needs. Component-owned modal
+route preserves the providers around its mounted `RouteOutlet`. Without an
+outlet, it uses a standalone root; pass values through route params,
+`Route.context`, or a shared store. Component-owned modal
 content (children or `component` + `params`) uses a portal and retains its
 declaring context; see
 [temporary surfaces](primitives.md#own-temporary-surfaces).
@@ -983,3 +983,56 @@ const win = openWindow({ data: { listId: 'trip' } })
 The [navigation notes](../../.agents/docs/notes/navigation-notes.md) explain native containers, modal
 roots, deep links, Android tab-stack limits, and the platform-specific
 tradeoffs.
+
+## Preserve providers across native Pages
+
+A provider shares a value, such as the signed-in account, with components
+below it. Place `RouteOutlet` inside those providers in your long-lived app
+shell. On iOS and Android, pushed Pages and route modals then stay in that
+Octane tree. Back keeps hidden Pages mounted with their local state and live
+provider updates. Web and macOS already render routes in their current tree;
+the outlet simply renders its children there.
+
+```tsx
+import { createContext } from 'octane'
+import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
+
+const Account = createContext('guest')
+export function AppShell() {
+    return <Account value="Avery">
+        <Screen><RouteOutlet stack="root"><Text>Home</Text></RouteOutlet></Screen>
+    </Account>
+}
+```
+
+`pushRoute` uses the mounted outlet for its target stack. It inherits the
+providers around that outlet; a handler's location alone cannot supply a
+screen-local provider. For local ownership on NativeScript, render the element
+returned by `useNativeRouteNavigator` inside that provider and use its `push`:
+
+```tsx
+// NativeScript platform file.
+import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
+import { Button } from '@octane-xplat/ui'
+
+export function AccountActions() {
+    const navigation = useNativeRouteNavigator('root')
+    return <>
+        <Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>Settings</Button>
+        {navigation.element}
+    </>
+}
+```
+
+Keep the owner mounted while its routes are needed. Removing it cancels
+pending loads, releases its portal content, and returns the Frame to the Page
+that declared the owner, including Pages pushed later above that branch.
+Without an outlet, native routing keeps its standalone-root behavior and
+requires explicit params or a shared store. App and independent window
+bootstrap roots remain roots.
+
+```ts
+// Ownerless callers can still navigate; supply data explicitly.
+import { pushRoute } from '@octane-xplat/ui'
+pushRoute({ stack: 'root', name: 'settings', params: {} })
+```

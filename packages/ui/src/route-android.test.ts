@@ -31,14 +31,17 @@ const native = vi.hoisted(() => {
 			this.listeners.set(name, cb)
 		}
 		navigate({ create }: any) {
-			this.backStack.push(this.currentPage)
+			if (this.currentPage) this.backStack.push(this.currentPage)
 			this.currentPage = create()
 			this.currentPage.frame = this
 			this.listeners.get('navigatedTo')?.()
 		}
-		goBack() {
+		goBack(target?: any) {
 			if (this.backStack.length) {
-				this.currentPage = this.backStack.pop()
+				const index = target ? this.backStack.indexOf(target) : this.backStack.length - 1
+				const entry = this.backStack[index]
+				this.backStack.splice(index)
+				this.currentPage = entry.resolvedPage ?? entry
 			}
 
 			this.listeners.get('navigatedTo')?.()
@@ -86,7 +89,7 @@ beforeEach(async () => {
 	native.events.clear()
 	native.roots.length = 0
 	router = await import('./route.ts')
-	stacks = await import('./stacks.ts')
+	stacks = await import('./stacks')
 	frame = new native.Frame()
 	stacks.registerStack('root', frame as any)
 	router.registerRoutes(defineRoutes([{ path: 'detail', screen: () => null }]))
@@ -159,4 +162,73 @@ it('unmounts when the modal host invokes its close callback', () => {
 	modalRoot.host.closeModal()
 	expect(modalRoot.unmount).toHaveBeenCalledTimes(1)
 	expect(router.currentModalRoute()).toBeNull()
+})
+
+it('routes registered with an outlet wait for portal commit and retain hidden backstack entries', async () => {
+	const { createContentOwner } = await import('./owned-content')
+	const { registerRouteContentOwner } = await import('./route-content-owner')
+	const owner = createContentOwner()
+	const unregister = registerRouteContentOwner('root', owner)
+	const base = frame.currentPage
+	push('root', 'first')
+	expect(frame.currentPage).toBe(base)
+	expect(native.roots).toHaveLength(0)
+	owner.entries.getSnapshot()[0].committed()
+	const first = frame.currentPage
+	push('root', 'second')
+	expect(owner.entries.getSnapshot()).toHaveLength(2)
+	owner.entries.getSnapshot()[1].committed()
+	expect(frame.currentPage).not.toBe(first)
+	expect(owner.entries.getSnapshot()).toHaveLength(2)
+	frame.goBack()
+	expect(frame.currentPage).toBe(first)
+	expect(owner.entries.getSnapshot()).toHaveLength(1)
+	unregister()
+	owner.dispose()
+	expect(frame.currentPage).toBe(base)
+	expect(owner.entries.getSnapshot()).toHaveLength(0)
+})
+
+it('removing an outlet cancels pending page and modal presentation', async () => {
+	const { createContentOwner } = await import('./owned-content')
+	const { registerRouteContentOwner } = await import('./route-content-owner')
+	const owner = createContentOwner()
+	const unregister = registerRouteContentOwner('root', owner)
+	const base = frame.currentPage
+	push('root', 'pending')
+	push('root', 'modal', 'modal')
+	const pending = [...owner.entries.getSnapshot()]
+	expect(pending).toHaveLength(2)
+	expect(base.modal).toBeNull()
+	unregister()
+	owner.dispose()
+	for (const entry of pending) entry.committed()
+	expect(frame.currentPage).toBe(base)
+	expect(base.modal).toBeNull()
+	expect(router.currentModalRoute()).toBeNull()
+	expect(owner.entries.getSnapshot()).toHaveLength(0)
+	expect(native.roots).toHaveLength(0)
+})
+
+
+it('returns to the declaring Page when Android commits its forward stack after owner removal', async () => {
+	const { createContentOwner } = await import('./owned-content')
+	const { registerRouteContentOwner } = await import('./route-content-owner')
+	const owner = createContentOwner()
+	const base = frame.currentPage
+	owner.host = { page: base }
+	frame.currentPage = undefined
+	const unregister = registerRouteContentOwner('root', owner)
+	push('root', 'late-stack')
+	owner.entries.getSnapshot()[0].committed()
+	const pushed = frame.currentPage
+	frame.backStack = []
+	unregister()
+	owner.dispose()
+	expect(owner.entries.getSnapshot()).toHaveLength(0)
+	expect(frame.currentPage).toBe(pushed)
+	frame.backStack = [{ resolvedPage: base }]
+	frame.listeners.get('navigatedTo')?.()
+	await Promise.resolve()
+	expect(frame.currentPage).toBe(base)
 })
