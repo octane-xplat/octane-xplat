@@ -31,7 +31,7 @@
 		"pngjs": "7.0.0",
 		"storybook": "10.6.1",
 		"vite": "catalog:",
-		"vitest": "catalog:vitest4",
+		"vitest": "catalog:",
 		"vitest-plugin-vis": "5.1.7"
 	}
 }

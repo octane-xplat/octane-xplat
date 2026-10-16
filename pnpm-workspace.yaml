@@ -27,14 +27,11 @@ catalog:
   vite: 8.3.0
   '@octanejs/vite-plugin': 0.1.61
   '@tsrx/typescript-plugin': 0.4.11
-  vitest: 5.0.1
+  # vitest 4 line repo-wide: platform peers pin <5 alongside
+  # @nativescript/unit-test-runner, and visual's @vitest/browser family must
+  # match — vitest 5 would split the runner's module identity.
+  vitest: 4.1.11
   jsdom: 30.1.1
-catalogs:
-  # vitest 4 line used by platform/mobile/visual: platform peers pin
-  # vitest <5 alongside @nativescript/unit-test-runner, and visual's
-  # @vitest/browser family must match. The rest of the repo is on 5.
-  vitest4:
-    vitest: 4.1.11
 # patchedDependencies carries the full served patch set (e.g. both
 # @nativescript-community/octane lines); the workspace may not install all of
 # them — tolerate entries that apply to nothing.

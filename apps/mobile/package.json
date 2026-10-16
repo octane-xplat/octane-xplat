@@ -73,6 +73,6 @@
 		"storybook": "10.6.1",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:vitest4"
+		"vitest": "catalog:"
 	}
 }
