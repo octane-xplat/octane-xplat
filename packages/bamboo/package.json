@@ -51,7 +51,7 @@
 		"@bamboocss/vite": "1.56.2"
 	},
 	"devDependencies": {
-		"typescript": "5.9.3"
+		"typescript": "catalog:"
 	},
 	"peerDependencies": {
 		"vite": ">=5"

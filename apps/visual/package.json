@@ -21,17 +21,17 @@
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
-		"octane": "0.11.0"
+		"octane": "catalog:"
 	},
 	"devDependencies": {
-		"@octanejs/vite-plugin": "0.1.61",
+		"@octanejs/vite-plugin": "catalog:",
 		"@vitest/browser": "4.1.11",
 		"@vitest/browser-playwright": "4.1.11",
 		"playwright": "1.63.0",
 		"pngjs": "7.0.0",
 		"storybook": "10.6.1",
-		"vite": "8.3.0",
-		"vitest": "4.1.11",
+		"vite": "catalog:",
+		"vitest": "catalog:vitest4",
 		"vitest-plugin-vis": "5.1.7"
 	}
 }

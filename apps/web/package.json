@@ -19,17 +19,17 @@
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
-		"octane": "0.11.0"
+		"octane": "catalog:"
 	},
 	"devDependencies": {
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/sqlite": "workspace:*",
-		"@octanejs/vite-plugin": "0.1.61",
-		"@tsrx/typescript-plugin": "0.4.11",
+		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
 		"playwright": "1.63.0",
-		"typescript": "5.9.3",
-		"vite": "8.3.0",
-		"vitest": "5.0.1"
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
 	}
 }

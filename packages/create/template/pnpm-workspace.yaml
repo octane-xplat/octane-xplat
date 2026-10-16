@@ -14,6 +14,19 @@ allowBuilds:
   '@parcel/watcher': true
   nativescript: true
   '@nativescript/core': false
+# Shared version pins — bump these here, every dependency field reads them.
+catalog:
+  octane: 0.11.0
+  '@nativescript-community/octane': 0.2.4
+  '@nativescript-community/vite-octane': 0.2.1
+  '@nativescript/core': 9.1.3
+  '@nativescript/types': 9.1.4
+  '@nativescript/unit-test-runner': 5.0.0
+  typescript: 5.9.3
+  vite: 8.3.0
+  '@octanejs/vite-plugin': 0.1.61
+  '@tsrx/typescript-plugin': 0.4.11
+  vitest: 4.1.11
 # The patch set covers optional leaf deps (tiptap, linkifyjs, …) the starter
 # doesn't install — tolerate entries that apply to nothing.
 allowUnusedPatches: true

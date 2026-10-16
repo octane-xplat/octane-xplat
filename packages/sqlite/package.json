@@ -46,10 +46,10 @@
 		"@sqlite.org/sqlite-wasm": "3.53.4-build1"
 	},
 	"devDependencies": {
-		"@nativescript/types": "9.1.4",
-		"@tsrx/typescript-plugin": "0.4.11",
+		"@nativescript/types": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
 		"tsrx-typegen": "workspace:*",
-		"typescript": "5.9.3"
+		"typescript": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10"

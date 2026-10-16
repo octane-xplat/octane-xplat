@@ -79,16 +79,16 @@
 		"svg2ttf": "6.0.3"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "0.2.4",
-		"@nativescript/core": "9.1.3",
-		"@octanejs/vite-plugin": "0.1.61",
-		"@tsrx/typescript-plugin": "0.4.11",
+		"@nativescript-community/octane": "catalog:",
+		"@nativescript/core": "catalog:",
+		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
 		"@types/node": "20.19.0",
 		"@types/svg2ttf": "5.0.3",
-		"octane": "0.11.0",
+		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
-		"typescript": "5.9.3",
-		"vite": "8.3.0"
+		"typescript": "catalog:",
+		"vite": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

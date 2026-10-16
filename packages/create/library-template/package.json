@@ -54,21 +54,21 @@
 		"pack:check": "pnpm test:packed"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "0.2.4",
-		"@nativescript/core": "9.1.3",
-		"@nativescript/types": "9.1.4",
+		"@nativescript-community/octane": "catalog:",
+		"@nativescript/core": "catalog:",
+		"@nativescript/types": "catalog:",
 		"@octane-xplat/cli": "^0.14.0",
 		"@octane-xplat/lint": "^0.14.0",
 		"@octane-xplat/ui": "^0.14.0",
-		"@octanejs/vite-plugin": "0.1.61",
+		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/oxc": "0.20.0",
-		"@tsrx/typescript-plugin": "0.4.11",
-		"octane": "0.11.0",
+		"@tsrx/typescript-plugin": "catalog:",
+		"octane": "catalog:",
 		"oxlint": "^1.74.0",
 		"tsrx-typegen": "^0.2.2",
-		"typescript": "5.9.3",
-		"vite": "8.3.0",
-		"vitest": "4.1.11"
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

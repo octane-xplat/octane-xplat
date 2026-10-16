@@ -26,10 +26,10 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"devDependencies": {
-		"@tsrx/typescript-plugin": "0.4.11",
-		"octane": "0.11.0",
+		"@tsrx/typescript-plugin": "catalog:",
+		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
-		"typescript": "5.9.3"
+		"typescript": "catalog:"
 	},
 	"peerDependencies": {
 		"octane": ">=0.1.51 <1"

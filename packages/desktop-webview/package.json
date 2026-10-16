@@ -24,7 +24,7 @@
 		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs"
 	},
 	"dependencies": {
-		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"xplat": {

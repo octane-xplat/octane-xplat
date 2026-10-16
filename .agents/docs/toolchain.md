@@ -55,6 +55,15 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   (decision #51).
   `minimumReleaseAgeExclude` covers the octane packages — they're newer than
   the supply-chain cutoff.
+  Versions that must stay aligned across packages live once in the yaml's
+  `catalog:` (runtime singletons: `octane`, `@nativescript-community/octane`,
+  `@nativescript/core`/`types*`; toolchain: `typescript`, `vite`, `vitest`,
+  `@octanejs/vite-plugin`, `@tsrx/typescript-plugin`) — dep fields read them
+  via `"catalog:"`. Deliberate splits use named catalogs (`octane05`,
+  `vitest4`); peers keep ranges since consumers supply the version. A second
+  copy of the community renderer breaks type-level augmentations — e.g.
+  `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
+  resolves.
 - pnpm 11 resolves `link:` dep manifests before the app's `preinstall` hooks
   run: a spec pointing through a path created mid-install (e.g. a consumer's
   sibling-checkout symlink) yields the `node_modules` symlink but no
