@@ -507,6 +507,10 @@ export {
 	 *  accepts directly. */
 	rgbaToThumbHashUri,
 } from './hash-image'
+/** Image source → `thumbhash:<base64>` URI — decode, ≤100px scale, RGBA
+ *  extract, encode. Same src grammar as `Image`; compute at pick/upload
+ *  time and store beside the image. */
+export { thumbHashUri } from './thumbhash.web'
 export { WebView } from './WebView'
 export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Overlay } from './Overlay'

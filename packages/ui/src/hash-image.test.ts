@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { hashToPngBase64, isHashPlaceholder, rgbaToThumbHash, rgbaToThumbHashUri } from './hash-image'
+import {
+	hashToPngBase64,
+	isHashPlaceholder,
+	rgbaToThumbHash,
+	rgbaToThumbHashUri,
+	thumbHashTargetSize,
+	unpremultiplyRGBA,
+} from './hash-image'
 
 const PNG_MAGIC = 'iVBORw0KGgo'
 
@@ -119,5 +126,23 @@ describe('rgbaToThumbHash', () => {
 
 	it('rejects images larger than 100px like the reference does', () => {
 		expect(() => rgbaToThumbHash(101, 50, new Uint8Array(101 * 50 * 4))).toThrow('101x50')
+	})
+
+	it('thumbHashTargetSize preserves aspect within the 100px cap', () => {
+		expect(thumbHashTargetSize(16, 12)).toEqual([16, 12])
+		expect(thumbHashTargetSize(400, 200)).toEqual([100, 50])
+		expect(thumbHashTargetSize(50, 400)).toEqual([13, 100])
+		expect(thumbHashTargetSize(1, 1)).toEqual([1, 1])
+	})
+
+	it('unpremultiplyRGBA restores straight alpha within one quantum', () => {
+		// Premultiplied storage of (200,60,90,a=64): rounds down to (50,15,23).
+		const rgba = new Uint8Array([50, 15, 23, 64])
+		unpremultiplyRGBA(rgba)
+		expect(Array.from(rgba)).toEqual([199, 60, 92, 64])
+		// Opaque and fully-transparent channels pass through unchanged.
+		const passthrough = new Uint8Array([10, 20, 30, 255, 0, 0, 0, 0])
+		unpremultiplyRGBA(passthrough)
+		expect(Array.from(passthrough)).toEqual([10, 20, 30, 255, 0, 0, 0, 0])
 	})
 })

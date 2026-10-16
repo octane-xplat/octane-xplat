@@ -264,6 +264,27 @@ export function rgbaToThumbHashUri(w: number, h: number, rgba: ArrayLike<number>
 	return 'thumbhash:' + base64Encode(rgbaToThumbHash(w, h, rgba))
 }
 
+/** The encoder rejects inputs over 100px and larger inputs buy nothing —
+ *  downscale first. Returns the ≤100px target preserving aspect. */
+export function thumbHashTargetSize(w: number, h: number): [number, number] {
+	const scale = Math.min(1, 100 / Math.max(w, h))
+	return [Math.max(1, Math.round(w * scale)), Math.max(1, Math.round(h * scale))]
+}
+
+/** Premultiplied → straight alpha, in place. Platform pixel readback (Android
+ *  getPixels, Apple bitmap contexts) returns premultiplied channels; the
+ *  encoder wants straight alpha. a=0 rows carry 0 rgb already. */
+export function unpremultiplyRGBA(rgba: Uint8Array): void {
+	for (let i = 3; i < rgba.length; i += 4) {
+		const a = rgba[i]
+		if (a !== 0 && a !== 255) {
+			rgba[i - 3] = Math.min(255, Math.round((rgba[i - 3] * 255) / a))
+			rgba[i - 2] = Math.min(255, Math.round((rgba[i - 2] * 255) / a))
+			rgba[i - 1] = Math.min(255, Math.round((rgba[i - 1] * 255) / a))
+		}
+	}
+}
+
 function thumbHashToApproximateAspectRatio(hash: Uint8Array): number {
 	const header = hash[3]
 	const hasAlpha = (hash[2] & 0x80) !== 0
@@ -273,7 +294,7 @@ function thumbHashToApproximateAspectRatio(hash: Uint8Array): number {
 	return lx / ly
 }
 
-function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8Array } | null {
+export function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8Array } | null {
 	if (hash.length < 5) {
 		return null
 	}

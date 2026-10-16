@@ -230,6 +230,15 @@ export { ScrollableArea } from './ScrollableArea.macos.tsrx'
 export { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 export { VirtualList } from './VirtualList.macos.tsrx'
 export { Image } from './Image.macos.tsrx'
+/** Image source → `thumbhash:<base64>` URI — decode, ≤100px scale, RGBA
+ *  extract, encode (NSBitmapImageRep + CoreGraphics). */
+export { thumbHashUri } from './thumbhash.macos'
+export {
+	/** RGBA pixels → ThumbHash bytes (Evan Wallace reference port). */
+	rgbaToThumbHash,
+	/** RGBA pixels → `thumbhash:<base64>`. */
+	rgbaToThumbHashUri,
+} from './hash-image'
 export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './PowerSearch.macos.tsrx'
 export {
 	createPowerSearchConfig,
