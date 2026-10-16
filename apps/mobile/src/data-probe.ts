@@ -100,6 +100,7 @@ async function run() {
 	const retainedContainer: NativeScriptContainer = {
 		host: hosts[1],
 		nodes: new Map(),
+		portalTargets: new Map(),
 		children: [],
 		root: null,
 	}
